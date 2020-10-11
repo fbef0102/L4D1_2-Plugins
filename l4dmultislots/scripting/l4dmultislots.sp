@@ -15,7 +15,7 @@
 #include <left4dhooks>
 #define REQUIRE_PLUGIN
 
-#define PLUGIN_VERSION 				"2.9"
+#define PLUGIN_VERSION 				"3.0"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -442,7 +442,7 @@ public Action Timer_KillSurvivor(Handle timer, int client)
 	{
 		StripWeapons(client);
 		ForcePlayerSuicide(client);
-		PrintHintText(client, "%T", "The survivor starts the game during the Start of the game, wait to be resurrected or rescued", client);
+		PrintHintText(client, "%T", "The survivors has started the game, please wait to be resurrected or rescued", client);
 	}
 }
 

@@ -26,7 +26,7 @@
 	{
 		"chi" "聊天窗口输入 {olive}!join{default} 来加入生还者队伍."
 	}
-	"The survivors the game during the Start of the game, wait to be resurrected or rescued"
+	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
 		"chi" "生还者已开始游戏一段时间，请等待救援或复活"
 	}

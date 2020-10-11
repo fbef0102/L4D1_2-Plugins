@@ -26,7 +26,7 @@
 	{
 		"ua" "Введіть в чаті {olive}!join{default} , щоб приєднатися до тих, що вижили."
 	}
-	"The survivors the game during the Start of the game, wait to be resurrected or rescued"
+	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
 		"ua" "Той, що вижив зайшов під час початої гри, чекайте воскресіння або порятунку"
 	}

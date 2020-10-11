@@ -26,9 +26,9 @@
 	{
 		"en" "Type in chat {olive}!join{default} To join the survivors."
 	}
-	"The survivors the game during the Start of the game, wait to be resurrected or rescued"
+	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
-		"en" "The survivor starts the game during the Start of the game, wait to be resurrected or rescued"
+		"en" "The survivors has started the game, please wait to be resurrected or rescued"
 	}
 	"No Bots for replacement."
 	{

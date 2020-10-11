@@ -26,7 +26,7 @@
 	{
 		"fi" "Kirjoita chatissa {olive}!join{default} Liity selviytyneisiin."
 	}
-	"The survivors the game during the Start of the game, wait to be resurrected or rescued"
+	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
 		"fi" "Selviytyneet tulevat pelin alkamisen leikki aikana, odottavat, että heidät herätetään kuolleista"
 	}
