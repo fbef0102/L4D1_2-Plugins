@@ -1,0 +1,37 @@
+//English by Mi.Cura
+
+"Phrases"
+{
+	"A surviving Bot was added."
+	{
+		"en" "A surviving Bot was added."
+	}
+	"Impossible to generate a bot at the moment."
+	{
+		"en" "Impossible to generate a bot at the moment."
+	}
+	"Please wait to be revived or rescued"
+	{
+		"en" "Please wait to be revived or rescued."
+	}
+	"You are idle. press the left mouse button to join the survivors!"
+	{
+		"en" "You are idle. press the left mouse button to join the survivors!"
+	}
+	"You are already on the team of survivors."
+	{
+		"en" "You are already on the team of survivors."
+	}
+	"Type in chat !join To join the survivors"
+	{
+		"en" "Type in chat {olive}!join{default} To join the survivors."
+	}
+	"The survivors the game during the Start of the game, wait to be resurrected or rescued"
+	{
+		"en" "The survivor starts the game during the Start of the game, wait to be resurrected or rescued"
+	}
+	"No Bots for replacement."
+	{
+		"en" "No Bots for replacement."
+	}
+}

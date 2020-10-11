@@ -1,0 +1,67 @@
+"Phrases"
+{
+    "Congratulation1"
+	{
+		"en"		"Dear friends!"
+		"ru"		"Дорогие друзья!"
+	}
+	"Congratulation2"
+	{
+		"en"		"Happy Valentine's Day!"
+		"ru"		"Поздравляем с Днём святого Валентина!"
+	}
+	"Congratulation3"
+	{
+		"en"		"Love and be loved!"
+		"ru"		"Любите и будьте любимыми!"
+	}
+	"StopMusic"
+	{
+		"en"		"Stop music"
+		"ru"		"Остановить музыку"
+		"chi"		"停止音乐"
+		"zho"		"停止音樂"
+	}
+	"PlayAgain"
+	{
+		"en"		"Play music again"
+		"ru"		"Играть музыку ещё раз"
+		"chi"		"再播放一次"
+		"zho"		"再播放一次"
+	}
+	"Volume"
+	{
+		"en"		"Volume"
+		"ru"		"Громкость"
+		"chi"		"音量"
+		"zho"		"音量"
+	}
+	"NextVolume"
+	{
+		"en"		"Volume for the next track:"
+		"ru"		"Громкость для следующего трека:"
+		"chi"		"下个音乐音量："
+		"zho"		"下個音樂音量:"
+	}
+	"GoNext"
+	{
+		"en"		"Next track"
+		"ru"		"Следующий трек"
+		"chi"		"下个音乐"
+		"zho"		"下個音樂"
+	}
+	"Mute"
+	{
+		"en"		"[Music] type !mp3off to mute round start music"
+		"ru"		"[Музыка]введите !mp3off, чтобы отключить музыку всегда"
+		"chi"		"[回合音乐] 输入!mp3off 关闭回合音乐"
+		"zho"		"[回合音樂] 輸入!mp3off 關閉回合音樂"
+	}
+	"UnMute"
+	{
+		"en"		"[Music] type !mp3on to unmute round start music"
+		"ru"		"[Музыка] Введите !mp3on, чтобы включить музыку"
+		"chi"		"[回合音乐] 输入!mp3on 开启回合音乐"
+		"zho"		"[回合音樂] 輸入!mp3on 開啟回合音樂"
+	}
+}

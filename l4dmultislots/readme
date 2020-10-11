@@ -1,0 +1,37 @@
+Allows additional survivor players in coop, versus, and survival
+(When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.)
+
+-ChangeLog-
+v2.9
+-Remake Code
+-Translation support
+-Kick Bot if too many
+-Update gamedata, credit to Lux: https://forums.alliedmods.net/showthread.php?p=2714236
+-Bot created by this plugin will be teleported to random alive player.
+-Give Survivors god mode and protect them from taking damage after final rescue leaving.
+
+v1.0
+-Original Post: https://forums.alliedmods.net/showthread.php?p=1239544
+
+-Require-
+1. sourcemod 1.10 or above
+2. You still need to use [l4dtoolz](https://forums.alliedmods.net/showthread.php?t=93600) to unlock server slots limit
+3. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+4. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+
+-Convars-
+cfg\sourcemod\l4dmultislots.cfg
+// When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)
+l4d_multislots_alive_bot_time "100"
+
+// Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)
+l4d_multislots_max_survivors "4"
+
+
+-Commands-
+**Attempt to join Survivors
+	sm_join
+	sm_js
+	
+**Attempt to add a survivor bot(adm only)
+	sm_muladdbot

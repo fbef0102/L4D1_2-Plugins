@@ -1,0 +1,1 @@
+hostname in addons/sourcemod/configs/hostname

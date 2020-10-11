@@ -1,0 +1,13 @@
+Skeet Announce Edition (Database)
+
+-convars-
+"top_skeet_enable", "1", "Enable this plugin?"
+"skeet_announce_oneshot", "1", "Only count 'One Shot' skeet?"
+"top_skeetannounce", "0", "Announce skeet/shots in chatbox when someone skeets."
+"pounce_database_modes_tog","4","Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus. Add numbers together.", FCVAR_SPONLY|FCVAR_NOTIFY );
+"pounce_database_survivors_required","4","Numbers of Survivors required at least to enable this plugin"
+"top_skeet_ai_hunter_enable",		"0",			"Count AI Hunter also?[1: Yes, 0: No]"
+	
+-command-
+"sm_skeets", "Show your current skeet statistics and rank."
+"sm_top5", "Show TOP 5 players in statistics."

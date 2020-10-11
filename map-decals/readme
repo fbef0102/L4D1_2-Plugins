@@ -1,0 +1,78 @@
+Allows admins to place any decals into the map that are defined in the the config and save them permanently for each map
+[Original project from berni](https://forums.alliedmods.net/showthread.php?t=69502)
+[video showcase](https://www.youtube.com/watch?v=OFytUVO_b_o)
+
+-ChangeLog-
+	1.2 (2019-6-27)
+	 - by Harry Potter
+	 - add new convar "md_download_style". If set 1, player only downloads decals depending on Map specific configs.
+	   If set 0, player must download all decals at once. 
+	 
+	1.1
+	 - original plugin by Berni, Stingbyte
+
+-ConVars-
+"md_download_style","1", "what kind of way to download decals? [0 - all at once, 1 - depend on Map specific configs]"
+"md_decal_dista", "50.0", "How far away from the Decals position it will be traced to and check distance to prevent painting a Decal over another"
+"md_decal_printpos", "1", "Turns on/off printing out of decal positions"
+"md_decal_spraysound", "player/sprayer.wav", "Path to the spray sound used by map-decals plugin"
+
+-Command-
+sm_paintdecal <decalname | decal_id> - Paints a decal on the wall you are currently aiming at
+Admin-Flag required: Custom3
+
+sm_removedecal <aim | all | id | name | last> - Currently not implemented, change map to reload the decals from the config file.
+Admin-Flag required: Root
+
+sm_savedecal <aim | all | id | name | last> - Saves the decal position to the map specific config file.
+Admin-Flag required: Root
+
+sm_listdecal <aim | all | id | last | map | name | saved> - Lists decals
+Admin-Flag required: Custom3
+
+sm_aimpos - Shows current aim position
+Admin-Flag required: Custom3
+
+sm_decalmenu - Map Decals Menu for Admins
+Admin-Flag required: Custom3
+
+-How do I add a new decal-
+1.Preparation of vmt/vtf files
+	*How to create a decal - Tutorial http://www.fpsbanana.com/tuts/6640
+	*Valve Developer Community - Decals http://developer.valvesoftware.com/wiki/Decals
+	*file names
+	-Ensure noone file has space or special characters like "long dash" (–) or so.
+		
+	*file size
+	-Next, it is recommended every file will not be > 5 MB. in size (to improve download speed).
+	-To decrease the size, Compress .vtf to .vtf.bz2 (file archiver 7-Zip Portable)[https://portableapps.com/apps/utilities/7-zip_portable]
+	
+2.Preparation the list
+	-Download all files(addons and materials).
+	-Put them in the correct folder ("Left 4 Dead Dedicated Server\left4dead" or "Left 4 Dead 2 Dedicated Server\left4dead2" folder depending on your game).
+	-Copy YOUR vtf files to the materials/decals/TS_SERVER directory, at least they should be in materials, otherwise it won't work. Edit your .vmt file with a text editor if neccesary, to change the path to the .vmt file.
+    -Add the path of the decal to the main config file decal.cfg. The path has to be put relative to the materials folder, and without the file extension.
+	
+3.Setup server to work with downloadable content
+	*ConVars in your cfg/server.cfg should be:
+	-If you are l4d1
+	sm_cvar sv_allowdownload "1"
+	sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead/"
+	-If you are l4d2
+	sm_cvar sv_allowdownload "1"
+	sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2"	
+	
+4.Uploading files to server.
+	-Upload "materials" folder to content-server
+		*If you are l4d1,your-content-server.com/game/left4dead/materials/decals/TS_SERVER/ <= here is your *.vtf.bz2 files
+		*If you are l4d2,your-content-server.com/game/left4dead2/materials/decals/TS_SERVER/ <= here is your *.vtf.bz2 files
+	-Upload "materials" folder to basic server.
+	-Upload "materials" folder to your client's game folder (for test reasons).
+	
+5.Start the server and test
+	-Aim at a wall and use !paintdecal <decalname>
+	-Now you can save all panted decals in the map with !savedecals to the config
+
+
+
+

@@ -1,0 +1,20 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Signatures"
+		{
+			"NextBotCreatePlayerBot<Tank>"
+			{
+				"library"	"server"
+				"linux"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
+				"windows"	"\x55\x8B\x2A\x83\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\x2A\x89\x2A\x2A\x56\x57\x8B\x2A\x2A\x68\x2A\xB1"
+				/* 55 8B ? 83 ? ? A1 ? ? ? ? 33 ? 89 ? ? 56 57 8B ? ? 68 ? B1 */
+				/* Found by Silvers. Matches sub call address - will probably break often. */
+				/* Search: "CreatePlayerBot: Could not Instance() from the bot edict.\n" */
+				/* Most likely bottom sub, goto and check first sub call (should have the text "tank" inside). */
+				/* Very long signature to make unique (if possible) is identical to other bot create functions except calls. */
+			}
+		}
+	}
+}

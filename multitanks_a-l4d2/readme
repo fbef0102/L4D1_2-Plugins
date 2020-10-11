@@ -1,0 +1,110 @@
+An improved version of the MultiTanks plugin originally created by Red Alex.
+
+-ChangeLog-
+v1.6
+-update L42 "The Last Stand" gamedata
+
+v1.5
+-Remake Code
+-Replace Left 4 Downtown 2 extension with Lef4dhooks extension
+
+v1.4
+-original Post: https://forums.alliedmods.net/showthread.php?p=2567007
+
+-ConVar-
+cfg\sourcemod\multitanks.cfg
+// Enable/Disable Announcements
+multitanks_announce "1"
+
+// Total Count Of Tanks In First Wave Finales
+multitanks_count_coop_1stwave "1"
+
+// Total Count Of Tanks In Second Wave Finales
+multitanks_count_coop_2ndwave "1"
+
+// Total Count Of Tanks In Finale Escapes
+multitanks_count_coop_escape "1"
+
+// Total Count Of Tanks In Finale Maps
+multitanks_count_coop_finale "1"
+
+// Total Count Of Tanks In Regular Maps
+multitanks_count_coop_regular "1"
+
+// Total Count Of Tanks (Scavenge)
+multitanks_count_scavenge "2"
+
+// Total Count Of Tanks (Survival)
+multitanks_count_survival "2"
+
+// Total Count Of Tanks In First Wave Finales (Versus)
+multitanks_count_versus_1stwave "2"
+
+// Total Count Of Tanks In Second Wave Finales (Versus)
+multitanks_count_versus_2ndwave "2"
+
+// Total Count Of Tanks In Finale Escapes (Versus)
+multitanks_count_versus_escape "2"
+
+// Total Count Of Tanks In Finale Maps (Versus)
+multitanks_count_versus_finale "2"
+
+// Total Count Of Tanks In Regular Maps (Versus)
+multitanks_count_versus_regular "2"
+
+// Enable/Disable HUD Display
+multitanks_display "0"
+
+// Health Of Tanks In First Wave Finales
+multitanks_health_coop_1stwave "25000"
+
+// Health Of Tanks In Second Wave Finales
+multitanks_health_coop_2ndwave "27500"
+
+// Health Of Tanks In Finale Escapes
+multitanks_health_coop_escape "22500"
+
+// Health Of Tanks In Finale Maps
+multitanks_health_coop_finale "20000"
+
+// Health Of Tanks In Regular Maps
+multitanks_health_coop_regular "17500"
+
+// Health Of Tanks (Scavenge)
+multitanks_health_scavenge "17500"
+
+// Health Of Tanks (Survival)
+multitanks_health_survival "17500"
+
+// Health Of Tanks In First Wave Finales (Versus)
+multitanks_health_versus_1stwave "22500"
+
+// Health Of Tanks In Second Wave Finales (Versus)
+multitanks_health_versus_2ndwave "25000"
+
+// Health Of Tanks In Finale Escapes (Versus)
+multitanks_health_versus_escape "20000"
+
+// Health Of Tanks In Finale Maps (Versus)
+multitanks_health_versus_finale "17500"
+
+// Health Of Tanks In Regular Maps (Versus)
+multitanks_health_versus_regular "15000"
+
+// Enable/Disable Plugin
+multitanks_on "1"
+
+// Enable/Disable Same Spawn Of Tanks In Finale Escapes
+multitanks_same_spawn_escape "0"
+
+// Enable/Disable Same Spawn Of Tanks In Finale Maps
+multitanks_same_spawn_finale "0"
+
+// Enable/Disable Same Spawn Of Tanks In Regular Maps
+multitanks_same_spawn_regular "0"
+
+// Delay Of Spawning Tanks In Finale Escapes
+multitanks_spawn_delay_escape "2.5"
+
+// Delay Of Spawning Tanks
+multitanks_spawn_delay_regular "5.0"

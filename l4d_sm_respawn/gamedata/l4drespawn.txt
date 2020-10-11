@@ -1,0 +1,104 @@
+"Games"
+{
+    "left4dead"
+    {
+		"Addresses"
+		{
+			"RoundRespawn"
+			{
+				"windows"
+				{
+					"signature"	"RoundRespawn"			
+				}
+				"linux"
+				{
+					"signature"	"RoundRespawn"
+				}
+			}
+		}
+
+		"Offsets"
+		{
+			"RoundRespawn_Offset"
+			{
+				"windows"		"15" // 0xF
+				"linux"			"35" // 0x23
+			}
+			"RoundRespawn_Byte" // JNZ => JNS
+			{
+				"windows"		"117" // 0x75
+				"linux"			"117" // 0x75
+			}
+		}
+		
+		"Signatures"
+		{
+			/* CTerrorPlayer::RoundRespawn */
+			"RoundRespawn"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer12RoundRespawnEv"
+				"windows"	"\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75"
+				/* 56 8B F1 E8 ? ? ? ? E8 ? ? ? ? 84 C0 75	*/
+				/* previous function in vtable has a string */
+			}
+			"WarpToValidPositionIfStuck"
+			{
+				"library"	"server"
+				"linux"	"@_ZN13CTerrorPlayer26WarpToValidPositionIfStuckEv"
+				"windows" "\x55\x8B\xEC\x83\xE4\xC0\x81\xEC\xB0\x00\x00\x00\x53\x55\x56\x8B\xF1"
+			}
+		}
+    }
+    
+    "left4dead2"
+    {
+		"Addresses"
+		{
+			"RoundRespawn"
+			{
+				"windows"
+				{
+					"signature"	"RoundRespawn"			
+				}
+				"linux"
+				{
+					"signature"	"RoundRespawn"
+				}
+			}
+		}
+
+		"Offsets"
+		{
+			"RoundRespawn_Offset"
+			{
+				"windows"		"15" // 0xF
+				"linux"			"25" // 0x19
+			}
+			"RoundRespawn_Byte" // JNZ => JNS
+			{
+				"windows"		"117" // 0x75
+				"linux"			"117" // 0x75
+			}
+		}
+		
+		"Signatures"
+		{
+			/* CTerrorPlayer::RoundRespawn */
+			"RoundRespawn"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer12RoundRespawnEv"
+				"windows"	"\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x84\xC0\x75"
+				/* 56 8B F1 E8 ? ? ? ? E8 ? ? ? ? 84 C0 75	*/
+			}
+			
+			"WarpToValidPositionIfStuck"
+			{
+				"library"	"server"
+				"linux"	"@_ZN13CTerrorPlayer26WarpToValidPositionIfStuckEv"
+				"windows" "\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\xA1\x2A\x2A\x2A\x2A\x33\xC5\x89\x45\xFC\x56\x8B\xF1\x80\xBE\x25\x3A\x00\x00\x00"
+			}
+		}
+    }
+}

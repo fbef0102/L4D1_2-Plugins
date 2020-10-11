@@ -1,0 +1,56 @@
+Download and play one random music on map start/round start
+[Original project from Dragokasm](https://forums.alliedmods.net/showthread.php?p=2644771)
+[video showcase](https://www.youtube.com/watch?v=4ldZXjHWa5g)
+
+-ChangeLog-
+	0.5 (16-6-2019)
+	 - say !mp3off to turn off music for some people who don't like it
+	 - say !mp3on to turn on music for some people who don't like it
+	 
+	0.4 (15-6-2019)
+	 - playing music to all client when first round and second round start.
+	 - delete auto exec config (some people prefer that, but I don't like it)
+
+-How to play custom music-
+1.Preparation of MP3 files
+	*file names
+	-Ensure noone file has space or special characters like "long dash" (–) or so.
+
+	*sample rate
+	-All MP3 files must be encoded in 44100 Hz sample rate, otherwise it may not play at all.
+	-To ensure, you can download [MP3 Quality Modifier tool](https://mp3-quality-modifier.en.softonic.com/download) and re-encode all files at once.
+
+	*file size
+	-Next, it is recommended every file will not be > 5 MB. in size (to improve download speed).
+	-To decrease the size, sort all your files by size, send the files > 5 MB to above tool and re-encode them in 128 (or 192) Kbit/s bitrate (select "constant" mode first).
+
+2.Preparation the list
+	-Download all files(addons and sound).
+	-Put them in the correct folder ("Left 4 Dead Dedicated Server\left4dead" or "Left 4 Dead 2 Dedicated Server\left4dead2" folder depending on your game).
+	-Copy YOUR MP3 files to sound/valentine folder.
+	-Run (double-click) sound/valentine/create_list.bat file.
+		*it will automatically create a txt file named "music_mapstart.txt" in sourcemod\data folder
+		
+3.Setup server to work with downloadable content
+	*ConVars in your cfg/server.cfg should be:
+	-If you are l4d1
+	sm_cvar sv_allowdownload "1"
+	sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead/"
+	-If you are l4d2
+	sm_cvar sv_allowdownload "1"
+	sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2"
+
+4.Uploading files to server.
+	-Upload "sound" folder to content-server
+		*If you are l4d1,your-content-server.com/game/left4dead/sound/valentine/ <= here is your *.mp3 files
+		*If you are l4d2,your-content-server.com/game/left4dead2/sound/valentine/ <= here is your *.mp3 files
+	-Upload "sound" folder to basic server.
+	
+-command-
+	"l4d_music_mapstart_version", "Plugin version"
+	"l4d_music_mapstart_enable", "1","Enable plugin (1 - On / 0 - Off)", CVAR_FLAGS );
+	"l4d_music_mapstart_delay", "1.0", "Delay (in sec.) after round starts or player join server playing the music"
+	"l4d_music_mapstart_showmenu", "0", "Show !music menu on round start? (1 - Yes, 0 - No)"
+	
+	"sm_music" "Player menu"
+	"sm_music_update" "Populate music list from config"

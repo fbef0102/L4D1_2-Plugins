@@ -1,0 +1,350 @@
+"Phrases"
+{
+	"usage_paintdecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_paintdecal <decalname | id>"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_paintdecal <decalname | id>"
+	}
+	"error_decal_not_found"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:s},{6:c}"
+		"en"			"{1}[SM] {2}Error: {3}Decal {4}{5} {6}not found in list."
+		"de"			"{1}[SM] {2}Fehler: {3}Decal {4}{5} {6}konnte in der Liste nicht gefunden werden."
+	}
+	"error_another_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Error: {3}Another Decal is already painted on this position!"
+		"de"			"{1}[SM] {2}Fehler: {3}Ein anderes Decal befindet sich bereits an dieser Position!"
+	}
+	"paintdecal_aim"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c},{8:c},{9:s},{10:c}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} painted on Map {8}{9}{10}!"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} angebracht auf Map {8}{9}{10}!"
+	}
+	"decal_position"
+	{
+		"#format"	"{1:c},{2:c},{3:f},{4:f},{5:f}"
+		"en"			"{1}[SM] Decal Position: {2}{3}, {4}, {5}"
+		"de"			"{1}[SM] Decal Position: {2}{3}, {4}, {5}"
+	}
+	"error_entity"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Error: {3}No Solid Entity found!"
+		"de"			"{1}[SM] {2}Error: {3}Keinen Festkörper gefunden!"
+	}
+	"no_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals available on {2}{3}{4}."
+		"de"			"{1}[SM] Keine Decals verfügbar auf {2}{3}{4}."
+	}
+	"removedecal"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c},{8:c},{9:s},{10:c}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} removed from Map {8}{9}{10}."
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} entfernt von Map {8}{9}{10}."
+	}
+	"no_decal_found"
+	{
+		"#format"	"{1:c},{2:c}"
+		"en"			"{1}[SM] {2}No Decal found on where you are looking at."
+		"de"			"{1}[SM] {2}Kein Decal im Zielbereich gefunden."
+	}
+	"removedecal_all_single"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] {2}{3} {4}Decal removed from Map {5}{6}{7}."
+		"de"			"{1}[SM] {2}{3} {4}Decal entfernt von Map {5}{6}{7}."
+	}
+	"removedecal_all"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] {2}{3} {4}Decals removed from Map {5}{6}{7}."
+		"de"			"{1}[SM] {2}{3} {4}Decals entfernt von Map {5}{6}{7}."
+	}
+	"removedecal_name"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Decal {2}{3}{4} removed from Map {5}{6}{7}."
+		"de"			"{1}[SM] Decal {2}{3}{4} entfernt von Map {5}{6}{7}."
+	}
+	"removedecal_names"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] {2}{3} {4}Decals removed from Map {5}{6}{7}."
+		"de"			"{1}[SM] {2}{3} {4}Decals entfernt von Map {5}{6}{7}."
+	}
+	"decals_named"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals named {2}{3}{4} found on Map."
+		"de"			"{1}[SM] Keine Decals namens {2}{3}{4} auf Map gefunden."
+	}
+	"usage_removedecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_removedecal [all | id | last | name]"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_removedecal [all | id | last | name]"
+	}
+	"available_decals"
+	{
+		"#format"	"{1:c},{2:c}"
+		"en"			"{1}[SM] {2}Available Decals:"
+		"de"			"{1}[SM] {2}Verfügbare Decals:"
+	}
+	"no_decals_available"
+	{
+		"#format"	"{1:c},{2:c}"
+		"en"			"{1}[SM] {2}No Decals available."
+		"de"			"{1}[SM] {2}Keine Decals verfügbar."
+	}
+	"listdecal"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+	}
+	"decals_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Decals in File {2}{3}.cfg{4}:"
+		"de"			"{1}[SM] Decals in Datei {2}{3}.cfg{4}:"
+	}
+	"last_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Last painted Decal {2}{3}{4}: {5}{6}{7}"
+		"de"			"{1}[SM] Zuletzt angebrachtes Decal {2}{3}{4}: {5}{6}{7}"
+	}
+	"decals_name_on_map"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Decals {2}{3}{4} on Map {5}{6}{7}:"
+		"de"			"{1}[SM] Decals {2}{3}{4} auf Map {5}{6}{7}:"
+	}
+	"decals_on_map"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Decals on Map {2}{3}{4}:"
+		"de"			"{1}[SM] Decals auf Map {2}{3}{4}:"
+	}
+	"usage_listdecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_listdecal [all | id | last | map | name | saved]"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_listdecal [all | id | last | map | name | saved]"
+	}
+	"savedecal_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saving Decal to File {2}{3}{4}..."
+		"de"			"{1}[SM] Speichere Decal in Datei {2}{3}{4}..."
+	}
+	"error_decal_in_file"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Error: {3}Decal position already found in File."
+		"de"			"{1}[SM] {2}Fehler: {3}Decal Position bereits in Datei vorhanden."
+	}
+	"saved_aim"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (Name = {5}{6}{7})."
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (Name = {5}{6}{7})."
+	}
+	"savedecals_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saving Decals to File {2}{3}{4}..."
+		"de"			"{1}[SM] Speichere Decals in Datei {2}{3}{4}..."
+	}
+	"saved_one"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position."
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert."
+	}
+	"saved_more"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Positions."
+		"de"			"{1}[SM] {2}{3}{4} Decal Positionen gespeichert."
+	}
+	"no_decals_available_map"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals available on Map {2}{3}{4}."
+		"de"			"{1}[SM] Keine Decals verfügbar auf Map {2}{3}{4}."
+	}
+	"saving_last"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saving last painted Decal to File {2}{3}{4}..."
+		"de"			"{1}[SM] Speichere letzte Decal Position in Datei {2}{3}{4}..."
+	}
+	"saved_last"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saved last painted Decal Position (Name = {2}{3}{4})."
+		"de"			"{1}[SM] Letzte Decal Position gespeichert (Name = {2}{3}{4})."
+	}
+	"saved_one_name"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (Name = {5}{6}{7})."
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (Name = {5}{6}{7})."
+	}
+	"saved_more_name"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Positions (Name = {5}{6}{7})."
+		"de"			"{1}[SM] {2}{3}{4} Decal Positionen gespeichert (Name = {5}{6}{7})."
+	}
+	"saved_id"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:d},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (ID = {5}{6}{7})."
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (ID = {5}{6}{7})."
+	}
+	"usage_savedecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_savedecal [all | id | last | name ]"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_savedecal [all | id | last | name ]"
+	}
+	"aimpos"
+	{
+		"#format"	"{1:c},{2:c},{3:f},{4:f},{5:f}"
+		"en"			"{1}[SM] Position you are aiming at: {2}{3}, {4}, {5}"
+		"de"			"{1}[SM] Zielposition: {2}{3}, {4}, {5}"
+	}
+	"cfg_file_not_found"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:s},{6:c}"
+		"en"			"{1}[SM] {2}Error: {3}Decal CFG File for Map {4}{5}{6} not found!"
+		"de"			"{1}[SM] {2}Fehler: {3}Decal CFG Datei für Map {4}{5}{6} konnte nicht gefunden werden!"
+	}
+	"list_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:s}"
+		"en"			"{1}[SM] Decal: {2}{3}"
+		"de"			"{1}[SM] Decal: {2}{3}"
+	}
+	"list_decal_id"
+	{
+		"#format"	"{1:c},{2:c},{3:d}"
+		"en"			"{1}[SM] Decal ID: {2}{3}"
+		"de"			"{1}[SM] Decal ID: {2}{3}"
+	}
+	"list_decal_id_name"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+	}
+	"no_decals_in_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals in File {2}{3}.cfg{4}."
+		"de"			"{1}[SM] Keine Decals in Datei {2}{3}.cfg{4}."
+	}
+	"decal_menu_title"
+	{
+		"en"			"Map Decals:"
+		"de"			"Map Decals:"
+	}
+	"save_decal_title"
+	{
+		"en"			"Save Decal:"
+		"de"			"Decal speichern:"
+	}
+	"remove_decal_title"
+	{
+		"en"			"Remove Decal:"
+		"de"			"Decal entfernen:"
+	}
+	"list_decal_title"
+	{
+		"en"			"List Decal:"
+		"de"			"Decal auflisten:"
+	}
+	"options_menu_title"
+	{
+		"en"			"Choose an Option:"
+		"de"			"Eine Option wählen:"
+	}
+	"admin_menu_title"
+	{
+		"en"			"Map Decals"
+		"de"			"Map Decals"
+	}
+	"paint_decal"
+	{
+		"en"			"Paint Decal"
+		"de"			"Decal anbringen"
+	}
+	"remove_decal"
+	{
+		"en"			"Remove Decal"
+		"de"			"Decal entfernen"
+	}
+	"list_decal_menu"
+	{
+		"en"			"List Decal"
+		"de"			"Decal auflisten"
+	}
+	"save_decal"
+	{
+		"en"			"Save Decal"
+		"de"			"Decal speichern"
+	}
+	"aim_position_menu"
+	{
+		"en"			"Aim Position"
+		"de"			"Zielposition"
+	}
+	"all"
+	{
+		"en"			"All"
+		"de"			"Alle"
+	}
+	"all_list"
+	{
+		"en"			"All Decal Names available"
+		"de"			"Alle verfügbaren Decalbezeichnungen"
+	}
+	"by_aim"
+	{
+		"en"			"By Aim Position"
+		"de"			"Im Zielfeld"
+	}
+	"by_id"
+	{
+		"en"			"By ID (from List)"
+		"de"			"Wähle ID (aus Liste)"
+	}
+	"by_name"
+	{
+		"en"			"By Name (from List)"
+		"de"			"Wähle Namen (aus Liste)"
+	}
+	"last_painted"
+	{
+		"en"			"Last Painted"
+		"de"			"Zuletzt angebrachtes Decal"
+	}
+	"map"
+	{
+		"en"			"Map"
+		"de"			"Map"
+	}
+	"saved"
+	{
+		"en"			"Saved"
+		"de"			"Gespeicherte"
+	}
+}
