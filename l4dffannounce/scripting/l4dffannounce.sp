@@ -6,9 +6,7 @@
 #include <sdktools>
 #include <multicolors>
 #define CVAR_FLAGS				FCVAR_NOTIFY
-#define IsWitch(%0) (g_bIsWitch[%0])
 #define MAXENTITIES 2048
-bool g_bIsWitch[MAXENTITIES];							// Membership testing for fast witch checking
 
 public Plugin myinfo = 
 {
@@ -32,19 +30,12 @@ public void OnPluginStart()
 {
 	FFenabled = CreateConVar("l4d_ff_announce_enable", "1", "Enable Announcing Friendly Fire",CVAR_FLAGS);
 	AnnounceType = CreateConVar("l4d_ff_announce_type", "1", "Changes how ff announce displays FF damage (1:In chat; 2: In Hint Box; 3: In center text)",CVAR_FLAGS);
-	HookEvent("player_hurt_concise", Event_HurtConcise, EventHookMode_Post);
 	directorready = FindConVar("director_ready_duration");
+	HookEvent("player_hurt_concise", Event_HurtConcise, EventHookMode_Post);
 	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("witch_killed", Event_WitchKilled);
-	HookEvent("witch_spawn", Event_WitchSpawn);
 
 	//Autoconfig for plugin
 	AutoExecConfig(true, "l4dffannounce");
-}
-
-public void OnMapStart()
-{
-	for (int i = MaxClients + 1; i < MAXENTITIES; i++) g_bIsWitch[i] = false;
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
@@ -138,14 +129,4 @@ public Action AnnounceFF(Handle timer, Handle pack) //Called if the attacker did
 			DamageCache[attackerc][i] = 0;
 		}
 	}
-}
-
-public void Event_WitchKilled(Event event, const char[] name, bool dontBroadcast) 
-{
-	g_bIsWitch[event.GetInt("witchid")] = false;
-	
-}
-public void Event_WitchSpawn(Event event, const char[] name, bool dontBroadcast) 
-{
-	g_bIsWitch[event.GetInt("witchid")] = true;
 }
