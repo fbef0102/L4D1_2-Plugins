@@ -2,7 +2,7 @@ Allows additional survivor players in coop, versus, and survival
 (When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.)
 
 -ChangeLog-
-v3.0
+v3.1
 -Remake Code
 -Translation support
 -Kick Bot if too many
@@ -27,6 +27,8 @@ l4d_multislots_alive_bot_time "100"
 // Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)
 l4d_multislots_max_survivors "4"
 
+// Setup time interval the instruction message to spectator.(0=off)
+l4d_multislots_spec_message_interval "20"
 
 -Commands-
 **Attempt to join Survivors

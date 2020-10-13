@@ -11,11 +11,9 @@
 #include <sourcemod>
 #include <sdktools>
 #include <multicolors>
-#undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define REQUIRE_PLUGIN
 
-#define PLUGIN_VERSION 				"3.0"
+#define PLUGIN_VERSION 				"3.1"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -31,9 +29,7 @@
 #define	DAMAGE_NO					0
 
 //ConVar
-ConVar hMaxSurvivors;
-ConVar hDeadBotTime;
-ConVar CVAR_INCAPMAX;
+ConVar hMaxSurvivors, hDeadBotTime, CVAR_INCAPMAX, hSpecCheckInterval;
 
 //value
 int iMaxSurvivors,iDeadBotTime;
@@ -41,6 +37,7 @@ bool L4D2Version;
 static Handle hSetHumanSpec, hTakeOver;
 int g_iRoundStart,g_iPlayerSpawn ;
 bool bKill, bLeftSafeRoom, bFinalMap;
+float fSpecCheckInterval;
 Handle SpecCheckTimer = null, PlayerLeftStartTimer = null, CountDownTimer = null;
 
 public Plugin myinfo = 
@@ -81,10 +78,12 @@ public void OnPluginStart()
 	CVAR_INCAPMAX = FindConVar("survivor_max_incapacitated_count");
 	hMaxSurvivors	= CreateConVar("l4d_multislots_max_survivors", "4", "Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)", CVAR_FLAGS, true, 4.0, true, 32.0);
 	hDeadBotTime = CreateConVar("l4d_multislots_alive_bot_time", "100", "When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
+	hSpecCheckInterval = CreateConVar("l4d_multislots_spec_message_interval", "20", "Setup time interval the instruction message to spectator.(0=off)", CVAR_FLAGS, true, 0.0);
 	
 	GetCvars();
 	hMaxSurvivors.AddChangeHook(ConVarChanged_Cvars);
 	hDeadBotTime.AddChangeHook(ConVarChanged_Cvars);
+	hSpecCheckInterval.AddChangeHook(ConVarChanged_Cvars);
 	
 	// Hook events
 
@@ -164,6 +163,7 @@ void GetCvars()
 {
 	iMaxSurvivors = hMaxSurvivors.IntValue;
 	iDeadBotTime = hDeadBotTime.IntValue;
+	fSpecCheckInterval = hSpecCheckInterval.FloatValue;
 }
 
 ////////////////////////////////////
@@ -401,11 +401,17 @@ public Action PluginStart(Handle timer)
 {
 	ClearDefault();
 	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
-	if(SpecCheckTimer == null) SpecCheckTimer = CreateTimer(20.0, Timer_SpecCheck, _, TIMER_REPEAT)	;
+	if(SpecCheckTimer == null && fSpecCheckInterval > 0.0) SpecCheckTimer = CreateTimer(fSpecCheckInterval, Timer_SpecCheck, _, TIMER_REPEAT)	;
 }
 
 public Action Timer_SpecCheck(Handle timer)
 {
+	if(fSpecCheckInterval == 0.0)
+	{
+		SpecCheckTimer = null;
+		return Plugin_Stop;
+	}
+	
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if(IsClientInGame(i))
