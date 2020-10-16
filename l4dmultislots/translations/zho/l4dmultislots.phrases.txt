@@ -26,7 +26,7 @@
 	{
 		"zho" "聊天視窗輸入 {olive}!join{default} 來加入倖存者隊伍."
 	}
-	"The survivors the game during the Start of the game, wait to be resurrected or rescued"
+	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
 		"zho" "倖存者已開始遊戲一陣子，請等待救援或復活"
 	}
