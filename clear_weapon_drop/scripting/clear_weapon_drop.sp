@@ -30,7 +30,7 @@ static char ItemDeleteList[][] =
 	"weapon_hunting_rifle",
 	"weapon_pistol",
 	"weapon_rifle_m60",
-	//"weapon_first_aid_kit",
+	"weapon_first_aid_kit",
 	"weapon_autoshotgun",
 	"weapon_shotgun_spas",
 	"weapon_sniper_military",
@@ -62,7 +62,7 @@ public Plugin myinfo =
 {
 	name = "Remove drop weapon + remove upgradepack when used",
 	author = "AK978 & HarryPotter",
-	version = "2.2"
+	version = "2.3"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -83,7 +83,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 	
+	CreateNative("Timer_Delete_Weapon", Native_Timer_Delete_Weapon);
 	return APLRes_Success; 
+}
+
+public int Native_Timer_Delete_Weapon(Handle plugin, int numParams)
+{
+	int entity = GetNativeCell(1);
+	SetTimer_DeleteWeapon(entity);
+	return;
 }
 
 public void OnPluginStart()
@@ -142,35 +150,8 @@ public Action Event_Weapon_Drop(Event event, const char[] name, bool dontBroadca
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!IsValidClient(client) || !IsPlayerAlive(client)) return;
 		
-	int entity = event.GetInt("propid");
-	if (!IsValidEntity(entity) || !IsValidEdict(entity)) return;
-
-	char item[32];
-	GetEdictClassname(entity, item, sizeof(item));
-	fItemDeleteTime[entity] = GetEngineTime();
-	//PrintToChatAll("%d - %s",entity,item);
-
-	Handle pack = null;
-	for(int j=0; j < sizeof(ItemDeleteList); j++)
-	{
-		if (StrContains(item, ItemDeleteList[j], false) != -1)
-		{
-			pack = new DataPack();
-			CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
-			WritePackCell(pack, EntIndexToEntRef(entity));
-			WritePackCell(pack, fItemDeleteTime[entity]);
-			return;
-		}
-	}
-	
-	if( (g_bClearGnome && strcmp(item, CLASSNAME_WEAPON_GNOME) == 0) ||
-		(g_bClearCola && strcmp(item, CLASSNAME_WEAPON_COLA) == 0) )
-	{
-		pack = new DataPack();
-		CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
-		WritePackCell(pack, EntIndexToEntRef(entity));
-		WritePackCell(pack, fItemDeleteTime[entity]);
-	}
+	int entity = event.GetInt("propid");	
+	SetTimer_DeleteWeapon(entity);
 }
 
 public void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast)
@@ -195,8 +176,7 @@ public Action Timer_KillWeapon(Handle timer, Handle pack)
 		{
 			if ( IsInUse(entity) == false )
 			{
-				SetEntityRenderFx(entity, RENDERFX_FADE_FAST); //RENDERFX_FADE_SLOW 3.5
-				CreateTimer(1.5, KillEntity, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
+				RemoveEntity(entity);
 			}
 		}
 	}
@@ -276,4 +256,36 @@ bool Is_UpgradeGroundPack(int entity, char [][] array, int size)
 	}
 
 	return false;
+}
+
+void SetTimer_DeleteWeapon(int entity)
+{
+	if (!IsValidEntity(entity) || !IsValidEdict(entity)) return;
+
+	char item[32];
+	GetEdictClassname(entity, item, sizeof(item));
+	fItemDeleteTime[entity] = GetEngineTime();
+	PrintToChatAll("%d - %s",entity,item);
+
+	Handle pack = null;
+	for(int j=0; j < sizeof(ItemDeleteList); j++)
+	{
+		if (StrContains(item, ItemDeleteList[j], false) != -1)
+		{
+			pack = new DataPack();
+			CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
+			WritePackCell(pack, EntIndexToEntRef(entity));
+			WritePackCell(pack, fItemDeleteTime[entity]);
+			return;
+		}
+	}
+	
+	if( (g_bClearGnome && strcmp(item, CLASSNAME_WEAPON_GNOME) == 0) ||
+		(g_bClearCola && strcmp(item, CLASSNAME_WEAPON_COLA) == 0) )
+	{
+		pack = new DataPack();
+		CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
+		WritePackCell(pack, EntIndexToEntRef(entity));
+		WritePackCell(pack, fItemDeleteTime[entity]);
+	}
 }
