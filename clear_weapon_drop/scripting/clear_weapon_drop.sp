@@ -265,9 +265,27 @@ void SetTimer_DeleteWeapon(int entity)
 	char item[32];
 	GetEdictClassname(entity, item, sizeof(item));
 	fItemDeleteTime[entity] = GetEngineTime();
-	PrintToChatAll("%d - %s",entity,item);
+	//PrintToChatAll("%d - %s",entity,item);
 
 	Handle pack = null;
+	if( strcmp(item,"prop_physics") == 0 )
+	{
+		static char m_ModelName[PLATFORM_MAX_PATH];
+		GetEntPropString(entity, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
+		//PrintToChatAll("m_ModelName - %s", m_ModelName);
+		if(strcmp(m_ModelName,"models/props_equipment/oxygentank01.mdl") == 0 ||
+			strcmp(m_ModelName,"models/props_junk/explosive_box001.mdl") == 0 ||
+			strcmp(m_ModelName,"models/props_junk/propanecanister001a.mdl") == 0 )
+		{
+			pack = new DataPack();
+			CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
+			WritePackCell(pack, EntIndexToEntRef(entity));
+			WritePackCell(pack, fItemDeleteTime[entity]);
+			return;
+		}
+
+	}
+
 	for(int j=0; j < sizeof(ItemDeleteList); j++)
 	{
 		if (StrContains(item, ItemDeleteList[j], false) != -1)
