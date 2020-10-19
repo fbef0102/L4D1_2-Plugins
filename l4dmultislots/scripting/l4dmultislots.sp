@@ -13,7 +13,7 @@
 #include <multicolors>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION 				"3.1"
+#define PLUGIN_VERSION 				"3.2"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -213,7 +213,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	
 	if(oldteam == 1 || event.GetBool("disconnect"))
 	{
-		if(IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 1)
+		if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 1)
 		{
 			for(int i = 1; i <= MaxClients; i++)
 			{
@@ -239,7 +239,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 public void evtSurvivorRescued(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("victim"));
-	if(client)
+	if(client && IsClientInGame(client))
 	{	
 		StripWeapons(client);
 		//BypassAndExecuteCommand(client, "give", "pistol_magnum");
