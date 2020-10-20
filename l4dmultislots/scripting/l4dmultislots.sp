@@ -241,8 +241,7 @@ public void evtSurvivorRescued(Event event, const char[] name, bool dontBroadcas
 	int client = GetClientOfUserId(event.GetInt("victim"));
 	if(client && IsClientInGame(client))
 	{	
-		StripWeapons(client);
-		//BypassAndExecuteCommand(client, "give", "pistol_magnum");
+		//StripWeapons(client);
 		GiveWeapon(client);
 	}
 }
@@ -602,18 +601,19 @@ void StripWeapons(int client) // strip primary and second weapon from client
 
 void GiveWeapon(int client) // give client random weapon
 {
-	BypassAndExecuteCommand(client, "give", "pistol");
-	int random;
-	if(L4D2Version) random = GetRandomInt(1,4);
-	else random = GetRandomInt(1,2);
-	switch(random)
+	if(GetPlayerWeaponSlot(client, 1) != -1)
 	{
-		case 1: BypassAndExecuteCommand(client, "give", "smg");
-		case 2: BypassAndExecuteCommand(client, "give", "pumpshotgun");
-		case 3: BypassAndExecuteCommand(client, "give", "smg_silenced");
-		case 4: BypassAndExecuteCommand(client, "give", "shotgun_chrome");
-	}	
-	BypassAndExecuteCommand(client, "give", "ammo");
+		int random;
+		if(L4D2Version) random = GetRandomInt(1,4);
+		else random = GetRandomInt(1,2);
+		switch(random)
+		{
+			case 1: BypassAndExecuteCommand(client, "give", "smg");
+			case 2: BypassAndExecuteCommand(client, "give", "pumpshotgun");
+			case 3: BypassAndExecuteCommand(client, "give", "smg_silenced");
+			case 4: BypassAndExecuteCommand(client, "give", "shotgun_chrome");
+		}
+	}
 }
 
 int TotalSurvivors() // total bots, including players
@@ -678,7 +678,7 @@ bool SpawnFakeClient()
 				GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;			
 				TeleportEntity(fakeclient, teleportOrigin, NULL_VECTOR, NULL_VECTOR);						
 				
-				StripWeapons(fakeclient);
+				//StripWeapons(fakeclient);
 				GiveWeapon(fakeclient);
 
 				// kick the fake client to make the bot take over
