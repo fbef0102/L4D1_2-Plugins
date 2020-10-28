@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2020/10/19)
+> All plugins in here apply to both L4D1/2 (last edited:2020/10/28)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -33,7 +33,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_wind</b>: Create a survivor bot in game.
 * <b>admin_hp</b>: Adm type !givehp to set survivor team full health.
 * <b>pounce_database</b>: Pounce Announce Edition (Database).
-* <b>l4dmultislots</b>: Allows additional survivor/infected players in coop, versus, and survival.
+* <b>l4dmultislots</b>: Allows additional survivor players in coop/survival/realism when 5+ player joins the server
 * <b>hp_tank_show</b>: Display Tank HP status on his head.
 * <b>TickrateFixes</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>cge_l4d2_deathcheck</b>: Prevents mission loss(Round_End) until all human players have died.

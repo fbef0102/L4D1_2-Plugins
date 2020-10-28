@@ -13,7 +13,7 @@
 #include <multicolors>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION 				"3.2"
+#define PLUGIN_VERSION 				"3.3"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -29,14 +29,16 @@
 #define	DAMAGE_NO					0
 
 //ConVar
-ConVar hMaxSurvivors, hDeadBotTime, CVAR_INCAPMAX, hSpecCheckInterval;
+ConVar hMaxSurvivors, hDeadBotTime, CVAR_INCAPMAX, hSpecCheckInterval, 
+	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
+	hRespawnHP, hRespawnBuffHP, hStripBotWeapons;
 
 //value
-int iMaxSurvivors,iDeadBotTime;
-bool L4D2Version;
+int iMaxSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
+	iRespawnHP, iRespawnBuffHP;
 static Handle hSetHumanSpec, hTakeOver;
-int g_iRoundStart,g_iPlayerSpawn ;
-bool bKill, bLeftSafeRoom, bFinalMap;
+int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
+bool bKill, bLeftSafeRoom, bStripBotWeapons, bhasFinaleEnded;
 float fSpecCheckInterval;
 Handle SpecCheckTimer = null, PlayerLeftStartTimer = null, CountDownTimer = null;
 
@@ -44,23 +46,23 @@ public Plugin myinfo =
 {
 	name 			= "[L4D(2)] MultiSlots Improved",
 	author 			= "SwiftReal, MI 5, HarryPotter",
-	description 	= "Allows additional survivor players in coop, versus, and survival",
+	description 	= "Allows additional survivor players in coop/survival/realism when 5+ player joins the server",
 	version 		= PLUGIN_VERSION,
 	url 			= "https://steamcommunity.com/id/TIGER_x_DRAGON/"
 }
 
+bool bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 	
-	if( test == Engine_Left4Dead ) L4D2Version = false;
-	else if( test == Engine_Left4Dead2 ) L4D2Version = true;
-	else
-	{
+	if( test == Engine_Left4Dead ) bL4D2Version = false;
+	else if( test == Engine_Left4Dead2 ) bL4D2Version = true;
+	else {
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
-	
+
 	return APLRes_Success; 
 }
 
@@ -68,6 +70,9 @@ public void OnPluginStart()
 {
 	// Load translation
 	LoadTranslations("l4dmultislots.phrases");
+	
+	//store PropInfo
+	BufferHP = FindSendPropInfo( "CTerrorPlayer", "m_healthBuffer" );
 	
 	// Register commands
 	RegAdminCmd("sm_muladdbot", AddBot, ADMFLAG_KICK, "Attempt to add a survivor bot");
@@ -77,13 +82,39 @@ public void OnPluginStart()
 	// Register cvars
 	CVAR_INCAPMAX = FindConVar("survivor_max_incapacitated_count");
 	hMaxSurvivors	= CreateConVar("l4d_multislots_max_survivors", "4", "Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)", CVAR_FLAGS, true, 4.0, true, 32.0);
+	hStripBotWeapons = CreateConVar("l4d_multislots_bot_items_delete", "1", "Delete all items form survivor bots when they got kicked by this plugin. (0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hDeadBotTime = CreateConVar("l4d_multislots_alive_bot_time", "100", "When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
 	hSpecCheckInterval = CreateConVar("l4d_multislots_spec_message_interval", "20", "Setup time interval the instruction message to spectator.(0=off)", CVAR_FLAGS, true, 0.0);
+	hRespawnHP 		= CreateConVar("l4d_multislots_respawnhp", 		"80", 	"Amount of HP a new 5+ Survivor will spawn with (Def 80)", CVAR_FLAGS, true, 0.0, true, 100.0);
+	hRespawnBuffHP 	= CreateConVar("l4d_multislots_respawnbuffhp", 	"20", 	"Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)", CVAR_FLAGS, true, 0.0, true, 100.0);
+	
+	
+	if ( bL4D2Version ) {
+		hFirstWeapon 		= CreateConVar("l4d_multislots_firstweapon", 		"10", 	"First slot weapon given to new 5+ Survivor (1-Autoshotgun, 2-SPAS Shotgun, 3-M16, 4-AK47, 5-Desert Rifle, 6-HuntingRifle, 7-Military Sniper, 8-Chrome Shotgun, 9-Silenced Smg, 10=Random T1, 11=Random T2, 0=off)", CVAR_FLAGS, true, 0.0, true, 11.0);
+		hSecondWeapon 		= CreateConVar("l4d_multislots_secondweapon", 		"5", 	"Second slot weapon given to new 5+ Survivor (1 - Dual Pistol, 2 - Bat, 3 - Magnum, 4 - Chainsaw, 5=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 5.0);
+		hThirdWeapon 		= CreateConVar("l4d_multislots_thirdweapon", 		"4", 	"Third slot weapon given to new 5+ Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 4=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 4.0);
+		hFourthWeapon 		= CreateConVar("l4d_multislots_forthweapon", 		"1", 	"Fourth slot weapon given to new 5+ Survivor (1 - Medkit, 2 - Defib, 3 - Incendiary Pack, 4 - Explosive Pack, 5=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 5.0);
+		hFifthWeapon 		= CreateConVar("l4d_multislots_fifthweapon", 		"0", 	"Fifth slot weapon given to new 5+ Survivor (1 - Pills, 2 - Adrenaline, 3=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 3.0);
+	} else {
+		hFirstWeapon 		= CreateConVar("l4d_multislots_firstweapon", 		"6", 	"First slot weapon given to new 5+ Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - smg, 5 - shotgun, 6=Random T1, 7=Random T2, 0=off)", CVAR_FLAGS, true, 0.0, true, 7.0);
+		hSecondWeapon 		= CreateConVar("l4d_multislots_secondweapon", 		"1", 	"Second slot weapon given to new 5+ Survivor (1 - Dual Pistol, 0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
+		hThirdWeapon 		= CreateConVar("l4d_multislots_thirdweapon", 		"3", 	"Third slot weapon given to new 5+ SSurvivor (1 - Moltov, 2 - Pipe Bomb, 3=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 3.0);
+		hFourthWeapon 		= CreateConVar("l4d_multislots_forthweapon", 		"1", 	"Fourth slot weapon given to new 5+ SSurvivor (1 - Medkit, 0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
+		hFifthWeapon 		= CreateConVar("l4d_multislots_fifthweapon", 		"0", 	"Fifth slot weapon given to new 5+ Survivor (1 - Pills, 0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	}
 	
 	GetCvars();
 	hMaxSurvivors.AddChangeHook(ConVarChanged_Cvars);
+	hStripBotWeapons.AddChangeHook(ConVarChanged_Cvars);
 	hDeadBotTime.AddChangeHook(ConVarChanged_Cvars);
 	hSpecCheckInterval.AddChangeHook(ConVarChanged_Cvars);
+	hRespawnHP.AddChangeHook(ConVarChanged_Cvars);
+	hRespawnBuffHP.AddChangeHook(ConVarChanged_Cvars);
+	hFirstWeapon.AddChangeHook(ConVarChanged_Cvars);
+	hSecondWeapon.AddChangeHook(ConVarChanged_Cvars);
+	hThirdWeapon.AddChangeHook(ConVarChanged_Cvars);
+	hFourthWeapon.AddChangeHook(ConVarChanged_Cvars);
+	hFifthWeapon.AddChangeHook(ConVarChanged_Cvars);
 	
 	// Hook events
 
@@ -100,15 +131,11 @@ public void OnPluginStart()
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
 	HookEvent("finale_vehicle_leaving", evtFinaleVehicleLeaving);
 
-	// Create or execute plugin configuration file
-	AutoExecConfig(true, "l4dmultislots");
-
 	// ======================================
 	// Prep SDK Calls
 	// ======================================
 
-	Handle hGameConf;	
-	hGameConf = LoadGameConfigFile("l4dmultislots");
+	Handle hGameConf = LoadGameConfigFile("l4dmultislots");
 	if(hGameConf == null)
 	{
 		SetFailState("Gamedata l4dmultislots.txt not found");
@@ -133,6 +160,9 @@ public void OnPluginStart()
 		return;
 	}
 	delete hGameConf;
+	
+	// Create or execute plugin configuration file
+	AutoExecConfig(true, "l4dmultislots");
 }
 
 public void OnPluginEnd()
@@ -143,8 +173,6 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
-	bFinalMap = L4D_IsMissionFinalMap();
-	
 	TweakSettings();
 }
 
@@ -162,8 +190,18 @@ public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char
 void GetCvars()
 {
 	iMaxSurvivors = hMaxSurvivors.IntValue;
+	bStripBotWeapons = hStripBotWeapons.BoolValue;
 	iDeadBotTime = hDeadBotTime.IntValue;
 	fSpecCheckInterval = hSpecCheckInterval.FloatValue;
+	
+	iRespawnHP = hRespawnHP.IntValue;
+	iRespawnBuffHP = hRespawnBuffHP.IntValue;
+	
+	g_iFirstWeapon = hFirstWeapon.IntValue;
+	g_iSecondWeapon = hSecondWeapon.IntValue;
+	g_iThirdWeapon = hThirdWeapon.IntValue;
+	g_iFourthWeapon = hFourthWeapon.IntValue;
+	g_iFifthWeapon = hFifthWeapon.IntValue;
 }
 
 ////////////////////////////////////
@@ -241,30 +279,30 @@ public void evtSurvivorRescued(Event event, const char[] name, bool dontBroadcas
 	int client = GetClientOfUserId(event.GetInt("victim"));
 	if(client && IsClientInGame(client))
 	{	
-		//StripWeapons(client);
-		GiveWeapon(client);
+		GiveRandomT1Weapon(client);
 	}
 }
 
 public void evtFinaleVehicleLeaving(Event event, const char[] name, bool dontBroadcast) //救援離開後,保護倖存者不受傷
 {
+	if (bhasFinaleEnded) return;
+	bhasFinaleEnded = true;
+	
 	int finale_ent = FindEntityByClassname(-1, "trigger_finale");
 	int finale_ent_dlc3 = FindEntityByClassname(-1, "trigger_finale_dlc3");
 	if (!IsValidEntity(finale_ent) || IsValidEntity(finale_ent_dlc3)) return;
-	
+	 
 	bool isSacrificeFinale = view_as<bool>(GetEntProp(finale_ent, Prop_Data, "m_bIsSacrificeFinale"));
 	if (isSacrificeFinale) return;
 	
-	int takedamage;
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsplayerIncap(i))
 		{
-			ReturnToSaferoom(i);
-			takedamage = GetEntProp(i, Prop_Data, "m_takedamage");
-			if (takedamage <= 0) continue;
+			if( GetEntProp(i, Prop_Data, "m_takedamage") <= 0) continue;
 			SetEntProp(i, Prop_Send, "m_currentReviveCount", CVAR_INCAPMAX.IntValue);
-			SetEntProp(i, Prop_Data, "m_takedamage", DAMAGE_NO);
+			SetEntProp(i, Prop_Data, "m_takedamage", DAMAGE_NO, 1);
+			ReturnToSaferoom(i);
 		}
 	}	
 }
@@ -320,6 +358,8 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+	bhasFinaleEnded = false;
+	
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, PluginStart);
 	g_iRoundStart = 1;
@@ -356,35 +396,14 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 		{			
 			if(TotalAliveFreeBots() == 0)
 			{
-				if(bKill && iDeadBotTime > 0) 
+				if(SpawnFakeClient() == true)
 				{
-					if(bFinalMap) //don't let player die in saferoom after final starts, this prevents some issue in final map
-					{
-						if(SpawnFakeClient() == true)
-						{
-							CreateTimer(0.5, Timer_TakeOverBotAndDie, GetClientUserId(client));
-						}
-						else
-						{
-							PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
-						}
-					}
-					else
-					{
-						ChangeClientTeam(client, TEAM_SURVIVORS);
-						CreateTimer(0.1, Timer_KillSurvivor, client);
-					}
+					if(bKill && iDeadBotTime > 0) CreateTimer(0.5, Timer_TakeOverBotAndDie, GetClientUserId(client));
+					else CreateTimer(0.5, Timer_AutoJoinTeam, GetClientUserId(client));	
 				}
-				else 
+				else
 				{
-					if(SpawnFakeClient() == true)
-					{
-						CreateTimer(0.1, Timer_AutoJoinTeam, GetClientUserId(client));	
-					}					
-					else
-					{
-						PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
-					}		
+					PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
 				}
 			}
 			else
@@ -419,7 +438,7 @@ public Action Timer_SpecCheck(Handle timer)
 			{
 				if(!IsClientIdle(i))
 				{
-					char PlayerName[100];
+					static char PlayerName[100];
 					GetClientName(i, PlayerName, sizeof(PlayerName))		;
 					CPrintToChat(i, "{default}[{green}MultiSlots{default}] %s, %T", PlayerName, "Type in chat !join To join the survivors", i);
 				}
@@ -432,7 +451,7 @@ public Action Timer_SpecCheck(Handle timer)
 		{
 			if((GetClientTeam(i) == TEAM_SURVIVORS) && !IsFakeClient(i) && !IsAlive(i))
 			{
-				char PlayerName[100];
+				static char PlayerName[100];
 				GetClientName(i, PlayerName, sizeof(PlayerName));
 				PrintToChat(i, "\x01[\x04MultiSlots\x01] %s, %T", PlayerName, "Please wait to be revived or rescued", i);
 			}
@@ -505,7 +524,7 @@ public Action Timer_KickNoNeededBot(Handle timer, int botid)
 		
 		if(!HasIdlePlayer(botclient))
 		{
-			//StripWeapons(botclient);
+			if(bStripBotWeapons) StripWeapons(botclient);
 			KickClient(botclient, "Kicking No Needed Bot");
 		}
 	}	
@@ -586,10 +605,10 @@ void BypassAndExecuteCommand(int client, char[] strCommand, char[] strParam1)
 	SetCommandFlags(strCommand, flags);
 }
 
-void StripWeapons(int client) // strip primary and second weapon from client
+void StripWeapons(int client) // strip all items from client
 {
 	int itemIdx;
-	for (int x = 0; x <= 1; x++)
+	for (int x = 0; x <= 4; x++)
 	{
 		if((itemIdx = GetPlayerWeaponSlot(client, x)) != -1)
 		{  
@@ -599,12 +618,12 @@ void StripWeapons(int client) // strip primary and second weapon from client
 	}
 }
 
-void GiveWeapon(int client) // give client random weapon
+void GiveRandomT1Weapon(int client) // give client random weapon
 {
 	if(GetPlayerWeaponSlot(client, 1) != -1)
 	{
 		int random;
-		if(L4D2Version) random = GetRandomInt(1,4);
+		if(bL4D2Version) random = GetRandomInt(1,4);
 		else random = GetRandomInt(1,2);
 		switch(random)
 		{
@@ -675,14 +694,14 @@ bool SpawnFakeClient()
 			if(DispatchSpawn(fakeclient) == true)
 			{
 				float teleportOrigin[3];
-				GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;			
-				TeleportEntity(fakeclient, teleportOrigin, NULL_VECTOR, NULL_VECTOR);						
+				GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
+				DataPack hPack = new DataPack();
+				hPack.WriteCell(GetClientUserId(fakeclient));
+				hPack.WriteFloat(teleportOrigin[0]);
+				hPack.WriteFloat(teleportOrigin[1]);
+				hPack.WriteFloat(teleportOrigin[2]);
 				
-				//StripWeapons(fakeclient);
-				GiveWeapon(fakeclient);
-
-				// kick the fake client to make the bot take over
-				CreateTimer(DELAY_KICK_FAKECLIENT, Timer_KickFakeBot, fakeclient, TIMER_REPEAT);
+				RequestFrame(OnNextFrame, hPack);
 				fakeclientKicked = true;
 			}
 		}	
@@ -692,6 +711,25 @@ bool SpawnFakeClient()
 			KickClient(fakeclient, "Kicking FakeClient");
 	}	
 	return fakeclientKicked;
+}
+
+public void OnNextFrame(DataPack hPack)
+{
+	hPack.Reset();
+	float nPos[3];
+	int fakeclient = GetClientOfUserId(hPack.ReadCell());
+	nPos[0] = hPack.ReadFloat();
+	nPos[1] = hPack.ReadFloat();
+	nPos[2] = hPack.ReadFloat();
+	delete hPack;
+	if(!fakeclient || !IsClientInGame(fakeclient)) return;
+	
+	TeleportEntity( fakeclient, nPos, NULL_VECTOR, NULL_VECTOR);
+	StripWeapons( fakeclient );
+	SetHealth( fakeclient );
+	GiveItems( fakeclient );
+
+	CreateTimer(DELAY_KICK_FAKECLIENT, Timer_KickFakeBot, fakeclient, TIMER_REPEAT);
 }
 
 bool HasIdlePlayer(int bot)
@@ -801,4 +839,108 @@ int GetRandomClient()
 		}
 	}
 	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
+}
+
+void SetHealth( int client )
+{
+	float Buff = GetEntDataFloat( client, BufferHP );
+
+	SetEntProp( client, Prop_Send, "m_iHealth", iRespawnHP, 1 );
+	SetEntDataFloat( client, BufferHP, Buff + iRespawnBuffHP, true );
+}
+
+void GiveItems(int client) // give client weapon
+{
+	int flags = GetCommandFlags("give");
+	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
+	
+	int iRandom = g_iFirstWeapon;
+	if(bL4D2Version)
+	{
+		if(g_iFirstWeapon == 10) iRandom = GetRandomInt(8,9);
+		else if(g_iFirstWeapon == 11) iRandom = GetRandomInt(1,7);
+		
+		switch ( iRandom )
+		{
+			case 1: FakeClientCommand( client, "give autoshotgun" );
+			case 2: FakeClientCommand( client, "give shotgun_spas" );
+			case 3: FakeClientCommand( client, "give rifle" );
+			case 4: FakeClientCommand( client, "give rifle_ak47" );
+			case 5: FakeClientCommand( client, "give rifle_desert" );
+			case 6: FakeClientCommand( client, "give hunting_rifle" );
+			case 7: FakeClientCommand( client, "give sniper_military" );
+			case 8: FakeClientCommand( client, "give shotgun_chrome" );
+			case 9: FakeClientCommand( client, "give smg_silenced" );
+			default: {}//nothing
+		}
+	}
+	else
+	{
+		if(g_iFirstWeapon == 6) iRandom = GetRandomInt(4,5);
+		else if(g_iFirstWeapon == 7) iRandom = GetRandomInt(1,3);
+		
+		switch ( iRandom )
+		{
+			case 1: FakeClientCommand( client, "give autoshotgun" );
+			case 2: FakeClientCommand( client, "give rifle" );
+			case 3: FakeClientCommand( client, "give hunting_rifle" );
+			case 4: FakeClientCommand( client, "give smg" );
+			case 5: FakeClientCommand( client, "give pumpshotgun" );
+			default: {}//nothing
+		}
+	}
+	
+	
+	iRandom = g_iSecondWeapon;
+	if(bL4D2Version && iRandom == 5) iRandom = GetRandomInt(1,4);
+		
+	switch ( iRandom )
+	{
+		case 1:
+		{
+			FakeClientCommand( client, "give pistol" );
+			FakeClientCommand( client, "give pistol" );
+		}
+		case 2: FakeClientCommand( client, "give baseball_bat" );
+		case 3: FakeClientCommand( client, "give pistol_magnum" );
+		case 4: FakeClientCommand( client, "give chainsaw" );
+		default: {}//nothing
+	}
+	
+	iRandom = g_iThirdWeapon;
+	if (bL4D2Version && iRandom == 4) iRandom = GetRandomInt(1,3);
+	if (!bL4D2Version && iRandom == 3) iRandom = GetRandomInt(1,2);
+	
+	switch ( iRandom )
+	{
+		case 1: FakeClientCommand( client, "give molotov" );
+		case 2: FakeClientCommand( client, "give pipe_bomb" );
+		case 3: FakeClientCommand( client, "give vomitjar" );
+		default: {}//nothing
+	}
+	
+	
+	iRandom = g_iFourthWeapon;
+	if(bL4D2Version && iRandom == 5) iRandom = GetRandomInt(1,4);
+	
+	switch ( iRandom )
+	{
+		case 1: FakeClientCommand( client, "give first_aid_kit" );
+		case 2: FakeClientCommand( client, "give defibrillator" );
+		case 3: FakeClientCommand( client, "give weapon_upgradepack_incendiary" );
+		case 4: FakeClientCommand( client, "give weapon_upgradepack_explosive" );
+		default: {}//nothing
+	}
+	
+	iRandom = g_iFifthWeapon;
+	if(bL4D2Version && iRandom == 3) iRandom = GetRandomInt(1,2);
+	
+	switch ( iRandom )
+	{
+		case 1: FakeClientCommand( client, "give pain_pills" );
+		case 2: FakeClientCommand( client, "give adrenaline" );
+		default: {}//nothing
+	}
+	
+	SetCommandFlags( "give", flags);
 }
