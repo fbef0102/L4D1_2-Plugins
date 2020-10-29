@@ -274,14 +274,24 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 			
 			if( target && IsClientInGame(target) && IsPlayerAlive(target))
 			{
-				bool canTeleport = SetTeleportEndPoint(client);
-				if(canTeleport)
+				if( GetEntProp(target, Prop_Send, "m_isHangingFromLedge") ) 
 				{
-					PerformTeleport(client,target,g_pos);
+					PrintToChat(client, "\x01[TS] Target is hanging from ledge, you can't teleport %N .", target);
+				}
+				else
+				{
+					bool canTeleport = SetTeleportEndPoint(client);
+					if(canTeleport)
+					{
+						PerformTeleport(client,target,g_pos);
+						PrintToChat(client, "\x01[TS] You teleport player %N .", target);
+					}
 				}
 			}
 			else
+			{
 				PrintToChatAll("\x01[TS] Target is not a valid alive player.");
+			}
 
 			MenuClientsToTeleport(client, menu.Selection);
 		}
