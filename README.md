@@ -19,7 +19,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>savechat</b>: Records player chat messages to a file.
 * <b>l4d_MusicMapStart</b>: Download and play one random music on map start/round start.
 * <b>map-decals</b>: Allows admins to place any decals into the map that are defined in the the config and save them permanently for each map.
-* <b>SpeakingList</b>: Voice Announce. Print To Center Message who Speaking. With cookies.
 * <b>l4d_spectator_prefix</b>: when player in spec team, add prefix.
 * <b>bequiet</b>: Please be Quiet! Block unnecessary chat or announcement.
 * <b>l4d_sm_respawn</b>: Let's you respawn Players by console.
