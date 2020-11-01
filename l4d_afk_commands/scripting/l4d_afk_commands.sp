@@ -467,7 +467,7 @@ public Action checksurvivorspawn(Handle timer, int client)
 	}
 }
 
-public OnClientPostAdminCheck(int client)
+public void OnClientPostAdminCheck(int client)
 {
 	if(!IsFakeClient(client)) iClientFlags[client] = GetUserFlagBits(client);
 }
@@ -560,7 +560,7 @@ void GetCvars()
 	
 }
 
-public Action  Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
 }
@@ -1062,7 +1062,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 
 	if( g_fBreakPropCooldown > 0.0 && (fBreakPropTime[client] - GetEngineTime() > 0.0) )
 	{
-		PrintHintText(client, "[TS] %T.", "Can not change team after iginte",client);
+		PrintHintText(client, "[TS] %T.", "Can not change team after ignite",client);
 		return false;	
 	}
 
