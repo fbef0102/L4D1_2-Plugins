@@ -717,6 +717,8 @@ public Action TurnClientToSurvivors(int client, int args)
 		{
 			bot = FindBotToTakeOver(false);
 		}
+		if (bot==0) return Plugin_Handled;
+		
 		if(iGameMode != 2) //coop/survival
 		{
 			if(GetClientTeam(client) == 3) ChangeClientTeam(client,1);
@@ -1063,7 +1065,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 	if( g_fBreakPropCooldown > 0.0 && (fBreakPropTime[client] - GetEngineTime() > 0.0) )
 	{
 		PrintHintText(client, "[TS] %T.", "Can not change team after ignite",client);
-		return false;	
+		return false;
 	}
 
 	if( g_fThrowableCooldown > 0.0 && (fThrowableTime[client] - GetEngineTime() > 0.0) )
