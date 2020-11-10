@@ -725,9 +725,13 @@ public void OnNextFrame(DataPack hPack)
 	if(!fakeclient || !IsClientInGame(fakeclient)) return;
 	
 	TeleportEntity( fakeclient, nPos, NULL_VECTOR, NULL_VECTOR);
-	StripWeapons( fakeclient );
-	SetHealth( fakeclient );
-	GiveItems( fakeclient );
+
+	if ( !(bKill && iDeadBotTime > 0) )
+	{
+		StripWeapons( fakeclient );
+		SetHealth( fakeclient );
+		GiveItems( fakeclient );
+	}
 
 	CreateTimer(DELAY_KICK_FAKECLIENT, Timer_KickFakeBot, fakeclient, TIMER_REPEAT);
 }
