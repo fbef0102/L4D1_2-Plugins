@@ -49,7 +49,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"3.3"
+#define PLUGIN_VERSION 		"3.4"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -360,7 +360,21 @@ public Action Command_SwapTo(int client, int args)
 		if(team == 1)
 			ChangeClientTeam(player_id,1);
 		else if(team == 2)
-			ChangeClientTeam(player_id,2);
+		{
+			int bot = FindBotToTakeOver(true);
+			if (bot==0)
+			{
+				bot = FindBotToTakeOver(false);
+			}
+			if (bot==0)
+			{
+				ChangeClientTeam(player_id,2);
+				return Plugin_Handled;
+			}
+
+			SDKCall(hSetHumanSpec, bot, player_id);
+			SDKCall(hTakeOver, player_id, true);
+		}
 		else if (team == 3)
 			ChangeClientTeam(player_id,3);
 			
@@ -780,7 +794,8 @@ public Action TurnClientToInfected(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	ChangeClientTeam(client, 3);clientteam[client] = 3;
+	ChangeClientTeam(client, 3);
+	clientteam[client] = 3;
 	
 	StartChangeTeamCoolDown(client);
 	
