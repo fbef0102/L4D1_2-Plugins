@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.3
+* Version	: 2.4.4
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.4.4
+*	   - fixed plugin not working if player disconnects when map change.
+* 
 * Version 2.4.3
 *	   - Add The last stand new convar "z_finale_spawn_mob_safety_range".
 *
@@ -560,7 +563,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.3"
+#define PLUGIN_VERSION "2.4.4"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -606,7 +609,6 @@ static int g_iMaxPlayerZombies; // Holds the amount of the maximum amount of spe
 static int MaxPlayerTank; // Used for setting an additional slot for each tank that spawns
 static int BotReady; // Used to determine how many bots are ready, used only for the coordination feature
 static int GetSpawnTime[MAXPLAYERS+1]; // Used for the HUD on getting spawn times of players
-static int iPlayersInServer;
 static int iPlayersInSurvivorTeam;
 
 // Booleans
@@ -720,6 +722,7 @@ int g_iZSDisableGamemode, g_iTankHealth, g_iInfectedSpawnTimeMax, g_iInfectedSpa
 int g_iPlayerSpawn, g_bMapStarted, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
+
 
 public Plugin myinfo = 
 {
@@ -1655,6 +1658,7 @@ public Action MaxSpecialsSet(Handle Timer)
 	#endif
 }
 
+
 public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
 	// If round has not been reported as ended ..
@@ -1697,12 +1701,12 @@ public void OnMapStart()
 	CheckandPrecacheModel(MODEL_TANK);
 
 	GetSpawnDisConvars();
-	iPlayersInServer = 0;
 
 	char sMap[64];
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
+
 }
 
 public void OnMapEnd()
@@ -2499,6 +2503,7 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 									CreateSurvivorModelGlow(i);
 								}
 							}
+
 							return Plugin_Continue;
 						}
 					}
@@ -2576,6 +2581,10 @@ public Action ColdDown_Timer(Handle timer)
 
 public void OnClientDisconnect(int client)
 {
+	RemoveSurvivorModelGlow(client);
+	
+	if(roundInProgress == false) return;
+		
 	if(IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS)
 		CreateTimer(1.0,ColdDown_Timer,_,TIMER_FLAG_NO_MAPCHANGE);
 
@@ -2614,37 +2623,6 @@ public void OnClientDisconnect(int client)
 	TankWasSeen[client] = false;
 	AlreadyGhosted[client] = false;
 	PlayerHasEnteredStart[client] = false;
-	CheckPlayers_InSV();
-	
-	
-	// If no real players are left in game ... MI 5
-	if (iPlayersInServer == 0)
-	{
-		#if DEBUG
-		LogMessage("All Players have left the Server");
-		#endif
-		
-		b_LeftSaveRoom = false;
-		b_HasRoundEnded = true;
-		b_HasRoundStarted = false;
-		roundInProgress = false;
-		
-		
-		// Zero all respawn times ready for the next round
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			respawnDelay[i] = 0;
-			TankWasSeen[i] = false;
-			AlreadyGhosted[i] = false;
-			PlayerHasEnteredStart[i] = false;
-			WillBeTank[i] = false;
-		}
-		
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			delete FightOrDieTimer[i];
-		}
-	}
 }
 
 public Action ScrimmageTimer (Handle timer, int client)
@@ -3181,10 +3159,10 @@ public Action HookSound_Callback(int Clients[64], int &NumClients, char StrSampl
 {
 	if (GameMode != 1 || !g_bCoopPlayableTank)
 		return Plugin_Continue;
-	
+
 	//to work only on tank steps, its Tank_walk
 	if (StrContains(StrSample, "Tank_walk", false) == -1) return Plugin_Continue;
-	
+
 	for (int i=1;i<=MaxClients;i++)
 	{
 		// We check if player is in game
@@ -4433,18 +4411,19 @@ public void ShowInfectedHUD(int src)
 		{
 			if ( (GetClientTeam(i) == TEAM_INFECTED))
 			{
-				if( hudDisabled[i] == 0 && (GetClientMenu(i) == MenuSource_RawPanel || GetClientMenu(i) == MenuSource_None))
-				{	
-					pInfHUD.Send(i, Menu_InfHUDPanel, 5);
-				}
-	
 				if(IsPlayerTank(i))
 				{
 					if(GetFrustration(i) >= 95 && GameMode != 2)
 					{
 						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
 						ForcePlayerSuicide(i);
+						continue;
 					}
+				}
+				
+				if( hudDisabled[i] == 0 && (GetClientMenu(i) == MenuSource_RawPanel || GetClientMenu(i) == MenuSource_None))
+				{	
+					pInfHUD.Send(i, Menu_InfHUDPanel, 5);
 				}
 			}
 		}
@@ -4739,15 +4718,6 @@ int CheckAliveSurvivorPlayers_InSV()
 			iPlayersInAliveSurvivors++;
 	return iPlayersInAliveSurvivors;
 }
-
-void CheckPlayers_InSV()
-{
-	iPlayersInServer = 0;
-	for (int i = 1; i < MaxClients+1; i++)
-		if(IsClientConnected(i)&&IsClientInGame(i)&&!IsFakeClient(i))
-			iPlayersInServer++;
-}
-
 
 bool IsWitch(int entity)
 {
@@ -5067,4 +5037,5 @@ void CheckandPrecacheModel(const char[] model)
 		PrecacheModel(model, true);
 	}
 }
+
 ///////////////////////////////////////////////////////////////////////////
