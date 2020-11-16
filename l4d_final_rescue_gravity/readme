@@ -5,7 +5,7 @@ Set client gravity after final rescue starts just for fun.
 l4d_final_rescue_gravity_allow "1"
 
 // If 1, change all clients' gravity to normal when finale vehicle is coming.
-l4d_final_rescue_gravity_escape_off "1"
+l4d_final_rescue_gravity_escape_ready_off "1"
 
 // (L4D2)Which zombie class can also obtain the gravity, 0=None, 1=Smoker, =Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together.
 l4d_final_rescue_gravity_infected_class "127"

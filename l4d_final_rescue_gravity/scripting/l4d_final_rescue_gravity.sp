@@ -9,7 +9,7 @@ public Plugin myinfo =
 	name = "[L4D1/2] final rescue gravity",
 	author = "Harry Potter",
 	description = "Set client gravity after final rescue starts just for fun.",
-	version = "1.2",
+	version = "1.3",
 	url = "https://steamcommunity.com/id/TIGER_x_DRAGON/"
 }
 
@@ -59,7 +59,7 @@ public void OnPluginStart()
 	g_hCvarModesOff =	CreateConVar(	"l4d_final_rescue_gravity_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog =	CreateConVar(	"l4d_final_rescue_gravity_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
 	g_hCvarGravityValue = CreateConVar(	"l4d_final_rescue_gravity_value", "0.25", "Set Gravity value. (1.0=Normal, >1.0=High, <1.0=Low)", CVAR_FLAGS,true,0.0 );
-	g_hCvarGravityEscapeDisable = CreateConVar(	"l4d_final_rescue_gravity_escape_off", "1", "If 1, change all clients' gravity to normal when finale vehicle is coming.", CVAR_FLAGS,true,0.0,true,1.0 );
+	g_hCvarGravityEscapeDisable = CreateConVar(	"l4d_final_rescue_gravity_escape_ready_off", "1", "If 1, change all clients' gravity to normal when finale vehicle is ready.", CVAR_FLAGS,true,0.0,true,1.0 );
 	if(bL4D2Version) 
 		g_hCvarGravityInfectedFlag = CreateConVar(	"l4d_final_rescue_gravity_infected_class", "127", 
 		"Which zombie class can also obtain the gravity, 0=None, 1=Smoker, =Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together.", CVAR_FLAGS,true,0.0,true,127.0 );
@@ -151,7 +151,7 @@ void IsAllowed()
 		HookEvent("mission_lost", 			Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 		HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時 (沒有觸發round_end)
 		HookEvent("finale_start", OnFinaleStart_Event, EventHookMode_PostNoCopy);
-		HookEvent("finale_escape_start", Finale_Escape_Start);
+		//HookEvent("finale_escape_start", Finale_Escape_Start);
 		HookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
 		HookEvent("player_spawn", Event_PlayerSpawn);
 	}
@@ -164,7 +164,7 @@ void IsAllowed()
 		UnhookEvent("mission_lost", 			Event_RoundEnd); //戰役滅團重來該關卡的時候
 		UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd); //救援載具離開之時
 		UnhookEvent("finale_start", OnFinaleStart_Event, EventHookMode_PostNoCopy);
-		UnhookEvent("finale_escape_start", Finale_Escape_Start);
+		//UnhookEvent("finale_escape_start", Finale_Escape_Start);
 		UnhookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
 		UnhookEvent("player_spawn", Event_PlayerSpawn);
 	}
@@ -271,7 +271,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 
 	if (bFinalHasStart) ChangeClientGravity(client, g_fGravityValue);
 }
-
+/*
 public Action Finale_Escape_Start(Event event, const char[] name, bool dontBroadcast) 
 {
 	#if DEBUG
@@ -284,7 +284,7 @@ public Action Finale_Escape_Start(Event event, const char[] name, bool dontBroad
 	}
 
 }
-
+*/
 public Action Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
 {
 	#if DEBUG
