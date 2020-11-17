@@ -51,7 +51,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_tanklimit</b>: limit tank in server
 * <b>l4d_Modo_mix_mm</b>: Left 4 Dead 1/2 Mix
 # Scripting Compiler
-* [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6497 scripting
+* [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6499 scripting
 # Others
 * <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)</b>
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
