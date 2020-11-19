@@ -389,12 +389,8 @@ public void OnEndTouch(const char[] output, int caller, int activator, float del
 	}
 }
 
-bool g_bLoaded;
 bool LoadData()
 {
-	if( g_bLoaded ) return true;
-	g_bLoaded = true;
-	
 	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), CONFIG_SPAWNS);
 	if( !FileExists(sPath) )
@@ -464,13 +460,15 @@ void ResetPlugin()
 	g_iPlayerSpawn = 0;
 	g_bFinalHasEscapeVehicle = false;
 	g_bFinalVehicleReady = false;
-	g_bLoaded = false;
 	
 	for( int i = 1; i <= MaxClients; i++ ) 
 	{
 		g_bClientInVehicle[i] = false;
 	}
-	
+	for(int i=0;i<MAX_DATAS;++i)
+	{
+		g_iData[i] = 0;
+	}
 	delete AntiPussyTimer;
 	delete _AntiPussyTimer;
 }
