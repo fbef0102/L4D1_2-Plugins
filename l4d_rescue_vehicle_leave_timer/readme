@@ -1,0 +1,32 @@
+When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
+
+-AlliedModders-
+https://forums.alliedmods.net/showpost.php?p=2725525&postcount=7
+
+-ChangeLog-
+v1.0
+-Original Request by darkbret.
+-Thanks to Marttt and Crasher_3637.
+-Works on all l4d2 value maps.
+-Custom timer for each final map (edit data).
+
+-Require-
+1. sourcemod 1.10 or above
+2. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+
+-Convars-
+cfg/sourcemod/l4d_rescue_vehicle_leave_timer.cfg
+// 0=Plugin off, 1=Plugin on.
+l4d_rescue_vehicle_leave_timer_allow "1"
+
+// Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).
+l4d_rescue_vehicle_leave_timer_map_off ""
+
+// Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).
+l4d_rescue_vehicle_leave_timer_modes ""
+
+// Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).
+l4d_rescue_vehicle_leave_timer_modes_off ""
+
+// Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.
+l4d_rescue_vehicle_leave_timer_modes_tog "0" 

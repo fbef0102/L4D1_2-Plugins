@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2020/11/16)
+> All plugins in here apply to both L4D1/2 (last edited:2020/11/19)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -50,6 +50,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d2_assist</b>: Show damage done to S.I. by survivors
 * <b>l4d_tanklimit</b>: limit tank in server
 * <b>l4d_Modo_mix_mm</b>: Left 4 Dead 1/2 Mix
+* <b>l4d_rescue_vehicle_leave_timer</b>: When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
 # Scripting Compiler
 * [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6499 scripting
 # Others
