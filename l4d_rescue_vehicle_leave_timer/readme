@@ -20,7 +20,7 @@ cfg/sourcemod/l4d_rescue_vehicle_leave_timer.cfg
 l4d_rescue_vehicle_leave_timer_allow "1"
 
 // Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).
-l4d_rescue_vehicle_leave_timer_map_off ""
+l4d_rescue_vehicle_leave_timer_map_off "c7m3_port"
 
 // Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).
 l4d_rescue_vehicle_leave_timer_modes ""

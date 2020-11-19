@@ -67,7 +67,7 @@ public void OnPluginStart()
 	g_hCvarModes =			CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =		CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog =		CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
-	g_hCvarMapOff =			CreateConVar(	"l4d_rescue_vehicle_leave_timer_map_off",		"c6m3_port,c5m5_bridge,c13m4_cutthroatcreek", "Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).", CVAR_FLAGS );
+	g_hCvarMapOff =			CreateConVar(	"l4d_rescue_vehicle_leave_timer_map_off",		"c7m3_port", 	"Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).", CVAR_FLAGS );
 	CreateConVar(							"l4d_rescue_vehicle_leave_timer_version",		PLUGIN_VERSION,	"Flashlight plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AutoExecConfig(true,					"l4d_rescue_vehicle_leave_timer");
 
@@ -460,7 +460,7 @@ void ResetPlugin()
 	g_iPlayerSpawn = 0;
 	g_bFinalHasEscapeVehicle = false;
 	g_bFinalVehicleReady = false;
-	
+
 	for( int i = 1; i <= MaxClients; i++ ) 
 	{
 		g_bClientInVehicle[i] = false;
