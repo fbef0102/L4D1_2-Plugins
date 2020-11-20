@@ -14,6 +14,26 @@ v1.0
 1. sourcemod 1.10 or above
 2. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
 
+Example Config:
+data/l4d_rescue_vehicle.cfg
+"rescue_vehicle"
+{
+    "c2m5_concert"
+    {
+        "num"        "2"   //There are two escape Helicopters in Dark Carnival
+        "1"
+        {
+            "hammerid"        "792981" //find which entity is rescue vehicle entity by dumping the map with stripper
+            "time"            "60" //set timer to escape (seconds)
+        }
+        "2"
+        {
+            "hammerid"        "793053" //DO NOT modify hammerid unless you know what it is
+            "time"            "60"
+        }
+    }
+} 
+
 -Convars-
 cfg/sourcemod/l4d_rescue_vehicle_leave_timer.cfg
 // 0=Plugin off, 1=Plugin on.
