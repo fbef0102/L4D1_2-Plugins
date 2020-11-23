@@ -13,7 +13,7 @@
 #include <multicolors>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION 				"3.3"
+#define PLUGIN_VERSION 				"3.4"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -29,7 +29,7 @@
 #define	DAMAGE_NO					0
 
 //ConVar
-ConVar hMaxSurvivors, hDeadBotTime, CVAR_INCAPMAX, hSpecCheckInterval, 
+ConVar hMaxSurvivors, hDeadBotTime, hSpecCheckInterval, 
 	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons;
 
@@ -38,7 +38,7 @@ int iMaxSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon
 	iRespawnHP, iRespawnBuffHP;
 static Handle hSetHumanSpec, hTakeOver;
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
-bool bKill, bLeftSafeRoom, bStripBotWeapons, bhasFinaleEnded;
+bool bKill, bLeftSafeRoom, bStripBotWeapons;
 float fSpecCheckInterval;
 Handle SpecCheckTimer = null, PlayerLeftStartTimer = null, CountDownTimer = null;
 
@@ -80,7 +80,6 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_js", JoinTeam, "Attempt to join Survivors");
 	
 	// Register cvars
-	CVAR_INCAPMAX = FindConVar("survivor_max_incapacitated_count");
 	hMaxSurvivors	= CreateConVar("l4d_multislots_max_survivors", "4", "Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)", CVAR_FLAGS, true, 4.0, true, 32.0);
 	hStripBotWeapons = CreateConVar("l4d_multislots_bot_items_delete", "1", "Delete all items form survivor bots when they got kicked by this plugin. (0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hDeadBotTime = CreateConVar("l4d_multislots_alive_bot_time", "100", "When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
@@ -129,7 +128,6 @@ public void OnPluginStart()
 	HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
-	HookEvent("finale_vehicle_leaving", evtFinaleVehicleLeaving);
 
 	// ======================================
 	// Prep SDK Calls
@@ -283,30 +281,6 @@ public void evtSurvivorRescued(Event event, const char[] name, bool dontBroadcas
 	}
 }
 
-public void evtFinaleVehicleLeaving(Event event, const char[] name, bool dontBroadcast) //救援離開後,保護倖存者不受傷
-{
-	if (bhasFinaleEnded) return;
-	bhasFinaleEnded = true;
-	
-	int finale_ent = FindEntityByClassname(-1, "trigger_finale");
-	int finale_ent_dlc3 = FindEntityByClassname(-1, "trigger_finale_dlc3");
-	if (!IsValidEntity(finale_ent) || IsValidEntity(finale_ent_dlc3)) return;
-	 
-	bool isSacrificeFinale = view_as<bool>(GetEntProp(finale_ent, Prop_Data, "m_bIsSacrificeFinale"));
-	if (isSacrificeFinale) return;
-	
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsplayerIncap(i))
-		{
-			if( GetEntProp(i, Prop_Data, "m_takedamage") <= 0) continue;
-			SetEntProp(i, Prop_Send, "m_currentReviveCount", CVAR_INCAPMAX.IntValue);
-			SetEntProp(i, Prop_Data, "m_takedamage", DAMAGE_NO, 1);
-			ReturnToSaferoom(i);
-		}
-	}	
-}
-
 public void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
 {
 	int fakebotid = event.GetInt("bot");
@@ -358,8 +332,6 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	bhasFinaleEnded = false;
-	
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, PluginStart);
 	g_iRoundStart = 1;
@@ -808,29 +780,6 @@ public Action Timer_CountDown(Handle timer)
 	return Plugin_Continue;
 }
 
-bool IsplayerIncap(int client)
-{
-	if(GetEntProp(client, Prop_Send, "m_isHangingFromLedge") || GetEntProp(client, Prop_Send, "m_isIncapacitated"))
-		return true;
-
-	return false;
-}
-
-void ReturnToSaferoom(int client)
-{
-	if (IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
-	{
-		int warp_flags = GetCommandFlags("warp_to_start_area");
-		SetCommandFlags("warp_to_start_area", warp_flags & ~FCVAR_CHEAT);
-		int give_flags = GetCommandFlags("give");
-		SetCommandFlags("give", give_flags & ~FCVAR_CHEAT);
-
-		FakeClientCommand(client, "warp_to_start_area");
-
-		SetCommandFlags("warp_to_start_area", warp_flags);
-		SetCommandFlags("give", give_flags);
-	}
-}
 
 int GetRandomClient()
 {
