@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "1.2"
+#define PLUGIN_VERSION "1.3"
 
 #include <sourcemod>
 #pragma semicolon 1
@@ -10,7 +10,7 @@
 public Plugin myinfo =
 {
 	name = "Kick Bots Fix",
-	author = "raziEiL [disawar1],modify by Harry",
+	author = "raziEiL [disawar1] & HarryPotter",
 	description = "Fixed no Survivor bots issue or too many Survivor bots issue after map loading.",
 	version = PLUGIN_VERSION,
 	url = "http://steamcommunity.com/id/raziEiL"
@@ -37,14 +37,23 @@ public void OnPluginStart()
 {
 	g_hSurvivorLimit = FindConVar("survivor_limit");
 	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Upper, true, 32.0);
+	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Lower, true, 1.0);
 
 	g_iCvarSurvLimit = g_hSurvivorLimit.IntValue;
 	g_hSurvivorLimit.AddChangeHook(OnCvarChange_SurvivorLimit);
 
 	HookEvent("player_team", SF_ev_PlayerTeam);
-	HookEvent("round_start", event_RoundStart, EventHookMode_PostNoCopy);//每回合開始就發生的event
-	
+	HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);//每回合開始就發生的event
+	HookEvent("player_spawn",Event_PlayerSpawn,	EventHookMode_PostNoCopy);
+
 	RegAdminCmd("sm_botfix", CmdBotFix, ADMFLAG_ROOT);
+}
+
+public void OnMapStart()
+{
+	bTempBlock = false;
+	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Upper, true, 32.0);
+	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Lower, true, 1.0);
 }
 
 public Action CmdBotFix(int client, int args)
@@ -54,22 +63,36 @@ public Action CmdBotFix(int client, int args)
 	return Plugin_Handled;
 }
 
-public void event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+int g_iPlayerSpawn, g_iRoundStart;
+public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
+		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iRoundStart = 1;
+}
+
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
+	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
+		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iPlayerSpawn = 1;
+}
+
+public Action tmrStart(Handle timer)
+{
+	g_iPlayerSpawn = 0;
+	g_iRoundStart = 0;
+	bTempBlock = false;
+	
 	for (int i = 1; i <= MaxClients; i++)
+	{
 		if(IsClientConnected(i)&&IsClientInGame(i)&&!IsFakeClient(i))
 		{
 			CreateTimer(DELAY_BOT_CLIENT_Check, SF_t_CheckBots);
 			break;
 		}
+	}
 }
-
-
-public void OnMapStart()
-{
-	bTempBlock = false;
-}
-
 
 public Action SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
@@ -77,10 +100,9 @@ public Action SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcas
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
 
-	if (client && !IsFakeClient(client)){
-
-		if (event.GetBool("disconnect") == false && event.GetInt("team") == 1){
-
+	if (client && !IsFakeClient(client))
+	{
+		if (event.GetBool("disconnect") == false){
 			bTempBlock = true;
 			CreateTimer(1.0, SF_t_CheckBots);
 		}
@@ -91,17 +113,19 @@ public Action SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcas
 public Action SF_t_CheckBots(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++)
+	{
 		if(IsClientConnected(i)&&IsClientInGame(i)&&!IsFakeClient(i))
 		{
 			SF_Fix();
 			break;
 		}
+	}
 }
 
 void SF_Fix()
 {
 	int iSurvivorCount;
-	bool SurFakeClient; 
+	bool bKickFakeClient; 
 
 	for (int i = 1; i <= MaxClients; i++)
 		if (IsClientInGame(i) && GetClientTeam(i) == 2)
@@ -130,22 +154,29 @@ void SF_Fix()
 	if (iSurvivorCount > g_iCvarSurvLimit){
 		while (iSurvivorCount != g_iCvarSurvLimit){
 			LogMessage("Bug detected. Trying to kick a bot %d/%d", iSurvivorCount, g_iCvarSurvLimit);
-			SurFakeClient = false;
+			bKickFakeClient = false;
 			for (int i = 1; i <= MaxClients; i++)
+			{
 				if(IsClientInGame(i) && GetClientTeam(i) == 2 && IsFakeClient(i))
 				{
-					KickClient(i, "client_is_1vHunters_fakeclient");
+					KickClient(i, "bots > survivor_limit");
 					iSurvivorCount--;
-					SurFakeClient = true;
+					bKickFakeClient = true;
 					break;
 				}
-			if(!SurFakeClient)
+			}
+			
+			if(!bKickFakeClient)
+			{
 				for (int i = 1; i <= MaxClients; i++)
+				{
 					if (IsClientInGame(i) && GetClientTeam(i) == 2 && !IsFakeClient(i))
 					{
-						ChangeClientTeam(i, 3);
+						ChangeClientTeam(i, 1);
 						break;
 					}
+				}
+			}			
 		}
 		CreateTimer(DELAY_BOT_CLIENT_Check, SF_t_CheckBots);
 	}
