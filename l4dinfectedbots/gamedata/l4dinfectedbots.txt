@@ -48,6 +48,15 @@
 				"windows"	"\x83\x2A\x2A\x56\x57\x68\x80"
 			}
 		}
+        "Offsets"
+        {
+            
+            "FlashlightIsOn"
+            {
+                "windows"    "356"
+                "linux"        "357"
+            }  
+		}
 	}
 	
 	"left4dead2"
@@ -109,6 +118,14 @@
 				"library"	"server"
 				"linux"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
 				"windows"	"\x55\x8B\x2A\x83\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\x2A\x89\x2A\x2A\x56\x57\x8B\x2A\x2A\x68\x10"
+			}
+			"FlashLightTurnOn"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x2A\x83\x78\x2A\x2A\x56\x8B\xF1\x0F\x8E\x2A\x2A\x2A\x2A\x8B\x16"
+				"linux"		"@_ZN9CCSPlayer16FlashlightTurnOnEb"
+				/* by Machine */
+				/* 55 8B EC A1 ? ? ? ? 83 EC ? 83 78 ? ? 56 8B F1 0F 8E ? ? ? ? 8B 16 */
 			}
 		}
 	}

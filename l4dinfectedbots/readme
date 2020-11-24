@@ -4,11 +4,13 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.4.4
+v2.4.5
 -Remake Code
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236) and Shadowysn(https://forums.alliedmods.net/showthread.php?t=320849)
 -Spawn infected without being limited by the director.
+-Join infected team in coop/survival mode.
+-Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only, didn't work if you host a listen server)
 
 v1.0.0
 -Original Post: https://forums.alliedmods.net/showthread.php?t=99746
@@ -54,6 +56,9 @@ l4d_infectedbots_coop_versus "1"
 
 // If 1, clients will be announced to on how to join the infected team
 l4d_infectedbots_coop_versus_announce "1"
+
+// If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)
+l4d_infectedbots_coop_versus_human_light "1"
 
 // Sets the limit for the amount of humans that can join the infected team in coop/survival
 l4d_infectedbots_coop_versus_human_limit "2"

@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.4
+* Version	: 2.4.5
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,12 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.4.5
+*	   - survivor glow color issue in coop/survival mode.
+*	   - add "FlashlightIsOn" signature in l4d2, add "FlashlightIsOn" offset in l4d1.
+		(Thanks to Machine: https://forums.alliedmods.net/member.php?u=74752)
+*	   - Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only)
+
 * Version 2.4.4
 *	   - fixed plugin not working if player disconnects when map change.
 * 
@@ -563,7 +569,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.4"
+#define PLUGIN_VERSION "2.4.5"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -683,6 +689,7 @@ ConVar h_ReducedSpawnTimesOnPlayer;
 ConVar h_SpawnTankProbability;
 ConVar h_ZSDisableGamemode;
 ConVar h_CommonLimitAdjust, h_CommonLimit, h_PlayerAddCommonLimitScale, h_PlayerAddCommonLimit,h_common_limit_cvar;
+ConVar h_CoopInfectedPlayerFlashLight;
 
 //Handle
 static Handle PlayerLeftStartTimer = null; //Detect player has left safe area or not
@@ -693,6 +700,7 @@ static Panel pInfHUD = null;
 static Handle usrHUDPref 		= null;	// Stores the client HUD preferences persistently
 Handle FightOrDieTimer[MAXPLAYERS+1] = null; // kill idle bots
 Handle hSpawnWitchTimer = null;
+Handle RestoreColorTimer[MAXPLAYERS+1] = null;
 
 //signature call
 static Handle hSpec = null;
@@ -704,6 +712,7 @@ static Handle hCreateSpitter = null;
 static Handle hCreateJockey = null;
 static Handle hCreateCharger = null;
 static Handle hCreateTank = null;
+static Handle hFlashLightTurnOn = null;
 
 // Stuff related to Durzel's HUD (Panel was redone)
 static int respawnDelay[MAXPLAYERS+1]; 			// Used to store individual player respawn delays after death
@@ -716,13 +725,21 @@ static float fPlayerSpawnEngineTime[MAXENTITIES] = 0.0; //time when real infecte
 int g_iClientColor[MAXPLAYERS+1], g_iClientIndex[MAXPLAYERS+1], g_iLightIndex[MAXPLAYERS+1];
 int iPlayerTeam[MAXPLAYERS+1];
 bool g_bSafeSpawn, g_bTankHealthAdjust, g_bVersusCoop, g_bJoinableTeams, g_bCoopPlayableTank , g_bJoinableTeamsAnnounce,
-	g_bInfHUD, g_bAnnounce , g_bAdminJoinInfected, g_bAdjustSpawnTimes, g_bCommonLimitAdjust;
+	g_bInfHUD, g_bAnnounce , g_bAdminJoinInfected, g_bAdjustSpawnTimes, g_bCommonLimitAdjust, g_bCoopInfectedPlayerFlashLight;
 int g_iZSDisableGamemode, g_iTankHealth, g_iInfectedSpawnTimeMax, g_iInfectedSpawnTimeMin, g_iHumanCoopLimit,
 	g_iReducedSpawnTimesOnPlayer, g_iWitchPeriodMax, g_iWitchPeriodMin, g_iSpawnTankProbability, g_iCommonLimit;
 int g_iPlayerSpawn, g_bMapStarted, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
+#define RESISTANCE_SERVER 0
+#if RESISTANCE_SERVER
+#define SOUND_ZOMBIE1 "resistance/zombie/zombi_coming_1.mp3"
+#define SOUND_ZOMBIE2 "resistance/zombie/zombi_coming_2.mp3"
+#define SOUND_ZOMBIE3 "resistance/zombie/zombi_comeback.mp3"
+#define SOUND_ZOMBIE_WIN "resistance/zombie/win_zombie.mp3"
+#define SOUND_HUMAN_WIN "resistance/zombie/win_human.mp3"
+#endif
 
 public Plugin myinfo = 
 {
@@ -854,6 +871,7 @@ public void OnPluginStart()
 	h_CommonLimit = CreateConVar("l4d_infectedbots_default_commonlimit", "30", "Sets Default zombie common limit.", FCVAR_NOTIFY, true, 1.0); 
 	h_PlayerAddCommonLimitScale = CreateConVar("l4d_infectedbots_add_commonlimit_scale", "1", "If server has more than 4+ alive players, zombie common limit = 'default_commonlimit' + [(alive players - 4) ÷ 'add_commonlimit_scale' × 'add_commonlimit'].", FCVAR_NOTIFY, true, 1.0); 
 	h_PlayerAddCommonLimit = CreateConVar("l4d_infectedbots_add_commonlimit", "2", "If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_default_commonlimit' each 'l4d_infectedbots_add_commonlimit_scale' players joins", FCVAR_NOTIFY, true, 0.0); 
+	h_CoopInfectedPlayerFlashLight = CreateConVar("l4d_infectedbots_coop_versus_human_light", "1", "If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)", FCVAR_NOTIFY, true, 0.0, true, 1.0); 
 
 	h_GameMode = FindConVar("mp_gamemode");
 	h_GameMode.AddChangeHook(ConVarGameMode);
@@ -890,6 +908,7 @@ public void OnPluginStart()
 	h_WitchKillTime.AddChangeHook(ConVarChanged_Cvars);
 	h_SpawnTankProbability.AddChangeHook(ConVarChanged_Cvars);
 	h_CommonLimit.AddChangeHook(ConVarChanged_Cvars);
+	h_CoopInfectedPlayerFlashLight.AddChangeHook(ConVarChanged_Cvars);
 
 	GetSpawnDisConvars();
 	g_iMaxPlayerZombies = h_MaxPlayerZombies.IntValue;
@@ -915,6 +934,10 @@ public void OnPluginStart()
 	HookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (沒有觸發round_end)
+#if RESISTANCE_SERVER
+	HookEvent("map_transition", evtMapTransition); //戰役過關到下一關的時候
+	HookEvent("mission_lost", evtMissionLost); //戰役滅團重來該關卡的時候
+#endif
 	// We hook some events ...
 	HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 	HookEvent("player_team", evtPlayerTeam);
@@ -1063,6 +1086,21 @@ public void OnPluginStart()
 		hCreateTank = EndPrepSDKCall();
 		if (hCreateTank == null)
 			SetFailState("Cannot initialize NextBotCreatePlayerBot<Tank> SDKCall, signature is broken.") ;
+		
+		if(L4D2Version)
+		{
+			StartPrepSDKCall(SDKCall_Player);
+			PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "FlashLightTurnOn");
+			hFlashLightTurnOn = EndPrepSDKCall();
+		}
+		else
+		{
+			StartPrepSDKCall(SDKCall_Player);
+			PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "FlashlightIsOn");
+			hFlashLightTurnOn = EndPrepSDKCall();
+		}
+		if (hFlashLightTurnOn == null)
+			SetFailState("FlashLightTurnOn Signature broken");
 	}
 	else
 	{
@@ -1117,6 +1155,7 @@ void GetCvars()
 	g_fWitchKillTime = h_WitchKillTime.FloatValue;
 	g_iSpawnTankProbability = h_SpawnTankProbability.IntValue;
 	g_iCommonLimit = h_CommonLimit.IntValue;
+	g_bCoopInfectedPlayerFlashLight = h_CoopInfectedPlayerFlashLight.BoolValue;
 }
 
 public void ConVarMaxPlayerZombies(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -1148,22 +1187,28 @@ public void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] ne
 	TweakSettings();
 
 	bDisableSurvivorModelGlow = true;
-	char mode[64];
-	h_GameMode.GetString(mode, sizeof(mode));
-	for( int i = 1; i <= MaxClients; i++ ) 
+	if(L4D2Version)
 	{
-		RemoveSurvivorModelGlow(i);
-		if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, h_GameMode, mode);
-	}
-
-	if(GameMode != 2 && g_bJoinableTeams)
-	{
-		bDisableSurvivorModelGlow = false;
+		static char mode[64];
+		h_GameMode.GetString(mode, sizeof(mode));
 		for( int i = 1; i <= MaxClients; i++ ) 
 		{
-			CreateSurvivorModelGlow(i);
-			if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == TEAM_INFECTED) SendConVarValue(i, h_GameMode, "versus");
-		}	
+			RemoveSurvivorModelGlow(i);
+			if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, h_GameMode, mode);
+		}
+	}
+
+	if(L4D2Version)
+	{
+		if(GameMode != 2 && g_bJoinableTeams)
+		{
+			bDisableSurvivorModelGlow = false;
+			for( int i = 1; i <= MaxClients; i++ ) 
+			{
+				CreateSurvivorModelGlow(i);
+				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == TEAM_INFECTED) SendConVarValue(i, h_GameMode, "versus");
+			}	
+		}
 	}
 }
 
@@ -1242,13 +1287,16 @@ public void ConVarCoopVersus(ConVar convar, const char[] oldValue, const char[] 
 			{
 				ResetConVar(FindConVar("sb_all_bot_team"), true, true);
 			}
-			char mode[64];
-			h_GameMode.GetString(mode, sizeof(mode));
-			bDisableSurvivorModelGlow = true;
-			for( int i = 1; i <= MaxClients; i++ )
+			if(L4D2Version)
 			{
-				if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, h_GameMode, mode);
-				RemoveSurvivorModelGlow(i);
+				static char mode[64];
+				h_GameMode.GetString(mode, sizeof(mode));
+				bDisableSurvivorModelGlow = true;
+				for( int i = 1; i <= MaxClients; i++ )
+				{
+					if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, h_GameMode, mode);
+					RemoveSurvivorModelGlow(i);
+				}
 			}
 		}
 	}
@@ -1658,7 +1706,17 @@ public Action MaxSpecialsSet(Handle Timer)
 	#endif
 }
 
+#if RESISTANCE_SERVER
+public Action evtMapTransition(Event event, const char[] name, bool dontBroadcast) 
+{
+	EmitSoundToAll(SOUND_HUMAN_WIN, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
+}
 
+public Action evtMissionLost(Event event, const char[] name, bool dontBroadcast) 
+{
+	EmitSoundToAll(SOUND_ZOMBIE_WIN, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
+}
+#endif
 public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
 	// If round has not been reported as ended ..
@@ -1707,6 +1765,13 @@ public void OnMapStart()
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
 
+#if RESISTANCE_SERVER
+	PrecacheSound(SOUND_ZOMBIE1);
+	PrecacheSound(SOUND_ZOMBIE2);
+	PrecacheSound(SOUND_ZOMBIE3);
+	PrecacheSound(SOUND_HUMAN_WIN);
+	PrecacheSound(SOUND_ZOMBIE_WIN);
+#endif
 }
 
 public void OnMapEnd()
@@ -2336,6 +2401,7 @@ public Action evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	if (b_HasRoundEnded || !b_LeftSaveRoom) return Plugin_Continue;
 	
 	delete FightOrDieTimer[client];
+	delete RestoreColorTimer[client];
 	
 	
 	if (!client || !IsClientInGame(client)) return Plugin_Continue;
@@ -2493,17 +2559,29 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 					{
 						if (HumansOnInfected() <= g_iHumanCoopLimit)
 						{
-							//PrintToChatAll("%N Fake versus convar",client);
-							SendConVarValue(client, h_GameMode, "versus");
-							if(bDisableSurvivorModelGlow == true)
+							if(L4D2Version)
 							{
-								bDisableSurvivorModelGlow = false;
-								for( int i = 1; i <= MaxClients; i++ )
+								//PrintToChatAll("%N Fake versus convar",client);
+								SendConVarValue(client, h_GameMode, "versus");
+								if(bDisableSurvivorModelGlow == true)
 								{
-									CreateSurvivorModelGlow(i);
+									bDisableSurvivorModelGlow = false;
+									for( int i = 1; i <= MaxClients; i++ )
+									{
+										CreateSurvivorModelGlow(i);
+									}
 								}
 							}
 
+#if RESISTANCE_SERVER
+							int random = GetRandomInt(1,3);
+							switch(random)
+							{
+								case 1: EmitSoundToAll(SOUND_ZOMBIE1, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
+								case 2: EmitSoundToAll(SOUND_ZOMBIE2, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
+								case 3: EmitSoundToAll(SOUND_ZOMBIE3, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
+							}
+#endif
 							return Plugin_Continue;
 						}
 					}
@@ -2517,16 +2595,19 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 			else
 			{
 				iPlayerTeam[client] = iTeam;
-				char mode[64];
-				h_GameMode.GetString(mode, sizeof(mode));
-				SendConVarValue(client, h_GameMode, mode);
-
-				if(!RealPlayersOnInfected() && bDisableSurvivorModelGlow == false)
+				if(L4D2Version)
 				{
-					bDisableSurvivorModelGlow = true;
-					for( int i = 1; i <= MaxClients; i++ )
+					static char mode[64];
+					h_GameMode.GetString(mode, sizeof(mode));
+					SendConVarValue(client, h_GameMode, mode);
+
+					if(!RealPlayersOnInfected() && bDisableSurvivorModelGlow == false)
 					{
-						RemoveSurvivorModelGlow(i);
+						bDisableSurvivorModelGlow = true;
+						for( int i = 1; i <= MaxClients; i++ )
+						{
+							RemoveSurvivorModelGlow(i);
+						}
 					}
 				}
 			}
@@ -2581,6 +2662,9 @@ public Action ColdDown_Timer(Handle timer)
 
 public void OnClientDisconnect(int client)
 {
+	delete FightOrDieTimer[client];
+	delete RestoreColorTimer[client];
+
 	RemoveSurvivorModelGlow(client);
 	
 	if(roundInProgress == false) return;
@@ -2827,16 +2911,20 @@ public Action Event_GotVomit(Event event, const char[] name, bool dontBroadcast)
 	if( IsValidEntRef(entity) )
 	{
 		SetEntProp(entity, Prop_Send, "m_glowColorOverride", 155 + (0 * 256) + (180 * 65536)); //Purple
-		CreateTimer(20.0, RestoreColor_Timer, entity, TIMER_FLAG_NO_MAPCHANGE);
+		
+		delete RestoreColorTimer[client]; RestoreColorTimer[client] = CreateTimer(20.0, Timer_RestoreColor, client);
 	}
 }
 
-public Action RestoreColor_Timer(Handle timer, int entity)
+public Action Timer_RestoreColor(Handle timer, int client)
 {
+	int entity = g_iModelIndex[client];
 	if( IsValidEntRef(entity) )
 	{
-		SetEntProp(entity, Prop_Send, "m_glowColorOverride", 0 + (180 * 256) + (0 * 65536)); //Green
+		if(IsplayerIncap(client)) SetEntProp(entity, Prop_Send, "m_glowColorOverride", 180 + (0 * 256) + (0 * 65536)); //RGB
+		else SetEntProp(entity, Prop_Send, "m_glowColorOverride", 0 + (180 * 256) + (0 * 65536)); //RGB
 	}
+	RestoreColorTimer[client] = null;
 }
 
 public Action KickWitch_Timer(Handle timer, int ref)
@@ -4048,11 +4136,13 @@ public void OnPluginEnd()
 		ResetConVar(FindConVar("sb_all_bot_game"), true, true);
 		ResetConVar(FindConVar("allow_all_bot_survivor_team"), true, true);
 	}
-	char mode[64];
-	h_GameMode.GetString(mode, sizeof(mode));
-	for( int i = 1; i <= MaxClients; i++ )
-		if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, h_GameMode, mode);
-	
+	if(L4D2Version)
+	{
+		static char mode[64];
+		h_GameMode.GetString(mode, sizeof(mode));
+		for( int i = 1; i <= MaxClients; i++ )
+			if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, h_GameMode, mode);
+	}
 	// Destroy the persistent storage for client HUD preferences
 	delete usrHUDPref;
 	
@@ -4409,7 +4499,7 @@ public void ShowInfectedHUD(int src)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
-			if ( (GetClientTeam(i) == TEAM_INFECTED))
+			if ( (GetClientTeam(i) != TEAM_SURVIVORS))
 			{
 				if(IsPlayerTank(i))
 				{
@@ -4584,49 +4674,56 @@ void TurnFlashlightOn(int client)
 	if (!PlayerIsAlive(client)) return;
 	if (IsFakeClient(client)) return;
 
-	DeleteLight(client);
+	SetEntProp(client, Prop_Send, "m_iTeamNum", 2);
+	SDKCall(hFlashLightTurnOn, client);
+	SetEntProp(client, Prop_Send, "m_iTeamNum", 3);
 
-	// Declares
-	int entity;
-	float vOrigin[3], vAngles[3];
-
-	// Position light
-	vOrigin = view_as<float>(  { 0.5, -1.5, 50.0 });
-	vAngles = view_as<float>(  { -45.0, -45.0, 90.0 });
-
-	// Light_Dynamic
-	entity = MakeLightDynamic(vOrigin, vAngles, client);
-	g_iLightIndex[client] = EntIndexToEntRef(entity);
-
-	if( g_iClientIndex[client] == GetClientUserId(client) )
+	if(g_bCoopInfectedPlayerFlashLight)
 	{
-		SetEntProp(entity, Prop_Send, "m_clrRender", g_iClientColor[client]);
-		AcceptEntityInput(entity, "TurnOff");
+		DeleteLight(client);
+
+		// Declares
+		int entity;
+		float vOrigin[3], vAngles[3];
+
+		// Position light
+		vOrigin = view_as<float>(  { 0.5, -1.5, 50.0 });
+		vAngles = view_as<float>(  { -45.0, -45.0, 90.0 });
+
+		// Light_Dynamic
+		entity = MakeLightDynamic(vOrigin, vAngles, client);
+		g_iLightIndex[client] = EntIndexToEntRef(entity);
+
+		if( g_iClientIndex[client] == GetClientUserId(client) )
+		{
+			SetEntProp(entity, Prop_Send, "m_clrRender", g_iClientColor[client]);
+			AcceptEntityInput(entity, "TurnOff");
+		}
+		else
+		{
+			g_iClientIndex[client] = GetClientUserId(client);
+			g_iClientColor[client] = GetEntProp(entity, Prop_Send, "m_clrRender");
+			AcceptEntityInput(entity, "TurnOff");
+		}
+
+		entity = g_iLightIndex[client];
+		if( !IsValidEntRef(entity) )
+			return;
+
+		// Specified colors
+		char sTempL[12];
+		Format(sTempL, sizeof(sTempL), "185 51 51");
+
+		SetVariantEntity(entity);
+		SetVariantString(sTempL);
+		AcceptEntityInput(entity, "color");
+		AcceptEntityInput(entity, "toggle");
+
+		int color = GetEntProp(entity, Prop_Send, "m_clrRender");
+		if( color != g_iClientColor[client] )
+			AcceptEntityInput(entity, "turnon");
+		g_iClientColor[client] = color;
 	}
-	else
-	{
-		g_iClientIndex[client] = GetClientUserId(client);
-		g_iClientColor[client] = GetEntProp(entity, Prop_Send, "m_clrRender");
-		AcceptEntityInput(entity, "TurnOff");
-	}
-
-	entity = g_iLightIndex[client];
-	if( !IsValidEntRef(entity) )
-		return;
-
-	// Specified colors
-	char sTempL[12];
-	Format(sTempL, sizeof(sTempL), "185 51 51");
-
-	SetVariantEntity(entity);
-	SetVariantString(sTempL);
-	AcceptEntityInput(entity, "color");
-	AcceptEntityInput(entity, "toggle");
-
-	int color = GetEntProp(entity, Prop_Send, "m_clrRender");
-	if( color != g_iClientColor[client] )
-		AcceptEntityInput(entity, "turnon");
-	g_iClientColor[client] = color;
 }
 
 void DeleteLight(int client)
@@ -4905,6 +5002,7 @@ void ResetTimer()
 	{
 		PlayerHasEnteredStart[i] = false;
 		delete FightOrDieTimer[i];
+		delete RestoreColorTimer[i];
 	}
 
 	delete hSpawnWitchTimer;
@@ -4933,7 +5031,8 @@ public Action tmrDelayCreateSurvivorGlow(Handle timer, any client)
 
 public void CreateSurvivorModelGlow(int client)
 {
-	if (!client || 
+	if (!L4D2Version ||
+	!client || 
 	!IsClientInGame(client) || 
 	GetClientTeam(client) != TEAM_SURVIVORS || 
 	!IsPlayerAlive(client) ||
