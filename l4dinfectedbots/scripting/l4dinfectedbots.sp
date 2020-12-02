@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.5
+* Version	: 2.4.6
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.4.6
+*	   - Signature fix for 12/2/2020 update. (TLS team, please stop unuseless update)
+*
 * Version 2.4.5
 *	   - survivor glow color issue in coop/survival mode.
 *	   - add "FlashlightIsOn" signature in l4d2, add "FlashlightIsOn" offset in l4d1.
@@ -569,7 +572,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.5"
+#define PLUGIN_VERSION "2.4.6"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -732,14 +735,6 @@ int g_iPlayerSpawn, g_bMapStarted, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
-#define RESISTANCE_SERVER 0
-#if RESISTANCE_SERVER
-#define SOUND_ZOMBIE1 "resistance/zombie/zombi_coming_1.mp3"
-#define SOUND_ZOMBIE2 "resistance/zombie/zombi_coming_2.mp3"
-#define SOUND_ZOMBIE3 "resistance/zombie/zombi_comeback.mp3"
-#define SOUND_ZOMBIE_WIN "resistance/zombie/win_zombie.mp3"
-#define SOUND_HUMAN_WIN "resistance/zombie/win_human.mp3"
-#endif
 
 public Plugin myinfo = 
 {
@@ -934,10 +929,7 @@ public void OnPluginStart()
 	HookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (沒有觸發round_end)
-#if RESISTANCE_SERVER
-	HookEvent("map_transition", evtMapTransition); //戰役過關到下一關的時候
-	HookEvent("mission_lost", evtMissionLost); //戰役滅團重來該關卡的時候
-#endif
+
 	// We hook some events ...
 	HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 	HookEvent("player_team", evtPlayerTeam);
@@ -1706,17 +1698,7 @@ public Action MaxSpecialsSet(Handle Timer)
 	#endif
 }
 
-#if RESISTANCE_SERVER
-public Action evtMapTransition(Event event, const char[] name, bool dontBroadcast) 
-{
-	EmitSoundToAll(SOUND_HUMAN_WIN, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
-}
 
-public Action evtMissionLost(Event event, const char[] name, bool dontBroadcast) 
-{
-	EmitSoundToAll(SOUND_ZOMBIE_WIN, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
-}
-#endif
 public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
 	// If round has not been reported as ended ..
@@ -1765,13 +1747,7 @@ public void OnMapStart()
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
 
-#if RESISTANCE_SERVER
-	PrecacheSound(SOUND_ZOMBIE1);
-	PrecacheSound(SOUND_ZOMBIE2);
-	PrecacheSound(SOUND_ZOMBIE3);
-	PrecacheSound(SOUND_HUMAN_WIN);
-	PrecacheSound(SOUND_ZOMBIE_WIN);
-#endif
+
 }
 
 public void OnMapEnd()
@@ -2572,16 +2548,7 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 									}
 								}
 							}
-
-#if RESISTANCE_SERVER
-							int random = GetRandomInt(1,3);
-							switch(random)
-							{
-								case 1: EmitSoundToAll(SOUND_ZOMBIE1, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
-								case 2: EmitSoundToAll(SOUND_ZOMBIE2, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
-								case 3: EmitSoundToAll(SOUND_ZOMBIE3, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
-							}
-#endif
+							
 							return Plugin_Continue;
 						}
 					}
@@ -4499,7 +4466,7 @@ public void ShowInfectedHUD(int src)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
-			if ( (GetClientTeam(i) != TEAM_SURVIVORS))
+			if ( (GetClientTeam(i) == TEAM_INFECTED))
 			{
 				if(IsPlayerTank(i))
 				{

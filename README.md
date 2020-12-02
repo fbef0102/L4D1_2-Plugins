@@ -42,7 +42,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_votes_5</b>: L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 * <b>vocal_block</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>no-rushing</b>: Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
-* <b>multitanks_a-l4d2</b>: An improved version of the MultiTanks plugin originally created by Red Alex.
 * <b>fix_botkick</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
 * <b>l4d_meteor_hunter</b>: Hunter high pounces cause meteor strike
 * <b>lfd_noTeamSay</b>: Redirecting all 'say_team' messages to 'say'
