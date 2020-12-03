@@ -370,7 +370,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 			{
 				if(SpawnFakeClient() == true)
 				{
-					if(bKill && iDeadBotTime > 0) CreateTimer(0.5, Timer_TakeOverBotAndDie, GetClientUserId(client));
+					if(bKill && iDeadBotTime > 0) CreateTimer(0.5, Timer_TakeOverBotAndDie, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 					else CreateTimer(0.5, Timer_AutoJoinTeam, GetClientUserId(client));	
 				}
 				else
@@ -445,20 +445,21 @@ public Action Timer_KillSurvivor(Handle timer, int client)
 public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if (!client || !IsClientInGame(client)) return;
-	if (GetClientTeam(client) == TEAM_SURVIVORS) return;
-	if (IsFakeClient(client)) return;
+	if (!client || !IsClientInGame(client)) return Plugin_Stop;
+	if (GetClientTeam(client) == TEAM_SURVIVORS && !IsPlayerAlive(client)) return Plugin_Stop;
 
 	int fakebot = FindBotToTakeOver(true);
 	if (fakebot == 0)
 	{
 		PrintHintText(client, "%T", "No Bots for replacement.", client);
-		return;
+		return Plugin_Stop;
 	}
 
 	SDKCall(hSetHumanSpec, fakebot, client);
 	SDKCall(hTakeOver, client, true);
 	CreateTimer(0.1, Timer_KillSurvivor, client);
+
+	return Plugin_Continue;
 }
 
 public Action Timer_AutoJoinTeam(Handle timer, int userid)
