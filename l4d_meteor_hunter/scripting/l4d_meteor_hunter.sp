@@ -12,7 +12,7 @@ public Plugin myinfo =
 	name = "Meteor Hunter",
 	author = "Spirit, Harry",
 	description = "high pounces cause meteor strike",
-	version = "1.4",
+	version = "1.5",
 	url = "https://forums.alliedmods.net/showthread.php?p=2712447"
 }
 
@@ -240,27 +240,12 @@ void CreateHit(int client)
 
 	CreateParticles(pos);
 	
-	Handle haPack = CreateDataPack();
-	WritePackFloat(haPack, 60.0);
-	WritePackFloat(haPack, pos[0]);
-	WritePackFloat(haPack, pos[1]);
-	WritePackFloat(haPack, pos[2]);
-	CreateTimer(0.1,CreateRing,haPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
-	
 	Handle hbPack = CreateDataPack();
 	WritePackFloat(hbPack, 120.0);
 	WritePackFloat(hbPack, pos[0]);
 	WritePackFloat(hbPack, pos[1]);
 	WritePackFloat(hbPack, pos[2]);
-	CreateTimer(0.3,CreateRing,hbPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
-	
-	Handle hcPack = CreateDataPack();
-	WritePackFloat(hcPack, 180.0);
-	WritePackFloat(hcPack, pos[0]);
-	WritePackFloat(hcPack, pos[1]);
-	WritePackFloat(hcPack, pos[2]);
-	CreateTimer(0.6,CreateRing,hcPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
-
+	CreateTimer(0.5,CreateRing,hbPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 }
 
 void CreateParticles(float pos[3])
@@ -327,7 +312,7 @@ public Action TimerDeleteRock(Handle hTimer, int ref)
 void CreateRock(float Rpos[3])
 {
 	int rock = -1;
-	rock = CreateEntityByName ( "prop_dynamic"); 
+	rock = CreateEntityByName ("prop_dynamic"); 
 	if(rock == -1)
 		return;
 
