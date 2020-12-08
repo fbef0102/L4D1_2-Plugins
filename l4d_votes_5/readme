@@ -29,6 +29,15 @@ l4d_VotensmapED "1"
 // If 1, Enable Restart Current Map Vote.
 l4d_VotensrestartmapED "1"
 
+// If 1, Enable ForceSpectate Player Vote.
+l4d_VotesForceSpectateED "1"
+
+// If 1, Enable Kick Player Vote.
+l4d_VotesKickED "1"
+
+// Players with these flags have kick immune. (Empty = Everyone, -1: Nobody)
+l4d_VotesKick_immue_access_flag "z"
+
 // Minimum # of players in game to start the vote
 sm_vote_player_limit "2"
 

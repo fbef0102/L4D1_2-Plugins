@@ -26,13 +26,6 @@
 int Votey = 0;
 int Voten = 0;
 bool game_l4d2 = false;
-char VotensHp_ED[32];
-char VotensAlltalk_ED[32];
-char VotensAlltalk2_ED[32];
-char VotensRestartmap_ED[32];
-char VotensMap_ED[32];
-char VotensMap2_ED[32];
-char swapplayer[MAX_NAME_LENGTH];
 char swapplayername[MAX_NAME_LENGTH];
 char votesmaps[MAX_NAME_LENGTH];
 char votesmapsname[MAX_NAME_LENGTH];
@@ -44,26 +37,35 @@ ConVar VotensRestartmapED;
 ConVar VotensMapED;
 ConVar VotensMap2ED;
 ConVar VotensED;
+ConVar VotensKickED;
+ConVar VotensForceSpectateED;
 ConVar g_hCvarPlayerLimit;
+ConVar g_hKickImmueAccess;
+int g_iCvarPlayerLimit;
 Handle g_hVoteMenu = null;
 float lastDisconnectTime;
 bool ClientVoteMenu[MAXPLAYERS + 1];
 int g_iCount;
 char g_sMapinfo[MAX_CAMPAIGN_LIMIT][MAX_NAME_LENGTH];
 char g_sMapname[MAX_CAMPAIGN_LIMIT][MAX_NAME_LENGTH];
+float g_fLimit;
+bool g_bEnable, VotensHpE_D, VotensAlltalkE_D, VotensAlltalk2E_D, VotensRestartmapE_D, 
+	VotensMapE_D, VotensMap2E_D, g_bVotensKickED, g_bVotensForceSpectateED;
+char g_sKickImmueAccesslvl[16];
 
 enum voteType
 {
+	None,
 	hp,
 	alltalk,
 	alltalk2,
 	restartmap,
-	swap,
+	kick,
 	map,
 	map2,
 	forcespectate,
 }
-voteType g_voteType = hp;
+voteType g_voteType = None;
 
 int forcespectateid;
 static	int g_iSpectatePenaltyCounter[MAXPLAYERS + 1];
@@ -110,7 +112,7 @@ public Plugin myinfo =
 	name = "L4D2 Vote Menu",
 	author = "fenghf, Harry Potter",
 	description = "Votes Commands",
-	version = "5.0",
+	version = "5.5",
 	url = "https://steamcommunity.com/id/fbef0102/"
 };
 
@@ -122,7 +124,7 @@ public void OnPluginStart()
 	RegConsoleCmd("votesrestartmap", Command_VoteRestartmap);
 	RegConsoleCmd("votesmapsmenu", Command_VotemapsMenu);
 	RegConsoleCmd("votesmaps2menu", Command_Votemaps2Menu);
-	RegConsoleCmd("votesswap", Command_Votesswap);
+	RegConsoleCmd("voteskick", Command_VotesKick);
 	RegConsoleCmd("sm_votes", Command_Votes, "open vote meun");
 	RegConsoleCmd("sm_callvote", Command_Votes, "open vote meun");
 	RegConsoleCmd("sm_callvotes", Command_Votes, "open vote meun");
@@ -138,12 +140,50 @@ public void OnPluginStart()
 	VotensMapED = CreateConVar("l4d_VotensmapED", "1", "If 1, Enable Change Value Map Vote.", FCVAR_NOTIFY);
 	VotensMap2ED = CreateConVar("l4d_Votensmap2ED", "1", "If 1, Enable Change Custom Map Vote.", FCVAR_NOTIFY);
 	VotensED = CreateConVar("l4d_Votens", "1", "0=Off, 1=On this plugin", FCVAR_NOTIFY);
+	VotensKickED = CreateConVar("l4d_VotesKickED", "1", "If 1, Enable Kick Player Vote.", FCVAR_NOTIFY);
+	VotensForceSpectateED = CreateConVar("l4d_VotesForceSpectateED", "1", "If 1, Enable ForceSpectate Player Vote.", FCVAR_NOTIFY);
 	g_hCvarPlayerLimit = CreateConVar("sm_vote_player_limit", "2", "Minimum # of players in game to start the vote", FCVAR_NOTIFY);
+	g_hKickImmueAccess = CreateConVar("l4d_VotesKick_immue_access_flag", "z", "Players with these flags have kick immune. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	
 	HookEvent("round_start", event_Round_Start);
+
+	GetCvars();
+	g_Cvar_Limits.AddChangeHook(ConVarChanged_Cvars);
+	VotensHpED.AddChangeHook(ConVarChanged_Cvars);
+	VotensAlltalkED.AddChangeHook(ConVarChanged_Cvars);
+	VotensAlltalk2ED.AddChangeHook(ConVarChanged_Cvars);
+	VotensRestartmapED.AddChangeHook(ConVarChanged_Cvars);
+	VotensMapED.AddChangeHook(ConVarChanged_Cvars);
+	VotensMap2ED.AddChangeHook(ConVarChanged_Cvars);
+	VotensED.AddChangeHook(ConVarChanged_Cvars);
+	VotensKickED.AddChangeHook(ConVarChanged_Cvars);
+	VotensForceSpectateED.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarPlayerLimit.AddChangeHook(ConVarChanged_Cvars);
+	g_hKickImmueAccess.AddChangeHook(ConVarChanged_Cvars);
+
 	AutoExecConfig(true, "l4d_votes_5");
 }
 
+public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	GetCvars();
+}
+
+GetCvars()
+{
+	g_fLimit = g_Cvar_Limits.FloatValue;
+	g_iCvarPlayerLimit = g_hCvarPlayerLimit.IntValue;
+	VotensHpE_D = VotensHpED.BoolValue;
+	VotensAlltalkE_D = VotensAlltalkED.BoolValue;
+	VotensAlltalk2E_D = VotensAlltalk2ED.BoolValue;
+	VotensRestartmapE_D = VotensRestartmapED.BoolValue;		
+	VotensMapE_D = VotensMapED.BoolValue;
+	VotensMap2E_D = VotensMap2ED.BoolValue;
+	g_bVotensKickED = VotensKickED.BoolValue;
+	g_bVotensForceSpectateED = VotensForceSpectateED.BoolValue;
+	g_bEnable = VotensED.BoolValue;
+	g_hKickImmueAccess.GetString(g_sKickImmueAccesslvl,sizeof(g_sKickImmueAccesslvl));
+}
 public Action CommandRestartMap(int client, int args)
 {	
 	if(!isMapRestartPending)
@@ -235,125 +275,87 @@ public Action Command_Votes(int client, int args)
 		ReplyToCommand(client, "[votes] 旁觀無權發起投票. (spectators can not call a vote)");	
 		return Plugin_Handled;
 	}
+
 	ClientVoteMenu[client] = true;
-	if(VotensED.BoolValue == true)
-	{
-		bool VotensHpE_D = VotensHpED.BoolValue;
-		bool VotensAlltalkE_D = VotensAlltalkED.BoolValue;
-		bool VotensAlltalk2E_D = VotensAlltalk2ED.BoolValue;
-		bool VotensRestartmapE_D = VotensRestartmapED.BoolValue;		
-		bool VotensMapE_D = VotensMapED.BoolValue;
-		bool VotensMap2E_D = VotensMap2ED.BoolValue;
-		
-		if(VotensHpE_D == false)
-		{
-			VotensHp_ED = "開啟";
-		}
-		else if(VotensHpE_D == true)
-		{
-			VotensHp_ED = "禁用";
-		}
-		
-		if(VotensAlltalkE_D == false)
-		{
-			VotensAlltalk_ED = "開啟";
-		}
-		else if(VotensAlltalkE_D == true)
-		{
-			VotensAlltalk_ED = "禁用";
-		}
-		
-		if(VotensAlltalk2E_D == false)
-		{
-			VotensAlltalk2_ED = "開啟";
-		}
-		else if(VotensAlltalk2E_D == true)
-		{
-			VotensAlltalk2_ED = "禁用";
-		}
-		
-		if(VotensRestartmapE_D == false)
-		{
-			VotensRestartmap_ED = "開啟";
-		}
-		else if(VotensRestartmapE_D == true)
-		{
-			VotensRestartmap_ED = "禁用";
-		}
-		
-		if(VotensMapE_D == false)
-		{
-			VotensMap_ED = "開啟";
-		}
-		else if(VotensMapE_D == true)
-		{
-			VotensMap_ED = "禁用";
-		}
-		
-		if(VotensMap2E_D == false)
-		{
-			VotensMap2_ED = "開啟";
-		}
-		else if(VotensMap2E_D == true)
-		{
-			VotensMap2_ED = "禁用";
-		}
+	if(g_bEnable == true)
+	{	
 		Handle menu = CreatePanel();
 		SetPanelTitle(menu, "菜單");
 		if (VotensHpE_D == false)
 		{
-			DrawPanelItem(menu, "禁用回血 Stop give hp");
+			DrawPanelItem(menu, "回血(關閉中) Give Hp(Disable)");
 		}
-		else if (VotensHpE_D == true)
+		else
 		{
 			DrawPanelItem(menu, "回血 Give hp");
 		}
 		if (VotensAlltalkE_D == false)
 		{ 
-			DrawPanelItem(menu, "禁用全語音 Stop all talk");
+			DrawPanelItem(menu, "全語音(關閉中) Turn on AllTalk(Disable)");
 		}
-		else if (VotensAlltalkE_D == true)
+		else
 		{
 			DrawPanelItem(menu, "全語音 All talk");
 		}
 		if (VotensAlltalk2E_D == false)
 		{
-			DrawPanelItem(menu, "禁用關閉全語音 Stop turn off all talk");
+			DrawPanelItem(menu, "關閉全語音(關閉中) Turn off AllTalk(Disable)");
 		}
-		else if (VotensAlltalk2E_D == true)
+		else
 		{
-			DrawPanelItem(menu, "關閉全語音 Turn off all talk");
+			DrawPanelItem(menu, "關閉全語音 Turn off AllTalk");
 		}
 		if (VotensRestartmapE_D == false)
 		{
-			DrawPanelItem(menu, "禁用重新目前地圖 Stop restartmap");
+			DrawPanelItem(menu, "重新目前地圖(關閉中) Stop restartmap(Disable)");
 		}
-		else if (VotensRestartmapE_D == true)
+		else
 		{
 			DrawPanelItem(menu, "重新目前地圖 Restartmap");
 		}
 		if (VotensMapE_D == false)
 		{
-			DrawPanelItem(menu, "禁用換圖 Stop change maps");
+			DrawPanelItem(menu, "換圖(關閉中) Change Maps(Disable)");
 		}
-		else if (VotensMapE_D == true)
+		else
 		{
-			DrawPanelItem(menu, "換圖 Change maps");
+			DrawPanelItem(menu, "換圖 Change Maps");
 		}
+
 		if (VotensMap2E_D == false)
 		{
-			DrawPanelItem(menu, "禁用換第三方圖 Stop change addon maps");
+			DrawPanelItem(menu, "換三方圖(關閉中) Change addon maps (Disable)");
 		}
-		else if (VotensMap2E_D == true)
+		else
 		{
-			DrawPanelItem(menu, "換第三方圖 Change addon map");
+			DrawPanelItem(menu, "換第三方圖 Change addon maps");
 		}
-		DrawPanelItem(menu, "踢出玩家 Kick player");//不添加開啟關閉
-		DrawPanelItem(menu, "強制玩家旁觀 Forcespectate player");//不添加開啟關閉
+
+		if (g_bVotensKickED == false)
+		{
+			DrawPanelItem(menu, "踢出玩家(關閉中) Change addon map(Disable)");
+		}
+		else
+		{
+			DrawPanelItem(menu, "踢出玩家 Kick Player");
+		}
+
+		if (g_bVotensForceSpectateED == false)
+		{
+			DrawPanelItem(menu, "強制玩家旁觀(關閉中) Forcespectate Player(Disable)");
+		}
+		else
+		{
+			DrawPanelItem(menu, "強制玩家旁觀 Forcespectate Player");
+		}
 		DrawPanelText(menu, " \n");
 		DrawPanelText(menu, "0. Exit");
-		SendPanelToClient(menu, client,Votes_Menu, MENU_TIME);
+		SendPanelToClient(menu, client, Votes_Menu, MENU_TIME);
 		return Plugin_Handled;
+	}
+	else
+	{
+		CPrintToChat(client, "{default}[{olive}TS{default}] 投票菜單插件已關閉!");
 	}
 	
 	return Plugin_Stop;
@@ -362,12 +364,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 {
 	if ( action == MenuAction_Select ) 
 	{ 
-		bool VotensHpE_D = VotensHpED.BoolValue; 
-		bool VotensAlltalkE_D = VotensAlltalkED.BoolValue;
-		bool VotensAlltalk2E_D = VotensAlltalk2ED.BoolValue;
-		bool VotensRestartmapE_D = VotensRestartmapED.BoolValue;
-		bool VotensMapE_D = VotensMapED.BoolValue;
-		bool VotensMap2E_D = VotensMap2ED.BoolValue;
 		switch (itemNum)
 		{
 			case 1: 
@@ -450,11 +446,29 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 			}
 			case 7: 
 			{
-				FakeClientCommand(client,"votesswap");
+				if (g_bVotensKickED == false)
+				{
+					FakeClientCommand(client,"sm_votes");
+					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用踢人");
+					return ;
+				}
+				else if (g_bVotensKickED == true)
+				{
+					FakeClientCommand(client,"voteskick");
+				}
 			}
 			case 8: 
 			{
-				FakeClientCommand(client,"votesforcespectate");
+				if (g_bVotensForceSpectateED == false)
+				{
+					FakeClientCommand(client,"sm_votes");
+					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用強制旁觀玩家");
+					return ;
+				}
+				else if (g_bVotensForceSpectateED == true)
+				{
+					FakeClientCommand(client,"votesforcespectate");
+				}
 			}
 		}
 	}
@@ -470,8 +484,8 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 
 public Action Command_VoteHp(int client, int args)
 {
-	if(VotensED.BoolValue == true 
-	&& VotensHpED.BoolValue == true)
+	if(g_bEnable == true 
+	&& VotensHpE_D == true)
 	{
 		if (!TestVoteDelay(client))
 		{
@@ -505,7 +519,7 @@ public Action Command_VoteHp(int client, int args)
 		
 		return Plugin_Handled;	
 	}
-	else if(VotensED.BoolValue == false || VotensHpED.BoolValue == false)
+	else if(g_bEnable == false || VotensHpE_D == false)
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] This vote is prohibited");
 	}
@@ -513,8 +527,8 @@ public Action Command_VoteHp(int client, int args)
 }
 public Action Command_VoteAlltalk(int client, int args)
 {
-	if(VotensED.BoolValue == true 
-	&& VotensAlltalkED.BoolValue == true)
+	if(g_bEnable == true 
+	&& VotensAlltalkE_D == true)
 	{
 		if (!TestVoteDelay(client))
 		{
@@ -547,7 +561,7 @@ public Action Command_VoteAlltalk(int client, int args)
 		
 		return Plugin_Handled;	
 	}
-	else if(VotensED.BoolValue == false || VotensAlltalkED.BoolValue == false)
+	else if(g_bEnable == false || VotensAlltalkE_D == false)
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] This vote is prohibited");
 	}
@@ -555,8 +569,8 @@ public Action Command_VoteAlltalk(int client, int args)
 }
 public Action Command_VoteAlltalk2(int client, int args)
 {
-	if(VotensED.BoolValue == true 
-	&& VotensAlltalk2ED.BoolValue == true )
+	if(g_bEnable == true 
+	&& VotensAlltalk2E_D == true )
 	{
 		if (!TestVoteDelay(client))
 		{
@@ -590,7 +604,7 @@ public Action Command_VoteAlltalk2(int client, int args)
 		
 		return Plugin_Handled;	
 	}
-	else if(VotensED.BoolValue == false || VotensAlltalk2ED.BoolValue == false)
+	else if(g_bEnable == false || VotensAlltalk2E_D == false)
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] This vote is prohibited");
 	}
@@ -598,8 +612,8 @@ public Action Command_VoteAlltalk2(int client, int args)
 }
 public Action Command_VoteRestartmap(int client, int args)
 {
-	if(VotensED.BoolValue == true 
-	&& VotensRestartmapED.BoolValue == true)
+	if(g_bEnable == true 
+	&& VotensRestartmapE_D == true)
 	{
 		if (!TestVoteDelay(client))
 		{
@@ -633,28 +647,35 @@ public Action Command_VoteRestartmap(int client, int args)
 		
 		return Plugin_Handled;	
 	}
-	else if(VotensED.BoolValue == false || VotensRestartmapED.BoolValue == false)
+	else if(g_bEnable == false || VotensRestartmapE_D == false)
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] This vote is prohibited");
 	}
 	return Plugin_Handled;
 }
-public Action Command_Votesswap(int client, int args)
+public Action Command_VotesKick(int client, int args)
 {
-	if(client!=0) CreateVoteswapMenu(client);		
+	if(client==0) return Plugin_Handled;		
+	if(g_bEnable == true && g_bVotensKickED == true)
+	{
+		CreateVoteKickMenu(client);	
+	}	
+	else if(g_bEnable == false || g_bVotensKickED == false)
+	{
+		CPrintToChat(client, "{default}[{olive}TS{default}] Kick Player is prohibited");
+	}	
 	return Plugin_Handled;
 }
 
-void CreateVoteswapMenu(int client)
+void CreateVoteKickMenu(int client)
 {	
-	Handle menu = CreateMenu(Menu_Votesswap);		
-	int team = GetClientTeam(client);
+	Handle menu = CreateMenu(Menu_VotesKick);		
 	char name[MAX_NAME_LENGTH];
 	char playerid[32];
 	SetMenuTitle(menu, "plz choose player u want to kick");
 	for(int i = 1;i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i)==team)
+		if(IsClientInGame(i) && !IsFakeClient(i))
 		{
 			Format(playerid,sizeof(playerid),"%i",GetClientUserId(i));
 			if(GetClientName(i,name,sizeof(name)))
@@ -667,16 +688,32 @@ void CreateVoteswapMenu(int client)
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME);	
 }
-public int Menu_Votesswap(Handle menu, MenuAction action, int param1, int param2)
+public int Menu_VotesKick(Handle menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
 		char info[32], name[32];
 		GetMenuItem(menu, param2, info, sizeof(info), _, name, sizeof(name));
-		swapplayer = info;
-		swapplayername = name;
-		
-		DisplayVoteSwapMenu(param1);		
+		int player = StringToInt(info);
+		player = GetClientOfUserId(player);
+		if(player && IsClientInGame(player))
+		{
+			if(HasAccess(player, g_sKickImmueAccesslvl))
+			{
+				CPrintToChatAll("{default}[{olive}TS{default}] Target has kick immue, choose again!");
+				CreateVoteKickMenu(param1);
+			}
+			else
+			{
+				swapplayername = name;
+				DisplayVoteKickMenu(param1);
+			}
+		}	
+		else
+		{
+			CPrintToChatAll("{default}[{olive}TS{default}] Target is not in game, choose again!");
+			CreateVoteKickMenu(param1);
+		}	
 	}
 	else if ( action == MenuAction_Cancel)
 	{
@@ -690,7 +727,7 @@ public int Menu_Votesswap(Handle menu, MenuAction action, int param1, int param2
 			delete menu;
 }
 
-public void DisplayVoteSwapMenu(int client)
+public void DisplayVoteKickMenu(int client)
 {
 	if (!TestVoteDelay(client))
 	{
@@ -701,13 +738,13 @@ public void DisplayVoteSwapMenu(int client)
 	{
 		char SteamId[35];
 		GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
-		LogMessage("%N(%s) starts a vote: kick %s",  client, SteamId,swapplayername);//紀錄在log文件
+		LogMessage("%N(%s) starts a vote: kick %s",  client, SteamId, swapplayername);//紀錄在log文件
 		CPrintToChatAll("{default}[{olive}TS{default}]{olive} %N {default}starts a votes: {blue}kick %s", client, swapplayername);
 		
 		for(int i=1; i <= MaxClients; i++) 
 			ClientVoteMenu[i] = true;
 		
-		g_voteType = voteType:swap;
+		g_voteType = voteType:kick;
 		
 		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL); 
 		SetMenuTitle(g_hVoteMenu, "kick player %s ?",swapplayername);
@@ -726,7 +763,7 @@ public void DisplayVoteSwapMenu(int client)
 
 public Action Command_VotemapsMenu(int client, int args)
 {
-	if(VotensED.BoolValue == true && VotensMapED.BoolValue == true)
+	if(g_bEnable == true && VotensMapE_D == true)
 	{
 		if (!TestVoteDelay(client))
 		{
@@ -766,7 +803,7 @@ public Action Command_VotemapsMenu(int client, int args)
 		
 		return Plugin_Handled;
 	}
-	else if(VotensED.BoolValue == false || VotensMapED.BoolValue == false)
+	else if(g_bEnable == false || VotensMapE_D == false)
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] Change map vote is prohibited");
 	}
@@ -775,7 +812,7 @@ public Action Command_VotemapsMenu(int client, int args)
 
 public Action Command_Votemaps2Menu(int client, int args)
 {
-	if(VotensED.BoolValue == true && VotensMap2ED.BoolValue == true)
+	if(g_bEnable == true && VotensMap2E_D == true)
 	{
 		if (!TestVoteDelay(client))
 		{
@@ -795,7 +832,7 @@ public Action Command_Votemaps2Menu(int client, int args)
 		
 		return Plugin_Handled;
 	}
-	else if(VotensED.BoolValue == false || VotensMap2ED.BoolValue == false)
+	else if(g_bEnable == false || VotensMap2E_D == false)
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] Change Custom map vote is prohibited");
 	}
@@ -861,7 +898,15 @@ public DisplayVoteMapsMenu(client)
 
 public Action Command_Votesforcespectate(int client, int args)
 {
-	if(client!=0) CreateVoteforcespectateMenu(client);		
+	if(client==0) return Plugin_Handled;		
+	if(g_bEnable == true && g_bVotensForceSpectateED == true)
+	{
+		CreateVoteforcespectateMenu(client);
+	}	
+	else if(g_bEnable == false || g_bVotensForceSpectateED == false)
+	{
+		CPrintToChat(client, "{default}[{olive}TS{default}] Forcespectate Player is prohibited");
+	}
 	return Plugin_Handled;
 }
 
@@ -997,7 +1042,7 @@ public int Handler_VoteCallback(Handle menu, MenuAction action, int param1, int 
 	}
 	//==========================
 	char item[64], display[64];
-	float percent, limit;
+	float percent;
 	int votes, totalVotes;
 
 	GetMenuVoteInfo(param2, votes, totalVotes);
@@ -1009,8 +1054,6 @@ public int Handler_VoteCallback(Handle menu, MenuAction action, int param1, int 
 	}
 	percent = GetVotePercent(votes, totalVotes);
 
-	limit = g_Cvar_Limits.FloatValue;
-	
 	CheckVotes();
 	if (action == MenuAction_End)
 	{
@@ -1026,12 +1069,12 @@ public int Handler_VoteCallback(Handle menu, MenuAction action, int param1, int 
 	}	
 	else if (action == MenuAction_VoteEnd)
 	{
-		if ((strcmp(item, VOTE_YES) == 0 && FloatCompare(percent,limit) < 0 && param1 == 0) || (strcmp(item, VOTE_NO) == 0 && param1 == 1))
+		if ((strcmp(item, VOTE_YES) == 0 && FloatCompare(percent, g_fLimit) < 0 && param1 == 0) || (strcmp(item, VOTE_NO) == 0 && param1 == 1))
 		{
 			g_votedelay = VOTEDELAY_TIME;
 			CreateTimer(1.0, Timer_VoteDelay, _, TIMER_REPEAT| TIMER_FLAG_NO_MAPCHANGE);
 			EmitSoundToAll("ui/beep_error01.wav");
-			CPrintToChatAll("{default}[{olive}TS{default}] {red}Vote fail.{default} At least {red}%d%%%%{default} to agree.(agree {green}%d%%%%{default}, total {green}%i {default}votes)", RoundToNearest(100.0*limit), RoundToNearest(100.0*percent), totalVotes);
+			CPrintToChatAll("{default}[{olive}TS{default}] {red}Vote fail.{default} At least {red}%d%%%%{default} to agree.(agree {green}%d%%%%{default}, total {green}%i {default}votes)", RoundToNearest(100.0*g_fLimit), RoundToNearest(100.0*percent), totalVotes);
 			CreateTimer(2.0, VoteEndDelay);
 		}
 		else
@@ -1164,7 +1207,6 @@ bool CanStartVotes(int client)
 		return false;
 	}
 	int iNumPlayers;
-	int playerlimit = g_hCvarPlayerLimit.IntValue;
 	//list of players
 	for (int i=1; i<=MaxClients; i++)
 	{
@@ -1174,9 +1216,9 @@ bool CanStartVotes(int client)
 		}
 		iNumPlayers++;
 	}
-	if (iNumPlayers < playerlimit)
+	if (iNumPlayers < g_iCvarPlayerLimit)
 	{
-		CPrintToChat(client, "{default}[{olive}TS{default}] Vote cannot be started. Not enough {red}%d {default}players.",playerlimit);
+		CPrintToChat(client, "{default}[{olive}TS{default}] Vote cannot be started. Not enough {red}%d {default}players.", g_iCvarPlayerLimit);
 		return false;
 	}
 	return true;
@@ -1243,7 +1285,7 @@ public Action COLD_DOWN(Handle timer,any client)
 			//DisplayBuiltinVotePass(vote, "Vote to change map pass");
 			LogMessage("Vote to change map %s %s pass",votesmaps,votesmapsname);
 		}
-		case (voteType:swap):
+		case (voteType:kick):
 		{
 			CPrintToChatAll("[{olive}TS{default}] {blue}%s{default} has been kicked!", swapplayername);
 			ServerCommand("sm_kick \"%s\" ", swapplayername);
@@ -1315,4 +1357,23 @@ void ParseCampaigns()
 			break;
 		}
 	}
+}
+
+public bool HasAccess(int client, char[] g_sAcclvl)
+{
+	// no permissions set
+	if (strlen(g_sAcclvl) == 0)
+		return true;
+
+	else if (StrEqual(g_sAcclvl, "-1"))
+		return false;
+
+	// check permissions
+	int iFlag = GetUserFlagBits(client);
+	if ( iFlag & ReadFlagString(g_sAcclvl) || iFlag & ADMFLAG_ROOT )
+	{
+		return true;
+	}
+
+	return false;
 }
