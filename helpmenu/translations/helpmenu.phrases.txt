@@ -1,0 +1,106 @@
+"Phrases"
+{
+	"Server Rules"
+	{
+		"en"			"Server Rules"
+		"zho"			"伺服器守法"
+		"chi"			"服务器规则"
+	}
+	"- Don't be an asshole"
+	{
+		"en"			"- Don't be an asshole"
+		"zho"			"- 別當個混蛋就行"
+		"chi"			"- 别当傻B就行"
+	}
+	"- No mic or chat spamming"
+	{
+		"en"			"- No mic or chat spamming"
+		"zho"			"- 別一直MIC開著或聊天視窗洗版"
+		"chi"			"- 别一直MIC开着或聊天窗口刷屏"
+	}
+	"- Hacks or exploits will get you banned"
+	{
+		"en"			"- Hacks or exploits will get you banned"
+		"zho"			"- 任何作弊行為將以永久封禁處分"
+		"chi"			"- 任何作弊行为将被永久封禁处分"
+	}
+	"Welcome to Official Instructions"
+	{
+		"en"			"Welcome to Official Server\nLeft 4 Dead 2: AAAAAA (Peko)\nby Harry"
+		"zho"			"歡迎來到本伺服器\n惡靈勢力2: 哈利66666模式\nby Harry"
+		"chi"			"欢迎来到本服务器\n求生之路2: 哈利23333模式\nby Harry"
+	}
+	"Map Rotation"
+	{
+		"en"			"Map Rotation"
+		"zho"			"地圖輪換"
+		"chi"			"地图轮换"
+	}
+	"List Online Admins"
+	{
+		"en"			"List Online Admins"
+		"zho"			"在線管理員"
+		"chi"			"在线管理员"		
+	}
+	"Join our steam group"
+	{
+		"en"			"Join our steam group"
+		"zho"			"加入我們的Steam群組"	
+		"chi"			"加入我们的Steam群组"
+	}
+	"Current Rotation"
+	{
+		"#format"		"{1:i}"
+		"en"			"Current Rotation ({1} maps)"
+		"zho"			"地圖輪換 ({1} 張)"
+		"chi"			"地图轮换 ({1} 张)"
+	}
+	"Description"
+	{
+		"en"			"Description"
+		"zho"			"描述"
+		"chi"			"描述"
+	}
+	"Chat Commands"
+	{
+		"en"			"Chat Commands"
+		"zho"			"可使用的指令列表"
+		"chi"			"可使用的指令列表"
+	}
+	"say !buy"
+	{
+		"en"			"!buy - Purchase items"
+		"zho"			"!buy - 購買商品"
+		"chi"			"!buy - 购买商品"
+	}
+	"say !s"
+	{
+		"en"			"!s - Become Spectator"
+		"zho"			"!s - 成為旁觀者"
+		"chi"			"!s - 成为旁观者"
+	}
+	"say !ji"
+	{
+		"en"			"!ji - Join Infected"
+		"zho"			"!ji - 加入特感陣營"
+		"chi"			"!ji - 加入特感阵营"
+	}
+	"say !join"
+	{
+		"en"			"!join - Join Survivor"
+		"zho"			"!join - 加入人類陣營"
+		"chi"			"!join - 加入人类阵营"
+	}
+	"Human Play"
+	{
+		"en"			"Human Play"
+		"zho"			"人類陣營生存指南"
+		"chi"			"人类阵营生存指南"
+	}
+	"Human Play1"
+	{
+		"en"			"- Team: Survive and make it to saferoom, Stick together and always help your teammate"
+		"zho"			"- 合作玩法: 倖存下來抵達終點，團結一致、互相合作才能通關"
+		"chi"			"- 合作玩法: 幸存下来抵达终点，团结一致、互相合作才能通关"
+	}
+}

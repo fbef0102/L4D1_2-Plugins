@@ -1,0 +1,38 @@
+In-game Help Menu (Support Translation)
+
+-Image-
+see helpmenu.jpg
+
+-Changelog-
+v0.6
+-Remake Code
+-Add translation
+
+v0.3
+-Original Post: https://forums.alliedmods.net/showthread.php?p=637467
+
+-ConVar-
+cfg\sourcemod\helpmenu.cfg
+// Show a list of online admins in the menu.
+sm_helpmenu_admins "0"
+
+// Automatically reload the configuration file when changing the map.
+sm_helpmenu_autoreload "0"
+
+// Path to configuration file.
+sm_helpmenu_config_path "configs/helpmenu.cfg"
+
+// Shows the map rotation in the menu.
+sm_helpmenu_rotation "0"
+
+// Show welcome message to newly connected users.
+sm_helpmenu_welcome "1"
+
+-Command-
+**Everyone
+!helpmenu
+!help
+!commands
+
+**Adm only
+!helpmenu_reload
