@@ -308,7 +308,6 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 			CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
 	}
 
-	LogMessage("evtPlayerSpawn");
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, PluginStart);
 	g_iPlayerSpawn = 1;	
@@ -335,7 +334,6 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	LogMessage("Round_start");
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, PluginStart);
 	g_iRoundStart = 1;
@@ -393,7 +391,6 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 int iCountDownTime;
 public Action PluginStart(Handle timer)
 {
-	LogMessage("PluginStart");
 	ClearDefault();
 	if(bSpawnSurvivorsAtStart) CreateTimer(0.25, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
@@ -525,7 +522,7 @@ public Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer, int client)
 	int team_count = TotalAliveSurvivors();
 	//if(team_count < 4) return Plugin_Stop;
 
-	LogMessage("Spawn Timer_SpawnSurvivorWhenRoundStarts: %d, %d", team_count, iMaxSurvivors);
+	//LogMessage("Spawn Timer_SpawnSurvivorWhenRoundStarts: %d, %d", team_count, iMaxSurvivors);
 	if(team_count < iMaxSurvivors)
 	{
 		team_count++;
