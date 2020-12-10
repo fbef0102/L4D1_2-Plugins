@@ -86,7 +86,7 @@ public void OnPluginStart()
 	hSpecCheckInterval = CreateConVar("l4d_multislots_spec_message_interval", "20", "Setup time interval the instruction message to spectator.(0=off)", CVAR_FLAGS, true, 0.0);
 	hRespawnHP 		= CreateConVar("l4d_multislots_respawnhp", 		"80", 	"Amount of HP a new 5+ Survivor will spawn with (Def 80)", CVAR_FLAGS, true, 0.0, true, 100.0);
 	hRespawnBuffHP 	= CreateConVar("l4d_multislots_respawnbuffhp", 	"20", 	"Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)", CVAR_FLAGS, true, 0.0, true, 100.0);
-	hSpawnSurvivorsAtStart = CreateConVar("l4d_multislots_spawn_survivors_roundstart", "1", "If 1, Spawn numbers of survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)", CVAR_FLAGS, true, 1.0, true, 0.0);
+	hSpawnSurvivorsAtStart = CreateConVar("l4d_multislots_spawn_survivors_roundstart", "1", "If 1, Spawn numbers of survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	
 	if ( bL4D2Version ) {
 		hFirstWeapon 		= CreateConVar("l4d_multislots_firstweapon", 		"10", 	"First slot weapon given to new 5+ Survivor (1-Autoshotgun, 2-SPAS Shotgun, 3-M16, 4-AK47, 5-Desert Rifle, 6-HuntingRifle, 7-Military Sniper, 8-Chrome Shotgun, 9-Silenced Smg, 10=Random T1, 11=Random T2, 0=off)", CVAR_FLAGS, true, 0.0, true, 11.0);
@@ -308,6 +308,7 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 			CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
 	}
 
+	LogMessage("evtPlayerSpawn");
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, PluginStart);
 	g_iPlayerSpawn = 1;	
@@ -334,6 +335,7 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+	LogMessage("Round_start");
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, PluginStart);
 	g_iRoundStart = 1;
@@ -391,8 +393,9 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 int iCountDownTime;
 public Action PluginStart(Handle timer)
 {
+	LogMessage("PluginStart");
 	ClearDefault();
-	if(bSpawnSurvivorsAtStart) CreateTimer(0.5, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	if(bSpawnSurvivorsAtStart) CreateTimer(0.25, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 	if(SpecCheckTimer == null && fSpecCheckInterval > 0.0) SpecCheckTimer = CreateTimer(fSpecCheckInterval, Timer_SpecCheck, _, TIMER_REPEAT)	;
 }
@@ -519,10 +522,10 @@ public Action Timer_KickFakeBot(Handle timer, int fakeclient)
 
 public Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer, int client)
 {
-	int team_count = GetTeamClientCount(2);
+	int team_count = TotalAliveSurvivors();
 	//if(team_count < 4) return Plugin_Stop;
 
-	//PrintToChatAll("Spawn Timer_SpawnSurvivorWhenRoundStarts: %d, %d", team_count, iMaxSurvivors);
+	LogMessage("Spawn Timer_SpawnSurvivorWhenRoundStarts: %d, %d", team_count, iMaxSurvivors);
 	if(team_count < iMaxSurvivors)
 	{
 		team_count++;
@@ -647,6 +650,19 @@ int TotalAliveFreeBots() // total bots (excl. IDLE players)
 		{
 			if(!HasIdlePlayer(i))
 				kk++;
+		}
+	}
+	return kk;
+}
+
+int TotalAliveSurvivors() // total alive survivors, including players
+{
+	int kk = 0;
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsAlive(i))
+		{
+			kk++;
 		}
 	}
 	return kk;
