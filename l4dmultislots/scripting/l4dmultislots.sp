@@ -372,7 +372,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 			{
 				if(SpawnFakeClient() == true)
 				{
-					if(bKill && iDeadBotTime > 0) CreateTimer(0.6, Timer_TakeOverBotAndDie, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+					if(bKill && iDeadBotTime > 0) CreateTimer(0.5, Timer_TakeOverBotAndDie, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 					else CreateTimer(0.6, Timer_AutoJoinTeam, GetClientUserId(client));	
 				}
 				else
@@ -449,18 +449,44 @@ public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if (!client || !IsClientInGame(client)) return Plugin_Stop;
-	if (GetClientTeam(client) == TEAM_SURVIVORS && !IsPlayerAlive(client)) return Plugin_Stop;
 
-	int fakebot = FindBotToTakeOver(true);
-	if (fakebot == 0)
+	int team = GetClientTeam(client);
+	if(team == TEAM_SPECTATORS)
 	{
-		PrintHintText(client, "%T", "No Bots for replacement.", client);
+		if(IsClientIdle(client))
+		{
+			SDKCall(hTakeOver, client, true);
+			CreateTimer(0.1, Timer_KillSurvivor, client);
+		}
+		else
+		{
+			int fakebot = FindBotToTakeOver(true);
+			if (fakebot == 0)
+			{
+				PrintHintText(client, "%T", "No Bots for replacement.", client);
+				return Plugin_Stop;
+			}
+
+			SDKCall(hSetHumanSpec, fakebot, client);
+			SDKCall(hTakeOver, client, true);
+			CreateTimer(0.1, Timer_KillSurvivor, client);
+		}
+	}
+	else if (team == TEAM_SURVIVORS)
+	{
+		if(IsPlayerAlive(client))
+		{
+			CreateTimer(0.1, Timer_KillSurvivor, client);
+		}
+		else
+		{
+			return Plugin_Stop;
+		}
+	}
+	else
+	{
 		return Plugin_Stop;
 	}
-
-	SDKCall(hSetHumanSpec, fakebot, client);
-	SDKCall(hTakeOver, client, true);
-	CreateTimer(0.1, Timer_KillSurvivor, client);
 
 	return Plugin_Continue;
 }
@@ -701,7 +727,7 @@ bool SpawnFakeClient()
 				float teleportOrigin[3];
 				GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
 				DataPack hPack = new DataPack();
-				CreateDataTimer(0.5, Timer_ColdDown, hPack, TIMER_FLAG_NO_MAPCHANGE);
+				CreateDataTimer(0.3, Timer_ColdDown, hPack, TIMER_FLAG_NO_MAPCHANGE);
 
 				hPack.WriteCell(GetClientUserId(fakeclient));
 				hPack.WriteFloat(teleportOrigin[0]);
