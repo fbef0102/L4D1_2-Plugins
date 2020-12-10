@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.6
+* Version	: 2.4.7
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,13 +8,20 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.4.7
+*	   - Signature fix for 12/8/2020 update. 
+*		(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
+*		(Stupid IDIOT TLS team, pushing unuseful updates no one really cares or asks for. Come on! Value)
+*
 * Version 2.4.6
-*	   - Signature fix for 12/2/2020 update. (TLS team, please stop unuseless update)
+*	   - Signature fix for 12/2/2020 update. 
+*		(Credit to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
+*		(TLS team, please stop unuseless update)
 *
 * Version 2.4.5
 *	   - survivor glow color issue in coop/survival mode.
 *	   - add "FlashlightIsOn" signature in l4d2, add "FlashlightIsOn" offset in l4d1.
-		(Thanks to Machine: https://forums.alliedmods.net/member.php?u=74752)
+		(Credit to Machine: https://forums.alliedmods.net/member.php?u=74752)
 *	   - Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only)
 
 * Version 2.4.4
@@ -572,7 +579,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.6"
+#define PLUGIN_VERSION "2.4.7"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -735,7 +742,6 @@ int g_iPlayerSpawn, g_bMapStarted, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
-
 public Plugin myinfo = 
 {
 	name = "[L4D/L4D2] Infected Bots (Coop/Versus/Realism/Scavenge/Survival)",
@@ -866,7 +872,7 @@ public void OnPluginStart()
 	h_CommonLimit = CreateConVar("l4d_infectedbots_default_commonlimit", "30", "Sets Default zombie common limit.", FCVAR_NOTIFY, true, 1.0); 
 	h_PlayerAddCommonLimitScale = CreateConVar("l4d_infectedbots_add_commonlimit_scale", "1", "If server has more than 4+ alive players, zombie common limit = 'default_commonlimit' + [(alive players - 4) ÷ 'add_commonlimit_scale' × 'add_commonlimit'].", FCVAR_NOTIFY, true, 1.0); 
 	h_PlayerAddCommonLimit = CreateConVar("l4d_infectedbots_add_commonlimit", "2", "If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_default_commonlimit' each 'l4d_infectedbots_add_commonlimit_scale' players joins", FCVAR_NOTIFY, true, 0.0); 
-	h_CoopInfectedPlayerFlashLight = CreateConVar("l4d_infectedbots_coop_versus_human_light", "1", "If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)", FCVAR_NOTIFY, true, 0.0, true, 1.0); 
+	if (L4D2Version) h_CoopInfectedPlayerFlashLight = CreateConVar("l4d_infectedbots_coop_versus_human_light", "1", "If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)", FCVAR_NOTIFY, true, 0.0, true, 1.0); 
 
 	h_GameMode = FindConVar("mp_gamemode");
 	h_GameMode.AddChangeHook(ConVarGameMode);
@@ -929,7 +935,6 @@ public void OnPluginStart()
 	HookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (沒有觸發round_end)
-
 	// We hook some events ...
 	HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 	HookEvent("player_team", evtPlayerTeam);
@@ -1747,7 +1752,6 @@ public void OnMapStart()
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
 
-
 }
 
 public void OnMapEnd()
@@ -2548,7 +2552,6 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 									}
 								}
 							}
-							
 							return Plugin_Continue;
 						}
 					}
