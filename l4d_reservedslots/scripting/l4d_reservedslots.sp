@@ -101,7 +101,7 @@ public bool HasAccess(int client, const char[] g_sAcclvl)
                 return false;
                 
         int iFlag = GetUserFlagBits(client);
-        PrintToChatAll("HasAccess %d - %d", iFlag, ReadFlagString(g_sAcclvl));
+        //PrintToChatAll("HasAccess %d - %d", iFlag, ReadFlagString(g_sAcclvl));
         // check permissions
         if ( iFlag & ReadFlagString(g_sAcclvl) || ( iFlag & ADMFLAG_ROOT) )
         {
