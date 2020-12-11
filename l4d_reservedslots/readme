@@ -16,5 +16,8 @@ l4d_reservedslots_adm "1"
 // Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)
 l4d_reservedslots_adm_flag "z"
 
+// If set to 1, reserved slots will hidden (subtracted 'l4d_reservedslots_adm' from the max slot 'sv_maxplayers')
+l4d_reservedslots_hide "1"
+
 -Message when kicked-
 "剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin.."
