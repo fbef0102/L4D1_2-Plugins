@@ -14,7 +14,8 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdktools_functions>
-#define PLUGIN_VERSION "1.9"
+#include <left4dhooks>
+#define PLUGIN_VERSION "2.0"
 
 
 // For cvars
@@ -107,6 +108,8 @@ public void OnPluginStart()
 	h_AfkKickEnabled = CreateConVar("l4d_specafk_kickenabled", "1", "If kick enabled on afk while on spec", FCVAR_SPONLY|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkSpecOnConnect = CreateConVar("l4d_specafk_speconconnect", "0", "If player will be forced to spectate on connect", FCVAR_SPONLY|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 
+	// We read the cvars
+	ReadCvars();
 	// Hook cvars changes ...
 	h_AfkWarnSpecTime.AddChangeHook(ConVarChanged);
 	h_AfkSpecTime.AddChangeHook(ConVarChanged);
@@ -121,9 +124,6 @@ public void OnPluginStart()
 	
 	// We tweak some settings ..
 	SetConVarInt(FindConVar("vs_max_team_switches"), 9999); // so that players can switch multiple times
-	
-	// We read the cvars
-	ReadCvars();
 	
 	CreateTimer(3.0, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 
@@ -158,9 +158,6 @@ public void OnMapStart()
 	int i;
 	for (i=1;i<=MAXPLAYERS;i++)
 		PlayerJustConnected[i] = false;
-	
-	// We read all the cvars
-	ReadCvars();
 }
 
 public void OnMapEnd()
@@ -198,10 +195,7 @@ public bool IsValidPlayer (int client)
 {
 	if (client == 0)
 		return false;
-	
-	if (!IsClientConnected(client))
-		return false;
-	
+
 	if (IsFakeClient(client))
 		return false;
 	
@@ -211,7 +205,7 @@ public bool IsValidPlayer (int client)
 	return true;
 }
 
-bool IsClientMember (int client)
+bool IsClientAdmin (int client)
 {
 	// Checks valid player
 	if (!IsValidPlayer (client))
@@ -227,7 +221,7 @@ bool IsClientMember (int client)
 	// If player has at least reservation ...
 	if (GetAdminFlag(id, Admin_Reservation)||GetAdminFlag(id, Admin_Root)||GetAdminFlag(id, Admin_Kick))
 		return true;
-	else
+	
 	return false;
 }
 
@@ -241,7 +235,6 @@ public Action Event_RoundStart (Event event, const char[] name, bool dontBroadca
 {
 	LeavedSafeRoom = false;
 	afkManager_Stop();
-	ResetTimer();
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(3.0, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
@@ -259,10 +252,12 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 public Action tmrStart(Handle timer)
 {
 	ResetPlugin();
+
+	if(PlayerLeftStartTimer == null) CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
+
 	// We start the AFK manager
 	if(!afkManager_Active)
 	{
-		if(PlayerLeftStartTimer == null) CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
 		afkManager_Start();
 	}
 }
@@ -274,6 +269,7 @@ public Action Event_RoundEnd (Event event, const char[] name, bool dontBroadcast
 	
 	afkManager_Stop();
 	ResetPlugin();
+	ResetTimer();
 }
 
 
@@ -304,44 +300,41 @@ public Action afkPlayerAction (Event event, const char[] name, bool dontBroadcas
 public Action afkChangedTeam (Event event, const char[] name, bool dontBroadcast)
 {
 	// we get the victim
-	int victim = GetClientOfUserId(event.GetInt("userid"));
-	CreateTimer(0.5, ClientReallyChangeTeam, victim, _); // check delay
+	CreateTimer(0.5, ClientReallyChangeTeam, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE); // check delay
 	return Plugin_Continue;
 }
 
 public Action ClientReallyChangeTeam(Handle timer, int victim)
 {
-	if( !victim || victim > MaxClients || !IsClientInGame(victim)||IsFakeClient(victim)) return Plugin_Continue;
+	victim = GetClientOfUserId(victim);
 
-	if (victim > 0)
+	if( victim <= 0 || victim > MaxClients || !IsClientInGame(victim) || IsFakeClient(victim)) return Plugin_Continue;
+
+	// If players left the safe room and this player just connected and we have set spec on connect ...
+	if (LeavedSafeRoom && PlayerJustConnected[victim] && afkSpecOnConnect)
 	{
-		if (IsClientConnected(victim)&&(!IsFakeClient(victim)))
-		{	
-			// If players left the safe room and this player just connected and we have set spec on connect ...
-			if (LeavedSafeRoom && PlayerJustConnected[victim] && afkSpecOnConnect)
-			{
-				// If player is on survivors and is dead ... we don't force him to spec
-				if ((GetClientTeam(victim) == 2) && (!IsPlayerAlive(victim)))
-					return Plugin_Continue;
-				
-				// force him to spectate
-				CreateTimer(0.1, afkForceSpectateJoin, victim);
-			}
-			
-			// Mark as already connected
-			PlayerJustConnected[victim] = false;
-			
-			// Reset his afk status
-			afkResetTimers(victim);
-		}
+		// If player is on survivors and is dead ... we don't force him to spec
+		if ((GetClientTeam(victim) == 2) && (!IsPlayerAlive(victim)))
+			return Plugin_Continue;
+		
+		// force him to spectate
+		CreateTimer(0.1, afkForceSpectateJoin, victim);
 	}
+	
+	// Mark as already connected
+	PlayerJustConnected[victim] = false;
+	
+	// Reset his afk status
+	afkResetTimers(victim);
+	
 	return Plugin_Continue;
 }
 
 public Action afkJoinHint (Handle Timer, int client)
 {
+	client = GetClientOfUserId(client);
 	// If player is valid
-	if ((client > 0) && IsClientConnected(client) && IsClientInGame(client) && afkPlayerTimeLeftWarn[client] > 0)
+	if (client && IsClientInGame(client) && afkPlayerTimeLeftWarn[client] > 0)
 	{
 		// If player is still on spectators ...
 		if (GetClientTeam(client) == 1)
@@ -349,10 +342,11 @@ public Action afkJoinHint (Handle Timer, int client)
 			// We send him a hint text ...
 			PrintHintText(client, "輸入 !join 加入遊戲...");
 			
-			// and setup another timer to tell him later ....
-			CreateTimer(5.0, afkJoinHint, client);
+			return Plugin_Continue;
 		}
 	}
+	
+	return Plugin_Stop;
 }
 
 void afkResetTimers (int client)
@@ -362,7 +356,7 @@ void afkResetTimers (int client)
 		return;
 	
 	// if client is valid ...
-	if (!IsClientConnected(client)||!IsClientInGame(client)||IsFakeClient(client))
+	if (!IsClientInGame(client)||IsFakeClient(client))
 		return;
 	
 	
@@ -385,7 +379,7 @@ void afkResetTimers (int client)
 	}
 	
 	// if player is already connected ....
-	if (IsClientConnected(client) && !IsFakeClient(client) && IsClientInGame(client))
+	if (IsClientInGame(client) && !IsFakeClient(client))
 	{
 		GetClientAbsOrigin(client, afkPlayerLastPos[client]);
 		GetClientEyeAngles(client, afkPlayerLastEyes[client]);
@@ -421,7 +415,7 @@ public Action afkCheckThread(Handle timer)
 	// we check all connected (and alive) clients ...
 	for (i=1;i<=MaxClients;i++)
 	{
-		if (IsClientConnected(i) && (!IsFakeClient(i)) && IsClientInGame(i))
+		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
 			// If player is not on spectators team ...
 			if (GetClientTeam(i) != 1)
@@ -466,11 +460,11 @@ public Action afkCheckThread(Handle timer)
 									// If players leaved safe room we force him to spectate
 									if (LeavedSafeRoom)
 									{
-										// we force the player to spectate
-										afkForceSpectate(i, true, false);
-
 										// reset the timers
 										afkResetTimers(i);
+
+										// we force the player to spectate
+										afkForceSpectate(i, true, false);
 									}
 									else // if players haven't leaved safe room ... we warn this player that he will be forced to spectate as soon as a player leaves
 									{
@@ -499,7 +493,7 @@ public Action afkCheckThread(Handle timer)
 			else if (afkKickEnabled)  // if player is on spectators and kick on spectators is enabled ...
 			{
 				// If the player is not registered ...
-				if (!IsClientMember(i))
+				if (!IsClientAdmin(i))
 				{
 					// If player has not been warned ...
 					if (afkPlayerTimeLeftWarn[i] > 0) // warn time ...
@@ -537,8 +531,7 @@ public Action afkCheckThread(Handle timer)
 							}
 						}
 						else // we just warn him ...
-							PrintHintText(i, "[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n 否則你將於 %i 秒後踢出伺服器.", afkPlayerTimeLeftAction[i]);
-						
+							PrintHintText(i, "[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n 否則你將於 %i 秒後踢出伺服器.", afkPlayerTimeLeftAction[i]);	
 					}			
 				} // player is not admin
 			} // player is on spectators
@@ -553,7 +546,7 @@ public Action afkCheckThread(Handle timer)
 
 void afkForceSpectate (int client, bool advertise, bool self)
 {
-	if (!IsClientConnected(client)||IsFakeClient(client))
+	if (IsFakeClient(client))
 	{
 		return;
 	}
@@ -578,7 +571,7 @@ void afkForceSpectate (int client, bool advertise, bool self)
 	ChangeClientTeam(client, 1);
 	
 	// We send him a hint message 5 seconds later, in case he hasn't joined any team
-	CreateTimer(5.0, afkJoinHint, client);
+	CreateTimer(5.0, afkJoinHint, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	
 	
 	// Print forced info
@@ -604,7 +597,7 @@ public Action afkForceSpectateJoin (Handle timer, int client)
 
 void afkKickClient (int client)
 {
-	if ((!IsClientConnected(client))||IsFakeClient(client))
+	if (IsFakeClient(client))
 		return;
 	
 	// If player was on infected ....
@@ -642,41 +635,13 @@ void afkManager_Stop()
 
 public Action PlayerLeftStart(Handle Timer)
 {
-	if (LeftStartArea())
+	if (L4D_HasAnySurvivorLeftSafeArea() || LeavedSafeRoom)
 	{
 		LeavedSafeRoom = true;
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
 	}
 	return Plugin_Continue;
-}
-
-bool LeftStartArea()
-{
-	int ent = -1, maxents = GetMaxEntities();
-	for (int i = MaxClients+1; i <= maxents; i++)
-	{
-		if (IsValidEntity(i))
-		{
-			char netclass[64];
-			GetEntityNetClass(i, netclass, sizeof(netclass));
-			
-			if (StrEqual(netclass, "CTerrorPlayerResource"))
-			{
-				ent = i;
-				break;
-			}
-		}
-	}
-	
-	if (ent > -1)
-	{
-		if (GetEntProp(ent, Prop_Send, "m_hasAnySurvivorLeftSafeArea"))
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 
@@ -731,11 +696,7 @@ void ResetPlugin()
 
 void ResetTimer()
 {
-	if(PlayerLeftStartTimer != null) 
-	{
-		KillTimer(PlayerLeftStartTimer);
-		PlayerLeftStartTimer = null;
-	}
+	delete PlayerLeftStartTimer;
 }
 /////////////////
 ///////////////////

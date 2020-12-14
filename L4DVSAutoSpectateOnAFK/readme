@@ -1,13 +1,16 @@
 Forces survivors and infected to spectate if they're AFK after certain time
 
 -ChangeLog-
-v1.9
+v2.0
 -Remake Code
 -add more hints
 -fixed wrong timer
 
 v1.3.1
 -original plugin from djromero: https://forums.alliedmods.net/showthread.php?p=761203
+
+-Require-
+1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
 
 -Convar-
 cfg\sourcemod\L4DVSAutoSpectateOnAFK.cfg
@@ -27,7 +30,7 @@ l4d_specafk_speconconnect "0"
 l4d_specafk_spectime "15"
 
 // Version of L4D VS Auto spectate on AFK
-l4d_specafk_version "1.9"
+l4d_specafk_version "2.0"
 
 // Warn time before kick (while already on spec)
 l4d_specafk_warnkicktime "60"
