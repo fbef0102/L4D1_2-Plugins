@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4DVSAutoSpectateOnAFK
-* Version	: 1.9
+* Version	: 2.0
 * Game		: Left 4 Dead 1/2
 * Author	: djromero (SkyDavid, David) & Harry
 * Testers	: Myself
