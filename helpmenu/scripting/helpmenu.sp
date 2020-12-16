@@ -375,8 +375,8 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 						FormatEx(mtitle, sizeof(mtitle), "%s\n ", hmenu.title);
 					}
 					if (hmenu.type == HelpMenuType_Text) {
-						Panel cpanel = new Panel();
-						cpanel.SetTitle(mtitle);
+						Menu menu2 = new Menu(Help_MenuHandler);
+						menu2.SetTitle(mtitle);
 						char text[128];
 						char junk[128];
 
@@ -387,25 +387,17 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 							if(TranslationPhraseExists(text))
 							{
 								FormatEx(buf, sizeof(buf), "%T", text, param1);
-								cpanel.DrawText(buf);
+								menu2.AddItem("",buf);
 							}
 							else
 							{
-								cpanel.DrawText(text);
+								menu2.AddItem("",text);
 							}
 						}
-						for (int j = 0; j < 7; ++j) {
-							cpanel.DrawItem(" ", ITEMDRAW_NOTEXT);
-						}
 
-						cpanel.DrawText(" ");
-						cpanel.DrawItem("Back", ITEMDRAW_CONTROL);
-						cpanel.DrawItem(" ", ITEMDRAW_NOTEXT);
-						cpanel.DrawText(" ");
-						cpanel.DrawItem("Exit", ITEMDRAW_CONTROL);
+						menu2.ExitBackButton = true;
+						menu2.Display(param1, MENU_TIME_FOREVER);
 						hmenu.items.Reset();
-						cpanel.Send(param1, Help_MenuHandler, MENU_TIME_FOREVER);
-						delete cpanel;
 					}
 					else {
 						Menu cmenu = new Menu(Help_CustomMenuHandler);
@@ -487,10 +479,6 @@ int Help_CustomMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 					panel.SetTitle(Info);
 
 					panel.DrawText(itemval);
-
-					for (int j = 0; j < 7; ++j) {
-						panel.DrawItem(" ", ITEMDRAW_NOTEXT);
-					}
 
 					panel.DrawText(" ");
 					panel.DrawItem("Back", ITEMDRAW_CONTROL);
