@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.7
+* Version	: 2.4.8
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,11 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.4.8
+*	   - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
+*		(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
+*		(Thanks to ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
+*
 * Version 2.4.7
 *	   - Signature fix for 12/8/2020 update. 
 *		(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
@@ -67,7 +72,7 @@
 *	   - remove convar "music_manager" setting.
 *	   - add survivor glow in coop/realism/survival. mode for human infected players.
 *
-* Version 2.3.4
+* Version 2.3.4ConVarChanged_Cvars
 *	   - fixed special limit keep adding issue when map change.
 *	   - fixed Invalid timer handle.
 *
@@ -579,7 +584,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.7"
+#define PLUGIN_VERSION "2.4.8"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -715,14 +720,28 @@ Handle RestoreColorTimer[MAXPLAYERS+1] = null;
 //signature call
 static Handle hSpec = null;
 static Handle hSwitch = null;
-static Handle hCreateSmoker = null;
-static Handle hCreateBoomer = null;
-static Handle hCreateHunter = null;
-static Handle hCreateSpitter = null;
-static Handle hCreateJockey = null;
-static Handle hCreateCharger = null;
-static Handle hCreateTank = null;
 static Handle hFlashLightTurnOn = null;
+static Handle hCreateSmoker = null;
+#define NAME_CreateSmoker "NextBotCreatePlayerBot<Smoker>"
+#define SIG_CreateSmoker_LINUX "@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
+static Handle hCreateBoomer = null;
+#define NAME_CreateBoomer "NextBotCreatePlayerBot<Boomer>"
+#define SIG_CreateBoomer_LINUX "@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
+static Handle hCreateHunter = null;
+#define NAME_CreateHunter "NextBotCreatePlayerBot<Hunter>"
+#define SIG_CreateHunter_LINUX "@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
+static Handle hCreateSpitter = null;
+#define NAME_CreateSpitter "NextBotCreatePlayerBot<Spitter>"
+#define SIG_CreateSpitter_LINUX "@_Z22NextBotCreatePlayerBotI7SpitterEPT_PKc"
+static Handle hCreateJockey = null;
+#define NAME_CreateJockey "NextBotCreatePlayerBot<Jockey>"
+#define SIG_CreateJockey_LINUX "@_Z22NextBotCreatePlayerBotI6JockeyEPT_PKc"
+static Handle hCreateCharger = null;
+#define NAME_CreateCharger "NextBotCreatePlayerBot<Charger>"
+#define SIG_CreateCharger_LINUX "@_Z22NextBotCreatePlayerBotI7ChargerEPT_PKc"
+static Handle hCreateTank = null;
+#define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
+#define SIG_CreateTank_LINUX "@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
 
 // Stuff related to Durzel's HUD (Panel was redone)
 static int respawnDelay[MAXPLAYERS+1]; 			// Used to store individual player respawn delays after death
@@ -935,6 +954,7 @@ public void OnPluginStart()
 	HookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (沒有觸發round_end)
+
 	// We hook some events ...
 	HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 	HookEvent("player_team", evtPlayerTeam);
@@ -1001,109 +1021,7 @@ public void OnPluginStart()
 	// Create persistent storage for client HUD preferences 
 	usrHUDPref = CreateTrie();
 
-	Handle hGameConf = LoadGameConfigFile("l4dinfectedbots");
-	if( hGameConf != null )
-	{
-		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "SetHumanSpec");
-		PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
-		hSpec = EndPrepSDKCall();
-		if( hSpec == null)
-			SetFailState("Could not prep the \"SetHumanSpec\" function.");
-
-		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "TakeOverBot");
-		PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
-		hSwitch = EndPrepSDKCall();
-		if( hSwitch == null)
-			SetFailState("Could not prep the \"TakeOverBot\" function.");
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Smoker>"))
-			SetFailState("Unable to find NextBotCreatePlayerBot<Smoker> signature in gamedata file.");
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateSmoker = EndPrepSDKCall();
-		if (hCreateSmoker == null)
-			SetFailState("Cannot initialize NextBotCreatePlayerBot<Smoker> SDKCall, signature is broken.") ;
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Boomer>"))
-			SetFailState("Unable to find NextBotCreatePlayerBot<Boomer> signature in gamedata file.");
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateBoomer = EndPrepSDKCall();
-		if (hCreateBoomer == null)
-			SetFailState("Cannot initialize NextBotCreatePlayerBot<Boomer> SDKCall, signature is broken.") ;
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Hunter>"))
-			SetFailState("Unable to find NextBotCreatePlayerBot<Hunter> signature in gamedata file.");
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateHunter = EndPrepSDKCall();
-		if (hCreateHunter == null)
-			SetFailState("Cannot initialize NextBotCreatePlayerBot<Hunter> SDKCall, signature is broken.") ;
-
-		if(L4D2Version)
-		{
-			StartPrepSDKCall(SDKCall_Static);
-			if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Spitter>"))
-				SetFailState("Unable to find NextBotCreatePlayerBot<Spitter> signature in gamedata file.");
-			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-			PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-			hCreateSpitter = EndPrepSDKCall();
-			if (hCreateSpitter == null)
-				SetFailState("Cannot initialize NextBotCreatePlayerBot<Spitter> SDKCall, signature is broken.") ;
-
-			StartPrepSDKCall(SDKCall_Static);
-			if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Jockey>"))
-				SetFailState("Unable to find NextBotCreatePlayerBot<Jockey> signature in gamedata file.");
-			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-			PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-			hCreateJockey = EndPrepSDKCall();
-			if (hCreateJockey == null)
-				SetFailState("Cannot initialize NextBotCreatePlayerBot<Jockey> SDKCall, signature is broken.") ;
-
-			StartPrepSDKCall(SDKCall_Static);
-			if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Charger>"))
-				SetFailState("Unable to find NextBotCreatePlayerBot<Charger> signature in gamedata file.");
-			PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-			PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-			hCreateCharger = EndPrepSDKCall();
-			if (hCreateCharger == null)
-				SetFailState("Cannot initialize NextBotCreatePlayerBot<Charger> SDKCall, signature is broken.") ;
-		}
-
-		StartPrepSDKCall(SDKCall_Static);
-		if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "NextBotCreatePlayerBot<Tank>"))
-			SetFailState("Unable to find NextBotCreatePlayerBot<Tank> signature in gamedata file.");
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-		hCreateTank = EndPrepSDKCall();
-		if (hCreateTank == null)
-			SetFailState("Cannot initialize NextBotCreatePlayerBot<Tank> SDKCall, signature is broken.") ;
-		
-		if(L4D2Version)
-		{
-			StartPrepSDKCall(SDKCall_Player);
-			PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "FlashLightTurnOn");
-			hFlashLightTurnOn = EndPrepSDKCall();
-		}
-		else
-		{
-			StartPrepSDKCall(SDKCall_Player);
-			PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "FlashlightIsOn");
-			hFlashLightTurnOn = EndPrepSDKCall();
-		}
-		if (hFlashLightTurnOn == null)
-			SetFailState("FlashLightTurnOn Signature broken");
-	}
-	else
-	{
-		SetFailState("Unable to find l4dinfectedbots.txt gamedata file.");
-	}
-	delete hGameConf;
+	GetGameData();
 
 	// Removes the boundaries for z_max_player_zombies and notify flag
 	int flags = FindConVar("z_max_player_zombies").Flags;
@@ -1751,7 +1669,6 @@ public void OnMapStart()
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
-
 }
 
 public void OnMapEnd()
@@ -2552,6 +2469,7 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 									}
 								}
 							}
+
 							return Plugin_Continue;
 						}
 					}
@@ -5107,4 +5025,220 @@ void CheckandPrecacheModel(const char[] model)
 	}
 }
 
+Handle hGameConf;
+void GetGameData()
+{
+	hGameConf = LoadGameConfigFile("l4dinfectedbots");
+	if( hGameConf != null )
+	{
+		PrepSDKCall();
+	}
+	else
+	{
+		SetFailState("Unable to find l4dinfectedbots.txt gamedata file.");
+	}
+	delete hGameConf;
+}
+
+void PrepSDKCall()
+{
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "SetHumanSpec");
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
+	hSpec = EndPrepSDKCall();
+	if( hSpec == null)
+		SetFailState("Could not prep the \"SetHumanSpec\" function.");
+
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "TakeOverBot");
+	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
+	hSwitch = EndPrepSDKCall();
+	if( hSwitch == null)
+		SetFailState("Could not prep the \"TakeOverBot\" function.");
+
+	if(L4D2Version)
+	{
+		StartPrepSDKCall(SDKCall_Player);
+		PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "FlashLightTurnOn");
+		hFlashLightTurnOn = EndPrepSDKCall();
+	}
+	else
+	{
+		StartPrepSDKCall(SDKCall_Player);
+		PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "FlashlightIsOn");
+		hFlashLightTurnOn = EndPrepSDKCall();
+	}
+	if (hFlashLightTurnOn == null)
+		SetFailState("FlashLightTurnOn Signature broken");
+	
+	//find create bot signature
+	Address replaceWithBot = GameConfGetAddress(hGameConf, "NextBotCreatePlayerBot.jumptable");
+	if (replaceWithBot != Address_Null && LoadFromAddress(replaceWithBot, NumberType_Int8) == 0x68) {
+		// We're on L4D2 and linux
+		PrepWindowsCreateBotCalls(replaceWithBot);
+	}
+	else
+	{
+		if (L4D2Version)
+		{
+			PrepL4D2CreateBotCalls();
+		}
+		else
+		{ 
+			delete hCreateSpitter; 
+			delete hCreateJockey; 
+			delete hCreateCharger; 
+		}
+	
+		PrepL4D1CreateBotCalls();
+	}
+}
+
+void LoadStringFromAdddress(Address addr, char[] buffer, int maxlength) {
+	int i = 0;
+	while(i < maxlength) {
+		char val = LoadFromAddress(addr + view_as<Address>(i), NumberType_Int8);
+		if(val == 0) {
+			buffer[i] = 0;
+			break;
+		}
+		buffer[i] = val;
+		i++;
+	}
+	buffer[maxlength - 1] = 0;
+}
+
+Handle PrepCreateBotCallFromAddress(Handle hSiFuncTrie, const char[] siName) {
+	Address addr;
+	StartPrepSDKCall(SDKCall_Static);
+	if (!GetTrieValue(hSiFuncTrie, siName, addr) || !PrepSDKCall_SetAddress(addr))
+	{
+		SetFailState("Unable to find NextBotCreatePlayer<%s> address in memory.", siName);
+		return null;
+	}
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	return EndPrepSDKCall();	
+}
+
+void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
+	Handle hInfectedFuncs = CreateTrie();
+	// We have the address of the jump table, starting at the first PUSH instruction of the
+	// PUSH mem32 (5 bytes)
+	// CALL rel32 (5 bytes)
+	// JUMP rel8 (2 bytes)
+	// repeated pattern.
+	
+	// Each push is pushing the address of a string onto the stack. Let's grab these strings to identify each case.
+	// "Hunter" / "Smoker" / etc.
+	for(int i = 0; i < 7; i++) {
+		// 12 bytes in PUSH32, CALL32, JMP8.
+		Address caseBase = jumpTableAddr + view_as<Address>(i * 12);
+		Address siStringAddr = view_as<Address>(LoadFromAddress(caseBase + view_as<Address>(1), NumberType_Int32));
+		static char siName[32];
+		LoadStringFromAdddress(siStringAddr, siName, sizeof(siName));
+
+		Address funcRefAddr = caseBase + view_as<Address>(6); // 2nd byte of call, 5+1 byte offset.
+		int funcRelOffset = LoadFromAddress(funcRefAddr, NumberType_Int32);
+		Address callOffsetBase = caseBase + view_as<Address>(10); // first byte of next instruction after the CALL instruction
+		Address nextBotCreatePlayerBotTAddr = callOffsetBase + view_as<Address>(funcRelOffset);
+		PrintToServer("Found NextBotCreatePlayerBot<%s>() @ %08x", siName, nextBotCreatePlayerBotTAddr);
+		SetTrieValue(hInfectedFuncs, siName, nextBotCreatePlayerBotTAddr);
+	}
+
+	hCreateSmoker = PrepCreateBotCallFromAddress(hInfectedFuncs, "Smoker");
+	if (hCreateSmoker == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateSmoker); return; }
+
+	hCreateBoomer = PrepCreateBotCallFromAddress(hInfectedFuncs, "Boomer");
+	if (hCreateBoomer == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateBoomer); return; }
+
+	hCreateHunter = PrepCreateBotCallFromAddress(hInfectedFuncs, "Hunter");
+	if (hCreateHunter == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateHunter); return; }
+
+	hCreateTank = PrepCreateBotCallFromAddress(hInfectedFuncs, "Tank");
+	if (hCreateTank == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateTank); return; }
+	
+	hCreateSpitter = PrepCreateBotCallFromAddress(hInfectedFuncs, "Spitter");
+	if (hCreateSpitter == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateSpitter); return; }
+	
+	hCreateJockey = PrepCreateBotCallFromAddress(hInfectedFuncs, "Jockey");
+	if (hCreateJockey == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateJockey); return; }
+
+	hCreateCharger = PrepCreateBotCallFromAddress(hInfectedFuncs, "Charger");
+	if (hCreateCharger == null)
+	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateCharger); return; }
+}
+
+void PrepL4D2CreateBotCalls() {
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateSpitter))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSpitter); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateSpitter = EndPrepSDKCall();
+	if (hCreateSpitter == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSpitter); return; }
+	
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateJockey))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateJockey); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateJockey = EndPrepSDKCall();
+	if (hCreateJockey == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateJockey); return; }
+	
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateCharger))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateCharger); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateCharger = EndPrepSDKCall();
+	if (hCreateCharger == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateCharger); return; }
+}
+
+void PrepL4D1CreateBotCalls() {
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateSmoker))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateSmoker = EndPrepSDKCall();
+	if (hCreateSmoker == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
+	
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateBoomer))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateBoomer = EndPrepSDKCall();
+	if (hCreateBoomer == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
+	
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateHunter))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateHunter = EndPrepSDKCall();
+	if (hCreateHunter == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
+	
+	StartPrepSDKCall(SDKCall_Static);
+	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateTank))
+	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+	hCreateTank = EndPrepSDKCall();
+	if (hCreateTank == null)
+	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
+}
 ///////////////////////////////////////////////////////////////////////////
