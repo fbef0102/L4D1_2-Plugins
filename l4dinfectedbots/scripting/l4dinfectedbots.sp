@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.8
+* Version	: 2.4.9
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.4.9
+*	   - fixed l4d1 faild to load, (thanks Dragokas for reporting: https://forums.alliedmods.net/showpost.php?p=2729460&postcount=1508
+*
 * Version 2.4.8
 *	   - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 *		(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849)
@@ -584,7 +587,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.8"
+#define PLUGIN_VERSION "2.4.9"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -891,7 +894,7 @@ public void OnPluginStart()
 	h_CommonLimit = CreateConVar("l4d_infectedbots_default_commonlimit", "30", "Sets Default zombie common limit.", FCVAR_NOTIFY, true, 1.0); 
 	h_PlayerAddCommonLimitScale = CreateConVar("l4d_infectedbots_add_commonlimit_scale", "1", "If server has more than 4+ alive players, zombie common limit = 'default_commonlimit' + [(alive players - 4) ÷ 'add_commonlimit_scale' × 'add_commonlimit'].", FCVAR_NOTIFY, true, 1.0); 
 	h_PlayerAddCommonLimit = CreateConVar("l4d_infectedbots_add_commonlimit", "2", "If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_default_commonlimit' each 'l4d_infectedbots_add_commonlimit_scale' players joins", FCVAR_NOTIFY, true, 0.0); 
-	if (L4D2Version) h_CoopInfectedPlayerFlashLight = CreateConVar("l4d_infectedbots_coop_versus_human_light", "1", "If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)", FCVAR_NOTIFY, true, 0.0, true, 1.0); 
+	h_CoopInfectedPlayerFlashLight = CreateConVar("l4d_infectedbots_coop_versus_human_light", "1", "If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)", FCVAR_NOTIFY, true, 0.0, true, 1.0); 
 
 	h_GameMode = FindConVar("mp_gamemode");
 	h_GameMode.AddChangeHook(ConVarGameMode);
@@ -1620,7 +1623,6 @@ public Action MaxSpecialsSet(Handle Timer)
 	LogMessage("Max Player Zombies Set");
 	#endif
 }
-
 
 public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
@@ -2361,7 +2363,7 @@ public Action evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 	
 	//This will prevent the stats board from coming up if the cvar was set to 1 (L4D 1 only)
-	if (!L4D2Version && !IsFakeClient(client) && !h_StatsBoard.BoolValue && GameMode != 2)
+	if (!L4D2Version && !IsFakeClient(client) && h_StatsBoard.BoolValue == false && GameMode != 2)
 	{
 		CreateTimer(1.0, ZombieClassTimer, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -5142,7 +5144,7 @@ void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
 		int funcRelOffset = LoadFromAddress(funcRefAddr, NumberType_Int32);
 		Address callOffsetBase = caseBase + view_as<Address>(10); // first byte of next instruction after the CALL instruction
 		Address nextBotCreatePlayerBotTAddr = callOffsetBase + view_as<Address>(funcRelOffset);
-		PrintToServer("Found NextBotCreatePlayerBot<%s>() @ %08x", siName, nextBotCreatePlayerBotTAddr);
+		//PrintToServer("Found NextBotCreatePlayerBot<%s>() @ %08x", siName, nextBotCreatePlayerBotTAddr);
 		SetTrieValue(hInfectedFuncs, siName, nextBotCreatePlayerBotTAddr);
 	}
 
