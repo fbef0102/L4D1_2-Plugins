@@ -1,7 +1,7 @@
 Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
 
 -Changelog-
-v1.3
+v1.4
 -Remake Code
 -Add ConVars
 
@@ -10,7 +10,7 @@ v1.0
 
 -ConVar-
 cfg/sourcemod/l4d_reservedslots.cfg
-// Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉)
+// Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉 Off)
 l4d_reservedslots_adm "1"
 
 // Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)
@@ -20,4 +20,4 @@ l4d_reservedslots_flag "z"
 l4d_reservedslots_hide "1"
 
 -Message when kicked-
-"剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin.."
+"剩餘位子只限管理員.. Sorry, Reserverd Slots for Admin.."

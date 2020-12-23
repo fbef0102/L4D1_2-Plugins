@@ -2,8 +2,9 @@
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 
-#define  PLUGIN_VERSION        "1.3"
+#define  PLUGIN_VERSION        "1.4"
 #define CVAR_FLAGS FCVAR_NOTIFY
+#define DEBUG 1
 
 public Plugin myinfo =
 {
@@ -14,7 +15,7 @@ public Plugin myinfo =
         url = "https://steamcommunity.com/id/HarryPotter_TW/"
 };
 
-static char MSG_KICK_REASON[] = "剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..";
+static char MSG_KICK_REASON[] = "剩餘位子只限管理員.. Sorry, Reserverd Slots for Admin..";
 
 int g_iCvarReservedSlots, g_iMaxplayers;
 ConVar L4dtoolzExtension, sv_visiblemaxplayers, g_hCvarReservedSlots, g_hAccess, g_hHideSlots;
@@ -22,6 +23,7 @@ char g_sAccessAcclvl[16];
 bool g_bHideSlots;
 bool g_bHasAcces[MAXPLAYERS+1];
 
+bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
         EngineVersion test = GetEngineVersion();
@@ -32,6 +34,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
                 return APLRes_SilentFailure;
         }
 
+        bLate = late;
         return APLRes_Success; 
 }
 
@@ -45,7 +48,7 @@ public void OnPluginStart()
         if(sv_visiblemaxplayers == null)
                 SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
 
-        g_hCvarReservedSlots = CreateConVar("l4d_reservedslots_adm", "1", "Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉)", CVAR_FLAGS, true, 0.0);
+        g_hCvarReservedSlots = CreateConVar("l4d_reservedslots_adm", "1", "Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉 Off)", CVAR_FLAGS, true, 0.0);
         g_hAccess = CreateConVar("l4d_reservedslots_flag", "z", "Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
         g_hHideSlots = CreateConVar("l4d_reservedslots_hide", "1", "If set to 1, reserved slots will hidden (subtracted 'l4d_reservedslots_adm' from the max slot 'sv_maxplayers')", CVAR_FLAGS, true, 0.0, true, 1.0);
 
@@ -57,6 +60,17 @@ public void OnPluginStart()
         g_hHideSlots.AddChangeHook(ConVarChanged_Cvars);
 
         AutoExecConfig(true, "l4d_reservedslots");
+
+	if (bLate)
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i) && !IsFakeClient(i) && g_iCvarReservedSlots > 0)
+			{
+				if(HasAccess(i, g_sAccessAcclvl)) g_bHasAcces[i] = true;
+			}
+		}
+	}
 }
 
 public void OnPluginEnd()
@@ -94,10 +108,7 @@ public void OnClientDisconnect_Post(int client)
 {
 	CheckHiddenSlots();
 
-	if (g_bHasAcces[client])
-	{
-		g_bHasAcces[client] = false;	
-	}
+	g_bHasAcces[client] = false;	
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -105,10 +116,15 @@ public void OnClientPostAdminCheck(int client)
         if (IsFakeClient(client) || g_iCvarReservedSlots == 0)
                 return;
         
+        if(HasAccess(client, g_sAccessAcclvl))
+        {
+                g_bHasAcces[client] = true;
+                return;
+        }
+
         if (IsServerFull(client))
         {
-                if(HasAccess(client, g_sAccessAcclvl) == false) CreateTimer(0.1, OnTimedKick, client);
-                else g_bHasAcces[client] = true;
+                CreateTimer(0.1, OnTimedKick, client);
         }
 }
 
@@ -141,7 +157,9 @@ public bool IsServerFull(int client)
                 
                 current++;
         }
-        //PrintToChatAll("%d - %d - %d", current, g_iCvarReservedSlots, g_iMaxplayers);
+        #if DEBUG
+                LogMessage("Current: %d - ReservedSlots: %d - MaxPlayer: %d, iAccessClient: %d", current, g_iCvarReservedSlots, g_iMaxplayers, iAccessClient);
+        #endif
         if (iAccessClient >= g_iCvarReservedSlots) return false;
         if (current + g_iCvarReservedSlots >= g_iMaxplayers) return true;
 
@@ -158,10 +176,12 @@ public bool HasAccess(int client, const char[] g_sAcclvl)
                 return false;
                 
         int iFlag = GetUserFlagBits(client);
-        //PrintToChatAll("HasAccess %d - %d", iFlag, ReadFlagString(g_sAcclvl));
         // check permissions
         if ( iFlag & ReadFlagString(g_sAcclvl) || ( iFlag & ADMFLAG_ROOT) )
         {
+                #if DEBUG
+                        LogMessage("HasAccess %N iFlag: %d, g_sAcclvl: %d, ADMFLAG_ROOT: %d", client, iFlag, ReadFlagString(g_sAcclvl), ADMFLAG_ROOT);
+                #endif
                 return true;
         }
 
