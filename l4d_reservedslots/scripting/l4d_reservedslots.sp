@@ -4,7 +4,7 @@
 
 #define  PLUGIN_VERSION        "1.4"
 #define CVAR_FLAGS FCVAR_NOTIFY
-#define DEBUG 1
+#define DEBUG 0
 
 public Plugin myinfo =
 {
