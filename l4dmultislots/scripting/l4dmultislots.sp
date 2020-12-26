@@ -484,7 +484,7 @@ public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 			return Plugin_Stop;
 		}
 	}
-	else
+	else if (team == TEAM_INFECTED)
 	{
 		return Plugin_Stop;
 	}
