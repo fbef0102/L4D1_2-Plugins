@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.4.9
+* Version	: 2.5.0
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,8 +8,11 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.5.0
+*	   - fixed l4d1 doesn't have "z_finale_spawn_mob_safety_range" convar  (thanks darkbret for reporting: https://forums.alliedmods.net/showpost.php?p=2731173&postcount=1510)
+*
 * Version 2.4.9
-*	   - fixed l4d1 faild to load, (thanks Dragokas for reporting: https://forums.alliedmods.net/showpost.php?p=2729460&postcount=1508
+*	   - fixed l4d1 faild to load, (thanks Dragokas for reporting: https://forums.alliedmods.net/showpost.php?p=2729460&postcount=1508)
 *
 * Version 2.4.8
 *	   - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
@@ -587,7 +590,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.4.9"
+#define PLUGIN_VERSION "2.5.0"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -4010,8 +4013,11 @@ public void OnPluginEnd()
 	ResetConVar(FindConVar("z_spawn_safety_range"), true, true);
 	ResetConVar(FindConVar("z_spawn_range"), true, true);
 	ResetConVar(FindConVar("z_finale_spawn_safety_range"), true, true);
-	if(L4D2Version) ResetConVar(FindConVar("z_finale_spawn_tank_safety_range"), true, true);
-	ResetConVar(FindConVar("z_finale_spawn_mob_safety_range"), true, true);
+	if(L4D2Version)
+	{
+		ResetConVar(FindConVar("z_finale_spawn_tank_safety_range"), true, true);
+		ResetConVar(FindConVar("z_finale_spawn_mob_safety_range"), true, true);
+	}
 	ResetConVar(FindConVar("z_spawn_flow_limit"), true, true);
 	ResetConVar(FindConVar("z_tank_health"), true, true);
 	ResetConVar(h_common_limit_cvar, true, true);
