@@ -1,12 +1,10 @@
 Remove drop weapon + remove upgradepack when used
 
 -ChangeLog-
-v2.3
+v2.4
+-Remake Code
 -Remove gnome and cola
 -Create Native
-
-v2.1
--Remake Code
 -Use EntIndexToEntRef and EntRefToEntIndex to remove entity safely
 
 v1.7
