@@ -12,7 +12,7 @@ ConVar g_hCvar_ClearWeaponTime, g_hCvar_ClearUpradeGroundPackTime, g_hCvar_Clear
 float fItemDeleteTime[2048];
 int g_iClearWeaponTime, g_iUpradeGroundPack_Time;
 int iRoundStart;
-bool L4D2Version, g_bClearGnome, g_bClearCola;
+bool g_bL4D2Version, g_bClearGnome, g_bClearCola;
 
 static char upgradegroundpack[][] =
 {
@@ -62,7 +62,7 @@ public Plugin myinfo =
 {
 	name = "Remove drop weapon + remove upgradepack when used",
 	author = "AK978 & HarryPotter",
-	version = "2.3"
+	version = "2.4"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -71,11 +71,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	
 	if( test == Engine_Left4Dead )
 	{
-		L4D2Version = false;
+		g_bL4D2Version = false;
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
-		L4D2Version = true;
+		g_bL4D2Version = true;
 	}
 	else
 	{
@@ -97,7 +97,7 @@ public int Native_Timer_Delete_Weapon(Handle plugin, int numParams)
 public void OnPluginStart()
 {
 	g_hCvar_ClearWeaponTime = CreateConVar("sm_drop_clear_weapon_time", "60", "Time in seconds  to remove weapon after drops. (0=off)", CVAR_FLAGS, true, 0.0);
-	if (L4D2Version){
+	if (g_bL4D2Version){
 		g_hCvar_ClearUpradeGroundPackTime = CreateConVar("sm_drop_clear_ground_upgrade_pack_time", "60", "Time in seconds to remove upgradepack on the ground after used. (0=off)", CVAR_FLAGS, true, 0.0);
 		g_hCvar_ClearGnome = CreateConVar("sm_drop_clear_weapon_gnome", "0", "If 1, remove gnome after drops.", CVAR_FLAGS, true, 0.0);
 		g_hCvar_ClearCola = CreateConVar("sm_drop_clear_weapon_cola_bottles", "0", "If 1, remove cola bottles after drops.", CVAR_FLAGS, true, 0.0);
@@ -105,15 +105,18 @@ public void OnPluginStart()
 	
 	GetCvars();
 	g_hCvar_ClearWeaponTime.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvar_ClearUpradeGroundPackTime.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvar_ClearGnome.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvar_ClearCola.AddChangeHook(ConVarChanged_Cvars);
+	if(g_bL4D2Version)
+	{
+		g_hCvar_ClearUpradeGroundPackTime.AddChangeHook(ConVarChanged_Cvars);
+		g_hCvar_ClearGnome.AddChangeHook(ConVarChanged_Cvars);
+		g_hCvar_ClearCola.AddChangeHook(ConVarChanged_Cvars);
+	}
 	
 	HookEvent("weapon_drop", Event_Weapon_Drop);
 	HookEvent("round_start", Event_Round_Start);
 	HookEvent("round_end", Event_Round_End);
 	
-	if (L4D2Version){
+	if (g_bL4D2Version){
 		HookEvent ("upgrade_pack_used",	Event_UpgradePack);
 	}
 	
@@ -128,9 +131,12 @@ public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char
 void GetCvars()
 {
 	g_iClearWeaponTime = g_hCvar_ClearWeaponTime.IntValue;
-	g_iUpradeGroundPack_Time = g_hCvar_ClearUpradeGroundPackTime.IntValue;
-	g_bClearGnome = g_hCvar_ClearGnome.BoolValue;
-	g_bClearCola = g_hCvar_ClearCola.BoolValue;
+	if(g_bL4D2Version)
+	{
+		g_iUpradeGroundPack_Time = g_hCvar_ClearUpradeGroundPackTime.IntValue;
+		g_bClearGnome = g_hCvar_ClearGnome.BoolValue;
+		g_bClearCola = g_hCvar_ClearCola.BoolValue;
+	}
 }
 
 public Action Event_Round_Start(Event event, const char[] name, bool dontBroadcast)
