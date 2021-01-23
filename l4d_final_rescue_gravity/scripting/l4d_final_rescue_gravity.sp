@@ -9,8 +9,8 @@ public Plugin myinfo =
 	name = "[L4D1/2] final rescue gravity",
 	author = "Harry Potter",
 	description = "Set client gravity after final rescue starts just for fun.",
-	version = "1.3",
-	url = "https://steamcommunity.com/id/TIGER_x_DRAGON/"
+	version = "1.4",
+	url = "https://steamcommunity.com/id/HarryPotter_TW/"
 }
 
 #define TEAM_SPECTATOR		1
@@ -193,7 +193,7 @@ bool IsAllowedGameMode()
 			HookSingleEntityOutput(entity, "OnVersus", OnGamemode, true);
 			HookSingleEntityOutput(entity, "OnScavenge", OnGamemode, true);
 			ActivateEntity(entity);
-			AcceptEntityInput(entity, "PostSpawvate");
+			AcceptEntityInput(entity, "PostSpawnActivate");
 			if( IsValidEntity(entity) ) // Because sometimes "PostSpawnActivate" seems to kill the ent.
 				RemoveEdict(entity); // Because multiple plugins creating at once, avoid too many duplicate ents in the same frame
 		}
