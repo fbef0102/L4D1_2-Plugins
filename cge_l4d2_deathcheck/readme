@@ -1,8 +1,9 @@
 Prevents mission loss(Round_End) until all human players have died.
 
 -ChangeLog-
-v1.7
--fixed double round end issue when map change by Harry
+v1.9
+-Remake code
+-fixed double round end issue when map change
 
 v1.5.6
 -original post: https://forums.alliedmods.net/showthread.php?t=142432
