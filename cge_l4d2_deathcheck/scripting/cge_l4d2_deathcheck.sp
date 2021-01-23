@@ -7,7 +7,7 @@ public Plugin myinfo = {
     name = "[L4D, L4D2] No Death Check Until Dead", 
     author = "chinagreenelvis, Harry", 
     description = "Prevents mission loss until all players have died.", 
-    version = "1.8", 
+    version = "1.9", 
     url = "https://forums.alliedmods.net/showthread.php?t=142432" 
 }; 
 
@@ -120,7 +120,6 @@ public void OnMapEnd()
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	bLeftSafeRoom = false;
-	director_no_death_check.SetInt(0);
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -137,6 +136,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 public Action tmrStart(Handle timer)
 {
 	ResetPlugin();
+	director_no_death_check.SetInt(0);
 	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
 }
 
@@ -159,7 +159,7 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
 	ResetTimer();
-	director_no_death_check.SetInt(0);
+	director_no_death_check.SetInt(1);
 	bLeftSafeRoom = false;
 }
 
