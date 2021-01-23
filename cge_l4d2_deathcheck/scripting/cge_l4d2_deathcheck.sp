@@ -159,6 +159,7 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
 	ResetTimer();
+	director_no_death_check.SetInt(0);
 	bLeftSafeRoom = false;
 }
 
