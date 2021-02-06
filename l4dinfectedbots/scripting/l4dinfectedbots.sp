@@ -1627,6 +1627,7 @@ public Action MaxSpecialsSet(Handle Timer)
 	#endif
 }
 
+
 public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
 	// If round has not been reported as ended ..
@@ -1674,6 +1675,7 @@ public void OnMapStart()
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
+
 }
 
 public void OnMapEnd()
@@ -2246,6 +2248,7 @@ public Action DisposeOfCowards(Handle timer, int coward)
 {
 	if (coward && IsClientInGame(coward) && IsFakeClient(coward) && GetClientTeam(coward) == TEAM_INFECTED && !IsPlayerTank(coward) && PlayerIsAlive(coward))
 	{
+		//PrintToChatAll("%d",GetEntProp(coward, Prop_Send, "m_hasVisibleThreats"));
 		// Check to see if the infected thats about to be slain sees the survivors. If so, kill the timer and make a int one.
 		if (GetEntProp(coward, Prop_Send, "m_hasVisibleThreats") || L4D2_GetSurvivorVictim(coward) != -1)
 		{
@@ -2555,6 +2558,12 @@ public Action ColdDown_Timer(Handle timer)
 
 public void OnClientDisconnect(int client)
 {
+	if(CheckRealPlayers_InSV(client) == false)
+	{
+		ResetConVar(FindConVar("sb_all_bot_game"), true, true);
+		ResetConVar(FindConVar("allow_all_bot_survivor_team"), true, true);
+	}
+
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
 
@@ -4013,7 +4022,7 @@ public void OnPluginEnd()
 	ResetConVar(FindConVar("z_spawn_safety_range"), true, true);
 	ResetConVar(FindConVar("z_spawn_range"), true, true);
 	ResetConVar(FindConVar("z_finale_spawn_safety_range"), true, true);
-	if(L4D2Version)
+	if(L4D2Version) 
 	{
 		ResetConVar(FindConVar("z_finale_spawn_tank_safety_range"), true, true);
 		ResetConVar(FindConVar("z_finale_spawn_mob_safety_range"), true, true);
@@ -4397,9 +4406,14 @@ public void ShowInfectedHUD(int src)
 		{
 			if ( (GetClientTeam(i) == TEAM_INFECTED))
 			{
-				if(IsPlayerTank(i))
+				if(IsPlayerTank(i) && GameMode != 2)
 				{
-					if(GetFrustration(i) >= 95 && GameMode != 2)
+					int fus = 100 - GetFrustration(i);
+					if(fus <= 60)
+					{
+						PrintHintText(i, "[TS] Tank Control: %d%%%%", fus);
+					}
+					if(fus <= 5)
 					{
 						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
 						ForcePlayerSuicide(i);
@@ -4710,6 +4724,15 @@ int CheckAliveSurvivorPlayers_InSV()
 		if(IsClientConnected(i)&&IsClientInGame(i)&&GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
 			iPlayersInAliveSurvivors++;
 	return iPlayersInAliveSurvivors;
+}
+
+bool CheckRealPlayers_InSV(int client)
+{
+	for (int i = 1; i < MaxClients+1; i++)
+		if(IsClientConnected(i) && !IsFakeClient(i) && i != client)
+			return true;
+
+	return false;
 }
 
 bool IsWitch(int entity)
