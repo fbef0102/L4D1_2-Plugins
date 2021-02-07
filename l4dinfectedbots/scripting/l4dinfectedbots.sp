@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.5.0
+* Version	: 2.5.1
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.5.1
+*	   - fixed l4d1 ghost tank bug in coop/survival
+*
 * Version 2.5.0
 *	   - fixed l4d1 doesn't have "z_finale_spawn_mob_safety_range" convar  (thanks darkbret for reporting: https://forums.alliedmods.net/showpost.php?p=2731173&postcount=1510)
 *
@@ -590,7 +593,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.5.0"
+#define PLUGIN_VERSION "2.5.1"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -1627,7 +1630,6 @@ public Action MaxSpecialsSet(Handle Timer)
 	#endif
 }
 
-
 public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
 	// If round has not been reported as ended ..
@@ -1675,7 +1677,6 @@ public void OnMapStart()
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
-
 }
 
 public void OnMapEnd()
@@ -2162,7 +2163,7 @@ public Action evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	{
 		char clientname[256];
 		GetClientName(client, clientname, sizeof(clientname));
-		if (L4D2Version && GameMode == 1 && IsFakeClient(client) && RealPlayersOnInfected() && StrContains(clientname, "Bot", false) == -1)
+		if (GameMode == 1 && IsFakeClient(client) && RealPlayersOnInfected() && StrContains(clientname, "Bot", false) == -1)
 		{
 			CreateTimer(0.1, TankBugFix, client);
 		}
@@ -2201,7 +2202,7 @@ public Action evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 			{
 				if (IsFakeClient(client) && RealPlayersOnInfected())
 				{
-					if (L4D2Version && !AreTherePlayersWhoAreNotTanks() && g_bCoopPlayableTank && StrContains(clientname, "Bot", false) == -1 || L4D2Version && !g_bCoopPlayableTank && StrContains(clientname, "Bot", false) == -1)
+					if (!AreTherePlayersWhoAreNotTanks() && g_bCoopPlayableTank && StrContains(clientname, "Bot", false) == -1 || !g_bCoopPlayableTank && StrContains(clientname, "Bot", false) == -1)
 					{
 						CreateTimer(0.1, TankBugFix, client);
 					}
@@ -2477,7 +2478,6 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 									}
 								}
 							}
-
 							return Plugin_Continue;
 						}
 					}
