@@ -112,8 +112,8 @@ public Plugin myinfo =
 	name = "L4D2 Vote Menu",
 	author = "fenghf, Harry Potter",
 	description = "Votes Commands",
-	version = "5.5",
-	url = "https://steamcommunity.com/id/fbef0102/"
+	version = "5.6",
+	url = "https://steamcommunity.com/id/HarryPotter_TW"
 };
 
 public void OnPluginStart()
@@ -787,6 +787,7 @@ public Action Command_VotemapsMenu(int client, int args)
 			AddMenuItem(menu, "c11m1_greenhouse", "靜寂時分 C11");
 			AddMenuItem(menu, "c12m1_hilltop", "血腥收穫 C12");
 			AddMenuItem(menu, "c13m1_alpinecreek", "冷澗溪流 C13");
+			AddMenuItem(menu, "c14m1_junkyard", "最後一刻 C14");
 		}
 		else
 		{
