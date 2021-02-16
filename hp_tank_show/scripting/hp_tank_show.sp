@@ -6,7 +6,9 @@
 #include <sdktools>
 #include <glow>
 
+#define MAXENTITIES                   2048
 #define TEAM_INFECTED                        3
+#define TEAM_SURVIVOR                        2
 #define SPRITE_MODEL3            "materials/vgui/healthbar_white.vmt"
 #define SPRITE_MODEL2            "materials/vgui/s_panel_healing_mini_prog.vmt"
 #define SPRITE_MODEL             "materials/vgui/hud/zombieteamimage_tank.vmt"
@@ -26,6 +28,27 @@ static float LastUseTime[MAXPLAYERS+1];
 static int AlgorithmType = 2;
 static bool EnableGlow = false;
 static int ZOMBIECLASS_TANK;
+static bool   g_bConfigLoaded;
+static bool   gc_bVisible[MAXPLAYERS+1][MAXPLAYERS+1];
+static float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
+static float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
+static bool   ge_bInvalidTrace[MAXENTITIES+1];
+static int    ge_iOwner[MAXENTITIES+1];
+
+#define PLUGIN_NAME                   "[L4D1 & L4D2] Tank HP Sprite"
+#define PLUGIN_AUTHOR                 "Mart & Harry"
+#define PLUGIN_DESCRIPTION            "Shows a sprite at the tank head that goes from green to red based on its HP"
+#define PLUGIN_VERSION                "1.1"
+#define PLUGIN_URL                    "https://forums.alliedmods.net/showthread.php?t=330370"
+
+public Plugin myinfo =
+{
+    name        = PLUGIN_NAME,
+    author      = PLUGIN_AUTHOR,
+    description = PLUGIN_DESCRIPTION,
+    version     = PLUGIN_VERSION,
+    url         = PLUGIN_URL
+}
 
 // ====================================================================================================
 // Plugin Start
@@ -58,6 +81,13 @@ public void OnPluginStart()
     HookEvent("tank_spawn", Event_TankSpawn);
     HookEvent("tank_killed", event_TankKilled);
     HookEvent("player_hurt", OnPlayerHurt);
+
+    CreateTimer(0.1, TimerVisible, _, TIMER_REPEAT);
+}
+
+public void OnConfigsExecuted()
+{
+    g_bConfigLoaded = true;
 }
 
 public void OnMapStart()
@@ -69,17 +99,30 @@ public void OnMapStart()
     PrecacheModel(SPRITE_DEATH, true);
 }
 
-public Action event_TankKilled( Event event, const char[] sName, bool bDontBroadcast )
+public void OnClientDisconnect(int client)
 {
-    int client = GetClientOfUserId(GetEventInt(event, "userid"));
-
-    if (client <= 0 || client > MaxClients|| !IsClientInGame(client))
+    if (!g_bConfigLoaded)
         return;
 
-    if (!TankIncapped[client])
+    TankSprite[client] = INVALID_ENT_REFERENCE;
+
+    for (int target = 1; target <= MaxClients; target++)
     {
-        TankHealth[client] = -1;
-        int env_sprite = TankSprite[client];
+        gc_bVisible[target][client] = false;
+    }
+}
+
+public Action event_TankKilled( Event event, const char[] sName, bool bDontBroadcast )
+{
+    int target = GetClientOfUserId(GetEventInt(event, "userid"));
+
+    if (target <= 0 || target > MaxClients|| !IsClientInGame(target))
+        return;
+
+    if (!TankIncapped[target])
+    {
+        TankHealth[target] = -1;
+        int env_sprite = TankSprite[target];
 
         if (!IsValidEntRef(env_sprite))
             return;
@@ -90,7 +133,12 @@ public Action event_TankKilled( Event event, const char[] sName, bool bDontBroad
         DispatchSpawn(env_sprite);
 
         if (g_bL4D2Version && EnableGlow)
-            L4D2_SetEntGlow_Flashing(client, true);
+            L4D2_SetEntGlow_Flashing(target, true);
+    }
+
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        gc_bVisible[target][client] = false;
     }
 }
 
@@ -221,8 +269,8 @@ public void Event_TankSpawn( Event event, const char[] sName, bool bDontBroadcas
         DispatchKeyValue(env_sprite, "renderamt", "240");
         DispatchKeyValue(env_sprite, "disablereceiveshadows", "1");
         DispatchKeyValue(env_sprite, "spawnflags", "1");
-        DispatchKeyValueFloat(env_sprite, "fademindist", 600.0);
-        DispatchKeyValueFloat(env_sprite, "fademaxdist", 600.0);
+        DispatchKeyValueFloat(env_sprite, "fademindist", 1000.0);
+        DispatchKeyValueFloat(env_sprite, "fademaxdist", 1000.0);
 
         DispatchSpawn(env_sprite);
         DispatchKeyValue(env_sprite, "renderamt", "0");
@@ -238,7 +286,23 @@ public void Event_TankSpawn( Event event, const char[] sName, bool bDontBroadcas
         TeleportEntity(env_sprite, vPos, NULL_VECTOR, NULL_VECTOR);
 
         TankSprite[client] =  EntIndexToEntRef(env_sprite);
+
+        ge_iOwner[env_sprite] = client;
+        SDKHook(env_sprite, SDKHook_SetTransmit, OnSetTransmit);
     }
+}
+
+public Action OnSetTransmit(int entity, int client)
+{
+    int owner = ge_iOwner[entity];
+
+    if (owner == client)
+        return Plugin_Handled;
+
+    if (gc_bVisible[owner][client])
+        return Plugin_Continue;
+
+    return Plugin_Handled;
 }
 
 public Action Timer_HealthModifierSet(Handle timer, int client)
@@ -315,4 +379,126 @@ bool IsPlayerTank (int client)
 int GetZombieClass(int client)
 {
     return GetEntProp(client, Prop_Send, "m_zombieClass");
+}
+
+public Action TimerVisible(Handle timer)
+{
+    if (!g_bConfigLoaded)
+        return Plugin_Continue;
+
+    for (int target = 1; target <= MaxClients; target++)
+    {
+        if (TankSprite[target] == INVALID_ENT_REFERENCE)
+            continue;
+
+        if (!IsClientInGame(target))
+            continue;
+
+        for (int client = 1; client <= MaxClients; client++)
+        {
+            gc_bVisible[target][client] = false;
+
+            if (!IsClientInGame(client))
+                continue;
+
+            if (IsFakeClient(client))
+                continue;
+
+            if (GetClientTeam(client) == TEAM_SURVIVOR && !IsVisibleTo(client, target))
+                continue;
+
+            gc_bVisible[target][client] = true;
+        }
+    }
+
+    return Plugin_Continue;
+}
+
+bool IsVisibleTo(int client, int target)
+{
+    float vClientPos[3];
+    float vEntityPos[3];
+    float vLookAt[3];
+    float vAng[3];
+
+    GetClientEyePosition(client, vClientPos);
+    GetClientEyePosition(target, vEntityPos);
+    MakeVectorFromPoints(vClientPos, vEntityPos, vLookAt);
+    GetVectorAngles(vLookAt, vAng);
+
+    Handle trace = TR_TraceRayFilterEx(vClientPos, vAng, MASK_PLAYERSOLID, RayType_Infinite, TraceFilter, target);
+
+    bool isVisible;
+
+    if (TR_DidHit(trace))
+    {
+        isVisible = (TR_GetEntityIndex(trace) == target);
+
+        if (!isVisible)
+        {
+            vEntityPos[2] -= 62.0; // results the same as GetClientAbsOrigin
+
+            delete trace;
+            trace = TR_TraceHullFilterEx(vClientPos, vEntityPos, g_fVPlayerMins, g_fVPlayerMaxs, MASK_PLAYERSOLID, TraceFilter, target);
+
+            if (TR_DidHit(trace))
+                isVisible = (TR_GetEntityIndex(trace) == target);
+        }
+    }
+
+    delete trace;
+
+    return isVisible;
+}
+
+public bool TraceFilter(int entity, int contentsMask, int client)
+{
+    if (entity == client)
+        return true;
+
+    if (IsValidClientIndex(entity))
+        return false;
+
+    return ge_bInvalidTrace[entity] ? false : true;
+}
+
+public void OnEntityDestroyed(int entity)
+{
+    if (!g_bConfigLoaded)
+        return;
+
+    if (!IsValidEntityIndex(entity))
+        return;
+
+    ge_bInvalidTrace[entity] = false;
+    ge_iOwner[entity] = 0;
+}
+
+
+public void OnEntityCreated(int entity, const char[] classname)
+{
+    if (!g_bConfigLoaded)
+        return;
+
+    if (!IsValidEntityIndex(entity))
+        return;
+
+    switch (classname[0])
+    {
+        case 't':
+        {
+            if (StrEqual(classname, "tank_rock"))
+                ge_bInvalidTrace[entity] = true;
+        }
+    }
+}
+
+bool IsValidClientIndex(int client)
+{
+    return (1 <= client <= MaxClients);
+}
+
+bool IsValidEntityIndex(int entity)
+{
+    return (MaxClients+1 <= entity <= GetMaxEntities());
 }
