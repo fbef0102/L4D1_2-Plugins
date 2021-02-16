@@ -3,7 +3,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <multicolors>
-#include <l4d2_changelevel>
+//#include <l4d2_changelevel>
 
 #define SCORE_DELAY_EMPTY_SERVER 3.0
 #define ZOMBIECLASS_SMOKER 1
@@ -113,7 +113,7 @@ public Plugin myinfo =
 	author = "fenghf, Harry Potter",
 	description = "Votes Commands",
 	version = "5.6",
-	url = "https://steamcommunity.com/id/HarryPotter_TW"
+	url = "https://steamcommunity.com/id/fbef0102/"
 };
 
 public void OnPluginStart()
@@ -227,7 +227,8 @@ void RestartMapNow()
 	isMapRestartPending = false;
 	char currentMap[256];
 	GetCurrentMap(currentMap, 256);
-	L4D2_ChangeLevel(currentMap);
+	ServerCommand("changelevel %s", currentMap);
+	//L4D2_ChangeLevel(currentMap);
 }
 
 public Action event_Round_Start(Event event, const char[] name, bool dontBroadcast) 
@@ -787,7 +788,6 @@ public Action Command_VotemapsMenu(int client, int args)
 			AddMenuItem(menu, "c11m1_greenhouse", "靜寂時分 C11");
 			AddMenuItem(menu, "c12m1_hilltop", "血腥收穫 C12");
 			AddMenuItem(menu, "c13m1_alpinecreek", "冷澗溪流 C13");
-			AddMenuItem(menu, "c14m1_junkyard", "最後一刻 C14");
 		}
 		else
 		{
@@ -1158,7 +1158,8 @@ public Action VoteEndDelay(Handle timer)
 }
 public Action Changelevel_Map(Handle timer)
 {
-	L4D2_ChangeLevel(votesmaps);
+	ServerCommand("changelevel %s", votesmaps);
+	//L4D2_ChangeLevel(votesmaps);
 }
 //===============================
 void VoteMenuClose()
