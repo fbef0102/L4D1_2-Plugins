@@ -14,6 +14,9 @@
 #define SPRITE_MODEL             "materials/vgui/hud/zombieteamimage_tank.vmt"
 #define SPRITE_MODEL4            "materials/vgui/healthbar_orange.vmt"
 #define SPRITE_DEATH             "materials/sprites/death_icon.vmt"
+#define CLASSNAME_TANK_ROCK           "tank_rock"
+#define CLASSNAME_INFECTED            "infected"
+#define CLASSNAME_WITCH               "witch"
 
 //RIP DIMINUIR?
 
@@ -459,6 +462,9 @@ public bool TraceFilter(int entity, int contentsMask, int client)
     if (IsValidClientIndex(entity))
         return false;
 
+    if( !IsValidEntityIndex(entity) )
+        return false;
+
     return ge_bInvalidTrace[entity] ? false : true;
 }
 
@@ -487,7 +493,17 @@ public void OnEntityCreated(int entity, const char[] classname)
     {
         case 't':
         {
-            if (StrEqual(classname, "tank_rock"))
+            if (StrEqual(classname, CLASSNAME_TANK_ROCK))
+                ge_bInvalidTrace[entity] = true;
+        }
+        case 'i':
+        {
+            if (StrEqual(classname, CLASSNAME_INFECTED))
+                ge_bInvalidTrace[entity] = true;
+        }
+        case 'w':
+        {
+            if (StrEqual(classname, CLASSNAME_WITCH))
                 ge_bInvalidTrace[entity] = true;
         }
     }
