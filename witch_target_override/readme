@@ -1,0 +1,25 @@
+witch target override in better way.
+
+-ChangeLog-
+v1.1
+-Post: https://forums.alliedmods.net/showpost.php?p=2732048&postcount=9
+
+-Convars-
+cfg/sourcemod/witch_target_override.cfg
+// If 1, allow witch to chased another target after she incapacitated a survivor.
+witch_target_override_incap "1"
+
+// Set witch health if she is allowed to chased another target after she incapacitated a survivor. (0=Off)
+witch_target_override_incap_health "0"
+
+// If 1, allow witch to chased another target after she killed a survivor.
+witch_target_override_kill "1"
+
+// Set witch health if she is allowed to chased chased another target after she killed a survivor. (0=Off)
+witch_target_override_kill_health "1000"
+
+// 1=Plugin On. 0=Plugin Off
+witch_target_override_on "1"
+
+// This controls the range for witch to reacquire another target. (If no targets within range, witch default behavior)
+witch_target_override_range "9999" 
