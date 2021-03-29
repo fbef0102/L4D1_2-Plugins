@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.5.1
+* Version	: 2.5.2
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.5.2
+*	   - fixed invalid convar handle in l4d1
+
 * Version 2.5.1
 *	   - fixed l4d1 ghost tank bug in coop/survival
 *
@@ -593,7 +596,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.5.1"
+#define PLUGIN_VERSION "2.5.2"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -2560,8 +2563,15 @@ public void OnClientDisconnect(int client)
 {
 	if(CheckRealPlayers_InSV(client) == false)
 	{
-		ResetConVar(FindConVar("sb_all_bot_game"), true, true);
-		ResetConVar(FindConVar("allow_all_bot_survivor_team"), true, true);
+		if (!L4D2Version)
+		{
+			ResetConVar(FindConVar("sb_all_bot_team"), true, true);
+		}
+		else
+		{
+			ResetConVar(FindConVar("sb_all_bot_game"), true, true);
+			ResetConVar(FindConVar("allow_all_bot_survivor_team"), true, true);
+		}
 	}
 
 	delete FightOrDieTimer[client];
