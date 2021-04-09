@@ -15,10 +15,10 @@ v0.3
 -ConVar-
 cfg\sourcemod\helpmenu.cfg
 // Show a list of online admins in the menu.
-sm_helpmenu_admins "0"
+sm_helpmenu_admins "1"
 
 // Automatically reload the configuration file when changing the map.
-sm_helpmenu_autoreload "0"
+sm_helpmenu_autoreload "1"
 
 // Path to configuration file.
 sm_helpmenu_config_path "configs/helpmenu.cfg"
