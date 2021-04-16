@@ -1,5 +1,5 @@
 
-#define PLUGIN_VERSION 		"1.0"
+#define PLUGIN_VERSION 		"1.1"
 #define PLUGIN_NAME			"[L4D1/2] Rescue vehicle leave timer"
 #define PLUGIN_AUTHOR		"HarryPotter"
 #define PLUGIN_DES			"When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him"
@@ -14,6 +14,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <left4dhooks>
+#include <multicolors>
 
 #define DEBUG 0
 
@@ -63,6 +64,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	LoadTranslations("l4d_rescue_vehicle_leave_timer.phrases");
 	g_hCvarAllow =			CreateConVar(	"l4d_rescue_vehicle_leave_timer_allow",			"1",			"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarModes =			CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =		CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
@@ -305,12 +307,12 @@ public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadc
 public Action Timer_AntiPussy(Handle timer)
 {
 	EmitSoundToAll(SOUND_ESCAPE, _, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
-	PrintCenterTextAll("[TS] 限時逃亡倒數 %d 秒 !!!", iSystemTime);
+	PrintCenterTextAll("[TS] %t", "Escape in seconds", iSystemTime);
 	
 	if(iSystemTime <= 1)
 	{
-		PrintToChatAll("\x01[\x05TS\x01]\x05 救援外區域的玩家將\x04處以死刑\x01!");
-		if(_AntiPussyTimer == null) _AntiPussyTimer = CreateTimer(2.5, _AntiPussy, _, TIMER_REPEAT);
+		CPrintToChatAll("{default}[{olive}TS{default}] %t", "Outside Slay");
+		if(_AntiPussyTimer == null) _AntiPussyTimer = CreateTimer(1.5, _AntiPussy, _, TIMER_REPEAT);
 		
 		AntiPussyTimer = null;
 		return Plugin_Stop;
@@ -327,7 +329,7 @@ public Action _AntiPussy(Handle timer)
 		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsInFinalRescueVehicle(i))
 		{
 			ForcePlayerSuicide(i);
-			PrintToChat(i, "\x01[\x05TS\x01] 你尚未在時間內抵達救援，\x04處以死刑\x01！！");
+			CPrintToChat(i, "{default}[{olive}TS{default}] %T", "You have been executed for not being on rescue vehicle or zone!", i);
 		}
 	}
 	return Plugin_Continue;

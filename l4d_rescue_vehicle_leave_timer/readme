@@ -4,15 +4,17 @@ When rescue vehicle arrived and a timer will display how many time left for vehi
 https://forums.alliedmods.net/showpost.php?p=2725525&postcount=7
 
 -ChangeLog-
-v1.0
+v1.1
 -Original Request by darkbret.
 -Thanks to Marttt and Crasher_3637.
 -Works on l4d1/2 all value maps.
 -Custom timer for each final map (edit data).
+-Translation support
 
 -Require-
 1. sourcemod 1.10 or above
 2. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+3. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
 Example Config:
 data/l4d_rescue_vehicle.cfg
