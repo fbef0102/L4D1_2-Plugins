@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.5.2
+* Version	: 2.5.3
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.5.3
+*	   - In coop, fixed the bug when l4d_infectedbots_infhud_enable set to 0, the human controlled Tank won't get killed when he out of rage meter.
+*	   - In coop, fixed the bug when l4d_infectedbots_coop_versus_tank_playable set to 1, if a tank spwans when there are 2 or more human play on the infected side, all the human player will become tank.
+
 * Version 2.5.2
 *	   - fixed invalid convar handle in l4d1
 
@@ -53,7 +57,7 @@
 * Version 2.4.1
 *	   - Update gamedata, credit to Lux: https://forums.alliedmods.net/showthread.php?p=2714236
 *
-* Version 2.4.0
+* Version 2.4.0 
 *	   - Fixed no common infected issue sometimes.
 *
 * Version 2.3.9
@@ -596,7 +600,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.5.2"
+#define PLUGIN_VERSION "2.5.3"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -621,6 +625,7 @@
 #define MODEL_CHARGER "models/infected/charger.mdl"
 #define MODEL_TANK "models/infected/hulk.mdl"
 #define ZOMBIESPAWN_Attempts 7
+#define IGNITE_TIME 3600.0
 
 // l4d1/2 value
 static char sSpawnCommand[32];
@@ -655,7 +660,6 @@ static bool canSpawnSpitter; // States if we can spawn a spitter (releated to sp
 static bool canSpawnJockey; // States if we can spawn a jockey (releated to spawn restrictions)
 static bool canSpawnCharger; // States if we can spawn a charger (releated to spawn restrictions)
 static bool FinaleStarted; // States whether the finale has started or not
-static bool WillBeTank[MAXPLAYERS+1]; // States whether that player will be the tank
 //bool TankHalt; // Loop Breaker, prevents player tanks from spawning over and over
 static bool TankWasSeen[MAXPLAYERS+1]; // Used only in coop, prevents the Sound hook event from triggering over and over again
 static bool PlayerLifeState[MAXPLAYERS+1]; // States whether that player has the lifestate changed from switching the gamemode
@@ -1510,7 +1514,7 @@ public Action PluginStart(Handle timer)
 	if(infHUDTimer == null) infHUDTimer = CreateTimer(1.0, showInfHUD, _, TIMER_REPEAT);
 
 	#if DEBUG
-		PrintToChatAll("PluginStart()!");
+		PrintToChatAll("[TS] PluginStart()!");
 	#endif
 	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
 
@@ -1542,7 +1546,7 @@ public Action evtPlayerFirstSpawned(Event event, const char[] name, bool dontBro
 		return;
 	
 	#if DEBUG
-		PrintToChatAll("Player has spawned for the first time");
+		PrintToChatAll("[TS] Player has spawned for the first time");
 	#endif
 
 	// Versus Coop code, puts all players on infected at start, delay is added to prevent a weird glitch
@@ -1756,7 +1760,7 @@ public Action evtSurvivalStart(Event event, const char[] name, bool dontBroadcas
 		if (!b_LeftSaveRoom)
 		{
 			#if DEBUG
-			PrintToChatAll("A player triggered the survival event, spawning bots");
+				PrintToChatAll("[TS] A player triggered the survival event, spawning bots");
 			#endif
 			b_LeftSaveRoom = true;
 			
@@ -1799,7 +1803,7 @@ public Action evtUnlockVersusDoor(Event event, const char[] name, bool dontBroad
 		return Plugin_Continue;
 	
 	#if DEBUG
-	PrintToChatAll("Attempting to spawn tempbot");
+		PrintToChatAll("[TS] Attempting to spawn tempbot");
 	#endif
 	int bot = CreateFakeClient("tempbot");
 	if (bot != 0)
@@ -1909,7 +1913,7 @@ public Action CheckGameMode(int client, int args)
 {
 	if (client)
 	{
-		PrintToChat(client, "GameMode = %i", GameMode);
+		PrintToChat(client, "[TS] GameMode = %i", GameMode);
 	}
 }
 
@@ -1922,7 +1926,7 @@ public Action CheckQueue(int client, int args)
 		else
 		CountInfected_Coop();
 		
-		PrintToChat(client, "InfectedBotQueue = %i, InfectedBotCount = %i, InfectedRealCount = %i", InfectedBotQueue, InfectedBotCount, InfectedRealCount);
+		PrintToChat(client, "[TS] InfectedBotQueue = %i, InfectedBotCount = %i, InfectedRealCount = %i", InfectedBotQueue, InfectedBotCount, InfectedRealCount);
 	}
 }
 
@@ -1938,7 +1942,7 @@ public Action JoinInfected(int client, int args)
 				iPlayerTeam[client] = TEAM_INFECTED;
 			}
 			else
-				PrintHintText(client, "The Infected Team is full.");
+				PrintHintText(client, "[TS] The Infected Team is full.");
 		}
 	}
 }
@@ -2263,7 +2267,7 @@ public Action DisposeOfCowards(Handle timer, int coward)
 		else
 		{
 			CreateTimer(0.1, kickbot, coward);	
-			//PrintToChatAll("Kicked bot %N for not attacking", coward);
+			//PrintToChatAll("[TS] Kicked bot %N for not attacking", coward);
 		}
 	}
 	FightOrDieTimer[coward] = null;
@@ -2334,14 +2338,14 @@ public Action evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 			if(SpawnTime < 0)
 				SpawnTime = 1;
 			#if DEBUG
-			PrintToChatAll("playerdeath");
+				PrintToChatAll("[TS] playerdeath");
 			#endif
 			CreateTimer(float(SpawnTime), Spawn_InfectedBot, _, 0);
 			InfectedBotQueue++;
 		}
 		
 		#if DEBUG
-		PrintToChatAll("An infected bot has been added to the spawn queue...");
+			PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
 		#endif
 	}
 	// This spawns a bot in coop/survival regardless if the special that died was controlled by a player, MI 5
@@ -2361,14 +2365,14 @@ public Action evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		if(SpawnTime <= 0)
 			SpawnTime = 1;
 		#if DEBUG
-		PrintToChatAll("playerdeath2");
+			PrintToChatAll("[TS] playerdeath2");
 		#endif
 		CreateTimer(float(SpawnTime), Spawn_InfectedBot);
 		GetSpawnTime[client] = SpawnTime;
 		InfectedBotQueue++;
 		
 		#if DEBUG
-		PrintToChatAll("An infected bot has been added to the spawn queue...");
+			PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
 		#endif
 	}
 	
@@ -2596,7 +2600,7 @@ public void OnClientDisconnect(int client)
 		if(SpawnTime<=0)
 			SpawnTime = 1;
 		#if DEBUG
-		PrintToChatAll("OnClientDisconnect");
+			PrintToChatAll("[TS] OnClientDisconnect");
 		#endif
 		CreateTimer(float(SpawnTime), Spawn_InfectedBot);
 		InfectedBotQueue++;
@@ -2613,7 +2617,6 @@ public void OnClientDisconnect(int client)
 	
 	// Reset all other arrays
 	respawnDelay[client] = 0;
-	WillBeTank[client] = false;
 	PlayerLifeState[client] = false;
 	GetSpawnTime[client] = 0;
 	TankWasSeen[client] = false;
@@ -2639,7 +2642,7 @@ void CheckIfBotsNeeded(bool spawn_immediately)
 	if (b_HasRoundEnded || !b_LeftSaveRoom ) return;
 
 	#if DEBUG
-		PrintToChatAll("Checking bots");
+		PrintToChatAll("[TS] Checking bots");
 	#endif 
 
 	// First, we count the infected
@@ -2659,7 +2662,7 @@ void CheckIfBotsNeeded(bool spawn_immediately)
 		{
 			InfectedBotQueue++;
 			#if DEBUG
-			PrintToChatAll("spawn_immediately");
+				PrintToChatAll("[TS] spawn_immediately");
 			#endif
 			CreateTimer(0.1, Spawn_InfectedBot);
 			#if DEBUG
@@ -2670,17 +2673,17 @@ void CheckIfBotsNeeded(bool spawn_immediately)
 		{
 			InfectedBotQueue++;
 			#if DEBUG
-			PrintToChatAll("initial_spawn");
+				PrintToChatAll("[TS] initial_spawn");
 			#endif
 			CreateTimer(g_fInitialSpawn, Spawn_InfectedBot);
 			#if DEBUG
-				PrintToChatAll("Setting up the initial bot now");
+				PrintToChatAll("[TS] Setting up the initial bot now");
 			#endif
 		}
 		else // server can't find a valid position, we use the normal time ..
 		{
 			#if DEBUG
-			PrintToChatAll("InfectedBotQueue++");
+				PrintToChatAll("[TS] InfectedBotQueue++");
 			#endif
 			InfectedBotQueue++;
 			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
@@ -2869,242 +2872,61 @@ public Action KickWitch_Timer(Handle timer, int ref)
 	}
 }
 // The main Tank code, it allows a player to take over the tank when if allowed, and adds additional tanks if the tanks per spawn cvar was set.
-public Action TankSpawner(Handle timer, int client)
+public Action TankSpawner(Handle timer, int tank)
 {
 	#if DEBUG
 	LogMessage("Tank Spawner Triggred");
 	#endif
-	int Index[8];
+	int Index[9];
 	int IndexCount = 0;
-	float position[3];
-	int tankhealth;
 	bool tankonfire;
 	
-	if (client && IsClientInGame(client))
+	if (tank && IsClientInGame(tank))
 	{
-		tankhealth = GetClientHealth(client);
-		GetClientAbsOrigin(client, position);
-		if (GetEntProp(client, Prop_Data, "m_fFlags") & FL_ONFIRE && PlayerIsAlive(client))
+		if (GetEntProp(tank, Prop_Data, "m_fFlags") & FL_ONFIRE && PlayerIsAlive(tank))
 			tankonfire = true;
 	}
 	
-	if (g_bCoopPlayableTank)
+	for (int t=1;t<=MaxClients;t++)
 	{
-		for (int t=1;t<=MaxClients;t++)
+		// We check if player is in game
+		if (!IsClientInGame(t)) continue;
+		
+		// Check if client is infected ...
+		if (GetClientTeam(t)!=TEAM_INFECTED) continue;
+		
+		if (!IsFakeClient(t))
 		{
-			// We check if player is in game
-			if (!IsClientInGame(t)) continue;
-			
-			// Check if client is infected ...
-			if (GetClientTeam(t)!=TEAM_INFECTED) continue;
-			
-			if (!IsFakeClient(t))
+			// If player is not a tank, or a dead one
+			if ( !IsPlayerTank(t) || !PlayerIsAlive(t) )
 			{
-				// If player is not a tank, or a dead one
-				if (!IsPlayerTank(t) || (IsPlayerTank(t) && !PlayerIsAlive(t)))
-				{
-					IndexCount++; // increase count of valid targets
-					Index[IndexCount] = t; //save target to index
-					#if DEBUG
-					PrintToChatAll("Client %i found to be valid Tank Choice", Index[IndexCount]);
-					#endif
-				}
-			}	
-		}
-	}
-	
-	if (g_bCoopPlayableTank && IndexCount != 0 )
-	{
-		MaxPlayerTank--;
-		#if DEBUG
-		PrintToChatAll("Tank Kicked");
-		#endif
-		
-		int tank = GetRandomInt(1, IndexCount);  // pick someone from the valid targets
-		WillBeTank[Index[tank]] = true;
-		
-		#if DEBUG
-		PrintToChatAll("Random Number pulled: %i, from %i", tank, IndexCount);
-		PrintToChatAll("Client chosen to be Tank: %i", Index[tank]);
-		#endif
-		
-		if (L4D2Version && IsPlayerJockey(Index[tank]))
-		{
-			// WE NEED TO DISMOUNT THE JOCKEY OR ELSE BAAAAAAAAAAAAAAAD THINGS WILL HAPPEN
-			
-			CheatCommand(Index[tank], "dismount");
-		}
-		
-		ChangeClientTeam(Index[tank], TEAM_SPECTATOR);
-		ChangeClientTeam(Index[tank], TEAM_INFECTED);
-	}
-	
-	bool resetGhost[MAXPLAYERS+1];
-	bool resetLife[MAXPLAYERS+1];
-	
-	if (g_bCoopPlayableTank && IndexCount != 0)
-	{
-		for (int i=1;i<=MaxClients;i++)
-		{
-			if ( IsClientInGame(i) && !IsFakeClient(i)) // player is connected and is not fake and it's in game ...
-			{
-				// If player is on infected's team and is dead ..
-				if ((GetClientTeam(i)==TEAM_INFECTED) && WillBeTank[i] == false)
-				{
-					// If player is a ghost ....
-					if (IsPlayerGhost(i))
-					{
-						resetGhost[i] = true;
-						SetGhostStatus(i, false);
-						#if DEBUG
-						LogMessage("Player is a ghost, taking preventive measures to prevent the player from taking over the tank");
-						#endif
-					}
-					else if (!PlayerIsAlive(i))
-					{
-						resetLife[i] = true;
-						SetLifeState(i, false);
-						#if DEBUG
-						LogMessage("Dead player found, setting restrictions to prevent the player from taking over the tank");
-						#endif
-					}
-				}
+				IndexCount++; // increase count of valid targets
+				Index[IndexCount] = t; //save target to index
+				#if DEBUG
+					PrintToChatAll("[TS] Client %i found to be valid Tank Choice", Index[IndexCount]);
+				#endif
 			}
-		}
-		
-		// Find any human client and give client admin rights
-		int anyclient = GetAnyClient();
-		
-		CheatCommand(anyclient, sSpawnCommand, "tank auto");
-		
-		// We restore the player's status
-		for (int i=1;i<=MaxClients;i++)
-		{
-			if (resetGhost[i] == true)
-				SetGhostStatus(i, true);
-			if (resetLife[i] == true)
-				SetLifeState(i, true);
-			if (WillBeTank[i] == true)
-			{
-				if (client && IsClientInGame(i))
-				{
-					TeleportEntity(i, position, NULL_VECTOR, NULL_VECTOR);
-					SetEntityHealth(i, tankhealth);
-					if (tankonfire)
-						CreateTimer(0.1, PutTankOnFireTimer, i, TIMER_FLAG_NO_MAPCHANGE);
-					if (g_bCoopPlayableTank)
-						TankWasSeen[i] = true;
-				}
-				WillBeTank[i] = false;
-				Handle datapack = CreateDataPack();
-				WritePackCell(datapack, tankhealth);
-				WritePackCell(datapack, tankonfire);
-				WritePackCell(datapack, i);
-				CreateTimer(1.0, TankRespawner, datapack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
-			}
-		}
-		
-		
-		#if DEBUG
-		if (IsPlayerTank(client) && IsFakeClient(client))
-		{
-			PrintToChatAll("Bot Tank Spawn Event Triggered");
-		}
-		else if (IsPlayerTank(client) && !IsFakeClient(client))
-		{
-			PrintToChatAll("Human Tank Spawn Event Triggered");
-		}
-		#endif
+		}	
 	}
 	
-	MaxPlayerTank = g_iMaxPlayerZombies;
-	SetConVarInt(FindConVar("z_max_player_zombies"), g_iMaxPlayerZombies);
-}
-
-
-public Action TankRespawner(Handle timer, Handle datapack)
-{
-	// This function is used to check if the tank successfully spawned, and if not, respawn him
-	
-	// Reset the data pack
-	ResetPack(datapack);
-	
-	int tankhealth = ReadPackCell(datapack);
-	int tankonfire = ReadPackCell(datapack);
-	int client = ReadPackCell(datapack);
-	
-	if (IsClientInGame(client) && IsFakeClient(client) && IsPlayerTank(client) && PlayerIsAlive(client))
+	if (IndexCount != 0 )
 	{
-		CreateTimer(0.1, kickbot, client);
-		return;
-	}
-	
-	if (IsClientInGame(client) && IsPlayerTank(client) && PlayerIsAlive(client))
-		return;
-	
-	WillBeTank[client] = true;
-	
-	bool resetGhost[MAXPLAYERS+1];
-	bool resetLife[MAXPLAYERS+1];
-	
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if ( IsClientInGame(i) && !IsFakeClient(i)) // player is connected and is not fake and it's in game ...
+		int target = Index[GetRandomInt(1, IndexCount)];  // pick someone from the valid targets
+
+		if(IsPlayerAlive(target) && !IsPlayerGhost(target))
 		{
-			// If player is on infected's team and is dead ..
-			if ((GetClientTeam(i)==TEAM_INFECTED) && WillBeTank[i] == false)
+			if (L4D2Version && IsPlayerJockey(target))
 			{
-				// If player is a ghost ....
-				if (IsPlayerGhost(i))
-				{
-					resetGhost[i] = true;
-					SetGhostStatus(i, false);
-					#if DEBUG
-					LogMessage("Player is a ghost, taking preventive measures to prevent the player from taking over the tank");
-					#endif
-				}
-				else if (!PlayerIsAlive(i))
-				{
-					resetLife[i] = true;
-					SetLifeState(i, false);
-					#if DEBUG
-					LogMessage("Dead player found, setting restrictions to prevent the player from taking over the tank");
-					#endif
-				}
+				// WE NEED TO DISMOUNT THE JOCKEY OR ELSE BAAAAAAAAAAAAAAAD THINGS WILL HAPPEN
+				CheatCommand(target, "dismount");
 			}
+			L4D_ReplaceWithBot(target);
 		}
-	}
-	
-	// Find any human client and give client admin rights
-	int anyclient = GetAnyClient();
+		
+		L4D_ReplaceTank(tank, target);
 
-	CheatCommand(anyclient, sSpawnCommand, "tank auto");
-
-	
-	// We restore the player's status
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if (resetGhost[i] == true)
-			SetGhostStatus(i, true);
-		if (resetLife[i] == true)
-			SetLifeState(i, true);
-		if (WillBeTank[i] == true && IsClientInGame(i))
-		{
-			if (client && IsClientInGame(i))
-			{
-				SetEntityHealth(i, tankhealth);
-				if (tankonfire)
-					CreateTimer(0.1, PutTankOnFireTimer, i, TIMER_FLAG_NO_MAPCHANGE);
-				if (g_bCoopPlayableTank)
-					TankWasSeen[i] = true;
-			}
-			WillBeTank[i] = false;
-			Handle hpack = CreateDataPack();
-			WritePackCell(hpack, tankhealth);
-			WritePackCell(hpack, tankonfire);
-			WritePackCell(hpack, i);
-			CreateTimer(1.0, TankRespawner, hpack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
-		}
+		if (tankonfire)
+			IgniteEntity(target, IGNITE_TIME);
 	}
 }
 
@@ -3123,7 +2945,7 @@ public Action TankBugFix(Handle timer, int client)
 			if (bot > 0 && IsValidClient(bot))
 			{
 				#if DEBUG
-					PrintToChatAll("Ghost BugFix");
+					PrintToChatAll("[TS] Ghost BugFix");
 				#endif
 				SetEntityModel(bot, MODEL_TANK);
 				ChangeClientTeam(bot, TEAM_INFECTED);
@@ -3172,12 +2994,12 @@ public Action HookSound_Callback(int Clients[64], int &NumClients, char StrSampl
 		if (GetClientTeam(i)==TEAM_INFECTED)
 		{
 			// If player is a tank
-			if (IsPlayerTank(i) && PlayerIsAlive(i) && TankWasSeen[i] == false)
+			if (IsPlayerTank(i) && PlayerIsAlive(i) && IsFakeClient(i) && TankWasSeen[i] == false)
 			{
 				if (RealPlayersOnInfected() && AreTherePlayersWhoAreNotTanks())
 				{
-					CreateTimer(0.2, kickbot, i);
 					CreateTimer(0.1, TankSpawner, i);
+					CreateTimer(0.2, kickbot, i);
 				}
 			}
 		}
@@ -3200,7 +3022,7 @@ int BotTypeNeeded()
 	LogMessage("Determining Bot type now");
 	#endif
 	#if DEBUG
-	PrintToChatAll("Determining Bot type now");
+		PrintToChatAll("[TS] Determining Bot type now");
 	#endif
 	
 	// current count ...
@@ -3383,7 +3205,7 @@ int BotTypeNeeded()
 public Action Spawn_InfectedBot(Handle timer)
 {
 	#if DEBUG
-	PrintToChatAll("Spawn_InfectedBot(Handle timer)");
+		PrintToChatAll("[TS] Spawn_InfectedBot(Handle timer)");
 	#endif
 	// If round has ended, we ignore this request ...
 	if (b_HasRoundEnded || !b_LeftSaveRoom ) return;
@@ -3722,20 +3544,11 @@ public Action Spawn_InfectedBot(Handle timer)
 	
 	// Debug print
 	#if DEBUG
-	PrintToChatAll("Spawning an infected bot. Type = %i ", bot_type);
+		PrintToChatAll("[TS] Spawning an infected bot. Type = %i ", bot_type);
 	#endif
 	
 	// We decrement the infected queue
 	if(InfectedBotQueue>0) InfectedBotQueue--;
-}
-
-int GetAnyClient() 
-{ 
-	for (int target = 1; target <= MaxClients; target++) 
-	{ 
-		if (IsClientInGame(target)) return target; 
-	} 
-	return -1; 
 }
 
 public Action kickbot(Handle timer, int client)
@@ -4062,7 +3875,7 @@ public void OnPluginEnd()
 	delete usrHUDPref;
 	
 	#if DEBUG
-	PrintToChatAll("\x01\x04[infhud]\x01 [%f] \x03Infected HUD\x01 stopped.", GetGameTime());
+		PrintToChatAll("\x01\x04[infhud]\x01 [%f] \x03Infected HUD\x01 stopped.", GetGameTime());
 	#endif
 }
 
@@ -4255,6 +4068,30 @@ public Action Command_Say(int client, int args)
 
 public void ShowInfectedHUD(int src)
 {
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i))
+		{
+			if ( (GetClientTeam(i) == TEAM_INFECTED))
+			{
+				if(IsPlayerTank(i) && GameMode != 2)
+				{
+					int fus = 100 - GetFrustration(i);
+					if(fus <= 60)
+					{
+						PrintHintText(i, "[TS] Tank Control: %d%%%%", fus);
+					}
+					if(fus <= 5)
+					{
+						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
+						ForcePlayerSuicide(i);
+						continue;
+					}
+				}
+			}
+		}
+	}
+
 	if (!g_bInfHUD || IsVoteInProgress())
 	{
 		return;
@@ -4415,22 +4252,7 @@ public void ShowInfectedHUD(int src)
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
 			if ( (GetClientTeam(i) == TEAM_INFECTED))
-			{
-				if(IsPlayerTank(i) && GameMode != 2)
-				{
-					int fus = 100 - GetFrustration(i);
-					if(fus <= 60)
-					{
-						PrintHintText(i, "[TS] Tank Control: %d%%%%", fus);
-					}
-					if(fus <= 5)
-					{
-						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
-						ForcePlayerSuicide(i);
-						continue;
-					}
-				}
-				
+			{	
 				if( hudDisabled[i] == 0 && (GetClientMenu(i) == MenuSource_RawPanel || GetClientMenu(i) == MenuSource_None))
 				{	
 					pInfHUD.Send(i, Menu_InfHUDPanel, 5);
@@ -4697,7 +4519,7 @@ void SwitchToSurvivors(int client)
 	
 	if (bot == 0)
 	{
-		PrintHintText(client, "No alive survivor bots to take over.");
+		PrintHintText(client, "[TS] No alive survivor bots to take over.");
 		return;
 	}
 	SDKCall(hSpec, bot, client);
