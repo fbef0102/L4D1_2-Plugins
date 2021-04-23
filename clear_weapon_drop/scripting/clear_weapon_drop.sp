@@ -9,9 +9,8 @@
 
 ConVar g_hCvar_ClearWeaponTime, g_hCvar_ClearUpradeGroundPackTime, g_hCvar_ClearGnome, g_hCvar_ClearCola;
 
-float fItemDeleteTime[2048];
+Handle g_ItemDeleteTimer[2048];
 int g_iClearWeaponTime, g_iUpradeGroundPack_Time;
-int iRoundStart;
 bool g_bL4D2Version, g_bClearGnome, g_bClearCola;
 
 static char upgradegroundpack[][] =
@@ -62,7 +61,7 @@ public Plugin myinfo =
 {
 	name = "Remove drop weapon + remove upgradepack when used",
 	author = "AK978 & HarryPotter",
-	version = "2.4"
+	version = "2.5"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -113,9 +112,11 @@ public void OnPluginStart()
 	}
 	
 	HookEvent("weapon_drop", Event_Weapon_Drop);
-	HookEvent("round_start", Event_Round_Start);
 	HookEvent("round_end", Event_Round_End);
-	
+	HookEvent("map_transition", Event_Round_End); //戰役過關到下一關的時候 (沒有觸發round_end)
+	HookEvent("mission_lost", Event_Round_End); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
+	HookEvent("finale_vehicle_leaving", Event_Round_End); //救援載具離開之時  (沒有觸發round_end)
+
 	if (g_bL4D2Version){
 		HookEvent ("upgrade_pack_used",	Event_UpgradePack);
 	}
@@ -139,14 +140,36 @@ void GetCvars()
 	}
 }
 
-public Action Event_Round_Start(Event event, const char[] name, bool dontBroadcast)
+public void OnMapEnd()
 {
-	iRoundStart = 1;
+	ResetTimer();
+}
+
+public void OnPluginEnd()
+{
+	ResetTimer();
+}
+
+bool g_bConfigLoaded = false;
+public void OnConfigsExecuted()
+{
+    g_bConfigLoaded = true;
 }
 
 public Action Event_Round_End(Event event, const char[] name, bool dontBroadcast)
 {
-	iRoundStart = 0;
+	ResetTimer();
+}
+
+public void OnEntityDestroyed(int entity)
+{
+	if (!g_bConfigLoaded)
+		return;
+		
+	if (!IsValidEntityIndex(entity))
+		return;
+
+	delete g_ItemDeleteTimer[entity];
 }
 
 public Action Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
@@ -165,35 +188,36 @@ public void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast
 	if (g_iUpradeGroundPack_Time == 0) return;
 	
 	int entity = event.GetInt("upgradeid");
-	if (!IsValidEntity(entity) || !IsValidEdict(entity)) return;
+	if (!IsValidEntityIndex(entity)) return;
 
 	if(Is_UpgradeGroundPack(entity, upgradegroundpack, sizeof(upgradegroundpack)))
-		CreateTimer(float(g_iUpradeGroundPack_Time), Timer_KillGroundPackEntity, EntIndexToEntRef(entity),TIMER_FLAG_NO_MAPCHANGE);
+	{	
+		delete g_ItemDeleteTimer[entity];
+		g_ItemDeleteTimer[entity] = CreateTimer(float(g_iUpradeGroundPack_Time), Timer_KillGroundPackEntity, EntIndexToEntRef(entity));
+	}
 }
 
-public Action Timer_KillWeapon(Handle timer, Handle pack)
+public Action Timer_KillWeapon(Handle timer, int entRef)
 {
-	ResetPack(pack);
-	int entity = ReadPackCell(pack);
-	float fDeletetime = ReadPackCell(pack);
-	if(entity && (entity = EntRefToEntIndex(entity)) != INVALID_ENT_REFERENCE)
+	int entity;
+	if(entRef && (entity = EntRefToEntIndex(entRef)) != INVALID_ENT_REFERENCE)
 	{
-		if(iRoundStart == 1 && IsValidEntity(entity) && fItemDeleteTime[entity] == fDeletetime)
+		g_ItemDeleteTimer[entity] = null;
+		if(IsValidEntityIndex(entity) && IsInUse(entity) == false )
 		{
-			if ( IsInUse(entity) == false )
-			{
-				RemoveEntity(entity);
-			}
+			RemoveEntity(entity);
 		}
 	}
 }
 
 public Action Timer_KillGroundPackEntity(Handle timer, int ref)
 {
-	if(ref && EntRefToEntIndex(ref) != INVALID_ENT_REFERENCE)
+	int entity;
+	if(ref && (entity = EntRefToEntIndex(ref)) != INVALID_ENT_REFERENCE)
 	{
 		SetEntityRenderFx(ref, RENDERFX_FADE_FAST); //RENDERFX_FADE_SLOW 3.5
 		CreateTimer(1.5, KillEntity, ref, TIMER_FLAG_NO_MAPCHANGE);
+		g_ItemDeleteTimer[entity] = null;
 	}
 }
 
@@ -234,7 +258,7 @@ bool IsInUse(int entity)
 int GetActiveWeapon(int client)
 {
 	int weapon = GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon");
-	if (!IsValidEntity(weapon)) 
+	if (!IsValidEntityIndex(weapon)) 
 	{
 		return false;
 	}
@@ -266,14 +290,12 @@ bool Is_UpgradeGroundPack(int entity, char [][] array, int size)
 
 void SetTimer_DeleteWeapon(int entity)
 {
-	if (!IsValidEntity(entity) || !IsValidEdict(entity)) return;
+	if (!IsValidEntityIndex(entity)) return;
 
 	char item[32];
 	GetEdictClassname(entity, item, sizeof(item));
-	fItemDeleteTime[entity] = GetEngineTime();
 	//PrintToChatAll("%d - %s",entity,item);
 
-	Handle pack = null;
 	if( strcmp(item,"prop_physics") == 0 )
 	{
 		static char m_ModelName[PLATFORM_MAX_PATH];
@@ -283,10 +305,8 @@ void SetTimer_DeleteWeapon(int entity)
 			strcmp(m_ModelName,"models/props_junk/explosive_box001.mdl") == 0 ||
 			strcmp(m_ModelName,"models/props_junk/propanecanister001a.mdl") == 0 )
 		{
-			pack = new DataPack();
-			CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
-			WritePackCell(pack, EntIndexToEntRef(entity));
-			WritePackCell(pack, fItemDeleteTime[entity]);
+			delete g_ItemDeleteTimer[entity];
+			g_ItemDeleteTimer[entity] = CreateTimer(float(g_iClearWeaponTime), Timer_KillWeapon, EntIndexToEntRef(entity));
 			return;
 		}
 
@@ -296,10 +316,8 @@ void SetTimer_DeleteWeapon(int entity)
 	{
 		if (StrContains(item, ItemDeleteList[j], false) != -1)
 		{
-			pack = new DataPack();
-			CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
-			WritePackCell(pack, EntIndexToEntRef(entity));
-			WritePackCell(pack, fItemDeleteTime[entity]);
+			delete g_ItemDeleteTimer[entity];
+			g_ItemDeleteTimer[entity] = CreateTimer(float(g_iClearWeaponTime), Timer_KillWeapon, EntIndexToEntRef(entity));
 			return;
 		}
 	}
@@ -307,9 +325,20 @@ void SetTimer_DeleteWeapon(int entity)
 	if( (g_bClearGnome && strcmp(item, CLASSNAME_WEAPON_GNOME) == 0) ||
 		(g_bClearCola && strcmp(item, CLASSNAME_WEAPON_COLA) == 0) )
 	{
-		pack = new DataPack();
-		CreateDataTimer(float(g_iClearWeaponTime), Timer_KillWeapon, pack, TIMER_FLAG_NO_MAPCHANGE);
-		WritePackCell(pack, EntIndexToEntRef(entity));
-		WritePackCell(pack, fItemDeleteTime[entity]);
+		delete g_ItemDeleteTimer[entity];
+		g_ItemDeleteTimer[entity] = CreateTimer(float(g_iClearWeaponTime), Timer_KillWeapon, EntIndexToEntRef(entity));
 	}
+}
+
+void ResetTimer()
+{
+	for (int entity = 1; entity < 2048; entity++)
+	{
+		delete g_ItemDeleteTimer[entity];
+	}
+}
+
+bool IsValidEntityIndex(int entity)
+{
+    return (MaxClients+1 <= entity <= GetMaxEntities());
 }
