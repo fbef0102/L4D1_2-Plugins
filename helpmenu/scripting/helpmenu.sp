@@ -12,7 +12,7 @@
 #include <sourcemod>
 #include <clientprefs>
 
-#define PLUGIN_VERSION "0.6"
+#define PLUGIN_VERSION "0.7"
 
 enum HelpMenuType {
 	HelpMenuType_List,
@@ -438,6 +438,7 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 			}
 		}
 		case MenuAction_End: {
+			delete menu;
 		}
 	}
 }
@@ -455,6 +456,7 @@ int Help_MenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 			}
 		}
 		case MenuAction_End: {
+			delete menu;
 		}
 	}
 }
@@ -498,6 +500,7 @@ int Help_CustomMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 			}
 		}
 		case MenuAction_End: {
+			delete menu;
 		}
 	}
 }
