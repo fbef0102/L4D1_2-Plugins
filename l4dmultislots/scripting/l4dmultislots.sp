@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"3.6"
+#define PLUGIN_VERSION 				"3.7"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -720,6 +720,8 @@ public void OnNextFrame(DataPack hPack)
 	nPos[0] = hPack.ReadFloat();
 	nPos[1] = hPack.ReadFloat();
 	nPos[2] = hPack.ReadFloat();
+	delete hPack;
+
 	if(!fakeclient || !IsClientInGame(fakeclient)) return;
 	
 	TeleportEntity( fakeclient, nPos, NULL_VECTOR, NULL_VECTOR);

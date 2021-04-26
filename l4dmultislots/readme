@@ -2,7 +2,7 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 (When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.)
 
 -ChangeLog-
-v3.6
+v3.7
 -Remake Code
 -Translation support
 -Kick Bot if too many
