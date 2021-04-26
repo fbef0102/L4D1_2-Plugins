@@ -164,6 +164,13 @@ public Action Timer_WelcomeMessage(Handle timer, int userid) {
 }
 
 bool ParseConfigFile(const char[] file) {
+	int msize = g_helpMenus.Length;
+	if(msize > 0)
+	{
+		HelpMenu hmenu;
+		g_helpMenus.GetArray(msize-1, hmenu);
+		delete hmenu.items;
+	}
 	g_helpMenus.Clear();
 
 	SMCParser parser = new SMCParser();
@@ -296,7 +303,7 @@ void Help_ShowMainMenu(int client) {
 	//FormatEx(Info, sizeof(Info), "%T","Don't display again", client);
 	//menu.AddItem("showinfuture", Info);
 	menu.ExitBackButton = false;
-	menu.Display(client, MENU_TIME_FOREVER);
+	menu.Display(client, 20);
 }
 
 int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
