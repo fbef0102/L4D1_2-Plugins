@@ -56,7 +56,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>witch_target_override</b>: witch target override in better way.
 * <b>l4d_texture_manager_block</b>: Kicks out clients who are potentially attempting to enable mathack
 # Scripting Compiler
-* [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6499 scripting
+* [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6502 scripting
 # Others
 * <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)</b>
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
