@@ -31,7 +31,7 @@ description = "Modo de juego Mix"
 ========================================================================================*/
 
 -ConVar-
-// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA"=
+// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA"
 mix_select_order "1"
 
 -Commands-
