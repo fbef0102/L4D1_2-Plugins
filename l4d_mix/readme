@@ -17,6 +17,9 @@ description = "Modo de juego Mix"
 1.4 (11-10-2020)
 	- 強制新語法
 	
+1.5 (15-5-2021)
+	- Add A-BB-A-B-A
+	
 ========================================================================================
 	Credits:
 
@@ -28,9 +31,9 @@ description = "Modo de juego Mix"
 ========================================================================================*/
 
 -ConVar-
-// 0 = ABABAB    |    1 = ABBAABBA
+// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA"=
 mix_select_order "1"
 
 -Commands-
 (In-Game)sm_mix, "Initiate a player mix."
-(Adm only)sm_forcemix, "Initiate a player mix. Admins only."
+(Adm only, ADMFLAG_BAN)sm_forcemix, "Initiate a player mix. Admins only."

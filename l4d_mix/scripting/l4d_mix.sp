@@ -13,6 +13,9 @@
 
 1.4 (11-10-2020)
 	- 強制新語法
+
+1.5 (15-5-2021)
+	- Add A-BB-A-B-A
 ========================================================================================
 	Credits:
 
@@ -36,7 +39,7 @@
 #define G_flTickInterval 0.25
 
 bool g_bTeamRequested[4];
-bool g_bPlayerSelectOrder;
+int g_iPlayerSelectOrder;
 ConVar g_hPlayerSelectOrder;
 ConVar g_CvarMixStatus;
 ConVar g_CvarSurvLimit;
@@ -81,14 +84,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	g_CvarMixStatus = CreateConVar("mix_status", "0", "The status of the mix. DO NOT MANUALLY ALTER THIS CVAR U SON OF A FUCK", 262144, false, 0.0, false, 0.0);	
+	g_CvarMixStatus = CreateConVar("mix_status", "0", "The status of the mix. DO NOT MANUALLY ALTER THIS CVAR U SON OF A FUCK", 262144);	
 
 	g_CvarSurvLimit = FindConVar("survivor_limit");
 	g_CvarMaxPlayerZombies = FindConVar("z_max_player_zombies");
 	
 	CaptainVote_OnPluginStart();
-	g_hPlayerSelectOrder = CreateConVar("mix_select_order", "1", "0 = ABABAB    |    1 = ABBAABBA", g_iCvar, false, 0.0, false, 0.0);
-	g_bPlayerSelectOrder = g_hPlayerSelectOrder.BoolValue;
+	g_hPlayerSelectOrder = CreateConVar("mix_select_order", "1", "0 = ABABAB | 1 = ABBAAB | 2 = ABBABA", g_iCvar, true, 0.0, true, 2.0);
+	g_iPlayerSelectOrder = g_hPlayerSelectOrder.IntValue;
 	g_hPlayerSelectOrder.AddChangeHook(ConVarChange_MixOrder);
 	g_CvarMixStatus.AddChangeHook(ConVarChange_MixStatus);
 	
@@ -134,7 +137,7 @@ public Action Event_RoundEnd(Event event, char[] name, bool dontBroadcast)
 
 public void ConVarChange_MixOrder(Handle convar, char[] oldValue, char[] newValue)
 {
-	g_bPlayerSelectOrder = g_hPlayerSelectOrder.BoolValue;
+	g_iPlayerSelectOrder = g_hPlayerSelectOrder.IntValue;
 }
 
 public Action Timer_RegisterConVar(Handle timer)
@@ -160,10 +163,13 @@ public void CaptainVote_ConVarChange_MixStatus(Handle convar, char[] oldValue, c
 	{
 		g_bSelectToggle = false;
 		g_SelectToggleNum = 1;
-		if(g_bPlayerSelectOrder)
-			CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-BB-AA-B).");
-		else
-			CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-B-A-B-A-B).");
+		switch(g_iPlayerSelectOrder)
+		{
+			case 0:
+				CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-B-A-B-A-B).");
+			case 1:
+				CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-BB-AA-B).");
+		}
 			
 		DisplayVoteMenuPlayerSelect();
 	}
@@ -351,10 +357,10 @@ void DisplayVoteMenuCaptainSurvivor()
 			}
 		}
 		SurvivorCaptainMenu.ExitButton = true;
+
 		for(int i = 1; i <= MaxClients; i++) 
 			if (IsClientInGame(i)&&!IsFakeClient(i))
 				SurvivorCaptainMenu.Display(i, 10);
-
 
 		CreateTimer(10.1, TimerCheckSurvivorCaptainVote, view_as<any>(2), 0);
 	}
@@ -475,17 +481,23 @@ public int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int par
 					g_iSelectedPlayers[g_iInfectedCaptain]++;
 				}
 				
-				if (!g_bPlayerSelectOrder)//A-B-A-B-A-B
+				g_SelectToggleNum++;
+				switch(g_iPlayerSelectOrder)
 				{
-					g_bSelectToggle = !g_bSelectToggle;
-				}
-				else //A-BB-AA-B
-				{
-					g_SelectToggleNum++;
-					if(g_SelectToggleNum==2)
+					case 0: // ABABAB
 						g_bSelectToggle = !g_bSelectToggle;
-					else if(g_SelectToggleNum%2 == 0)
-						g_bSelectToggle = !g_bSelectToggle;
+					case 1: // ABBAAB
+					{
+						if(g_SelectToggleNum%2 == 0)
+							g_bSelectToggle = !g_bSelectToggle;
+					}
+					case 2: // ABBABA
+					{
+						if(g_SelectToggleNum >= 5)
+							g_bSelectToggle = !g_bSelectToggle;
+						else if(g_SelectToggleNum%2 == 0)
+							g_bSelectToggle = !g_bSelectToggle;
+					}
 				}
 			}
 			else
