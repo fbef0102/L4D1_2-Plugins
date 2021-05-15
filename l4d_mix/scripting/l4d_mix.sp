@@ -169,6 +169,8 @@ public void CaptainVote_ConVarChange_MixStatus(Handle convar, char[] oldValue, c
 				CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-B-A-B-A-B).");
 			case 1:
 				CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-BB-AA-B).");
+			case 2:
+				CPrintToChatAll("{default}[{olive}Mix{default}] Captains will now begin to choose players(A-BB-A-B-A).");
 		}
 			
 		DisplayVoteMenuPlayerSelect();
