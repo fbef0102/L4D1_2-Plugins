@@ -20,6 +20,8 @@ description = "Modo de juego Mix"
 1.5 (15-5-2021)
 	- Add A-BB-A-B-A
 	
+1.6 (17-5-2021)
+	- Hide ReadyUp Hud if Ready Up plugin is available
 ========================================================================================
 	Credits:
 

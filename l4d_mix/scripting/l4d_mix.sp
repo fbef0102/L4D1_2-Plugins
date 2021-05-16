@@ -16,6 +16,9 @@
 
 1.5 (15-5-2021)
 	- Add A-BB-A-B-A
+
+1.6 (17-5-2021)
+	- Hide ReadyUp Hud if Ready Up plugin is available
 ========================================================================================
 	Credits:
 
@@ -25,7 +28,7 @@
 	Harry - fix error, optimize codes, new sourcemod syntax, and handle exception
 
 ========================================================================================*/
-#define PLUGIN_VERSION		"1.4"
+#define PLUGIN_VERSION		"1.6"
 
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
@@ -112,14 +115,30 @@ public void CaptainVote_OnPluginStart()
 	ResetHasVoted();
 }
 
-public void OnMapEnd()
+bool g_ReadyUpAvailable;
+public void OnAllPluginsLoaded()
 {
-	CaptainVote_OnMapEnd();
+	g_ReadyUpAvailable = LibraryExists("readyup");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (strcmp(name, "readyup") == 0) g_ReadyUpAvailable = false;
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "readyup")) g_ReadyUpAvailable = true;
 }
 
 public void OnMapStart()
 {
 	CaptainVote_OnMapStart();
+}
+
+public void OnMapEnd()
+{
+	CaptainVote_OnMapEnd();
 }
 
 public Action Event_RoundStart(Event event, char[] name, bool dontBroadcast)
@@ -151,6 +170,14 @@ public void CaptainVote_ConVarChange_MixStatus(Handle convar, char[] oldValue, c
 	if (StrEqual(oldValue, newValue, true)) return;
 	if (g_CvarMixStatus.IntValue == 0)
 	{
+		if(g_ReadyUpAvailable)
+		{
+			for(int i=1; i <= MaxClients; i++)
+			{
+				if(IsClientInGame(i) && !IsFakeClient(i))
+					FakeClientCommand(i, "sm_show");
+			}
+		}
 		ResetSelectedPlayers();
 		ResetTeams();
 		ResetCaptains();
@@ -161,6 +188,16 @@ public void CaptainVote_ConVarChange_MixStatus(Handle convar, char[] oldValue, c
 	}
 	if (g_CvarMixStatus.IntValue == 3)
 	{
+		if(g_ReadyUpAvailable)
+		{
+			for(int i=1; i <= MaxClients; i++)
+			{
+				if(IsClientInGame(i) && !IsFakeClient(i))
+					FakeClientCommand(i, "sm_show");
+			}
+			if(IsClientInGame(g_iSurvivorCaptain)) FakeClientCommand(g_iSurvivorCaptain, "sm_hide");	
+			if(IsClientInGame(g_iInfectedCaptain)) FakeClientCommand(g_iInfectedCaptain, "sm_hide");
+		}
 		g_bSelectToggle = false;
 		g_SelectToggleNum = 1;
 		switch(g_iPlayerSelectOrder)
@@ -270,6 +307,11 @@ public Action Command_Captainvote(int client, int args)
 	if (g_bTeamRequested[2] && g_bTeamRequested[3])
 	{
 		g_CvarMixStatus.SetInt(1, false, false);
+		for(int i = 1; i <= MaxClients; i++) 
+		{
+			if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) != TEAM_SPECTATOR)
+				ChangeClientTeam(i, 1);
+		}
 		VoteSurvivorCaptain();
 		CPrintToChatAll("{default}[{olive}Mix{default}] The %s have agreed to start the mix.", oppositeTeamName);
 		g_bTeamRequested[2] = false;
@@ -307,6 +349,11 @@ public Action Command_ForceCaptainvote (int client, int args)
 	}
 	 
 	g_CvarMixStatus.SetInt(1, false, false);
+	for(int i = 1; i <= MaxClients; i++) 
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) != TEAM_SPECTATOR)
+			ChangeClientTeam(i, 1);
+	}
 	VoteSurvivorCaptain();
 	g_bTeamRequested[2] = false;
 	g_bTeamRequested[3] = false;
@@ -329,12 +376,20 @@ public Action Timer_LoadMix(Handle timer)
 
 void VoteSurvivorCaptain()
 {
-    ResetSelectedPlayers();
-    ResetTeams();
-    ResetCaptains();
-    ResetAllVotes();
-    ResetHasVoted();
-    DisplayVoteMenuCaptainSurvivor();
+	if (g_ReadyUpAvailable)
+	{
+		for(int i=1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i) && !IsFakeClient(i))
+				FakeClientCommand(i, "sm_hide");
+		}
+	}
+	ResetSelectedPlayers();
+	ResetTeams();
+	ResetCaptains();
+	ResetAllVotes();
+	ResetHasVoted();
+	DisplayVoteMenuCaptainSurvivor();
 }
 
 void DisplayVoteMenuCaptainSurvivor()
@@ -386,6 +441,7 @@ public Action TimerCheckSurvivorCaptainVote(Handle timer)
 				return Plugin_Handled;
 			}
 			CPrintToChatAll("{default}[{olive}Mix{default}] First captain: {lightgreen}%N{default} With {green}%i {default}votes.", g_iSurvivorCaptain, g_iVotesSurvivorCaptain[g_iSurvivorCaptain]);
+			if (g_ReadyUpAvailable) FakeClientCommand(g_iSurvivorCaptain, "sm_hide");	
 			DisplayVoteMenuCaptainInfected();
 		}
 		return Plugin_Handled;
@@ -422,7 +478,7 @@ void DisplayVoteMenuPlayerSelect()
 		char number[12];
 		for(int i = 1; i <= MaxClients; i++) 
 		{
-			if ( IsValidClient(i) && !IsFakeClient(i) && !g_bHasBeenChosen[i] && i != g_iSurvivorCaptain && i != g_iInfectedCaptain )
+			if ( IsClientInGame(i) && !IsFakeClient(i) && !g_bHasBeenChosen[i] && i != g_iSurvivorCaptain && i != g_iInfectedCaptain )
 			{
 				Format(name, 32, "%N", i);
 				Format(number, 10, "%i", i);
@@ -589,6 +645,7 @@ public Action TimerCheckInfectedCaptainVote(Handle timer)
 				return Plugin_Handled;
 			}
 			CPrintToChatAll("{default}[{olive}Mix{default}] Second captain: {lightgreen}%N{default} With {green}%i {default}votes.", g_iInfectedCaptain, g_iVotesInfectedCaptain[g_iInfectedCaptain]);
+			if (g_ReadyUpAvailable) FakeClientCommand(g_iInfectedCaptain, "sm_hide");	
 			g_CvarMixStatus.SetInt(3, false, false);
 		}
 		return Plugin_Handled;
@@ -725,13 +782,13 @@ void SwapPlayersToDesignatedTeams()
 	g_iDesignatedTeam[g_iSurvivorCaptain] = TEAM_SURVIVOR;
 	g_iDesignatedTeam[g_iInfectedCaptain] = TEAM_INFECTED;
 	for(int i = 1; i <= MaxClients; i++) 
-		if (IsValidClient(i) && !IsFakeClient(i) && GetClientTeam(i) != TEAM_SPECTATOR)
+		if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) != TEAM_SPECTATOR)
 			ChangeClientTeam(i, 1);
 	
 	
 	for(int i = 1; i <= MaxClients; i++) 
 	{
-		if (IsValidClient(i) && !IsFakeClient(i))
+		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
 			if (g_iDesignatedTeam[i] == TEAM_SURVIVOR)
 			{
