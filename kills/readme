@@ -1,0 +1,11 @@
+show statistics of surviviors (kill S.I, C.I. and FF)on round end
+(擊殺殭屍與特殊感染者統計)
+
+-Require-
+[INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+
+-ConVar-
+None
+
+-Command-
+!kills

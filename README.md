@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2021/5/17)
+> All plugins in here apply to both L4D1/2 (last edited:2021/5/26)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -55,6 +55,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>server_loader</b>: Executes cfg file on server startup
 * <b>witch_target_override</b>: witch target override in better way.
 * <b>l4d_texture_manager_block</b>: Kicks out clients who are potentially attempting to enable mathack
+* <b>kills</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
 # Scripting Compiler
 * [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6502 scripting
 # Others
