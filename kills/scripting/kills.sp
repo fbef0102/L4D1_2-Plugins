@@ -124,17 +124,17 @@ public Action Command_kill(int client, int args)
 void displaykillinfected(int team)
 {	
 	int client;
-	int players = -1;
+	int players = 0;
 	int[] players_clients = new int[MaxClients+1];
 	int killss, killsss, killssss,damageffss,killssssss;
 	for (client = 1; client <= MaxClients; client++)
 	{
 		if (!IsClientInGame(client) || GetClientTeam(client) != L4D_TEAM_SURVIVOR) continue;
-		players++;
 		players_clients[players] = client;
+		players++;
 	}
-	SortCustom1D(players_clients, 8, SortByDamageDesc);
-	for (int i; i <= players; i++)
+	SortCustom1D(players_clients, players, SortByDamageDesc);
+	for (int i = 0; i < players; i++)
 	{
 		client = players_clients[i];
 		killss = killif[client];
