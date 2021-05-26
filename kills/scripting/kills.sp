@@ -20,14 +20,14 @@ public Plugin myinfo =
 	name = "擊殺殭屍與特殊感染者統計",
 	author = "fenghf & Harry Potter",
 	description = "show statistics of surviviors (kill S.I, C.I. and FF)on round end",
-	version = "1.4",
+	version = "1.5",
 	url = "https://steamcommunity.com/id/TIGER_x_DRAGON/"
 }
 public void OnPluginStart()   
 {   
 	RegConsoleCmd("kills", Command_kill);
 	
-	HookEvent("player_death", event_kill_infected);
+	HookEvent("player_death", event_kill_infectedplayer);
 	HookEvent("infected_death", event_kill_infecteds);
 	HookEvent("round_end", event_RoundEnd);
 	HookEvent("round_start", event_RoundStart);
@@ -71,45 +71,28 @@ public Action event_kill_infecteds(Event event, const char[] name, bool dontBroa
 {
 	int killer = GetClientOfUserId(event.GetInt("attacker"));
 	
-	if (!killer)
+	if (!killer || !IsClientInGame(killer))
         return;
 
 	if(GetClientTeam(killer) == L4D_TEAM_SURVIVOR)
 	{
-	  bool headshot=GetEventBool(event, "headshot");
-	  if(headshot)
-	  {
-	       iheadshot[killer] += 1;
-	  }
-	  killifs[killer] += 1;
+		killifs[killer] += 1;
+		bool headshot=GetEventBool(event, "headshot");
+		if(headshot) iheadshot[killer] += 1;
 	}
 }
 
 
 
-public Action event_kill_infected(Event event, const char[] name, bool dontBroadcast) 
+public Action event_kill_infectedplayer(Event event, const char[] name, bool dontBroadcast) 
 {
-	int zombieClass = 0;
 	int killer = GetClientOfUserId(event.GetInt("attacker"));
 	int deadbody = GetClientOfUserId(event.GetInt("userid"));
-	if (0 < killer <= MaxClients && deadbody != 0)
+	if (killer && IsClientInGame(killer) && GetClientTeam(killer) == L4D_TEAM_SURVIVOR && deadbody && IsClientInGame(deadbody) && GetClientTeam(deadbody) == L4D_TEAM_INFECTED)
 	{
-		if(GetClientTeam(deadbody) == L4D_TEAM_SURVIVOR) return;
-		
-		if(GetClientTeam(killer) == L4D_TEAM_SURVIVOR)
-		{
-			zombieClass = GetEntProp(deadbody, Prop_Send, "m_zombieClass");
-			if(zombieClass == 1 ||zombieClass == 2||zombieClass == 3)
-			{
-				bool headshot=GetEventBool(event, "headshot");
-				if(headshot)
-				{
-					sheadshot[killer] += 1;
-				}	
-				killif[killer] += 1;
-				
-			}
-		}
+		killif[killer] += 1;
+		bool headshot=GetEventBool(event, "headshot");
+		if(headshot) sheadshot[killer] += 1;
 	}
 }
 
@@ -161,7 +144,7 @@ void displaykillinfected(int team)
 		damageffss = damageff[client];
 		
 		if(team == 0){
-			C_PrintToChatAll("{default}擊殺特感:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],殭屍:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],友傷:{olive}%3d{default} - {olive}%N", killss, killssssss, killsss, killssss, damageffss,client);
+			CPrintToChatAll("{default}擊殺特感:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],殭屍:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],友傷:{olive}%3d{default} - {olive}%N", killss, killssssss, killsss, killssss, damageffss,client);
 		}
 		else
 		{
@@ -169,7 +152,7 @@ void displaykillinfected(int team)
 			{
 				if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
 				{
-					C_PrintToChat(j,"{default}擊殺特感:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],殭屍:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],友傷:{olive}%3d{default} - {olive}%N", killss, killssssss, killsss, killssss, damageffss,client);
+					CPrintToChat(j,"{default}擊殺特感:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],殭屍:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],友傷:{olive}%3d{default} - {olive}%N", killss, killssssss, killsss, killssss, damageffss,client);
 				}
 			}
 		}
