@@ -251,28 +251,37 @@ void CreateHit(int client)
 void CreateParticles(float pos[3])
 {
 	int exParticle = CreateEntityByName("info_particle_system");
-	DispatchKeyValue(exParticle, "effect_name", EXPLOSION_PARTICLE);
-	DispatchSpawn(exParticle);
-	ActivateEntity(exParticle);
-	TeleportEntity(exParticle, pos, NULL_VECTOR, NULL_VECTOR);
-	AcceptEntityInput(exParticle, "Start");
-	CreateTimer(3.0, TimerDeleteRock, EntIndexToEntRef(exParticle), TIMER_FLAG_NO_MAPCHANGE);
+	if (IsValidEntity(exParticle) )
+	{
+		DispatchKeyValue(exParticle, "effect_name", EXPLOSION_PARTICLE);
+		DispatchSpawn(exParticle);
+		ActivateEntity(exParticle);
+		TeleportEntity(exParticle, pos, NULL_VECTOR, NULL_VECTOR);
+		AcceptEntityInput(exParticle, "Start");
+		CreateTimer(3.0, TimerDeleteRock, EntIndexToEntRef(exParticle), TIMER_FLAG_NO_MAPCHANGE);
+	}
 		
 	int exParticle2 = CreateEntityByName("info_particle_system");
-	DispatchKeyValue(exParticle2, "effect_name", EXPLOSION_PARTICLE2);
-	DispatchSpawn(exParticle2);
-	ActivateEntity(exParticle2);
-	TeleportEntity(exParticle2, pos, NULL_VECTOR, NULL_VECTOR);
-	AcceptEntityInput(exParticle2, "Start");
-	CreateTimer(3.0, TimerDeleteRock, EntIndexToEntRef(exParticle2), TIMER_FLAG_NO_MAPCHANGE);
+	if (IsValidEntity(exParticle2) )
+	{
+		DispatchKeyValue(exParticle2, "effect_name", EXPLOSION_PARTICLE2);
+		DispatchSpawn(exParticle2);
+		ActivateEntity(exParticle2);
+		TeleportEntity(exParticle2, pos, NULL_VECTOR, NULL_VECTOR);
+		AcceptEntityInput(exParticle2, "Start");
+		CreateTimer(3.0, TimerDeleteRock, EntIndexToEntRef(exParticle2), TIMER_FLAG_NO_MAPCHANGE);
+	}
 	
 	int exParticle3 = CreateEntityByName("info_particle_system");
-	DispatchKeyValue(exParticle3, "effect_name", EXPLOSION_PARTICLE);
-	DispatchSpawn(exParticle3);
-	ActivateEntity(exParticle3);
-	TeleportEntity(exParticle3, pos, NULL_VECTOR, NULL_VECTOR);
-	AcceptEntityInput(exParticle3, "Start");
-	CreateTimer(3.0, TimerDeleteRock, EntIndexToEntRef(exParticle3), TIMER_FLAG_NO_MAPCHANGE);
+	if (IsValidEntity(exParticle3) )
+	{
+		DispatchKeyValue(exParticle3, "effect_name", EXPLOSION_PARTICLE);
+		DispatchSpawn(exParticle3);
+		ActivateEntity(exParticle3);
+		TeleportEntity(exParticle3, pos, NULL_VECTOR, NULL_VECTOR);
+		AcceptEntityInput(exParticle3, "Start");
+		CreateTimer(3.0, TimerDeleteRock, EntIndexToEntRef(exParticle3), TIMER_FLAG_NO_MAPCHANGE);
+	}
 }	
 
 public Action CreateRing(Handle hTimer,Handle hPack)
