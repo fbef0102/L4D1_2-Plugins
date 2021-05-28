@@ -290,9 +290,9 @@ public Action CreateRing(Handle hTimer,Handle hPack)
 	float Ang[3] = {0.0};
 	float rockpos[3];	
 	
-	for (int i = 1; i <= 20; i++)
+	for (int i = 1; i <= 10; i++)
 	{
-		Ang[1] = Ang[1]+(i*18);
+		Ang[1] = Ang[1]+(i*36);
 
 		GetAngleVectors(Ang, direction, NULL_VECTOR, NULL_VECTOR);
 		ScaleVector(direction, rad);
