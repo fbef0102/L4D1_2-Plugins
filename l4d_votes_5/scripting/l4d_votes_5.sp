@@ -785,18 +785,18 @@ public Action Command_VotemapsMenu(int client, int args)
 			AddMenuItem(menu, "c8m1_apartment", "毫不留情 C8");
 			AddMenuItem(menu, "c9m1_alleys", "速成課程 C9");
 			AddMenuItem(menu, "c10m1_caves", "死亡喪鐘 C10");
-			AddMenuItem(menu, "c11m1_greenhouse", "靜寂時分 C11");
-			AddMenuItem(menu, "c12m1_hilltop", "血腥收穫 C12");
+			AddMenuItem(menu, "c11m1_greenhouse", "死亡機場 C11");
+			AddMenuItem(menu, "c12m1_hilltop", "嗜血豐收 C12");
 			AddMenuItem(menu, "c13m1_alpinecreek", "冷澗溪流 C13");
 			AddMenuItem(menu, "c14m1_junkyard", "最後一刻 C14");
 		}
 		else
 		{
 			AddMenuItem(menu, "l4d_vs_hospital01_apartment", "毫不留情 No Mercy");
-			AddMenuItem(menu, "l4d_vs_airport01_greenhouse", "死亡機場 Dead Air");
-			AddMenuItem(menu, "l4d_vs_smalltown01_caves", "死亡喪鐘 Death Toll");
-			AddMenuItem(menu, "l4d_vs_farm01_hilltop", "嗜血豐收 Bloody Harvest");
 			AddMenuItem(menu, "l4d_garage01_alleys", "速成課程 Crash Course");
+			AddMenuItem(menu, "l4d_vs_smalltown01_caves", "死亡喪鐘 Death Toll");
+			AddMenuItem(menu, "l4d_vs_airport01_greenhouse", "死亡機場 Dead Air");
+			AddMenuItem(menu, "l4d_vs_farm01_hilltop", "嗜血豐收 Bloody Harvest");
 			AddMenuItem(menu, "l4d_river01_docks", "犧牲 The Sacrifice");
 		}
 		SetMenuExitBackButton(menu, true);
