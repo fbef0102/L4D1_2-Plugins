@@ -1,0 +1,61 @@
+When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
+
+-ChangeLog-
+v2.1.2
+-Remke code
+-Fixed error
+-Fixed Memory leak
+
+v2.0.1
+-original Post: https://forums.alliedmods.net/showthread.php?t=127513
+
+-Convar-
+// Should players be given adrenaline at round start? (1 = ON  0 = OFF)
+l4d_powerups_adren_give_on "0"
+
+// (1.0 = Minspeed(Default speed) 2.0 = 2x speed of recovery
+l4d_powerups_animspeed "2.0"
+
+// Should players be notified when connecting to server about the powerups? (1 = ON  0 = OFF)
+l4d_powerups_broadcast_on "0"
+
+// How are players notified? (0 = CHAT  1 = HINT  2 = BOTH)
+l4d_powerups_broadcast_type "1"
+
+// How long should the duration of the boosts last?
+l4d_powerups_duration "20"
+
+// Should players be given pills at round start? (1 = ON  0 = OFF)
+l4d_powerups_pills_give_on "0"
+
+// The luck factor for swallowing pills that will grant the boost(s). (1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)
+l4d_powerups_pills_luck "3"
+
+// Is the Plugin active? (1 = ON  0 = OFF)
+l4d_powerups_plugin_on "1"
+
+// Should players be given either adrenaline or pills at round start? (1 = ON  0 = OFF)
+l4d_powerups_random_give_on "0"
+
+// Should players use adrenaline (or pills) to get super reload, weapon firing, and melee swings? (1 = ON  0 = OFF)
+l4d_powerups_use_on "1"
+
+// The interval between bullets fired is multiplied by this value. WARNING: a short enough interval will make SMGs' and rifles' firing accuracy distorted (clamped between 0.02 < 0.9)
+l4d_powerups_weaponfiring_rate "0.7"
+
+// The interval for swinging melee weapon (clamped between 0.3 < 0.9)
+l4d_powerups_weaponmelee_rate "0.45"
+
+// The interval incurred by reloading is multiplied by this value (clamped between 0.2 < 0.9)
+l4d_powerups_weaponreload_rate "0.5714"
+
+-Command-
+**Adm gives Adrenaline to all Survivors. (ADMFLAG_CHEATS)
+sm_giveadren
+
+**Adm gives Pills to all Survivors. (ADMFLAG_CHEATS)
+sm_givepills
+
+**Adm gives Random item (Adrenaline or Pills) to all Survivors. (ADMFLAG_CHEATS)
+sm_giverandom
+
