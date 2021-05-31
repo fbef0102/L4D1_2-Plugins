@@ -1,5 +1,5 @@
 
-#define PLUGIN_VERSION "2.1.2"
+#define PLUGIN_VERSION "2.1.3"
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -8,7 +8,7 @@
 #include <sdktools>
 //Set this value to 1 to enable debugging
 #define DEBUG 0
-/* ***************************************************************************/
+
 //Used to track who has the weapon firing.
 //Index goes up to 18, but each index has a value indicating a client index with
 //DT so the plugin doesn't have to cycle a full 18 times per game frame
@@ -20,7 +20,7 @@ int g_iDTEntid[64] = -1;
 //this tracks the engine time of the next attack for the weapon, after modification
 //(modified interval + engine time)
 float g_flDTNextTime[64] = -1.0;
-/* ***************************************************************************/
+
 //similar to Double Tap
 int g_iMARegisterIndex[64] = -1;
 //and this tracks how many have MA
@@ -31,7 +31,7 @@ int g_iMAEntid[64] = -1;
 int g_iMAEntid_notmelee[64] = -1;
 //this tracks the attack count, similar to twinSF
 int g_iMAAttCount[64] = -1;
-/* ***************************************************************************/
+
 //Rates of the attacks
 ConVar g_hDT_rate;
 float g_flDT_rate;
@@ -42,7 +42,7 @@ ConVar g_h_melee_rate;
 float g_flDT_melee;
 //Make sure we stop activity on map changes or we can get disconnects
 bool g_bIsLoading;
-/* ***************************************************************************/
+
 //This keeps track of the default values for reload speeds for the different shotgun types
 //NOTE: I got these values from tPoncho's own source
 //NOTE: Pump and Chrome have identical values
@@ -55,10 +55,10 @@ const float g_fl_SpasE = 0.4;
 const float g_fl_PumpS = 0.4;
 const float g_fl_PumpI = 0.4;
 const float g_fl_PumpE = 0.4;
-/* ***************************************************************************/
+
 //tracks if the game is L4D 2 (Support for L4D1 pending...)
 int g_i_L4D_12 = 0;
-/* ***************************************************************************/
+
 //offsets
 int g_iNextPAttO		= -1;
 int g_iActiveWO			= -1;
@@ -73,16 +73,15 @@ int g_iVMStartTimeO		= -1;
 int g_iViewModelO		= -1;
 int g_iNextSAttO		= -1;
 int g_ActiveWeaponOffset;
-/* ***************************************************************************/
+
 //tracks if the client has used an adrenaline (or pills) for that duration
 int g_usedhealth[MAXPLAYERS + 1] = 0;
-/* ***************************************************************************/
+
 //Timer definitions
 Handle WelcomeTimers[MAXPLAYERS + 1];
-Handle g_powerups_timer[MAXPLAYERS + 1];
 Handle g_powerups_countdown[MAXPLAYERS + 1];
 int g_powerups_timeleft[MAXPLAYERS + 1];
-/* ***************************************************************************/
+
 //Enables and Disables
 ConVar powerups_plugin_on;
 ConVar powerups_broadcast_on;
@@ -94,7 +93,7 @@ ConVar random_give_on;
 //Numbers
 ConVar powerups_duration;
 ConVar pills_luck;
-/* ***************************************************************************/
+
 public Plugin myinfo = 
 {
 	name = "[L4D2] PowerUps rush",
@@ -104,16 +103,26 @@ public Plugin myinfo =
 	url = "http://forums.alliedmods.net/showthread.php?t=127513"
 }
 
+bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 	
-	if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
+	if( test == Engine_Left4Dead )
+	{
+		g_i_L4D_12 = 1;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_i_L4D_12 = 2;
+	}
+	else
 	{
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
 	
+	bLate = late;
 	return APLRes_Success; 
 }
 
@@ -124,7 +133,7 @@ bool g_powerups_plugin_on;
 float fAnimSpeed = 2.0;
 float fTickRate;
 
-/* ***************************************************************************/
+
 public void OnPluginStart()
 {
 	//ConVars
@@ -159,8 +168,13 @@ public void OnPluginStart()
 	HookEvent("weapon_reload", Event_Reload);
 	HookEvent("adrenaline_used", Event_AdrenalineUsed);
 	HookEvent("pills_used", Event_PillsUsed);
+	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
+	HookEvent("player_team", Event_PlayerTeam);
 	HookEvent("round_start", Event_RoundStart, EventHookMode_Post);
 	HookEvent("round_end", Event_RoundEnd);
+	HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
+	HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
+	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
 	
 	//get offsets
 	g_iNextPAttO		=	FindSendPropInfo("CBaseCombatWeapon","m_flNextPrimaryAttack");
@@ -182,14 +196,26 @@ public void OnPluginStart()
 	
 	//Execute or create cfg
 	AutoExecConfig(true, "l4d2_powerups_rush");
+	
+	if (bLate)
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i) && !IsFakeClient(i))
+			{
+				OnClientPutInServer(i);
+			}
+		}
+	}
 }
 
 public void OnPluginEnd()
 {
 	UnHookAll();
+	ResetTimer();
 }
 
-/* ***************************************************************************/
+
 public void Convar_Cvars (ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	CvarsChanged();
@@ -203,7 +229,7 @@ void CvarsChanged()
 	g_flDT_rate = g_hDT_rate.FloatValue;
 	fAnimSpeed = hCvar_AnimSpeed.FloatValue;
 }
-/* ***************************************************************************/
+
 public void OnClientPutInServer(int client)
 {
 	SDKHook(client, SDKHook_PostThinkPost, hOnPostThinkPost);
@@ -213,7 +239,7 @@ public void OnClientPutInServer(int client)
 	{
 		if (powerups_use_on.IntValue == 0)
 		{
-			g_usedhealth[client] = 1;
+			g_usedhealth[client] = 0;
 			RebuildAll();
 		}
 	}
@@ -225,68 +251,74 @@ public void OnClientPutInServer(int client)
 
 public void OnClientDisconnect(int client)
 {
-	if (g_usedhealth[client] == 1)
-	{
-		KillTimer(g_powerups_countdown[client]);
-		KillTimer(g_powerups_timer[client]);
-	}
+	delete g_powerups_countdown[client];
+	delete WelcomeTimers[client];
 	g_usedhealth[client] = 0;
+	
 	if (g_powerups_plugin_on == true)
 	{
-		// melee_speed[client] = 0.0;
 		RebuildAll();
-		/*if (WelcomeTimers[client] != null)
-		{
-			KillTimer(WelcomeTimers[client])
-			WelcomeTimers[client] = null
-		}*/
 	}
 }
-/* ***************************************************************************/
+
 public Action Timer_Notify(Handle Timer, any client)
 {
 	if (g_powerups_plugin_on && IsInGame(client))
 	{
 		if (powerups_broadcast_on.BoolValue)
 		{
-			if (powerups_use_on.BoolValue)
+			if (powerups_use_on.BoolValue == true)
 			{
-				if (powerups_broadcast_type.IntValue == 0)
+				switch(powerups_broadcast_type.IntValue)
 				{
-					PrintToChat(client, "\x04[SM] \x01In this server, using the \x04Adrenaline \x01(or \x04Pills\x01) will grant a \x04Reload, Firing, and Melee Swing bonus \x01during that duration");
-				}
-				else if (powerups_broadcast_type.IntValue == 1)
-				{
-					PrintHintText(client, "In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration");
-				}
-				else if (powerups_broadcast_type.IntValue == 2)
-				{
-					PrintToChat(client, "\x04[SM] \x01In this server, using the \x04Adrenaline \x01(or \x04Pills\x01) will grant a \x04Reload, Firing, and Melee Swing bonus \x01during that duration");
-					PrintHintText(client, "In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration");
+					case 0: PrintToChat(client, "\x04[SM] \x01In this server, using the \x04Adrenaline \x01(or \x04Pills\x01) will grant a \x04Reload, Firing, and Melee Swing bonus \x01during that duration");
+					case 1: PrintHintText(client, "In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration");
+					case 2: 
+					{
+						PrintToChat(client, "\x04[SM] \x01In this server, using the \x04Adrenaline \x01(or \x04Pills\x01) will grant a \x04Reload, Firing, and Melee Swing bonus \x01during that duration");
+						PrintHintText(client, "In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration");
+					}
 				}
 			}
-			else if (powerups_use_on.BoolValue == false)
+			else
 			{
-				if (powerups_broadcast_type.IntValue == 0)
+				switch(powerups_broadcast_type.IntValue)
 				{
-					PrintToChat(client, "\x04[SM] \x01In this server, \x04Reload, Firing, and Melee Swing Rates \x01are increased!");
-				}
-				else if (powerups_broadcast_type.IntValue== 1)
-				{
-					PrintHintText(client, "In this server, Reload, Firing, and Melee Swing Rates are increased!");
-				}
-				else if (powerups_broadcast_type.IntValue == 2)
-				{
-					PrintToChat(client, "\x04[SM] \x01In this server, \x04Reload, Firing, and Melee Swing Rates \x01are increased!");
-					PrintHintText(client, "In this server, Reload, Firing, and Melee Swing Rates are increased!");
+					case 0: PrintToChat(client, "\x04[SM] \x01In this server, \x04Reload, Firing, and Melee Swing Rates \x01are increased!");
+					case 1: PrintHintText(client, "In this server, Reload, Firing, and Melee Swing Rates are increased!");
+					case 2: 
+					{
+						PrintToChat(client, "\x04[SM] \x01In this server, \x04Reload, Firing, and Melee Swing Rates \x01are increased!");
+						PrintHintText(client, "In this server, Reload, Firing, and Melee Swing Rates are increased!");
+					}
 				}
 			}
 		}
 	}
+	WelcomeTimers[client] = null;
 	return Plugin_Stop;
 }
-/* ***************************************************************************/
-//Round start
+
+public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if( !client ) return;
+	
+	delete g_powerups_countdown[client];
+	delete WelcomeTimers[client];
+	g_usedhealth[client] = 0;
+}
+
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if( !client ) return;
+	
+	delete g_powerups_countdown[client];
+	delete WelcomeTimers[client];
+	g_usedhealth[client] = 0;
+}
+
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	for(int i = 1; i <= MaxClients; i++)
@@ -297,7 +329,7 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(30.1, Timer_GivePills);
 	CreateTimer(30.2, Timer_GiveRandom);
 }
-/* ***************************************************************************/
+
 public Action Timer_GiveAdrenaline(Handle timer)
 {
 	if (g_powerups_plugin_on)
@@ -402,7 +434,7 @@ public void GiveRandomToAll()
 	}
 	SetCommandFlags("give", flags|FCVAR_CHEAT);
 }
-/* ***************************************************************************/
+
 //Popping the Adrenaline
 public void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroadcast)
 {
@@ -421,27 +453,22 @@ public void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroad
 				{
 					//We need to reset the timer in case the client decides to
 					//use a second adrenaline while the first one is still active
-					if (g_usedhealth[client] == 1)
-					{
-						KillTimer(g_powerups_timer[client]);
-						KillTimer(g_powerups_countdown[client]);
-						#if DEBUG
+					delete g_powerups_countdown[client];
+					#if DEBUG
 						PrintToChat(client, "\x04[DEBUG] \x03Resetting powerups timers");
-						#endif
-						g_usedhealth[client] = 0;
-					}
+					#endif
+					g_usedhealth[client] = 0;
 					//A delay of 0.1 second to reset the reload speed. Not like
 					//you'll be able to pull out your gun fast enough :P
 					CreateTimer(0.1, Timer_UsedHealth, client, TIMER_FLAG_NO_MAPCHANGE);
 					g_powerups_countdown[client] = CreateTimer(1.0, Timer_Countdown, client, TIMER_REPEAT);
-					g_powerups_timer[client] = CreateTimer(powerups_duration.IntValue * 1.0, Timer_EndPower, client, TIMER_FLAG_NO_MAPCHANGE);
 					//Multiply by 1.0 to prevent tag mismatch
 				}
 			}
 		}
 	}
 }
-/* ***************************************************************************/
+
 //Popping the Pills
 public void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 {
@@ -463,20 +490,15 @@ public void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 					{
 						//We need to reset the timer in case the client decides to use
 						//a second bottle of pills while the first one is still active
-						if (g_usedhealth[client] == 1)
-						{
-							KillTimer(g_powerups_timer[client]);
-							KillTimer(g_powerups_countdown[client]);
-							#if DEBUG
-							PrintToChat(client, "\x04[DEBUG] \x03Resetting powerups timers");
-							#endif
-							g_usedhealth[client] = 0;
-						}
+						delete g_powerups_countdown[client];
+						#if DEBUG
+						PrintToChat(client, "\x04[DEBUG] \x03Resetting powerups timers");
+						#endif
+						g_usedhealth[client] = 0;
 						//A delay of 0.1 second to reset the reload speed. Not like
 						//you'll be able to pull out your gun fast enough :P
 						CreateTimer(0.1, Timer_UsedHealth, client, TIMER_FLAG_NO_MAPCHANGE);
 						g_powerups_countdown[client] = CreateTimer(1.0, Timer_Countdown, client, TIMER_REPEAT);
-						g_powerups_timer[client] = CreateTimer(powerups_duration.IntValue * 1.0, Timer_EndPower, client);
 						//Multiply by 1.0 to prevent tag mismatch
 					}
 				}
@@ -484,10 +506,10 @@ public void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 		}
 	}
 }
-/* ***************************************************************************/
+
 public Action Timer_UsedHealth(Handle Timer, any client)
 {
-	if (powerups_use_on.BoolValue && client && IsClientInGame(client))
+	if (IsInGame(client))
 	{
 		PrintToChat(client, "\x04[SM] \x01Reload, Firing, and Melee Swing Rates increased!");
 		PrintHintText(client, "Powerups time left: %d", powerups_duration.IntValue);
@@ -498,30 +520,22 @@ public Action Timer_UsedHealth(Handle Timer, any client)
 	}
 }
 
-public Action Timer_EndPower(Handle Timer, any client)
-{
-	if (powerups_use_on.BoolValue)
-	{
-		PrintToChat(client, "\x04[SM] \x01Reload, Firing, and Melee Swing Rates returning to normal...");
-		g_usedhealth[client] = 0;
-		RebuildAll();
-	}
-
-	g_powerups_timer[client] = null;
-}
-
 public Action Timer_Countdown(Handle timer, any client)
 {
 	if(!client || !IsClientInGame(client) || GetClientTeam(client) != 2)
 	{
 		g_powerups_countdown[client] = null;
+		g_usedhealth[client] = 0;
+		RebuildAll();
 		return Plugin_Stop;
 	}
 
 	if(g_powerups_timeleft[client] == 0) //Powerups ran out
 	{
 		PrintHintText(client,"Reload, Firing, and Melee Swing Rates returning to normal...");
-		g_powerups_timeleft[client] = powerups_duration.IntValue;
+		PrintToChat(client, "\x04[SM] \x01Reload, Firing, and Melee Swing Rates returning to normal...");
+		g_usedhealth[client] = 0;
+		RebuildAll();
 		g_powerups_countdown[client] = null;
 		return Plugin_Stop;
 	}
@@ -536,27 +550,10 @@ public Action Timer_Countdown(Handle timer, any client)
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ClearAll();
-	CreateTimer(0.1, Timer_RoundEnd);
+	ResetTimer();
 }
 
-public Action Timer_RoundEnd(Handle Timer, any client)
-{
-	if (g_powerups_plugin_on)
-	{
-		if (powerups_use_on.BoolValue)
-		{
-			if (g_usedhealth[client] == 1)
-			{
-				KillTimer(g_powerups_countdown[client]);
-				KillTimer(g_powerups_timer[client]);
-				PrintToChat(client, "\x04[SM] \x01Reload, Firing, and Melee Swing Rates returning to normal...");
-				PrintHintText(client, "Reload, Firing, and Melee Swing Rates returning to normal...");
-				g_usedhealth[client] = 0;
-			}
-		}
-	}
-}
-/* ***************************************************************************/
+
 //Reloading weapon
 public void Event_Reload (Event event, const char[] name, bool dontBroadcast)
 {
@@ -711,8 +708,8 @@ public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
 		g_iShotEndDurO
 		);
 	PrintToChatAll("\x03- pre mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_AutoS,
 		g_fl_AutoI,
+		g_fl_AutoS,
 		g_fl_AutoE
 		);
 	#endif
@@ -1016,7 +1013,7 @@ public Action Timer_ShotgunEndCock (Handle timer, Handle hPack)
 
 	return Plugin_Continue;
 }
-/* ***************************************************************************/
+
 public void OnGameFrame()
 {
 	//If frames aren't being processed, don't bother.
@@ -1036,6 +1033,7 @@ public void OnMapEnd()
 {
 	ClearAll();
 	g_bIsLoading = true;
+	ResetTimer();
 }
 
 void RebuildAll ()
@@ -1131,7 +1129,7 @@ void DT_Clear ()
 		g_flDTNextTime[iI] = -1.0;
 	}
 }
-/* ***************************************************************************/
+
 //Since this is called EVERY game frame, we need to be careful not to run too many functions
 //kinda hard, though, considering how many things we have to check for =.=
 int MA_OnGameFrame()
@@ -1541,4 +1539,14 @@ static bool ShouldGetUpFaster(int iClient)
 	}
 	
 	return false;
+}
+
+void ResetTimer()
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		delete g_powerups_countdown[i];
+		delete WelcomeTimers[i];
+		g_usedhealth[i] = 0;
+	}
 }
