@@ -8,9 +8,10 @@ v2.1.2
 -Adrenaline makes you react faster to knockdowns and staggers (Combine with [L4D2]Adrenaline_Recovery: https://forums.alliedmods.net/showthread.php?p=2606439)
 
 v2.0.1
--original Post: https://forums.alliedmods.net/showthread.php?t=127513
+-original plugin from Dusty1029: https://forums.alliedmods.net/showthread.php?t=127513
 
 -Convar-
+cfg/sourcemod/l4d2_powerups_rush.cfg
 // Should players be given adrenaline at round start? (1 = ON  0 = OFF)
 l4d_powerups_adren_give_on "0"
 
