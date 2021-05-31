@@ -5,7 +5,7 @@ v2.1.3
 -Remke code
 -Fixed error
 -Fixed Memory leak
--Fixed change team issue
+-Powerup returning to normal when player changes team or dies
 -Adrenaline makes you react faster to knockdowns and staggers (Combine with [L4D2]Adrenaline_Recovery: https://forums.alliedmods.net/showthread.php?p=2606439)
 
 v2.0.1
