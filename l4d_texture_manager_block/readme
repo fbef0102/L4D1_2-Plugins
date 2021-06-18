@@ -14,7 +14,6 @@ Kicks out clients who are potentially attempting to enable mathack
 5. r_drawothermodels
 6. l4d_bhop from l4dbhop.dll
 7. l4d_bhop_autostrafe from l4dbhop.dll
-8. cl_fov(fov_override) cheating
 
 -Convar-
 "l4d1_penalty", "1", "1 - kick clients, 0 - record players in log file (sourcemod/logs/mathack_cheaters.txt)"
