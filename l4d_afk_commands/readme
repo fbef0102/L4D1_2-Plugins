@@ -1,7 +1,7 @@
 Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
 
 -ChangeLog-
-v3.4
+v3.6
 -Remake Code
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236)
@@ -76,6 +76,9 @@ l4d_afk_commands_throwable_cooltime_block "10.0"
 // If 1, Player can not change team when he startle witch or being attacked by witch.
 l4d_afk_commands_witch_attack_block "1"
 
+// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)
+l4d_afk_commands_observer_access_flag "z"
+
 -Command-
 **Change team to Spectate
 	"sm_afk"
@@ -112,10 +115,15 @@ l4d_afk_commands_witch_attack_block "1"
 	"sm_jointeam3"
 	"sm_zombie"
 	
+**Switch team to fully an observer
+	"sm_observer"
+	"sm_ob"
+	"sm_observe"
+	
 **Survivor Player Suicides
 	"sm_zs"
 	
-**Adm force player to change team
+**Adm force player to change team (ADMFLAG_BAN)
 	"sm_swapto", "sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)"
 	
 

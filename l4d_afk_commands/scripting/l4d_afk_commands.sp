@@ -44,12 +44,17 @@
 	"sm_jointeam3"
 	"sm_zombie"
 	
+**Switch team to fully an observer
+	"sm_observer"
+	"sm_ob"
+	"sm_observe"
+
 **Adm force player to change team
 	"sm_swapto", "sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)"
 */
 
 
-#define PLUGIN_VERSION 		"3.4"
+#define PLUGIN_VERSION 		"3.6"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -74,18 +79,20 @@ const int ARRAY_COUNT = 2;
 #define MODEL_BARREL			"models/props_industrial/barrel_fuel.mdl"
 
 //convar
-ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideAllow, 
+ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSeconds, 
 	g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmueAccess,
 	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
+	g_hObsCommandAccess,
 	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableCooldown;
 ConVar g_hGameMode, g_hZMaxPlayerZombies;
 
 //value
-char g_sImmueAcclvl[16], g_sSpecCommandAccesslvl[16], g_sInfCommandAccesslvl[16], g_sSurCommandAccesslvl[16];
+char g_sImmueAcclvl[16], g_sSpecCommandAccesslvl[16], g_sInfCommandAccesslvl[16], 
+	g_sSurCommandAccesslvl[16], g_sObsCommandAccesslvl[16];
 bool g_bL4D2Version, g_bHasLeftSafeRoom, g_bMapStarted, g_bGameTeamSwitchBlock;
-bool g_bDeadSurvivorBlock, g_bSuicideAllow, g_bTakeControlBlock,
-	g_bInfectedAttackBlock, g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock;
-float g_fBreakPropCooldown, g_fThrowableCooldown;
+bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bInfectedAttackBlock, 
+	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock;
+float g_fBreakPropCooldown, g_fThrowableCooldown, g_fSurvivorSuicideSeconds;
 int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies;
 
 //arraylist
@@ -101,6 +108,7 @@ bool bClientJoinedTeam[MAXPLAYERS+1] = false; //在冷卻時間是否嘗試加�
 float g_iSpectatePenaltTime[MAXPLAYERS+1] ;//各自的冷卻時間
 float fBreakPropTime[MAXPLAYERS+1] ;//點燃火瓶、汽油或油桶的時間
 float fThrowableTime[MAXPLAYERS+1] ;//投擲物品的時間
+float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 int iClientFlags[MAXPLAYERS+1];
@@ -202,13 +210,18 @@ public void OnPluginStart()
 	RegAdminCmd("sm_swapto", Command_SwapTo, ADMFLAG_BAN, "sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)");
 	RegConsoleCmd("sm_zs", ForceSurvivorSuicide, "Alive Survivor Suicide himself Command.");
 
+	RegConsoleCmd("sm_observer", TurnClientToObserver, "Switch team to fully an observer.");
+	RegConsoleCmd("sm_ob", TurnClientToObserver, "Switch team to fully an observer.");
+	RegConsoleCmd("sm_observe", TurnClientToObserver, "Switch team to fully an observer.");
+
 	g_hZMaxPlayerZombies = FindConVar("z_max_player_zombies");
 	g_hCoolTime = CreateConVar("l4d_afk_commands_changeteam_cooltime_block", "10.0", "Cold Down Time in seconds a player can not change team again after he switches team. (0=off)", FCVAR_NOTIFY, true, 0.0);
 	g_hDeadSurvivorBlock = CreateConVar("l4d_afk_commands_deadplayer_block", "1", "If 1, Dead Survivor player can not switch team.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGameTimeBlock = CreateConVar("l4d_afk_commands_during_game_seconds_block", "0", "Player can switch team until players have left start safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedAttackBlock = CreateConVar("l4d_afk_commands_infected_attack_block", "1", "If 1, Player can not change team when he is capped by special infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hWitchAttackBlock = CreateConVar("l4d_afk_commands_witch_attack_block", "1", "If 1, Player can not change team when he startle witch or being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorSuicideAllow = CreateConVar("l4d_afk_commands_suicide_allow", "1", "If 1, Allow alive survivor player suicides by using '!zs'.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", "30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
+
 	g_hWPressMBlock = CreateConVar("l4d_afk_commands_pressM_block", "1", "If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeABreakBlock = CreateConVar("l4d_afk_commands_takeabreak_block", "1", "If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeControlBlock = CreateConVar("l4d_afk_commands_takecontrol_block", "1", "If 1, Block player from using 'sb_takecontrol' command in console.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -218,6 +231,7 @@ public void OnPluginStart()
 	g_hSpecCommandAccess = CreateConVar("l4d_afk_commands_spec_access_flag", "", "Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hInfCommandAccess = CreateConVar("l4d_afk_commands_infected_access_flag", "", "Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hSurCommandAccess = CreateConVar("l4d_afk_commands_survivor_access_flag", "", "Players with these flags have access to use command to survivor team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hObsCommandAccess = CreateConVar("l4d_afk_commands_observer_access_flag", "z", "Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	
 	GetCvars();
 	g_hGameMode = FindConVar("mp_gamemode");
@@ -227,7 +241,7 @@ public void OnPluginStart()
 	g_hGameTimeBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedAttackBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hWitchAttackBlock.AddChangeHook(ConVarChanged_Cvars);
-	g_hSurvivorSuicideAllow.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorSuicideSeconds.AddChangeHook(ConVarChanged_Cvars);
 	g_hWPressMBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hTakeControlBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hTakeABreakBlock.AddChangeHook(ConVarChanged_Cvars);
@@ -237,6 +251,7 @@ public void OnPluginStart()
 	g_hSpecCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hSurCommandAccess.AddChangeHook(ConVarChanged_Cvars);
+	g_hObsCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hZMaxPlayerZombies.AddChangeHook(ConVarChanged_Cvars);
 	
 	HookEvent("witch_harasser_set", OnWitchWokeup);
@@ -386,7 +401,7 @@ public Action Command_SwapTo(int client, int args)
 
 public Action ForceSurvivorSuicide(int client, int args)
 {
-	if (g_bSuicideAllow && client && GetClientTeam(client) == 2 && !IsFakeClient(client) && IsPlayerAlive(client))
+	if (g_fSurvivorSuicideSeconds > 0.0 && client && GetClientTeam(client) == 2 && !IsFakeClient(client) && IsPlayerAlive(client))
 	{
 		if(g_bHasLeftSafeRoom == false)
 		{
@@ -403,6 +418,12 @@ public Action ForceSurvivorSuicide(int client, int args)
 		if( nClientAttackedByWitch[client].Length != 0 )
 		{
 			PrintHintText(client, "[TS] %T","Not on your life!",client);
+			return Plugin_Handled;
+		}
+
+		if( GetEngineTime() - ClientJoinSurvivorTime[client] < g_fSurvivorSuicideSeconds)
+		{
+			PrintHintText(client, "[TS] %T","Not gonna happen!",client);
 			return Plugin_Handled;
 		}
 
@@ -436,10 +457,12 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
-	int player = GetClientOfUserId(event.GetInt("userid"));
+	int userid = event.GetInt("userid");
+	int player = GetClientOfUserId(userid);
 	if(player > 0 && player <=MaxClients && IsClientInGame(player) && !IsFakeClient(player) && GetClientTeam(player) == 2)
 	{
-		CreateTimer(2.0,checksurvivorspawn,player);		
+		CreateTimer(2.0,checksurvivorspawn, userid);
+		ClientJoinSurvivorTime[player] = GetEngineTime();
 	}
 }
 
@@ -465,7 +488,8 @@ public void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
 
 public Action checksurvivorspawn(Handle timer, int client)
 {
-	if((g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0) && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
+	client = GetClientOfUserId(client);
+	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0 && client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
 	{
 		char steamID[STEAMID_SIZE];
 		GetClientAuthId(client, AuthId_Steam2,steamID, STEAMID_SIZE);
@@ -541,6 +565,8 @@ public Action Event_PlayerChangeTeam(Event event, const char[] name, bool dontBr
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	CreateTimer(0.1, ClientReallyChangeTeam, client, _); // check delay
+
+	ClientJoinSurvivorTime[client] = GetEngineTime();
 }
 
 public void ConVarChange_CvarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -562,8 +588,9 @@ void GetCvars()
 	g_hSpecCommandAccess.GetString(g_sSpecCommandAccesslvl,sizeof(g_sSpecCommandAccesslvl));
 	g_hInfCommandAccess.GetString(g_sInfCommandAccesslvl,sizeof(g_sInfCommandAccesslvl));
 	g_hSurCommandAccess.GetString(g_sSurCommandAccesslvl,sizeof(g_sSurCommandAccesslvl));
+	g_hObsCommandAccess.GetString(g_sObsCommandAccesslvl,sizeof(g_sObsCommandAccesslvl));
 	g_hImmueAccess.GetString(g_sImmueAcclvl,sizeof(g_sImmueAcclvl));
-	g_bSuicideAllow = g_hSurvivorSuicideAllow.BoolValue;
+	g_fSurvivorSuicideSeconds = g_hSurvivorSuicideSeconds.FloatValue;
 	g_bPressMBlock = g_hWPressMBlock.BoolValue;
 	g_bTakeABreakBlock = g_hTakeABreakBlock.BoolValue;
 	g_bTakeControlBlock = g_hTakeControlBlock.BoolValue;
@@ -680,6 +707,41 @@ public Action TurnClientToSpectate(int client, int argCount)
 		ChangeClientTeam(client, 3);
 		CreateTimer(0.1, Timer_Respectate, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
+	return Plugin_Handled;
+}
+
+public Action TurnClientToObserver(int client, int args)
+{
+	if (client == 0)
+	{
+		PrintToServer("[TS] command cannot be used by server.");
+		return Plugin_Handled;
+	}
+	if(HasAccess(client, g_sObsCommandAccesslvl) == false)
+	{
+		PrintHintText(client, "[TS] %T","You don't have access to be an observer",client);
+		return Plugin_Handled;
+	}
+
+	if(GetClientTeam(client) != 1)
+	{
+		if(CanClientChangeTeam(client,1) == false) return Plugin_Handled;
+
+		ChangeClientTeam(client, 1);
+	}
+	else
+	{
+		if(IsClientIdle(client))
+		{
+			SDKCall(hTakeOver, client, true);
+			ChangeClientTeam(client, 1);
+			return Plugin_Handled;
+		}
+		
+		ChangeClientTeam(client, 3);
+		CreateTimer(0.1, Timer_Respectate, client, TIMER_FLAG_NO_MAPCHANGE);
+	}
+
 	return Plugin_Handled;
 }
 
@@ -1271,7 +1333,7 @@ public bool HasAccess(int client, char[] g_sAcclvl)
 		return false;
 
 	// check permissions
-	if ( iClientFlags[client] & ReadFlagString(g_sAcclvl) || (iClientFlags[client] & ADMFLAG_ROOT) )
+	if ( iClientFlags[client] & ReadFlagString(g_sAcclvl) )
 	{
 		return true;
 	}

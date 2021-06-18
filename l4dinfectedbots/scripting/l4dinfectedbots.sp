@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.5.3
+* Version	: 2.5.4
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot. 
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.5.4
+*	   - Signature update for L4D2's "2.2.1.3" update 
+*		 (credit to Lux: https://forums.alliedmods.net/showthread.php?p=2714236)
+*
 * Version 2.5.3
 *	   - In coop, fixed the bug when l4d_infectedbots_infhud_enable set to 0, the human controlled Tank won't get killed when he out of rage meter.
 *	   - In coop, fixed the bug when l4d_infectedbots_coop_versus_tank_playable set to 1, if a tank spwans when there are 2 or more human play on the infected side, all the human player will become tank.
@@ -600,7 +604,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.5.3"
+#define PLUGIN_VERSION "2.5.4"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -739,25 +743,18 @@ static Handle hSwitch = null;
 static Handle hFlashLightTurnOn = null;
 static Handle hCreateSmoker = null;
 #define NAME_CreateSmoker "NextBotCreatePlayerBot<Smoker>"
-#define SIG_CreateSmoker_LINUX "@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
 static Handle hCreateBoomer = null;
 #define NAME_CreateBoomer "NextBotCreatePlayerBot<Boomer>"
-#define SIG_CreateBoomer_LINUX "@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
 static Handle hCreateHunter = null;
 #define NAME_CreateHunter "NextBotCreatePlayerBot<Hunter>"
-#define SIG_CreateHunter_LINUX "@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
 static Handle hCreateSpitter = null;
 #define NAME_CreateSpitter "NextBotCreatePlayerBot<Spitter>"
-#define SIG_CreateSpitter_LINUX "@_Z22NextBotCreatePlayerBotI7SpitterEPT_PKc"
 static Handle hCreateJockey = null;
 #define NAME_CreateJockey "NextBotCreatePlayerBot<Jockey>"
-#define SIG_CreateJockey_LINUX "@_Z22NextBotCreatePlayerBotI6JockeyEPT_PKc"
 static Handle hCreateCharger = null;
 #define NAME_CreateCharger "NextBotCreatePlayerBot<Charger>"
-#define SIG_CreateCharger_LINUX "@_Z22NextBotCreatePlayerBotI7ChargerEPT_PKc"
 static Handle hCreateTank = null;
 #define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
-#define SIG_CreateTank_LINUX "@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
 
 // Stuff related to Durzel's HUD (Panel was redone)
 static int respawnDelay[MAXPLAYERS+1]; 			// Used to store individual player respawn delays after death
@@ -874,7 +871,7 @@ public void OnPluginStart()
 	h_PlayerAddTankHealth = CreateConVar("l4d_infectedbots_add_tankhealth", "500", "If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_default_tankhealth' each 'l4d_infectedbots_add_tankhealth_scale' players joins", FCVAR_NOTIFY, true, 0.0); 
 	h_InfectedSpawnTimeMax = CreateConVar("l4d_infectedbots_spawn_time_max", "60", "Sets the max spawn time for special infected spawned by the plugin in seconds.", FCVAR_NOTIFY, true, 1.0);
 	h_InfectedSpawnTimeMin = CreateConVar("l4d_infectedbots_spawn_time_min", "40", "Sets the minimum spawn time for special infected spawned by the plugin in seconds.", FCVAR_NOTIFY, true, 1.0);
-	h_CoopPlayableTank = CreateConVar("l4d_infectedbots_coop_versus_tank_playable", "0", "If 1, tank will be playable in coop/survival", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	h_CoopPlayableTank = CreateConVar("l4d_infectedbots_coop_versus_tank_playable", "0", "If 1, tank will always be controlled by human player in coop/survival.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_JoinableTeams = CreateConVar("l4d_infectedbots_coop_versus", "1", "If 1, players can join the infected team in coop/survival (!ji in chat to join infected, !js to join survivors)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	if (!L4D2Version)
 	{
@@ -4573,7 +4570,7 @@ bool IsWitch(int entity)
     {
         char strClassName[64];
         GetEdictClassname(entity, strClassName, sizeof(strClassName));
-        return StrEqual(strClassName, "witch");
+        return strcmp(strClassName, "witch", false) == 0;
     }
     return false;
 }
