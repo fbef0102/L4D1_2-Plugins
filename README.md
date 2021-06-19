@@ -57,6 +57,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_texture_manager_block</b>: Kicks out clients who are potentially attempting to enable mathack
 * <b>kills</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
 * <b>l4d2_powerups_rush</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
+* <b>l4d_rock_lagcomp</b>: Provides lag compensation for tank rock entities
 # Scripting Compiler
 * [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6502 scripting
 # Others
