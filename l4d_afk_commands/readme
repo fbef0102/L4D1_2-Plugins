@@ -1,7 +1,7 @@
 Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
 
 -ChangeLog-
-v3.6
+v3.7
 -Remake Code
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236)
@@ -51,6 +51,12 @@ l4d_afk_commands_infected_access_flag ""
 
 // If 1, Player can not change team when he is capped by special infected.
 l4d_afk_commands_infected_attack_block "1"
+
+// If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
+l4d_afk_commands_infected_cap_block "1"
+
+// Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).
+l4d_afk_commands_infected_spawn_cooltime_block "10.0"
 
 // If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)
 l4d_afk_commands_pressM_block "1"
