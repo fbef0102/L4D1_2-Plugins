@@ -25,6 +25,9 @@ v1.2
 5. Cold Down Time in seconds a player can not change team again after he switches team.
 6. Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel.
 7. Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice.
+8. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
+9. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
+
 
 -Require-
 left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
