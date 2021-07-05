@@ -194,9 +194,21 @@
 	}
 	"Witch Attack Block"
 	{
-		"en"			"Can not suicide when you startle witch and witch is attacking you.
+		"en"			"Can not suicide when you startle witch and witch is attacking you."
 		"zho"			"Witch 干擾期間禁止換隊."
 		"chi"			"被 Witch 干扰了禁止换队"
 		"hu"			"Nem lehetsz öngyilkos ha megzavarod a boszorkát és az épp téged támad.
+	}
+	"Infected Cap Block"
+	{
+		"en"			"Can not change team when you has pounced/ridden/charged/smoked a survivor."
+		"zho"			"抓住人類期間禁止換隊."
+		"chi"			"控人期间禁止换队"
+	}
+	"Can not change team after Spawn as a special infected"
+	{
+		"en"			"Can not change team after Spawn as a special infected for a while"
+		"zho"			"剛復活特感期間禁止換隊."
+		"chi"			"刚复活特感期间禁止换队."
 	}
 }
