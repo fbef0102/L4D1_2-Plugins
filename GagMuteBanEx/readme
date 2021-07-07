@@ -50,7 +50,7 @@ sv_chatenable "1"
 **sm_exgag to Open exGag Menu or sm_exgag <name> <minutes> (ADMFLAG_CHAT)
 "sm_exgag"
 
-**sm_exmute to Open exMute Menu or sm_exmute <name> <minutes>"
+**sm_exmute to Open exMute Menu or sm_exmute <name> <minutes>" (ADMFLAG_CHAT)
 "sm_exmute"
 
 **sm_exbansteam <minutes> <STEAM_ID> (ADMFLAG_BAN)
