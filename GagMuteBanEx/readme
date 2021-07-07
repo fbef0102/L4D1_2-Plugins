@@ -1,0 +1,56 @@
+gag & mute & ban - Ex
+(封鎖/禁音/禁字-強化版)
+
+-ChangeLog-
+v1.5
+-Remake Code
+-Add notification
+
+v1.3
+-Original Post: https://forums.alliedmods.net/showthread.php?p=2347844
+
+-How to use-
+type !admin to call adm menu and you will see "封鎖/禁音/禁字-強化版" option
+
+-Detail-
+GagMuteBanEx_ban_allow 0 -> Everyone can not type a word in chatbox in server
+sv_voiceenable 0 -> Everyone can not use mic in server
+
+-Data-
+1. data/gagmute.txt
+The database of players with gag & mute & ban
+
+2. logs/GagMuteBan.log
+All records about players with gag & mute & ban
+
+-Related Plugin: 
+sm_regexfilter: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/sm_regexfilter
+
+-Convar-
+cfg\sourcemod\GagMuteBanEx.cfg
+// 0=Ban Menu off, 1=Ban Menu on.
+GagMuteBanEx_ban_allow "1"
+
+// If 0, Be Quient, 歲月靜好!!
+GagMuteBanEx_chatenable "1"
+
+// 0=Gag Menu off, 1=Gag Menu on.
+GagMuteBanEx_gag_allow "1"
+
+// 0=Mute Menu off, 1=Mute Menu on.
+GagMuteBanEx_mute_allow "1"
+
+-Command-
+**sm_exban to Open exBan Steamid Menu or sm_exban <name> <minutes> (ADMFLAG_BAN)
+"sm_exban"
+
+**sm_exgag to Open exGag Menu or sm_exgag <name> <minutes> (ADMFLAG_CHAT)
+"sm_exgag"
+
+**sm_exmute to Open exMute Menu or sm_exmute <name> <minutes>"
+"sm_exmute"
+
+**sm_exbansteam <minutes> <STEAM_ID> (ADMFLAG_BAN)
+"sm_exbanid"
+"sm_exbansteam"
+"sm_exbansteamid"

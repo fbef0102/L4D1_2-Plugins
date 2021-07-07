@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2021/7/7)
+> All plugins in here apply to both L4D1/2 (last edited:2021/7/8)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -58,7 +58,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>kills</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
 * <b>l4d2_powerups_rush</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 * <b>l4d_rock_lagcomp</b>: Provides lag compensation for tank rock entities
-* <b>sm_regexfilter</b>: Filter dirty words via Regular Expressions
+* <b>sm_regexfilter</b>: Filter dirty words via Regular Expressions (禁詞表)
+* <b>GagMuteBanEx</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 # Scripting Compiler
 * [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6502 scripting
 # Others
