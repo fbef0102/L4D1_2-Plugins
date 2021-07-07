@@ -1,3 +1,9 @@
+/* Change Log
+* 2.2 (2021/7/7)
+-Fixed compatibility with plugin "sm_regexfilter" v1.3+ by Twilight Suzuka, HarryPotter
+
+*/
+
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
@@ -8,7 +14,7 @@ public Plugin myinfo =
 	name = "No Team Chat",
 	author = "bullet28, HarryPotter",
 	description = "Redirecting all 'say_team' messages to 'say' in order to remove (Survivor) prefix when it's useless",
-	version = "2.1",
+	version = "2.2",
 	url = "https://forums.alliedmods.net/showthread.php?p=2691314"
 }
 
@@ -38,6 +44,28 @@ public void OnPluginStart() {
 	AutoExecConfig(true, "lfd_noTeamSay");
 }
 
+ConVar g_hRegexfilterPlugin = null;
+bool g_bRegexfilterPluginEnable = false;
+public void OnAllPluginsLoaded()
+{
+	// sm_regexfilter
+	g_hRegexfilterPlugin = FindConVar("regexfilter_enable");
+	if(g_hRegexfilterPlugin != null)
+	{
+		GetCvars2();
+		g_hRegexfilterPlugin.AddChangeHook(OnConVarChange2);
+	}
+}
+
+public void OnConVarChange2(ConVar convar, char[] oldValue, char[] newValue) {
+	GetCvars2();
+}
+
+void GetCvars2()
+{
+	g_bRegexfilterPluginEnable = g_hRegexfilterPlugin.BoolValue;
+}
+
 public void OnConVarChange(ConVar convar, char[] oldValue, char[] newValue) {
 	GetCvars();
 }
@@ -52,20 +80,20 @@ void GetCvars()
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
 	
-	if (client <= 0)
+	if (client <= 0 || g_bRegexfilterPluginEnable == true)
 		return Plugin_Continue;
 	
 	if (strcmp(command, "say_team", false) != 0)
 		return Plugin_Continue;
 
+	if(BaseComm_IsClientGagged(client) == true) //this client has been gagged
+		return Plugin_Continue;	
+		
 	for (int i = 0; i < sizeof ignoreList; i++) {
 		if ( ignoreList[i][0] != EOS && strncmp(sArgs, ignoreList[i], strlen(ignoreList[i])) == 0 ) {
 			return Plugin_Continue;
 		}
 	}
-	
-	if(BaseComm_IsClientGagged(client) == true) //this client has been gagged
-		return Plugin_Stop;	
 
 	char buffer[512];
 	Format(buffer, sizeof(buffer), "\x03%N\x01 :  %s", client, sArgs);
