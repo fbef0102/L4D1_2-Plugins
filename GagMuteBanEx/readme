@@ -2,7 +2,7 @@ gag & mute & ban - Ex
 (封鎖/禁音/禁字-強化版)
 
 -ChangeLog-
-v1.5
+v1.6
 -Remake Code
 -Add notification
 
@@ -10,10 +10,10 @@ v1.3
 -Original Post: https://forums.alliedmods.net/showthread.php?p=2347844
 
 -How to use-
-type !admin to call adm menu and you will see "封鎖/禁音/禁字-強化版" option
+type !admin to call adm menu and you will see "Ban/Mute/Gag-Ex" option
 
 -Detail-
-GagMuteBanEx_ban_allow 0 -> Everyone can not type a word in chatbox in server
+sv_chatenable 0 -> Everyone can not type a word in chatbox in server
 sv_voiceenable 0 -> Everyone can not use mic in server
 
 -Data-
@@ -31,14 +31,17 @@ cfg\sourcemod\GagMuteBanEx.cfg
 // 0=Ban Menu off, 1=Ban Menu on.
 GagMuteBanEx_ban_allow "1"
 
-// If 0, Be Quient, 歲月靜好!!
-GagMuteBanEx_chatenable "1"
+// Players with these flags can chat when 'sv_chatenable' is 0 (Empty = Everyone, -1: Nobody)
+GagMuteBanEx_chat_immue_flag "z"
 
 // 0=Gag Menu off, 1=Gag Menu on.
 GagMuteBanEx_gag_allow "1"
 
 // 0=Mute Menu off, 1=Mute Menu on.
 GagMuteBanEx_mute_allow "1"
+
+// If 0, Be Quient, No one can chat.
+sv_chatenable "1"
 
 -Command-
 **sm_exban to Open exBan Steamid Menu or sm_exban <name> <minutes> (ADMFLAG_BAN)

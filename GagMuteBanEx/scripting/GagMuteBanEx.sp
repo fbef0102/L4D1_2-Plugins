@@ -41,13 +41,15 @@ TopMenu hTopMenuHandle;
 
 //Convar
 ConVar g_hCvarBanAllow, g_hCvarMuteAllow, g_hCvarGagAllow,
-	g_hCvarServerVoice, g_hCvarServerChat;
+	g_hCvarServerVoice, g_hCvarServerChat, g_hCvarServerChatImmuneAccess;
 
 //value
 bool g_bCvarBanAllow, g_bCvarMuteAllow, g_bCvarGagAllow,
 	g_bCvarServerVoice, g_bCvarServerChat;
 
 int ig_minutes;
+char g_sImmueAcclvl[16];
+
 static char sBan_Time[][][] =
 {
 	{"5",			"5 mins"},
@@ -73,7 +75,7 @@ public Plugin myinfo =
 	name = "GagMuteBanEx",
 	author = "MAKS & dr lex & HarryPotter",
 	description = "gag & mute & ban",
-	version = "1.5",
+	version = "1.6",
 	url = "forums.alliedmods.net/showthread.php?p=2347844"
 };
 
@@ -100,14 +102,16 @@ public void OnPluginStart()
 	g_hCvarMuteAllow = CreateConVar("GagMuteBanEx_mute_allow", "1", "0=Mute Menu off, 1=Mute Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarGagAllow = CreateConVar("GagMuteBanEx_gag_allow", "1", "0=Gag Menu off, 1=Gag Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarServerVoice = FindConVar("sv_voiceenable");
-	g_hCvarServerChat = CreateConVar("GagMuteBanEx_chatenable", "1", "If 0, Be Quient, 歲月靜好!!", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarServerChat = CreateConVar("sv_chatenable", "1", "If 0, Be Quient, No one can chat.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarServerChatImmuneAccess = CreateConVar("GagMuteBanEx_chat_immue_flag", "z", "Players with these flags can chat when 'sv_chatenable' is 0 (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
 
 	GetCvars();
 	g_hCvarBanAllow.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarMuteAllow.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarGagAllow.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarServerVoice.AddChangeHook(ConVarChanged_CvarServerVoice);
-	g_hCvarServerChat.AddChangeHook(ConVarChanged_CvarServerGag);
+	g_hCvarServerChat.AddChangeHook(ConVarChanged_CvarServerChat);
+	g_hCvarServerChatImmuneAccess.AddChangeHook(ConVarChanged_ServerChatImmuneAccess);
 
 	HookEvent("round_start", Event_RoundStart);
 
@@ -123,24 +127,24 @@ public void ConVarChanged_CvarServerVoice(ConVar convar, const char[] oldValue, 
 	
 	if(g_bCvarServerVoice == true)
 	{
-		CPrintToChatAll("[{olive}TS{default}] sv_voiceenable @ {green}0{default}. 開放語音功能! We can Talk Now !");
+		CPrintToChatAll("[{olive}TS{default}] sv_voiceenable @ {green}1{default}. 開放語音功能! We can Talk Now !");
 	}
 	else
 	{
-		CPrintToChatAll("[{olive}TS{default}] sv_voiceenable @ {green}1{default}. 伺服器禁用語音! Everyone Shut Up!");
+		CPrintToChatAll("[{olive}TS{default}] sv_voiceenable @ {green}0{default}. 伺服器禁用語音! Everyone Shut Up!");
 	}
 }
 
-public void ConVarChanged_CvarServerGag(ConVar convar, const char[] oldValue, const char[] newValue) {
+public void ConVarChanged_CvarServerChat(ConVar convar, const char[] oldValue, const char[] newValue) {
 	GetCvars();
 
 	if(g_bCvarServerChat == true)
 	{
-		CPrintToChatAll("[{olive}TS{default}] Server_Gag @ {green}0{default}. 聊天功能開啟! Let's chat !");
+		CPrintToChatAll("[{olive}TS{default}] sv_chatenable @ {green}1{default}. 聊天功能開啟! Let's chat !");
 
 		for ( int i = 1 ; i <= MaxClients ; ++i ) 
 		{
-			if (IsClientInGame(i) && !IsFakeClient(i))
+			if (IsClientInGame(i) && !IsFakeClient(i) && BaseComm_IsClientGagged(i))
 			{
 				ServerCommand("sm_ungag #%d", GetClientUserId(i));
 				HxClientGagMuteBanEx(i);
@@ -149,13 +153,34 @@ public void ConVarChanged_CvarServerGag(ConVar convar, const char[] oldValue, co
 	}
 	else
 	{
-		CPrintToChatAll("[{olive}TS{default}] Server_Gag @ {green}1{default}. 歲月靜好! Everyone be quient !");
+		CPrintToChatAll("[{olive}TS{default}] sv_chatenable @ {green}0{default}. 歲月靜好! Everyone be quient !");
 
+		for ( int i = 1 ; i <= MaxClients ; ++i ) 
+		{
+			if (IsClientInGame(i) && !IsFakeClient(i) && HasAccess(i, g_sImmueAcclvl) == false)
+			{
+				ServerCommand("sm_gag #%d", GetClientUserId(i));
+			}
+		}
+	}
+}
+
+public void ConVarChanged_ServerChatImmuneAccess(ConVar convar, const char[] oldValue, const char[] newValue) {
+	GetCvars();
+
+	if(g_bCvarServerChat == false)
+	{
 		for ( int i = 1 ; i <= MaxClients ; ++i ) 
 		{
 			if (IsClientInGame(i) && !IsFakeClient(i))
 			{
-				ServerCommand("sm_gag #%d", GetClientUserId(i));
+				if(BaseComm_IsClientGagged(i) && HasAccess(i, g_sImmueAcclvl) == true)
+				{
+					ServerCommand("sm_ungag #%d", GetClientUserId(i));
+					HxClientGagMuteBanEx(i);
+				}
+				if(!BaseComm_IsClientGagged(i) && HasAccess(i, g_sImmueAcclvl) == false)
+					ServerCommand("sm_gag #%d", GetClientUserId(i));
 			}
 		}
 	}
@@ -168,6 +193,7 @@ void GetCvars()
 	g_bCvarGagAllow = g_hCvarGagAllow.BoolValue;
 	g_bCvarServerChat = g_hCvarServerChat.BoolValue;
 	g_bCvarServerVoice = g_hCvarServerVoice.BoolValue;
+	g_hCvarServerChatImmuneAccess.GetString(g_sImmueAcclvl,sizeof(g_sImmueAcclvl));
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -261,12 +287,13 @@ public void OnClientPostAdminCheck(int client)
 	if (!IsFakeClient(client)) {
 		HxClientGagMuteBanEx(client);
 		if (g_bCvarServerChat == false && BaseComm_IsClientGagged(client) == false) {
-			ServerCommand("sm_gag #%d", GetClientUserId(client));
-			CPrintToChat(client, "[{olive}TS{default}] 伺服器聊天功能已關閉");
+			if(HasAccess(client, g_sImmueAcclvl) == false)
+				ServerCommand("sm_gag #%d", GetClientUserId(client));
+			CPrintToChat(client, "[{olive}TS{default}] 伺服器聊天功能已關閉 (Chat off)");
 		}
 
 		if (g_bCvarServerVoice == false) {
-			CPrintToChat(client, "[{olive}TS{default}] 伺服器語音功能已關閉");
+			CPrintToChat(client, "[{olive}TS{default}] 伺服器語音功能已關閉 (Mic off)");
 		}
 	}
 }
@@ -905,13 +932,13 @@ public int Category_Handler( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuOb
 		Format( buffer, maxlength, "Select an option");
 	
 	else if( hAction == TopMenuAction_DisplayOption)
-		Format( buffer, maxlength, "封鎖/禁音/禁字-強化版");
+		Format( buffer, maxlength, "Ban/Mute/Gag-Ex");
 }
 
 public void AdminMenu_BanEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
-		Format( buffer, maxlength, "封鎖玩家-Ex" );
+		Format( buffer, maxlength, "Ban Player - Ex" );
 	
 	else if ( hAction == TopMenuAction_SelectOption )
 		CMD_addbanmenu( param , 0);
@@ -920,7 +947,7 @@ public void AdminMenu_BanEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuOb
 public void AdminMenu_MuteEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
-		Format( buffer, maxlength, "禁玩家語音-Ex" );
+		Format( buffer, maxlength, "Mute Player - Ex" );
 	
 	else if ( hAction == TopMenuAction_SelectOption )
 		CMD_addmutemenu( param , 0);
@@ -929,8 +956,26 @@ public void AdminMenu_MuteEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuO
 public void AdminMenu_GagEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
-		Format( buffer, maxlength, "禁玩家打字-Ex" );
+		Format( buffer, maxlength, "Gag Player - Ex" );
 	
 	else if ( hAction == TopMenuAction_SelectOption )
 		CMD_addgagmenu( param , 0);
+}
+
+public bool HasAccess(int client, char[] g_sAcclvl)
+{
+	// no permissions set
+	if (strlen(g_sAcclvl) == 0)
+		return true;
+
+	else if (StrEqual(g_sAcclvl, "-1"))
+		return false;
+
+	// check permissions
+	if ( GetUserFlagBits(client) & ReadFlagString(g_sAcclvl) )
+	{
+		return true;
+	}
+
+	return false;
 }
