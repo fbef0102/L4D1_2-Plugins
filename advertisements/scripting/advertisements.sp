@@ -1,5 +1,6 @@
 #include <sourcemod>
 #include <sdktools>
+#include <multicolors>
 #undef REQUIRE_PLUGIN
 //#include <updater>
 #include "advertisements/chatcolors.sp"
@@ -185,7 +186,7 @@ public Action Timer_DisplayAd(Handle timer)
                 if (bTeamColor) {
                     SayText2(i, sBuffer);
                 } else {
-                    PrintToChat(i, sBuffer);
+                    CPrintToChat(i, sBuffer);
                 }
             }
         }

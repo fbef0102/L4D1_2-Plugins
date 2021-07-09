@@ -186,9 +186,11 @@ void AddChatColors()
             AddChatColor("yellowgreen", "\x079ACD32");
         }
         case Engine_Left4Dead, Engine_Left4Dead2: {
-            AddChatColor("lightgreen", "\x03");
-            AddChatColor("yellow", "\x04");
-            AddChatColor("green", "\x05");
+            AddChatColor("lightgreen", "{lightgreen}");
+            AddChatColor("olive", "{green}");
+            AddChatColor("green", "{olive}");
+            AddChatColor("red", "{red}");
+            AddChatColor("blue", "{blue}");
         }
         default: {
             AddChatColor("red", "\x07");
@@ -243,7 +245,7 @@ static int PreFormat(char[] buffer, int maxlength)
 
 void ProcessChatColors(const char[] message, char[] buffer, int maxlength)
 {
-    char name[32], color[10];
+    char name[32], color[32];
     int buf_idx = PreFormat(buffer, maxlength);
     int i, name_len;
 
