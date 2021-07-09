@@ -35,7 +35,7 @@
     }
 	"5"
     {
-        "chat"			"{lightgreen}本伺服器運行{blue}《L4D2-Resistance 反抗模式》{lightgreen}, 開發者: {green}Harry"
+        "chat"			"{lightgreen}本伺服器運行{green}《L4D2-Resistance 反抗模式》{lightgreen}, 開發者: {green}Harry"
     }
     "6"
     {
@@ -55,7 +55,7 @@
     }
 	"10"
     {
-        "chat"			"{lightgreen}This server runs{blue}《L4D2-Resistance Mod》{lightgreen}, developer: {green}Harry"
+        "chat"			"{lightgreen}This server runs{green}《L4D2-Resistance Mod》{lightgreen}, developer: {green}Harry"
     }
 	"11"
     {
