@@ -1,0 +1,33 @@
+Display advertisements
+
+-ChangeLog-
+v2.2.0
+-Remake Code
+
+v2.1.0
+-Original Post: https://forums.alliedmods.net/showthread.php?t=155705
+
+-Data-
+1. config/advertisements.txt
+by default, the plugin reads from
+
+-Convar-
+cfg\sourcemod\GagMuteBanEx.cfg
+// Enable/disable displaying advertisements.
+sm_advertisements_enabled "1"
+
+// File to read the advertisements from.
+sm_advertisements_file "advertisements.txt"
+
+// Amount of seconds between advertisements.
+sm_advertisements_interval "60"
+
+// Display advertisement sound file (relative to to sound/, empty=disable)
+sm_advertisements_soundfile ""
+
+// Display advertisements
+sm_advertisements_version "2.2.0"
+
+-Command-
+** Reload the advertisements (Server Cmd)
+"sm_advertisements_reload"

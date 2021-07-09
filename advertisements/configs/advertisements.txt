@@ -1,0 +1,51 @@
+// Advertisements 2.0
+// by Tsunami
+//
+// Types
+// -----
+// center: Center message
+// chat: Chat message
+// hint: Hint message
+// menu: Menu message
+// top: Top message
+//
+// Flags (optional)
+// -----
+// Accepts flags of admins that will not see the advertisement.
+// When omitted everyone will see the advertisement.
+// When "flags"			"" only admins will see the advertisement.
+// "center"		"www.domain55.com"
+// "hint"			"contact@domain55.com"
+// "menu"			"Next map is {sm_nextmap} in {timeleft} minutes."
+// "chat"			"{green}Current {lightgreen}Map: {default}{currentmap}"
+"Advertisements"
+{
+    "1"
+    {
+         "chat"			"{lightgreen}!votes: Vote Menu、!load: Start Match、!info: Information"
+    }
+    "2"
+    {
+		"chat"			"{lightgreen}Lerp 0: cl_interp 0; cl_interp_ratio 0"
+    }
+	"3"
+    {
+        "chat"			"{lightgreen}!sur/!inf/!s: Switch Team, !r:Ready, !pause:Pause Game"
+    }
+	"4"
+    {
+        "chat"			"{lightgreen}addons\sourcemod\configs\advertisements.txt"
+    }
+	"5"
+    {
+        "chat"			"{lightgreen}Roto-AZmod developer: Harry、乘風"
+    }
+	"6"
+    {
+        "chat"			"{lightgreen}Date: {date}, Time: {time}"
+    }
+	"7"
+    {
+        "chat"			"{lightgreen}Harry's Youtube: youtube.com/c/HarryPotterxToy"
+    }
+}
