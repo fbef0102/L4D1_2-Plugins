@@ -702,6 +702,7 @@ public int Menu_VotesKick(Handle menu, MenuAction action, int param1, int param2
 			if(HasAccess(player, g_sKickImmueAccesslvl))
 			{
 				CPrintToChat(param1, "{default}[{olive}TS{default}] Target has kick immue, choose again!");
+				CPrintToChat(player, "{default}[{olive}TS{default}] {olive}%N{default} tries to kick you, but you have kick immue.", param1);
 				CreateVoteKickMenu(param1);
 			}
 			else
