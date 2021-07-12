@@ -6,7 +6,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 # Require
 * [Sourcemod 1.10](https://www.sourcemod.net/downloads.php?branch=1.10-dev) (or newer)
 * [Metamod 1.10](https://www.sourcemm.net/downloads.php?branch=1.10-dev) (or newer)
-* [L4DToolZ](https://forums.alliedmods.net/showthread.php?t=93600)
+* [L4DToolZ](https://github.com/Accelerator74/l4dtoolz/releases)
 * [Left 4 DHooks Direct](https://forums.alliedmods.net/showthread.php?p=2684862)
 * [2.2.0-detours](https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589) (or newer)
 * [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
