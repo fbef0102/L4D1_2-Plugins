@@ -7,7 +7,7 @@ public Plugin myinfo = {
     name = "[L4D, L4D2] No Death Check Until Dead", 
     author = "chinagreenelvis, Harry", 
     description = "Prevents mission loss until all players have died.", 
-    version = "1.9", 
+    version = "2.0", 
     url = "https://forums.alliedmods.net/showthread.php?t=142432" 
 }; 
 
@@ -21,13 +21,30 @@ bool g_bCvarAllow,g_bDeathcheck_bots, bLeftSafeRoom;
 int g_iPlayerSpawn, g_iRoundStart;
 Handle PlayerLeftStartTimer = null;
 
+bool g_bL4D2Version;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+	if( test == Engine_Left4Dead)
+		g_bL4D2Version = false;
+	else if (test == Engine_Left4Dead2 )
+		g_bL4D2Version = true;
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+	
+	return APLRes_Success;
+}
+
 public void OnPluginStart()
 {  
 	g_hCvarAllow = CreateConVar("deathcheck", "1", "0: Disable plugin, 1: Enable plugin", FCVAR_NOTIFY);
 	deathcheck_bots = CreateConVar("deathcheck_bots", "1", "0: Mission will be lost if all human players have died, 1: Bots will continue playing after all human players are dead and can rescue them", FCVAR_NOTIFY);
 	
 	director_no_death_check = FindConVar("director_no_death_check");
-	allow_all_bot_survivor_team = FindConVar("allow_all_bot_survivor_team");
+	if(g_bL4D2Version) allow_all_bot_survivor_team = FindConVar("allow_all_bot_survivor_team");
 	
 	g_hCvarAllow.AddChangeHook(ConVarChanged_Allow);
 	deathcheck_bots.AddChangeHook(ConVarChange_deathcheck_bots);
@@ -40,7 +57,7 @@ public void OnPluginEnd()
 	ResetPlugin();
 	ResetTimer();
 	ResetConVar(director_no_death_check, true, true);
-	ResetConVar(allow_all_bot_survivor_team, true, true);
+	if(g_bL4D2Version) ResetConVar(allow_all_bot_survivor_team, true, true);
 }
 
 public void OnConfigsExecuted()
@@ -79,7 +96,7 @@ void IsAllowed()
 		ResetPlugin();
 		g_bCvarAllow = false;
 		ResetConVar(director_no_death_check, true, true);
-		ResetConVar(allow_all_bot_survivor_team, true, true);
+		if(g_bL4D2Version) ResetConVar(allow_all_bot_survivor_team, true, true);
 		UnhookEvent("player_spawn", Event_PlayerSpawn);
 		UnhookEvent("round_start",		Event_RoundStart,	EventHookMode_PostNoCopy);
 		UnhookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
@@ -98,13 +115,16 @@ public void ConVarChange_deathcheck_bots(ConVar convar, const char[] oldValue, c
 	if (g_bCvarAllow)
 	{
 		g_bDeathcheck_bots = deathcheck_bots.BoolValue;
-		if (g_bDeathcheck_bots)
+		if(g_bL4D2Version)
 		{
-			allow_all_bot_survivor_team.SetInt(1);
-		}
-		else
-		{
-			ResetConVar(allow_all_bot_survivor_team, true, true);
+			if (g_bDeathcheck_bots)
+			{
+				allow_all_bot_survivor_team.SetInt(1);
+			}
+			else
+			{
+				ResetConVar(allow_all_bot_survivor_team, true, true);
+			}
 		}
 	}
 }
@@ -145,7 +165,7 @@ public Action PlayerLeftStart(Handle timer)
 	if (LeftStartArea() || bLeftSafeRoom)
 	{
 		director_no_death_check.SetInt(1);
-		if (g_bDeathcheck_bots)
+		if (g_bDeathcheck_bots && g_bL4D2Version)
 		{
 			allow_all_bot_survivor_team.SetInt(1);
 		}
