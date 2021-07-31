@@ -134,8 +134,8 @@ public void OnPluginStart()
 
 	g_Cvar_Limits = CreateConVar("sm_votes_s", "0.60", "pass vote percentage.", 0, true, 0.05, true, 1.0);
 	VotensHpED = CreateConVar("l4d_VotenshpED", "1", "If 1, Enable Give HP Vote.", FCVAR_NOTIFY);
-	VotensAlltalkED = CreateConVar("l4d_VotensalltalkED", "1", "If 1, Enable AllTank On Vote.", FCVAR_NOTIFY);
-	VotensAlltalk2ED = CreateConVar("l4d_Votensalltalk2ED", "1", "If 1, Enable AllTank Off Vote.", FCVAR_NOTIFY);
+	VotensAlltalkED = CreateConVar("l4d_VotensalltalkED", "1", "If 1, Enable All Talk On Vote.", FCVAR_NOTIFY);
+	VotensAlltalk2ED = CreateConVar("l4d_Votensalltalk2ED", "1", "If 1, Enable All Talk Off Vote.", FCVAR_NOTIFY);
 	VotensRestartmapED = CreateConVar("l4d_VotensrestartmapED", "1", "If 1, Enable Restart Current Map Vote.", FCVAR_NOTIFY);
 	VotensMapED = CreateConVar("l4d_VotensmapED", "1", "If 1, Enable Change Value Map Vote.", FCVAR_NOTIFY);
 	VotensMap2ED = CreateConVar("l4d_Votensmap2ED", "1", "If 1, Enable Change Custom Map Vote.", FCVAR_NOTIFY);

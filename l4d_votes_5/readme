@@ -8,10 +8,10 @@ cfg\sourcemod\l4d_votes_5.cfg
 // 0=Off, 1=On this plugin
 l4d_Votens "1"
 
-// If 1, Enable AllTank Off Vote.
+// If 1, Enable All Talk Off Vote.
 l4d_Votensalltalk2ED "1"
 
-// If 1, Enable AllTank On Vote.
+// If 1, Enable All Talk On Vote.
 l4d_VotensalltalkED "1"
 
 // If 1, Enable Give HP Vote.
