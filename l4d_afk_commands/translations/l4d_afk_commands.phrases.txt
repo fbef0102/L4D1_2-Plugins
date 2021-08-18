@@ -204,11 +204,13 @@
 		"en"			"Can not change team when you has pounced/ridden/charged/smoked a survivor."
 		"zho"			"抓住人類期間禁止換隊."
 		"chi"			"控人期间禁止换队"
+		"hu"			"Nem válthatsz csapatott miután ütöttél/lovagoltál/elvittél/elhúztál egy túlélőt"
 	}
 	"Can not change team after Spawn as a special infected"
 	{
 		"en"			"Can not change team after Spawn as a special infected for a while"
 		"zho"			"剛復活特感期間禁止換隊."
 		"chi"			"刚复活特感期间禁止换队."
+		"hu"			"Nem válthatsz csapatott egy ideig miután újjászülettél speciális fertőzöttként"
 	}
 }
