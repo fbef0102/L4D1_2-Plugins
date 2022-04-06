@@ -1,0 +1,164 @@
+"Phrases"
+{
+	"Respawn Limit"
+	{
+		"en"			"You have reached your respawn limit and will be unable to revive on your own"	
+		"es"			"Has alcanzado tu límite de Auto-Respawns y no podrás Auto-Revivir!"
+		"hu"			"Elérted az újjászületési limitedet és nem tudsz majd magadtól feléledni."
+		"ru"			"Вы достигли своего предела возрождения и не сможете возродиться самостоятельно"
+		"zho"			"你已達到復活次數限制並且不能再自動復活了"
+		"chi"			"你已达到复活次数限制并且不能再自动复活了"
+		"pt"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
+		"pt_p"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
+	}
+	"Seconds To Respawn"
+	{
+		"#format"		"{1:i}"
+		"en"			"You will Auto-Respawn in {1} seconds!"
+		"es"			"Vas a revivir en {1} segundos!"
+		"hu"			"Automatikusan újjászületsz {1} másodperc múlva!"
+		"ru"			"Вы автоматически возродитесь через {1} секунд!"
+		"zho"			"你將於 {1} 秒後自動復活!"
+		"chi"			"你将于 {1} 秒后自动复活!"
+		"pt"			"Você irá respawnar automaticamente em {1} segundos!"
+		"pt_p"			"Você irá respawnar automaticamente em {1} segundos!"
+	}
+	"Respawned"
+	{
+		"#format"		"{1:s}"
+		"en"			"{1} has been respawned"
+		"es"			"{1} ha reaparecido"
+		"hu"			"{1} újjászületett"
+		"ru"			"{1} был возрожден"
+		"zho"			"{1} 已被自動復活"
+		"chi"			"{1} 已被自動復活"
+		"pt"			"{1} respawnou"
+		"pt_p"			"{1} respawnou"
+	}
+	"CMD Respawn"
+	{
+		"en"			"Usage: sm_respawn <#UserID|Name>"
+		"es"			"Usa: sm_respawn <#UserID|Name>"
+		"hu"			"Használat: sm_respawn <#UserID|Név>"
+		"ru"			"Usage: sm_respawn <#UserID|Name>"
+		"zho"			"使用方式: sm_respawn <#UserID|Name>"
+		"chi"			"使用方式: sm_respawn <#UserID|Name>"
+		"pt"			"Uso: sm_respawn <#UserID|Nome>"
+		"pt_p"			"Uso: sm_respawn <#UserID|Nome>"
+	}
+	"No Need To Respawn"
+	{
+		"#format"		"{1:N}"
+		"en"			"{1} Doesn't Need To Respawn!"
+		"es"			"{1} No Necesita Reaparecer!"
+		"hu"			"{1} -nak nem kell újjászületnie!"
+		"ru"			"{1} Не нуждается в возрождении!"
+		"zho"			"{1} 不需要被復活!"
+		"chi"			"{1} 不需要被复活!"
+		"pt"			"{1} não precisa de respawn!"
+		"pt_p"			"{1} não precisa de respawn!"
+	}
+	"No Need To Respawn Menu"
+	{
+		"#format"		"{1:s}"
+		"en"			"{1} Doesn't Need To Respawn!"
+		"es"			"{1} No Necesita Reaparecer!"
+		"hu"			"{1} -nak nem kell újjászületnie!"
+		"ru"			"{1} Не нуждается в возрождении!"
+		"zho"			"{1} 不需要被復活!"
+		"chi"			"{1} 不需要被复活!"
+		"pt"			"{1} não precisa de respawn!"
+		"pt_p"			"{1} não precisa de respawn!"
+	}
+	"Not Needed To Respawn"
+	{
+		"#format"		"{1:N}"
+		"en"			"{1} Didn't Need To Respawn!"
+		"es"			"{1} No Necesitó Reaparecer!"
+		"hu"			"{1} -nak nem kell újjászületnie!"
+		"ru"			"{1} Не нужно было возрождать!"
+		"zho"			"{1} 不需要被復活!"
+		"chi"			"{1} 不需要被复活!"
+		"pt"			"{1} não precisa de respawn!"
+		"pt_p"			"{1} não precisa de respawn!"
+	}
+	"Select Options"
+	{
+		"en"			"Select An Option"
+		"es"			"Seleccione Una Opción"
+		"hu"			"Válasz egy opciót"
+		"ru"			"Выберите опцию"
+		"zho"			"選擇一個選項"
+		"chi"			"选择一个选项"
+		"pt"			"Selecione uma opção"
+		"pt"			"Selecione uma opção"
+	}
+	"Main Menu Name"
+	{
+		"en"			"Player Re-Spawn"
+		"es"			"Reaparecer Jugadores"
+		"hu"			"Játékos újjászületés"
+		"ru"			"Возрождение игрока"
+		"zho"			"玩家 重新復活"
+		"chi"			"玩家 重新复活"
+		"pt"			"Respawnar jogadores"
+		"pt"			"Respawnar jogadores"
+	}
+	"Players List"
+	{
+		"en"			"Players List"
+		"es"			"Lista De Jugadores"
+		"hu"			"Játékos lista"
+		"ru"			"Список игроков"
+		"zho"			"玩家列表"
+		"chi"			"玩家列表"
+		"pt"			"Lista de jogadores"
+		"pt"			"Lista de jogadores"
+	}
+	"Respawn Menu"
+	{
+		"en"			"Respawn Menu"
+		"es"			"Menú De Reaparición"
+		"hu"			"Újjászületés menü"
+		"ru"			"Меню Возрожления"
+		"zho"			"復活介面"
+		"chi"			"复活介面"
+		"pt"			"Menu de respawn"
+		"pt"			"Menu de respawn"
+	}
+	"Couldn't Teleport"
+	{
+		"en"			"Couldn't teleport player after respawn"
+		"es"			"No se pudo teletransportar al jugad@r después de reaparecer"
+		"hu"			"Nem tudtuk teleportálni a játékost újjászületés után."
+		"ru"			"Не удалось телепортировать игрока после возрождения"
+		"zho"      		"無法傳送復活的玩家"
+		"chi"      		"无法传送复活的玩家"
+		"pt"			"Não foi possível teletransportar o jogador após o respawn"
+		"pt_p"			"Não foi possível teletransportar o jogador após o respawn"
+	}
+	"Couldn't spawn at this moment."
+	{
+		"en" "Couldn't respawn at the moment."
+		"zho" "此時此刻無法復活!!"
+		"chi" "此时此刻无法复活!!"	
+	}
+	"Couldn't respawn after the saferoom door is open."
+	{
+		"en" "Couldn't respawn after the saferoom door is open."
+		"zho" "安全大門開啟後不得復活!!"
+		"chi" "安全大门开启后不得复活!!"	
+	}
+	"Couldn't respawn when final vehicle is coming."
+	{
+		"en" "Couldn't respawn when final vehicle rescue is coming."
+		"zho" "最後救援開始後不得復活!!"
+		"chi" "最后救援开始后不得复活!!"	
+	}
+	"You will be respawned again."
+	{
+		"en" "You will be respawned again."
+		"zho" "你稍後會再次復活!!"
+		"chi" "稍后还能再次复活!!"
+	}
+}

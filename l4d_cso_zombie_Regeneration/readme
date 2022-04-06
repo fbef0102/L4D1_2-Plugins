@@ -1,0 +1,52 @@
+The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.
+(Just for fun)
+video showcase: https://youtu.be/H3KDQPOJDSs
+
+-ChangeLog-
+v1.1
+AlliedModders Post: https://forums.alliedmods.net/showthread.php?t=334089
+
+-ConVar-
+cfg\sourcemod\l4d_cso_zombie_regeneration.cfg
+// 0=Plugin off, 1=Plugin on.
+l4d_cso_zombie_regeneration_allow "1"
+
+// Boomer recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_boomer_hp "10"
+
+// Charger recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_charger_hp "80"
+
+// Hunter recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_hunter_hp "40"
+
+// Jockey recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_jockey_hp "50"
+
+// Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).
+l4d_cso_zombie_regeneration_map_off ""
+
+// Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).
+l4d_cso_zombie_regeneration_modes ""
+
+// Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).
+l4d_cso_zombie_regeneration_modes_off ""
+
+// Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.
+l4d_cso_zombie_regeneration_modes_tog "0"
+
+// Smoker recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_smoker_hp "10"
+
+// CSO Zombie Regeneration - Self Healing file (relative to to sound/, empty=disable)
+l4d_cso_zombie_regeneration_soundfile "ui/beep07.wav"
+
+// Spitter recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_spitter_hp "5"
+
+// Tank recover hp per second. (0=off)
+l4d_cso_zombie_regeneration_tank_hp "200"
+
+// Seconds needed to stand still before health recovering.
+l4d_cso_zombie_regeneration_wait_time "4"
+

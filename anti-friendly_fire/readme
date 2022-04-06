@@ -1,0 +1,16 @@
+shoot your teammate = shoot yourself
+
+-Changelog-
+v1.1
+-Disable Pipe Bomb Explosive friendly fire
+-Disable Fire friendly fire.
+
+-Convar-
+// Enable anti-friendly_fire plugin [0-Disable,1-Enable]
+anti_friendly_fire_enable "1"
+
+// If 1, Disable Fire friendly fire.
+anti_friendly_fire_immue_fire "1"
+
+// If 1, Disable Pipe Bomb Explosive friendly fire.
+anti_friendly_fire_immue_pipebomb "0"
