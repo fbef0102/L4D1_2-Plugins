@@ -1,0 +1,28 @@
+"VoteCustomCampaigns"
+{
+	"1"
+	{
+		"mapinfo"		"msd1_town"
+		"mapname"		"再见了晨茗"
+	}
+	"2"
+	{
+		"mapinfo"		"cdta_01detour"
+		"mapname"		"迂回前进"
+	}
+	"3"
+	{
+		"mapinfo"		"dprm1_milltown_a"
+		"mapname"		"暴风骤雨：暴雨(c4改)"
+	}
+	"4"
+	{
+		"mapinfo"		"uz_crash"
+		"mapname"		"亡灵区"
+	}
+	"5"
+	{
+		"mapinfo"		"wfp1_track"
+		"mapname"		"白森林"
+	}
+}

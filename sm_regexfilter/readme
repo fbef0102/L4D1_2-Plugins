@@ -1,0 +1,37 @@
+Filter dirty words via Regular Expressions
+(禁詞表)
+
+-ChangeLog-
+v1.3
+-Fixed compatibility with plugin "lfd_noTeamSay" v2.2+ by bullet28, HarryPotter
+-add "replaceall"
+
+v1.2
+-Original Post: https://forums.alliedmods.net/showthread.php?t=71867
+
+-Detail-
+(chatpattern) for chat
+
+1. Execute an RCON command (action)
+2. Limit the amount of times such a pattern may be spoken (limit)
+3. Enforce the limit with a block of the text
+4. Enforce the limit with a punishment RCON command (punish)
+5. Allow for forgiveness of one violation every x seconds (forgive)
+5. Block the text absolutely (no limit) (block)
+6. Replace the matches with a string (replace)
+7. Replace matches from ANOTHER REGEX pattern with a string (replacepattern)
+8. Warn the client they are violating the matching rules (warn)
+9. Allow admins with specified levels to be immune (immunity)
+10. Replace the whole sentance with a string (replaceall)
+
+-Related Plugin: 
+1. lfd_noTeamSay: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/lfd_noTeamSay
+2. GagMuteBanEx: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/GagMuteBanEx
+
+-Convar-
+cfg\sourcemod\sm_regexfilter.cfg
+// REGEXFILTER Enabled
+regexfilter_enable "1"
+
+-Command-
+None

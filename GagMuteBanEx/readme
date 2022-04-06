@@ -1,0 +1,60 @@
+gag & mute & ban - Ex
+(封鎖/禁音/禁字-強化版)
+(原本的sourcemod已有 封鎖/禁音/禁字 的功能，但是換到下一關之後被禁音/禁字的人會失效、重啟伺服器之後非永久封鎖名單失效，所以才有了此插件)
+
+-ChangeLog-
+v1.6
+-Remake Code
+-Add notification
+
+v1.3
+-Original Post: https://forums.alliedmods.net/showthread.php?p=2347844
+
+-How to use-
+type !admin to call adm menu and you will see "Ban/Mute/Gag-Ex" option
+
+-Detail-
+(Plugin ConVar)	sv_chatenable 0 	-> All Players are unable to type a word in chatbox in server
+(Valve ConVar)	sv_voiceenable 0 	-> All Players are unable to use mic in server
+
+-Data-
+1. data/gagmute.txt
+The database of players with gag & mute & ban
+
+2. logs/GagMuteBan.log
+All records about players with gag & mute & ban
+
+-Related Plugin: 
+sm_regexfilter: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/sm_regexfilter
+
+-Convar-
+cfg\sourcemod\GagMuteBanEx.cfg
+// 0=Ban Menu off, 1=Ban Menu on.
+GagMuteBanEx_ban_allow "1"
+
+// Players with these flags can chat when 'sv_chatenable' is 0 (Empty = Everyone, -1: Nobody)
+GagMuteBanEx_chat_immue_flag "z"
+
+// 0=Gag Menu off, 1=Gag Menu on.
+GagMuteBanEx_gag_allow "1"
+
+// 0=Mute Menu off, 1=Mute Menu on.
+GagMuteBanEx_mute_allow "1"
+
+// If 0, Be Quient, No one can chat.
+sv_chatenable "1"
+
+-Command-
+**sm_exban to Open exBan Steamid Menu or sm_exban <name> <minutes> (ADMFLAG_BAN)
+"sm_exban"
+
+**sm_exgag to Open exGag Menu or sm_exgag <name> <minutes> (ADMFLAG_CHAT)
+"sm_exgag"
+
+**sm_exmute to Open exMute Menu or sm_exmute <name> <minutes>" (ADMFLAG_CHAT)
+"sm_exmute"
+
+**sm_exbansteam <minutes> <STEAM_ID> (ADMFLAG_BAN)
+"sm_exbanid"
+"sm_exbansteam"
+"sm_exbansteamid"

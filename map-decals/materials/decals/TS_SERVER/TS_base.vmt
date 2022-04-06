@@ -1,0 +1,8 @@
+DecalModulate
+{
+$basetexture "decals/TS_SERVER/TS_base"
+$surfaceprop default
+$decal 1
+$vertexcolor 1
+$vertexalpha 1
+}
