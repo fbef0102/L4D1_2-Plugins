@@ -1,0 +1,64 @@
+// Advertisements 2.0
+// by Tsunami
+//
+// Types
+// -----
+// center: Center message
+// chat: Chat message
+// hint: Hint message
+// menu: Menu message
+// top: Top message
+//
+// Flags (optional)
+// -----
+// Accepts flags of admins that will not see the advertisement.
+// When omitted everyone will see the advertisement.
+// When left empty only admins will see the advertisement.
+
+"Advertisements"
+{
+    "1"
+    {
+         "chat"			"{olive}!votes {lightgreen}投票菜單: 踢人、換圖、重新關卡"
+    }
+	"2"
+    {
+        "chat"			"{olive}!js{lightgreen}: 加入人類陣營, {olive}!s{lightgreen}: 休息旁觀, {olive}!ji{lightgreen}: 成為特感陣營"
+    }
+	"3"
+    {
+        "chat"			"{lightgreen}商店功能已開啟! 輸入 {olive}!buy{lightgreen} 購買商品"
+    }
+	"4"
+    {
+        "chat"			"{lightgreen}輸入 {olive}!help{lightgreen} 了解本伺服器的內容"
+    }
+	"5"
+    {
+        "chat"			"{lightgreen}本伺服器運行{green}《L4D2-Resistance 反抗模式》{lightgreen}, 開發者: {green}Harry"
+    }
+    "6"
+    {
+         "chat"			"{olive}!votes{lightgreen}: kick、change map、restartmap"
+    }
+	"7"
+    {
+        "chat"			"{olive}!js{lightgreen}: Join Survivor, {olive}!s{lightgreen}: Join Spectator, {olive}!ji{lightgreen}: Join Infected"
+    }
+	"8"
+    {
+        "chat"			"{lightgreen}Shop is open now! type {olive}!buy{lightgreen} to purchase useful item"
+    }
+	"9"
+    {
+        "chat"			"{lightgreen}Type {olive}!help{lightgreen} to know server information"
+    }
+	"10"
+    {
+        "chat"			"{lightgreen}This server runs{green}《L4D2-Resistance Mod》{lightgreen}, developer: {green}Harry"
+    }
+	"11"
+    {
+        "chat"			"{lightgreen}Date: {date}, Time: {time}"
+    }
+}

@@ -1,0 +1,22 @@
+Create a survivor bot in game + Teleport player
+
+-Changelog-
+v1.3
+-Add 'Teleport player' item in admin menu under 'Player commands' category.
+-You can't teleport player who is hanging from ledge
+
+v1.2
+-Remake code
+
+-ConVar-
+// If 1, Adm can use command to add a survivor bot
+l4d_wind_add_bot_enable "1"
+
+// Add 'Teleport player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)
+l4d_wind_teleport_adminmenu "1"
+
+-Command-
+ *add a survivor bot
+	 !wind
+	 !addbot
+	 !createbot

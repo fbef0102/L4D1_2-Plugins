@@ -1,0 +1,472 @@
+"Phrases"
+{
+	"usage_paintdecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_paintdecal <decalname | id>"
+		"chi"			"{1}[SM] {2}用法：{3}sm_paintdecal <decalname | id>"
+		"zho"			"{1}[SM] {2}用法：{3}sm_paintdecal <decalname | id>"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_paintdecal <decalname | id>"
+	}
+	"error_decal_not_found"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:s},{6:c}"
+		"en"			"{1}[SM] {2}Error: {3}Decal {4}{5} {6}not found in list."
+		"chi"			"{1}[SM] {2}错误：{3}涂鸦 {4}{5} {6}未在列表中找到。"
+		"zho"			"{1}[SM] {2}錯誤：{3}塗鴉 {4}{5} {6}未在列表中找到。"
+		"de"			"{1}[SM] {2}Fehler: {3}Decal {4}{5} {6}konnte in der Liste nicht gefunden werden."
+	}
+	"error_another_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Error: {3}Another Decal is already painted on this position!"
+		"chi"			"{1}[SM] {2}错误：{3}此位置上已经绘制了另一个涂鸦！"
+		"zho"			"{1}[SM] {2}錯誤：{3}此位置上已經繪製了另一個塗鴉！"
+		"de"			"{1}[SM] {2}Fehler: {3}Ein anderes Decal befindet sich bereits an dieser Position!"
+	}
+	"paintdecal_aim"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c},{8:c},{9:s},{10:c}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} painted on Map {8}{9}{10}!"
+		"chi"			"{1}[SM] 涂鸦 {2}{3}{4}：{5}{6}{7} 绘制在地图 {8}{9}{10} 上！"
+		"zho"			"{1}[SM] 塗鴉 {2}{3}{4}：{5}{6}{7} 繪製在地圖 {8}{9}{10} 上！"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} angebracht auf Map {8}{9}{10}!"
+	}
+	"decal_position"
+	{
+		"#format"	"{1:c},{2:c},{3:f},{4:f},{5:f}"
+		"en"			"{1}[SM] Decal Position: {2}{3}, {4}, {5}"
+		"chi"			"{1}[SM] 涂鸦位置：{2}{3}、{4}、{5}"
+		"zho"			"{1}[SM] 塗鴉位置：{2}{3}、{4}、{5}"
+		"de"			"{1}[SM] Decal Position: {2}{3}, {4}, {5}"
+	}
+	"error_entity"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Error: {3}No Solid Entity found!"
+		"chi"			"{1}[SM] {2}错误：{3}未找到固态实体！"
+		"zho"			"{1}[SM] {2}錯誤：{3}未找到固態實體！"
+		"de"			"{1}[SM] {2}Error: {3}Keinen Festkörper gefunden!"
+	}
+	"no_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals available on {2}{3}{4}."
+		"chi"			"{1}[SM] {2}{3}{4} 上没有涂鸦。"
+		"zho"			"{1}[SM] {2}{3}{4} 上沒有塗鴉。"
+		"de"			"{1}[SM] Keine Decals verfügbar auf {2}{3}{4}."
+	}
+	"removedecal"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c},{8:c},{9:s},{10:c}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} removed from Map {8}{9}{10}."
+		"chi"			"{1}[SM] 涂鸦 {2}{3}{4}：{5}{6}{7} 从地图 {8}{9}{10} 中移除。"
+		"zho"			"{1}[SM] 塗鴉 {2}{3}{4}：{5}{6}{7} 從地圖 {8}{9}{10} 中移除。"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}{7} entfernt von Map {8}{9}{10}."
+	}
+	"no_decal_found"
+	{
+		"#format"	"{1:c},{2:c}"
+		"en"			"{1}[SM] {2}No Decal found on where you are looking at."
+		"chi"			"{1}[SM] {2}在您指向的位置找不到涂鸦。"
+		"zho"			"{1}[SM] {2}在您指向的位置找不到塗鴉。"
+		"de"			"{1}[SM] {2}Kein Decal im Zielbereich gefunden."
+	}
+	"removedecal_all_single"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] {2}{3} {4}Decal removed from Map {5}{6}{7}."
+		"chi"			"{1}[SM] {2}{3} {4}从地图 {5}{6}{7} 中移除了涂鸦。"
+		"zho"			"{1}[SM] {2}{3} {4}從地圖 {5}{6}{7} 中移除了塗鴉。"
+		"de"			"{1}[SM] {2}{3} {4}Decal entfernt von Map {5}{6}{7}."
+	}
+	"removedecal_all"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] {2}{3} {4}Decals removed from Map {5}{6}{7}."
+		"chi"			"{1}[SM] {2}{3} {4}从地图 {5}{6}{7} 中移除了涂鸦。"
+		"zho"			"{1}[SM] {2}{3} {4}從地圖 {5}{6}{7} 中移除了塗鴉。"
+		"de"			"{1}[SM] {2}{3} {4}Decals entfernt von Map {5}{6}{7}."
+	}
+	"removedecal_name"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Decal {2}{3}{4} removed from Map {5}{6}{7}."
+		"chi"			"{1}[SM] 涂鸦 {2}{3}{4} 从地图 {5}{6}{7} 中移除。"
+		"zho"			"{1}[SM] 塗鴉 {2}{3}{4} 從地圖 {5}{6}{7} 中移除。"
+		"de"			"{1}[SM] Decal {2}{3}{4} entfernt von Map {5}{6}{7}."
+	}
+	"removedecal_names"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] {2}{3} {4}Decals removed from Map {5}{6}{7}."
+		"chi"			"{1}[SM] {2}{3} {4}从地图 {5}{6}{7} 中移除了涂鸦。"
+		"zho"			"{1}[SM] {2}{3} {4}從地圖 {5}{6}{7} 中移除了塗鴉。"
+		"de"			"{1}[SM] {2}{3} {4}Decals entfernt von Map {5}{6}{7}."
+	}
+	"decals_named"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals named {2}{3}{4} found on Map."
+		"chi"			"{1}[SM] 在地图上找不到名为 {2}{3}{4} 的涂鸦。"
+		"zho"			"{1}[SM] 在地圖上找不到名為 {2}{3}{4} 的塗鴉。"
+		"de"			"{1}[SM] Keine Decals namens {2}{3}{4} auf Map gefunden."
+	}
+	"usage_removedecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_removedecal [all | id | last | name]"
+		"chi"			"{1}[SM] {2}用法: {3}sm_removedecal [all | id | last | name]"
+		"zho"			"{1}[SM] {2}用法: {3}sm_removedecal [all | id | last | name]"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_removedecal [all | id | last | name]"
+	}
+	"available_decals"
+	{
+		"#format"	"{1:c},{2:c}"
+		"en"			"{1}[SM] {2}Available Decals:"
+		"chi"			"{1}[SM] {2}可用涂鸦："
+		"zho"			"{1}[SM] {2}可用塗鴉："
+		"de"			"{1}[SM] {2}Verfügbare Decals:"
+	}
+	"no_decals_available"
+	{
+		"#format"	"{1:c},{2:c}"
+		"en"			"{1}[SM] {2}No Decals available."
+		"chi"			"{1}[SM] {2}没有可用的涂鸦。"
+		"zho"			"{1}[SM] {2}沒有可用的塗鴉。"
+		"de"			"{1}[SM] {2}Keine Decals verfügbar."
+	}
+	"listdecal"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+		"chi"			"{1}[SM] 涂鸦 {2}{3}{4}：{5}{6}"
+		"zho"			"{1}[SM] 塗鴉 {2}{3}{4}：{5}{6}"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+	}
+	"decals_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Decals in File {2}{3}.cfg{4}:"
+		"chi"			"{1}[SM] 文件 {2}{3}.cfg{4} 中的涂鸦："
+		"zho"			"{1}[SM] 文件 {2}{3}.cfg{4} 中的塗鴉："
+		"de"			"{1}[SM] Decals in Datei {2}{3}.cfg{4}:"
+	}
+	"last_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Last painted Decal {2}{3}{4}: {5}{6}{7}"
+		"chi"			"{1}[SM] 最后绘制的涂鸦 {2}{3}{4}：{5}{6}{7}"
+		"zho"			"{1}[SM] 最後繪製的塗鴉 {2}{3}{4}：{5}{6}{7}"
+		"de"			"{1}[SM] Zuletzt angebrachtes Decal {2}{3}{4}: {5}{6}{7}"
+	}
+	"decals_name_on_map"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Decals {2}{3}{4} on Map {5}{6}{7}:"
+		"chi"			"{1}[SM] 涂鸦 {2}{3}{4} 在地图 {5}{6}{7}:"
+		"zho"			"{1}[SM] 塗鴉 {2}{3}{4} 在地圖 {5}{6}{7}:"
+		"de"			"{1}[SM] Decals {2}{3}{4} auf Map {5}{6}{7}:"
+	}
+	"decals_on_map"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Decals on Map {2}{3}{4}:"
+		"chi"			"{1}[SM] 地图 {2}{3}{4} 上的涂鸦："
+		"zho"			"{1}[SM] 地圖 {2}{3}{4} 上的塗鴉："
+		"de"			"{1}[SM] Decals auf Map {2}{3}{4}:"
+	}
+	"usage_listdecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_listdecal [all | id | last | map | name | saved]"
+		"chi"			"{1}[SM] {2}用法: {3}sm_listdecal [all | id | last | map | name | saved]"
+		"zho"			"{1}[SM] {2}用法: {3}sm_listdecal [all | id | last | map | name | saved]"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_listdecal [all | id | last | map | name | saved]"
+	}
+	"savedecal_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saving Decal to File {2}{3}{4}..."
+		"chi"			"{1}[SM] 将涂鸦保存到文件 {2}{3}{4}..."
+		"zho"			"{1}[SM] 將塗鴉保存到文件 {2}{3}{4}..."
+		"de"			"{1}[SM] Speichere Decal in Datei {2}{3}{4}..."
+	}
+	"error_decal_in_file"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Error: {3}Decal position already found in File."
+		"chi"			"{1}[SM] {2}错误：{3}已在文件中找到涂鸦位置。"
+		"zho"			"{1}[SM] {2}錯誤：{3}已在文件中找到塗鴉位置。"
+		"de"			"{1}[SM] {2}Fehler: {3}Decal Position bereits in Datei vorhanden."
+	}
+	"saved_aim"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (Name = {5}{6}{7})."
+		"chi"			"{1}[SM] 已保存 {2}{3}{4} 涂鸦位置（名称 = {5}{6}{7}）。"
+		"zho"			"{1}[SM] 已保存 {2}{3}{4} 塗鴉位置（名稱 = {5}{6}{7}）。"
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (Name = {5}{6}{7})."
+	}
+	"savedecals_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saving Decals to File {2}{3}{4}..."
+		"chi"			"{1}[SM] 将涂鸦保存到文件 {2}{3}{4}..."
+		"zho"			"{1}[SM] 將塗鴉保存到文件 {2}{3}{4}..."
+		"de"			"{1}[SM] Speichere Decals in Datei {2}{3}{4}..."
+	}
+	"saved_one"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position."
+		"chi"			"{1}[SM] 保存了 {2}{3}{4} 涂鸦位置。"
+		"zho"			"{1}[SM] 保存了 {2}{3}{4} 塗鴉位置。"
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert."
+	}
+	"saved_more"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Positions."
+		"chi"			"{1}[SM] 已保存 {2}{3}{4} 个涂鸦位置。"
+		"zho"			"{1}[SM] 已保存 {2}{3}{4} 個塗鴉位置。"
+		"de"			"{1}[SM] {2}{3}{4} Decal Positionen gespeichert."
+	}
+	"no_decals_available_map"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals available on Map {2}{3}{4}."
+		"chi"			"{1}[SM] 地图 {2}{3}{4} 上没有可用的涂鸦。"
+		"zho"			"{1}[SM] 地圖 {2}{3}{4} 上沒有可用的塗鴉。"
+		"de"			"{1}[SM] Keine Decals verfügbar auf Map {2}{3}{4}."
+	}
+	"saving_last"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saving last painted Decal to File {2}{3}{4}..."
+		"chi"			"{1}[SM] 将最后绘制的涂鸦保存到文件 {2}{3}{4}..."
+		"zho"			"{1}[SM] 將最後繪製的塗鴉保存到文件 {2}{3}{4}..."
+		"de"			"{1}[SM] Speichere letzte Decal Position in Datei {2}{3}{4}..."
+	}
+	"saved_last"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] Saved last painted Decal Position (Name = {2}{3}{4})."
+		"chi"			"{1}[SM] 保存最后绘制的涂鸦位置（名称 = {2}{3}{4}）。"
+		"zho"			"{1}[SM] 保存最後繪製的塗鴉位置（名稱 = {2}{3}{4}）。"
+		"de"			"{1}[SM] Letzte Decal Position gespeichert (Name = {2}{3}{4})."
+	}
+	"saved_one_name"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (Name = {5}{6}{7})."
+		"chi"			"{1}[SM] 已保存 {2}{3}{4} 涂鸦位置（名称 = {5}{6}{7}）。"
+		"zho"			"{1}[SM] 已保存 {2}{3}{4} 塗鴉位置（名稱 = {5}{6}{7}）。"
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (Name = {5}{6}{7})."
+	}
+	"saved_more_name"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Positions (Name = {5}{6}{7})."
+		"chi"			"{1}[SM] 已保存 {2}{3}{4} 个涂鸦位置（名称 = {5}{6}{7}）。"
+		"zho"			"{1}[SM] 已保存 {2}{3}{4} 個塗鴉位置（名稱 = {5}{6}{7}）。"
+		"de"			"{1}[SM] {2}{3}{4} Decal Positionen gespeichert (Name = {5}{6}{7})."
+	}
+	"saved_id"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:d},{7:c}"
+		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (ID = {5}{6}{7})."
+		"chi"			"{1}[SM] 已保存 {2}{3}{4} 涂鸦位置（ID = {5}{6}{7}）。"
+		"zho"			"{1}[SM] 已保存 {2}{3}{4} 塗鴉位置（ID = {5}{6}{7}）。"
+		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (ID = {5}{6}{7})."
+	}
+	"usage_savedecal"
+	{
+		"#format"	"{1:c},{2:c},{3:c}"
+		"en"			"{1}[SM] {2}Usage: {3}sm_savedecal [all | id | last | name ]"
+		"chi"			"{1}[SM] {2}用法: {3}sm_savedecal [all | id | last | name ]"
+		"zho"			"{1}[SM] {2}用法: {3}sm_savedecal [all | id | last | name ]"
+		"de"			"{1}[SM] {2}Anwendung: {3}sm_savedecal [all | id | last | name ]"
+	}
+	"aimpos"
+	{
+		"#format"	"{1:c},{2:c},{3:f},{4:f},{5:f}"
+		"en"			"{1}[SM] Position you are aiming at: {2}{3}, {4}, {5}"
+		"chi"			"{1}[SM] 您瞄准的位置：{2}{3}、{4}、{5}"
+		"zho"			"{1}[SM] 您瞄準的位置：{2}{3}、{4}、{5}"
+		"de"			"{1}[SM] Zielposition: {2}{3}, {4}, {5}"
+	}
+	"cfg_file_not_found"
+	{
+		"#format"	"{1:c},{2:c},{3:c},{4:c},{5:s},{6:c}"
+		"en"			"{1}[SM] {2}Error: {3}Decal CFG File for Map {4}{5}{6} not found!"
+		"chi"			"{1}[SM] {2}错误：{3}未找到地图 {4}{5}{6} 的涂鸦 CFG 文件！"
+		"zho"			"{1}[SM] {2}錯誤：{3}未找到地圖 {4}{5}{6} 的塗鴉 CFG 文件！"
+		"de"			"{1}[SM] {2}Fehler: {3}Decal CFG Datei für Map {4}{5}{6} konnte nicht gefunden werden!"
+	}
+	"list_decal"
+	{
+		"#format"	"{1:c},{2:c},{3:s}"
+		"en"			"{1}[SM] Decal: {2}{3}"
+		"chi"			"{1}[SM] 涂鸦：{2}{3}"
+		"zho"			"{1}[SM] 塗鴉：{2}{3}"
+		"de"			"{1}[SM] Decal: {2}{3}"
+	}
+	"list_decal_id"
+	{
+		"#format"	"{1:c},{2:c},{3:d}"
+		"en"			"{1}[SM] Decal ID: {2}{3}"
+		"chi"			"{1}[SM] 涂鸦 ID：{2}{3}"
+		"zho"			"{1}[SM] 塗鴉 ID：{2}{3}"
+		"de"			"{1}[SM] Decal ID: {2}{3}"
+	}
+	"list_decal_id_name"
+	{
+		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s}"
+		"en"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+		"chi"			"{1}[SM] 涂鸦 {2}{3}{4}：{5}{6}"
+		"zho"			"{1}[SM] 塗鴉 {2}{3}{4}：{5}{6}"
+		"de"			"{1}[SM] Decal {2}{3}{4}: {5}{6}"
+	}
+	"no_decals_in_file"
+	{
+		"#format"	"{1:c},{2:c},{3:s},{4:c}"
+		"en"			"{1}[SM] No Decals in File {2}{3}.cfg{4}."
+		"chi"			"{1}[SM] 文件 {2}{3}.cfg{4} 中没有涂鸦。"
+		"zho"			"{1}[SM] 文件 {2}{3}.cfg{4} 中沒有塗鴉。"
+		"de"			"{1}[SM] Keine Decals in Datei {2}{3}.cfg{4}."
+	}
+	"decal_menu_title"
+	{
+		"en"			"Map Decals:"
+		"chi"			"涂鸦菜单："
+		"zho"			"塗鴉菜單："
+		"de"			"Map Decals:"
+	}
+	"save_decal_title"
+	{
+		"en"			"Save Decal:"
+		"chi"			"保存涂鸦："
+		"zho"			"保存塗鴉："
+		"de"			"Decal speichern:"
+	}
+	"remove_decal_title"
+	{
+		"en"			"Remove Decal:"
+		"chi"			"删除涂鸦："
+		"zho"			"刪除塗鴉："
+		"de"			"Decal entfernen:"
+	}
+	"list_decal_title"
+	{
+		"en"			"List Decal:"
+		"chi"			"统计涂鸦："
+		"zho"			"統計塗鴉："
+		"de"			"Decal auflisten:"
+	}
+	"options_menu_title"
+	{
+		"en"			"Choose an Option:"
+		"chi"			"选择一个选项："
+		"zho"			"選擇一個選項："
+		"de"			"Eine Option wählen:"
+	}
+	"admin_menu_title"
+	{
+		"en"			"Map Decals"
+		"chi"			"地图涂鸦"
+		"zho"			"地圖塗鴉"
+		"de"			"Map Decals"
+	}
+	"paint_decal"
+	{
+		"en"			"Paint Decal"
+		"chi"			"绘制涂鸦"
+		"zho"			"繪製塗鴉"
+		"de"			"Decal anbringen"
+	}
+	"remove_decal"
+	{
+		"en"			"Remove Decal"
+		"chi"			"删除涂鸦"
+		"zho"			"刪除塗鴉"
+		"de"			"Decal entfernen"
+	}
+	"list_decal_menu"
+	{
+		"en"			"List Decal"
+		"chi"			"统计涂鸦"
+		"zho"			"統計塗鴉"
+		"de"			"Decal auflisten"
+	}
+	"save_decal"
+	{
+		"en"			"Save Decal"
+		"chi"			"保存涂鸦"
+		"zho"			"保存塗鴉"
+		"de"			"Decal speichern"
+	}
+	"aim_position_menu"
+	{
+		"en"			"Aim Position"
+		"chi"			"指明坐标"
+		"zho"			"指明坐標"
+		"de"			"Zielposition"
+	}
+	"all"
+	{
+		"en"			"All"
+		"chi"			"全部"
+		"zho"			"全部"
+		"de"			"Alle"
+	}
+	"all_list"
+	{
+		"en"			"All Decal Names available"
+		"chi"			"所有可用的涂鸦名称"
+		"zho"			"所有可用的塗鴉名稱"
+		"de"			"Alle verfügbaren Decalbezeichnungen"
+	}
+	"by_aim"
+	{
+		"en"			"By Aim Position"
+		"chi"			"按目标位置"
+		"zho"			"按目標位置"
+		"de"			"Im Zielfeld"
+	}
+	"by_id"
+	{
+		"en"			"By ID (from List)"
+		"chi"			"按 ID（来自列表）"
+		"zho"			"按 ID（來自列表）"
+		"de"			"Wähle ID (aus Liste)"
+	}
+	"by_name"
+	{
+		"en"			"By Name (from List)"
+		"chi"			"按名称（来自列表）"
+		"zho"			"按名稱（來自列表）"
+		"de"			"Wähle Namen (aus Liste)"
+	}
+	"last_painted"
+	{
+		"en"			"Last Painted"
+		"chi"			"最近绘制"
+		"zho"			"最近繪製"
+		"de"			"Zuletzt angebrachtes Decal"
+	}
+	"map"
+	{
+		"en"			"Map"
+		"chi"			"地图"
+		"zho"			"地圖"
+		"de"			"Map"
+	}
+	"saved"
+	{
+		"en"			"Saved"
+		"chi"			"已保存"
+		"zho"			"已保存"
+		"de"			"Gespeicherte"
+	}
+}

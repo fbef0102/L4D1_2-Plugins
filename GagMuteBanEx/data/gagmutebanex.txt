@@ -1,0 +1,9 @@
+"gagmuteban"
+{
+	"STEAM_1:1:xxxxxxx"
+	{
+		"Name"		"Harry Potter [TW]"
+		"gag"		"1610547177"
+		"ban"		"1610557677"
+	}
+}
