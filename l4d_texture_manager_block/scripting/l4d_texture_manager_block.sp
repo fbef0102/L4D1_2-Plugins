@@ -18,12 +18,21 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_hPenalty = CreateConVar("l4d1_penalty", "1", "1 - kick clients, 0 - record players in log file");
+	g_hPenalty = CreateConVar("l4d1_penalty", "1", "1 - kick clients, 0 - record players in log file(sourcemod/logs/mathack_cheaters.txt), other value: ban minutes");
+	
 	g_iPenalty = g_hPenalty.IntValue;
+	g_hPenalty.AddChangeHook(ConVarChanged_Cvars);
 	
 	BuildPath(Path_SM, path, 256, "logs/mathack_cheaters.txt");
 	
-	CreateTimer(3.5, CheckClients, _, TIMER_REPEAT);
+	CreateTimer(2.5, CheckClients, _, TIMER_REPEAT);
+
+	AutoExecConfig(true, "l4d_texture_manager_block");
+}
+
+public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+{
+	g_iPenalty = g_hPenalty.IntValue;
 }
 
 public Action CheckClients(Handle timer)
@@ -39,7 +48,8 @@ public Action CheckClients(Handle timer)
 			QueryClientConVar(client, "r_drawothermodels", ClientQueryCallback_DrawModels);
 			QueryClientConVar(client, "l4d_bhop", ClientQueryCallback_l4d_bhop); //ban auto bhop from dll
 			QueryClientConVar(client, "l4d_bhop_autostrafe", ClientQueryCallback_l4d_bhop_autostrafe); //ban auto bhop from dll
-        }
+			QueryClientConVar(client, "cl_fov", ClientQueryCallback_cl_fov);
+		}
     }	
 }
 
@@ -54,6 +64,7 @@ public void ClientQueryCallback(QueryCookie cookie,  int client, ConVarQueryResu
 			int  mathax = StringToInt(cvarValue);
 			if (mathax > 0)
 			{
+				char t_name[MAX_NAME_LENGTH];
 				char SteamID[32];
 				GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 				
@@ -61,9 +72,19 @@ public void ClientQueryCallback(QueryCookie cookie,  int client, ConVarQueryResu
 				
 				if (g_iPenalty == 1)
 				{
-					PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_texture_list\x01!", client);
+					PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: mat_texture_list\x01!", t_name);
 					KickClient(client, "ConVar mat_texture_list violation");
 				}
+				else if (g_iPenalty > 1)
+				{
+					PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_texture_list\x01!", client);
+					static char reason[255];
+					FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_texture_list violation");
+
+					BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+					ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
+				}
+
 			}
 		}
 		case 1:
@@ -90,6 +111,9 @@ public void ClientQueryCallback_DrawModels(QueryCookie cookie, int client, ConVa
 
 	if (clientCvarValue != 1)
 	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 
@@ -97,8 +121,17 @@ public void ClientQueryCallback_DrawModels(QueryCookie cookie, int client, ConVa
 
 		if (g_iPenalty == 1)
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: r_drawothermodels\x01!", client);
+			PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: r_drawothermodels\x01!", t_name);
 			KickClient(client, "ConVar r_drawothermodels violation");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: r_drawothermodels\x01!", client);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using r_drawothermodels violation");
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
 		}
 	}
 }
@@ -111,6 +144,9 @@ public void ClientQueryCallback_PostPrecess(QueryCookie cookie, int client, ConV
 
 	if (clientCvarValue != 1)
 	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 
@@ -120,6 +156,15 @@ public void ClientQueryCallback_PostPrecess(QueryCookie cookie, int client, ConV
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_postprocess_enable\x01!", client);
 			KickClient(client, "ConVar mat_postprocess_enable violation");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_postprocess_enable\x01!", client);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_postprocess_enable violation");
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
 		}
 	}
 }
@@ -132,6 +177,9 @@ public void ClientQueryCallback_AntiVomit(QueryCookie cookie, int client, ConVar
 
 	if (clientCvarValue >= 3)
 	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 	
@@ -141,6 +189,15 @@ public void ClientQueryCallback_AntiVomit(QueryCookie cookie, int client, ConVar
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_queue_mode\x01!", client);
 			KickClient(client, "ConVar mat_queue_mode violation");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_queue_mode\x01!", client);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_queue_mode violation");
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
 		}
 	}
 }
@@ -153,6 +210,9 @@ public void ClientQueryCallback_HDRLevel(QueryCookie cookie, int client, ConVarQ
 
 	if (clientCvarValue != 2)
 	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 	
@@ -162,6 +222,15 @@ public void ClientQueryCallback_HDRLevel(QueryCookie cookie, int client, ConVarQ
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_hdr_level\x01!", client);
 			KickClient(client, "ConVar mat_hdr_level violation");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_hdr_level\x01!", client);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_hdr_level violation");
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
 		}
 	}
 }
@@ -174,6 +243,9 @@ public void ClientQueryCallback_l4d_bhop(QueryCookie cookie, int client, ConVarQ
 
 	if (clientCvarValue > 0)
 	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+		
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 	
@@ -183,6 +255,15 @@ public void ClientQueryCallback_l4d_bhop(QueryCookie cookie, int client, ConVarQ
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop\x01!", client);
 			KickClient(client, "ConVar l4d_bhop violation");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04l4dbhop.dll: l4d_bhop\x01!", client);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using l4dbhop.dll");
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
 		}
 	}
 }
@@ -195,6 +276,9 @@ public void ClientQueryCallback_l4d_bhop_autostrafe(QueryCookie cookie, int clie
 
 	if (clientCvarValue > 0)
 	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 	
@@ -204,6 +288,48 @@ public void ClientQueryCallback_l4d_bhop_autostrafe(QueryCookie cookie, int clie
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop_autostrafe\x01!", client);
 			KickClient(client, "ConVar l4d_bhop_autostrafe violation");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04l4dbhop.dll: l4d_bhop_autostrafe\x01!", client);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using l4dbhop.dll");
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
+		}
+	}
+}
+
+public void ClientQueryCallback_cl_fov(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
+{	
+	if(!IsClientInGame(client)) return;
+
+	int clientCvarValue = StringToInt(cvarValue);
+
+	if (clientCvarValue > 120 || clientCvarValue < 75)
+	{
+		char t_name[MAX_NAME_LENGTH];
+		GetClientName(client,t_name,MAX_NAME_LENGTH);
+		
+		char SteamID[32];
+		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
+	
+		LogToFile(path, ".:[Name: %N | STEAMID: %s | cl_fov: %d]:.", client, SteamID, clientCvarValue);
+
+		if (g_iPenalty == 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04cl_fov %d\x01!", client, clientCvarValue);
+			KickClient(client, "ConVar cl_fov violation (must be 75~120)");
+		}
+		else if (g_iPenalty > 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04cl_fov %d\x01!", client, clientCvarValue);
+			static char reason[255];
+			FormatEx(reason, sizeof(reason), "%s", "Banned for using cl_fov %d (must be 75~120)", clientCvarValue);
+			
+			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
+			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
 		}
 	}
 }
