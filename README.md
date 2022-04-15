@@ -75,6 +75,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_graves</b>: When a survivor die, on his body appear a grave.
 * <b>l4dafkfix_deadbot</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>_AutoTakeOver</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
+* <b>chat_responses</b>: Displays chat advertisements when specified text is said in player chat.
 # Scripting Compiler
 * [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6502 scripting
 # Others

@@ -1,0 +1,29 @@
+// {default}
+// {olive}
+// {green}
+// {blue}
+// {red}
+// {lightgreen}
+
+"ChatResponses"
+{
+	"OP"
+	{
+		"text"		"{olive}Server OP is Harry"
+	}
+	
+	"IP"
+	{
+		"text"		"{default}Server IP：{lightgreen}connect 123.4.5.678:27016"
+	}
+
+	"!buy"
+	{
+		"text"		"{green}!buy: Buy something useful"
+	}
+
+	"rule"
+	{
+		"text"		"{blue}don't be a dick \n yes"
+	}
+}
