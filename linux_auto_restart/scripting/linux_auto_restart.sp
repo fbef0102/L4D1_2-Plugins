@@ -13,7 +13,7 @@ public Plugin myinfo =
 	name = "L4D auto restart",
 	author = "Harry Potter",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
-	version = "2.2",
+	version = "2.3",
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -52,7 +52,7 @@ public void OnPluginStart()
 		sb_all_bot_team = FindConVar("sb_all_bot_team");
 	}
 	
-	g_ConVarUnloadExtNum 			= CreateConVar("liunx_auto_restart_unload_ext_num", 			"0", 	"If you have Accelerator extension, you need specify here order number of this extension in the list: sm exts list", CVAR_FLAGS);
+	g_ConVarUnloadExtNum = CreateConVar("liunx_auto_restart_unload_ext_num", 			"0", 	"If you have Accelerator extension, you need specify here order number of this extension in the list: sm exts list", CVAR_FLAGS);
 	
 	GetCvars();
 	g_ConVarUnloadExtNum.AddChangeHook(OnCvarChanged);
@@ -85,7 +85,7 @@ public void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroa
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if(!client || IsFakeClient(client) || (IsClientConnected(client) && !IsClientInGame(client))) return; //連線中尚未進來的玩家離線
-	if(client && !checkrealplayerinSV(client)) //檢查是否還有玩家以外的人還在伺服器或是連線中
+	if(client && !CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
 		if(Isl4d2)
 			sb_all_bot_game.SetInt(1);
@@ -100,9 +100,15 @@ public void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroa
 }
 public Action COLD_DOWN(Handle timer, any client)
 {
-	if(checkrealplayerinSV(0))
+	if(CheckPlayerInGame(0)) //有玩家在伺服器中
 	{
 		COLD_DOWN_Timer = null;
+		return Plugin_Continue;
+	}
+	
+	if(CheckPlayerConnectingSV()) //沒有玩家在伺服器但是有玩家正在連線
+	{
+		COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN); //重新計時
 		return Plugin_Continue;
 	}
 	
@@ -133,10 +139,19 @@ void UnloadAccelerator()
 	}
 }
 
-bool checkrealplayerinSV(int client)
+bool CheckPlayerInGame(int client)
 {
 	for (int i = 1; i < MaxClients+1; i++)
-		if(IsClientConnected(i)&&!IsFakeClient(i)&&i!=client)
+		if(IsClientInGame(i) && !IsFakeClient(i) && i!=client)
+			return true;
+
+	return false;
+}
+
+bool CheckPlayerConnectingSV()
+{
+	for (int i = 1; i < MaxClients+1; i++)
+		if(IsClientConnected(i) && !IsClientInGame(i) && !IsFakeClient(i))
 			return true;
 
 	return false;
