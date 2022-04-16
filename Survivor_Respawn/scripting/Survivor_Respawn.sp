@@ -759,7 +759,7 @@ void RespawnTarget_Crosshair( int client, int target )
 
 void RespawnTarget( int client )
 {
-	int anyclient = GetRandomClient();
+	int anyclient = my_GetRandomClient();
 	if(anyclient == 0)
 	{
 		PrintToChat(client,"%T","Couldn't spawn at this moment.",client);
@@ -1071,7 +1071,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	return Plugin_Continue;
 }
 
-int GetRandomClient()
+int my_GetRandomClient()
 {
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
@@ -1099,7 +1099,7 @@ public Action RespawnAgain( Handle hTimer, int UserID )
 
 void RespawnTargeAgain(int target)
 {
-	int anyclient = GetRandomClient();
+	int anyclient = my_GetRandomClient();
 	if(anyclient == 0)
 	{
 		PrintToChat(target,"%T","Couldn't spawn at this moment.",target);
