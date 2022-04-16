@@ -1059,7 +1059,7 @@ void ResetTimer()
 bool SpawnFakeClient(bool bAdmBot = false)
 {
 	//check if there are any alive survivor in server
-	int iAliveSurvivor = GetRandomClient();
+	int iAliveSurvivor = my_GetRandomClient();
 	if(iAliveSurvivor == 0)
 		return false;
 		
@@ -1190,7 +1190,7 @@ public Action Timer_CountDown(Handle timer)
 }
 
 
-int GetRandomClient()
+int my_GetRandomClient()
 {
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)

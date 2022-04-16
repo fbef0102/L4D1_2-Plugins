@@ -3576,7 +3576,7 @@ public Action Spawn_InfectedBot(Handle timer)
 	}
 
 	// We get any client ....
-	int anyclient = GetRandomClient();
+	int anyclient = my_GetRandomClient();
 	if(anyclient == 0)
 	{
 		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn S.I. at this moment.",ZOMBIESPAWN_Attempts);
@@ -4796,7 +4796,7 @@ public Action SpawnWitchAuto(Handle timer)
 		witches++;
 	}
 
-	int anyclient = GetRandomClient();
+	int anyclient = my_GetRandomClient();
 	int witch;
 	if(anyclient == 0)
 	{
@@ -5016,7 +5016,7 @@ int GetFrustration(int tank_index)
 	return GetEntProp(tank_index, Prop_Send, "m_frustration");
 }
 
-int GetRandomClient()
+int my_GetRandomClient()
 {
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)

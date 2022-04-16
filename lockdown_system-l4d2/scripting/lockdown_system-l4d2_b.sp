@@ -301,7 +301,7 @@ public void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcas
 public Action Timer_SpawnTank(Handle timer)
 {
 	if(RealFreePlayersOnInfected())
-		CheatCommand(GetRandomClient(), sSpawnCommand, "tank auto");
+		CheatCommand(my_GetRandomClient(), sSpawnCommand, "tank auto");
 	else
 		ExecuteSpawn(true, 1);
 	
@@ -885,7 +885,7 @@ void ControlDoor(int entity, int iOperation)
 	}
 }
 
-int GetRandomClient()
+int my_GetRandomClient()
 {
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
@@ -946,7 +946,7 @@ stock void ExecuteSpawn(bool btank, int iCount)
 	}
 	else
 	{
-		int anyclient = GetRandomClient();
+		int anyclient = my_GetRandomClient();
 		if(anyclient > 0)
 		{
 			char sCommand[16];
@@ -972,7 +972,7 @@ public Action Timer_CreateTank(Handle timer)
 void CreateTankBot()
 {
 	float vecPos[3];
-	int anyclient = GetRandomClient();
+	int anyclient = my_GetRandomClient();
 	if(anyclient > 0 && L4D_GetRandomPZSpawnPosition(anyclient,8,5,vecPos) == true)
 	{
 		int newtankbot = SDKCall(hCreateTank, "Lock Down Tank Bot"); //召喚坦克
