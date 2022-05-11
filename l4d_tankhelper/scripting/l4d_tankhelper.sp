@@ -6,6 +6,7 @@
 #include <sdkhooks>
 #include <sdktools>
 #include <left4dhooks>
+#include <actions> // https://forums.alliedmods.net/showthread.php?t=336374
 
 #define PARTICLE_ELECTRICAL	"electrical_arc_01_system"
 
@@ -66,7 +67,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw special infected instead of rock",
-	version = "1.4",
+	version = "1.6",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -562,12 +563,6 @@ int CreateSI(int thetank, const float pos[3], const float velocity[3])
 			}
 			if(selected > MaxClients)
 			{
-				// DataPack hPack = new DataPack();
-				// hPack.WriteCell(selected);
-				// hPack.WriteFloat(velocity[0]);
-				// hPack.WriteFloat(velocity[1]);
-				// hPack.WriteFloat(velocity[2]);
-				// RequestFrame(OnNextFrame, hPack);
 				SetEntProp(selected, Prop_Data, "m_iHealth", throw_witch_health);
 				ForceWitchJump(selected, velocity, true);
 				
@@ -1253,25 +1248,6 @@ void SetLifeState (int client, bool ready)
 		SetEntProp(client, Prop_Send, "m_lifeState", 0, 1);
 }
 
-public void OnNextFrame(DataPack hPack)
-{
-	float velocity[3];
-	hPack.Reset();
-	int witch = EntRefToEntIndex(hPack.ReadCell());
-	velocity[0] = hPack.ReadFloat();
-	velocity[1] = hPack.ReadFloat();
-	velocity[2] = hPack.ReadFloat();
-	delete hPack;
-
-	// Validate entity
-	if( witch == INVALID_ENT_REFERENCE || !IsValidEntity(witch) )
-		return;
-
-	// SetEntProp(witch, Prop_Data, "m_iHealth", throw_witch_health);
-	// if ( SetInfectedVelocity(witch, velocity) )
-	// 	PrintToChatAll("yes");
-}
-
 // by BHaType: https://forums.alliedmods.net/showpost.php?p=2771305&postcount=2
 void ForceWitchJump( int witch, const float vVelocity[3], bool add = false )
 {
@@ -1291,9 +1267,8 @@ void ForceWitchJump( int witch, const float vVelocity[3], bool add = false )
     SetWitchVelocity(locomotion, vVec);
 }
 
-void Jump( int witch, Address locomotion )
+stock void Jump( int witch, Address locomotion )
 {
-	SetEntPropEnt(witch, Prop_Data, "m_hGroundEntity", 0);
 	if(L4D2Version)
 		StoreToAddress(locomotion + view_as<Address>(0xC0), 0, NumberType_Int8);
 	else 
@@ -1321,12 +1296,12 @@ void SetWitchVelocity( Address locomotion, const float vVelocity[3] )
 	if(L4D2Version)
 	{
 		for (int i; i <= 2; i++)
-			StoreToAddress(locomotion + view_as<Address>(0x6C + i * 4), vVelocity[i], NumberType_Int32);
+			StoreToAddress(locomotion + view_as<Address>(0x6C + i * 4), view_as<int>(vVelocity[i]), NumberType_Int32);
 	}
 	else
 	{
 		for (int i; i <= 2; i++)
-			StoreToAddress(locomotion + view_as<Address>(0x60 + i * 4), vVelocity[i], NumberType_Int32);
+			StoreToAddress(locomotion + view_as<Address>(0x60 + i * 4), view_as<int>(vVelocity[i]), NumberType_Int32);
 	}
 }
 
@@ -1349,3 +1324,22 @@ Address GetLocomotionPointer( Address nextbot )
 {
     return SDKCall(g_hGetLocomotion, nextbot);
 } 
+
+public void OnActionCreated( BehaviorAction action, int actor, const char[] name )
+{
+	if ( strcmp(name, "WitchIdle") == 0 )
+	{
+		action.OnUpdate = OnUpdate;
+	}
+}
+
+public Action OnUpdate( BehaviorAction action, BehaviorAction prior, ActionResult result )
+{
+	if ( GetEntityFlags(action.Actor) & FL_ONGROUND )
+	{
+		action.OnUpdate = INVALID_FUNCTION;
+		return Plugin_Continue;
+	}
+
+	return Plugin_Handled;
+}
