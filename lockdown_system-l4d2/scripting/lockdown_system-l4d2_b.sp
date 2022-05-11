@@ -10,7 +10,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "4.7"
+#define PLUGIN_VERSION "4.8"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -34,7 +34,7 @@ bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport,
 	bTankDemolitionBefore, bTankDemolitionAfter, bSurvivorsAssembleAlready,
 	blsHint, bDoorBotDisable;
 bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen;
-char sKeyMan[128], sLastName[2048][128];
+char sKeyMan[128];
 Handle hAntiFarmTime = null, hLockdownTime = null;
 static Handle hCreateTank = null;
 
@@ -174,22 +174,16 @@ public void OnPluginEnd()
 	ResetPlugin();
 }
 
-bool g_bValidMap = true, g_bTwoSafeRoomDoorBug;
+bool g_bValidMap = true;
 public void OnMapStart()
 {
 	g_bValidMap = true;
-	g_bTwoSafeRoomDoorBug = false;
 
-	char sCvar[512];
+	char sCvar[1024];
 	lsMapOff.GetString(sCvar, sizeof(sCvar));
 
 	char sMap[64];
 	GetCurrentMap(sMap, sizeof(sMap));
-	if (strcmp(sMap, "c10m2_drainage", false) == 0)
-	{
-		g_bTwoSafeRoomDoorBug = true;
-	}
-
 	if( sCvar[0] != '\0' )
 	{
 		if( strcmp(sCvar, "0") == 0 )
@@ -752,56 +746,23 @@ void InitDoor()
 	{
 		return;
 	}
-	
-	int iCheckpointEnt = -1;
-	while ((iCheckpointEnt = FindEntityByClassname(iCheckpointEnt, "prop_door_rotating_checkpoint")) != -1)
-	{
-		if (!IsValidEntity(iCheckpointEnt))
-		{
-			continue;
-		}
-		
-		char sEntityName[128];
-		GetEntPropString(iCheckpointEnt, Prop_Data, "m_iName", sEntityName, sizeof(sEntityName));
-		if (strcmp(sEntityName, "checkpoint_entrance", false) == 0)
-		{
-			if (sLastName[iCheckpointEnt][0] != '\0')
-			{
-				DispatchKeyValue(iCheckpointEnt, "targetname", sLastName[iCheckpointEnt]);
-				sLastName[iCheckpointEnt][0] = '\0';
-			}
-			
-			fDoorSpeed = GetEntPropFloat(iCheckpointEnt, Prop_Data, "m_flSpeed");
-			
-			ControlDoor(iCheckpointEnt, LOCK);
-			
-			HookSingleEntityOutput(iCheckpointEnt, "OnFullyOpen", OnDoorAntiSpam);
-			HookSingleEntityOutput(iCheckpointEnt, "OnFullyClosed", OnDoorAntiSpam);
-			
-			HookSingleEntityOutput(iCheckpointEnt, "OnBlockedOpening", OnDoorBlocked);
-			HookSingleEntityOutput(iCheckpointEnt, "OnBlockedClosing", OnDoorBlocked);
-			
-			iCheckpointDoor = iCheckpointEnt;
 
-			break;
-		}
-		else if (g_bTwoSafeRoomDoorBug == false)
-		{
-			char sEntityModel[128];
-			GetEntPropString(iCheckpointEnt, Prop_Data, "m_ModelName", sEntityModel, sizeof(sEntityModel));
-			if ( strcmp(sEntityModel, MODEL_SAFEROOM_DOOR_1, false) == 0 || strcmp(sEntityModel, MODEL_SAFEROOM_DOOR_2, false) == 0 || strcmp(sEntityModel, MODEL_SAFEROOM_DOOR_3, false) == 0)
-			{
-				if (sEntityName[0] != '\0')
-				{
-					strcopy(sLastName[iCheckpointEnt], 128, sEntityName);
-				}
-				DispatchKeyValue(iCheckpointEnt, "targetname", "checkpoint_entrance");
-				
-				InitDoor();
-				break;
-			}
-		}
+	iCheckpointDoor = L4D_GetCheckpointLast();
+	if( iCheckpointDoor == -1 )
+	{
+		iCheckpointDoor = 0;
+		return;
 	}
+
+	fDoorSpeed = GetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed");
+	
+	ControlDoor(iCheckpointDoor, LOCK);
+	
+	HookSingleEntityOutput(iCheckpointDoor, "OnFullyOpen", OnDoorAntiSpam);
+	HookSingleEntityOutput(iCheckpointDoor, "OnFullyClosed", OnDoorAntiSpam);
+	
+	HookSingleEntityOutput(iCheckpointDoor, "OnBlockedOpening", OnDoorBlocked);
+	HookSingleEntityOutput(iCheckpointDoor, "OnBlockedClosing", OnDoorBlocked);
 }
 
 public void OnDoorAntiSpam(const char[] output, int caller, int activator, float delay)
