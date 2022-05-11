@@ -1,7 +1,7 @@
 Locks Saferoom Door Until Someone Opens It.
 
 -Changelog-
-v4.7
+v4.8
 - Remake Code
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
  (Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
@@ -12,7 +12,6 @@ v4.7
 - Remove Convar "Lockdown_system-l4d(2)_menu".
 - fixed plugin not working in versus.
 - Percentage of the ALIVE survivors must assemble near the saferoom door before open. (prevent rushing players)
-- fixed plugin not working in "c10m2_drainage"
 - display who open/close the door
 - spawn a tank before door open
 - spawn multi tanks after door open
@@ -30,7 +29,7 @@ v1.7
 
 -Require-
 1. sourcemod 1.10 or above
-2. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+2. "Left4DHooks" plugin version 1.101 or newer: https://forums.alliedmods.net/showthread.php?p=2684862
 3. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
 -Convars-
