@@ -2,10 +2,10 @@ Tanks throw special infected instead of rock
 
 -AlliedModder-
 //Pan Xiaohai & Dragokas & HarryPotter @ 2010-2022
-v1.4
+v1.6
 -Remake Code
 -Removed rock thrown sound (it's looping)
--Throw Witch (Only L4D2 standing Witch works)
+-Throw Witch flying
 -Separate chance for Real Tank player and AI Tank
 -ConVar to set infected limit
 -Create special infected without being limit by director
@@ -15,6 +15,7 @@ v1.0
 
 -Require-
 1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+2. Actions: https://forums.alliedmods.net/showthread.php?t=336374
 
 -Convar-
 cfg/sourcemod/l4d_tankhelper.cfg
