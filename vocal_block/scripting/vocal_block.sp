@@ -110,31 +110,10 @@ public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBr
 
 public Action Command_CallVocal(int client, int args)
 {
+	if(client == 0 || !IsClientInGame(client)) return Plugin_Continue;
+
 	int iMaxVotes = cVocalLimit.IntValue;
 	int flTimeDelay = cVocalDelay.IntValue;
-	
-	char sVoteType[32], sTarget[12];
-	GetCmdArg(1, sVoteType, sizeof(sVoteType));
-	GetCmdArg(2, sTarget, sizeof(sTarget));
-	
-	int target = GetClientOfUserId(StringToInt(sTarget));
-	
-	/* If the Callvote is a Kick, Check Immunity */
-	if(strcmp(sVoteType, "kick")==0)
-	{
-		if(IsAdmin(target))
-		{
-			char sKickerName[32];
-			GetClientName(client, sKickerName, sizeof(sKickerName));
-			
-			/* Tell client they cant kick the admin */
-			PrintToChat(client, "\x04[SM] \x01You Cannot Call a Votekick Against this Player!");
-			/* Tell admin whose trying to kick them */
-			PrintToChat(target, "\x04[SM] \x01%s has made an attempt to kick you from the server!", sKickerName);
-
-			return Plugin_Handled;
-		}
-	}
 	
 	/* If this player hasnt called any votes */
 	if(g_VocalCalled[client] == 0)
