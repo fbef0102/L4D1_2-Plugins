@@ -67,7 +67,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw special infected instead of rock",
-	version = "1.6",
+	version = "1.7",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -1333,7 +1333,7 @@ public void OnActionCreated( BehaviorAction action, int actor, const char[] name
 	}
 }
 
-public Action OnUpdate( BehaviorAction action, BehaviorAction prior, ActionResult result )
+public Action OnUpdate( BehaviorAction action, int actor, float interval, ActionResult result ) 
 {
 	if ( GetEntityFlags(action.Actor) & FL_ONGROUND )
 	{
