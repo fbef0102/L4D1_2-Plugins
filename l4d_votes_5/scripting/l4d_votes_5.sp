@@ -3,7 +3,6 @@
 #include <sourcemod>
 #include <sdktools>
 #include <multicolors>
-//#include <l4d2_changelevel>
 
 #define SCORE_DELAY_EMPTY_SERVER 3.0
 #define ZOMBIECLASS_SMOKER 1
@@ -86,25 +85,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
-	CreateNative("IsClientVoteMenu", Native_IsClientVoteMenu);
-	CreateNative("ClientVoteMenuSet", Native_ClientVoteMenuSet);
-
 	return APLRes_Success; 
-}
-
-public int Native_IsClientVoteMenu(Handle plugin, int numParams)
-{
-   int num1 = GetNativeCell(1);
-   return ClientVoteMenu[num1];
-}
-public int Native_ClientVoteMenuSet(Handle plugin, int numParams)
-{
-   int num1 = GetNativeCell(1);
-   int num2 = GetNativeCell(2);
-   if(num2 == 1)
-	ClientVoteMenu[num1] = true;
-   else
-	ClientVoteMenu[num1] = false;
 }
 
 public Plugin myinfo =
@@ -112,8 +93,8 @@ public Plugin myinfo =
 	name = "L4D2 Vote Menu",
 	author = "fenghf, Harry Potter",
 	description = "Votes Commands",
-	version = "5.7",
-	url = "https://steamcommunity.com/id/fbef0102/"
+	version = "5.8",
+	url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
 public void OnPluginStart()
@@ -169,7 +150,7 @@ public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char
 	GetCvars();
 }
 
-GetCvars()
+void GetCvars()
 {
 	g_fLimit = g_Cvar_Limits.FloatValue;
 	g_iCvarPlayerLimit = g_hCvarPlayerLimit.IntValue;
@@ -228,10 +209,9 @@ void RestartMapNow()
 	char currentMap[256];
 	GetCurrentMap(currentMap, 256);
 	ServerCommand("changelevel %s", currentMap);
-	//L4D2_ChangeLevel(currentMap);
 }
 
-public Action event_Round_Start(Event event, const char[] name, bool dontBroadcast) 
+public void event_Round_Start(Event event, const char[] name, bool dontBroadcast) 
 {
 	for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = false; 
 	
@@ -361,7 +341,7 @@ public Action Command_Votes(int client, int args)
 	
 	return Plugin_Stop;
 }
-public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
+public int Votes_Menu(Menu menu, MenuAction action, int client, int itemNum)
 {
 	if ( action == MenuAction_Select ) 
 	{ 
@@ -373,7 +353,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用回血");
-					return;
 				}
 				else if (VotensHpE_D == true)
 				{
@@ -386,7 +365,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用全語音");
-					return;
 				}
 				else if (VotensAlltalkE_D == true)
 				{
@@ -399,7 +377,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用關閉全語音");
-					return;
 				}
 				else if (VotensAlltalk2E_D == true)
 				{
@@ -412,7 +389,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用重新目前地圖");
-					return;
 				}
 				else if (VotensRestartmapE_D == true)
 				{
@@ -425,7 +401,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用換圖");
-					return ;
 				}
 				else if (VotensMapE_D == true)
 				{
@@ -438,7 +413,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用換第三方圖");
-					return ;
 				}
 				else if (VotensMap2E_D == true)
 				{
@@ -451,7 +425,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用踢人");
-					return ;
 				}
 				else if (g_bVotensKickED == true)
 				{
@@ -464,7 +437,6 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 				{
 					FakeClientCommand(client,"sm_votes");
 					CPrintToChat(client, "{default}[{olive}TS{default}] 禁用強制旁觀玩家");
-					return ;
 				}
 				else if (g_bVotensForceSpectateED == true)
 				{
@@ -481,6 +453,8 @@ public int Votes_Menu(Handle menu, MenuAction action, int client, int itemNum)
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
 public Action Command_VoteHp(int client, int args)
@@ -499,7 +473,7 @@ public Action Command_VoteHp(int client, int args)
 			
 			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
 			
-			g_voteType = voteType:hp;
+			g_voteType = view_as<voteType>(hp);
 			char SteamId[35];
 			GetClientAuthId(client, AuthId_Steam2,SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: give hp!",  client, SteamId);//記錄在log文件
@@ -541,7 +515,7 @@ public Action Command_VoteAlltalk(int client, int args)
 			
 			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
 			
-			g_voteType = voteType:alltalk;
+			g_voteType = view_as<voteType>(alltalk);
 			char SteamId[35];
 			GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: turn on Alltalk!",  client, SteamId);//紀錄在log文件
@@ -584,7 +558,7 @@ public Action Command_VoteAlltalk2(int client, int args)
 			
 			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
 			
-			g_voteType = voteType:alltalk2;
+			g_voteType = view_as<voteType>(alltalk2);
 			char SteamId[35];
 			GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: turn off Alltalk!",  client, SteamId);//紀錄在log文件
@@ -627,7 +601,7 @@ public Action Command_VoteRestartmap(int client, int args)
 			
 			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
 			
-			g_voteType = voteType:restartmap;
+			g_voteType = view_as<voteType>(restartmap);
 			char SteamId[35];
 			GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: restartmap!",  client, SteamId);//紀錄在log文件
@@ -689,7 +663,7 @@ void CreateVoteKickMenu(int client)
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME);	
 }
-public int Menu_VotesKick(Handle menu, MenuAction action, int param1, int param2)
+public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -726,7 +700,9 @@ public int Menu_VotesKick(Handle menu, MenuAction action, int param1, int param2
 			ClientVoteMenu[param1] = false;
 	}
 	else if ( action == MenuAction_End)
-			delete menu;
+		delete menu;
+
+	return 0;
 }
 
 public void DisplayVoteKickMenu(int client)
@@ -746,7 +722,7 @@ public void DisplayVoteKickMenu(int client)
 		for(int i=1; i <= MaxClients; i++) 
 			ClientVoteMenu[i] = true;
 		
-		g_voteType = voteType:kick;
+		g_voteType = view_as<voteType>(kick);
 		
 		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL); 
 		SetMenuTitle(g_hVoteMenu, "kick player %s ?",swapplayername);
@@ -842,7 +818,7 @@ public Action Command_Votemaps2Menu(int client, int args)
 	return Plugin_Handled;
 }
 
-public int MapMenuHandler(Handle menu, MenuAction action, int client, int itemNum)
+public int MapMenuHandler(Menu menu, MenuAction action, int client, int itemNum)
 {
 	if ( action == MenuAction_Select ) 
 	{
@@ -864,8 +840,10 @@ public int MapMenuHandler(Handle menu, MenuAction action, int client, int itemNu
 	{
 		delete menu;
 	}
+
+	return 0;
 }
-public DisplayVoteMapsMenu(client)
+public void DisplayVoteMapsMenu(int client)
 {
 	if (!TestVoteDelay(client))
 	{
@@ -881,7 +859,7 @@ public DisplayVoteMapsMenu(client)
 		
 		for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
 		
-		g_voteType = voteType:map;
+		g_voteType = view_as<voteType>(map);
 		
 		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL);
 		//SetMenuTitle(g_hVoteMenu, "Vote to change map %s %s",votesmapsname, votesmaps);
@@ -935,7 +913,7 @@ void CreateVoteforcespectateMenu(int client)
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME);	
 }
-public int Menu_Votesforcespectate(Handle menu, MenuAction action, int param1, int param2)
+public int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -959,9 +937,11 @@ public int Menu_Votesforcespectate(Handle menu, MenuAction action, int param1, i
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public DisplayVoteforcespectateMenu(client)
+public void DisplayVoteforcespectateMenu(int client)
 {
 	if (!TestVoteDelay(client))
 	{
@@ -981,7 +961,7 @@ public DisplayVoteforcespectateMenu(client)
 			if (IsClientConnected(i) && IsClientInGame(i) && GetClientTeam(i) == iTeam)
 				ClientVoteMenu[i] = true;
 		
-		g_voteType = voteType:forcespectate;
+		g_voteType = view_as<voteType>(forcespectate);
 		
 		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL); 
 		SetMenuTitle(g_hVoteMenu, "forcespectate player %s?",swapplayername);
@@ -1017,7 +997,7 @@ stock bool DisplayVoteMenuToTeam(Handle hMenu,int iTime, int iTeam)
     
     return VoteMenu(hMenu, iPlayers, iTotal, iTime, 0);
 }    
-public int Handler_VoteCallback(Handle menu, MenuAction action, int param1, int param2)
+public int Handler_VoteCallback(Menu menu, MenuAction action, int param1, int param2)
 {
 	//==========================
 	if(action == MenuAction_Select)
@@ -1094,11 +1074,13 @@ public int Handler_VoteCallback(Handle menu, MenuAction action, int param1, int 
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
 public Action Timer_forcespectate(Handle timer, any client)
 {
-	static bClientJoinedTeam = false;		//did the client try to join the infected?
+	static bool bClientJoinedTeam = false;		//did the client try to join the infected?
 	
 	if (!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Stop; //if client disconnected or is fake client
 	
@@ -1157,11 +1139,14 @@ public Action VoteEndDelay(Handle timer)
 	Votey = 0;
 	Voten = 0;
 	for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = false;
+
+	return Plugin_Continue;
 }
 public Action Changelevel_Map(Handle timer)
 {
 	ServerCommand("changelevel %s", votesmaps);
-	//L4D2_ChangeLevel(votesmaps);
+
+	return Plugin_Continue;
 }
 //===============================
 void VoteMenuClose()
@@ -1257,31 +1242,31 @@ public Action COLD_DOWN(Handle timer,any client)
 {
 	switch (g_voteType)
 	{
-		case (voteType:hp):
+		case (view_as<voteType>(hp)):
 		{
 			AnyHp();
 			//DisplayBuiltinVotePass(vote, "vote to give hp pass");
 			LogMessage("vote to give hp pass");	
 		}
-		case (voteType:alltalk):
+		case (view_as<voteType>(alltalk)):
 		{
 			ServerCommand("sv_alltalk 1");
 			//DisplayBuiltinVotePass(vote, "vote to turn on alltalk pass");
 			LogMessage("vote to turn on alltalk pass");
 		}
-		case (voteType:alltalk2):
+		case (view_as<voteType>(alltalk2)):
 		{
 			ServerCommand("sv_alltalk 0");
 			//DisplayBuiltinVotePass(vote, "vote to turn off alltalk pass");
 			LogMessage("vote to turn off alltalk pass");
 		}
-		case (voteType:restartmap):
+		case (view_as<voteType>(restartmap)):
 		{
 			ServerCommand("sm_restartmap");
 			//DisplayBuiltinVotePass(vote, "vote to restartmap pass");
 			LogMessage("vote to restartmap pass");
 		}
-		case (voteType:map):
+		case (view_as<voteType>(map)):
 		{
 			CreateTimer(5.0, Changelevel_Map);
 			CPrintToChatAll("[{olive}TS{default}] {green}5{default} sec to change map {blue}%s",votesmapsname);
@@ -1289,14 +1274,14 @@ public Action COLD_DOWN(Handle timer,any client)
 			//DisplayBuiltinVotePass(vote, "Vote to change map pass");
 			LogMessage("Vote to change map %s %s pass",votesmaps,votesmapsname);
 		}
-		case (voteType:kick):
+		case (view_as<voteType>(kick)):
 		{
 			CPrintToChatAll("[{olive}TS{default}] {blue}%s{default} has been kicked!", swapplayername);
 			ServerCommand("sm_kick \"%s\" ", swapplayername);
 			//DisplayBuiltinVotePass(vote, "Vote to kick player pass");						
 			LogMessage(" Vote to kick %s pass",swapplayername);
 		}
-		case (voteType:forcespectate):
+		case (view_as<voteType>(forcespectate)):
 		{
 			forcespectateid = GetClientOfUserId(forcespectateid);
 			if(forcespectateid && IsClientInGame(forcespectateid))
@@ -1312,6 +1297,8 @@ public Action COLD_DOWN(Handle timer,any client)
 			}
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Timer_VoteDelay(Handle timer, any client)

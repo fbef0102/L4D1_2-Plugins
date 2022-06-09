@@ -4,7 +4,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.1"
+#define PLUGIN_VERSION "1.2"
 #define DEBUG 0
 
 #define TEAM_INFECTED 		3
@@ -275,6 +275,9 @@ void IsAllowed()
 
 bool IsAllowedGameMode()
 {
+	if( g_bMapStarted == false )
+		return false;
+
 	int entity = CreateEntityByName("info_gamemode");
 	if( IsValidEntity(entity) )
 	{
