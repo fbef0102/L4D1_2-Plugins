@@ -185,4 +185,10 @@
 		"zho"			"你不攻擊倖存者失去控制權，Tank已處死 !"
 		"chi"			"你不攻击幸存者失去控制权，坦克已处死 !"
 	}
+	"Access"
+	{
+		"en"			"You don't have access to join infected team !"
+		"zho"			"你沒有權限加入特感陣營!"
+		"chi"			"你没有权限加入特感阵营!"
+	}
 }
