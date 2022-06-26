@@ -4,7 +4,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.6.8
+v2.6.9
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 	(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
 -L4D1 Signature update. (Credit to Psykotikism: https://github.com/Psykotikism/L4D1-2_Signatures)
@@ -12,7 +12,7 @@ v2.6.8
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236), Shadowysn(https://forums.alliedmods.net/showthread.php?t=320849) and Machine(https://forums.alliedmods.net/member.php?u=74752)
 -Spawn infected without being limited by the director.
--Join infected team in coop/survival mode.
+-Join infected team in coop/survival/realism mode.
 -Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only, didn't work if you host a listen server)
 -Add convars to turn off this plugin.
 -Fixed Hunter Tank Bug in l4d1 coop mode when tank is playable.
@@ -58,9 +58,6 @@ l4d_infectedbots_adjust_spawn_times "1"
 // If 1, adjust and overrides tank health by this plugin.
 l4d_infectedbots_adjust_tankhealth_enable "1"
 
-// If 1, only admins can join the infected team in coop/survival. (Access: generic_admin)
-l4d_infectedbots_admin_coop_versus "1"
-
 // 0=Plugin off, 1=Plugin on.
 l4d_infectedbots_allow "1"
 
@@ -73,19 +70,25 @@ l4d_infectedbots_boomer_limit "2"
 // Sets the limit for chargers spawned by the plugin
 l4d_infectedbots_charger_limit "2"
 
-// If 1, players can join the infected team in coop/survival (!ji in chat to join infected, !js to join survivors)
+// If 1, players can join the infected team in coop/survival/realism (!ji in chat to join infected, !js to join survivors)
 l4d_infectedbots_coop_versus "1"
 
 // If 1, clients will be announced to on how to join the infected team
 l4d_infectedbots_coop_versus_announce "1"
 
-// If 1, attaches red flash light to human infected player in coop/survival. (Make it clear which infected bot is controlled by player)
+// If 1, human infected player will spawn as ghost state in coop/survival/realism.
+l4d_infectedbots_coop_versus_human_ghost_enable "1"
+
+// If 1, attaches red flash light to human infected player in coop/survival/realism. (Make it clear which infected bot is controlled by player)
 l4d_infectedbots_coop_versus_human_light "1"
 
-// Sets the limit for the amount of humans that can join the infected team in coop/survival
+// Sets the limit for the amount of humans that can join the infected team in coop/survival/realism
 l4d_infectedbots_coop_versus_human_limit "2"
 
-// If 1, tank will always be controlled by human player in coop/survival.
+//  Players with these flags have access to join infected team in coop/survival/realism. (Empty = Everyone, -1: Nobody)
+l4d_infectedbots_coop_versus_join_access "z"
+
+// If 1, tank will always be controlled by human player in coop/survival/realism.
 l4d_infectedbots_coop_versus_tank_playable "0"
 
 // If 1, bots will only spawn when all other bot spawn timers are at zero
@@ -143,7 +146,7 @@ l4d_infectedbots_spawn_range_final "0"
 l4d_infectedbots_spawn_range_max "2000"
 
 // The minimum of spawn range for infected. (default: 550, coop/realism only)
-l4d_infectedbots_spawn_range_min "0"
+l4d_infectedbots_spawn_range_min "400"
 
 // Sets the max spawn time for special infected spawned by the plugin in seconds.
 l4d_infectedbots_spawn_time_max "60"
@@ -170,7 +173,7 @@ l4d_infectedbots_versus_coop "0"
 l4d_infectedbots_witch_lifespan "200"
 
 // Sets the limit for witches spawned by the plugin (does not affect director witches)
-l4d_infectedbots_witch_max_limit "10"
+l4d_infectedbots_witch_max_limit "6"
 
 // If 1, still spawn witch in final stage rescue
 l4d_infectedbots_witch_spawn_final "0"
@@ -281,23 +284,23 @@ For example.
 This means that each time 5% chance to spawn tank instead of infected bot. 
 Note that if tank limit is reached or is 0, still don't spawn tank(does not affect director tanks)
 
-7. Play infected team in coop/survival
+7. Play infected team in coop/survival/realism
 For example.
 -l4d_infectedbots_coop_versus "1"
--l4d_infectedbots_admin_coop_versus "1"
+-l4d_infectedbots_coop_versus_join_access "z"
 -l4d_infectedbots_coop_versus_human_limit "2"
-Only adm can join the infected team, and there are only 2 infected team slots for real player
+Only players with "z" access can join the infected team, and there are only 2 infected team slots for real player
 
 If you want everyone can join infected, then set
--l4d_infectedbots_admin_coop_versus "0"
+-l4d_infectedbots_coop_versus_join_access ""
 
 make tank always be playable by real infected player
 -l4d_infectedbots_coop_versus_tank_playable "1" 
 
 8. Spawn range (Coop/Realism only)
-Must be careful to adjust, these convars will also affect common zombie spawn range.
+Must be careful to adjust, these convars will also affect common zombie spawn range and human ghost infected spawn range.
 -l4d_infectedbots_spawn_range_max "2000"
--l4d_infectedbots_spawn_range_min "0"
+-l4d_infectedbots_spawn_range_min "400"
 -l4d_infectedbots_spawn_range_final "0" 
 
 Make infected player spawn near very close by survivors for better gaming experience
@@ -316,7 +319,7 @@ a. How to disable this message?
 ***[TS] Numbers of Alive Survivor: 4, Infected Limit: 2, Tank Health: 4000, Common Limit: 40***
 - l4d_infectedbots_announcement_enable "0" 
 
-b. How to turn off flashlights on human infected player in coop/survival ?
+b. How to turn off flashlights on human infected player in coop/survival/realism ?
 - l4d_infectedbots_coop_versus_human_light "0" 
 
 -Command-
@@ -351,24 +354,25 @@ b. How to turn off flashlights on human infected player in coop/survival ?
 "l4d_infectedbots_add_tankhealth", "4000", "[tank]每增加幾位倖存者才會開始增加tank生命值."
 "l4d_infectedbots_spawn_time_max", "60", "設置特感復活的最大時間."
 "l4d_infectedbots_spawn_time_min", "30", "設置特感復活的最小時間."
-"l4d_infectedbots_coop_versus_tank_playable", "1", "戰役/生存模式中，玩家是否可以控制tank. 1-可以 0-不可以"
-"l4d_infectedbots_coop_versus", "1", "開啟戰役/生存中使用!ji加入感染者!js加入倖存者陣營功能. 1-開啟 0-關閉"
+"l4d_infectedbots_coop_versus_tank_playable", "1", "戰役/生存/寫實模式中，玩家是否可以控制tank. 1-可以 0-不可以"
+"l4d_infectedbots_coop_versus", "1", "開啟戰役/生存/寫實中使用!ji加入感染者!js加入倖存者陣營功能. 1-開啟 0-關閉"
 "l4d_infectedbots_stats_board", "0", "特感玩家死後開啟統計介面. 1-開啟 0-不開啟 (L4D1 ONLY)"
 "l4d_infectedbots_coop_versus_announce", "1", "通知玩家如何加入[感染者/倖存者]的方法. 1-通知 0-不通知"
+"l4d_infectedbots_coop_versus_human_ghost_enable", "1", "戰役/生存/寫實中，特感人類玩家復活成靈魂狀態"
 "l4d_infectedbots_coordination", "0", "特感是否等待全體復活才開始一起進攻. 1-等待 0-不等待"
 "l4d_infectedbots_infhud_enable", "1", "特感陣營的顯示界面hud. 1-使用 0-不使用"
 "l4d_infectedbots_infhud_announce", "1", "是否提示特感玩家如何開啟感染者界面hud. 1-提示 0-不提示"
 "l4d_infectedbots_lifespan", "30", "特感生成後多少秒踢出.(AI防卡)"
 "l4d_infectedbots_initial_spawn_timer", "1.0", "離開安全區後，特感第一波進攻的開始時間."
 "l4d_infectedbots_coop_versus_human_limit", "4", "設置使用!ji加入感染者陣營的人數上限."
-"l4d_infectedbots_admin_coop_versus", "1", "能使用!ji加入感染者陣營的權限. 1-管理員 0-全部人"
+"l4d_infectedbots_coop_versus_join_access", "z", "戰役/生存/寫實中有這些權限的玩家能加入特感陣營. (空白=任何人有權限, -1=沒人有權限)"
 "l4d_infectedbots_spawns_disabled_tank", "0", "tank存在時，禁止特感繼續復活. 1-禁止 0-不禁止."
 "l4d_infectedbots_versus_coop", "0", "無論是對抗/清道夫，都會強制玩家加入特感陣營. 1-強制加入 0-不強制加入"
 "l4d_infectedbots_adjust_spawn_times", "1", "啟用根據倖存者人數改變特感復活秒數. 1-啟用 0-關閉"
 "l4d_infectedbots_adjust_reduced_spawn_times_on_player", "1", "每有一位倖存者就減少多少特感復活秒數.[原本四位倖存者也計算在內]"
 "l4d_infectedbots_safe_spawn", "0", "倖存者是否離開安全區特感才開始襲擊. 1-不用離開安全區 0-離開安全區"
-"l4d_infectedbots_spawn_range_min", "0", "特感生成的最小範圍.[默認:550] (只作用於戰役/寫實)"
-"l4d_infectedbots_spawn_range_max", "1500", "特感生成的最大範圍.[默認:1500] (只作用於戰役/寫實)"
+"l4d_infectedbots_spawn_range_min", "400", "特感生成的最小範圍.[默認:550] (只作用於戰役/寫實)"
+"l4d_infectedbots_spawn_range_max", "2000", "特感生成的最大範圍.[默認:1500] (只作用於戰役/寫實)"
 "l4d_infectedbots_spawn_range_final", "0", "救援開始後特感生成的範圍.[默認:300] (只作用於戰役/寫實)"
 "l4d_infectedbots_witch_spawn_time_max", "150.0", "設置插件生成witch最大的時間."
 "l4d_infectedbots_witch_spawn_time_min", "100.0", "設置插件生成witch最小的時間."
