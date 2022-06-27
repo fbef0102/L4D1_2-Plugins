@@ -1,7 +1,7 @@
 When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 
 -ChangeLog-
-v2.2.0
+v2.2.1
 -Remke code
 -Fixed error
 -Fixed Memory leak
