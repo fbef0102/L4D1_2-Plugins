@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "2.2.0"
+#define PLUGIN_VERSION "2.2.1"
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -12,25 +12,25 @@
 //Used to track who has the weapon firing.
 //Index goes up to 18, but each index has a value indicating a client index with
 //DT so the plugin doesn't have to cycle a full 18 times per game frame
-int g_iDTRegisterIndex[64] = -1;
+int g_iDTRegisterIndex[64] = {-1};
 //and this tracks how many have DT
 int g_iDTRegisterCount = 0;
 //this tracks the current active 'weapon id' in case the player changes guns
-int g_iDTEntid[64] = -1;
+int g_iDTEntid[64] = {-1};
 //this tracks the engine time of the next attack for the weapon, after modification
 //(modified interval + engine time)
-float g_flDTNextTime[64] = -1.0;
+float g_flDTNextTime[64] = {-1.0};
 
 //similar to Double Tap
-int g_iMARegisterIndex[64] = -1;
+int g_iMARegisterIndex[64] = {-1};
 //and this tracks how many have MA
 int g_iMARegisterCount = 0;
 //these are similar to those used by Double Tap
-float g_flMANextTime[64] = -1.0;
-int g_iMAEntid[64] = -1;
-int g_iMAEntid_notmelee[64] = -1;
+float g_flMANextTime[64] = {-1.0};
+int g_iMAEntid[64] = {-1};
+int g_iMAEntid_notmelee[64] = {-1};
 //this tracks the attack count, similar to twinSF
-int g_iMAAttCount[64] = -1;
+int g_iMAAttCount[64] = {-1};
 
 //Rates of the attacks
 ConVar g_hDT_rate;
@@ -78,7 +78,7 @@ int g_iNextSAttO		= -1;
 int g_ActiveWeaponOffset;
 
 //tracks if the client has used an adrenaline (or pills) for that duration
-int g_usedhealth[MAXPLAYERS + 1] = 0;
+int g_usedhealth[MAXPLAYERS + 1] = {0};
 
 //Timer definitions
 Handle WelcomeTimers[MAXPLAYERS + 1];
@@ -333,6 +333,8 @@ public Action Timer_GiveAdrenaline(Handle timer)
 			GiveAdrenalineToAll();
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Command_GiveAdrenaline(int client, int args)
@@ -365,6 +367,8 @@ public Action Timer_GivePills(Handle timer)
 			GivePillsToAll();
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Command_GivePills(int client, int args)
@@ -397,6 +401,8 @@ public Action Timer_GiveRandom(Handle timer)
 			GiveRandomToAll();
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Command_GiveRandom(int client, int args)
@@ -508,6 +514,8 @@ public void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 public Action OnAdrenalineGiven(int client, float duration) {
 	if (g_powerups_timeleft[client] > 0.0)
 		g_powerups_timeleft[client] += duration;
+
+	return Plugin_Continue;
 }
 
 public Action Timer_Countdown(Handle timer, any client)
@@ -1146,14 +1154,14 @@ void DT_Clear ()
 
 //Since this is called EVERY game frame, we need to be careful not to run too many functions
 //kinda hard, though, considering how many things we have to check for =.=
-int MA_OnGameFrame()
+void MA_OnGameFrame()
 {
 	// if plugin is disabled, don't bother
 	if (g_powerups_plugin_on == false)
-		return 0;
+		return;
 	// or if no one has MA, don't bother either
 	if (g_iMARegisterCount == 0)
-		return 0;
+		return;
 
 	int iCid;
 	//this tracks the player's ability id
@@ -1286,10 +1294,9 @@ int MA_OnGameFrame()
 			continue;
 		}
 	}
-	return 0;
 }
 // ////////////////////////////////////////////////////////////////////////////
-int DT_OnGameFrame()
+void DT_OnGameFrame()
 {
 	// if plugin is disabled, don't bother
 	if (g_powerups_plugin_on == false)
