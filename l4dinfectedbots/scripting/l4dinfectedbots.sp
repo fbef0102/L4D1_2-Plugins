@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.6.9 (2009-2022)
+* Version	: 2.7.0 (2009-2022)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.7.0
+*	   - Fixed infinite suicide after human tank player dead becuase lose control in coop/survival/realism.
+*	   - Fixed wrong infected limit if there are human infected player in coop/survival/realism.
+*
 * Version 2.6.9
 *	   - Add convar "l4d_infectedbots_coop_versus_human_ghost_enable", human infected player will spawn as ghost state in coop/survival/realism.
 *	   - Remove convar "l4d_infectedbots_admin_coop_versus"
@@ -664,7 +668,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.6.9"
+#define PLUGIN_VERSION "2.7.0"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -3013,13 +3017,9 @@ void CountInfected_Coop()
 		{
 			// If player is a bot ...
 			if (IsFakeClient(i))
-			{
 				InfectedBotCount++;
-			}
-			else if (IsPlayerAlive(i) || IsPlayerGhost(i))
-			{
+			else
 				InfectedRealCount++;
-			}
 		}
 	}
 }
@@ -4249,7 +4249,7 @@ public void ShowInfectedHUD(int src)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && !IsFakeClient(i))
+		if (IsClientInGame(i) && !IsFakeClient(i) && IsPlayerAlive(i))
 		{
 			if ( (GetClientTeam(i) == TEAM_INFECTED))
 			{
@@ -4263,6 +4263,7 @@ public void ShowInfectedHUD(int src)
 					if(fus <= 5)
 					{
 						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
+						SetTankFrustration(i, 100);
 						ForcePlayerSuicide(i);
 						continue;
 					}
@@ -5020,6 +5021,11 @@ bool IsplayerIncap(int client)
 int GetFrustration(int tank_index)
 {
 	return GetEntProp(tank_index, Prop_Send, "m_frustration");
+}
+
+void SetTankFrustration(int client, int iFrustration)
+{
+	SetEntProp(client, Prop_Send, "m_frustration", 100 - iFrustration);
 }
 
 int my_GetRandomClient()
