@@ -107,8 +107,8 @@ Handle hSetHumanSpec, hTakeOver, hAFKSDKCall;
 //timer
 Handle PlayerLeftStartTimer = null, CountDownTimer = null;
 
-bool InCoolDownTime[MAXPLAYERS+1] = false;//是否還有換隊冷卻時間
-bool bClientJoinedTeam[MAXPLAYERS+1] = false; //在冷卻時間是否嘗試加入
+bool InCoolDownTime[MAXPLAYERS+1] = {false};//是否還有換隊冷卻時間
+bool bClientJoinedTeam[MAXPLAYERS+1] = {false}; //在冷卻時間是否嘗試加入
 float g_iSpectatePenaltTime[MAXPLAYERS+1] ;//各自的冷卻時間
 float fBreakPropTime[MAXPLAYERS+1] ;//點燃火瓶、汽油或油桶的時間
 float fThrowableTime[MAXPLAYERS+1] ;//投擲物品的時間
@@ -466,7 +466,7 @@ public Action ForceSurvivorSuicide(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
+public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if(!victim || !IsClientAndInGame(victim)) return;
@@ -488,7 +488,7 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 	}
 }
 
-public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int userid = event.GetInt("userid");
 	int player = GetClientOfUserId(userid);
@@ -543,6 +543,8 @@ public Action checksurvivorspawn(Handle timer, int client)
 			nClientSwitchTeam.Set(index + ARRAY_TEAM, 2);
 		}			
 	}
+
+	return Plugin_Continue;
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -575,7 +577,7 @@ public Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &da
 	return Plugin_Continue;
 }
 
-public Action OnWitchWokeup(Event event, const char[] name, bool dontBroadcast) 
+public void OnWitchWokeup(Event event, const char[] name, bool dontBroadcast) 
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
@@ -601,7 +603,7 @@ public void OnEntityDestroyed(int entity)
 	}
 }
 
-public Action Event_PlayerChangeTeam(Event event, const char[] name, bool dontBroadcast) 
+public void Event_PlayerChangeTeam(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	CreateTimer(0.1, ClientReallyChangeTeam, client, _); // check delay
@@ -643,12 +645,12 @@ void GetCvars()
 	
 }
 
-public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
 }
 
-public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
+public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	for (int i = 0; i < (nClientSwitchTeam.Length / ARRAY_COUNT); i++) {
 		nClientSwitchTeam.Set( (i * ARRAY_COUNT) + ARRAY_TEAM, 0);
@@ -799,6 +801,8 @@ public Action TurnClientToObserver(int client, int args)
 public Action Timer_Respectate(Handle timer, int client)
 {
 	ChangeClientTeam(client, 1);
+
+	return Plugin_Continue;
 }
 
 public Action TurnClientToSurvivors(int client, int args)
@@ -1132,7 +1136,7 @@ public Action WTF3(int client, int args) //sb_takecontrol
 
 bool IsClientAndInGame(int index)
 {
-	if (index > 0 && index < MaxClients)
+	if (index > 0 && index <= MaxClients)
 	{
 		return IsClientInGame(index);
 	}
@@ -1267,7 +1271,7 @@ void StartChangeTeamCoolDown(int client)
 
 public Action ClientReallyChangeTeam(Handle timer, int client)
 {
-	if(!IsClientAndInGame(client) || IsFakeClient(client) || HasAccess(client, g_sImmueAcclvl)) return;
+	if(!IsClientAndInGame(client) || IsFakeClient(client) || HasAccess(client, g_sImmueAcclvl)) return Plugin_Continue;
 
 	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0)
 	{
@@ -1307,7 +1311,7 @@ public Action ClientReallyChangeTeam(Handle timer, int client)
 		}
 	}
 	
-	if(g_bHasLeftSafeRoom && InCoolDownTime[client]) return;
+	if(g_bHasLeftSafeRoom && InCoolDownTime[client]) return Plugin_Continue;
 	
 	//PrintToChatAll("client: %N change Team: %d clientteam[client]:%d",client,GetClientTeam(client),clientteam[client]);
 	if(GetClientTeam(client) != clientteam[client])
@@ -1315,6 +1319,8 @@ public Action ClientReallyChangeTeam(Handle timer, int client)
 		if(clientteam[client] != 0) StartChangeTeamCoolDown(client);
 		clientteam[client] = GetClientTeam(client);		
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Timer_CanJoin(Handle timer, int client)
