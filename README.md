@@ -1,14 +1,13 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/7/4)
+> All plugins in here apply to both L4D1/2 (last edited:2022/7/5)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
-* [Sourcemod 1.10](https://www.sourcemod.net/downloads.php?branch=1.10-dev) (or newer)
+* [Sourcemod 1.11](https://www.sourcemod.net/downloads.php?branch=1.11-dev) (or newer)
 * [Metamod 1.11](https://www.sourcemm.net/downloads.php?branch=1.11-dev) (or newer)
 * [L4DToolZ](https://github.com/Accelerator74/l4dtoolz/releases)
 * [Left 4 DHooks Direct](https://forums.alliedmods.net/showthread.php?p=2684862)
-* [2.2.0-detours17](https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589) (or newer)
 * [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
 
 # Plugins
@@ -78,7 +77,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>_AutoTakeOver</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>chat_responses</b>: Displays chat advertisements when specified text is said in player chat.
 # Scripting Compiler
-* [sourcemod 1.10 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.10_Compiler.zip): sourcemod v1.10.0.6502 scripting
+* [sourcemod 1.11 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.11_Compiler.zip): sourcemod v1.11 scripting
 # Others
 * <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)</b>
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
