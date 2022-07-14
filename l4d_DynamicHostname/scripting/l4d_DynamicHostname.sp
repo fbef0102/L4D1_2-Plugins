@@ -51,31 +51,32 @@ public void OnConfigsExecuted()
 	
 }
 
-void ChangeServerName(char sReadyUpCfgName[] = "")
+void ChangeServerName(char[] sReadyUpCfgName = "")
 {
-
-        char sPath[PLATFORM_MAX_PATH];
-        BuildPath(Path_SM, sPath, sizeof(sPath),"configs/hostname/server_hostname.txt");//檔案路徑設定
-        
-        Handle file = OpenFile(sPath, "r");//讀取檔案
-        if(file == INVALID_HANDLE)
-		{
-			LogMessage("file configs/hostname/server_hostname.txt doesn't exist!");
-			return;
-		}
-        
-        char readData[256];
-        if(!IsEndOfFile(file) && ReadFileLine(file, readData, sizeof(readData)))//讀一行
-        {
-			char sNewName[128];
-			if(strlen(sReadyUpCfgName) == 0)
-				Format(sNewName, sizeof(sNewName), "%s", readData);
-			else
-				Format(sNewName, sizeof(sNewName), "%s%c%s%c", readData, SYMBOL_LEFT, sReadyUpCfgName, SYMBOL_RIGHT);
-			
-			SetConVarString(g_hHostName,sNewName);
-			LogMessage("%s New server name \"%s\"", DN_TAG, sNewName);
-			
-			Format(g_sDefaultN,sizeof(g_sDefaultN),"%s",sNewName);
-		}
+	char sPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, sPath, sizeof(sPath),"configs/hostname/server_hostname.txt");//檔案路徑設定
+	
+	Handle file = OpenFile(sPath, "r");//讀取檔案
+	if(file == INVALID_HANDLE)
+	{
+		LogMessage("file configs/hostname/server_hostname.txt doesn't exist!");
+		CloseHandle(file);
+		return;
+	}
+	
+	char readData[256];
+	if(!IsEndOfFile(file) && ReadFileLine(file, readData, sizeof(readData)))//讀一行
+	{
+		char sNewName[128];
+		if(strlen(sReadyUpCfgName) == 0)
+			Format(sNewName, sizeof(sNewName), "%s", readData);
+		else
+			Format(sNewName, sizeof(sNewName), "%s%c%s%c", readData, SYMBOL_LEFT, sReadyUpCfgName, SYMBOL_RIGHT);
+		
+		SetConVarString(g_hHostName,sNewName);
+		LogMessage("%s New server name \"%s\"", DN_TAG, sNewName);
+		
+		Format(g_sDefaultN,sizeof(g_sDefaultN),"%s",sNewName);
+	}
+	CloseHandle(file);
 }
