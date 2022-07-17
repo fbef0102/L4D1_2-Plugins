@@ -4,7 +4,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.2"
+#define PLUGIN_VERSION "1.3"
 #define DEBUG 0
 
 #define TEAM_INFECTED 		3
@@ -35,7 +35,7 @@ public Plugin myinfo =
 	author = "HarryPotter",
 	description = "The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.",
 	version = PLUGIN_VERSION,
-	url = "https://steamcommunity.com/id/HarryPotter_TW"
+	url = "https://steamcommunity.com/profiles/76561198026784913"
 };
 
 bool L4D2Version;
@@ -275,8 +275,13 @@ void IsAllowed()
 
 bool IsAllowedGameMode()
 {
+	if( g_hCvarMPGameMode == null )
+		return false;
+
 	if( g_bMapStarted == false )
 		return false;
+
+	g_iCurrentMode = 0;
 
 	int entity = CreateEntityByName("info_gamemode");
 	if( IsValidEntity(entity) )
@@ -292,17 +297,9 @@ bool IsAllowedGameMode()
 			RemoveEdict(entity); // Because multiple plugins creating at once, avoid too many duplicate ents in the same frame
 	}
 
-	if( g_hCvarMPGameMode == null )
-		return false;
-
 	int iCvarModesTog = g_hCvarModesTog.IntValue;
 	if( iCvarModesTog != 0 )
 	{
-		if( g_bMapStarted == false )
-			return false;
-
-		g_iCurrentMode = 0;
-
 		if( g_iCurrentMode == 0 )
 			return false;
 
