@@ -238,4 +238,6 @@ public int MenuHandler_DisAllowJoinMsg(Menu menu, MenuAction action, int param1,
 			DisplayDisAllowJoinMsgMenu(param1);
 		}
 	}
+
+	return 0;
 }

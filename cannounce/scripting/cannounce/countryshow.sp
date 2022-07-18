@@ -87,7 +87,7 @@ void OnPluginEnd_CountryShow()
 
 
 ****************************************************************/
-public Action event_PlayerDisc_CountryShow(Event event, char[] name, bool dontBroadcast)
+public void event_PlayerDisc_CountryShow(Event event, char[] name, bool dontBroadcast)
 {
 	char rawmsg[301];
 	char rawadmmsg[301];
