@@ -110,7 +110,7 @@ public Action Command_ReloadAds(int args)
 /**
  * Menu Handlers
  */
-public int Handler_DoNothing(Menu menu, MenuAction action, int param1, int param2) {}
+public int Handler_DoNothing(Menu menu, MenuAction action, int param1, int param2) { return 0; }
 
 
 /**
@@ -119,7 +119,7 @@ public int Handler_DoNothing(Menu menu, MenuAction action, int param1, int param
 public Action Timer_DisplayAd(Handle timer)
 {
     if (!g_hEnabled.BoolValue) {
-        return;
+        return Plugin_Continue;
     }
 
     char sCenter[1024], sChat[1024], sHint[1024], sMenu[1024], sTop[1024], sFlags[22];
@@ -197,7 +197,7 @@ public Action Timer_DisplayAd(Handle timer)
             aColor[4] = {255, 255, 255, 255};
 
         ParseTopColor(sTop, iStart, aColor);
-        ProcessVariables(sTop[iStart]);
+        ProcessVariables(sTop);
 
         KeyValues hKv = new KeyValues("Stuff", "title", sTop[iStart]);
         hKv.SetColor4("color", aColor);
@@ -217,6 +217,8 @@ public Action Timer_DisplayAd(Handle timer)
         g_hAdvertisements.Rewind();
         g_hAdvertisements.GotoFirstSubKey();
     }
+
+    return Plugin_Continue;
 }
 
 public Action Timer_CenterAd(Handle timer, DataPack pack)
