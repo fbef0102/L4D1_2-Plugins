@@ -10,7 +10,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "4.8"
+#define PLUGIN_VERSION "4.9"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -33,13 +33,14 @@ float fDoorSpeed, fFirstUserOrigin[3], fPreventDoorSpamDuration;
 bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport, 
 	bTankDemolitionBefore, bTankDemolitionAfter, bSurvivorsAssembleAlready,
 	blsHint, bDoorBotDisable;
-bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen;
+bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord;
 char sKeyMan[128];
 Handle hAntiFarmTime = null, hLockdownTime = null;
 static Handle hCreateTank = null;
 
-ConVar lsMapTwoTanks;
+ConVar lsMapTwoTanks, sb_unstick;
 bool g_bMapTwoTanks;
+bool sb_unstick_default;
 
 GlobalForward g_hForwardOpenSafeRoomFinish;
 
@@ -84,6 +85,8 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	LoadTranslations("lockdown_system-l4d2_b.phrases");
+
+	sb_unstick = FindConVar("sb_unstick");
 
 	lsAnnounce = CreateConVar("lockdown_system-l4d2_announce", "1", "If 1, Enable saferoom door status Announcements", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsAntiFarmDuration = CreateConVar("lockdown_system-l4d2_anti-farm_duration", "50", "Duration Of Anti-Farm", FCVAR_NOTIFY, true, 0.0);
@@ -148,30 +151,12 @@ public void OnPluginStart()
 	AutoExecConfig(true, "lockdown_system-l4d2");
 }
 
-public void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
-{
-	GetCvars();
-	
-	if (IsValidEnt(iCheckpointDoor))
-	{
-		if (iType != 1)
-		{
-			return;
-		}
-		
-		SetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed", 89.0 / float(iDuration));
-	}
-}
-
-public void OnLSCVarsChanged(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
-{
-	GetCvars();
-}
-
 public void OnPluginEnd()
 {
 	SetCheckpointDoor_Default();
 	ResetPlugin();
+	g_bFirstRecord = false;
+	sb_unstick.SetBool(sb_unstick_default);
 }
 
 bool g_bValidMap = true;
@@ -238,6 +223,48 @@ public void OnMapStart()
 	}
 }
 
+public void OnMapEnd()
+{
+	bAntiFarmInit = false;
+	bLockdownInit = false;
+	bLDFinished = false;
+	
+	SetCheckpointDoor_Default();
+
+	ResetPlugin();
+
+	sb_unstick.SetBool(sb_unstick_default);
+}
+
+public void OnConfigsExecuted()
+{
+	if(!g_bFirstRecord)
+	{
+		sb_unstick_default = sb_unstick.BoolValue;
+		g_bFirstRecord = true;
+	}
+}
+
+public void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
+{
+	GetCvars();
+	
+	if (IsValidEnt(iCheckpointDoor))
+	{
+		if (iType != 1)
+		{
+			return;
+		}
+		
+		SetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed", 89.0 / float(iDuration));
+	}
+}
+
+public void OnLSCVarsChanged(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
+{
+	GetCvars();
+}
+
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
@@ -274,6 +301,8 @@ public Action tmrStart(Handle timer)
 	InitDoor();
 
 	ResetPlugin();
+
+	sb_unstick.SetBool(sb_unstick_default);
 	
 	return Plugin_Continue;
 }
@@ -328,6 +357,8 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(2.0, OrderShutDown,_,TIMER_FLAG_NO_MAPCHANGE);
 
 	ResetPlugin();
+
+	sb_unstick.SetBool(sb_unstick_default);
 }
 
 public Action ForceEndLockdown(Handle timer)
@@ -346,7 +377,7 @@ public Action OrderShutDown(Handle timer)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-	if( g_bValidMap && bLDFinished && IsClientInGame(client) && GetClientTeam(client) == 2 && buttons & IN_USE)
+	if( g_bValidMap && /*bLDFinished &&*/ IsClientInGame(client) && GetClientTeam(client) == 2 && buttons & IN_USE)
 	{
 		if(IsFakeClient(client) && bDoorBotDisable) return Plugin_Handled;
 	}
@@ -382,6 +413,10 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 			{
 				return Plugin_Continue;
 			}
+
+			if(IsFakeClient(user) && bDoorBotDisable) return Plugin_Continue;
+
+			sb_unstick.SetBool(false);
 
 			if(g_bIsSafeRoomOpen == true && iDoorOpenChance == 0)
 			{
@@ -727,17 +762,6 @@ public Action _AntiPussy(Handle timer)
 		}
 	}
 	return Plugin_Continue;
-}
-
-public void OnMapEnd()
-{
-	bAntiFarmInit = false;
-	bLockdownInit = false;
-	bLDFinished = false;
-	
-	SetCheckpointDoor_Default();
-
-	ResetPlugin();
 }
 
 void InitDoor()
@@ -1132,7 +1156,16 @@ void SetCheckpointDoor_Default()
 
 			if (iType == 1)
 			{
+				SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", UNLOCK);
 				SetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed", fDoorSpeed);
+				AcceptEntityInput(iCheckpointDoor, "Unlock");
+				AcceptEntityInput(iCheckpointDoor, "Close");
+				AcceptEntityInput(iCheckpointDoor, "ForceClosed");
+				AcceptEntityInput(iCheckpointDoor, "Open");
+			}
+			else
+			{
+				ControlDoor(iCheckpointDoor, UNLOCK);
 			}
 			
 			iDoorStatus = UNLOCK;
