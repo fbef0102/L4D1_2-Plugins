@@ -17,9 +17,9 @@ public Action Command_GeoList(int client, int args)
 	char name[32];
 	
 	char ip[16];
-	char city[46];
-	char region[46];
-	char country[46];
+	char city[45];
+	char region[45];
+	char country[45];
 	char ccode[3];
 	char ccode3[4];
 	bool bIsLanIp;

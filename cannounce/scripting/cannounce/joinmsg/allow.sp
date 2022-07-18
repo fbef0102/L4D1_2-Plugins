@@ -247,4 +247,6 @@ public int MenuHandler_AllowJoinMsg(Menu menu, MenuAction action, int param1, in
 			DisplayAllowJoinMsgMenu(param1);
 		}
 	}
+
+	return 0;
 }
