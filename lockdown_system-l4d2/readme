@@ -1,7 +1,7 @@
 Locks Saferoom Door Until Someone Opens It.
 
 -Changelog-
-v4.8
+v4.9
 - Remake Code
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
  (Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
@@ -28,11 +28,12 @@ v1.7
 -Original Post: https://forums.alliedmods.net/showthread.php?t=281305
 
 -Require-
-1. sourcemod 1.10 or above
+1. sourcemod 1.11 or above
 2. "Left4DHooks" plugin version 1.101 or newer: https://forums.alliedmods.net/showthread.php?p=2684862
 3. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
 -Convars-
+cfg/sourcemod/lockdown_system-l4d2.cfg
 // If 1, Enable saferoom door status Announcements
 lockdown_system-l4d2_announce "1"
 
