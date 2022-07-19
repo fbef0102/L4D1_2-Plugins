@@ -202,7 +202,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:c}"
 		"en"			"{1}[SM] {2}Usage: {3}sm_listdecal [all | id | last | map | name | saved]"
-		"ru"			"{1}[SM] {2}Использование: {3}sm_listdecal [all | id | last | map | name | saved]"
+		"ru"			"{1}[SM] {2}Использование: {3}sm_listdecal [all | id | last | карта | имя | saved]"
 		"chi"			"{1}[SM] {2}用法: {3}sm_listdecal [all | id | last | map | name | saved]"
 		"zho"			"{1}[SM] {2}用法: {3}sm_listdecal [all | id | last | map | name | saved]"
 		"de"			"{1}[SM] {2}Anwendung: {3}sm_listdecal [all | id | last | map | name | saved]"
