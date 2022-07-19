@@ -17,7 +17,7 @@
 		"en"			"You will Auto-Respawn in {1} seconds!"
 		"es"			"Vas a revivir en {1} segundos!"
 		"hu"			"Automatikusan újjászületsz {1} másodperc múlva!"
-		"ru"			"Вы автоматически возродитесь через {1} секунд!"
+		"ru"			"Вы автоматически возродитесь через {1} сек.!"
 		"zho"			"你將於 {1} 秒後自動復活!"
 		"chi"			"你将于 {1} 秒后自动复活!"
 		"pt"			"Você irá respawnar automaticamente em {1} segundos!"
@@ -29,7 +29,7 @@
 		"en"			"{1} has been respawned"
 		"es"			"{1} ha reaparecido"
 		"hu"			"{1} újjászületett"
-		"ru"			"{1} был возрожден"
+		"ru"			"{1} возрождён"
 		"zho"			"{1} 已被自動復活"
 		"chi"			"{1} 已被自動復活"
 		"pt"			"{1} respawnou"
@@ -40,7 +40,7 @@
 		"en"			"Usage: sm_respawn <#UserID|Name>"
 		"es"			"Usa: sm_respawn <#UserID|Name>"
 		"hu"			"Használat: sm_respawn <#UserID|Név>"
-		"ru"			"Usage: sm_respawn <#UserID|Name>"
+		"ru"			"Использование: sm_respawn <#UserID|Имя>"
 		"zho"			"使用方式: sm_respawn <#UserID|Name>"
 		"chi"			"使用方式: sm_respawn <#UserID|Name>"
 		"pt"			"Uso: sm_respawn <#UserID|Nome>"
@@ -120,7 +120,7 @@
 		"en"			"Respawn Menu"
 		"es"			"Menú De Reaparición"
 		"hu"			"Újjászületés menü"
-		"ru"			"Меню Возрожления"
+		"ru"			"Меню возрождения"
 		"zho"			"復活介面"
 		"chi"			"复活介面"
 		"pt"			"Menu de respawn"
@@ -140,24 +140,28 @@
 	"Couldn't spawn at this moment."
 	{
 		"en" "Couldn't respawn at the moment."
+		"ru" "В данный момент возрождение невозможно."
 		"zho" "此時此刻無法復活!!"
 		"chi" "此时此刻无法复活!!"	
 	}
 	"Couldn't respawn after the saferoom door is open."
 	{
 		"en" "Couldn't respawn after the saferoom door is open."
+		"ru" "Невозможно возродиться после открытия двери убежища."
 		"zho" "安全大門開啟後不得復活!!"
 		"chi" "安全大门开启后不得复活!!"	
 	}
 	"Couldn't respawn when final vehicle is coming."
 	{
 		"en" "Couldn't respawn when final vehicle rescue is coming."
+		"ru" "Невозможно возродиться, когда наступает финальное спасение."
 		"zho" "最後救援開始後不得復活!!"
 		"chi" "最后救援开始后不得复活!!"	
 	}
 	"You will be respawned again."
 	{
 		"en" "You will be respawned again."
+		"ru" "Вы будете возрождены снова."
 		"zho" "你稍後會再次復活!!"
 		"chi" "稍后还能再次复活!!"
 	}

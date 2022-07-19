@@ -3,12 +3,14 @@
 	"Block"
 	{
 		"en"			"You have already picked up ammo supply! Can not use anymore!"
+		"ru"			"Вы уже пополнили свой боезапас! Больше нельзя использовать!"
 		"zho"			"你已經補給過彈藥! 不得再使用!"
 		"chi"			"你已经补给过弹药! 不得再使用!"
 	}
 	"Remove"
 	{
 		"en"			"Ammunition pile has been depleted!"
+		"ru"			"Запасы боеприпасов исчерпаны!"
 		"zho"			"補給彈藥堆已耗盡!"
 		"chi"			"补给弹药堆已耗尽!"
 	}
