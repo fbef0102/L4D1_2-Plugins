@@ -319,7 +319,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:c}"
 		"en"			"{1}[SM] {2}Usage: {3}sm_savedecal [all | id | last | name ]"
-		"ru"			"{1}[SM] {2}Использование: {3}sm_savedecal [all | id | last | name ]"
+		"ru"			"{1}[SM] {2}Использование: {3}sm_savedecal [all | id | last | имя ]"
 		"chi"			"{1}[SM] {2}用法: {3}sm_savedecal [all | id | last | name ]"
 		"zho"			"{1}[SM] {2}用法: {3}sm_savedecal [all | id | last | name ]"
 		"de"			"{1}[SM] {2}Anwendung: {3}sm_savedecal [all | id | last | name ]"
