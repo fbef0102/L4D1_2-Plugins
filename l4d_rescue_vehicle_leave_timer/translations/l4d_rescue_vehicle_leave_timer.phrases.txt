@@ -4,18 +4,21 @@
 	{
 		"#format"		"{1:d}"
 		"en"	"Escape limited time {1} seconds !!!"
+		"ru"	"Ограниченное время на спасение {1} сек. !!!"
 		"zho"	"限時逃亡倒數 {1} 秒 !!!"
 		"chi"	"限时逃亡倒数 {1} 秒 !!!"
 	}	
 	"Outside Slay"
 	{
 		"en"			"{olive}Players outside the rescue vehicle or zone will be{green}executed{default}!"
+		"ru"			"{olive}Игроки, находящиеся за пределами машины спасения или области, будут{green}казнены{default}!"
 		"zho"			"{olive}救援區域外的玩家將{green}處以死刑{default}!"
 		"chi"			"{olive}救援区域外的玩家将{green}处以死刑{default}!"
 	}	
 	"You have been executed for not being on rescue vehicle or zone!"
 	{
 		"en"			"You have been {green}executed{default} for not being on rescue vehicle or zone!"
+		"ru"			"Вы были {green}казнены{default} за то, что не были в спасательной машине или области!"
 		"zho"			"你尚未在時間內抵達救援，{green}處以死刑{default}!!"
 		"chi"			"你尚未在时间内抵达救援，{green}处以死刑{default}!!"
 	}

@@ -31,7 +31,7 @@
 	"Mute"
 	{
 		"en"		"[Music] type !mp3off to mute round start music"
-		"ru"		"[Музыка]введите !mp3off, чтобы отключить музыку всегда"
+		"ru"		"[Музыка] Введите !mp3off, чтобы отключить музыку"
 		"chi"		"[音乐] 输入!mp3off 关闭回合音乐"
 		"zho"		"[音樂] 輸入!mp3off 關閉回合音樂"
 	}
@@ -45,30 +45,35 @@
 	"ChooseMusic"
 	{
 		"en"		"choose track"
+		"ru"		"выбрать трек"
 		"chi"		"选择音乐"
 		"zho"		"選擇音樂"
 	}
 	"PlayMusic"
 	{
 		"en"		"Play Music (Everyone can hear)"
+		"ru"		"Играть музыку (услышат все)"
 		"chi"		"全体播放点歌系统"
 		"zho"		"全體播放點歌系統"
 	}
 	"Music Menu"
 	{
 		"en"		"Music Menu (!music)"
+		"ru"		"Меню музыки (!music)"
 		"chi"		"音乐选单 (!music)"
 		"zho"		"音樂選單 (!music)"
 	}
 	"Request Song"
 	{
 		"en"		"[Music] {olive}%N{default} use {lightgreen}!music{default} to choose a tracker: {green}%s"
+		"ru"		"[Музыка] {olive}%N{default} используйте {lightgreen}!music{default} для выбора трека: {green}%s"
 		"chi"		"[音乐] {olive}%N{default} 使用{lightgreen}!music{default}点歌: {green}%s"
 		"zho"		"[音樂] {olive}%N{default} 使用{lightgreen}!music{default}點歌: {green}%s"
 	}
 	"Too quickly"
 	{
 		"en"		"[Music] You can't choose a tracker so quickly, Wait at least {green}%.0f{default} seconds."
+		"ru"		"[Музыка] Вы не можете выбрать трек так быстро, подождите хотя бы {green}%.0f{default} сек."
 		"chi"		"[音乐] 点歌冷却时间 {green}%.0f{default} 秒未到."
 		"zho"		"[音樂] 點歌冷卻時間 {green}%.0f{default} 秒未到."
 	}
