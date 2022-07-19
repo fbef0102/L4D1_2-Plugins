@@ -10,6 +10,7 @@
 	"Usage: sm_timer"
 	{
 		"en"			"Usage: sm_timer <Integer> | sm_timer <MIN> <MAX> - Infected Bot Spawn Timer."
+		"ru"			"Использование: sm_timer <Число> | sm_timer <МИН> <МАКС> - Таймер возрождения бота-заражённого."
 		"zho"			"使用方式: sm_timer <正整數> | sm_timer <最小值> <最大值> - 特感復活時間."
 		"chi"			"使用方式: sm_timer <正整数> | sm_timer <最小值> <最大值> - 特感复活时间."
 	}
@@ -17,18 +18,21 @@
 	{
 		"#format"		"{1:d},{2:d}"
 		"en"			"Current Spawn Timer {1}-{2}"
+		"ru"			"Текущий таймер возрождения {1}-{2}"
 		"zho"			"目前特感復活時間 {1}-{2}"
 		"chi"			"目前特感复活时间 {1}-{2}"
 	}
 	"Failed to set timer!"
 	{
 		"en"			"Failed to set timer! minimum value is 1."
+		"ru"			"Не удалось установить таймер! Минимальное значение 1."
 		"zho"			"無法設置特感復活時間! 最小值為 1"
 		"chi"			"无法设置特感复活时间! 最小值为 1"
 	}
 	"why so long?"
 	{
 		"en"			"why so long?"
+		"ru"			"Почему так долго?"
 		"zho"			"這麼長復活時間幹嗎?"
 		"chi"			"设置这么长的复活时间干吗?"
 	}
@@ -36,12 +40,14 @@
 	{
 		"#format"		"{1:d},{2:d}"
 		"en"			"Bot Spawn Timer has been changed to {1} - {2}"
+		"ru"			"Таймер возрождения ботов был изменён на {1} - {2}"
 		"zho"			"特感復活時間已改成 {1} - {2}"
 		"chi"			"特感复活时间已改成 {1} - {2}"
 	}
 	"Usage: sm_zlimit"
 	{
 		"en"			"Usage: sm_zlimit <Integer> - How many special infected can be."
+		"ru"			"Использование: sm_zlimit <Число> - Сколько особых заражённых может быть."
 		"zho"			"使用方式: sm_zlimit <正整數> - 設定特感數量上限"
 		"chi"			"使用方式: sm_zlimit <正整数> - 设定特感数量上限"
 	}
@@ -49,6 +55,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"Current Special Infected Limit is {1}"
+		"ru"			"Текущий лимит особых заражённых составляет {1}"
 		"zho"			"目前特感數量上限為 {1}"
 		"chi"			"目前特感数量上限为 {1}"
 	}
@@ -56,12 +63,14 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"Special Infected Limit is already {1}"
+		"ru"			"Лимит особых заражённых уже {1}"
 		"zho"			"特感數量上限已經是 {1}"
 		"chi"			"特感数量上限已经是 {1}"
 	}
 	"why you need so many special infected?"
 	{
 		"en"			"why you need so many special infected?"
+		"ru"			"Почему вам нужно так много особых заражённых?"
 		"zho"			"為捨要那麼多特感?"
 		"chi"			"为啥要那么多特感?"
 	}
@@ -69,6 +78,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"Special Infected Limit has been changed to {1}"
+		"ru"			"Лимит особых заражённых был изменён на {1}"
 		"chi"			"特感數量上限已改成 {1}"
 		"zho"			"特感数量上限已改成 {1}"
 	}
@@ -76,6 +86,7 @@
 	{
 		"#format"		"{1:d},{2:d},{3:d},{4:d}"
 		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}, Tank Health: {3}, Common Limit: {4}"
+		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}, здоровье танка: {3}, лимит обычных: {4}"
 		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}, Tank血量: {3}, 殭屍數量: {4}"
 		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}, Tank血量: {3}, 僵尸数量: {4}"
 	}
@@ -83,6 +94,7 @@
 	{
 		"#format"		"{1:d},{2:d},{3:d}"
 		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}, Common Limit: {3}"
+		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}, лимит обычных заражённых: {3}"
 		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}, 殭屍數量: {3}"
 		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}, 僵尸数量: {3}"
 	}
@@ -90,6 +102,7 @@
 	{
 		"#format"		"{1:d},{2:d},{3:d}"
 		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}, Tank Health: {3}"
+		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}, здоровье танка: {3}"
 		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}, Tank血量: {3}"
 		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}, Tank血量: {3}"
 	}
@@ -97,18 +110,21 @@
 	{
 		"#format"		"{1:d},{2:d}"
 		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}"
+		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}"
 		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}"
 		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}"
 	}
 	"Can't Join The Infected Team."
 	{
 		"en"			"Can't Join The Infected Team."
+		"ru"			"Нельзя присоединиться к команде заражённых."
 		"zho"			"無法加入感染者."
 		"chi"			"无法加入感染者."
 	}
 	"sm_zs"
 	{
 		"en"			"Attention! You can type !zs to suicide if get stuck or too far from survivors."
+		"ru"			"Внимание! Вы можете ввести !zs для самоубийства, если застрянете или окажетесь слишком далеко от выживших."
 		"zho"			"注意!卡住、無法通過障礙物可於聊天視窗輸入!zs自殺."
 		"chi"			"注意!卡住或者无法通过障碍物时可于聊天窗输入!zs自杀."
 	}
@@ -116,78 +132,91 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"This server runs Infected Bots v{1} - say !infhud to toggle HUD on/off"
+		"ru"			"На этом сервере запущены заражённые-боты вер.{1} - введите в чат !infhud, чтобы включить/выключить интерфейс"
 		"zho"			"這個伺服器運行 多特感插件(版本: {1}) - 輸入 !infhud 打開/關閉 特感介面"
 		"chi"			"这个伺服器运行 多特感插件(版本: {1}) - 输入 !infhud 打开/关闭 特感界面"
 	}
 	"Hud Disable"
 	{
 		"en"			"Infected HUD DISABLED - say !infhud to re-enable."
+		"ru"			"Интерфейс заражённого ОТКЛЮЧЁН - введите в чат !infhud для включения."
 		"zho"			"特感介面關閉 - 請輸入 !infhud 重新開啟"
 		"chi"			"特感界面关闭 - 请输入 !infhud 重新开启"
 	}
 	"Hud Enable"
 	{
 		"en"			"Infected HUD ENABLED - say !infhud to disable."
+		"ru"			"Интерфейс заражённого ВКЛЮЧЁН - введите в чат !infhud для отключения."
 		"zho"			"特感介面開啟 - 請輸入 !infhud 關閉"
 		"chi"			"特感界面开启 - 请输入 !infhud 关闭"
 	}
 	"Infected HUD is currently DISABLED"
 	{
 		"en"			"Infected HUD is currently DISABLED on this server for all players."
+		"ru"			"Интерфейс заражённого в настоящее время ОТКЛЮЧЁН на этом сервере для всех игроков."
 		"zho"			"所有玩家特感介面暫時全部關閉"
 		"chi"			"所有玩家特感界面暂时全部关闭"
 	}
 	"Not allowed to respawn"
 	{
 		"en"			"Ghost Spawn in coop/survival/realism is not allowed!!"
+		"ru"			"Появление призрака в совместном/выживании/реализме невозможно!!"
 		"zho"			"禁止回靈魂復活!!"
 		"chi"			"禁止回灵魂复活!!"
 	}
 	"Not allowed to suicide during current mode"
 	{
 		"en"			"Not allowed to suicide during current mode"
+		"ru"			"Запрещено самоубийство в текущем режиме"
 		"zho"			"目前模式禁止自殺!"
 		"chi"			"目前模式禁止自杀!"
 	}
 	"Not allowed to suicide so quickly"
 	{
 		"en"			"Not allowed to suicide so quickly after spawn, you dumb fuck!"
+		"ru"			"Нельзя так быстро совершать самоубийство после возрождения, ты, тупой урод!"
 		"zho"			"復活後短時間內禁止自殺!"
 		"chi"			"复活后短时间内禁止自杀!"
 	}
 	"Not allowed to suicide"
 	{
 		"en"			"Not allowed to suicide when pinning survivor, you dumb fuck!"
+		"ru"			"Нельзя совершать самоубийство, когда пригвоздили выжившего, тупой ублюдок!"
 		"zho"			"禁止抓住人類期間自殺!"
 		"chi"			"禁止抓住人类期间自杀!"
 	}
 	"Join infected team in coop/survival/realism(adm only)"
 	{
 		"en"			"Type !ji to join infected team. (Adm only)"
+		"ru"			"Введите !ji, чтобы присоединиться к команде заражённых. (Админ)"
 		"zho"			"聊天視窗輸入 !ji 加入感染者(只限管理員)"
 		"chi"			"聊天窗输入 !ji 加入感染者(只限管理员)"
 	}
 	"Join infected team in coop/survival/realism"
 	{
 		"en"			"Type !ji to join infected team."
+		"ru"			"Введите !ji, чтобы присоединиться к команде заражённых."
 		"zho"			"聊天視窗輸入 !ji 加入感染者"
 		"chi"			"聊天窗输入 !ji 加入感染者"
 	}
 	"Join survivor team"
 	{
 		"en"			"Type !js to join survivor team."
+		"ru"			"Введите !js, чтобы присоединиться к команде выживших."
 		"zho"			"輸入 !js 加入倖存者!"
 		"chi"			"输入 !js 加入生还者!"
 	}
 	"You don't attack survivors"
 	{
 		"en"			"You don't attack survivors and lose control, Tank Suicides !"
+		"ru"			"Вы не нападаете на выживших и теряете контроль, танк совершает самоубийство!"
 		"zho"			"你不攻擊倖存者失去控制權，Tank已處死 !"
 		"chi"			"你不攻击幸存者失去控制权，坦克已处死 !"
 	}
 	"Access"
 	{
 		"en"			"You don't have access to join infected team !"
+		"ru"			"У вас нет доступа, чтобы присоединиться к команде заражённых!"
 		"zho"			"你沒有權限加入特感陣營!"
 		"chi"			"你没有权限加入特感阵营!"
 	}

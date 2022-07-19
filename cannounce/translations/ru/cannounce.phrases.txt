@@ -10,7 +10,7 @@
 	}
 	"LAN City Desc"
 	{
-		"ru"			"IP-Адрес"
+		"ru"			"IP-адрес"
 	}
 	"LAN Region Desc"
 	{
@@ -23,12 +23,12 @@
 
 	"LAN Country Short"
 	{
-		"ru"			"LN"
+		"ru"			"ЛОК."
 	}
 
 	"LAN Country Short 3"
 	{
-		"ru"			"LAN"
+		"ru"			"ЛОК."
 	}
 
 	"Unknown City Desc"
