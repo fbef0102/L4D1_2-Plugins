@@ -121,7 +121,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:s},{4:c}"
 		"en"			"{1}[SM] No Decals named {2}{3}{4} found on Map."
-		"ru"			"{1}[SM] На карте не найдено наклеек с названием {2}{3}{4}."
+		"ru"			"{1}[SM] На карте не найдено наклеек с именем {2}{3}{4}."
 		"chi"			"{1}[SM] 在地图上找不到名为 {2}{3}{4} 的涂鸦。"
 		"zho"			"{1}[SM] 在地圖上找不到名為 {2}{3}{4} 的塗鴉。"
 		"de"			"{1}[SM] Keine Decals namens {2}{3}{4} auf Map gefunden."
@@ -477,7 +477,7 @@
 	"all_list"
 	{
 		"en"			"All Decal Names available"
-		"ru"			"Все доступные названия наклеек"
+		"ru"			"Все доступные имена наклеек"
 		"chi"			"所有可用的涂鸦名称"
 		"zho"			"所有可用的塗鴉名稱"
 		"de"			"Alle verfügbaren Decalbezeichnungen"
