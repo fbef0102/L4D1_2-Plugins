@@ -23,7 +23,7 @@
 	"Respawn_Info"
 	{
 		"en"		"Respawned player '%N'"
-		"ru"		"Оживлён игрок '%N'"
+		"ru"		"Оживлён игрок «%N»"
 		"hu"		"Játékos visszahozva '%N'"
 		"es"		"Reapareciste a '%N'"
 		"sv"        "Förnyade spelare '%N'"
