@@ -1,7 +1,7 @@
 When a Survivor dies, is hanging, or is incapped, will respawn after a period of time.
 
 -Changelog-
-v3.3
+v3.4
 - Remake Code
 - Don't remove dead body
 - If player replaces a dead bot, respawn player after a period of time.
@@ -26,8 +26,8 @@ l4d_survivorrespawn_deathlimit "3"
 // If 1, disable respawning while the final escape starts (rescue vehicle ready)
 l4d_survivorrespawn_disable_rescue_escape "1"
 
-// Enables Survivors to respawn automatically when incapped and/or killed (Def 1)
-l4d_survivorrespawn_enable "1"
+// Enables Human Survivors to respawn automatically when incapped and/or killed (Def 1)
+l4d_survivorrespawn_enablehuman "1"
 
 // Allows Bots to respawn automatically when incapped and/or killed (Def 1)
 l4d_survivorrespawn_enablebot "1"

@@ -9,7 +9,7 @@
 #pragma newdecls required
 
 /* Definition Strings */
-#define PLUGIN_VERSION 			"3.3"
+#define PLUGIN_VERSION 			"3.4"
 #define TRANSLATION_FILENAME 	"SurvivorRespawn.phrases"
 
 /* Definition Integers */
@@ -17,8 +17,8 @@
 #define TEAM_SURVIVOR 	2
 
 /* Booleans */
-bool bRespawn = false;
-bool bIncludeBots = false;
+bool g_bEnableHuman = false;
+bool g_bEnableBots = false;
 bool bRespawnIncapped = false;
 bool bIncludeHanging = false;
 bool bEnablesRespawnLimit = false;
@@ -28,8 +28,8 @@ bool g_bRoundEnd = false;
 static bool bL4D2;
 
 /* ConVars */
-ConVar hCvar_Enable;
-ConVar hCvar_IncludeBots;
+ConVar hCvar_EnableHuman;
+ConVar hCvar_EnableBots;
 ConVar hCvar_RespawnHanging;
 ConVar hCvar_RespawnIncapped;
 ConVar hCvar_RespawnRespect;
@@ -52,13 +52,14 @@ ConVar SecondaryHealth;
 
 int g_iRespawnLimit, g_iRespawnTimeout;
 bool g_bSaveStats, g_bEscapeDisable;
-float g_fInvincibleTime;
+float g_fInvincibleTime, g_fRespawnTimeout;
 
 /* Handler Menu */
 TopMenu hTopMenu;
 
 /* Timer Handles With Arrays */
 Handle RespawnTimer[ MAXPLAYERS + 1 ];
+Handle CountTimer[ MAXPLAYERS + 1 ];
 Handle HangingTimer[ MAXPLAYERS + 1 ];
 Handle IncapTimer[ MAXPLAYERS + 1 ];
 
@@ -190,8 +191,8 @@ public void OnPluginStart()
 	Load_Translations();
 	
 	CreateConVar( 						   "l4d_survivorrespawn_version", 	PLUGIN_VERSION, "Survivor Respawning Version", FCVAR_SPONLY|FCVAR_DONTRECORD|FCVAR_NOTIFY);
-	hCvar_Enable 			= CreateConVar("l4d_survivorrespawn_enable", 			"1", 	"Enables Survivors to respawn automatically when incapped and/or killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_IncludeBots 		= CreateConVar("l4d_survivorrespawn_enablebot", 		"1", 	"Allows Bots to respawn automatically when incapped and/or killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_EnableHuman 		= CreateConVar("l4d_survivorrespawn_enablehuman", 		"1", 	"Enables Human Survivors to respawn automatically when incapped and/or killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_EnableBots 		= CreateConVar("l4d_survivorrespawn_enablebot", 		"1", 	"Allows Bots to respawn automatically when incapped and/or killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_RespawnHanging 	= CreateConVar("l4d_survivorrespawn_hanging", 			"0", 	"Survivors will be killed when hanging and respawn afterwards (Def 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_RespawnIncapped 	= CreateConVar("l4d_survivorrespawn_incapped", 			"0", 	"Survivors will be killed when incapped and respawn afterwards (Def 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_RespawnRespect 	= CreateConVar("l4d_survivorrespawn_limitenable", 		"1", 	"Enables the respawn limit for Survivors (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -221,8 +222,8 @@ public void OnPluginStart()
 	}
 	
 	GetCvars();
-	hCvar_Enable.AddChangeHook(ConVarChanged_Cvars);
-	hCvar_IncludeBots.AddChangeHook(ConVarChanged_Cvars);
+	hCvar_EnableHuman.AddChangeHook(ConVarChanged_Cvars);
+	hCvar_EnableBots.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnHanging.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnIncapped.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnRespect.AddChangeHook(ConVarChanged_Cvars);
@@ -276,6 +277,7 @@ public void OnPluginEnd()
 		clinetReSpawnTime[client] = 0.0;
 
 		delete RespawnTimer[client];
+		delete CountTimer[client];
 		delete HangingTimer[client];
 		delete IncapTimer[client];
 	}
@@ -294,6 +296,7 @@ public void OnMapEnd()
 		clinetReSpawnTime[client] = 0.0;
 
 		delete RespawnTimer[client];
+		delete CountTimer[client];
 		delete HangingTimer[client];
 		delete IncapTimer[client];
 	}
@@ -306,13 +309,14 @@ public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char
 
 void GetCvars()
 {
-	bRespawn = hCvar_Enable.BoolValue;
-	bIncludeBots = hCvar_IncludeBots.BoolValue;
+	g_bEnableHuman = hCvar_EnableHuman.BoolValue;
+	g_bEnableBots = hCvar_EnableBots.BoolValue;
 	bIncludeHanging = hCvar_RespawnHanging.BoolValue;
 	bRespawnIncapped = hCvar_RespawnIncapped.BoolValue;
 	bEnablesRespawnLimit = hCvar_RespawnRespect.BoolValue;
 	g_iRespawnLimit = hCvar_RespawnLimit.IntValue;
 	g_iRespawnTimeout = hCvar_RespawnTimeout.IntValue;
+	g_fRespawnTimeout = hCvar_RespawnTimeout.FloatValue;
 	g_bSaveStats = hCvar_SaveStats.BoolValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
 	g_bEscapeDisable = hCvar_EscapeDisable.BoolValue;
@@ -329,6 +333,7 @@ public void Event_RoundStart( Event hEvent, const char[] sName, bool bDontBroadc
 		clinetReSpawnTime[client] = 0.0;
 
 		delete RespawnTimer[client];
+		delete CountTimer[client];
 		delete HangingTimer[client];
 		delete IncapTimer[client];
 	}
@@ -341,6 +346,7 @@ public void Event_RoundEnd( Event hEvent, const char[] sName, bool bDontBroadcas
 		bRescuable[client] = false;
 		
 		delete RespawnTimer[client];
+		delete CountTimer[client];
 		delete HangingTimer[client];
 		delete IncapTimer[client];
 	}
@@ -363,7 +369,7 @@ public void Event_PlayerLedgeGrab( Event hEvent, const char[] sName, bool bDontB
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "userid" ) );
 
-	if ( bRespawn && bIncludeHanging && IsValidClient( client ) )
+	if ( bIncludeHanging && IsValidClient( client ) )
 	{
 		HangingTimer[client] = CreateTimer( hCvar_HangingDelay.FloatValue, Timer_HangingRespawn, client ); 
 		bRescuable[client] = true;
@@ -397,7 +403,7 @@ public void Event_PlayerIncapped( Event hEvent, const char[] sName, bool bDontBr
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "userid" ) );
 
-	if (bRespawn && bRespawnIncapped && IsValidClient(client))
+	if (bRespawnIncapped && IsValidClient(client))
 	{
 		IncapTimer[client] = CreateTimer( hCvar_IncapDelay.FloatValue, Timer_IncapRespawn, client ); 
 		bRescuable[client] = true;
@@ -428,7 +434,7 @@ public void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 	int player = GetClientOfUserId(GetEventInt(event, "player"));
 	if (bot > 0 && bot <= MaxClients && player > 0 && player<= MaxClients) 
 	{
-		if (strcmp(name, "player_bot_replace") == 0) 
+		if (strcmp(name, "player_bot_replace") == 0)  // bot replace player
 		{
 			clinetReSpawnTime[bot] = clinetReSpawnTime[player];
 			clinetReSpawnTime[player] = 0.0;	
@@ -460,7 +466,7 @@ public void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroad
 		return;
 	}
 
-	if ( bRespawn && clinetReSpawnTime[client] > GetEngineTime() )
+	if ( clinetReSpawnTime[client] > GetEngineTime() )
 	{
 		PrintHintText( client, "%T", "You will be respawned again.", client );
 		
@@ -468,26 +474,28 @@ public void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroad
 		return;
 	}
 
-	if ( bRespawn && !bEnablesRespawnLimit)
+	if ( !bEnablesRespawnLimit)
 	{
-		RespawnTimer[client] = CreateTimer( float(g_iRespawnTimeout), Timer_Respawn, client ); 
+		delete RespawnTimer[client];
+		RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client ); 
 		
 		Seconds[client] = g_iRespawnTimeout;
-		CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE );
+		delete CountTimer[client];
+		CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT);
 		
 		if ( g_bSaveStats )
 			SaveStats( client );
 		
 		bRescuable[client] = false;
 	}
-
-	if ( bRespawn && bEnablesRespawnLimit)
+	else
 	{
 		if ( RespawnLimit[client] < g_iRespawnLimit )
 		{
-			RespawnTimer[client] = CreateTimer( float(g_iRespawnTimeout), Timer_Respawn, client); 
-			
-			CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE ); 
+			delete RespawnTimer[client];
+			RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
+			delete CountTimer[client];
+			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
 			
 			if ( g_bSaveStats )
 				SaveStats( client );
@@ -507,20 +515,20 @@ public void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadc
 {
 	int bot = GetClientOfUserId( hEvent.GetInt( "bot" ) );
 	
-	if ( IsPlayerAlive( bot ) || !IsValidClient( bot ) || !IsFakeClient( bot ) || !hCvar_BotReplaced.BoolValue || g_bIsOpenSafeRoom || (bFinaleEscapeStarted && g_bEscapeDisable) || g_bRoundEnd ) return;
+	if ( !IsValidClient( bot ) || IsPlayerAlive(bot) || !hCvar_BotReplaced.BoolValue || g_bIsOpenSafeRoom || (bFinaleEscapeStarted && g_bEscapeDisable) || g_bRoundEnd ) return;
 
-	if ( bRespawn && !bEnablesRespawnLimit)
+	if ( !bEnablesRespawnLimit)
 	{
-		RespawnTimer[bot] = CreateTimer( float(g_iRespawnTimeout), Timer_Respawn, bot );
+		delete RespawnTimer[bot];
+		RespawnTimer[bot] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, bot );
 		bRescuable[bot] = false;
-
 	}
-
-	if ( bRespawn && bEnablesRespawnLimit)
+	else
 	{
 		if ( RespawnLimit[bot] < g_iRespawnLimit )
 		{
-			RespawnTimer[bot] = CreateTimer( float(g_iRespawnTimeout), Timer_Respawn, bot ); 
+			delete RespawnTimer[bot];
+			RespawnTimer[bot] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, bot ); 
 			bRescuable[bot] = false;
 		}
 		else if ( RespawnLimit[bot] >= g_iRespawnLimit )
@@ -528,6 +536,7 @@ public void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadc
 	}
 }
 
+// bot死亡，其有閒置的玩家取代bot時不會觸發此事件，只觸發player_spawn與player_team
 public void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "player" ) );
@@ -536,15 +545,17 @@ public void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBro
 	if( !bot || !IsClientInGame(bot)) return;
 
 	delete RespawnTimer[client];
-	if(GetClientTeam(client) == TEAM_SURVIVOR && !IsPlayerAlive(client))
+	if(GetClientTeam(client) == TEAM_SURVIVOR && !IsPlayerAlive(client) && g_bEnableHuman)
 	{
-		if ( bRespawn && bEnablesRespawnLimit)
+		if ( bEnablesRespawnLimit)
 		{
 			if ( RespawnLimit[client] < g_iRespawnLimit )
 			{
-				RespawnTimer[client] = CreateTimer( float(g_iRespawnTimeout), Timer_Respawn, client); 
+				delete RespawnTimer[client];
+				RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
 				
-				CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE ); 
+				delete CountTimer[client];
+				CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
 				
 				Seconds[client] = g_iRespawnTimeout;
 				bRescuable[client] = false;
@@ -554,6 +565,17 @@ public void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBro
 				PrintHintText( client, "%t", "Respawn Limit" );
 				bRescuable[client] = false;
 			}
+		}
+		else
+		{
+			delete RespawnTimer[client];
+			RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
+			
+			delete CountTimer[client];
+			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+			
+			Seconds[client] = g_iRespawnTimeout;
+			bRescuable[client] = false;
 		}
 
 		//PrintToChatAll( "\x03%N \x01has replaced dead \x04%N", client, bot ); // Test.
@@ -566,6 +588,44 @@ public void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroad
 	int client = GetClientOfUserId(UserID);
 	
 	delete RespawnTimer[client];
+	
+	if ( IsPlayerAlive(client) || !IsValidClient(client) ) return;
+
+	if ( !bEnablesRespawnLimit)
+	{
+		delete RespawnTimer[client];
+		RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client ); 
+		
+		Seconds[client] = g_iRespawnTimeout;
+		delete CountTimer[client];
+		CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT);
+		
+		if ( g_bSaveStats )
+			SaveStats( client );
+		
+		bRescuable[client] = false;
+	}
+	else
+	{
+		if ( RespawnLimit[client] < g_iRespawnLimit )
+		{
+			delete RespawnTimer[client];
+			RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
+			delete CountTimer[client];
+			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT ); 
+			
+			if ( g_bSaveStats )
+				SaveStats( client );
+			
+			Seconds[client] = g_iRespawnTimeout;
+			bRescuable[client] = false;
+		}
+		else if ( RespawnLimit[client] >= g_iRespawnLimit )
+		{
+			PrintHintText( client, "%t", "Respawn Limit" );
+			bRescuable[client] = false;
+		}
+	}
 }
 
 public void Event_ReviveSuccess( Event hEvent, const char[] sName, bool bDontBroadcast )
@@ -705,9 +765,10 @@ public Action Timer_Respawn( Handle hTimer, any client )
 /***********************************************************/
 public Action TimerCount( Handle hTimer, int client )
 {
-	if( g_bRoundEnd || RespawnTimer[client] == null || Seconds[client]  <= 0 || !IsClientInGame( client ) || IsFakeClient( client ) || GetClientTeam(client) != TEAM_SURVIVOR || IsPlayerAlive( client ) || IsClientIdle( client )) 
+	if( g_bRoundEnd || RespawnTimer[client] == null || Seconds[client]  <= 0 || !IsClientInGame( client ) || GetClientTeam(client) != TEAM_SURVIVOR || IsPlayerAlive( client ) || IsClientIdle( client )) 
 	{
 		delete RespawnTimer[client];
+		CountTimer[client] = null;
 		return Plugin_Stop;
 	}
 	
@@ -715,6 +776,7 @@ public Action TimerCount( Handle hTimer, int client )
 	{
 		PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
 		delete RespawnTimer[client];
+		CountTimer[client] = null;
 		return Plugin_Stop;
 	}
 
@@ -722,6 +784,7 @@ public Action TimerCount( Handle hTimer, int client )
 	{
 		PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
 		delete RespawnTimer[client];
+		CountTimer[client] = null;
 		return Plugin_Stop;
 	}
 
@@ -936,7 +999,11 @@ void vPerformTeleport( int client, int target, float vCoordinates[3] )
 
 stock bool IsValidClient( int client )
 {
-	if ( client == 0 || !IsClientInGame( client ) || GetClientTeam( client ) != 2 || ( IsFakeClient( client ) && !bIncludeBots ) )
+	if ( client == 0 || 
+		!IsClientInGame( client ) || 
+		GetClientTeam( client ) != 2 || 
+		( IsFakeClient( client ) && !g_bEnableBots ) ||
+		( !IsFakeClient( client ) && !g_bEnableHuman ))
 		return false;
 	
 	return true;
@@ -1020,11 +1087,11 @@ stock int Custom_AddTargetsToMenu( Menu hMenu )
 
 stock bool IsClientIdle( int client )
 {
-	if ( GetClientTeam( client ) != TEAM_SPECTATOR )
+	if ( !IsFakeClient(client) || GetClientTeam( client ) != TEAM_SPECTATOR )
 		return false;
 	
 	for ( int i = 1; i <= MaxClients; i ++ )
-		if ( IsClientConnected( i ) && IsClientInGame( i ) )
+		if ( IsClientInGame( i ) )
 			if ( ( GetClientTeam( i ) == TEAM_SURVIVOR ) && IsAlive( i ) )
 				if ( IsFakeClient( i ) )
 					if ( GetClientOfUserId( GetEntProp( i, Prop_Send, "m_humanSpectatorUserID" ) ) == client )
@@ -1048,7 +1115,10 @@ public void OnClientPutInServer(int client)
 
 public void OnClientDisconnect(int client)
 {
+	if(!IsClientInGame(client))
+
 	delete RespawnTimer[client];
+	delete CountTimer[client];
 	delete HangingTimer[client];
 	delete IncapTimer[client];
 }
