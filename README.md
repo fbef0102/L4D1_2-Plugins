@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/7/20)
+> All plugins in here apply to both L4D1/2 (last edited:2022/7/21)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -76,6 +76,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4dafkfix_deadbot</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>_AutoTakeOver</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>chat_responses</b>: Displays chat advertisements when specified text is said in player chat.
+* <b>l4d_tracerock</b>: Tank Trace Rock.
 # Scripting Compiler
 * [sourcemod 1.11 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.11_Compiler.zip): sourcemod v1.11 scripting
 # Others
