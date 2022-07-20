@@ -232,8 +232,6 @@ public void OnMapEnd()
 	SetCheckpointDoor_Default();
 
 	ResetPlugin();
-
-	sb_unstick.SetBool(sb_unstick_default);
 }
 
 public void OnConfigsExecuted()
@@ -387,7 +385,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_bValidMap == false)
+	if (g_bValidMap == false || bRoundEnd)
 	{
 		return Plugin_Continue;
 	}
