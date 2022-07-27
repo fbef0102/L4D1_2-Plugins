@@ -8,10 +8,10 @@ if exist ..\..\addons\sourcemod\data (
 )
 
 2>nul del "%list%"
-for %%a in (*.mp3) do >> "%list%" < NUL set /p "=%p%" & >> "%list%" echo TS_SERVER/%%a
+for %%a in (*.mp3) do (
+	echo TS_SERVER/%%a>> "%list%"
+)
 
 echo File list is successfully rewrited and saved to: %list%
 echo.
 pause
-
-goto :eof
