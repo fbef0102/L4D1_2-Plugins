@@ -1,6 +1,8 @@
+//Harry @ 2021~2022
+
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "1.5"
+#define PLUGIN_VERSION "1.6"
 #define DEBUG 0
 
 #include <sourcemod>
@@ -18,7 +20,7 @@ public Plugin myinfo =
 	author = "xZk, BHaType, HarryPotter",
 	description = "Change target when the witch incapacitates or kills victim + witchs auto follow survivors",
 	version = PLUGIN_VERSION,
-	url = "https://steamcommunity.com/id/HarryPotter_TW/"
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
 bool L4D2Version;
@@ -62,7 +64,7 @@ float ActionTime[MAXENTITY+1], EnemyTime[MAXENTITY+1], StuckTime[MAXENTITY+1], P
     TargetDir[MAXENTITY+1][3], LastPos[MAXENTITY+1][3], LastSetPos[MAXENTITY+1][3];
 bool bWitchScared[MAXENTITY+1], bWitchSit[MAXENTITY+1];
 Handle BurnWitchTimer[MAXENTITY+1] = {null};
-static bool ge_bInvalidTrace[MAXENTITY+1];
+//static bool ge_bInvalidTrace[MAXENTITY+1];
 static float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
 static float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
 
@@ -103,9 +105,9 @@ public void OnPluginStart()
 	HookEvent("witch_spawn", witch_spawn);
 	HookEvent("witch_harasser_set", WitchHarasserSet_Event);
 	HookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy); //對抗模式下會觸發兩次 (第一次人類滅團之時 第二次隊伍換邊之時)
-	HookEvent("map_transition", Event_RoundEnd); //戰役模式下過關到下一關的時候 (沒有觸發round_end)
-	HookEvent("mission_lost", Event_RoundEnd); //戰役模式下滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("map_transition", Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役模式下過關到下一關的時候 (沒有觸發round_end)
+	HookEvent("mission_lost", Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役模式下滅團重來該關卡的時候 (之後有觸發round_end)
+	HookEvent("finale_vehicle_leaving", Event_RoundEnd,	EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
 
 	//Autoconfig for plugin
 	AutoExecConfig(true, "witch_target_override");
@@ -317,7 +319,7 @@ public void witch_spawn(Event event, const char[] event_name, bool dontBroadcast
 	if(g_bCvarReCalculateBurnOverride == false)
 	{
 		delete BurnWitchTimer[witchid];
-		SDKHook(witchid, SDKHook_OnTakeDamageAlive, OnTakeDamageW);	
+		SDKHook(witchid, SDKHook_OnTakeDamageAlive, OnTakeDamageWitch);	
 	}
 }
 
@@ -331,7 +333,7 @@ public Action DelayHookWitch(Handle timer, int ref)
 
 	return Plugin_Continue;
 }
-
+/*
 public void OnEntityCreated(int entity, const char[] classname)
 {
     if (!IsValidEntityIndex(entity))
@@ -356,6 +358,7 @@ public void OnEntityCreated(int entity, const char[] classname)
         }
     }
 }
+*/
 
 public void OnEntityDestroyed(int entity)
 {
@@ -367,7 +370,7 @@ public void OnEntityDestroyed(int entity)
 	bWitchSit[entity] = false;
 	delete BurnWitchTimer[entity];
 
-	ge_bInvalidTrace[entity] = false;
+	//ge_bInvalidTrace[entity] = false;
 }
 
 public void StartHookWitch(int witch)
@@ -684,11 +687,11 @@ void RotateVector(float direction[3], float vec[3], float alfa, float result[3])
     AddVectors(result, uuv, result);
 }
 
-public Action OnTakeDamageW(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+public Action OnTakeDamageWitch(int witch, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
-	if( damagetype & DMG_BURN && BurnWitchTimer[victim] == null)
+	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null)
 	{
-		BurnWitchTimer[victim] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, EntIndexToEntRef(victim));
+		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, EntIndexToEntRef(witch));
 	}
 
 	return Plugin_Continue;
@@ -698,11 +701,8 @@ public Action BurnWitchDead_Timer(Handle timer, int witch)
 {
 	if ( witch && ( witch = EntRefToEntIndex(witch) ) != INVALID_ENT_REFERENCE )
 	{
-		if(IsWitch(witch))
-		{
-			ForceDamageEntity(-1, 99999, witch);
-			BurnWitchTimer[witch] = null;
-		}
+		ForceDamageEntity(-1, 99999, witch);
+		BurnWitchTimer[witch] = null;
 	}
 
 	return Plugin_Continue;	
@@ -797,7 +797,7 @@ public bool TraceFilter(int entity, int contentsMask, int client)
     if( !IsValidEntityIndex(entity) )
         return false;
 
-    return ge_bInvalidTrace[entity] ? false : true;
+    return /*ge_bInvalidTrace[entity] ? false :*/ true;
 }
 
 bool IsValidClientIndex(int client)

@@ -1,7 +1,7 @@
 Change target when the witch incapacitates or kills victim + witchs auto follow survivors
 
 -ChangeLog-
-v1.5
+v1.6
 -AlliedModders Post: https://forums.alliedmods.net/showpost.php?p=2732048&postcount=9
 * Witch is allowed to chase another target after she incapacitates a survivor. 
 * Witch is allowed to chase another target after she kills a survivor. 
