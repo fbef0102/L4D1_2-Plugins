@@ -53,7 +53,7 @@ v1.1
 	
 5.Start the server and test
 	-Aim at a wall and use !paintdecal <decalname> the name you just type in decal.cfg
-	-Now you can save all panted decals in the map with !savedecals to the config
+	-say !savedecal to save a Decal to the config whilst aiming at it, "!savedecal all" saves all Decals (on current Map), "!savedecal [id]" saves a Decal by id, "!savedecal [last]" saves last painted Decal, "!savedecal [name]" saves all Decals by decalname (on current Map)
 
 -ConVars-
 cfg\sourcemod\map-decals.cfg
@@ -150,7 +150,7 @@ v1.1
 	
 5.啟動伺服器並測試
 	- 瞄準牆壁並使用 !paintdecal <decalname> 打上你剛才decal.cfg文件裡取的命名
-	- 現在您可以使用 !savedecals 將地圖中的所有現存塗鴉保存到配置中
+	- 現在您可以使用 !savedecal 將瞄準的現存塗鴉保存到配置中
 
 -指令-
 cfg\sourcemod\map-decals.cfg
