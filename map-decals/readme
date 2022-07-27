@@ -2,10 +2,11 @@ Allows admins to place any decals into the map that are defined in the the confi
 video showcase:　https://www.youtube.com/watch?v=OFytUVO_b_o
 
 -ChangeLog-
-v1.3 (2021-8-25)
+v1.4 (2022-07-28)
 - add new convar.
 - player only downloads decals depending on Map specific configs
 - fix translation error
+- fix file error
 	 
 v1.1
 - original plugin by berni: https://forums.alliedmods.net/showthread.php?t=69502

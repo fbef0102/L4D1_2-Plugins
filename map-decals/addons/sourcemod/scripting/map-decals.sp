@@ -7,7 +7,7 @@
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 
-#define PLUGIN_VERSION "1.3"
+#define PLUGIN_VERSION "1.4"
 
 // Admin Level Defines: Level for Allowing Temp.Spray/Temp.Remove of Decals and Level for Saving Decals/getting aim position
 #define ADMIN_LEVEL_SPRAY	ADMFLAG_CUSTOM3
@@ -125,8 +125,8 @@ public OnMapStart() {
 
 	GetCurrentMap(mapName, sizeof(mapName));
 
-	BuildPath(Path_SM, path_decals, sizeof(path_decals), "configs/map-decals/decals.cfg");
-	BuildPath(Path_SM, path_mapdecals, sizeof(path_mapdecals), "configs/map-decals/maps/%s.cfg", mapName);
+	BuildPath(Path_SM, path_decals, sizeof(path_decals), "/configs/map-decals/decals.cfg");
+	BuildPath(Path_SM, path_mapdecals, sizeof(path_mapdecals), "/configs/map-decals/maps/%s.cfg", mapName);
 
 	ReadDecals(-1, READ);
 	
@@ -527,7 +527,6 @@ public Action:Command_SaveDecal(client, args) {
 	decl String:decalName[64];
 	decl String:strpos[8];
 	new n=1;
-	decl String:file[PLATFORM_MAX_PATH];
 	new saved = 0;
 	decl index;
 	new size = GetArraySize(adt_decal_id);
@@ -539,7 +538,8 @@ public Action:Command_SaveDecal(client, args) {
 			for (new i=0; i<size; ++i) {
 				GetArrayArray(adt_decal_position, i, _:position);
 				if (GetVectorDistance(pos, position) <= MaxDis) {
-					ReplyToCommand(client, "%t", "savedecal_file",COLOR_DEFAULT, COLOR_GREEN, file, COLOR_DEFAULT);
+					CreateFileIfNotExist(path_mapdecals);
+					ReplyToCommand(client, "%t", "savedecal_file",COLOR_DEFAULT, COLOR_GREEN, path_mapdecals, COLOR_DEFAULT);
 					new decal = GetArrayCell(adt_decal_id, i);
 					GetArrayString(adt_decal_names, decal, decalName, sizeof(decalName));
 					FileToKeyValues(kv, path_mapdecals);
@@ -587,7 +587,8 @@ public Action:Command_SaveDecal(client, args) {
 	// Save all on current Map to File
 	GetCmdArg(1, action, sizeof(action));
 	if (strcmp(action ,"all", false)==0) {
-		ReplyToCommand(client, "%t", "savedecals_file", COLOR_DEFAULT, COLOR_GREEN, file, COLOR_DEFAULT);
+		CreateFileIfNotExist(path_mapdecals);
+		ReplyToCommand(client, "%t", "savedecals_file", COLOR_DEFAULT, COLOR_GREEN, path_mapdecals, COLOR_DEFAULT);
 		new Handle:trie = CreateTrie();
 		size = GetArraySize(adt_decal_id);
 		for (new i=0; i<size; ++i) {
@@ -601,7 +602,7 @@ public Action:Command_SaveDecal(client, args) {
 		
 			KvRewind(kv);
 		}
-		KeyValuesToFile(kv, file);
+		KeyValuesToFile(kv, path_mapdecals);
 		CloseHandle(kv);
 		CloseHandle(trie);
 		
@@ -624,11 +625,12 @@ public Action:Command_SaveDecal(client, args) {
 	
 	// Save last painted Decal to File
 	if (strcmp(action ,"last", false)==0) {
-		ReplyToCommand(client, "%t", "saving_last", COLOR_DEFAULT, COLOR_GREEN, file, COLOR_DEFAULT);
+		CreateFileIfNotExist(path_mapdecals);
+		ReplyToCommand(client, "%t", "saving_last", COLOR_DEFAULT, COLOR_GREEN, path_mapdecals, COLOR_DEFAULT);
 		new decal = GetArrayCell(adt_decal_id, size-1);
 		GetArrayString(adt_decal_names, decal, decalName, sizeof(decalName));
 		GetArrayArray(adt_decal_position, size-1, _:position);
-		FileToKeyValues(kv, file);
+		FileToKeyValues(kv, path_mapdecals);
 		if (KvJumpToKey(kv, decalName, false)) {
 			Format(strpos, sizeof(strpos), "pos%d", n);
 			KvGetVector(kv, strpos, pos);
@@ -650,7 +652,7 @@ public Action:Command_SaveDecal(client, args) {
 			Format(strpos, sizeof(strpos), "pos%d", n);
 			KvSetVector(kv, strpos, position);
 			KvRewind(kv);
-			KeyValuesToFile(kv, file);
+			KeyValuesToFile(kv, path_mapdecals);
 			ReplyToCommand(client, "%t", "saved_last", COLOR_DEFAULT, COLOR_GREEN, decalName, COLOR_DEFAULT);
 			new DecalPos = GetConVarInt(md_pos);
 			if (DecalPos)
@@ -666,8 +668,9 @@ public Action:Command_SaveDecal(client, args) {
 	if (found > -1) {
 		GetArrayString(adt_decal_names,found, action, sizeof(action)); 
 		new count = 0;
-		ReplyToCommand(client, "%t", "savedecals_file", COLOR_DEFAULT, COLOR_GREEN, file, COLOR_DEFAULT);
-		FileToKeyValues(kv, file);
+		CreateFileIfNotExist(path_mapdecals);
+		ReplyToCommand(client, "%t", "savedecals_file", COLOR_DEFAULT, COLOR_GREEN, path_mapdecals, COLOR_DEFAULT);
+		FileToKeyValues(kv, path_mapdecals);
 		for (new i=0; i<size; ++i) {
 			index = GetArrayCell(adt_decal_id, i);
 			GetArrayString(adt_decal_names, index, decalName, sizeof(decalName));
@@ -712,7 +715,7 @@ public Action:Command_SaveDecal(client, args) {
 		}
 		else
 			ReplyToCommand(client, "%t", "saved_more",COLOR_DEFAULT, COLOR_GREEN, count, COLOR_DEFAULT, COLOR_GREEN, decalName, COLOR_DEFAULT);
-		KeyValuesToFile(kv, file);
+		KeyValuesToFile(kv, path_mapdecals);
 		CloseHandle(kv);
 		return Plugin_Handled;
 	}
@@ -720,13 +723,13 @@ public Action:Command_SaveDecal(client, args) {
 	// Save by ID
 	index = StringToInt(action);
 	if (index != 0 && index <= size) {
-
-		ReplyToCommand(client, "%t", "savedecal_file", COLOR_DEFAULT, COLOR_GREEN, file, COLOR_DEFAULT);
+		CreateFileIfNotExist(path_mapdecals);
+		ReplyToCommand(client, "%t", "savedecal_file", COLOR_DEFAULT, COLOR_GREEN, path_mapdecals, COLOR_DEFAULT);
 		index -= 1;
 		new decal = GetArrayCell(adt_decal_id, index);
 		GetArrayString(adt_decal_names, decal, decalName, sizeof(decalName));
 		GetArrayArray(adt_decal_position, index, _:position);
-		FileToKeyValues(kv, file);
+		FileToKeyValues(kv, path_mapdecals);
 		if (KvJumpToKey(kv, decalName, false)) {
 			Format(strpos, sizeof(strpos), "pos%d", n);
 			KvGetVector(kv, strpos, pos);
@@ -748,7 +751,7 @@ public Action:Command_SaveDecal(client, args) {
 			Format(strpos, sizeof(strpos), "pos%d", n);
 			KvSetVector(kv, strpos, position);
 			KvRewind(kv);
-			KeyValuesToFile(kv, file);
+			KeyValuesToFile(kv, path_mapdecals);
 			ReplyToCommand(client, "%t", "saved_id", COLOR_DEFAULT, COLOR_GREEN, 1, COLOR_DEFAULT, COLOR_GREEN, index+1, COLOR_DEFAULT);
 			new DecalPos = GetConVarInt(md_pos);
 			if (DecalPos)
@@ -1276,7 +1279,6 @@ public OptionsMenuHandler(Handle:optionsmenu, MenuAction:action, param1, param2)
 public bool:ReadDecals(client, mode) {
 	
 	decl String:buffer[PLATFORM_MAX_PATH];
-	decl String:file[PLATFORM_MAX_PATH];
 	decl String:download[PLATFORM_MAX_PATH];
 	decl Handle:kv;
 	decl Handle:vtf;
@@ -1289,7 +1291,7 @@ public bool:ReadDecals(client, mode) {
 
 		if (!KvGotoFirstSubKey(kv)) {
 
-			LogMessage("CFG File not found: %s", file);
+			LogMessage("CFG File not found: %s", path_decals);
 			CloseHandle(kv);
 			return false;
 		}
@@ -1429,4 +1431,15 @@ GetClientAimTargetEx(client, Float:pos[3]) {
 	CloseHandle(trace);
 	
 	return -1;
+}
+
+void CreateFileIfNotExist(const char[] file)
+{
+	Handle fileHandle = OpenFile(file, "a");  /* Append */
+	if(fileHandle == null)
+	{
+		CreateDirectory("/addons/sourcemod/configs/map-decals/maps", 0);
+		fileHandle = OpenFile(file, "a"); //open again
+	}
+	delete fileHandle;
 }
