@@ -2,7 +2,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "1.6"
+#define PLUGIN_VERSION "1.7"
 #define DEBUG 0
 
 #include <sourcemod>
@@ -64,7 +64,7 @@ float ActionTime[MAXENTITY+1], EnemyTime[MAXENTITY+1], StuckTime[MAXENTITY+1], P
     TargetDir[MAXENTITY+1][3], LastPos[MAXENTITY+1][3], LastSetPos[MAXENTITY+1][3];
 bool bWitchScared[MAXENTITY+1], bWitchSit[MAXENTITY+1];
 Handle BurnWitchTimer[MAXENTITY+1] = {null};
-//static bool ge_bInvalidTrace[MAXENTITY+1];
+static bool ge_bInvalidTrace[MAXENTITY+1];
 static float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
 static float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
 
@@ -333,7 +333,7 @@ public Action DelayHookWitch(Handle timer, int ref)
 
 	return Plugin_Continue;
 }
-/*
+
 public void OnEntityCreated(int entity, const char[] classname)
 {
     if (!IsValidEntityIndex(entity))
@@ -358,7 +358,7 @@ public void OnEntityCreated(int entity, const char[] classname)
         }
     }
 }
-*/
+
 
 public void OnEntityDestroyed(int entity)
 {
@@ -370,7 +370,7 @@ public void OnEntityDestroyed(int entity)
 	bWitchSit[entity] = false;
 	delete BurnWitchTimer[entity];
 
-	//ge_bInvalidTrace[entity] = false;
+	ge_bInvalidTrace[entity] = false;
 }
 
 public void StartHookWitch(int witch)
@@ -501,8 +501,7 @@ public Action ThinkWitch(int witch)
 	
 	SetVector(up, 0.0, 0.0, 1.0); 
  
-	float targetPos[3];   
-	
+	float targetPos[3];
 	if(time-EnemyTime[witch] > 1.0)
 	{	
 		Enemy[witch] = FindNextEnemy(witchPos);
@@ -512,12 +511,14 @@ public Action ThinkWitch(int witch)
 	Enemy[witch] = FreshEnemy(Enemy[witch], targetPos);
 	if(Enemy[witch] > 0)
 	{ 
+		#if DEBUG
+			PrintToChatAll("%d witch enemy %d", witch, Enemy[witch]);
+		#endif	
 		if(PauseTime[witch] <= 0.0)
 		{
 			SubtractVectors(targetPos, witchPos, TargetDir[witch]);
 			TargetDir[witch][2] = 0.0;
-			NormalizeVector(TargetDir[witch], TargetDir[witch]);	 
-			//PrintToChatAll("enemy %d", Enemy[witch]);
+			NormalizeVector(TargetDir[witch], TargetDir[witch]);
 		}
 	}
 	else
@@ -797,7 +798,7 @@ public bool TraceFilter(int entity, int contentsMask, int client)
     if( !IsValidEntityIndex(entity) )
         return false;
 
-    return /*ge_bInvalidTrace[entity] ? false :*/ true;
+    return ge_bInvalidTrace[entity] ? false : true;
 }
 
 bool IsValidClientIndex(int client)
