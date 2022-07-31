@@ -1,7 +1,7 @@
 Forces survivors and infected to spectate if they're AFK after certain time
 
 -ChangeLog-
-v2.0
+v2.1
 -Remake Code
 -add more hints
 -fixed wrong timer
@@ -14,23 +14,26 @@ v1.3.1
 
 -Convar-
 cfg\sourcemod\L4DVSAutoSpectateOnAFK.cfg
-// Check/warn interval
+// Check/warn time interval
 l4d_specafk_checkinteral "1"
 
-// If kick enabled on afk while on spec
+// Players with these flags have immune to be kicked while spec. (Empty = Everyone, -1: Nobody)
+l4d_specafk_immune_access_flag "z"
+
+// If 1, kick enabled on afk while on spec
 l4d_specafk_kickenabled "1"
 
 // time before kick (while already on spec after warn)
 l4d_specafk_kicktime "30"
 
-// If player will be forced to spectate on connect
+// If 1, player will still be forced to spectate and kicked whether surviros leave saferoom or not.
+l4d_specafk_saferoom_ignore "0"
+
+// If 1, player will be forced to spectate on connect
 l4d_specafk_speconconnect "0"
 
 // time before spec (after warn)
 l4d_specafk_spectime "15"
-
-// Version of L4D VS Auto spectate on AFK
-l4d_specafk_version "2.0"
 
 // Warn time before kick (while already on spec)
 l4d_specafk_warnkicktime "60"
