@@ -2,9 +2,10 @@ Forces survivors and infected to spectate if they're AFK after certain time
 
 -ChangeLog-
 v2.1
--Remake Code
--add more hints
--fixed wrong timer
+- Remake Code
+- Add more hints
+- Fixed wrong timer
+- Translation Support
 
 v1.3.1
 -original plugin from djromero: https://forums.alliedmods.net/showthread.php?p=761203
