@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/7/28)
+> All plugins in here apply to both L4D1/2 (last edited:2022/8/1)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -77,6 +77,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>_AutoTakeOver</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>chat_responses</b>: Displays chat advertisements when specified text is said in player chat.
 * <b>l4d_tracerock</b>: Tank Trace Rock.
+* <b>l4d_revive_reload_interrupt</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 # Scripting Compiler
 * [sourcemod 1.11 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.11_Compiler.zip): sourcemod v1.11 scripting
 # Others
