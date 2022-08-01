@@ -1,0 +1,16 @@
+Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
+(解決裝子彈的時候拯救隊友會卡彈的問題)
+
+-ChangeLog-
+2022 @ HarryPotter
+v1.0
+AlliedModders Post: https://forums.alliedmods.net/showthread.php?t=338878
+
+-Require-
+None
+
+-Convar-
+None
+
+-Command-
+None
