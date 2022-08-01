@@ -41,7 +41,7 @@ static int    ge_iOwner[MAXENTITIES+1];
 #define PLUGIN_NAME                   "[L4D1 & L4D2] Tank HP Sprite"
 #define PLUGIN_AUTHOR                 "Mart & Harry (fork)"
 #define PLUGIN_DESCRIPTION            "Shows a sprite at the tank head that goes from green to red based on its HP"
-#define PLUGIN_VERSION                "1.2"
+#define PLUGIN_VERSION                "1.3"
 #define PLUGIN_URL                    "https://forums.alliedmods.net/showthread.php?t=330370"
 
 public Plugin myinfo =
@@ -102,6 +102,11 @@ public void OnMapStart()
     PrecacheModel(SPRITE_DEATH, true);
 }
 
+public void OnMapEnd()
+{
+	g_bConfigLoaded = false;
+}
+
 public void OnClientDisconnect(int client)
 {
     if (!g_bConfigLoaded)
@@ -115,7 +120,7 @@ public void OnClientDisconnect(int client)
     }
 }
 
-public Action event_TankKilled( Event event, const char[] sName, bool bDontBroadcast )
+public void event_TankKilled( Event event, const char[] sName, bool bDontBroadcast )
 {
     int target = GetClientOfUserId(GetEventInt(event, "userid"));
 
