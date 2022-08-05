@@ -1,7 +1,7 @@
 Prevents mission loss(Round_End) until all human players have died.
 
 -ChangeLog-
-v2.0
+v2.1
 -Remake code
 -fixed double round end issue when map change
 
