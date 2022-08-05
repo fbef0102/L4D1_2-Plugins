@@ -7,8 +7,8 @@ public Plugin myinfo = {
     name = "[L4D, L4D2] No Death Check Until Dead", 
     author = "chinagreenelvis, Harry", 
     description = "Prevents mission loss until all players have died.", 
-    version = "2.0", 
-    url = "https://forums.alliedmods.net/showthread.php?t=142432" 
+    version = "2.1", 
+    url = "https://steamcommunity.com/profiles/76561198026784913" 
 }; 
 
 ConVar g_hCvarAllow = null;
@@ -157,7 +157,10 @@ public Action tmrStart(Handle timer)
 {
 	ResetPlugin();
 	director_no_death_check.SetInt(0);
-	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
+	delete PlayerLeftStartTimer; 
+	PlayerLeftStartTimer = CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
+
+	return Plugin_Continue;
 }
 
 public Action PlayerLeftStart(Handle timer)
@@ -203,13 +206,22 @@ public Action Timer_DeathCheck(Handle timer)
 		
 		if (survivors < 1)
 		{
-			int oldFlags = GetCommandFlags("scenario_end");
-			SetCommandFlags("scenario_end", oldFlags & ~(FCVAR_CHEAT|FCVAR_DEVELOPMENTONLY));
-			ServerCommand("scenario_end");
-			ServerExecute();
-			SetCommandFlags("scenario_end", oldFlags);
+			if(g_bL4D2Version)
+			{
+				int oldFlags = GetCommandFlags("scenario_end");
+				SetCommandFlags("scenario_end", oldFlags & ~(FCVAR_CHEAT|FCVAR_DEVELOPMENTONLY));
+				ServerCommand("scenario_end");
+				ServerExecute();
+				SetCommandFlags("scenario_end", oldFlags);
+			}
+			else
+			{
+				director_no_death_check.SetInt(0);
+			}
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 stock bool IsValidSurvivor(int client)
