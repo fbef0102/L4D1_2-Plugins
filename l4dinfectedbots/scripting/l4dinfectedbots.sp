@@ -2547,16 +2547,6 @@ public Action DisposeOfCowards(Handle timer, int coward)
 	return Plugin_Continue;
 }
 
-public Action Timer_RestoreBotGhost(Handle timer, int client)
-{
-	if (IsValidEntity(client))
-	{
-		SetGhostStatus(client, false);
-		SetEntityMoveType(client, MOVETYPE_WALK);
-	}
-	return Plugin_Continue;
-}
-
 public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	// We get the client id and time
@@ -3601,48 +3591,87 @@ public Action Spawn_InfectedBot(Handle timer)
 	if (binfectedfreeplayer)
 	{
 		// We spawn the bot ...
-		switch (bot_type)
+		if(g_bCoopInfectedPlayerGhostState)
 		{
-			case 0: // Nothing
+			switch (bot_type)
 			{
+				case 0: // Nothing
+				{
+				}
+				case 1: // Smoker
+				{
+					CheatCommand(anyclient, sSpawnCommand, "smoker");
+				}
+				case 2: // Boomer
+				{
+					CheatCommand(anyclient, sSpawnCommand, "boomer");
+				}
+				case 3: // Hunter
+				{
+					CheatCommand(anyclient, sSpawnCommand, "hunter");
+				}
+				case 4: // Spitter
+				{
+					CheatCommand(anyclient, sSpawnCommand, "spitter");
+				}
+				case 5: // Jockey
+				{
+					CheatCommand(anyclient, sSpawnCommand, "jockey");
+				}
+				case 6: // Charger
+				{
+					CheatCommand(anyclient, sSpawnCommand, "charger");
+				}
+				case 7: // Tank
+				{
+					CheatCommand(anyclient, sSpawnCommand, "tank auto");
+				}
 			}
-			case 1: // Smoker
-			{
-				CheatCommand(anyclient, sSpawnCommand, "smoker auto");
-			}
-			case 2: // Boomer
-			{
-				CheatCommand(anyclient, sSpawnCommand, "boomer auto");
-			}
-			case 3: // Hunter
-			{
-				CheatCommand(anyclient, sSpawnCommand, "hunter auto");
-			}
-			case 4: // Spitter
-			{
-				CheatCommand(anyclient, sSpawnCommand, "spitter auto");
-			}
-			case 5: // Jockey
-			{
-				CheatCommand(anyclient, sSpawnCommand, "jockey auto");
-			}
-			case 6: // Charger
-			{
-				CheatCommand(anyclient, sSpawnCommand, "charger auto");
-			}
-			case 7: // Tank
-			{
-				CheatCommand(anyclient, sSpawnCommand, "tank auto");
-			}
-
-			
 		}
+		else
+		{
+			switch (bot_type)
+			{
+				case 0: // Nothing
+				{
+				}
+				case 1: // Smoker
+				{
+					CheatCommand(anyclient, sSpawnCommand, "smoker auto");
+				}
+				case 2: // Boomer
+				{
+					CheatCommand(anyclient, sSpawnCommand, "boomer auto");
+				}
+				case 3: // Hunter
+				{
+					CheatCommand(anyclient, sSpawnCommand, "hunter auto");
+				}
+				case 4: // Spitter
+				{
+					CheatCommand(anyclient, sSpawnCommand, "spitter auto");
+				}
+				case 5: // Jockey
+				{
+					CheatCommand(anyclient, sSpawnCommand, "jockey auto");
+				}
+				case 6: // Charger
+				{
+					CheatCommand(anyclient, sSpawnCommand, "charger auto");
+				}
+				case 7: // Tank
+				{
+					CheatCommand(anyclient, sSpawnCommand, "tank auto");
+				}
+			}
+		}
+
 		if(IsPlayerAlive(human))
 		{
 			if(g_iCoordinationBotReady > 0) g_iCoordinationBotReady--;
 			CreateTimer(0.2, CheckIfBotsNeededLater, true, TIMER_FLAG_NO_MAPCHANGE);
 
-			if(!IsPlayerTank(human) && g_bCoopInfectedPlayerGhostState)
+			if(g_bCoopInfectedPlayerGhostState && !IsPlayerTank(human))
 			{
 				L4D_State_Transition(human, STATE_GHOST);
 			}
@@ -4614,6 +4643,8 @@ void TurnFlashlightOn(int client)
 
 		// Light_Dynamic
 		entity = MakeLightDynamic(vOrigin, vAngles, client);
+		if(entity == 0) return;
+
 		g_iLightIndex[client] = EntIndexToEntRef(entity);
 
 		if( g_iClientIndex[client] == GetClientUserId(client) )
@@ -4976,6 +5007,8 @@ public void CreateSurvivorModelGlow(int client)
 	SetEntityRenderColor(entity, 0, 0, 0, 0);
 
 	// Set model attach to client, and always synchronize
+	SetVariantString("!activator");
+	AcceptEntityInput(entity, "SetParent", client);
 	SetVariantString("!activator");
 	AcceptEntityInput(entity, "SetAttached", client);
 	///////發光物件完成//////////
