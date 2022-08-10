@@ -697,30 +697,6 @@ void CreateExplosion(const float pos[3], const float duration = 6.0)
 
 	EmitAmbientSound(EXPLOSION_SOUND, pos);
 	EmitAmbientSound(EXPLOSION_DEBRIS, pos);
-
-	static const float power = 1.0, flMxDistance = 1.0;
-	float orig[3], vec[3], result[3];
-
-	for(int i = 1; i <= MaxClients; i++)
-	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsInFinalRescueVehicle(i))
-		{
-			GetEntPropVector(i, Prop_Data, "m_vecOrigin", orig);
-			if(GetVectorDistance(pos, orig) <= flMxDistance)
-			{
-				MakeVectorFromPoints(pos, orig, vec);
-				GetVectorAngles(vec, result);
-
-				GetEntPropVector(i, Prop_Data, "m_vecVelocity", vec);
-
-				result[0] = Cosine(DegToRad(result[1])) * power + vec[0];
-				result[1] = Sine(DegToRad(result[1])) * power + vec[1];
-				result[2] = power;
-
-				TeleportEntity(i, orig, NULL_VECTOR, result);
-			}
-		}
-	}
 }
 
 public Action Timer_SlayPlayer(Handle timer, int userid)
