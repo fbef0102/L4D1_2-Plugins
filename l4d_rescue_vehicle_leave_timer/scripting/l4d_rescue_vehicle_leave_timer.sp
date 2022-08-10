@@ -1,5 +1,5 @@
 
-#define PLUGIN_VERSION 		"1.2"
+#define PLUGIN_VERSION 		"1.3"
 #define PLUGIN_NAME			"[L4D1/2] Rescue vehicle leave timer"
 #define PLUGIN_AUTHOR		"HarryPotter"
 #define PLUGIN_DES			"When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him"
@@ -28,6 +28,18 @@
 #define CVAR_FLAGS			FCVAR_NOTIFY
 #define SOUND_ESCAPE		"ambient/alarms/klaxon1.wav"
 
+#define NUKE_SOUND "animation/overpass_jets.wav"
+#define EXPLOSION_SOUND "ambient/explosions/explode_1.wav"
+#define EXPLOSION_DEBRIS "animation/plantation_exlposion.wav"
+#define FIRE_PARTICLE "gas_explosion_ground_fire"
+#define EXPLOSION_PARTICLE "FluidExplosion_fps"
+
+#define FFADE_IN            0x0001
+#define FFADE_OUT           0x0002
+#define FFADE_MODULATE      0x0004
+#define FFADE_STAYOUT       0x0008
+#define FFADE_PURGE         0x0010
+
 // Cvar Handles/Variables
 ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarMapOff, g_hCvarAnnounceType;
 
@@ -35,7 +47,8 @@ ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarMapO
 ConVar g_hCvarMPGameMode;
 int g_iRoundStart, g_iPlayerSpawn, g_iCvarTime;
 int iSystemTime, g_iData[MAX_DATAS];
-bool g_bFinalVehicleReady, g_bFinalHasEscapeVehicle, g_bClientInVehicle[MAXPLAYERS+1];
+bool g_bFinalVehicleReady, g_bFinalHasEscapeVehicle, g_bFinalVehicleLeaving;
+bool g_bClientInVehicle[MAXPLAYERS+1];
 Handle AntiPussyTimer, _AntiPussyTimer;
 
 // ====================================================================================================
@@ -122,6 +135,13 @@ public void OnMapStart()
 	if(g_bValidMap)
 	{
 		PrecacheSound(SOUND_ESCAPE, true);
+
+		PrecacheSound(NUKE_SOUND);
+		PrecacheSound(EXPLOSION_SOUND);
+		PrecacheSound(EXPLOSION_DEBRIS);
+
+		PrecacheParticle(FIRE_PARTICLE);
+		PrecacheParticle(EXPLOSION_PARTICLE);
 	}
 }
 
@@ -261,7 +281,8 @@ void HookEvents()
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
-	HookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready);
+	HookEvent("finale_vehicle_leaving", Finale_Vehicle_Leaving,		EventHookMode_PostNoCopy);
+	HookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready,		EventHookMode_PostNoCopy);
 }
 
 void UnhookEvents()
@@ -272,11 +293,14 @@ void UnhookEvents()
 	UnhookEvent("map_transition", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	UnhookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
-	UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready);
+	UnhookEvent("finale_vehicle_leaving", 	Finale_Vehicle_Leaving,		EventHookMode_PostNoCopy);
+	UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready,		EventHookMode_PostNoCopy);
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+	g_bFinalVehicleLeaving = false;
+
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
@@ -300,11 +324,18 @@ public Action tmrStart(Handle timer)
 {
 	ResetPlugin();
 	InitRescueEntity();
+
+	return Plugin_Continue;
 }
 
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
+}
+
+public void Finale_Vehicle_Leaving(Event event, const char[] name, bool dontBroadcast)
+{
+	g_bFinalVehicleLeaving = true;
 }
 
 public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast)
@@ -320,7 +351,6 @@ public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadc
 
 public Action Timer_AntiPussy(Handle timer)
 {
-	EmitSoundToAll(SOUND_ESCAPE, _, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	switch(g_iCvarAnnounceType)
 	{
 		case 0: {/*nothing*/}
@@ -328,33 +358,51 @@ public Action Timer_AntiPussy(Handle timer)
 			CPrintToChatAll("[{olive}TS{default}] %t", "Escape in seconds", iSystemTime);
 		}
 		case 2: {
-			PrintHintTextToAll("[TS] %t", "Escape in seconds", iSystemTime);
+			PrintHintTextToAll("%t", "Escape in seconds", iSystemTime);
 		}
 		case 3: {
-			PrintCenterTextAll("[TS] %t", "Escape in seconds", iSystemTime);
+			PrintCenterTextAll("%t", "Escape in seconds", iSystemTime);
 		}
 	}
 
 	if(iSystemTime <= 1)
 	{
+		EmitSoundToAll(NUKE_SOUND);
 		CPrintToChatAll("{default}[{olive}TS{default}] %t", "Outside Slay");
-		if(_AntiPussyTimer == null) _AntiPussyTimer = CreateTimer(1.5, _AntiPussy, _, TIMER_REPEAT);
+		delete _AntiPussyTimer;
+		_AntiPussyTimer = CreateTimer(2.0, Timer_Strike, _, TIMER_REPEAT);
 		
 		AntiPussyTimer = null;
 		return Plugin_Stop;
 	}
 	
+	EmitSoundToAll(SOUND_ESCAPE, _, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	iSystemTime --;
 	return Plugin_Continue;
 }
 
-public Action _AntiPussy(Handle timer)
+public Action Timer_Strike(Handle timer)
 {
+	float radius = 1.0, pos[3];
 	for( int i = 1; i <= MaxClients; i++ ) 
 	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsInFinalRescueVehicle(i))
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
 		{
-			ForcePlayerSuicide(i);
+			//fade
+			CreateTimer(0.1, Timer_FadeOut, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
+
+			if(IsInFinalRescueVehicle(i)) continue;
+			
+			//explosion effect
+			GetClientAbsOrigin(i, pos);
+			pos[0] += GetRandomFloat(radius*-1, radius);
+			pos[1] += GetRandomFloat(radius*-1, radius);
+			CreateExplosion(pos);
+
+			//slay
+			CreateTimer(0.5, Timer_SlayPlayer, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
+
+			//hint
 			CPrintToChat(i, "{default}[{olive}TS{default}] %T", "You have been executed for not being on rescue vehicle or zone!", i);
 		}
 	}
@@ -534,4 +582,154 @@ bool IsInFinalRescueVehicle(int client)
 stock int Entity_GetHammerId(int entity)
 {
 	return GetEntProp(entity, Prop_Data, "m_iHammerID");
+}
+
+
+void PrecacheParticle(const char[] sEffectName)
+{
+	static int table = INVALID_STRING_TABLE;
+	if ( table == INVALID_STRING_TABLE )
+	{
+		table = FindStringTable("ParticleEffectNames");
+	}
+	if ( FindStringIndex(table, sEffectName) == INVALID_STRING_INDEX )
+	{
+		bool save = LockStringTables(false);
+		AddToStringTable(table, sEffectName);
+		LockStringTables(save);
+	}
+}
+
+public Action Timer_FadeOut(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(client && IsClientInGame(client))
+	{
+		CreateFade(FFADE_OUT, client);
+		CreateTimer(2.5, Timer_FadeIn, userid, TIMER_FLAG_NO_MAPCHANGE);
+	}
+
+	return Plugin_Continue;
+}
+
+public Action Timer_FadeIn(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(client && IsClientInGame(client) && !g_bFinalVehicleLeaving)
+	{
+		CreateFade(FFADE_IN, client);
+	}
+
+	return Plugin_Continue;
+}
+
+void CreateFade(int type, int target)
+{
+	Handle hFadeClient = StartMessageOne("Fade", target);
+	BfWriteShort(hFadeClient, 800);
+	BfWriteShort(hFadeClient, 800);
+	BfWriteShort(hFadeClient, (FFADE_PURGE|type|FFADE_STAYOUT));
+	BfWriteByte(hFadeClient, 255);
+	BfWriteByte(hFadeClient, 255);
+	BfWriteByte(hFadeClient, 255);
+	BfWriteByte(hFadeClient, 255);
+	EndMessage();
+}
+
+void CreateExplosion(const float pos[3], const float duration = 6.0)
+{
+	static char buffer[32];
+
+	int ent = CreateEntityByName("info_particle_system");
+	if(ent != -1)
+	{
+		DispatchKeyValue(ent, "effect_name", FIRE_PARTICLE);
+		TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(ent);
+		ActivateEntity(ent);
+
+		AcceptEntityInput(ent, "Start");
+		FormatEx(buffer, sizeof(buffer), "OnUser1 !self:Stop::%f:1", duration);
+		SetVariantString(buffer);
+		AcceptEntityInput(ent, "AddOutput");
+		AcceptEntityInput(ent, "FireUser1");
+	}
+	FormatEx(buffer, sizeof(buffer), "OnUser1 !self:Kill::%f:1", duration+1.5);
+
+	if((ent = CreateEntityByName("info_particle_system")) != -1)
+	{
+		DispatchKeyValue(ent, "effect_name", EXPLOSION_PARTICLE);
+		TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(ent);
+		ActivateEntity(ent);
+
+		AcceptEntityInput(ent, "Start");
+		SetVariantString(buffer);
+		AcceptEntityInput(ent, "AddOutput");
+		AcceptEntityInput(ent, "FireUser1");
+	}
+	if((ent = CreateEntityByName("env_explosion")) != -1)
+	{
+		DispatchKeyValue(ent, "fireballsprite", "sprites/muzzleflash4.vmt");
+		DispatchKeyValue(ent, "iMagnitude", "1");
+		DispatchKeyValue(ent, "iRadiusOverride", "1");
+		DispatchKeyValue(ent, "spawnflags", "828");
+		TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(ent);
+
+		AcceptEntityInput(ent, "Explode");
+		SetVariantString(buffer);
+		AcceptEntityInput(ent, "AddOutput");
+		AcceptEntityInput(ent, "FireUser1");
+	}
+	if((ent = CreateEntityByName("env_physexplosion")) != -1)
+	{
+		DispatchKeyValue(ent, "radius", "1");
+		DispatchKeyValue(ent, "magnitude", "1");
+		TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(ent);
+
+		AcceptEntityInput(ent, "Explode");
+		SetVariantString(buffer);
+		AcceptEntityInput(ent, "AddOutput");
+		AcceptEntityInput(ent, "FireUser1");
+	}
+
+	EmitAmbientSound(EXPLOSION_SOUND, pos);
+	EmitAmbientSound(EXPLOSION_DEBRIS, pos);
+
+	static const float power = 1.0, flMxDistance = 1.0;
+	float orig[3], vec[3], result[3];
+
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsInFinalRescueVehicle(i))
+		{
+			GetEntPropVector(i, Prop_Data, "m_vecOrigin", orig);
+			if(GetVectorDistance(pos, orig) <= flMxDistance)
+			{
+				MakeVectorFromPoints(pos, orig, vec);
+				GetVectorAngles(vec, result);
+
+				GetEntPropVector(i, Prop_Data, "m_vecVelocity", vec);
+
+				result[0] = Cosine(DegToRad(result[1])) * power + vec[0];
+				result[1] = Sine(DegToRad(result[1])) * power + vec[1];
+				result[2] = power;
+
+				TeleportEntity(i, orig, NULL_VECTOR, result);
+			}
+		}
+	}
+}
+
+public Action Timer_SlayPlayer(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(client && IsClientInGame(client) && IsPlayerAlive(client))
+	{
+		ForcePlayerSuicide(client);
+	}
+
+	return Plugin_Continue;
 }
