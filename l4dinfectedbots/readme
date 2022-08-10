@@ -249,10 +249,7 @@ This means that if server has 5+ alive survivors, each 3 players join, max speci
 So if there are 10 alive survivors, specials limit: 4+2+2 = 8
 
 if you don't want to adjust specials limit, set
--l4d_infectedbots_add_specials "0" 
-
-if you don't want to adjust tank limit, set
--l4d_infectedbots_add_tanklimit "0"
+-l4d_infectedbots_add_specials "0"
 
 3. Adjust tank health if 5+ alive players
 For example
@@ -306,6 +303,9 @@ For example.
 -l4d_infectedbots_add_tanklimit_scale "5"
 This means that if server has 5+ alive survivors, each 5 players join, Tank limit plus 1
 So if there are 10 alive survivors, tank limit: 2+1 = 3 (Does not affect director tanks)
+
+if you don't want to adjust tank limit, set
+-l4d_infectedbots_add_tanklimit "0"
 
 8. Play infected team in coop/survival/realism
 For example.
