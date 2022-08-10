@@ -5480,12 +5480,13 @@ public void ConVarChanged_TankLimitUpdate(ConVar convar, const char[] oldValue, 
 {
 	int iAliveSurplayers = CheckAliveSurvivorPlayers_InSV();
 
-	if(iAliveSurplayers >= 0 && (iAliveSurplayers != iPlayersInSurvivorTeam))
+	if(iAliveSurplayers >= 0)
 	{
 		int addition = iAliveSurplayers - 4;
 		if(addition < 0) addition = 0;
 
 		g_iTankLimit = h_TankLimit.IntValue + (h_PlayerAddTankLimit.IntValue * (addition/h_PlayerAddTankLimitScale.IntValue));
+		PrintToChatAll("g_iTankLimit: %d", g_iTankLimit);
 	}
 }
 
