@@ -296,7 +296,7 @@ Note that if tank limit is reached or is 0, still don't spawn tank (does not aff
 Do not Spawn tank in final stage rescue (does not affect director tanks)
 -l4d_infectedbots_tank_spawn_final "0"
 
-7. adjust Tank limit if 5+ alive players
+7. Adjust Tank limit if 5+ alive players
 For example.
 -l4d_infectedbots_tank_limit "2"
 -l4d_infectedbots_add_tanklimit "1"
