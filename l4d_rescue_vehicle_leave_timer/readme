@@ -41,7 +41,15 @@ data/l4d_rescue_vehicle.cfg
 	{
 		"num"		"0" //0=Turn off the plugin in this map
 	} 
-} 
+}
+
+-Notice-
+The plugin only supports all valve maps.
+If you want to support custom map, find entity by yourself or pay me money
+
+-支援的關卡-
+支援一二代所有官方地圖
+如果你想要支援三方地圖, 請自己利用stripper尋找物件或支付金錢
 
 -Convars-
 cfg/sourcemod/l4d_rescue_vehicle_leave_timer.cfg

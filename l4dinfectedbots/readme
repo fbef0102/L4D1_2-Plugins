@@ -4,7 +4,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.7.0
+v2.7.1
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 	(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
 -L4D1 Signature update. (Credit to Psykotikism: https://github.com/Psykotikism/L4D1-2_Signatures)
@@ -45,6 +45,12 @@ l4d_infectedbots_add_tankhealth "500"
 
 // If server has more than 4+ alive players, how many Tank Health = 'default_tankhealth' + [(alive players - 4) ÷ 'add_tankhealth_scale' × 'add_tankhealth'].
 l4d_infectedbots_add_tankhealth_scale "1"
+
+// If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_tank_limit' each 'l4d_infectedbots_add_tanklimit_scale' players joins
+l4d_infectedbots_add_tanklimit "1"
+
+// If server has more than 4+ alive players, how many tanks on the field = 'tank_limit' + [(alive players - 4) ÷ 'add_tanklimit_scale' × 'add_tanklimit'].
+l4d_infectedbots_add_tanklimit_scale "3"
 
 // If 1, adjust and overrides zombie common limit by this plugin.
 l4d_infectedbots_adjust_commonlimit_enable "1"
@@ -163,6 +169,9 @@ l4d_infectedbots_spitter_limit "2"
 // Sets the limit for tanks spawned by the plugin (does not affect director tanks)
 l4d_infectedbots_tank_limit "1"
 
+// If 1, still spawn tank in final stage rescue (does not affect director tanks)
+l4d_infectedbots_tank_spawn_final "1"
+
 // When each time spawn S.I., how much percent of chance to spawn tank
 l4d_infectedbots_tank_spawn_probability "5"
 
@@ -231,7 +240,7 @@ l4d_infectedbots_max_specials 9
 
 * Note that it does not counts witch in all gamemode, but it counts tank in all gamemode.
 
-2. adjust special limit if 5+ alive players
+2. Adjust special limit if 5+ alive players
 For example.
 -l4d_infectedbots_max_specials "4"
 -l4d_infectedbots_add_specials "2"
@@ -240,9 +249,9 @@ This means that if server has 5+ alive survivors, each 3 players join, max speci
 So if there are 10 alive survivors, specials limit: 4+2+2 = 8
 
 if you don't want to adjust specials limit, set
--l4d_infectedbots_add_specials "0" 
+-l4d_infectedbots_add_specials "0"
 
-3. adjust tank health if 5+ alive players
+3. Adjust tank health if 5+ alive players
 For example
 -l4d_infectedbots_adjust_tankhealth_enable "1"
 -l4d_infectedbots_default_tankhealth "4000"
@@ -254,7 +263,7 @@ So if there are 10 alive survivors, tank health: 4000+1200+1200 = 6400hp
 To close this feature, do not want to overrides tank HP by this plugin, set
 -l4d_infectedbots_adjust_tankhealth_enable "0"
 
-4. adjust zombie zommon limit if 5+ alive players
+4. Adjust zombie zommon limit if 5+ alive players
 For example
 - l4d_infectedbots_adjust_commonlimit_enable "1"
 - l4d_infectedbots_default_commonlimit "30"
@@ -266,7 +275,7 @@ So if there are 10 alive survivors, common limit: 30+2+2+2+2+2+2 = 42
 To close this feature, do not want to overrides zombie common limit by this plugin, set
 -l4d_infectedbots_adjust_commonlimit_enable "0"
 
-5.adjust special infected spawn timer
+5. Adjust special infected spawn timer
 Reduce certain value to spawn timer based per alive player,For example
 -l4d_infectedbots_spawn_time_max "60"
 -l4d_infectedbots_spawn_time_min "30"
@@ -277,14 +286,28 @@ If there are 5 "ALIVE" survivors in game, special infected spawn timer[max: 60-(
 To close this feature, set 
 -l4d_infectedbots_adjust_spawn_times "0"
 
-6.how to spawn tank
+6. How to spawn tank
 For example.
 -l4d_infectedbots_tank_limit "2"
 -l4d_infectedbots_tank_spawn_probability "5"
 This means that each time 5% chance to spawn tank instead of infected bot. 
-Note that if tank limit is reached or is 0, still don't spawn tank(does not affect director tanks)
+Note that if tank limit is reached or is 0, still don't spawn tank (does not affect director tanks)
 
-7. Play infected team in coop/survival/realism
+Do not Spawn tank in final stage rescue (does not affect director tanks)
+-l4d_infectedbots_tank_spawn_final "0"
+
+7. Adjust Tank limit if 5+ alive players
+For example.
+-l4d_infectedbots_tank_limit "2"
+-l4d_infectedbots_add_tanklimit "1"
+-l4d_infectedbots_add_tanklimit_scale "5"
+This means that if server has 5+ alive survivors, each 5 players join, Tank limit plus 1
+So if there are 10 alive survivors, tank limit: 2+1 = 3 (Does not affect director tanks)
+
+if you don't want to adjust tank limit, set
+-l4d_infectedbots_add_tanklimit "0"
+
+8. Play infected team in coop/survival/realism
 For example.
 -l4d_infectedbots_coop_versus "1"
 -l4d_infectedbots_coop_versus_join_access "z"
@@ -300,7 +323,7 @@ human infected player will spawn as ghost state in coop/survival/realism.
 make tank always be playable by real infected player
 -l4d_infectedbots_coop_versus_tank_playable "1" 
 
-8. Spawn range (Coop/Realism only)
+9. Spawn range (Coop/Realism only)
 Must be careful to adjust, these convars will also affect common zombie spawn range and human ghost infected spawn range.
 -l4d_infectedbots_spawn_range_max "2000"
 -l4d_infectedbots_spawn_range_min "400"
@@ -310,14 +333,14 @@ Make infected player spawn near very close by survivors for better gaming experi
 -l4d_infectedbots_spawn_range_min "0" 
 -l4d_infectedbots_spawn_range_final "0"
 
-9. Spawn Infected together
+10. Spawn Infected together
 bots will only spawn when all other bot spawn timers are at zero, and them spawn together
 -l4d_infectedbots_coordination "1" 
 
 Plugin will disable spawning infected bot when a tank is on the field.
 -l4d_infectedbots_spawns_disabled_tank "1" 
 
-10. Other
+11. Other
 a. How to disable this message?
 ***[TS] Numbers of Alive Survivor: 4, Infected Limit: 2, Tank Health: 4000, Common Limit: 40***
 - l4d_infectedbots_announcement_enable "0" 
@@ -340,21 +363,23 @@ b. How to turn off flashlights on human infected player in coop/survival/realism
 "l4d_infectedbots_modes_off", "", "此插件不要運作於輸入的遊戲模式名稱，逗號區隔不須空白 (空白=無)"
 "l4d_infectedbots_modes_tog", "5", "此插件運作於輸入的遊戲模式代號. 0=全部, 1=戰役/寫實, 2=生存, 4=對抗, 8=清道夫. 數字可以相加"
 "l4d_infectedbots_version", "L4D Infected Bots 插件版本"
-"l4d_infectedbots_boomer_limit", "4", "設定boomer的數量."
-"l4d_infectedbots_smoker_limit", "4", "設定smoker的數量."
-"l4d_infectedbots_hunter_limit", "4", "設定hunter的數量."
-"l4d_infectedbots_tank_limit", "2", "設定tank的數量.[不影響劇情的tank]"
-"l4d_infectedbots_witch_max_limit", "4", "設定witch的數量.[不影響劇情的witch]"
-"l4d_infectedbots_spitter_limit", "4", "設定spitter的數量."
-"l4d_infectedbots_jockey_limit", "4", "設定jockey的數量."
-"l4d_infectedbots_charger_limit", "4", "設定charger的數量."
-"l4d_infectedbots_max_specials", "8", "默認4位或以下活著倖存者的特感數量(必須讓limit7項特感數量值加起來超過這條，不包括witch)"
-"l4d_infectedbots_add_specials_scale", "1", "[倖存者]每增加幾位倖存者才會開始增加多少個特感."
-"l4d_infectedbots_add_specials", "2", "[感染者]每增加幾位倖存者才會開始增加多少個特感."
+"l4d_infectedbots_boomer_limit", "4", "設定boomer的數量上限."
+"l4d_infectedbots_smoker_limit", "4", "設定smoker的數量上限."
+"l4d_infectedbots_hunter_limit", "4", "設定hunter的數量上限."
+"l4d_infectedbots_tank_limit", "2", "設定tank的數量上限.[不影響劇情的tank]"
+"l4d_infectedbots_add_tanklimit ""1", "超過五人以上玩家，Tank數量上限 = tank_limit + [(存活的倖存者數量-4) ÷ 'add_tanklimit_scale'] × 'add_tanklimit'."
+"l4d_infectedbots_add_tanklimit_scale", "3", "超過五人以上玩家，Tank數量上限 = tank_limit + [(存活的倖存者數量-4) ÷ 'add_tanklimit_scale'] × 'add_tanklimit'.[不影響劇情的tank]"
+"l4d_infectedbots_witch_max_limit", "4", "設定witch的數量上限.[不影響劇情的witch]"
+"l4d_infectedbots_spitter_limit", "4", "設定spitter的數量上限."
+"l4d_infectedbots_jockey_limit", "4", "設定jockey的數量上限."
+"l4d_infectedbots_charger_limit", "4", "設定charger的數量上限."
+"l4d_infectedbots_max_specials", "2", "默認4位或以下活著倖存者的最大特感數量上限(必須讓limit 7項特感數量值加起來超過這條，包括Tank但不包括witch)"
+"l4d_infectedbots_add_specials_scale", "1", "超過五人以上玩家，最大特感數量上限 = max_specials + [(存活的倖存者數量-4) ÷ 'add_specials_scale'] × 'add_specials'."
+"l4d_infectedbots_add_specials", "2", "超過五人以上玩家，最大特感數量上限 = max_specials + [(存活的倖存者數量-4) ÷ 'add_specials_scale'] × 'add_specials'."
 "l4d_infectedbots_adjust_tankhealth_enable", "1", "是否允許根據倖存者人數增加tank生命值. 1-允許 0-不允許"
-"l4d_infectedbots_default_tankhealth", "16000", "設置tank默認的生命值.[4人或4人以下]"
-"l4d_infectedbots_add_tankhealth_scale", "1", "[倖存者]每增加幾位倖存者才會開始增加tank生命值."
-"l4d_infectedbots_add_tankhealth", "4000", "[tank]每增加幾位倖存者才會開始增加tank生命值."
+"l4d_infectedbots_default_tankhealth", "4000", "設置tank默認的生命值.[4人或4人以下]"
+"l4d_infectedbots_add_tankhealth_scale", "1", "超過五人以上玩家，Tank生命值 = tankhealth + [(存活的倖存者數量-4) ÷ 'add_tankhealth_scale'] × 'add_tankhealth'."
+"l4d_infectedbots_add_tankhealth", "500", "超過五人以上玩家，Tank生命值 = tankhealth + [(存活的倖存者數量-4) ÷ 'add_tankhealth_scale'] × 'add_tankhealth'."
 "l4d_infectedbots_spawn_time_max", "60", "設置特感復活的最大時間."
 "l4d_infectedbots_spawn_time_min", "30", "設置特感復活的最小時間."
 "l4d_infectedbots_coop_versus_tank_playable", "1", "戰役/生存/寫實模式中，玩家是否可以控制tank. 1-可以 0-不可以"
@@ -369,10 +394,10 @@ b. How to turn off flashlights on human infected player in coop/survival/realism
 "l4d_infectedbots_initial_spawn_timer", "1.0", "離開安全區後，特感第一波進攻的開始時間."
 "l4d_infectedbots_coop_versus_human_limit", "4", "設置使用!ji加入感染者陣營的人數上限."
 "l4d_infectedbots_coop_versus_join_access", "z", "戰役/生存/寫實中有這些權限的玩家能加入特感陣營. (空白=任何人有權限, -1=沒人有權限)"
-"l4d_infectedbots_spawns_disabled_tank", "0", "tank存在時，禁止特感繼續復活. 1-禁止 0-不禁止."
-"l4d_infectedbots_versus_coop", "0", "無論是對抗/清道夫，都會強制玩家加入特感陣營. 1-強制加入 0-不強制加入"
+"l4d_infectedbots_spawns_disabled_tank", "0", "Tank存在場上時，禁止特感繼續復活. 1-禁止 0-不禁止."
+"l4d_infectedbots_versus_coop", "0", "在對抗/清道夫模式中，強制所有玩家加入特感陣營. 1-強制加入 0-不強制加入"
 "l4d_infectedbots_adjust_spawn_times", "1", "啟用根據倖存者人數改變特感復活秒數. 1-啟用 0-關閉"
-"l4d_infectedbots_adjust_reduced_spawn_times_on_player", "1", "每有一位倖存者就減少多少特感復活秒數.[原本四位倖存者也計算在內]"
+"l4d_infectedbots_adjust_reduced_spawn_times_on_player", "1", "每有一位倖存者就減少'adjust_spawn_times'特感復活秒數.[原本四位倖存者也計算在內]"
 "l4d_infectedbots_safe_spawn", "0", "倖存者是否離開安全區特感才開始襲擊. 1-不用離開安全區 0-離開安全區"
 "l4d_infectedbots_spawn_range_min", "400", "特感生成的最小範圍.[默認:550] (只作用於戰役/寫實)"
 "l4d_infectedbots_spawn_range_max", "2000", "特感生成的最大範圍.[默認:1500] (只作用於戰役/寫實)"
@@ -380,14 +405,15 @@ b. How to turn off flashlights on human infected player in coop/survival/realism
 "l4d_infectedbots_witch_spawn_time_max", "150.0", "設置插件生成witch最大的時間."
 "l4d_infectedbots_witch_spawn_time_min", "100.0", "設置插件生成witch最小的時間."
 "l4d_infectedbots_witch_spawn_final", "0", "救援開始後還會不會有witch出現. 1-會 0-不會"
+"l4d_infectedbots_tank_spawn_final,"1", "救援開始後還插件還會不會生成Tank. 1-會 0-不會 [不影響劇情的tank]"
 "l4d_infectedbots_witch_lifespan", "200.0", "witch出現多少秒會被踢出.(AI防卡)"
 "l4d_infectedbots_tank_spawn_probability", "5", "特感復活的時候，每一隻都有多少%幾率會變成tank."
-"l4d_infectedbots_sm_zs_disable_gamemode", "7", "禁止特感在哪些模式中使用!zs[自殺]指令.(1戰役/2對抗/4生存，數字加起來)"
+"l4d_infectedbots_sm_zs_disable_gamemode", "7", "禁止特感在哪些模式中使用!zs[自殺]指令.(1戰役或寫實/2對抗/4生存，把數字加起來)"
 "l4d_infectedbots_adjust_commonlimit_enable", "0", "啟用根據倖存者人數而改變小僵屍數量. 1-開啟 0-關閉"
-"l4d_infectedbots_default_commonlimit", "30", "設置小僵屍的默認數量.[4人或4人以下]" 
-"l4d_infectedbots_add_commonlimit_scale", "1", "[倖存者]每增加多少位倖存者，就增加多少隻小僵屍." 
-"l4d_infectedbots_add_commonlimit", "2", "[小僵屍]每增加多少位倖存者，就增加多少隻小僵屍."
-"l4d_infectedbots_coop_versus_human_light", "1", "讓玩家清楚知道可操控的特感.(身體發出紅色光芒)" 
+"l4d_infectedbots_default_commonlimit", "30", "設置普通僵屍的默認數量上限.[4人或4人以下]" 
+"l4d_infectedbots_add_commonlimit_scale", "1", "超過五人以上玩家，最大普通僵屍數量上限 = default_commonlimit + [(存活的倖存者數量-4) ÷ 'add_commonlimit_scale'] × 'add_commonlimit'." 
+"l4d_infectedbots_add_commonlimit", "2", "超過五人以上玩家，最大普通僵屍數量上限 = default_commonlimit + [(存活的倖存者數量-4) ÷ 'add_commonlimit_scale'] × 'add_commonlimit'."
+"l4d_infectedbots_coop_versus_human_light", "1", "在戰役/寫實/生存模式之下，讓玩家清楚知道哪一隻特感為人類玩家操控, 身體會發出紅色光芒" 
 
 !infhud
 (只限戰役/寫實/生存) !ji - 加入特感

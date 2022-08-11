@@ -28,11 +28,14 @@
 #define CVAR_FLAGS			FCVAR_NOTIFY
 #define SOUND_ESCAPE		"ambient/alarms/klaxon1.wav"
 
-#define NUKE_SOUND "animation/overpass_jets.wav"
-#define EXPLOSION_SOUND "ambient/explosions/explode_1.wav"
-#define EXPLOSION_DEBRIS "animation/plantation_exlposion.wav"
+#define NUKE_SOUND_L4D2 "animation/overpass_jets.wav"
+#define NUKE_SOUND_L4D1 "animation/gas_station_explosion.wav"
+#define EXPLOSION_SOUND_L4D2 "ambient/explosions/explode_1.wav"
+#define EXPLOSION_SOUND_L4D1 "ambient/explosions/explode_3.wav"
+#define EXPLOSION_DEBRIS_L4D2 "animation/plantation_exlposion.wav"
 #define FIRE_PARTICLE "gas_explosion_ground_fire"
-#define EXPLOSION_PARTICLE "FluidExplosion_fps"
+#define EXPLOSION_PARTICLE_L4D2 "FluidExplosion_fps"
+#define SPRITE_MODEL "sprites/muzzleflash4.vmt"
 
 #define FFADE_IN            0x0001
 #define FFADE_OUT           0x0002
@@ -63,11 +66,20 @@ public Plugin myinfo =
 	url = PLUGIN_URL
 }
 
+bool g_bLeft4Dead2;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	EngineVersion test = GetEngineVersion();
 
-	if( test != Engine_Left4Dead2 && test != Engine_Left4Dead)
+	if( test == Engine_Left4Dead2)
+	{
+		g_bLeft4Dead2 = true;
+	}
+	else if( test == Engine_Left4Dead)
+	{
+		g_bLeft4Dead2 = false;
+	}
+	else
 	{
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
@@ -136,12 +148,20 @@ public void OnMapStart()
 	{
 		PrecacheSound(SOUND_ESCAPE, true);
 
-		PrecacheSound(NUKE_SOUND);
-		PrecacheSound(EXPLOSION_SOUND);
-		PrecacheSound(EXPLOSION_DEBRIS);
-
+		if(g_bLeft4Dead2)
+		{
+			PrecacheSound(NUKE_SOUND_L4D2);
+			PrecacheSound(EXPLOSION_SOUND_L4D2);
+			PrecacheSound(EXPLOSION_DEBRIS_L4D2);
+			PrecacheParticle(EXPLOSION_PARTICLE_L4D2);
+		}
+		else
+		{
+			PrecacheSound(NUKE_SOUND_L4D1);
+			PrecacheSound(EXPLOSION_SOUND_L4D1);
+		}
 		PrecacheParticle(FIRE_PARTICLE);
-		PrecacheParticle(EXPLOSION_PARTICLE);
+		PrecacheModel(SPRITE_MODEL, true);
 	}
 }
 
@@ -367,7 +387,14 @@ public Action Timer_AntiPussy(Handle timer)
 
 	if(iSystemTime <= 1)
 	{
-		EmitSoundToAll(NUKE_SOUND);
+		if(g_bLeft4Dead2)
+		{
+			EmitSoundToAll(NUKE_SOUND_L4D2);
+		}
+		else
+		{
+			EmitSoundToAll(NUKE_SOUND_L4D1);
+		}
 		CPrintToChatAll("{default}[{olive}TS{default}] %t", "Outside Slay");
 		delete _AntiPussyTimer;
 		_AntiPussyTimer = CreateTimer(2.0, Timer_Strike, _, TIMER_REPEAT);
@@ -656,21 +683,24 @@ void CreateExplosion(const float pos[3], const float duration = 6.0)
 	}
 	FormatEx(buffer, sizeof(buffer), "OnUser1 !self:Kill::%f:1", duration+1.5);
 
-	if((ent = CreateEntityByName("info_particle_system")) != -1)
+	if(g_bLeft4Dead2)
 	{
-		DispatchKeyValue(ent, "effect_name", EXPLOSION_PARTICLE);
-		TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
-		DispatchSpawn(ent);
-		ActivateEntity(ent);
+		if((ent = CreateEntityByName("info_particle_system")) != -1)
+		{
+			DispatchKeyValue(ent, "effect_name", EXPLOSION_PARTICLE_L4D2);
+			TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(ent);
+			ActivateEntity(ent);
 
-		AcceptEntityInput(ent, "Start");
-		SetVariantString(buffer);
-		AcceptEntityInput(ent, "AddOutput");
-		AcceptEntityInput(ent, "FireUser1");
+			AcceptEntityInput(ent, "Start");
+			SetVariantString(buffer);
+			AcceptEntityInput(ent, "AddOutput");
+			AcceptEntityInput(ent, "FireUser1");
+		}
 	}
 	if((ent = CreateEntityByName("env_explosion")) != -1)
 	{
-		DispatchKeyValue(ent, "fireballsprite", "sprites/muzzleflash4.vmt");
+		DispatchKeyValue(ent, "fireballsprite", SPRITE_MODEL);
 		DispatchKeyValue(ent, "iMagnitude", "1");
 		DispatchKeyValue(ent, "iRadiusOverride", "1");
 		DispatchKeyValue(ent, "spawnflags", "828");
@@ -695,8 +725,15 @@ void CreateExplosion(const float pos[3], const float duration = 6.0)
 		AcceptEntityInput(ent, "FireUser1");
 	}
 
-	EmitAmbientSound(EXPLOSION_SOUND, pos);
-	EmitAmbientSound(EXPLOSION_DEBRIS, pos);
+	if(g_bLeft4Dead2)
+	{
+		EmitAmbientSound(EXPLOSION_SOUND_L4D2, pos);
+		EmitAmbientSound(EXPLOSION_DEBRIS_L4D2, pos);
+	}
+	else
+	{
+		EmitAmbientSound(EXPLOSION_SOUND_L4D1, pos);
+	}
 }
 
 public Action Timer_SlayPlayer(Handle timer, int userid)
