@@ -9,8 +9,8 @@ public Plugin myinfo =
 	name = "[L4D1/2] final rescue gravity",
 	author = "Harry Potter",
 	description = "Set client gravity after final rescue starts just for fun.",
-	version = "1.5",
-	url = "https://steamcommunity.com/id/HarryPotter_TW/"
+	version = "1.6",
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 #define TEAM_SPECTATOR		1
@@ -146,25 +146,30 @@ void IsAllowed()
 	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true && g_bValidMap == true)
 	{
 		g_bCvarAllow = true;
-		HookEvent("round_start", 			Event_RoundStart);
-		HookEvent("round_end", 				Event_RoundEnd); //回合結束之時(對抗模式回合結束會觸發)
-		HookEvent("mission_lost", 			Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時 (沒有觸發round_end)
-		HookEvent("finale_start", OnFinaleStart_Event, EventHookMode_PostNoCopy);
-		HookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
-		HookEvent("player_spawn", Event_PlayerSpawn);
+		HookEvent("round_start", 			Event_RoundStart, EventHookMode_PostNoCopy);
+		HookEvent("round_end", 				Event_RoundEnd, EventHookMode_PostNoCopy); //回合結束之時(對抗模式回合結束會觸發)
+		HookEvent("mission_lost", 			Event_RoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
+		HookEvent("finale_vehicle_leaving", Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時 (沒有觸發round_end)
+		HookEvent("finale_start", 			OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+		HookEvent("finale_radio_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+		HookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		HookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready, EventHookMode_PostNoCopy);
+		HookEvent("player_spawn", 			Event_PlayerSpawn);
 	}
 
 	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false || g_bValidMap == false) )
 	{
 		g_bCvarAllow = false;
-		UnhookEvent("round_start", 				Event_RoundStart);
-		UnhookEvent("round_end", 				Event_RoundEnd); //回合結束之時
-		UnhookEvent("mission_lost", 			Event_RoundEnd); //戰役滅團重來該關卡的時候
-		UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd); //救援載具離開之時
-		UnhookEvent("finale_start", OnFinaleStart_Event, EventHookMode_PostNoCopy);
-		UnhookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
-		UnhookEvent("player_spawn", Event_PlayerSpawn);
+		UnhookEvent("round_start", 				Event_RoundStart, EventHookMode_PostNoCopy);
+		UnhookEvent("round_end", 				Event_RoundEnd, EventHookMode_PostNoCopy); //回合結束之時
+		UnhookEvent("mission_lost", 			Event_RoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候
+		UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時
+		UnhookEvent("finale_start",				OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+		UnhookEvent("finale_radio_start", 		OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+		UnhookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready, EventHookMode_PostNoCopy);
+		UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready);
+		UnhookEvent("player_spawn", 			Event_PlayerSpawn);
 	}
 }
 
@@ -242,20 +247,22 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 //					Event
 // ====================================================================================================
 
-public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	bFinalHasStart = false;
 	ChangeAllClientGravityToNormal();
 }
 
-public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	bFinalHasStart = false;
 	ChangeAllClientGravityToNormal();
 }
 
-public Action OnFinaleStart_Event(Event event, const char[] name, bool dontBroadcast)
+public void OnFinaleStart_Event(Event event, const char[] name, bool dontBroadcast)
 {
+	if(bFinalHasStart) return;
+
 	bFinalHasStart = true;
 	#if DEBUG
 		PrintToChatAll("Final rescue starts");
@@ -263,7 +270,7 @@ public Action OnFinaleStart_Event(Event event, const char[] name, bool dontBroad
 	CreateTimer(g_fCheckInterval, Timer_SetGravity, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 }
 
-public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!client || !IsClientInGame(client)) return;
@@ -271,7 +278,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 	if (bFinalHasStart) ChangeClientGravity(client, g_fGravityValue);
 }
 
-public Action Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
+public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
 {
 	#if DEBUG
 		PrintToChatAll("Finale_Vehicle_Ready");
