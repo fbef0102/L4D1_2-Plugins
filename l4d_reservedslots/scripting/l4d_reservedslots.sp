@@ -12,7 +12,7 @@ public Plugin myinfo =
         author = "fenghf & HarryPotter",
         description = "As the name says, you dumb fuck!",
         version = PLUGIN_VERSION,
-        url = "https://steamcommunity.com/id/HarryPotter_TW/"
+        url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
 static char MSG_KICK_REASON[] = "剩餘位子只限管理員.. Sorry, Reserverd Slots for Admin..";
@@ -40,14 +40,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-        L4dtoolzExtension = FindConVar("sv_maxplayers");
-        if(L4dtoolzExtension == null)
-                SetFailState("Could not find ConVar \"sv_maxplayers\".");
-
-        sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
-        if(sv_visiblemaxplayers == null)
-                SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
-
         g_hCvarReservedSlots = CreateConVar("l4d_reservedslots_adm", "1", "Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉 Off)", CVAR_FLAGS, true, 0.0);
         g_hAccess = CreateConVar("l4d_reservedslots_flag", "z", "Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
         g_hHideSlots = CreateConVar("l4d_reservedslots_hide", "1", "If set to 1, reserved slots will hidden (subtracted 'l4d_reservedslots_adm' from the max slot 'sv_maxplayers')", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -71,6 +63,17 @@ public void OnPluginStart()
 			}
 		}
 	}
+}
+
+public void OnAllPluginsLoaded()
+{
+        L4dtoolzExtension = FindConVar("sv_maxplayers");
+        if(L4dtoolzExtension == null)
+                SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases");
+
+        sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
+        if(sv_visiblemaxplayers == null)
+                SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
 }
 
 public void OnPluginEnd()

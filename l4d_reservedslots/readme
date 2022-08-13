@@ -1,7 +1,10 @@
 Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
 
+-Require-
+L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases
+
 -Changelog-
-v1.4
+v1.5
 -Remake Code
 -Add ConVars
 
