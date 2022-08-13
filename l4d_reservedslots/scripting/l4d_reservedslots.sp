@@ -9,7 +9,7 @@
 public Plugin myinfo =
 {
         name = "L4D(2) Admin Reserved Slots",
-        author = "fenghf & HarryPotter",
+        author = "HarryPotter",
         description = "As the name says, you dumb fuck!",
         version = PLUGIN_VERSION,
         url = "https://steamcommunity.com/profiles/76561198026784913/"
@@ -73,9 +73,9 @@ public void OnAllPluginsLoaded()
         if(sv_visiblemaxplayers == null)
                 SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
 
-        GetCvars2();
-        L4dtoolzExtension.AddChangeHook(ConVarChanged_Cvars2);
-        sv_visiblemaxplayers.AddChangeHook(ConVarChanged_Cvars2);
+        GetCvars_Slots();
+        L4dtoolzExtension.AddChangeHook(ConVarChanged_Cvars_Slots);
+        sv_visiblemaxplayers.AddChangeHook(ConVarChanged_Cvars_Slots);
 }
 
 public void OnPluginEnd()
@@ -106,14 +106,14 @@ void GetCvars()
         g_bHideSlots = g_hHideSlots.BoolValue;
 }
 
-public void ConVarChanged_Cvars2(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChanged_Cvars_Slots(Handle convar, const char[] oldValue, const char[] newValue)
 {
-        GetCvars();
+        GetCvars_Slots();
 
         CheckHiddenSlots();
 }
 
-void GetCvars2()
+void GetCvars_Slots()
 {
         g_iMaxplayers = L4dtoolzExtension.IntValue;
 }
