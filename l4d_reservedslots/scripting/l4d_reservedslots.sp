@@ -45,24 +45,22 @@ public void OnPluginStart()
         g_hHideSlots = CreateConVar("l4d_reservedslots_hide", "1", "If set to 1, reserved slots will hidden (subtracted 'l4d_reservedslots_adm' from the max slot 'sv_maxplayers')", CVAR_FLAGS, true, 0.0, true, 1.0);
 
         GetCvars();
-        L4dtoolzExtension.AddChangeHook(ConVarChanged_Cvars);
-        sv_visiblemaxplayers.AddChangeHook(ConVarChanged_Cvars);
         g_hCvarReservedSlots.AddChangeHook(ConVarChanged_Cvars);
         g_hAccess.AddChangeHook(ConVarChanged_Cvars);
         g_hHideSlots.AddChangeHook(ConVarChanged_Cvars);
 
         AutoExecConfig(true, "l4d_reservedslots");
 
-	if (bLate)
-	{
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (IsClientInGame(i) && !IsFakeClient(i) && g_iCvarReservedSlots > 0)
-			{
-				if(HasAccess(i, g_sAccessAcclvl)) g_bHasAcces[i] = true;
-			}
-		}
-	}
+        if (bLate)
+        {
+                for (int i = 1; i <= MaxClients; i++)
+                {
+                        if (IsClientInGame(i) && !IsFakeClient(i) && g_iCvarReservedSlots > 0)
+                        {
+                                if(HasAccess(i, g_sAccessAcclvl)) g_bHasAcces[i] = true;
+                        }
+                }
+        }
 }
 
 public void OnAllPluginsLoaded()
@@ -74,6 +72,10 @@ public void OnAllPluginsLoaded()
         sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
         if(sv_visiblemaxplayers == null)
                 SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
+
+        GetCvars2();
+        L4dtoolzExtension.AddChangeHook(ConVarChanged_Cvars2);
+        sv_visiblemaxplayers.AddChangeHook(ConVarChanged_Cvars2);
 }
 
 public void OnPluginEnd()
@@ -99,12 +101,21 @@ public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char
 
 void GetCvars()
 {
-        g_iMaxplayers = L4dtoolzExtension.IntValue;
         g_iCvarReservedSlots = g_hCvarReservedSlots.IntValue;
         g_hAccess.GetString(g_sAccessAcclvl, sizeof(g_sAccessAcclvl));
         g_bHideSlots = g_hHideSlots.BoolValue;
+}
+
+public void ConVarChanged_Cvars2(Handle convar, const char[] oldValue, const char[] newValue)
+{
+        GetCvars();
 
         CheckHiddenSlots();
+}
+
+void GetCvars2()
+{
+        g_iMaxplayers = L4dtoolzExtension.IntValue;
 }
 
 public void OnClientDisconnect_Post(int client)
