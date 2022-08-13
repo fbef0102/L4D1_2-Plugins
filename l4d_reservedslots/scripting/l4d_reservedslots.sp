@@ -40,17 +40,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-        g_hCvarReservedSlots = CreateConVar("l4d_reservedslots_adm", "1", "Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉 Off)", CVAR_FLAGS, true, 0.0);
-        g_hAccess = CreateConVar("l4d_reservedslots_flag", "z", "Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
-        g_hHideSlots = CreateConVar("l4d_reservedslots_hide", "1", "If set to 1, reserved slots will hidden (subtracted 'l4d_reservedslots_adm' from the max slot 'sv_maxplayers')", CVAR_FLAGS, true, 0.0, true, 1.0);
-
-        GetCvars();
-        g_hCvarReservedSlots.AddChangeHook(ConVarChanged_Cvars);
-        g_hAccess.AddChangeHook(ConVarChanged_Cvars);
-        g_hHideSlots.AddChangeHook(ConVarChanged_Cvars);
-
-        AutoExecConfig(true, "l4d_reservedslots");
-
         if (bLate)
         {
                 for (int i = 1; i <= MaxClients; i++)
@@ -73,9 +62,17 @@ public void OnAllPluginsLoaded()
         if(sv_visiblemaxplayers == null)
                 SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
 
-        GetCvars_Slots();
-        L4dtoolzExtension.AddChangeHook(ConVarChanged_Cvars_Slots);
-        sv_visiblemaxplayers.AddChangeHook(ConVarChanged_Cvars_Slots);
+        g_hCvarReservedSlots = CreateConVar("l4d_reservedslots_adm", "1", "Reserved how many slots for Admin. 預留多少位置給管理員加入. (0=關閉 Off)", CVAR_FLAGS, true, 0.0);
+        g_hAccess = CreateConVar("l4d_reservedslots_flag", "z", "Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
+        g_hHideSlots = CreateConVar("l4d_reservedslots_hide", "1", "If set to 1, reserved slots will hidden (subtracted 'l4d_reservedslots_adm' from the max slot 'sv_maxplayers')", CVAR_FLAGS, true, 0.0, true, 1.0);
+        AutoExecConfig(true, "l4d_reservedslots");
+
+        GetCvars();
+        L4dtoolzExtension.AddChangeHook(ConVarChanged_Cvars);
+        sv_visiblemaxplayers.AddChangeHook(ConVarChanged_Cvars);
+        g_hCvarReservedSlots.AddChangeHook(ConVarChanged_Cvars);
+        g_hAccess.AddChangeHook(ConVarChanged_Cvars);
+        g_hHideSlots.AddChangeHook(ConVarChanged_Cvars);
 }
 
 public void OnPluginEnd()
@@ -97,25 +94,15 @@ public void OnConfigsExecuted()
 public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
         GetCvars();
+        CheckHiddenSlots();
 }
 
 void GetCvars()
 {
+        g_iMaxplayers = L4dtoolzExtension.IntValue;
         g_iCvarReservedSlots = g_hCvarReservedSlots.IntValue;
         g_hAccess.GetString(g_sAccessAcclvl, sizeof(g_sAccessAcclvl));
         g_bHideSlots = g_hHideSlots.BoolValue;
-}
-
-public void ConVarChanged_Cvars_Slots(Handle convar, const char[] oldValue, const char[] newValue)
-{
-        GetCvars_Slots();
-
-        CheckHiddenSlots();
-}
-
-void GetCvars_Slots()
-{
-        g_iMaxplayers = L4dtoolzExtension.IntValue;
 }
 
 public void OnClientDisconnect_Post(int client)
