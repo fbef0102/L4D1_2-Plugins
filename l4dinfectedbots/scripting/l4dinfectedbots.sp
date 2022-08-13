@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.7.1 (2009-2022)
+* Version	: 2.7.2 (2009-2022)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.7.2
+*	   - Add more final starts event
+*
 * Version 2.7.1
 *	   - Add ConVars: l4d_infectedbots_tank_spawn_final, l4d_infectedbots_add_tanklimit_scale, l4d_infectedbots_add_tanklimit
 *
@@ -671,7 +674,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.7.1"
+#define PLUGIN_VERSION "2.7.2"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -1481,6 +1484,11 @@ public void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
 	b_HasRoundStarted = true;
 }
 
+public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	GameStart();
+}
+
 public Action Timer_PluginStart(Handle timer)
 {
 	if (g_iCurrentMode == 0 || g_bCvarAllow == false)
@@ -1781,17 +1789,20 @@ void IsAllowed()
 
 		GetSpawnDisConvars();
 
-		HookEvent("round_start", evtRoundStart);
-		HookEvent("round_end", evtRoundEnd); //對抗上下回合結束的時候觸發
-		HookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (之後沒有觸發round_end)
-		HookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		HookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (之後沒有觸發round_end)
+		HookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
+		HookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時
+		HookEvent("round_end", evtRoundEnd, EventHookMode_PostNoCopy); //對抗上下回合結束的時候觸發
+		HookEvent("map_transition", evtRoundEnd, EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (之後沒有觸發round_end)
+		HookEvent("mission_lost", evtRoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
+		HookEvent("finale_vehicle_leaving", evtRoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時  (之後沒有觸發round_end)
 
 		HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 		HookEvent("player_team", evtPlayerTeam);
 		HookEvent("player_spawn", evtPlayerSpawn);
 		HookEvent("create_panic_event", evtSurvivalStart);
-		HookEvent("finale_start", evtFinaleStart);
+		HookEvent("finale_start", 			evtFinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+		HookEvent("finale_radio_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+		if(L4D2Version) HookEvent("gauntlet_finale_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 		HookEvent("player_death", evtInfectedDeath);
 		HookEvent("player_spawn", evtInfectedSpawn);
 		HookEvent("player_hurt", evtInfectedHurt);
@@ -1827,17 +1838,20 @@ void IsAllowed()
 	{
 		OnPluginEnd();
 		g_bCvarAllow = false;
-		UnhookEvent("round_start", evtRoundStart);
-		UnhookEvent("round_end", evtRoundEnd); //對抗上下回合結束的時候觸發
-		UnhookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (之後沒有觸發round_end)
-		UnhookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		UnhookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (之後沒有觸發round_end)
+		UnhookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
+		UnhookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時
+		UnhookEvent("round_end", evtRoundEnd, EventHookMode_PostNoCopy); //對抗上下回合結束的時候觸發
+		UnhookEvent("map_transition", evtRoundEnd, EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (之後沒有觸發round_end)
+		UnhookEvent("mission_lost", evtRoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
+		UnhookEvent("finale_vehicle_leaving", evtRoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時  (之後沒有觸發round_end)
 
 		UnhookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 		UnhookEvent("player_team", evtPlayerTeam);
 		UnhookEvent("player_spawn", evtPlayerSpawn);
 		UnhookEvent("create_panic_event", evtSurvivalStart);
-		UnhookEvent("finale_start", evtFinaleStart);
+		UnhookEvent("finale_start", 			evtFinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+		UnhookEvent("finale_radio_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+		if(L4D2Version) UnhookEvent("gauntlet_finale_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 		UnhookEvent("player_death", evtInfectedDeath);
 		UnhookEvent("player_spawn", evtInfectedSpawn);
 		UnhookEvent("player_hurt", evtInfectedHurt);
@@ -1948,55 +1962,18 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 }
 public Action PlayerLeftStart(Handle Timer)
 {
-	if( g_bCvarAllow == false)
+	if( g_bCvarAllow == false || g_iCurrentMode == 3 )
 	{
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
 	}
 
-	if (L4D_HasAnySurvivorLeftSafeArea() || g_bSafeSpawn)
+	if (L4D_HasAnySurvivorLeftSafeArea() || g_bSafeSpawn) //生存模式之下 always true
 	{
-		// We don't care who left, just that at least one did
-		if (!b_LeftSaveRoom)
-		{
-			char GameName[16];
-			g_hCvarMPGameMode.GetString(GameName, sizeof(GameName));
-			if (StrEqual(GameName, "mutation15", false))
-			{
-				SurvivalVersus = true;
-				SetConVarInt(FindConVar("survival_max_smokers"), 0);
-				SetConVarInt(FindConVar("survival_max_boomers"), 0);
-				SetConVarInt(FindConVar("survival_max_hunters"), 0);
-				SetConVarInt(FindConVar("survival_max_jockeys"), 0);
-				SetConVarInt(FindConVar("survival_max_spitters"), 0);
-				SetConVarInt(FindConVar("survival_max_chargers"), 0);
-				return Plugin_Continue;
-			}
+		GameStart();
 
-			b_LeftSaveRoom = true;
-			GetSpawnDisConvars();
-
-			// We reset some settings
-			canSpawnBoomer = true;
-			canSpawnSmoker = true;
-			canSpawnHunter = true;
-			if (L4D2Version)
-			{
-				canSpawnSpitter = true;
-				canSpawnJockey = true;
-				canSpawnCharger = true;
-			}
-			InitialSpawn = true;
-
-			// We check if we need to spawn bots
-			CheckIfBotsNeeded(false);
-			#if DEBUG
-			LogMessage("Checking to see if we need bots");
-			#endif
-			CreateTimer(g_fInitialSpawn + 10.0, InitialSpawnReset, _, TIMER_FLAG_NO_MAPCHANGE);
-			delete hSpawnWitchTimer;
-			hSpawnWitchTimer = CreateTimer(float(GetRandomInt(g_iWitchPeriodMin, g_iWitchPeriodMax)), SpawnWitchAuto);
-		}
+		b_LeftSaveRoom = true;
+		
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
 	}
@@ -3292,6 +3269,8 @@ public Action HookSound_Callback(int Clients[64], int &NumClients, char StrSampl
 // definitely needed.
 public void evtFinaleStart(Event event, const char[] name, bool dontBroadcast)
 {
+	if(g_bFinaleStarted) return;
+
 	g_bFinaleStarted = true;
 	CreateTimer(1.0, CheckIfBotsNeededLater, true, TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -5506,5 +5485,46 @@ public bool HasAccess(int client, char[] g_sAcclvl)
 	}
 
 	return false;
+}
+
+void GameStart()
+{
+	// We don't care who left, just that at least one did
+	static char GameName[16];
+	g_hCvarMPGameMode.GetString(GameName, sizeof(GameName));
+	if (strcmp(GameName, "mutation15", false) == 0)
+	{
+		SurvivalVersus = true;
+		SetConVarInt(FindConVar("survival_max_smokers"), 0);
+		SetConVarInt(FindConVar("survival_max_boomers"), 0);
+		SetConVarInt(FindConVar("survival_max_hunters"), 0);
+		SetConVarInt(FindConVar("survival_max_jockeys"), 0);
+		SetConVarInt(FindConVar("survival_max_spitters"), 0);
+		SetConVarInt(FindConVar("survival_max_chargers"), 0);
+		return;
+	}
+
+	GetSpawnDisConvars();
+
+	// We reset some settings
+	canSpawnBoomer = true;
+	canSpawnSmoker = true;
+	canSpawnHunter = true;
+	if (L4D2Version)
+	{
+		canSpawnSpitter = true;
+		canSpawnJockey = true;
+		canSpawnCharger = true;
+	}
+	InitialSpawn = true;
+
+	// We check if we need to spawn bots
+	CheckIfBotsNeeded(false);
+	#if DEBUG
+	LogMessage("Checking to see if we need bots");
+	#endif
+	CreateTimer(g_fInitialSpawn + 10.0, InitialSpawnReset, _, TIMER_FLAG_NO_MAPCHANGE);
+	delete hSpawnWitchTimer;
+	hSpawnWitchTimer = CreateTimer(float(GetRandomInt(g_iWitchPeriodMin, g_iWitchPeriodMax)), SpawnWitchAuto);
 }
 ///////////////////////////////////////////////////////////////////////////
