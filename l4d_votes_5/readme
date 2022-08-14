@@ -4,7 +4,7 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 see l4d_votes_5.jpg
 
 -ChangeLog-
-v5.8
+v5.9
 -Changes to fix warnings when compiling on SourceMod 1.11.
  
 -ConVar-
