@@ -34,6 +34,10 @@ v1.2
 2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 3. unscramble.inc: https://github.com/raziEiL/r2comp-standalone/blob/master/sourcemod/scripting/include/unscramble.inc
 
+-Notice-
+The plugin does not work until survivor has left the saferoom
+倖存者出去安全區域之後此插件才會生效
+
 -Convar-
 cfg\sourcemod\l4d_afk_commands.cfg
 // Cold Down Time in seconds a player can not change team again after he switches team. (0=off)
@@ -136,9 +140,3 @@ l4d_afk_commands_observer_access_flag "z"
 	
 **Adm force player to change team (ADMFLAG_BAN)
 	"sm_swapto", "sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)"
-	
--Updating translation-
-* English by HarryPotter
-* Traditional Chinese by HarryPotter
-* Simplified Chinese by Target
-* Hungarian by Ladis92

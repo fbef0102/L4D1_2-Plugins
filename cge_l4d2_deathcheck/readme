@@ -8,6 +8,10 @@ v2.1
 v1.5.6
 -original post: https://forums.alliedmods.net/showthread.php?t=142432
 
+-Notice-
+The plugin does not work until survivor has left the saferoom
+倖存者出去安全區域之後此插件才會生效
+
 -ConVar-
 // 0: Disable plugin, 1: Enable plugin
 deathcheck "1"
