@@ -15,26 +15,26 @@
 		"#format"		"{1:d}"
 		"en"	"[AFK] Inactivity detected! You'll be moved to spectators in {1} seconds!"
 		"zho"	"[AFK] 偵測閒置! 你將於 {1} 秒後強制旁觀."
-		"chi"	"[AFK] 偵測閒置! 你將於 {1} 秒後強制旁觀."
+		"chi"	"[AFK] 探测闲置! 你将于 {1} 秒后强制旁观."
 	}
 	"[AFK] Inactivity detected! 2"
 	{
 		"en"	"[AFK] Inactivity detected! You'll be moved to spectators as soon as your teammates leave the safe area."
 		"zho"	"[AFK] 偵測閒置! 一旦有人離開安全區域你將強制旁觀."
-		"chi"	"[AFK] 侦测闲置! 一旦有人离开安全区域你将强制旁观."
+		"chi"	"[AFK] 探测闲置! 一旦有人离开安全区域你将强制旁观."
 	}
 	"[AFK] Inactivity detected! 3"
 	{
 		"#format"		"{1:d}"
 		"en"	"[AFK] Inactivity detected! Join any team to play.\n Otherwise you'll be kicked from server in {1} seconds."
 		"zho"	"[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n 否則你將於 {1} 秒後踢出伺服器."
-		"chi"	"[AFK] 侦测旁观闲置! 输入!join加入游戏\n 否则你将于 {1} 秒后踢出伺服器."
+		"chi"	"[AFK] 探测旁观闲置! 输入!join加入游戏\n 否则你将于 {1} 秒后踢出伺服器."
 	}
 	"[AFK] Inactivity detected! 4"
 	{
 		"en"	"[AFK] Inactivity detected! Join any team to play.\n Otherwise you'll be kicked from server."
 		"zho"	"[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n 一旦有人離開安全區域你將踢出伺服器."
-		"chi"	"[AFK] 侦测旁观闲置! 输入!join加入游戏\n 一旦有人离开安全区域你将踢出伺服器."
+		"chi"	"[AFK] 探测旁观闲置! 输入!join加入游戏\n 一旦有人离开安全区域你将踢出伺服器."
 	}
 	"have been kicked from server due to inactivity."
 	{
