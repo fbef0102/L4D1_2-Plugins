@@ -725,7 +725,7 @@ static int iPlayersInSurvivorTeam;
 // Booleans
 static bool b_HasRoundStarted; // Used to state if the round started or not
 static bool b_HasRoundEnded; // States if the round has ended or not
-static bool b_LeftSaveRoom; // States if the survivors have left the safe room
+static bool g_bLeftSaveRoom; // States if the survivors have left the safe room
 static bool canSpawnBoomer; // States if we can spawn a boomer (releated to spawn restrictions)
 static bool canSpawnSmoker; // States if we can spawn a smoker (releated to spawn restrictions)
 static bool canSpawnHunter; // States if we can spawn a hunter (releated to spawn restrictions)
@@ -739,7 +739,6 @@ static bool PlayerLifeState[MAXPLAYERS+1]; // States whether that player has the
 static bool InitialSpawn; // Related to the coordination feature, tells the plugin to let the infected spawn when the survivors leave the safe room
 static bool L4D2Version = false; // Holds the version of L4D; false if its L4D, true if its L4D2
 static bool TempBotSpawned; // Tells the plugin that the tempbot has spawned
-static bool SurvivalVersus;
 static bool PlayerHasEnteredStart[MAXPLAYERS+1];
 static bool bDisableSurvivorModelGlow;
 static bool g_bIsCoordination;
@@ -1473,7 +1472,7 @@ void ResetCvars()
 
 public void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	b_LeftSaveRoom = false;
+	g_bLeftSaveRoom = false;
 	b_HasRoundEnded = false;
 
 	if(!b_HasRoundStarted && g_iPlayerSpawn == 1)
@@ -1508,8 +1507,7 @@ public Action Timer_PluginStart(Handle timer)
 	g_bFinaleStarted = false;
 	InitialSpawn = false;
 	TempBotSpawned = false;
-	SurvivalVersus = false;
-	b_LeftSaveRoom = false;
+	g_bLeftSaveRoom = false;
 	b_HasRoundEnded = false;
 	TankReplacing = false;
 
@@ -1699,7 +1697,7 @@ public void evtRoundEnd (Event event, const char[] name, bool dontBroadcast)
 		// we mark the round as ended
 		b_HasRoundEnded = true;
 		b_HasRoundStarted = false;
-		b_LeftSaveRoom = false;
+		g_bLeftSaveRoom = false;
 		roundInProgress = false;
 		g_iPlayerSpawn = 0;
 
@@ -1739,7 +1737,7 @@ public void OnMapEnd()
 {
 	b_HasRoundStarted = false;
 	b_HasRoundEnded = true;
-	b_LeftSaveRoom = false;
+	g_bLeftSaveRoom = false;
 	g_iPlayerSpawn = 0;
 	roundInProgress = false;
 	g_bMapStarted = false;
@@ -1799,7 +1797,6 @@ void IsAllowed()
 		HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 		HookEvent("player_team", evtPlayerTeam);
 		HookEvent("player_spawn", evtPlayerSpawn);
-		HookEvent("create_panic_event", evtSurvivalStart);
 		HookEvent("finale_start", 			evtFinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 		HookEvent("finale_radio_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 		if(L4D2Version) HookEvent("gauntlet_finale_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
@@ -1848,7 +1845,6 @@ void IsAllowed()
 		UnhookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 		UnhookEvent("player_team", evtPlayerTeam);
 		UnhookEvent("player_spawn", evtPlayerSpawn);
-		UnhookEvent("create_panic_event", evtSurvivalStart);
 		UnhookEvent("finale_start", 			evtFinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 		UnhookEvent("finale_radio_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 		if(L4D2Version) UnhookEvent("gauntlet_finale_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
@@ -1970,50 +1966,14 @@ public Action PlayerLeftStart(Handle Timer)
 
 	if (L4D_HasAnySurvivorLeftSafeArea() || g_bSafeSpawn) //生存模式之下 always true
 	{
+		g_bLeftSaveRoom = true;
+		
 		GameStart();
-
-		b_LeftSaveRoom = true;
 		
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
 	}
 	return Plugin_Continue;
-}
-
-// This is hooked to the panic event, but only starts if its survival. This is what starts up the bots in survival.
-
-public void evtSurvivalStart(Event event, const char[] name, bool dontBroadcast)
-{
-	if (g_iCurrentMode == 3 || SurvivalVersus)
-	{
-		// We don't care who left, just that at least one did
-		if (!b_LeftSaveRoom)
-		{
-			#if DEBUG
-				PrintToChatAll("[TS] A player triggered the survival event, spawning bots");
-			#endif
-			b_LeftSaveRoom = true;
-
-			// We reset some settings
-			canSpawnBoomer = true;
-			canSpawnSmoker = true;
-			canSpawnHunter = true;
-			if (L4D2Version)
-			{
-				canSpawnSpitter = true;
-				canSpawnJockey = true;
-				canSpawnCharger = true;
-			}
-			InitialSpawn = true;
-
-			// We check if we need to spawn bots
-			CheckIfBotsNeeded(false);
-			#if DEBUG
-			LogMessage("Checking to see if we need bots");
-			#endif
-			CreateTimer(g_fInitialSpawn + 10.0, InitialSpawnReset, _, TIMER_FLAG_NO_MAPCHANGE);
-		}
-	}
 }
 
 public Action InitialSpawnReset(Handle Timer)
@@ -2024,7 +1984,7 @@ public Action InitialSpawnReset(Handle Timer)
 
 public void evtUnlockVersusDoor(Event event, const char[] name, bool dontBroadcast)
 {
-	if (L4D2Version || b_LeftSaveRoom || g_iCurrentMode != 2 || RealPlayersOnInfected() || TempBotSpawned)
+	if (L4D2Version || g_bLeftSaveRoom || g_iCurrentMode != 2 || RealPlayersOnInfected() || TempBotSpawned)
 		return;
 
 	#if DEBUG
@@ -2451,7 +2411,7 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		{
 			CreateTimer(0.1, TankBugFix, client, TIMER_FLAG_NO_MAPCHANGE);
 		}
-		if (b_LeftSaveRoom)
+		if (g_bLeftSaveRoom)
 		{
 			#if DEBUG
 			LogMessage("Tank Event Triggered");
@@ -2566,7 +2526,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	// If round has ended .. we ignore this
-	if (b_HasRoundEnded || !b_LeftSaveRoom) return;
+	if (b_HasRoundEnded || !g_bLeftSaveRoom) return;
 
 	// if victim was a bot, we setup a timer to spawn a int bot ...
 	if (g_iCurrentMode == 2)
@@ -2663,7 +2623,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	if(client) DeleteLight(client);
 
 	// If player's new/old team is infected, we recount the infected and add bots if needed ...
-	if (!b_HasRoundEnded && b_LeftSaveRoom && g_iCurrentMode == 2)
+	if (!b_HasRoundEnded && g_bLeftSaveRoom && g_iCurrentMode == 2)
 	{
 		if (oldteam == 3||newteam == 3)
 		{
@@ -2910,7 +2870,7 @@ public Action CheckIfBotsNeededLater (Handle timer, bool spawn_immediately)
 
 void CheckIfBotsNeeded(bool spawn_immediately)
 {
-	if (b_HasRoundEnded || !b_LeftSaveRoom ) return;
+	if (b_HasRoundEnded || !g_bLeftSaveRoom ) return;
 
 	#if DEBUG
 		LogMessage("[TS] Checking bots");
@@ -3467,7 +3427,7 @@ int BotTypeNeeded()
 public Action Spawn_InfectedBot(Handle timer)
 {
 	// If round has ended, we ignore this request ...
-	if (g_bCvarAllow == false || b_HasRoundEnded || !b_LeftSaveRoom ) return Plugin_Continue;
+	if (g_bCvarAllow == false || b_HasRoundEnded || !g_bLeftSaveRoom ) return Plugin_Continue;
 
 	//PrintToChatAll("[TS] Spawn_InfectedBot(Handle timer)");
 
@@ -5490,18 +5450,20 @@ public bool HasAccess(int client, char[] g_sAcclvl)
 void GameStart()
 {
 	// We don't care who left, just that at least one did
-	static char GameName[16];
-	g_hCvarMPGameMode.GetString(GameName, sizeof(GameName));
-	if (strcmp(GameName, "mutation15", false) == 0)
+	if(g_iCurrentMode == 3)
 	{
-		SurvivalVersus = true;
-		SetConVarInt(FindConVar("survival_max_smokers"), 0);
-		SetConVarInt(FindConVar("survival_max_boomers"), 0);
-		SetConVarInt(FindConVar("survival_max_hunters"), 0);
-		SetConVarInt(FindConVar("survival_max_jockeys"), 0);
-		SetConVarInt(FindConVar("survival_max_spitters"), 0);
-		SetConVarInt(FindConVar("survival_max_chargers"), 0);
-		return;
+		static char GameName[16];
+		g_hCvarMPGameMode.GetString(GameName, sizeof(GameName));
+		if (strcmp(GameName, "mutation15", false) != 0)
+		{
+			SetConVarInt(FindConVar("survival_max_smokers"), 0);
+			SetConVarInt(FindConVar("survival_max_boomers"), 0);
+			SetConVarInt(FindConVar("survival_max_hunters"), 0);
+			SetConVarInt(FindConVar("survival_max_jockeys"), 0);
+			SetConVarInt(FindConVar("survival_max_spitters"), 0);
+			SetConVarInt(FindConVar("survival_max_chargers"), 0);
+			return;
+		}
 	}
 
 	GetSpawnDisConvars();
