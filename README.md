@@ -79,7 +79,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_tracerock</b>: Tank Trace Rock.
 * <b>l4d_revive_reload_interrupt</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 # Scripting Compiler
-* [sourcemod 1.11 compiler](https://github.com/fbef0102/L4D2-Plugins/releases/download/v1.0/sourcemod_1.11_Compiler.zip): sourcemod v1.11 scripting
+* [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
 * <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)</b>
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
