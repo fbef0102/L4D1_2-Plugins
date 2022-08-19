@@ -23,7 +23,7 @@ ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarMo
 g_hCvarGravityValue,g_hCvarGravityEscapeDisable,g_hCvarGravityInfectedFlag,g_hCvarCheckInterval;
 
 //value
-bool g_bCvarAllow, g_bMapStarted, bL4D2Version, bFinalHasStart, g_bValidMap;
+bool g_bCvarAllow, g_bMapStarted, g_bL4D2Version, bFinalHasStart, g_bValidMap;
 bool g_bGravityEscapeDisable;
 float g_fGravityValue, g_fCheckInterval;
 int g_iInfectedFlag;
@@ -35,12 +35,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	
 	if( test == Engine_Left4Dead ) 
 	{
-		bL4D2Version = false;
+		g_bL4D2Version = false;
 		ZOMBIECLASS_TANK = 5;
 	}
 	else if( test == Engine_Left4Dead2 ) 
 	{
-		bL4D2Version = true;
+		g_bL4D2Version = true;
 		ZOMBIECLASS_TANK = 8;
 	}
 	else
@@ -60,7 +60,7 @@ public void OnPluginStart()
 	g_hCvarModesTog =	CreateConVar(	"l4d_final_rescue_gravity_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
 	g_hCvarGravityValue = CreateConVar(	"l4d_final_rescue_gravity_value", "0.25", "Set Gravity value. (1.0=Normal, >1.0=High, <1.0=Low)", CVAR_FLAGS,true,0.0 );
 	g_hCvarGravityEscapeDisable = CreateConVar(	"l4d_final_rescue_gravity_escape_ready_off", "1", "If 1, change all clients' gravity to normal when finale vehicle is ready.", CVAR_FLAGS,true,0.0,true,1.0 );
-	if(bL4D2Version) 
+	if(g_bL4D2Version) 
 		g_hCvarGravityInfectedFlag = CreateConVar(	"l4d_final_rescue_gravity_infected_class", "127", 
 		"Which zombie class can also obtain the gravity, 0=None, 1=Smoker, =Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together.", CVAR_FLAGS,true,0.0,true,127.0 );
 	else
@@ -152,7 +152,7 @@ void IsAllowed()
 		HookEvent("finale_vehicle_leaving", Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時 (沒有觸發round_end)
 		HookEvent("finale_start", 			OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 		HookEvent("finale_radio_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
-		HookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		if(g_bL4D2Version) HookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 		HookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready, EventHookMode_PostNoCopy);
 		HookEvent("player_spawn", 			Event_PlayerSpawn);
 	}
@@ -166,7 +166,7 @@ void IsAllowed()
 		UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時
 		UnhookEvent("finale_start",				OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 		UnhookEvent("finale_radio_start", 		OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
-		UnhookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		if(g_bL4D2Version) UnhookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 		UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready, EventHookMode_PostNoCopy);
 		UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready);
 		UnhookEvent("player_spawn", 			Event_PlayerSpawn);
@@ -323,7 +323,7 @@ void ChangeClientGravity(int client, float GravityValue)
 	if(iTeam == TEAM_INFECTED)
 	{
 		class = GetEntProp(client, Prop_Send, "m_zombieClass");
-		if( (bL4D2Version && class == ZOMBIECLASS_TANK) || (!bL4D2Version && class == ZOMBIECLASS_TANK))  // tank
+		if( (g_bL4D2Version && class == ZOMBIECLASS_TANK) || (!g_bL4D2Version && class == ZOMBIECLASS_TANK))  // tank
 		{
 			--class;
 		}	
