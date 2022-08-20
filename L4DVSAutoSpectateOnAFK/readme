@@ -1,7 +1,7 @@
 Forces survivors and infected to spectate if they're AFK after certain time
 
 -ChangeLog-
-v2.1
+v2.2
 - Remake Code
 - Add more hints
 - Fixed wrong timer

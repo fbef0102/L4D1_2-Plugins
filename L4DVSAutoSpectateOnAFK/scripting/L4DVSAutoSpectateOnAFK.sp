@@ -1,10 +1,8 @@
 /********************************************************************************************
 * Plugin	: L4DVSAutoSpectateOnAFK
-* Version	: 2.1
+* Version	: 2.2
 * Game		: Left 4 Dead 1/2
 * Author	: djromero (SkyDavid, David) & Harry
-* Testers	: Myself
-* Website	: www.sky.zebgames.com
 * A
 * Purpose	: This plugins forces AFK players to spectate, and later it kicks them. Admins 
 * 			  are inmune to kick.
@@ -15,7 +13,7 @@
 #include <sdktools>
 #include <sdktools_functions>
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.1"
+#define PLUGIN_VERSION "2.2"
 
 
 // For cvars
@@ -57,7 +55,7 @@ public Plugin myinfo =
 	author = "djromero (SkyDavid, David Romero) & Harry",
 	description = "Auto-spectate for AFK players on VS mode",
 	version = PLUGIN_VERSION,
-	url = "www.sky.zebgames.com"
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -240,7 +238,7 @@ public Action Command_Say(int client, int args)
 	if(client && IsClientInGame(client))
 		afkResetTimers(client);
 
-	return Plugin_Handled;
+	return Plugin_Continue;
 }
 
 public Action Event_RoundStart (Event event, const char[] name, bool dontBroadcast)
