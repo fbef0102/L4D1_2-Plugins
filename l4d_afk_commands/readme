@@ -1,7 +1,7 @@
 Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
 
 -ChangeLog-
-v3.9
+v4.0
 -Remake Code
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236)
@@ -53,7 +53,7 @@ l4d_afk_commands_during_game_seconds_block "0"
 l4d_afk_commands_igniteprop_cooltime_block "15.0"
 
 // Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)
-l4d_afk_commands_immue_block_flag "z"
+l4d_afk_commands_immue_block_flag "-1"
 
 // Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)
 l4d_afk_commands_infected_access_flag ""

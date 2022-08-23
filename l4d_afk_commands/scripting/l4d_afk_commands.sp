@@ -57,11 +57,11 @@
 */
 
 
-#define PLUGIN_VERSION 		"3.9"
+#define PLUGIN_VERSION 		"4.0"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
-#define PLUGIN_URL			"https://steamcommunity.com/id/fbef0102/"
+#define PLUGIN_URL			"https://steamcommunity.com/profiles/76561198026784913"
 
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
@@ -234,7 +234,7 @@ public void OnPluginStart()
 	g_hBreakPropCooldown = CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", "15.0", "Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hThrowableCooldown = CreateConVar("l4d_afk_commands_throwable_cooltime_block", "10.0", "Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedSpawnCooldown = CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", "10.0", "Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hImmueAccess = CreateConVar("l4d_afk_commands_immue_block_flag", "z", "Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hImmueAccess = CreateConVar("l4d_afk_commands_immue_block_flag", "-1", "Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hSpecCommandAccess = CreateConVar("l4d_afk_commands_spec_access_flag", "", "Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hInfCommandAccess = CreateConVar("l4d_afk_commands_infected_access_flag", "", "Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hSurCommandAccess = CreateConVar("l4d_afk_commands_survivor_access_flag", "", "Players with these flags have access to use command to survivor team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
@@ -1083,9 +1083,23 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 
 	if(CanClientChangeTeam(client, 1, bHaveAccess) == false) return Plugin_Handled;
 	
-	clientteam[client] = 1;
-	StartChangeTeamCoolDown(client);
+	RequestFrame(NextFrame, GetClientUserId(client));
 	return Plugin_Continue;
+}
+
+public void NextFrame(any iUserID)
+{
+	int client = GetClientOfUserId(iUserID);
+	
+	if(!client || !IsClientInGame(client))
+		return;
+
+	if(GetClientTeam(client) == 1)
+	{
+		clientteam[client] = 1;
+		StartChangeTeamCoolDown(client);
+		return;
+	}	
 }
 
 public Action WTF3(int client, int args) //sb_takecontrol
