@@ -79,6 +79,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_tracerock</b>: Tank Trace Rock.
 * <b>l4d_revive_reload_interrupt</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 * <b>pounceannounce</b>: Announces hunter pounces to the entire server
+* <b>l4d2_block_rocketjump</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
