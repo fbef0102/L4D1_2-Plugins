@@ -5,16 +5,20 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define PLUGIN_VERSION "1.3"
+#define PLUGIN_VERSION "1.4"
+#define MAXENTITY 2048
 
 public Plugin myinfo =
 {
 	name = "Block Rocket Jump Exploit",
 	author = "DJ_WEST, HarryPotter",
-	description = "Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)",
+	description = "Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock)",
 	version = PLUGIN_VERSION,
 	url = "https://forums.alliedmods.net/showthread.php?t=122371"
 }
+
+bool g_bRocketJumpExploit[MAXENTITY+1];
+bool g_bStepOnEntitiy[MAXPLAYERS + 1];
 
 bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -38,22 +42,8 @@ public void OnPluginStart()
 	CreateConVar("block_rocketjump_version", PLUGIN_VERSION, "Block Rocket Jump Exploit version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 }
 
-bool g_bConfigLoaded;
-public void OnMapEnd()
-{
-    g_bConfigLoaded = false;
-}
-
-public void OnConfigsExecuted()
-{
-    g_bConfigLoaded = true;
-}
-
 public void OnEntityCreated(int entity, const char[] classname)
 {
-	if (!g_bConfigLoaded)
-		return;
-
 	if (!IsValidEntityIndex(entity))
 		return;
 
@@ -77,53 +67,50 @@ public void OnEntityCreated(int entity, const char[] classname)
 									strcmp(classname, "grenade_launcher_projectile") == 0 ||
 									strcmp(classname, "spitter_projectile") == 0)) )
 			{
-				SDKHook(entity, SDKHook_SpawnPost, SpawnPost);
+				g_bRocketJumpExploit[entity] = true;
 			}						
 		}
 	}
 }
 
-public void SpawnPost(int entity)
+public void OnEntityDestroyed(int entity)
 {
-    RequestFrame(OnNextFrame, EntIndexToEntRef(entity));
-}
-
-public void OnNextFrame(int entityRef)
-{
-	int entity = EntRefToEntIndex(entityRef);
-
-	if (entity == INVALID_ENT_REFERENCE)
+	if (!IsValidEntityIndex(entity))
 		return;
 
-	SDKHook(entity, SDKHook_TouchPost, OnEntityTouchPost);
-}
-
-float f_Velocity[3];
-public void OnEntityTouchPost(int entity, int i_Touched)
-{
-	if (1 <= i_Touched <= MaxClients && IsClientInGame(i_Touched) && IsPlayerAlive(i_Touched))
-	{
-		if (GetEntPropEnt(i_Touched, Prop_Data, "m_hGroundEntity") == entity)
-		{
-			RequestFrame(OnNextSurvivorFrame, GetClientUserId(i_Touched));
-		}
-	}
-}
-
-public void OnNextSurvivorFrame(int userid)
-{
-	int client = GetClientOfUserId(userid);
-
-	if (!client || !IsClientInGame(client))
-		return;
-
-	GetEntPropVector(client, Prop_Data, "m_vecVelocity", f_Velocity);
-	f_Velocity[2] = 0.0;
-	TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, f_Velocity);
-	//PrintToChatAll("%N touch entity jump", client);
+	g_bRocketJumpExploit[entity] = false;
 }
 
 bool IsValidEntityIndex(int entity)
 {
     return (MaxClients+1 <= entity <= GetMaxEntities());
+}
+
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+	if(IsClientInGame(client) && GetClientTeam(client) != 1 && IsPlayerAlive(client))
+	{
+		if(IsFakeClient(client)) return Plugin_Continue;
+			
+		int entity = GetEntPropEnt(client, Prop_Data, "m_hGroundEntity");
+		if (entity > MaxClients && g_bRocketJumpExploit[entity])
+		{
+			//PrintToChatAll("%N step on entity - %d", client, entity);
+			g_bStepOnEntitiy[client] = true;
+			return Plugin_Continue;
+		}
+
+		if(g_bStepOnEntitiy[client]) //離開的一瞬間
+		{
+			float flVel[3];
+			GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", flVel);
+			//PrintToChatAll("%N m_vecAbsVelocity - %.2f %.2f %.2f", client, flVel[0], flVel[1], flVel[2]);
+
+			flVel[2] = 0.0; //velocity height zero
+			TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, flVel);
+		}
+	}
+
+	g_bStepOnEntitiy[client] = false;
+	return Plugin_Continue;
 }
