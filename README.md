@@ -87,3 +87,4 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
 * <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
 * <b>[L4D2-Server4Dead](https://github.com/fbef0102/L4D2-Server4Dead)</b>: Setup your own L4D2 Servers.
+* <b>[Game-Private_Plugin](https://github.com/fbef0102/Game-Private_Plugin)</b>: Private Plugin List.
