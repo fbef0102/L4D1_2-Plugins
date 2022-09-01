@@ -1,11 +1,20 @@
 "CountryShow"
 {
-	"messages"
+	// {PLAYERNAME}: player name
+	// {STEAMID}: player STEAMID
+	// {PLAYERCOUNTRY}: player country name
+	// {PLAYERCOUNTRYSHORT}: player country short name
+	// {PLAYERCOUNTRYSHORT3}: player country another short name
+	// {PLAYERCITY}: player city name
+	// {PLAYERREGION}: player region name
+	// {PLAYERIP}: player IP
+	// {PLAYERTYPE}: player is Adm or not
+	"messages"  //everyone can see
 	{
 		"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
 		"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) {olive}<ID:{STEAMID}>"
 	}
-	"messages_admin"
+	"messages_admin"  //only adm can see
 	{
 		"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
 		"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
