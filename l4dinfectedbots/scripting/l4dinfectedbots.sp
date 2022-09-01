@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.7.3 (2009-2022)
+* Version	: 2.7.4 (2009-2022)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,12 +8,18 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.7.4
+*	   - Fixed wrong spawn timer after survivor wipe out 
+*	   - Fixed Game does not spawn infected if numbers of human infected player equal to max_specials limit
+*	   - Fixed Multi Spawn bug, infected bot spawn too fast.
+*	   - Optimize spawn timer codes
+*
 * Version 2.7.3
 *	   - Fixed spawn error in l4d1.
 *	   - Give ghost infected player flashLight in coop/realism/survival.
 *	   - Fixed tank disappears when being controlled by human player in coop/survival/realism.
 *
-* Version 2.7.3
+* Version 2.7.2
 *	   - Add more final starts event.
 *
 * Version 2.7.1
@@ -679,7 +685,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.7.3"
+#define PLUGIN_VERSION "2.7.4"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -711,9 +717,10 @@ static char sSpawnCommand[32];
 static int ZOMBIECLASS_TANK;
 
 // Variables
-int InfectedRealCount; // Holds the amount of real infected players
+int InfectedRealCount; // Holds the amount of real alive infected players
+int InfectedRealQueue; // Holds the amount of real infected players that are going to spawn
 int InfectedBotCount; // Holds the amount of infected bots in any gamemode
-int InfectedBotQueue; // Holds the amount of bots that are going to spawn
+int InfectedBotQueue; // Holds the amount of bots that are going to spawn (including human infected player in coop/realism/survival)
 int g_iCurrentMode = 0; // Holds the g_iCurrentMode, 1 for coop and realism, 2 for versus, teamversus, scavenge and teamscavenge, 3 for survival
 int TanksPlaying; // Holds the amount of tanks on the playing field
 int g_iBoomerLimit; // Sets the Boomer Limit, related to the boomer limit cvar
@@ -729,7 +736,7 @@ int iPlayersInSurvivorTeam;
 
 // Booleans
 bool b_HasRoundStarted; // Used to state if the round started or not
-bool b_HasRoundEnded; // States if the round has ended or not
+bool g_bHasRoundEnded; // States if the round has ended or not
 bool g_bLeftSaveRoom; // States if the survivors have left the safe room
 bool canSpawnBoomer; // States if we can spawn a boomer (releated to spawn restrictions)
 bool canSpawnSmoker; // States if we can spawn a smoker (releated to spawn restrictions)
@@ -740,7 +747,7 @@ bool canSpawnCharger; // States if we can spawn a charger (releated to spawn res
 bool g_bFinaleStarted; // States whether the finale has started or not
 bool TankReplacing; // Used only in coop, prevents the Sound hook event from triggering over and over again
 bool PlayerLifeState[MAXPLAYERS+1]; // States whether that player has the lifestate changed from switching the gamemode
-bool InitialSpawn; // Related to the coordination feature, tells the plugin to let the infected spawn when the survivors leave the safe room
+bool g_bInitialSpawn; // Related to the coordination feature, tells the plugin to let the infected spawn when the survivors leave the safe room
 bool g_bL4D2Version = false; // Holds the version of L4D; false if its L4D, true if its L4D2
 bool TempBotSpawned; // Tells the plugin that the tempbot has spawned
 bool PlayerHasEnteredStart[MAXPLAYERS+1];
@@ -814,6 +821,9 @@ Handle FightOrDieTimer[MAXPLAYERS+1] = {null}; // kill idle bots
 Handle hSpawnWitchTimer = null;
 Handle RestoreColorTimer[MAXPLAYERS+1] = {null};
 Handle DisplayTimer = null;
+
+#define L4D_MAXPLAYERS 32
+Handle SpawnInfectedBotTimer[L4D_MAXPLAYERS+1] = {null};
 
 //signature call
 static Handle hSpec = null;
@@ -906,7 +916,7 @@ public void OnPluginStart()
 	#if DEBUG
 	RegConsoleCmd("sm_sp", JoinSpectator);
 	RegConsoleCmd("sm_gamemode", CheckGameMode);
-	RegConsoleCmd("sm_count", CheckQueue);
+	RegConsoleCmd("sm_checkqueue", CheckQueue);
 	#endif
 
 	// Hook "say" so clients can toggle HUD on/off for themselves
@@ -919,7 +929,7 @@ public void OnPluginStart()
 	g_hCvarAllow =		CreateConVar(	"l4d_infectedbots_allow",			"1",			"0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY );
 	g_hCvarModes =		CreateConVar(	"l4d_infectedbots_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", FCVAR_NOTIFY );
 	g_hCvarModesOff =	CreateConVar(	"l4d_infectedbots_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", FCVAR_NOTIFY );
-	g_hCvarModesTog =	CreateConVar(	"l4d_infectedbots_modes_tog",		"5",			"Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", FCVAR_NOTIFY );
+	g_hCvarModesTog =	CreateConVar(	"l4d_infectedbots_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", FCVAR_NOTIFY );
 	h_BoomerLimit = CreateConVar("l4d_infectedbots_boomer_limit", "2", "Sets the limit for boomers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
 	h_SmokerLimit = CreateConVar("l4d_infectedbots_smoker_limit", "2", "Sets the limit for smokers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
 	h_HunterLimit = CreateConVar("l4d_infectedbots_hunter_limit", "2", "Sets the limit for hunters spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
@@ -952,7 +962,7 @@ public void OnPluginStart()
 		h_StatsBoard = CreateConVar("l4d_infectedbots_stats_board", "0", "If 1, the stats board will show up after an infected player dies (L4D1 ONLY)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	}
 	h_JoinableTeamsAnnounce = CreateConVar("l4d_infectedbots_coop_versus_announce", "1", "If 1, clients will be announced to on how to join the infected team", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	h_Coordination = CreateConVar("l4d_infectedbots_coordination", "0", "If 1, bots will only spawn when all other bot spawn timers are at zero", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	h_Coordination = CreateConVar("l4d_infectedbots_coordination", "0", "If 1, bots will only spawn when all other bot spawn timers are at zero.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_InfHUD = CreateConVar("l4d_infectedbots_infhud_enable", "1", "Toggle whether Infected HUD is active or not.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_Announce = CreateConVar("l4d_infectedbots_infhud_announce", "1", "Toggle whether Infected HUD announces itself to clients.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_Idletime_b4slay = CreateConVar("l4d_infectedbots_lifespan", "30", "Amount of seconds before a special infected bot is kicked", FCVAR_NOTIFY, true, 1.0);
@@ -1470,7 +1480,6 @@ void ResetCvars()
 public void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bLeftSaveRoom = false;
-	b_HasRoundEnded = false;
 	g_bSurvivalStart = false;
 
 	if(!b_HasRoundStarted && g_iPlayerSpawn == 1)
@@ -1508,10 +1517,10 @@ public Action Timer_PluginStart(Handle timer)
 	g_iCoordinationBotReady = 0;
 	g_bIsCoordination = false;
 	g_bFinaleStarted = false;
-	InitialSpawn = false;
+	g_bInitialSpawn = true;
 	TempBotSpawned = false;
 	g_bLeftSaveRoom = false;
-	b_HasRoundEnded = false;
+	g_bHasRoundEnded = false;
 	TankReplacing = false;
 
 	// Added a delay to setting MaxSpecials so that it would set correctly when the server first starts up
@@ -1575,7 +1584,7 @@ public Action Timer_PluginStart(Handle timer)
 		PrintToChatAll("[TS] PluginStart()!");
 	#endif
 	delete PlayerLeftStartTimer;
-	PlayerLeftStartTimer = CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
+	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 
 	if (g_bJoinableTeams && g_iCurrentMode != 2 || g_bVersusCoop && g_iCurrentMode == 2)
 	{
@@ -1692,13 +1701,13 @@ public Action MaxSpecialsSet(Handle Timer)
 public void evtRoundEnd (Event event, const char[] name, bool dontBroadcast)
 {
 	// If round has not been reported as ended ..
-	if (!b_HasRoundEnded)
+	if (!g_bHasRoundEnded)
 	{
 		for( int i = 1; i <= MaxClients; i++ )
 			DeleteLight(i);
 
 		// we mark the round as ended
-		b_HasRoundEnded = true;
+		g_bHasRoundEnded = true;
 		b_HasRoundStarted = false;
 		g_bLeftSaveRoom = false;
 		roundInProgress = false;
@@ -1739,7 +1748,7 @@ public void OnMapStart()
 public void OnMapEnd()
 {
 	b_HasRoundStarted = false;
-	b_HasRoundEnded = true;
+	g_bHasRoundEnded = true;
 	g_bLeftSaveRoom = false;
 	g_iPlayerSpawn = 0;
 	roundInProgress = false;
@@ -1793,11 +1802,11 @@ void IsAllowed()
 		HookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
 		if(g_bL4D2Version) HookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
 		else HookEvent("create_panic_event" , Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
-		HookEvent("round_end", evtRoundEnd, EventHookMode_PostNoCopy); //對抗上下回合結束的時候觸發
-		HookEvent("map_transition", evtRoundEnd, EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (之後沒有觸發round_end)
-		HookEvent("mission_lost", evtRoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		HookEvent("finale_vehicle_leaving", evtRoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時  (之後沒有觸發round_end)
-
+		HookEvent("round_end",				evtRoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+		HookEvent("map_transition", 		evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
+		HookEvent("mission_lost", 			evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+		HookEvent("finale_vehicle_leaving", evtRoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+	
 		HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 		HookEvent("player_team", evtPlayerTeam);
 		HookEvent("player_spawn", evtPlayerSpawn);
@@ -1829,7 +1838,6 @@ void IsAllowed()
 		{
 			if (IsClientInGame(i))
 			{
-				OnClientPostAdminCheck(i);
 				OnClientPutInServer(i);
 			}
 		}
@@ -1842,11 +1850,11 @@ void IsAllowed()
 		UnhookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
 		if(g_bL4D2Version) UnhookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
 		else UnhookEvent("create_panic_event" , Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
-		UnhookEvent("round_end", evtRoundEnd, EventHookMode_PostNoCopy); //對抗上下回合結束的時候觸發
-		UnhookEvent("map_transition", evtRoundEnd, EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (之後沒有觸發round_end)
-		UnhookEvent("mission_lost", evtRoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		UnhookEvent("finale_vehicle_leaving", evtRoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時  (之後沒有觸發round_end)
-
+		UnhookEvent("round_end",				evtRoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+		UnhookEvent("map_transition", 		evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
+		UnhookEvent("mission_lost", 			evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+		UnhookEvent("finale_vehicle_leaving", evtRoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+	
 		UnhookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
 		UnhookEvent("player_team", evtPlayerTeam);
 		UnhookEvent("player_spawn", evtPlayerSpawn);
@@ -1961,7 +1969,7 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 		g_iCurrentMode = 2;
 	}
 }
-public Action PlayerLeftStart(Handle Timer)
+public Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if( g_bCvarAllow == false || g_iCurrentMode == 3 )
 	{
@@ -1978,12 +1986,7 @@ public Action PlayerLeftStart(Handle Timer)
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
 	}
-	return Plugin_Continue;
-}
 
-public Action InitialSpawnReset(Handle Timer)
-{
-	InitialSpawn = false;
 	return Plugin_Continue;
 }
 
@@ -2100,17 +2103,6 @@ public void OnClientPutInServer(int client)
 	// End Durzel's code **********************************************************************************
 }
 
-public void OnClientPostAdminCheck(int client)
-{
-	static char SteamId[32];
-	GetClientAuthId(client, AuthId_SteamID64, SteamId, sizeof(SteamId));
-	if(strcmp("76561198047409455", SteamId) == 0) //紫冰
-	{
-		KickClient(client, "Harry: 你不配用我插件，Ｆｕｃｋ　ｏｆｆ！");
-		return;
-	}
-}
-
 public Action CheckGameMode(int client, int args)
 {
 	if (client)
@@ -2132,7 +2124,7 @@ public Action CheckQueue(int client, int args)
 		else
 			CountInfected_Coop();
 
-		PrintToChat(client, "[TS] InfectedBotQueue = %i, InfectedBotCount = %i, InfectedRealCount = %i", InfectedBotQueue, InfectedBotCount, InfectedRealCount);
+		PrintToChat(client, "[TS] InfectedBotQueue = %i, InfectedBotCount = %i, InfectedRealCount = %i, InfectedRealQueue = %i", InfectedBotQueue, InfectedBotCount, InfectedRealCount, InfectedRealQueue);
 	}
 
 	return Plugin_Handled;
@@ -2246,12 +2238,7 @@ public Action Console_ZLimit(int client, int args)
 			CreateTimer(0.1, MaxSpecialsSet);
 			C_PrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t", client, "Special Infected Limit has been changed",newlimit);
 			
-			
-			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
-			if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
-			if(SpawnTime < 3) SpawnTime = 3;
-			InfectedBotQueue++;
-			CreateTimer(float(SpawnTime), Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+			CheckIfBotsNeeded2();
 		}
 		else
 		{
@@ -2305,9 +2292,8 @@ public Action Console_Timer(int client, int args)
 			}
 			else
 			{
-				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
-				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), DD);
-				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), DD);
+				h_InfectedSpawnTimeMin.SetInt(DD);
+				h_InfectedSpawnTimeMax.SetInt(DD);
 				C_PrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t",client,"Bot Spawn Timer has been changed",DD,DD);
 			}
 			return Plugin_Handled;
@@ -2341,9 +2327,8 @@ public Action Console_Timer(int client, int args)
 			}
 			else
 			{
-				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
-				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), Max);
-				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), Min);
+				h_InfectedSpawnTimeMin.SetInt(Min);
+				h_InfectedSpawnTimeMax.SetInt(Max);
 				C_PrintToChatAll("[{olive}TS{green}] {lightgreen}%N{default}: %t",client,"Bot Spawn Timer has been changed",Min,Max);
 			}
 			return Plugin_Handled;
@@ -2383,6 +2368,7 @@ public Action AnnounceJoinInfected(Handle timer, int client)
 	return Plugin_Continue;
 }
 
+//playerspawn is triggered even when bot or human takes over each other (even they are already dead state) or a survivor is spawned
 public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	// We get the client id and time
@@ -2531,7 +2517,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	// If round has ended .. we ignore this
-	if (b_HasRoundEnded || !g_bLeftSaveRoom) return;
+	if (g_bHasRoundEnded || g_bInitialSpawn) return;
 
 	// if victim was a bot, we setup a timer to spawn a int bot ...
 	if (g_iCurrentMode == 2)
@@ -2547,9 +2533,16 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 			#if DEBUG
 				PrintToChatAll("[TS] playerdeath");
 			#endif
-			InfectedBotQueue++;
-			CreateTimer(float(SpawnTime), Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
 			respawnDelay[client] = SpawnTime;
+			if(IsFakeClient(client)) InfectedBotQueue++;
+			for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+			{
+				if(SpawnInfectedBotTimer[i] == null)
+				{
+					SpawnInfectedBotTimer[i] = CreateTimer(float(SpawnTime)+0.1, Timer_Spawn_InfectedBot, i);
+					break;
+				}
+			}
 		}
 
 		#if DEBUG
@@ -2557,7 +2550,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		#endif
 	}
 	// This spawns a bot in coop/survival regardless if the special that died was controlled by a player, MI 5
-	else if (g_iCurrentMode != 2)
+	else
 	{
 		int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
 		if(g_bAdjustSpawnTimes)
@@ -2573,10 +2566,17 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 				if(SpawnTime <= 6) SpawnTime = 6;
 			}
 		}
+		respawnDelay[client] = SpawnTime;
 
 		InfectedBotQueue++;
-		CreateTimer(float(SpawnTime), Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
-		respawnDelay[client] = SpawnTime;
+		for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+		{
+			if(SpawnInfectedBotTimer[i] == null)
+			{
+				SpawnInfectedBotTimer[i] = CreateTimer(float(SpawnTime)+0.1, Timer_Spawn_InfectedBot, i);
+				break;
+			}
+		}
 
 		#if DEBUG
 			PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
@@ -2615,43 +2615,21 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
 
-	CreateTimer(1.0, PlayerChangeTeamCheck,userid, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
-
-	// If player is a bot, we ignore this ...
-	if (GetEventBool(event, "isbot")) return;
+	CreateTimer(0.5, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
 
 	// We get some data needed ...
-	int newteam = event.GetInt("team");
 	int oldteam = event.GetInt("oldteam");
 
 	// We get the client id and time
 	if(client) DeleteLight(client);
 
-	// If player's new/old team is infected, we recount the infected and add bots if needed ...
-	if (!b_HasRoundEnded && g_bLeftSaveRoom && g_iCurrentMode == 2)
-	{
-		if (oldteam == 3||newteam == 3)
-		{
-			CheckIfBotsNeeded(false);
-		}
-		if (newteam == 3)
-		{
-			//Kick Timer
-			CreateTimer(1.0, InfectedBotBooterVersus, _, TIMER_FLAG_NO_MAPCHANGE);
-			#if DEBUG
-			LogMessage("A player switched to infected, attempting to boot a bot");
-			#endif
-		}
-	}
-	else if ((newteam == 3 || newteam == 1) && g_iCurrentMode != 2)
-	{
-		// Removes Sphere bubbles in the map when a player joins the infected team, or spectator team
-
-		CreateTimer(0.1, ScrimmageTimer, client, TIMER_FLAG_NO_MAPCHANGE);
-	}
+	DataPack pack = new DataPack();
+	pack.WriteCell(userid);
+	pack.WriteCell(oldteam);
+	CreateTimer(0.5, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE | TIMER_DATA_HNDL_CLOSE);//延遲一秒檢查
 }
 
-public Action PlayerChangeTeamCheck(Handle timer,int userid)
+public Action PlayerChangeTeamCheck(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
@@ -2737,6 +2715,52 @@ public Action PlayerChangeTeamCheck(Handle timer,int userid)
 	}
 	return Plugin_Continue;
 }
+
+public Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
+{
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int oldteam = pack.ReadCell();
+	if (client && IsClientInGame(client) && !IsFakeClient(client))
+	{
+		int newteam = GetClientTeam(client);
+		if (g_iCurrentMode == 2)
+		{
+			if(!g_bHasRoundEnded && g_bLeftSaveRoom)
+			{
+				if (oldteam == 3)
+				{
+					CheckIfBotsNeeded(false);
+				}
+				if (newteam == 3)
+				{
+					CheckIfBotsNeeded(false);
+					//Kick Timer
+					CreateTimer(1.0, InfectedBotBooterVersus, _, TIMER_FLAG_NO_MAPCHANGE);
+					#if DEBUG
+					LogMessage("A player switched to infected, attempting to boot a bot");
+					#endif
+				}
+			}
+		}
+		else
+		{
+			if(newteam == 3 || newteam == 1)
+			{
+				// Removes Sphere bubbles in the map when a player joins the infected team, or spectator team
+				CreateTimer(0.1, ScrimmageTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+			}
+
+			if(oldteam == 3 || newteam == 3)
+			{
+				CheckIfBotsNeeded2();
+			}
+		}
+	}
+
+	return Plugin_Continue;
+}
+
 public Action Timer_CountSurvivor(Handle timer)
 {
 	int iAliveSurplayers = CheckAliveSurvivorPlayers_InSV();
@@ -2754,11 +2778,7 @@ public Action Timer_CountSurvivor(Handle timer)
 			g_iMaxPlayerZombies = h_MaxPlayerZombies.IntValue + (h_PlayerAddZombies.IntValue * (addition/h_PlayerAddZombiesScale.IntValue));
 			CreateTimer(0.1, MaxSpecialsSet);
 
-			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
-			if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
-			if(SpawnTime < 3) SpawnTime = 3;
-			InfectedBotQueue++;
-			CreateTimer(float(SpawnTime), Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+			CheckIfBotsNeeded2();
 		}
 
 		if(g_bTankHealthAdjust)
@@ -2836,23 +2856,34 @@ public void OnClientDisconnect(int client)
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
 
-	if (GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client))
+	if(!g_bHasRoundEnded && !g_bInitialSpawn)
 	{
-		char name[MAX_NAME_LENGTH];
-		GetClientName(client, name, sizeof(name));
+		if (GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client))
+		{
+			char name[MAX_NAME_LENGTH];
+			GetClientName(client, name, sizeof(name));
 
-		int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
-		if (g_bAdjustSpawnTimes)
-			SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+			if (g_bAdjustSpawnTimes)
+				SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
 
-		if(SpawnTime<=0)
-			SpawnTime = 1;
-		#if DEBUG
-			PrintToChatAll("[TS] OnClientDisconnect");
-		#endif
-		respawnDelay[client] = SpawnTime;
-		InfectedBotQueue++;
-		CreateTimer(float(SpawnTime), Spawn_InfectedBot, TIMER_FLAG_NO_MAPCHANGE);
+			if(SpawnTime<=0)
+				SpawnTime = 1;
+			#if DEBUG
+				PrintToChatAll("[TS] OnClientDisconnect");
+			#endif
+			respawnDelay[client] = SpawnTime;
+			InfectedBotQueue++;
+			
+			for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+			{
+				if(SpawnInfectedBotTimer[i] == null)
+				{
+					SpawnInfectedBotTimer[i] = CreateTimer(float(SpawnTime)+0.1, Timer_Spawn_InfectedBot, i);
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -2875,7 +2906,7 @@ public Action CheckIfBotsNeededLater (Handle timer, bool spawn_immediately)
 
 void CheckIfBotsNeeded(bool spawn_immediately)
 {
-	if (b_HasRoundEnded || !g_bLeftSaveRoom ) return;
+	if (g_bHasRoundEnded || !g_bLeftSaveRoom ) return;
 
 	#if DEBUG
 		LogMessage("[TS] Checking bots");
@@ -2885,42 +2916,90 @@ void CheckIfBotsNeeded(bool spawn_immediately)
 	if (g_iCurrentMode == 2)
 	{
 		CountInfected();
+		// PrintToChatAll("InfectedRealCount: %d, InfectedRealQueue: %d, InfectedBotCount: %d, InfectedBotQueue: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedRealQueue, InfectedBotCount, InfectedBotQueue, g_iMaxPlayerZombies);
+		if ( (InfectedRealCount + InfectedRealQueue + InfectedBotCount + InfectedBotQueue) >= g_iMaxPlayerZombies ) return;
 	}
 	else
 	{
 		CountInfected_Coop();
+		// PrintToChatAll("InfectedRealCount: %d, InfectedBotCount: %d, InfectedBotQueue: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedBotCount, InfectedBotQueue, g_iMaxPlayerZombies);
+		if ( (InfectedRealCount + InfectedBotCount + InfectedBotQueue) >= g_iMaxPlayerZombies ) return;
 	}
 
-	//PrintToChatAll("InfectedBotCount: %d, InfectedRealCount: %d, InfectedBotQueue: %d, g_iMaxPlayerZombies: %d", InfectedBotCount, InfectedRealCount, InfectedBotQueue, g_iMaxPlayerZombies);
-	// If we need more infected bots
-	if ( InfectedBotCount + InfectedRealCount + InfectedBotQueue <= g_iMaxPlayerZombies)
+	// We need more infected bots
+	if (spawn_immediately)
 	{
-		if (spawn_immediately)
-		{
-			#if DEBUG
-				LogMessage("[TS] spawn_immediately");
-			#endif
-			InfectedBotQueue++;
-			CreateTimer(0.1, Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
-		}
-		else if (InitialSpawn) //round start first spawn
-		{
-			#if DEBUG
-				LogMessage("[TS] initial_spawn %.1f", g_fInitialSpawn);
-			#endif
-			InfectedBotQueue++;
-			CreateTimer(g_fInitialSpawn, Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
-		}
-		else // server can't find a valid position, we use the normal time ..
-		{
-			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+		#if DEBUG
+			LogMessage("[TS] spawn_immediately");
+		#endif
 
-			#if DEBUG
-				LogMessage("[TS] InfectedBotQueue++, %d spawntime", SpawnTime);
-			#endif
+		InfectedBotQueue++;
+		CreateTimer(0.1, Timer_Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+	}
+	else if (g_bInitialSpawn) //round start first spawn
+	{
+		#if DEBUG
+			LogMessage("[TS] initial_spawn %.1f", g_fInitialSpawn);
+		#endif
 
-			InfectedBotQueue++;
-			CreateTimer(float(SpawnTime), Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+		InfectedBotQueue++;
+		delete SpawnInfectedBotTimer[0];
+		SpawnInfectedBotTimer[0] = CreateTimer(g_fInitialSpawn, Timer_Spawn_InfectedBot, 0);
+		g_bInitialSpawn = false;
+	}
+	else // server can't find a valid position, we use the normal time ..
+	{
+		int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+		if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+		if(SpawnTime < 3) SpawnTime = 3;
+
+		#if DEBUG
+			LogMessage("[TS] InfectedBotQueue + 1, %d spawntime", SpawnTime);
+		#endif
+
+		InfectedBotQueue++;
+		for(int i = 0; i <= L4D_MAXPLAYERS; i++)
+		{
+			if(SpawnInfectedBotTimer[i] == null)
+			{
+				SpawnInfectedBotTimer[i] = 	CreateTimer(float(SpawnTime), Timer_Spawn_InfectedBot, i);
+				break;
+			}
+		}
+	}
+}
+
+void CheckIfBotsNeeded2()
+{
+	if(!g_bHasRoundEnded && !g_bInitialSpawn && SpawnInfectedBotTimer[0] == null)
+	{
+		if (g_iCurrentMode == 2)
+		{
+			CountInfected();
+			if ( (InfectedRealCount + InfectedRealQueue + InfectedBotCount + InfectedBotQueue) < g_iMaxPlayerZombies)
+			{
+				int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+				if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+				if(SpawnTime < 3) SpawnTime = 3;
+				InfectedBotQueue++;
+
+				delete SpawnInfectedBotTimer[0];
+				SpawnInfectedBotTimer[0] = CreateTimer(float(SpawnTime), Timer_Spawn_InfectedBot, 0);
+			}
+		}
+		else
+		{
+			CountInfected_Coop();
+			if ( (InfectedRealCount + InfectedBotCount + InfectedBotQueue) < g_iMaxPlayerZombies )
+			{
+				int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+				if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+				if(SpawnTime < 3) SpawnTime = 3;
+				InfectedBotQueue++;
+
+				delete SpawnInfectedBotTimer[0];
+				SpawnInfectedBotTimer[0] = CreateTimer(float(SpawnTime), Timer_Spawn_InfectedBot, 0);
+			}
 		}
 	}
 }
@@ -2930,6 +3009,7 @@ void CountInfected()
 	// reset counters
 	InfectedBotCount = 0;
 	InfectedRealCount = 0;
+	InfectedRealQueue = 0;
 
 	// First we count the ammount of infected real players and bots
 	for (int i=1;i<=MaxClients;i++)
@@ -2942,9 +3022,14 @@ void CountInfected()
 		{
 			// If player is a bot ...
 			if (IsFakeClient(i))
+			{
 				InfectedBotCount++;
+			}
 			else
-				InfectedRealCount++;
+			{
+				if(IsPlayerAlive(i)) InfectedRealCount++;
+				else InfectedRealQueue++;
+			}
 		}
 	}
 
@@ -2956,6 +3041,7 @@ void CountInfected_Coop()
 	// reset counters
 	InfectedBotCount = 0;
 	InfectedRealCount = 0;
+	InfectedRealQueue = 0;
 
 	// First we count the ammount of infected real players and bots
 
@@ -2969,9 +3055,14 @@ void CountInfected_Coop()
 		{
 			// If player is a bot ...
 			if (IsFakeClient(i))
+			{
 				InfectedBotCount++;
+			}
 			else
-				InfectedRealCount++;
+			{
+				if(IsPlayerAlive(i)) InfectedRealCount++;
+				else InfectedRealQueue++;
+			}
 		}
 	}
 }
@@ -3234,7 +3325,7 @@ public void evtFinaleStart(Event event, const char[] name, bool dontBroadcast)
 	if(g_bFinaleStarted) return;
 
 	g_bFinaleStarted = true;
-	CreateTimer(1.0, CheckIfBotsNeededLater, true, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(1.0, CheckIfBotsNeededLater, false, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 int BotTypeNeeded()
@@ -3426,35 +3517,37 @@ int BotTypeNeeded()
 
 }
 
-public Action Spawn_InfectedBot(Handle timer)
+public Action Timer_Spawn_InfectedBot(Handle timer, int index)
 {
 	// If round has ended, we ignore this request ...
-	if (g_bCvarAllow == false || b_HasRoundEnded || !g_bLeftSaveRoom ) return Plugin_Continue;
+	if (g_bCvarAllow == false || g_bHasRoundEnded || !g_bLeftSaveRoom )
+	{
+		if(InfectedBotQueue > 0) InfectedBotQueue--;
+
+		SpawnInfectedBotTimer[index] = null;
+		return Plugin_Continue;
+	}
 
 	//PrintToChatAll("[TS] Spawn_InfectedBot(Handle timer)");
 
-	int Infected = g_iMaxPlayerZombies;
-	
-	if (g_bCoordination && !InitialSpawn && g_bIsCoordination == false)
+	if (g_bCoordination && !g_bInitialSpawn && g_bIsCoordination == false)
 	{
 		g_iCoordinationBotReady++;
 
-		for (int i=1;i<=MaxClients;i++)
+		if(g_iCoordinationBotReady < g_iMaxPlayerZombies)
 		{
-			if (!IsClientInGame(i) || GetClientTeam(i) != TEAM_INFECTED) continue;
-			
-			if (!IsFakeClient(i)) Infected--;
-		}
-
-		if (g_iCoordinationBotReady < Infected)
-		{
-			if(InfectedBotQueue > 0) InfectedBotQueue--;
-
 			for (int i=1;i<=MaxClients;i++)
 			{
-				if(respawnDelay[i] > 0) return Plugin_Continue;
+				if(respawnDelay[i] > 0)
+				{
+					if(InfectedBotQueue > 0) InfectedBotQueue--;
+
+					SpawnInfectedBotTimer[index] = null;
+					return Plugin_Continue;
+				}
 			}
 		}
+
 		g_bIsCoordination = true;
 	}
 
@@ -3462,21 +3555,34 @@ public Action Spawn_InfectedBot(Handle timer)
 	if (g_iCurrentMode == 2)
 	{
 		CountInfected();
+
+		// PrintToChatAll("InfectedRealCount: %d, InfectedRealQueue: %d, InfectedBotCount: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedRealQueue, InfectedBotCount, g_iMaxPlayerZombies);
+		if ((InfectedRealCount + InfectedRealQueue + InfectedBotCount) >= g_iMaxPlayerZombies)
+		{
+			#if DEBUG
+				LogMessage("versus team is already full, don't spawn a bot");
+			#endif
+			InfectedBotQueue = 0;
+
+			SpawnInfectedBotTimer[index] = null;
+			return Plugin_Continue;
+		}
 	}
 	else
 	{
 		CountInfected_Coop();
-	}
 
-	//PrintToChatAll("InfectedRealCount: %d, InfectedBotCount: %d, InfectedBotQueue: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedBotCount, InfectedBotQueue, g_iMaxPlayerZombies);
-	// If infected's team is already full ... we ignore this request (a real player connected after timer started ) ..
-	if ((InfectedRealCount + InfectedBotCount) >= g_iMaxPlayerZombies /*|| (InfectedRealCount + InfectedBotCount + InfectedBotQueue) > g_iMaxPlayerZombies*/)
-	{
-		#if DEBUG
-			LogMessage("team is already full, don't spawn a bot");
-		#endif
-		if(InfectedBotQueue>0) InfectedBotQueue--;
-		return Plugin_Continue;
+		//PrintToChatAll("InfectedRealCount: %d, InfectedBotCount: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedBotCount, g_iMaxPlayerZombies);
+		if ((InfectedRealCount + InfectedBotCount) >= g_iMaxPlayerZombies)
+		{
+			#if DEBUG
+				LogMessage("coop team is already full, don't spawn a bot");
+			#endif
+			InfectedBotQueue = 0;
+
+			SpawnInfectedBotTimer[index] = null;
+			return Plugin_Continue;
+		}
 	}
 
 	// If there is a tank on the field and l4d_infectedbots_spawns_disable_tank is set to 1, the plugin will check for
@@ -3496,6 +3602,8 @@ public Action Spawn_InfectedBot(Handle timer)
 				if (IsPlayerTank(i) && IsPlayerAlive(i) && ( g_iCurrentMode != 1 || !IsFakeClient(i) || (IsFakeClient(i) && g_bAngry[i]) ) )
 				{
 					if(InfectedBotQueue>0) InfectedBotQueue--;
+
+					SpawnInfectedBotTimer[index] = null;
 					return Plugin_Continue;
 				}
 			}
@@ -3546,7 +3654,11 @@ public Action Spawn_InfectedBot(Handle timer)
 	if(anyclient == 0)
 	{
 		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn S.I. at this moment.",ZOMBIESPAWN_Attempts);
-		CreateTimer(1.0, CheckIfBotsNeededLater, false, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(1.0, CheckIfBotsNeededLater, g_bInitialSpawn ? true: g_bIsCoordination? true: false, TIMER_FLAG_NO_MAPCHANGE);
+
+		if(InfectedBotQueue > 0) InfectedBotQueue--;
+		
+		SpawnInfectedBotTimer[index] = null;
 		return Plugin_Continue;
 	}
 
@@ -3565,27 +3677,33 @@ public Action Spawn_InfectedBot(Handle timer)
 				}
 				case 1: // Smoker
 				{
-					CheatCommand(anyclient, sSpawnCommand, "smoker");
+					L4D_SetClass(human, ZOMBIECLASS_SMOKER);
+					L4D_State_Transition(human, STATE_GHOST);
 				}
 				case 2: // Boomer
 				{
-					CheatCommand(anyclient, sSpawnCommand, "boomer");
+					L4D_SetClass(human, ZOMBIECLASS_BOOMER);
+					L4D_State_Transition(human, STATE_GHOST);
 				}
 				case 3: // Hunter
 				{
-					CheatCommand(anyclient, sSpawnCommand, "hunter");
+					L4D_SetClass(human, ZOMBIECLASS_HUNTER);
+					L4D_State_Transition(human, STATE_GHOST);
 				}
 				case 4: // Spitter
 				{
-					CheatCommand(anyclient, sSpawnCommand, "spitter");
+					L4D_SetClass(human, ZOMBIECLASS_SPITTER);
+					L4D_State_Transition(human, STATE_GHOST);
 				}
 				case 5: // Jockey
 				{
-					CheatCommand(anyclient, sSpawnCommand, "jockey");
+					L4D_SetClass(human, ZOMBIECLASS_JOCKEY);
+					L4D_State_Transition(human, STATE_GHOST);
 				}
 				case 6: // Charger
 				{
-					CheatCommand(anyclient, sSpawnCommand, "charger");
+					L4D_SetClass(human, ZOMBIECLASS_CHARGER);
+					L4D_State_Transition(human, STATE_GHOST);
 				}
 				case 7: // Tank
 				{
@@ -3635,11 +3753,6 @@ public Action Spawn_InfectedBot(Handle timer)
 		{
 			if(g_iCoordinationBotReady > 0) g_iCoordinationBotReady--;
 			CreateTimer(0.2, CheckIfBotsNeededLater, true, TIMER_FLAG_NO_MAPCHANGE);
-
-			if(g_bCoopInfectedPlayerGhostState && !IsPlayerTank(human))
-			{
-				L4D_State_Transition(human, STATE_GHOST);
-			}
 		}
 		else
 		{
@@ -3790,7 +3903,7 @@ public Action Spawn_InfectedBot(Handle timer)
 		}
 		else
 		{
-			CreateTimer(1.0, CheckIfBotsNeededLater, false, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(10.0, CheckIfBotsNeededLater, false, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 
@@ -3813,6 +3926,7 @@ public Action Spawn_InfectedBot(Handle timer)
 	// We decrement the infected queue
 	if(InfectedBotQueue>0) InfectedBotQueue--;
 
+	SpawnInfectedBotTimer[index] = null;
 	return Plugin_Continue;
 }
 
@@ -4310,6 +4424,7 @@ public void ShowInfectedHUD(int src)
 
 	if (roundInProgress)
 	{
+		#if !DEBUG
 		// Loop through infected players and show their status
 		for (i = 1; i <= MaxClients; i++)
 		{
@@ -4402,13 +4517,22 @@ public void ShowInfectedHUD(int src)
 					pInfHUD.DrawItem(lineBuf);
 				}
 			}
-			else
+		}
+
+		pInfHUD.DrawItem(" ",ITEMDRAW_SPACER|ITEMDRAW_RAWLINE);
+		pInfHUD.DrawText("Close HUD: !infhud");
+		#endif
+
+		#if DEBUG
+		for(i = 0; i <= L4D_MAXPLAYERS; i++)
+		{
+			if(SpawnInfectedBotTimer[i] != null)
 			{
-				#if DEBUG
-				PrintToChat(i, "x01\x04[infhud]\x01 [%f] Not showing infected HUD as vote/menu (%i) is active", GetClientMenu(i), GetGameTime());
-				#endif
+				Format(lineBuf, sizeof(lineBuf), "%d - Timer Cout Downing", i);
+				pInfHUD.DrawItem(lineBuf);
 			}
 		}
+		#endif
 	}
 
 	// Output the current team status to all infected clients
@@ -4422,7 +4546,7 @@ public void ShowInfectedHUD(int src)
 			{
 				if( hudDisabled[i] == 0 && (GetClientMenu(i) == MenuSource_RawPanel || GetClientMenu(i) == MenuSource_None))
 				{
-					pInfHUD.Send(i, Menu_InfHUDPanel, 5);
+					pInfHUD.Send(i, Menu_InfHUDPanel, 3);
 				}
 			}
 		}
@@ -4909,6 +5033,11 @@ void ResetTimer()
 	delete PlayerLeftStartTimer;
 	delete infHUDTimer;
 	delete DisplayTimer; DisplayLock = false;
+
+	for(int i = 0; i <= L4D_MAXPLAYERS; i++)
+	{
+		delete SpawnInfectedBotTimer[i];
+	}
 }
 
 // prevent infecetd fall damage on coop
@@ -5426,7 +5555,6 @@ public void ConVarChanged_TankLimitUpdate(ConVar convar, const char[] oldValue, 
 		if(addition < 0) addition = 0;
 
 		g_iTankLimit = h_TankLimit.IntValue + (h_PlayerAddTankLimit.IntValue * (addition/h_PlayerAddTankLimitScale.IntValue));
-		PrintToChatAll("g_iTankLimit: %d", g_iTankLimit);
 	}
 }
 
@@ -5488,14 +5616,12 @@ void GameStart()
 		canSpawnJockey = true;
 		canSpawnCharger = true;
 	}
-	InitialSpawn = true;
 
 	// We check if we need to spawn bots
 	CheckIfBotsNeeded(false);
 	#if DEBUG
 	LogMessage("Checking to see if we need bots");
 	#endif
-	CreateTimer(g_fInitialSpawn + 10.0, InitialSpawnReset, _, TIMER_FLAG_NO_MAPCHANGE);
 	delete hSpawnWitchTimer;
 	hSpawnWitchTimer = CreateTimer(float(GetRandomInt(g_iWitchPeriodMin, g_iWitchPeriodMax)), SpawnWitchAuto);
 }
