@@ -55,7 +55,7 @@ sm_l4d_fmc_crec_survival_map "5"
 sm_l4d_fmc_def "c2m1_highway"
 
 // After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=off)
-sm_l4d_fmc_delay_coop_final "10.0"
+sm_l4d_fmc_delay_coop_final "15.0"
 
 // After round ends, delay before force of changelevel in versus. (0=off)
 sm_l4d_fmc_delay_survival "15.0"
