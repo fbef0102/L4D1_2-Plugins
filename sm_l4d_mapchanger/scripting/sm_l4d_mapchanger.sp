@@ -14,13 +14,15 @@
 
 #define NEXTLEVEL_Seconds 6.0
 
-ConVar DefM, CheckRoundCounterCoop, CheckRoundCounterCoopFinal, ChDelayVS, 
+ConVar DefMCoop, DefMSurvival, DefMVersus, CheckRoundCounterCoop, CheckRoundCounterCoopFinal, ChDelayVS, 
 	ChDelaySurvival, CheckRoundCounterSurvival, ChDelayCOOPFinal, cvarAnnounce, h_GameMode;
 
 int g_iCurrentMode;
 char current_map[64];
 char announce_map[64];
-char next_mission_def[64];
+char next_mission_def_coop[64];
+char next_mission_def_survival[64];
+char next_mission_def_versus[64];
 char next_mission_type[16];
 char next_mission_map[64];
 char next_mission_name[64];
@@ -66,7 +68,9 @@ public void OnPluginStart()
 	
 	h_GameMode = FindConVar("mp_gamemode");
 
-	DefM = CreateConVar("sm_l4d_fmc_def", "c2m1_highway", "Mission for change by default. (Empty=Game default behavior)", FCVAR_NOTIFY);
+	DefMCoop = CreateConVar("sm_l4d_fmc_def_coop", "c2m1_highway", "Mission for change by default on final map in coop/realism. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
+	DefMSurvival = CreateConVar("sm_l4d_fmc_def_survival", "", "Mission for change by default in survival. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
+	DefMVersus = CreateConVar("sm_l4d_fmc_def_versus", "c8m1_apartment", "Mission for change by default on final map in versus. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
 	CheckRoundCounterCoop = CreateConVar("sm_l4d_fmc_crec_coop_map", "3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on non-final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
 	CheckRoundCounterCoopFinal = CreateConVar("sm_l4d_fmc_crec_coop_final", "3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
 	CheckRoundCounterSurvival = CreateConVar("sm_l4d_fmc_crec_survival_map", "5", "Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)", FCVAR_NOTIFY, true, 0.0);
@@ -79,7 +83,8 @@ public void OnPluginStart()
 	GetCvars();
 	GameModeCheck();
 	h_GameMode.AddChangeHook(ConVarGameMode);
-	DefM.AddChangeHook(ConVarChanged_Cvars);
+	DefMCoop.AddChangeHook(ConVarChanged_Cvars);
+	DefMSurvival.AddChangeHook(ConVarChanged_Cvars);
 	CheckRoundCounterCoop.AddChangeHook(ConVarChanged_Cvars);
 	CheckRoundCounterCoopFinal.AddChangeHook(ConVarChanged_Cvars);
 	CheckRoundCounterSurvival.AddChangeHook(ConVarChanged_Cvars);
@@ -107,7 +112,9 @@ public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char
 
 void GetCvars()
 {
-	DefM.GetString(next_mission_def, sizeof(next_mission_def));
+	DefMCoop.GetString(next_mission_def_coop, sizeof(next_mission_def_coop));
+	DefMSurvival.GetString(next_mission_def_survival, sizeof(next_mission_def_survival));
+	DefMVersus.GetString(next_mission_def_versus, sizeof(next_mission_def_versus));
 	
 	CheckRoundCounterCoopValue = CheckRoundCounterCoop.IntValue;
 	CheckRoundCounterCoopFinalValue = CheckRoundCounterCoopFinal.IntValue;
@@ -278,19 +285,6 @@ public Action Timer_ChangeMap(Handle timer)
 	ServerCommand("changelevel %s", next_mission_map);
 	//L4D2_ChangeLevel(next_mission_map);
 
-	CreateTimer(5.0, Timer_CheckChangeMap, TIMER_FLAG_NO_MAPCHANGE);
-
-	return Plugin_Continue;
-}
-
-public Action Timer_CheckChangeMap(Handle timer)
-{
-	CPrintToChatAll("%t", "Unable to Change Map", next_mission_name, next_mission_map);
-
-	FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_map);
-	FormatEx(next_mission_type, sizeof(next_mission_type), "invalid map");
-	next_mission_map = "none";
-
 	return Plugin_Continue;
 }
 
@@ -406,18 +400,49 @@ void PluginInitialization()
 	}
 	else
 	{
-		if(StrEqual(announce_map, "Empty")) return;
+		if(g_iCurrentMode == 1)
+		{
+			if(StrEqual(announce_map, "Empty")) return;
 
-		if(strlen(next_mission_def) > 0)
-		{
-			FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_def);
-			FormatEx(next_mission_type, sizeof(next_mission_type), "default");
-			next_mission_map = next_mission_def;
+			if(strlen(next_mission_def_coop) > 0)
+			{
+				FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_def_coop);
+				FormatEx(next_mission_type, sizeof(next_mission_type), "default");
+				next_mission_map = next_mission_def_coop;
+			}
+			else
+			{
+				FormatEx(announce_map, sizeof(announce_map), "none");
+				FormatEx(next_mission_type, sizeof(next_mission_type), "none");
+			}
 		}
-		else
+		else if(g_iCurrentMode == 2)
 		{
-			FormatEx(announce_map, sizeof(announce_map), "none", next_mission_def);
-			FormatEx(next_mission_type, sizeof(next_mission_type), "none");
+			if(strlen(next_mission_def_versus) > 0)
+			{
+				FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_def_versus);
+				FormatEx(next_mission_type, sizeof(next_mission_type), "default");
+				next_mission_map = next_mission_def_versus;
+			}
+			else
+			{
+				FormatEx(announce_map, sizeof(announce_map), "none");
+				FormatEx(next_mission_type, sizeof(next_mission_type), "none");
+			}
+		}
+		else if(g_iCurrentMode == 3)
+		{
+			if(strlen(next_mission_def_survival) > 0)
+			{
+				FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_def_survival);
+				FormatEx(next_mission_type, sizeof(next_mission_type), "default");
+				next_mission_map = next_mission_def_survival;
+			}
+			else
+			{
+				FormatEx(announce_map, sizeof(announce_map), "none");
+				FormatEx(next_mission_type, sizeof(next_mission_type), "none");
+			}
 		}
 	}
 }

@@ -43,16 +43,22 @@ cfg\sourcemod\sm_l4d_mapchanger.cfg
 sm_l4d_fmc_announce "1"
 
 // Quantity of rounds (tries) events survivors wipe out before force of changelevel on final maps in coop/realism (0=off)
-sm_l4d_fmc_crec_coop_final "3"
+sm_l4d_fmc_crec_coop_final "2"
 
 // Quantity of rounds (tries) events survivors wipe out before force of changelevel on non-final maps in coop/realism (0=off)
-sm_l4d_fmc_crec_coop_map "3"
+sm_l4d_fmc_crec_coop_map "2"
 
 // Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)
 sm_l4d_fmc_crec_survival_map "5"
 
-// Mission for change by default. (Empty=Game default behavior)
-sm_l4d_fmc_def "c2m1_highway"
+// Mission for change by default on final map in coop/realism. (Empty=Don't Change Map by default)
+sm_l4d_fmc_def_coop "c2m1_highway"
+
+// Mission for change by default in survival. (Empty=Don't Change Map by default)
+sm_l4d_fmc_def_survival ""
+
+// Mission for change by default on final map in versus. (Empty=Don't Change Map by default)
+sm_l4d_fmc_def_versus "c8m1_apartment"
 
 // After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=off)
 sm_l4d_fmc_delay_coop_final "15.0"
