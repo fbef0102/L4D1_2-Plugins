@@ -67,7 +67,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_drop](/l4d_drop)</b>: Allows players to drop the weapon they are holding
 * <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
 * <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
-* <b>[lockdown_system-l4d2_b](/lockdown_system-l4d2_b)</b>: Locks Saferoom Door Until Someone Opens It.
+* <b>[lockdown_system-l4d2](/lockdown_system-l4d2)</b>: Locks Saferoom Door Until Someone Opens It.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, is hanging, or is incapped, will respawn after a period of time.
 * <b>[l4d_witch_behind_fix](/l4d_witch_behind_fix)</b>: The witch turns back if nearby survivor scares her behind
