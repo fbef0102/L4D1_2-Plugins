@@ -22,9 +22,8 @@ v1.0.0
 -Original Post: https://forums.alliedmods.net/showthread.php?t=99746
 
 -Require-
-1. sourcemod 1.10 or above
-2. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
-3. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
 -Convar-
 cfg/sourcemod/l4dinfectedbots.cfg

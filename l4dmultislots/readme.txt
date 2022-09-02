@@ -21,12 +21,11 @@ v1.0
 -Original Post: https://forums.alliedmods.net/showthread.php?p=1239544
 
 -Require-
-1. sourcemod 1.10 or above
-2. You still need to use [l4dtoolz](https://github.com/Accelerator74/l4dtoolz/releases) to unlock server slots limit
-3. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
-4. CreateSurvivorBot: https://forums.alliedmods.net/showpost.php?p=2729883&postcount=16
-5. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
-6. To unlock all melee weapons in all campaigns, you MUST use [Mission and Weapons - Info Editor]("https://forums.alliedmods.net/showthread.php?t=310586") plugin.
+1. You still need to use [l4dtoolz](https://github.com/Accelerator74/l4dtoolz/releases) to unlock server slots limit
+2. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+3. CreateSurvivorBot: https://forums.alliedmods.net/showpost.php?p=2729883&postcount=16
+4. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+5. To unlock all melee weapons in all campaigns, you MUST use [Mission and Weapons - Info Editor]("https://forums.alliedmods.net/showthread.php?t=310586") plugin.
 
 -Conflicts-
 -DO NOT modify cvar "survivor_limit" value above 4 in your cfg, otherwise the new 5+ player could spawn in saferoom

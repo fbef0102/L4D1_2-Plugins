@@ -81,6 +81,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>pounceannounce</b>: Announces hunter pounces to the entire server
 * <b>l4d2_block_rocketjump</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
 * <b>l4d_death_soul</b>: Soul of the dead survivor flies away to the afterlife
+* <b>l4d_current_survivor_progress</b>: Print survivor progress in flow percents
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
