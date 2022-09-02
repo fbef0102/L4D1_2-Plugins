@@ -1,9 +1,10 @@
 shoot your teammate = shoot yourself
 
 -Changelog-
-v1.2
+v1.3
 -Disable Pipe Bomb Explosive friendly fire
 -Disable Fire friendly fire.
+-Friendly fire now will not incap player
 
 -Convar-
 // Ignore friendly_fire if damage is below this value (0=Do not ignore any damage).

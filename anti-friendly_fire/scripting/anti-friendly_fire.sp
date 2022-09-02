@@ -7,17 +7,18 @@
 
 #define CLASSNAME_LENGTH 64
 
-ConVar god, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hDamageShield;
+ConVar g_hGod, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hDamageShield;
 
 public Plugin myinfo = 
 {
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.2",
+	version = "1.3",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
+bool g_bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -27,13 +28,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
-	
+
+	g_bLate = late;
 	return APLRes_Success; 
 }
 
 public void OnPluginStart()
 {
-	god = FindConVar("god");
+	g_hGod = FindConVar("god");
 	g_hEnable = CreateConVar(	"anti_friendly_fire_enable", "1",
 								"Enable anti-friendly_fire plugin [0-Disable,1-Enable]",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
@@ -51,12 +53,44 @@ public void OnPluginStart()
 								FCVAR_NOTIFY, true, 0.0);
 	AutoExecConfig(true, "anti-friendly_fire");
 
-	//HookEvent("player_hurt", Event_PlayerHurt);
+	HookEvent("player_hurt", Event_PlayerHurt);
+
+	if(g_bLate)
+	{
+		for(int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i)) OnClientPutInServer(i);
+		}
+	}
+}
+
+public void OnClientPutInServer(int client)
+{
+	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+}
+
+public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+{
+	if(damage <= 0.0 || g_hEnable.BoolValue == false || g_hGod.BoolValue == true) return Plugin_Continue;
+
+	if(!IsClientAndInGame(attacker)  || 
+		!IsClientAndInGame(victim) || 
+		GetClientTeam(attacker) != L4D_TEAM_SURVIVOR || 
+		GetClientTeam(victim) != L4D_TEAM_SURVIVOR || 
+		attacker == victim) return Plugin_Continue;
+
+	if(IsClientInGodFrame(victim)) return Plugin_Continue;
+
+	int iHealth = GetClientHealth(victim);
+	//PrintToChatAll("%N attack %N, iHealth: %d, damage: %.2f", attacker, victim, iHealth, damage);
+	SetEntityHealth(victim, iHealth + RoundToFloor(damage));
+
+	return Plugin_Continue;
 }
 
 public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast) 
 {
-	if(god.IntValue == 1) return;
+	if(g_hGod.IntValue == 1) return;
 
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -64,7 +98,7 @@ public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 	if(g_hEnable.BoolValue == false || 
 	!IsClientAndInGame(attacker)  || 
 	!IsClientAndInGame(victim) || 
-	GetClientTeam(victim)!=2 || 
+	GetClientTeam(victim) != L4D_TEAM_SURVIVOR || 
 	attacker == victim || 
 	damage <=0 ||
 	damage <= g_hDamageShield.IntValue) { return; }
@@ -87,13 +121,11 @@ public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 	
 	if(bIsSpecialWeapon)
 	{
-		int health = event.GetInt("health");
-		SetEntityHealth(victim, health + damage);
+		//SetEntityHealth(victim, event.GetInt("health") + damage);
 	}
 	else if(!bIsSpecialWeapon && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
 	{
-		int health = event.GetInt("health");
-		SetEntityHealth(victim, health + damage);
+		//SetEntityHealth(victim, event.GetInt("health") + damage);
 		HurtEntity(attacker, attacker, float(damage));
 	}
 }
@@ -127,3 +159,29 @@ stock bool IsFireworkcrate(char[] classname)
 {
 	return StrEqual(classname, "fire_cracker_blast");
 } 
+
+stock float GetTempHealth(int client)
+{
+	static float fCvarDecayRate = -1.0;
+
+	if (fCvarDecayRate == -1.0)
+		fCvarDecayRate = FindConVar("pain_pills_decay_rate").FloatValue;
+
+	float fTempHealth = GetEntPropFloat(client, Prop_Send, "m_healthBuffer");
+	fTempHealth -= (GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * fCvarDecayRate;
+	return fTempHealth < 0.0 ? 0.0 : fTempHealth;
+}
+
+stock void SetTempHealth(int client, float health)
+{
+	SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime());
+	SetEntPropFloat(client, Prop_Send, "m_healthBuffer", health);
+}
+
+bool IsClientInGodFrame( int client )
+{
+	CountdownTimer timer = L4D2Direct_GetInvulnerabilityTimer(client);
+	if(timer == CTimer_Null) return false;
+
+	return (CTimer_GetRemainingTime(timer) > 0.0);
+}
