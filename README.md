@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/8/31)
+> All plugins in here apply to both L4D1/2 (last edited:2022/9/2)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -80,6 +80,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>l4d_revive_reload_interrupt</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 * <b>pounceannounce</b>: Announces hunter pounces to the entire server
 * <b>l4d2_block_rocketjump</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
+* <b>l4d_death_soul</b>: Soul of the dead survivor flies away to the afterlife
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
