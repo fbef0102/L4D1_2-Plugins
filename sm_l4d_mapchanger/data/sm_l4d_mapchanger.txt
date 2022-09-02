@@ -1,0 +1,76 @@
+"ForceMissionChangerSettings"
+{
+	"c1m4_atrium"    // current map
+	{
+		"next mission map" "c2m1_highway" // <-- new map in coop/versus/realism
+		"next mission name" "黑色嘉年華 Dark Carnival (5 Maps)" // <-- map name whatever
+	}
+	"c2m5_concert"
+	{
+		"next mission map" "c3m1_plankcountry"
+		"next mission name" "Swamp fever (4 maps)"
+	}
+	"c3m4_plantation"
+	{
+		"next mission map" "c4m1_milltown_a"
+		"next mission name" "Hard Rain (5 Maps)"
+	}
+	"c4m5_milltown_escape"
+	{
+		"next mission map" "c5m1_waterfront"
+		"next mission name" "The Parish (5 Maps)"
+	}
+	"c5m5_bridge"
+	{
+		"next mission map" "c6m1_riverbank"
+		"next mission name" "The Passing (3 Maps)"
+	}
+	"c6m3_port"
+	{
+		"next mission map" "c7m1_docks"
+		"next mission name" "The Sacrifice (3 Maps)"
+	}
+	"c7m3_port"
+	{
+		"next mission map" "c8m1_apartment"
+		"next mission name" "No Mercy (5 Maps)"
+	} 
+	"c8m5_rooftop"  // current map
+	{
+		"next mission map" "c9m2_lots" 					// <-- new map in coop/versus/realism
+		"next mission name" "Crash Course (2 Maps)" 	// <-- map name whatever
+		
+		"survival_nextmap" "c1m2_streets"			 	// <-- new map in survival mode
+		"survival_nextname" "Dead Center - Streets" 	// <-- map name whatever
+	}
+	"c9m2_lots"
+	{
+		"next mission map" "c10m1_caves"
+		"next mission name" "Death Toll (5 Maps)"
+	}
+	"c10m5_houseboat"
+	{
+		"next mission map" "c11m1_greenhouse"
+		"next mission name" "Dead Air (5 Maps)"
+	}
+	"c11m5_runway"
+	{
+		"next mission map" "c12m1_hilltop"
+		"next mission name" "Blood Harvest (5 Maps)"
+	}
+	"c12m5_cornfield"
+	{
+		"next mission map" "c13m1_alpinecreek"
+		"next mission name" "Cold Stream (4 Maps)"
+	}
+	"c13m4_cutthroatcreek"
+	{
+		"next mission map" "c14m1_junkyard"
+		"next mission name" "The Last Stand (2 Maps)"
+	}
+	"c14m2_lighthouse"
+	{
+		"next mission map" "c1m1_hotel"
+		"next mission name" "Dead Center (4 Maps)"
+	}
+}
