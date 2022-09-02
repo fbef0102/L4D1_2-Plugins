@@ -43,10 +43,10 @@ cfg\sourcemod\sm_l4d_mapchanger.cfg
 sm_l4d_fmc_announce "1"
 
 // Quantity of rounds (tries) events survivors wipe out before force of changelevel on final maps in coop/realism (0=off)
-sm_l4d_fmc_crec_coop_final "2"
+sm_l4d_fmc_crec_coop_final "3"
 
 // Quantity of rounds (tries) events survivors wipe out before force of changelevel on non-final maps in coop/realism (0=off)
-sm_l4d_fmc_crec_coop_map "2"
+sm_l4d_fmc_crec_coop_map "3"
 
 // Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)
 sm_l4d_fmc_crec_survival_map "5"
