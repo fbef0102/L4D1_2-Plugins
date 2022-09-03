@@ -1,12 +1,10 @@
 When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
 
--AlliedModders-
-https://forums.alliedmods.net/showpost.php?p=2725525&postcount=7
-
 -Video-
-https://streamable.com/bbzrhs
+https://youtu.be/C6gP0d4R8P4
 
 -ChangeLog-
+AlliedModders Post: https://forums.alliedmods.net/showpost.php?p=2725525&postcount=7
 v1.3
 -Original Request by darkbret.
 -Thanks to Marttt and Crasher_3637.
