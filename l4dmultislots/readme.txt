@@ -116,4 +116,4 @@ l4d_multislots_respawn_invincibletime "3.0"
 	sm_muladdbot
 
 -How to set 8+ players in coop?-
-https://forums.alliedmods.net/showpost.php?p=2750588&postcount=4
+https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation
