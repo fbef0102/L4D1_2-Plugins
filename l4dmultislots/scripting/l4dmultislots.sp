@@ -178,7 +178,7 @@ public void OnPluginStart()
 	hGiveKitFinalStart 		= CreateConVar(	"l4d_multislots_finale_extra_first_aid", 	"1" , "If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hNoSecondChane 			= CreateConVar(	"l4d_multislots_no_second_free_spawn",	 	"0" , "If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hCvar_InvincibleTime 	= CreateConVar(	"l4d_multislots_respawn_invincibletime", 	"3.0", "Invincible time after new 5+ Survivor spawn by this plugin. (0=off)",  FCVAR_NOTIFY, true, 0.0);
-	hCvar_JoinSurvivrMethod = CreateConVar(	"l4d_multislots_join_survior_method", 		"1", "How to make new player join the game. \n0: Spawn an alive bot first -> player will take over. \n1: Switch player to survivor team (dead state) -> player will spawn alive", CVAR_FLAGS, true, 0.0, true, 1.0);
+	hCvar_JoinSurvivrMethod = CreateConVar(	"l4d_multislots_join_survior_method", 		"1", "How to join the game for new player. \n0: Old method. Spawn an alive bot first -> new player takes over. \n1: Switch new player to survivor team (dead state) -> player respawns.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	CreateConVar(							"l4d_multislots_version",					PLUGIN_VERSION,	"MultiSlots Improved plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AutoExecConfig(true, "l4dmultislots");
 
