@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"4.7"
+#define PLUGIN_VERSION 				"4.8"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -36,12 +36,12 @@
 ConVar hMaxSurvivors, hDeadBotTime, hSpecCheckInterval, 
 	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons, hSpawnSurvivorsAtStart,
-	hGiveKitSafeRoom, hGiveKitFinalStart, hNoSecondChane, hCvar_InvincibleTime;
+	hGiveKitSafeRoom, hGiveKitFinalStart, hNoSecondChane, hCvar_InvincibleTime,
+	hCvar_JoinSurvivrMethod;
 
 //value
 int iMaxSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
-	iRespawnHP, iRespawnBuffHP;
-static Handle hSetHumanSpec, hTakeOver;
+	iRespawnHP, iRespawnBuffHP, g_iCvar_JoinSurvivrMethod;
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
 bool bKill, bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
 	g_bGiveKitSafeRoom, g_bGiveKitFinalStart, g_bNoSecondChane;
@@ -174,11 +174,14 @@ public void OnPluginStart()
 		hFourthWeapon 		= CreateConVar("l4d_multislots_forthweapon", 		"0", 	"Fourth slot item for new 5+ Survivor (1 - Medkit, 0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 		hFifthWeapon 		= CreateConVar("l4d_multislots_fifthweapon", 		"0", 	"Fifth slot item for new 5+ Survivor (1 - Pills, 0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	}
-	hGiveKitSafeRoom 		= CreateConVar("l4d_multislots_saferoom_extra_first_aid", "1", "If 1, allow extra first aid kits for 5+ players when in start saferoom, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	hGiveKitFinalStart 		= CreateConVar("l4d_multislots_finale_extra_first_aid", "1" , "If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	hNoSecondChane 			= CreateConVar("l4d_multislots_no_second_free_spawn", "0" , "If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	hCvar_InvincibleTime 	= CreateConVar("l4d_multislots_respawn_invincibletime", 	"3.0", "Invincible time after new 5+ Survivor spawn by this plugin. (0=off)",  FCVAR_NOTIFY, true, 0.0);
-	
+	hGiveKitSafeRoom 		= CreateConVar(	"l4d_multislots_saferoom_extra_first_aid", 	"1", "If 1, allow extra first aid kits for 5+ players when in start saferoom, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	hGiveKitFinalStart 		= CreateConVar(	"l4d_multislots_finale_extra_first_aid", 	"1" , "If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	hNoSecondChane 			= CreateConVar(	"l4d_multislots_no_second_free_spawn",	 	"0" , "If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	hCvar_InvincibleTime 	= CreateConVar(	"l4d_multislots_respawn_invincibletime", 	"3.0", "Invincible time after new 5+ Survivor spawn by this plugin. (0=off)",  FCVAR_NOTIFY, true, 0.0);
+	hCvar_JoinSurvivrMethod = CreateConVar(	"l4d_multislots_join_survior_method", 		"1", "How to make new player join the game. \n0: Spawn an alive bot first -> player will take over. \n1: Switch player to survivor team (dead state) -> player will spawn alive", CVAR_FLAGS, true, 0.0, true, 1.0);
+	CreateConVar(							"l4d_multislots_version",					PLUGIN_VERSION,	"MultiSlots Improved plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	AutoExecConfig(true, "l4dmultislots");
+
 	GetCvars();
 	hMaxSurvivors.AddChangeHook(ConVarChanged_Cvars);
 	hStripBotWeapons.AddChangeHook(ConVarChanged_Cvars);
@@ -196,6 +199,7 @@ public void OnPluginStart()
 	hGiveKitFinalStart.AddChangeHook(ConVarChanged_Cvars);
 	hNoSecondChane.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_InvincibleTime.AddChangeHook(ConVarChanged_Cvars);
+	hCvar_JoinSurvivrMethod.AddChangeHook(ConVarChanged_Cvars);
 	
 	// Hook events
 	
@@ -216,35 +220,6 @@ public void OnPluginStart()
 	// ======================================
 	// Prep SDK Calls
 	// ======================================
-
-	Handle hGameConf = LoadGameConfigFile("l4dmultislots");
-	if(hGameConf == null)
-	{
-		SetFailState("Gamedata l4dmultislots.txt not found");
-		return;
-	}
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "SetHumanSpec");
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
-	hSetHumanSpec = EndPrepSDKCall();
-	if (hSetHumanSpec == null)
-	{
-		SetFailState("Cant initialize SetHumanSpec SDKCall");
-		return;
-	}
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "TakeOverBot");
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
-	hTakeOver = EndPrepSDKCall();
-	if( hTakeOver == null)
-	{
-		SetFailState("Could not prep the \"TakeOverBot\" function.");
-		return;
-	}
-	delete hGameConf;
-	
-	// Create or execute plugin configuration file
-	AutoExecConfig(true, "l4dmultislots");
 
 	g_hSteamIDs = new StringMap();
 	
@@ -371,6 +346,7 @@ void GetCvars()
 	g_bGiveKitFinalStart = hGiveKitFinalStart.BoolValue;
 	g_bNoSecondChane = hNoSecondChane.BoolValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
+	g_iCvar_JoinSurvivrMethod = hCvar_JoinSurvivrMethod.IntValue;
 }
 
 ////////////////////////////////////
@@ -616,21 +592,42 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 					int bot = FindBotToTakeOver(false);
 					if(bot > 0) // 2 player + 2 dead bots => new player takes over dead bot
 					{
-						SDKCall(hSetHumanSpec, bot, client);
-						SDKCall(hTakeOver, client, true);
+						L4D_SetHumanSpec(bot, client);
+						L4D_TakeOverBot(client);
 						return Plugin_Continue;
 					}
 				}
 
-				if(SpawnFakeClient() == true)
+				if(g_iCvar_JoinSurvivrMethod == 1)
 				{
-					if( bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) CreateTimer(0.4, Timer_TakeOverBotAndDie2, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
-					else if( bKill && iDeadBotTime > 0 ) CreateTimer(0.4, Timer_TakeOverBotAndDie, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
-					else CreateTimer(0.4, Timer_AutoJoinTeam, userid);	
+					if( bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) 
+					{
+						ChangeClientTeam(client, TEAM_SURVIVORS);
+						CPrintToChat(client, "{default}[{green}MultiSlots{default}] %T", "No Second Chance", client);
+					}
+					else if( bKill && iDeadBotTime > 0 )
+					{
+						ChangeClientTeam(client, TEAM_SURVIVORS);
+						PrintHintText(client, "%T", "The survivors has started the game, please wait to be resurrected or rescued", client);
+					}
+					else
+					{
+						ChangeClientTeam(client, TEAM_SURVIVORS);
+						CreateTimer(0.4, Timer_RespawnPlayer, userid);
+					}
 				}
-				else
+				else if(g_iCvar_JoinSurvivrMethod == 0)
 				{
-					PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
+					if(SpawnFakeClient() == true)
+					{
+						if( bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) CreateTimer(0.4, Timer_TakeOverBotAndDie2, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+						else if( bKill && iDeadBotTime > 0 ) CreateTimer(0.4, Timer_TakeOverBotAndDie, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+						else CreateTimer(0.4, Timer_AutoJoinTeam, userid);	
+					}
+					else
+					{
+						PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
+					}
 				}
 			}
 			else
@@ -721,7 +718,7 @@ public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 	{
 		if(IsClientIdle(client))
 		{
-			SDKCall(hTakeOver, client, true);
+			L4D_TakeOverBot(client);
 		}
 		else
 		{
@@ -732,8 +729,8 @@ public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 				return Plugin_Stop;
 			}
 
-			SDKCall(hSetHumanSpec, fakebot, client);
-			SDKCall(hTakeOver, client, true);
+			L4D_SetHumanSpec(fakebot, client);
+			L4D_TakeOverBot(client);
 		}
 
 		CreateTimer(0.1, Timer_KillSurvivor, userid);
@@ -767,7 +764,7 @@ public Action Timer_TakeOverBotAndDie2(Handle timer, int userid)
 	{
 		if(IsClientIdle(client))
 		{
-			SDKCall(hTakeOver, client, true);
+			L4D_TakeOverBot(client);
 		}
 		else
 		{
@@ -778,8 +775,8 @@ public Action Timer_TakeOverBotAndDie2(Handle timer, int userid)
 				return Plugin_Stop;
 			}
 
-			SDKCall(hSetHumanSpec, fakebot, client);
-			SDKCall(hTakeOver, client, true);
+			L4D_SetHumanSpec(fakebot, client);
+			L4D_TakeOverBot(client);
 		}
 
 		CreateTimer(0.1, Timer_KillSurvivor2, userid);
@@ -951,7 +948,7 @@ void TakeOverBot(int client)
 
 	if(IsPlayerAlive(fakebot))
 	{
-		SDKCall(hSetHumanSpec, fakebot, client);
+		L4D_SetHumanSpec(fakebot, client);
 		SetEntProp(client, Prop_Send, "m_iObserverMode", 5);
 	}
 
@@ -1059,7 +1056,7 @@ void ResetTimer()
 bool SpawnFakeClient(bool bAdmBot = false)
 {
 	//check if there are any alive survivor in server
-	int iAliveSurvivor = my_GetRandomClient();
+	int iAliveSurvivor = my_GetRandomSurvivor();
 	if(iAliveSurvivor == 0)
 		return false;
 		
@@ -1090,21 +1087,21 @@ public void OnNextFrame(DataPack hPack)
 {
 	float nPos[3];
 	hPack.Reset();
-	int fakeclient = GetClientOfUserId(hPack.ReadCell());
+	int client = GetClientOfUserId(hPack.ReadCell());
 	nPos[0] = hPack.ReadFloat();
 	nPos[1] = hPack.ReadFloat();
 	nPos[2] = hPack.ReadFloat();
 	delete hPack;
 
-	if(!fakeclient || !IsClientInGame(fakeclient)) return;
+	if(!client || !IsClientInGame(client)) return;
 	
-	TeleportEntity( fakeclient, nPos, NULL_VECTOR, NULL_VECTOR);
+	TeleportEntity( client, nPos, NULL_VECTOR, NULL_VECTOR);
 
 	if ( !(bKill && iDeadBotTime > 0) )
 	{
-		StripWeapons( fakeclient );
-		SetHealth( fakeclient );
-		GiveItems( fakeclient );
+		StripWeapons( client );
+		SetHealth( client );
+		GiveItems( client );
 	}
 
 	if(!bLeftSafeRoom && g_bGiveKitSafeRoom)
@@ -1116,7 +1113,7 @@ public void OnNextFrame(DataPack hPack)
 		TeleportEntity(weapon, nPos, NULL_VECTOR, NULL_VECTOR);
 	}
 	
-	clinetSpawnGodTime[fakeclient] = GetEngineTime() + g_fInvincibleTime;
+	clinetSpawnGodTime[client] = GetEngineTime() + g_fInvincibleTime;
 }
 
 bool HasIdlePlayer(int bot)
@@ -1190,7 +1187,7 @@ public Action Timer_CountDown(Handle timer)
 }
 
 
-int my_GetRandomClient()
+int my_GetRandomSurvivor()
 {
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
@@ -1411,5 +1408,35 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			return Plugin_Handled;
 		}
 	}
+	return Plugin_Continue;
+}
+
+Action Timer_RespawnPlayer(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if (!client || !IsClientInGame(client)) return Plugin_Continue;
+
+	if (GetClientTeam(client) == TEAM_SURVIVORS && !IsFakeClient(client) && !IsPlayerAlive(client))
+	{
+		int iAliveSurvivor = my_GetRandomSurvivor();
+		if(iAliveSurvivor == 0)
+		{
+			PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
+			return Plugin_Continue;
+		}
+
+		L4D_RespawnPlayer(client);
+		ChangeClientTeam(client, TEAM_SURVIVORS);
+		float teleportOrigin[3];
+		GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
+		DataPack hPack = new DataPack();
+		hPack.WriteCell(userid);
+		hPack.WriteFloat(teleportOrigin[0]);
+		hPack.WriteFloat(teleportOrigin[1]);
+		hPack.WriteFloat(teleportOrigin[2]);
+		CreateTimer(0.4, Timer_RespawnPlayer, userid);
+		RequestFrame(OnNextFrame, hPack); //first time teleport
+	}
+
 	return Plugin_Continue;
 }
