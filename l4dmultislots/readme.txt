@@ -5,10 +5,9 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 MultiSlots Improved Version: https://forums.alliedmods.net/showpost.php?p=2715546&postcount=248
 
 -ChangeLog-
-v4.7
+v4.8
 - Remake Code.
 - Translation support.
-- Update gamedata, credit to Lux: https://forums.alliedmods.net/showthread.php?p=2714236.
 - Give items and set custom health to new 5+ player.
 - Delete all items form survivor bots when they got kicked by this plugin.
 - Spawn 5+ Survivor bots when round starts.
@@ -16,6 +15,7 @@ v4.7
 - Spawn extra Medkits for 5+ survivors on new chapter/finale start
 - If same player reconnect the server or rejoin survivor team to try get a second free bot, he will be a dead bot.
 - Invincible time after new 5+ Survivor spawn by this plugin.
+- Remove gamedata
 
 v1.0
 -Original Post: https://forums.alliedmods.net/showthread.php?p=1239544
@@ -37,6 +37,11 @@ v1.0
 
 -Convars-
 cfg\sourcemod\l4dmultislots.cfg
+// How to make new player join the game. 
+// 0: Spawn an alive bot first -> player will take over. 
+// 1: Switch player to survivor team (dead state) -> player will spawn alive
+l4d_multislots_join_survior_method "1"
+
 // When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)
 l4d_multislots_alive_bot_time "0"
 
