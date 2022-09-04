@@ -5,7 +5,7 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 MultiSlots Improved Version: https://forums.alliedmods.net/showpost.php?p=2715546&postcount=248
 
 -ChangeLog-
-v4.8
+v4.9
 - Remake Code.
 - Translation support.
 - Give items and set custom health to new 5+ player.
