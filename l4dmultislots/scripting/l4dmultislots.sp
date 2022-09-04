@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"4.8"
+#define PLUGIN_VERSION 				"4.9"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -48,6 +48,7 @@ bool bKill, bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnab
 float g_fSpecCheckInterval, g_fInvincibleTime;
 Handle SpecCheckTimer = null, PlayerLeftStartTimer = null, CountDownTimer = null;
 float clinetSpawnGodTime[ MAXPLAYERS + 1 ];
+bool g_bPluginStart;
 
 StringMap g_hSteamIDs;
 
@@ -245,6 +246,8 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
+	g_bPluginStart = false;
+
 	TweakSettings();
 
 	int max = 0;
@@ -426,7 +429,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 public Action Timer_ChangeTeam(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SPECTATORS && IsPlayerAlive(client))
+	if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == TEAM_SPECTATORS && IsPlayerAlive(client))
 	{
 		RecordSteamID(client); // Record SteamID of player.
 	}
@@ -504,7 +507,7 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
-		CreateTimer(0.5, PluginStart);
+		CreateTimer(0.1, PluginStart);
 	g_iPlayerSpawn = 1;	
 }
 
@@ -532,9 +535,10 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bEnableKick = false;
+	g_bPluginStart = false;
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
-		CreateTimer(0.5, PluginStart);
+		CreateTimer(0.1, PluginStart);
 	g_iRoundStart = 1;
 }
 
@@ -598,7 +602,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 					}
 				}
 
-				if(g_iCvar_JoinSurvivrMethod == 1)
+				if(g_iCvar_JoinSurvivrMethod == 1 && g_bPluginStart == true)
 				{
 					if( bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) 
 					{
@@ -643,8 +647,9 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 int iCountDownTime;
 public Action PluginStart(Handle timer)
 {
+	g_bPluginStart = true;
 	ClearDefault();
-	if(g_bSpawnSurvivorsAtStart) CreateTimer(0.25, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	if(g_bSpawnSurvivorsAtStart) CreateTimer(0.5, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 	if(SpecCheckTimer == null && g_fSpecCheckInterval > 0.0) SpecCheckTimer = CreateTimer(g_fSpecCheckInterval, Timer_SpecCheck, _, TIMER_REPEAT)	;
 
@@ -874,6 +879,7 @@ public Action Timer_KickNoNeededBot(Handle timer, int botid)
 		{
 			if(g_bStripBotWeapons) StripWeapons(botclient);
 			KickClient(botclient, "Kicking No Needed Bot");
+			LogMessage("here2");
 		}
 	}	
 	return Plugin_Continue;
@@ -890,6 +896,7 @@ public Action Timer_KickNoNeededBot2(Handle timer)
 		{
 			if(g_bStripBotWeapons) StripWeapons(i);
 			KickClient(i, "Kicking No Needed Bot");
+			LogMessage("here");
 			return Plugin_Continue;
 		}
 	}
