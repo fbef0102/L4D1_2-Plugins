@@ -115,5 +115,18 @@ l4d_multislots_respawn_invincibletime "3.0"
 **Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over) (Adm require: ADMFLAG_KICK)
 	sm_muladdbot
 
--How to set 8+ players in coop?-
+-Q&A-
+1. How could I control the number of bots spawned at the start?
+set l4d_multislots_max_survivors whatever value you like.
+// Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)
+l4d_multislots_max_survivors "8"
+
+// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)
+l4d_multislots_spawn_survivors_roundstart "1" 
+
+2. How to set 8+ players in coop?
 https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation
+
+3. How to fix 5+ survivor bug ? For example: charger stop, witch attack wrong player, bot model change... etc
+https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation
+
