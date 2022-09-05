@@ -9,6 +9,14 @@
 	// {PLAYERREGION}: player region name
 	// {PLAYERIP}: player IP
 	// {PLAYERTYPE}: player is Adm or not
+	
+	// {default}: white
+	// {green}: orange
+	// {olive}: green
+	// {lightgreen}: lightgreen
+	// {red}: red
+	// {blue}: blue
+	// * You can't use {lightgreen}, {red}, {blue} together
 	"messages"  //everyone can see
 	{
 		"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
