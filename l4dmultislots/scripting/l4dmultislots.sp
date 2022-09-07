@@ -108,7 +108,7 @@ public Plugin myinfo =
 	author 			= "SwiftReal, MI 5, ururu, KhMaIBQ, HarryPotter",
 	description 	= "Allows additional survivor players in coop/survival/realism when 5+ player joins the server",
 	version 		= PLUGIN_VERSION,
-	url 			= "https://steamcommunity.com/id/TIGER_x_DRAGON/"
+	url 			= "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 bool g_bLeft4Dead2;
@@ -879,7 +879,6 @@ public Action Timer_KickNoNeededBot(Handle timer, int botid)
 		{
 			if(g_bStripBotWeapons) StripWeapons(botclient);
 			KickClient(botclient, "Kicking No Needed Bot");
-			LogMessage("here2");
 		}
 	}	
 	return Plugin_Continue;
@@ -896,7 +895,6 @@ public Action Timer_KickNoNeededBot2(Handle timer)
 		{
 			if(g_bStripBotWeapons) StripWeapons(i);
 			KickClient(i, "Kicking No Needed Bot");
-			LogMessage("here");
 			return Plugin_Continue;
 		}
 	}
