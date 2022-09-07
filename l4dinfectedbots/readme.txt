@@ -25,6 +25,16 @@ v1.0.0
 1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
 2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
+-Related Plugin-
+1. MultiSlots Improved: https://forums.alliedmods.net/showpost.php?p=2715546&postcount=249
+When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.
+
+2. Zombie Spawn Fix: https://forums.alliedmods.net/showthread.php?t=333351
+To Fixed Special Inected and Player Zombie spawning failures in some cases
+
+3. l4d_ssi_teleport_fix: https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_ssi_teleport_fix
+Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
+
 -Convar-
 cfg/sourcemod/l4dinfectedbots.cfg
 // If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_default_commonlimit' each 'l4d_infectedbots_add_commonlimit_scale' players joins
