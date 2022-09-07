@@ -33,6 +33,10 @@ v1.7
 2. "Left4DHooks" plugin version 1.101 or newer: https://forums.alliedmods.net/showthread.php?p=2684862
 3. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
+-Related Plugin-
+1. antisaferoomdooropen: https://github.com/fbef0102/Game-Private_Plugin/tree/main/antisaferoomdooropen
+Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
+
 -Convars-
 cfg/sourcemod/lockdown_system-l4d2.cfg
 // If 1, Enable saferoom door status Announcements
