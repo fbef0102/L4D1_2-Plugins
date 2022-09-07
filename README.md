@@ -11,6 +11,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
 
 # Plugins
+> __Note__  
+**[>>Click me to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
 * <b>[l4d_afk_commands](/l4d_afk_commands)</b>: Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.),but no abuse.
 * <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Show what mode is it now on server name(support any Language) with txt file.
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
@@ -86,8 +88,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
-* <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)](/)</b>
-* <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)](/)</b>
-* <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)](/)</b>: Setup your own L4D1 Servers.
-* <b>[L4D2-Server4Dead](https://github.com/fbef0102/L4D2-Server4Dead)](/)</b>: Setup your own L4D2 Servers.
-* <b>[Game-Private_Plugin](https://github.com/fbef0102/Game-Private_Plugin)](/)</b>: Private Plugin List.
+* <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)</b>
+* <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
+* <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
+* <b>[L4D2-Server4Dead](https://github.com/fbef0102/L4D2-Server4Dead)</b>: Setup your own L4D2 Servers.
+* <b>[Game-Private_Plugin](https://github.com/fbef0102/Game-Private_Plugin)</b>: Private Plugin List.
