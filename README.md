@@ -12,7 +12,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 
 # Plugins
 > __Note__  
-**[>>Click me to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
+**[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
 * <b>[l4d_afk_commands](/l4d_afk_commands)</b>: Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.),but no abuse.
 * <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Show what mode is it now on server name(support any Language) with txt file.
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
