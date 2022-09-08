@@ -1,0 +1,15 @@
+"skeetdata"
+{
+	"data"
+	{
+		"STEAM_1:1:XXXXXXXX"
+		{
+			"skeet"		"3"
+			"Name"		"Harry Potter [TW]"
+		}
+	}
+	"info"
+	{
+		"count"		"1"
+	}
+}

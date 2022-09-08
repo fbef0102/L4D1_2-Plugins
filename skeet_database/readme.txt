@@ -1,13 +1,16 @@
 Skeet Announce Edition, and save record to data/skeet_database.txt
 
 -Changelog-
-v2.1
+v2.2
 Autor: thrillkill
 Edited: JNC
 Improve: Harry
 
 -Convar-
 cfg\sourcemod\skeet_database.cfg
+// Record 1v1 skeet database in 1v1 mode.
+skeet_database_1v1_seprate "1"
+
 // Count AI Hunter also?[1: Yes, 0: No]
 skeet_database_ai_hunter_enable "0"
 
