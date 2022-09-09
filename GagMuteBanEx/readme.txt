@@ -24,9 +24,6 @@ The database of players with gag & mute & ban
 2. logs/GagMuteBan.log
 All records about players with gag & mute & ban
 
--Related Plugin: 
-sm_regexfilter: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/sm_regexfilter
-
 -Convar-
 cfg\sourcemod\GagMuteBanEx.cfg
 // 0=Ban Menu off, 1=Ban Menu on.
