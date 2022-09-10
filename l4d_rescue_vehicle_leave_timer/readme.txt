@@ -1,17 +1,18 @@
 When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
 
 -Video-
-https://youtu.be/C6gP0d4R8P4
+https://youtu.be/dLbNv9zNckE
 
 -ChangeLog-
 AlliedModders Post: https://forums.alliedmods.net/showpost.php?p=2725525&postcount=7
-v1.3
+v1.4
 -Original Request by darkbret.
 -Thanks to Marttt and Crasher_3637.
 -Works on l4d1/2 all value maps.
 -Custom timer for each final map (edit data).
 -Translation support
 -The City Will Get Nuked After Countdown Time Passes
+-Silvers F18 Airstrike
 
 -Require-
 1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
