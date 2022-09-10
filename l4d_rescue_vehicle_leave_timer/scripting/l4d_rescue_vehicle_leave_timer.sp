@@ -1,5 +1,5 @@
 
-#define PLUGIN_VERSION 		"1.3"
+#define PLUGIN_VERSION 		"1.4"
 #define PLUGIN_NAME			"[L4D1/2] Rescue vehicle leave timer"
 #define PLUGIN_AUTHOR		"HarryPotter"
 #define PLUGIN_DES			"When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him"
@@ -43,6 +43,43 @@
 #define FFADE_STAYOUT       0x0008
 #define FFADE_PURGE         0x0010
 
+#define MAX_ENTITIES		8
+
+/* =============================================================================================================== *
+ *                                				F18_Sounds & g_sVocalize										   *
+ *================================================================================================================ */
+static int g_iEntities[MAX_ENTITIES];
+
+char F18_Sounds[6][128] =
+{
+	"animation/jets/jet_by_01_lr.wav",
+	"animation/jets/jet_by_02_lr.wav",
+	"animation/jets/jet_by_03_lr.wav",
+	"animation/jets/jet_by_04_lr.wav",
+	"animation/jets/jet_by_05_lr.wav",
+	"animation/jets/jet_by_05_rl.wav"
+};
+
+static const char g_sVocalize[][] =
+{
+	"scenes/Coach/WorldC5M4B04.vcd",		//Damn! That one was close!
+	"scenes/Coach/WorldC5M4B05.vcd",		//Shit. Damn, that one was close!
+	"scenes/Coach/WorldC5M4B02.vcd",		//STOP BOMBING US.
+	"scenes/Gambler/WorldC5M4B09.vcd",		//Well, it's official: They're trying to kill US now.
+	"scenes/Gambler/WorldC5M4B05.vcd",		//Christ, those guys are such assholes.
+	"scenes/Gambler/World220.vcd",			//WHAT THE HELL ARE THEY DOING?  (reaction to bombing)
+	"scenes/Gambler/WorldC5M4B03.vcd",		//STOP BOMBING US!
+	"scenes/Mechanic/WorldC5M4B02.vcd",		//They nailed that.
+	"scenes/Mechanic/WorldC5M4B03.vcd",		//What are they even aiming at?
+	"scenes/Mechanic/WorldC5M4B04.vcd",		//We need to get the hell out of here.
+	"scenes/Mechanic/WorldC5M4B05.vcd",		//They must not see us.
+	"scenes/Mechanic/WorldC5M103.vcd",		//HEY, STOP WITH THE BOMBING!
+	"scenes/Mechanic/WorldC5M104.vcd",		//PLEASE DO NOT BOMB US
+	"scenes/Producer/WorldC5M4B04.vcd",		//Something tells me they're not checking for survivors anymore.
+	"scenes/Producer/WorldC5M4B01.vcd",		//We need to keep moving.
+	"scenes/Producer/WorldC5M4B03.vcd"		//That was close.
+};
+
 // Cvar Handles/Variables
 ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarMapOff, g_hCvarAnnounceType;
 
@@ -52,7 +89,7 @@ int g_iRoundStart, g_iPlayerSpawn, g_iCvarTime;
 int iSystemTime, g_iData[MAX_DATAS];
 bool g_bFinalVehicleReady, g_bFinalHasEscapeVehicle, g_bFinalVehicleLeaving;
 bool g_bClientInVehicle[MAXPLAYERS+1];
-Handle AntiPussyTimer, _AntiPussyTimer;
+Handle AntiPussyTimer, _AntiPussyTimer, AirstrikeTimer;
 
 // ====================================================================================================
 //					PLUGIN INFO / START / END
@@ -154,6 +191,13 @@ public void OnMapStart()
 			PrecacheSound(EXPLOSION_SOUND_L4D2);
 			PrecacheSound(EXPLOSION_DEBRIS_L4D2);
 			PrecacheParticle(EXPLOSION_PARTICLE_L4D2);
+			for(int i = 0; i < 6; i++)
+			{
+				PrecacheSound(F18_Sounds[i], true);
+			}
+
+			PrecacheModel("models/f18/f18_sb.mdl", true);
+			PrecacheModel("models/missiles/f18_agm65maverick.mdl", true);
 		}
 		else
 		{
@@ -365,7 +409,14 @@ public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadc
 	if(g_bFinalHasEscapeVehicle)
 	{
 		iSystemTime = g_iCvarTime;
-		if(AntiPussyTimer == null) AntiPussyTimer = CreateTimer(1.0, Timer_AntiPussy, _, TIMER_REPEAT);
+		delete AntiPussyTimer;
+		AntiPussyTimer = CreateTimer(1.0, Timer_AntiPussy, _, TIMER_REPEAT);
+
+		if(g_bLeft4Dead2) 
+		{
+			delete AirstrikeTimer;
+			AirstrikeTimer = CreateTimer(2.5, Timer_StartAirstrike, _, TIMER_REPEAT);
+		}
 	}
 }
 
@@ -395,16 +446,19 @@ public Action Timer_AntiPussy(Handle timer)
 		{
 			EmitSoundToAll(NUKE_SOUND_L4D1);
 		}
+
 		CPrintToChatAll("{default}[{olive}TS{default}] %t", "Outside Slay");
 		delete _AntiPussyTimer;
-		_AntiPussyTimer = CreateTimer(2.0, Timer_Strike, _, TIMER_REPEAT);
+		_AntiPussyTimer = CreateTimer(2.0, Timer_Strike);
 		
+		delete AirstrikeTimer;
 		AntiPussyTimer = null;
 		return Plugin_Stop;
 	}
 	
 	EmitSoundToAll(SOUND_ESCAPE, _, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	iSystemTime --;
+
 	return Plugin_Continue;
 }
 
@@ -427,12 +481,14 @@ public Action Timer_Strike(Handle timer)
 			CreateExplosion(pos);
 
 			//slay
-			CreateTimer(0.5, Timer_SlayPlayer, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(2.2, Timer_SlayPlayer, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
 
 			//hint
 			CPrintToChat(i, "{default}[{olive}TS{default}] %T", "You have been executed for not being on rescue vehicle or zone!", i);
 		}
 	}
+
+	_AntiPussyTimer = CreateTimer(3.0, Timer_Strike);
 	return Plugin_Continue;
 }
 
@@ -599,6 +655,7 @@ void ResetPlugin()
 	}
 	delete AntiPussyTimer;
 	delete _AntiPussyTimer;
+	delete AirstrikeTimer;
 }
 
 bool IsInFinalRescueVehicle(int client)
@@ -627,19 +684,20 @@ void PrecacheParticle(const char[] sEffectName)
 	}
 }
 
-public Action Timer_FadeOut(Handle timer, int userid)
+Action Timer_FadeOut(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client && IsClientInGame(client))
 	{
 		CreateFade(FFADE_OUT, client);
-		CreateTimer(2.5, Timer_FadeIn, userid, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(4.0, Timer_FadeIn, userid, TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	return Plugin_Continue;
 }
 
-public Action Timer_FadeIn(Handle timer, int userid)
+
+Action Timer_FadeIn(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client && IsClientInGame(client) && !g_bFinalVehicleLeaving)
@@ -649,6 +707,7 @@ public Action Timer_FadeIn(Handle timer, int userid)
 
 	return Plugin_Continue;
 }
+
 
 void CreateFade(int type, int target)
 {
@@ -663,7 +722,7 @@ void CreateFade(int type, int target)
 	EndMessage();
 }
 
-void CreateExplosion(const float pos[3], const float duration = 6.0)
+void CreateExplosion(const float pos[3], const float duration = 30.0)
 {
 	static char buffer[32];
 
@@ -736,7 +795,7 @@ void CreateExplosion(const float pos[3], const float duration = 6.0)
 	}
 }
 
-public Action Timer_SlayPlayer(Handle timer, int userid)
+Action Timer_SlayPlayer(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client && IsClientInGame(client) && IsPlayerAlive(client))
@@ -745,4 +804,462 @@ public Action Timer_SlayPlayer(Handle timer, int userid)
 	}
 
 	return Plugin_Continue;
+}
+
+
+/* =============================================================================================================== *
+ *               Silvers AirStrike Plugin Edited By SupermenCJ, and Adjusted To Rescue Leav Timer Plugin			*
+ *================================================================================================================ */
+
+Action Timer_StartAirstrike(Handle timer)
+{
+	int client = my_GetRandomClient();
+	if(client == 0) return Plugin_Continue;
+
+	float g_pos[3];
+	float vAng[3];
+	GetClientAbsOrigin(client, g_pos);
+	GetClientEyeAngles(client, vAng);
+	
+	DataPack h = new DataPack();
+	h.WriteFloat(g_pos[0]);
+	h.WriteFloat(g_pos[1]);
+	h.WriteFloat(g_pos[2]);
+	h.WriteFloat(vAng[1]);
+
+	CreateTimer(0.5, UpdateAirstrike, h, TIMER_FLAG_NO_MAPCHANGE);
+
+	return Plugin_Continue;
+}
+
+int my_GetRandomClient()
+{
+	int iClientCount, iClients[MAXPLAYERS+1];
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		{
+			iClients[iClientCount++] = i;
+		}
+	}
+	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
+}
+
+Action UpdateAirstrike(Handle timer, DataPack h)
+{  
+	h.Reset();
+	float g_pos[3];
+	float vAng[3];
+	g_pos[0] = h.ReadFloat();
+	g_pos[1] = h.ReadFloat();
+	g_pos[2] = h.ReadFloat();
+	vAng[1] = h.ReadFloat();
+	
+	g_pos[2] += 1.0;
+	float radius = 1200.0;
+	g_pos[0] += GetRandomFloat(radius*-1, radius);
+	g_pos[1] += GetRandomFloat(radius*-1, radius);
+	vAng[1] += GetRandomFloat(radius*-1, radius);
+	ShowAirstrike(g_pos, vAng[1]);
+	
+	return Plugin_Continue;
+}
+
+void ShowAirstrike(float vPos[3], float direction)
+{
+	int index = -1;
+	for (int i = 0; i < MAX_ENTITIES; i++)
+	{
+		if (!IsValidEntRef(g_iEntities[i]))
+		{
+			index = i;
+			break;
+		}
+	}
+
+	if (index == -1) return;
+
+	float vAng[3];
+	float vSkybox[3];
+	vAng[0] = 0.0;
+	vAng[1] = direction;
+	vAng[2] = 0.0;
+
+	GetEntPropVector(0, Prop_Data, "m_WorldMaxs", vSkybox);
+
+	int entity = CreateEntityByName("prop_dynamic_override");
+	if(entity == -1) return;
+
+	g_iEntities[index] = EntIndexToEntRef(entity);
+	DispatchKeyValue(entity, "targetname", "silver_f18_model");
+	DispatchKeyValue(entity, "disableshadows", "1");
+	DispatchKeyValue(entity, "model", "models/f18/f18_sb.mdl");
+	DispatchSpawn(entity);
+	SetEntProp(entity, Prop_Data, "m_iHammerID", RoundToNearest(vPos[2]));
+	float height = vPos[2] + 1000.0;
+	if (height > vSkybox[2] - 200)
+		vPos[2] = vSkybox[2] - 200;
+	else
+		vPos[2] = height;
+	TeleportEntity(entity, vPos, vAng, NULL_VECTOR);
+
+	SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 5.0);
+
+	int random = GetRandomInt(1, 5);
+	if (random == 1)
+		SetVariantString("flyby1");
+	else if (random == 2)
+		SetVariantString("flyby2");
+	else if (random == 3)
+		SetVariantString("flyby3");
+	else if (random == 4)
+		SetVariantString("flyby4");
+	else if (random == 5)
+		SetVariantString("flyby5");
+	AcceptEntityInput(entity, "SetAnimation");
+	AcceptEntityInput(entity, "Enable");
+	
+	SetVariantString("OnUser1 !self:Kill::6.5.0:1");
+	AcceptEntityInput(entity, "AddOutput");
+	AcceptEntityInput(entity, "FireUser1");
+	
+	CreateTimer(1.5, tmrDrop, EntIndexToEntRef(entity));
+}
+
+Action tmrDrop(Handle timer, any f18)
+{
+	if (IsValidEntRef(f18))
+	{
+		float g_cvarRadiusF18 = 950.0;
+		float vPos[3];
+		float vAng[3];
+		float vVec[3];
+		GetEntPropVector(f18, Prop_Data, "m_vecAbsOrigin", vPos);
+		GetEntPropVector(f18, Prop_Data, "m_angRotation", vAng);
+
+		int entity = CreateEntityByName("grenade_launcher_projectile");
+		if(entity == -1) return Plugin_Continue;
+
+		DispatchSpawn(entity);
+		SetEntityModel(entity, "models/missiles/f18_agm65maverick.mdl");
+
+		SetEntityMoveType(entity, MOVETYPE_NOCLIP);
+		CreateTimer(0.9, TimerGrav, EntIndexToEntRef(entity));
+
+		GetAngleVectors(vAng, vVec, NULL_VECTOR, NULL_VECTOR);
+		NormalizeVector(vVec, vVec);
+		ScaleVector(vVec, -800.0);
+		
+		MoveForward(vPos, vAng, vPos, 2400.0);
+
+		vPos[0] += GetRandomFloat(-1.0 * g_cvarRadiusF18, g_cvarRadiusF18);
+		vPos[1] += GetRandomFloat(-1.0 * g_cvarRadiusF18, g_cvarRadiusF18);
+		TeleportEntity(entity, vPos, vAng, vVec);
+		
+		SDKHook(entity, SDKHook_Touch, OnBombTouch);
+		
+		SetVariantString("OnUser1 !self:Kill::10.0:1");
+		AcceptEntityInput(entity, "AddOutput");
+		AcceptEntityInput(entity, "FireUser1");
+
+		SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 0.3);
+
+		int projectile = entity;
+		// BLUE FLAMES
+		entity = CreateEntityByName("info_particle_system");
+		if (entity != -1)
+		{
+			DispatchKeyValue(entity, "effect_name", "flame_blue");
+			DispatchSpawn(entity);
+			ActivateEntity(entity);
+			TeleportEntity(entity, vPos, vAng, NULL_VECTOR);
+			
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", projectile);
+
+			SetVariantString("OnUser4 !self:Kill::10.0:1");
+			AcceptEntityInput(entity, "AddOutput");
+			AcceptEntityInput(entity, "FireUser4");
+			AcceptEntityInput(entity, "Start");
+		}
+		// FLAMES
+		entity = CreateEntityByName("info_particle_system");
+		if (entity != -1)
+		{
+			DispatchKeyValue(entity, "effect_name", "fire_medium_01");
+			DispatchSpawn(entity);
+			ActivateEntity(entity);
+			TeleportEntity(entity, vPos, vAng, NULL_VECTOR);
+
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", projectile);
+
+			SetVariantString("OnUser4 !self:Kill::10.0:1");
+			AcceptEntityInput(entity, "AddOutput");
+			AcceptEntityInput(entity, "FireUser4");
+			AcceptEntityInput(entity, "Start");
+		}
+
+		// SPARKS
+		entity = CreateEntityByName("info_particle_system");
+		if (entity != -1)
+		{
+			DispatchKeyValue(entity, "effect_name", "fireworks_sparkshower_01e");
+			DispatchSpawn(entity);
+			ActivateEntity(entity);
+			TeleportEntity(entity, vPos, vAng, NULL_VECTOR);
+
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", projectile);
+
+			SetVariantString("OnUser4 !self:Kill::10.0:1");
+			AcceptEntityInput(entity, "AddOutput");
+			AcceptEntityInput(entity, "FireUser4");
+			AcceptEntityInput(entity, "Start");
+		}
+
+		// RPG SMOKE
+		entity = CreateEntityByName("info_particle_system");
+		if (entity != -1)
+		{
+			DispatchKeyValue(entity, "effect_name", "rpg_smoke");
+			DispatchSpawn(entity);
+			ActivateEntity(entity);
+			AcceptEntityInput(entity, "start");
+			TeleportEntity(entity, vPos, vAng, NULL_VECTOR);
+
+			SetVariantString("!activator");
+			AcceptEntityInput(entity, "SetParent", projectile);
+
+			SetVariantString("OnUser3 !self:Kill::10.0:1");
+			AcceptEntityInput(entity, "AddOutput");
+			AcceptEntityInput(entity, "FireUser3");
+
+			// Refire
+			SetVariantString("OnUser1 !self:Stop::0.65:-1");
+			AcceptEntityInput(entity, "AddOutput");
+			SetVariantString("OnUser1 !self:FireUser2::0.7:-1");
+			AcceptEntityInput(entity, "AddOutput");
+			AcceptEntityInput(entity, "FireUser1");
+
+			SetVariantString("OnUser2 !self:Start::0:-1");
+			AcceptEntityInput(entity, "AddOutput");
+			SetVariantString("OnUser2 !self:FireUser1::0:-1");
+			AcceptEntityInput(entity, "AddOutput");
+		}
+
+		// SOUND	
+		EmitSoundToAll(F18_Sounds[GetRandomInt(0, 5)], entity, SNDCHAN_AUTO, SNDLEVEL_HELICOPTER);
+	}
+
+	return Plugin_Continue;
+}
+
+Action TimerGrav(Handle timer, any entity)
+{
+	if (IsValidEntRef(entity)) CreateTimer(0.1, TimerGravity, entity, TIMER_REPEAT);
+
+	return Plugin_Continue;
+}
+
+Action TimerGravity(Handle timer, any entity)
+{
+	if (IsValidEntRef(entity))
+	{
+		int tick = GetEntProp(entity, Prop_Data, "m_iHammerID");
+		if (tick > 10)
+		{
+			SetEntityMoveType(entity, MOVETYPE_FLYGRAVITY);
+			return Plugin_Stop;
+		}
+		else
+		{
+			SetEntProp(entity, Prop_Data, "m_iHammerID", tick + 1);
+
+			float vAng[3];
+			GetEntPropVector(entity, Prop_Data, "m_vecVelocity", vAng);
+			vAng[2] -= 50.0;
+			TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vAng);
+			return Plugin_Continue;
+		}
+	}
+	
+	return Plugin_Stop;
+}
+
+public Action OnBombTouch(int entity, int activator)
+{
+	char sTemp[64];
+	GetEdictClassname(activator, sTemp, sizeof(sTemp));
+
+	if (strcmp(sTemp, "trigger_multiple") && strcmp(sTemp, "trigger_hurt"))
+	{
+		SDKUnhook(entity, SDKHook_Touch, OnBombTouch);
+
+		CreateTimer(0.1, TimerBombTouch, EntIndexToEntRef(entity));
+	}
+
+	return Plugin_Continue;
+}
+
+Action TimerBombTouch(Handle timer, any entity)
+{
+	if (EntRefToEntIndex(entity) == INVALID_ENT_REFERENCE)
+		return Plugin_Continue;
+
+	float vPos[3];
+	char sTemp[64];
+	int g_iCvarDamage = 80;
+	int g_iCvarDistance = 400;
+	int g_iCvarShake = 1000;
+	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPos);
+	AcceptEntityInput(entity, "Kill");
+	IntToString(g_iCvarDamage, sTemp, sizeof(sTemp));
+
+	entity = CreateEntityByName("env_explosion");
+	if(entity != -1)
+	{
+		DispatchKeyValue(entity, "spawnflags", "1916");
+		IntToString(g_iCvarDamage, sTemp, sizeof(sTemp));
+		DispatchKeyValue(entity, "iMagnitude", sTemp);
+		IntToString(g_iCvarDistance, sTemp, sizeof(sTemp));
+		DispatchKeyValue(entity, "iRadiusOverride", sTemp);
+		DispatchSpawn(entity);
+		TeleportEntity(entity, vPos, NULL_VECTOR, NULL_VECTOR);
+		AcceptEntityInput(entity, "Explode");
+	}
+
+	int shake  = CreateEntityByName("env_shake");
+	if (shake != -1)
+	{
+		DispatchKeyValue(shake, "spawnflags", "8");
+		DispatchKeyValue(shake, "amplitude", "16.0");
+		DispatchKeyValue(shake, "frequency", "1.5");
+		DispatchKeyValue(shake, "duration", "0.9");
+		IntToString(g_iCvarShake, sTemp, sizeof(sTemp));
+		DispatchKeyValue(shake, "radius", sTemp);
+		DispatchSpawn(shake);
+		ActivateEntity(shake);
+		AcceptEntityInput(shake, "Enable");
+
+		TeleportEntity(shake, vPos, NULL_VECTOR, NULL_VECTOR);
+		AcceptEntityInput(shake, "StartShake");
+
+		SetVariantString("OnUser1 !self:Kill::1.1:1");
+		AcceptEntityInput(shake, "AddOutput");
+		AcceptEntityInput(shake, "FireUser1");
+	}
+
+	int client;
+	float fDistance;
+	float fNearest = 1500.0;
+	float vPos2[3];
+
+	int i = 1;
+	while (i <= MaxClients)
+	{
+		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		{
+			GetClientAbsOrigin(i, vPos2);
+			fDistance = GetVectorDistance(vPos, vPos2);
+
+			if (fDistance <= fNearest)
+			{
+				client = i;
+				fNearest = fDistance;
+			}
+		}
+		i += 1;
+	}
+
+	if (client)
+		Vocalize(client);
+
+	entity = CreateEntityByName("info_particle_system");
+	if (entity != -1)
+	{
+		int random = GetRandomInt(1, 4);
+		if (random == 1)
+			DispatchKeyValue(entity, "effect_name", EXPLOSION_PARTICLE_L4D2);
+		else if (random == 2)
+			DispatchKeyValue(entity, "effect_name", "missile_hit1");
+		else if (random == 3)
+			DispatchKeyValue(entity, "effect_name", "gas_explosion_main");
+		else if (random == 4)
+			DispatchKeyValue(entity, "effect_name", "explosion_huge");
+
+		if (random == 1)
+			vPos[2] += 175.0;
+		else if (random == 2)
+			vPos[2] += 100.0;
+		else if (random == 4)
+			vPos[2] += 25.0;
+
+		DispatchSpawn(entity);
+		ActivateEntity(entity);
+		AcceptEntityInput(entity, "start");
+
+		TeleportEntity(entity, vPos, NULL_VECTOR, NULL_VECTOR);
+
+		SetVariantString("OnUser1 !self:Kill::1.0:1");
+		AcceptEntityInput(entity, "AddOutput");
+		AcceptEntityInput(entity, "FireUser1");
+	}
+
+	int random = GetRandomInt(0, 2);
+	if (random == 0)
+		EmitSoundToAll("weapons/hegrenade/explode3.wav", entity, SNDCHAN_AUTO, SNDLEVEL_HELICOPTER);
+	else if (random == 1)
+		EmitSoundToAll("weapons/hegrenade/explode4.wav", entity, SNDCHAN_AUTO, SNDLEVEL_HELICOPTER);
+	else if (random == 2)
+		EmitSoundToAll("weapons/hegrenade/explode5.wav", entity, SNDCHAN_AUTO, SNDLEVEL_HELICOPTER);
+
+	return Plugin_Continue;
+}
+
+void Vocalize(int client)
+{
+	if (GetRandomInt(1, 100) > 70)
+		return;
+
+	char sTemp[64];
+	GetEntPropString(client, Prop_Data, "m_ModelName", sTemp, 64);
+
+	int random;
+	if (sTemp[26] == 'c')							// c = Coach
+		random = GetRandomInt(0, 2);
+	else if (sTemp[26] == 'g')						// g = Gambler
+		random = GetRandomInt(3, 6);
+	else if (sTemp[26] == 'm' && sTemp[27] == 'e')	// me = Mechanic
+		random = GetRandomInt(7, 12);
+	else if (sTemp[26] == 'p')						// p = Producer
+		random = GetRandomInt(13, 15);
+	else
+		return;
+
+	int entity = CreateEntityByName("instanced_scripted_scene");
+	if(entity!=-1)
+	{
+		DispatchKeyValue(entity, "SceneFile", g_sVocalize[random]);
+		DispatchSpawn(entity);
+		SetEntPropEnt(entity, Prop_Data, "m_hOwner", client);
+		ActivateEntity(entity);
+		AcceptEntityInput(entity, "Start", client, client);
+	}
+}
+
+bool IsValidEntRef(int entity)
+{
+	if (entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE) return true;
+	return false;
+}
+
+void MoveForward(const float vPos[3], const float vAng[3], float vReturn[3], float fDistance)
+{
+	float vDir[3];
+	GetAngleVectors(vAng, vDir, NULL_VECTOR, NULL_VECTOR);
+	vReturn = vPos;
+	vReturn[0] += vDir[0] * fDistance;
+	vReturn[1] += vDir[1] * fDistance;
+	vReturn[2] += vDir[2] * fDistance;
 }
