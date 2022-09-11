@@ -57,7 +57,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.0"
+#define PLUGIN_VERSION 		"4.1"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -102,8 +102,6 @@ int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies;
 //arraylist
 ArrayList nClientSwitchTeam;
 ArrayList nClientAttackedByWitch[MAXPLAYERS+1]; //每個玩家被多少個witch攻擊
-//signature
-Handle hSetHumanSpec, hTakeOver, hAFKSDKCall;
 //timer
 Handle PlayerLeftStartTimer = null, CountDownTimer = null;
 
@@ -147,35 +145,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	LoadTranslations("l4d_afk_commands.phrases");
-
-	Handle hGameConf;	
-	hGameConf = LoadGameConfigFile("l4d_afk_commands");
-	if(hGameConf == null)
-		SetFailState("Gamedata l4d_afk_commands.txt not found");
-
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "SetHumanSpec");
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
-	hSetHumanSpec = EndPrepSDKCall();
-	if (hSetHumanSpec == null)
-		SetFailState("Cant initialize SetHumanSpec SDKCall");
-
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "TakeOverBot");
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
-	hTakeOver = EndPrepSDKCall();
-	if( hTakeOver == null)
-		SetFailState("Could not prep the \"TakeOverBot\" function.");
-
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTerrorPlayer::GoAwayFromKeyboard");
-	hAFKSDKCall = EndPrepSDKCall();
-	if(hAFKSDKCall == null)
-		SetFailState("Unable to prep SDKCall 'CTerrorPlayer::GoAwayFromKeyboard'");
-
-	delete hGameConf;
-
 	LoadTranslations("common.phrases");
 	RegConsoleCmd("sm_afk", TurnClientToSpectate);
 	RegConsoleCmd("sm_s", TurnClientToSpectate);
@@ -420,8 +389,8 @@ public Action Command_SwapTo(int client, int args)
 				return Plugin_Handled;
 			}
 
-			SDKCall(hSetHumanSpec, bot, player_id);
-			SDKCall(hTakeOver, player_id, true);
+			L4D_SetHumanSpec(bot, player_id);
+			L4D_TakeOverBot(player_id);
 		}
 		else if (team == 3)
 			ChangeClientTeam(player_id,3);
@@ -746,7 +715,17 @@ public Action TurnClientToSpectate(int client, int argCount)
 	{
 		if(CanClientChangeTeam(client,1) == false) return Plugin_Handled;
 		
-		if(iTeam == 2 && IsPlayerAlive(client) && iGameMode != 2) SDKCall(hAFKSDKCall, client);
+		if(iTeam == 2 && iGameMode != 2)
+		{
+			if(IsPlayerAlive(client)) 
+			{
+				L4D_GoAwayFromKeyboard(client);
+			}
+			else
+			{
+				ChangeClientTeam(client, 1);
+			}
+		}
 		else ChangeClientTeam(client, 1);
 		
 		clientteam[client] = 1;
@@ -786,7 +765,7 @@ public Action TurnClientToObserver(int client, int args)
 	{
 		if(IsClientIdle(client))
 		{
-			SDKCall(hTakeOver, client, true);
+			L4D_TakeOverBot(client);
 			ChangeClientTeam(client, 1);
 			return Plugin_Handled;
 		}
@@ -859,21 +838,21 @@ public Action TurnClientToSurvivors(int client, int args)
 
 			if(IsPlayerAlive(bot))
 			{
-				SDKCall(hSetHumanSpec, bot, client);
+				L4D_SetHumanSpec(bot, client);
 				SetEntProp(client, Prop_Send, "m_iObserverMode", 5);
 			}
 			else
 			{
-				SDKCall(hSetHumanSpec, bot, client);
-				SDKCall(hTakeOver, client, true);	
+				L4D_SetHumanSpec(bot, client);
+				L4D_TakeOverBot(client);	
 				clientteam[client] = 2;	
 				StartChangeTeamCoolDown(client);
 			}
 		}
 		else //versus
 		{
-			SDKCall(hSetHumanSpec, bot, client);
-			SDKCall(hTakeOver, client, true);
+			L4D_SetHumanSpec(bot, client);
+			L4D_TakeOverBot(client);	
 			clientteam[client] = 2;	
 			StartChangeTeamCoolDown(client);
 		}
@@ -1195,7 +1174,7 @@ bool HasIdlePlayer(int bot)
 		if(HasEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))
 		{
 			int client = GetClientOfUserId(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))	;		
-			if(client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client) && IsClientObserver(client))
+			if(client > 0)
 			{
 				return true;
 			}

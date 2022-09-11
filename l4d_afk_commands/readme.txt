@@ -4,7 +4,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 AFK and Join Team Commands Improved Version: https://forums.alliedmods.net/showpost.php?p=2719702&postcount=32
 
 -ChangeLog-
-v4.0
+v4.1
 -Remake Code
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236)
@@ -15,6 +15,7 @@ v4.0
 -Allow alive survivor player suicides by using '!zs'
 -Adm Command "sm_swapto <player> <team>", Adm forces player to swap team
 -Compatible with r2comp_unscramble (https://forums.alliedmods.net/showthread.php?t=327711)
+-Remove gamedata
 
 v1.2
 -Original Post: https://forums.alliedmods.net/showthread.php?p=1130434
