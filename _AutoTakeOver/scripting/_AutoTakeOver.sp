@@ -202,7 +202,7 @@ public void eTeamChange(Event hEvent, const char[] sEventName, bool bDontBroadca
 	delete TakeOverBotTimer[client];
 }
 
-//playerspawn is triggered even when bot takes over real player (dead bot also triggers this event) or a survivor bot is spawned
+//playerspawn is triggered even when bot or human takes over each other (even they are already dead state) or a survivor is spawned
 public void ePlayerSpawn(Event hEvent, const char[] sEventName, bool bDontBroadcast)
 {
 	int bot = GetClientOfUserId(hEvent.GetInt("userid"));
@@ -303,8 +303,7 @@ bool HasIdlePlayer(int iBot)
 {
 	if( HasEntProp(iBot, Prop_Send, "m_humanSpectatorUserID"))
 	{
-		int client = GetClientOfUserId(GetEntProp(iBot, Prop_Send, "m_humanSpectatorUserID"));
-		if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == L4D_TEAM_SPECTATOR)
+		if(GetEntProp(iBot, Prop_Send, "m_humanSpectatorUserID") > 0)
 		{
 			return true;
 		}
