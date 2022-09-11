@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.0"
+#define PLUGIN_VERSION 				"5.1"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -43,12 +43,12 @@ ConVar hMaxSurvivors, hDeadBotTime, hSpecCheckInterval,
 int iMaxSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
 	iRespawnHP, iRespawnBuffHP, g_iCvar_JoinSurvivrMethod;
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
-bool bKill, bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
-	g_bGiveKitSafeRoom, g_bGiveKitFinalStart, g_bNoSecondChane;
+bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
+	g_bGiveKitSafeRoom, g_bGiveKitFinalStart, g_bNoSecondChane, g_bFinalHasStarted, g_bPluginHasStarted;
 float g_fSpecCheckInterval, g_fInvincibleTime;
-Handle SpecCheckTimer = null, PlayerLeftStartTimer = null, CountDownTimer = null;
+Handle SpecCheckTimer, PlayerLeftStartTimer, CountDownTimer;
 float clinetSpawnGodTime[ MAXPLAYERS + 1 ];
-bool g_bPluginStart;
+int g_iSurvivorTransition;
 
 StringMap g_hSteamIDs;
 
@@ -216,7 +216,11 @@ public void OnPluginStart()
 	HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
-	HookEvent("finale_start", Event_FinaleStart, EventHookMode_Post);
+	HookEvent("finale_start", 			Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+	HookEvent("finale_radio_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+	if(g_bLeft4Dead2) HookEvent("gauntlet_finale_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+	
+	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
 	// ======================================
 	// Prep SDK Calls
@@ -246,8 +250,6 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
-	g_bPluginStart = false;
-
 	TweakSettings();
 
 	int max = 0;
@@ -307,6 +309,7 @@ public void OnMapStart()
 	}
 
 	g_bEnableKick = false;
+	g_bPluginHasStarted = false;
 }
 
 public void OnMapEnd()
@@ -412,7 +415,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 						if(GetClientOfUserId(GetEntProp(i, Prop_Send, "m_humanSpectatorUserID")) == client)
 						{
 							//LogMessage("afk player %N changes team or leaves the game, his bot is %N",client,i);
-							if(!bLeftSafeRoom)
+							if(!g_bLeftSafeRoom)
 								CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, GetClientUserId(i));
 							else
 								CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, GetClientUserId(i));
@@ -429,9 +432,12 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 public Action Timer_ChangeTeam(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == TEAM_SPECTATORS && IsPlayerAlive(client))
+	if(client && IsClientInGame(client))
 	{
-		RecordSteamID(client); // Record SteamID of player.
+		if(!IsFakeClient(client) && GetClientTeam(client) == TEAM_SPECTATORS && IsPlayerAlive(client))
+		{
+			RecordSteamID(client); // Record SteamID of player.
+		}
 	}
 
 	return Plugin_Continue;
@@ -471,18 +477,20 @@ public void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadc
 	int fakebot = GetClientOfUserId(fakebotid);
 	if(fakebot && IsClientInGame(fakebot) && GetClientTeam(fakebot) == TEAM_SURVIVORS && IsFakeClient(fakebot))
 	{
-		if(!bLeftSafeRoom)
+		if(!g_bLeftSafeRoom)
 			CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, fakebotid);
 		else
 			CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, fakebotid);
 	}
 }
 
+// bot死亡，其有閒置的玩家取代bot時不會觸發此事件，只觸發player_spawn與player_team
+// 取代bot或bot取代都會觸發player_spawn
 public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS)
+	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client))
 	{
 		if(IsFakeClient(client))
 		{
@@ -492,7 +500,7 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 
 			//LogMessage("will kick %N bot in few seconds", client);
 
-			if(!bLeftSafeRoom)
+			if(!g_bLeftSafeRoom)
 				CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, userid);
 			else
 				CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
@@ -507,7 +515,7 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
-		CreateTimer(0.1, PluginStart);
+		CreateTimer(0.1, Timer_PluginStart);
 	g_iPlayerSpawn = 1;	
 }
 
@@ -515,12 +523,15 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsFakeClient(client))
+	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS)
 	{
-		if(!bLeftSafeRoom)
-			CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, userid);
-		else
-			CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
+		if(IsFakeClient(client))
+		{
+			if(!g_bLeftSafeRoom)
+				CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, userid);
+			else
+				CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
+		}
 	}	
 }
 
@@ -534,29 +545,67 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+	g_bFinalHasStarted = false;
 	g_bEnableKick = false;
-	g_bPluginStart = false;
+	bKill = false;
+	g_bLeftSafeRoom = false;
+	g_bPluginHasStarted = false;
+	for ( int client = 1; client <= MaxClients; client ++ )
+	{
+		clinetSpawnGodTime[client] = 0.0;
+	}	
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
-		CreateTimer(0.1, PluginStart);
+		CreateTimer(0.1, Timer_PluginStart);
 	g_iRoundStart = 1;
 }
 
 public void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast)
 {
+	if(g_bFinalHasStarted) return;
+
 	if(g_bGiveKitFinalStart)
 	{
 		int client = GetRandomAliveSurvivor();
 		int amount = TotalSurvivors() - 4;
 
-		if(amount > 0 && client > 0)
+		float vPos[3];
+		int weapon;
+		if( amount > 0 && client > 0 )
 		{
+			GetClientEyePosition(client, vPos);
 			for(int i = 1; i <= amount; i++)
 			{
-				CheatCommand(client, "give", "first_aid_kit", "");
+				weapon = CreateEntityByName("weapon_first_aid_kit");
+				if (weapon <= MaxClients || !IsValidEntity(weapon)) continue;
+				
+				DispatchSpawn(weapon);
+				TeleportEntity(weapon, vPos, NULL_VECTOR, NULL_VECTOR);
 			}
 		}
 	}
+
+	g_bFinalHasStarted = true;
+}
+
+public void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
+{
+	g_iSurvivorTransition = 0;
+
+	CreateTimer(1.5, Timer_Event_MapTransition, _, TIMER_FLAG_NO_MAPCHANGE); //delay is necessary for waiting all afk human players to take over bot
+}
+
+public Action Timer_Event_MapTransition(Handle timer)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && GetClientTeam(client) == 2)
+		{
+			g_iSurvivorTransition++;
+		}
+	}
+
+	return Plugin_Continue;
 }
 
 ////////////////////////////////////
@@ -602,7 +651,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 					}
 				}
 
-				if(g_iCvar_JoinSurvivrMethod == 1 && g_bPluginStart == true)
+				if(g_iCvar_JoinSurvivrMethod == 1)
 				{
 					int iAliveSurvivor = my_GetRandomSurvivor();
 					if(iAliveSurvivor == 0)
@@ -628,7 +677,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 				{
 					if(SpawnFakeClient() == true)
 					{
-						if( bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) CreateTimer(0.4, Timer_TakeOverBotAndDie2, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+						if( g_bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) CreateTimer(0.4, Timer_TakeOverBotAndDie2, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 						else if( bKill && iDeadBotTime > 0 ) CreateTimer(0.4, Timer_TakeOverBotAndDie, userid, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 						else CreateTimer(0.4, Timer_AutoJoinTeam, userid);	
 					}
@@ -649,19 +698,34 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 }
 
 int iCountDownTime;
-public Action PluginStart(Handle timer)
+public Action Timer_PluginStart(Handle timer)
 {
-	g_bPluginStart = true;
 	ClearDefault();
-	if(g_bSpawnSurvivorsAtStart) CreateTimer(0.5, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
-	if(SpecCheckTimer == null && g_fSpecCheckInterval > 0.0) SpecCheckTimer = CreateTimer(g_fSpecCheckInterval, Timer_SpecCheck, _, TIMER_REPEAT)	;
+	if(g_bSpawnSurvivorsAtStart) CreateTimer(0.2, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	
+	delete PlayerLeftStartTimer; 
+	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+
+	if(g_fSpecCheckInterval > 0.0)
+	{
+		delete SpecCheckTimer;
+		SpecCheckTimer = CreateTimer(g_fSpecCheckInterval, Timer_SpecCheck, _, TIMER_REPEAT);
+	}
+
+	int amount;
+	if(g_iSurvivorTransition > 0)
+	{
+		amount = g_iSurvivorTransition - 4;
+		g_iSurvivorTransition = 0;
+	}
+	else
+	{
+		amount = TotalSurvivors() - 4;
+	}
 
 	int client = GetRandomAliveSurvivor();
-	int amount = TotalSurvivors() - 4;
 	int weapon;
 	float vPos[3];
-
 	if( g_bGiveKitSafeRoom && amount > 0 && client > 0 )
 	{
 		GetEntPropVector(client, Prop_Data, "m_vecOrigin", vPos);
@@ -674,6 +738,7 @@ public Action PluginStart(Handle timer)
 			TeleportEntity(weapon, vPos, NULL_VECTOR, NULL_VECTOR);
 		}
 	}
+	g_bPluginHasStarted = true;
 
 	return Plugin_Continue;
 }
@@ -927,13 +992,6 @@ void ClearDefault()
 {
 	g_iRoundStart = 0;
 	g_iPlayerSpawn = 0;
-	bKill = false;
-	bLeftSafeRoom = false;
-	
-	for ( int client = 1; client <= MaxClients; client ++ )
-	{
-		clinetSpawnGodTime[client] = 0.0;
-	}
 }
 
 
@@ -1020,7 +1078,7 @@ int TotalSurvivors() // total bots, including players
 	int kk = 0;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && (GetClientTeam(i) == TEAM_SURVIVORS))
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
 			kk++;
 	}
 	return kk;
@@ -1113,7 +1171,7 @@ public void OnNextFrame(DataPack hPack)
 		GiveItems( client );
 	}
 
-	if(!bLeftSafeRoom && g_bGiveKitSafeRoom)
+	if(g_bGiveKitSafeRoom && g_bPluginHasStarted && !g_bLeftSafeRoom)
 	{
 		int weapon = CreateEntityByName("weapon_first_aid_kit");
 		if (weapon <= MaxClients || !IsValidEntity(weapon)) return;
@@ -1121,8 +1179,8 @@ public void OnNextFrame(DataPack hPack)
 		DispatchSpawn(weapon);
 		TeleportEntity(weapon, nPos, NULL_VECTOR, NULL_VECTOR);
 	}
-	
-	clinetSpawnGodTime[client] = GetEngineTime() + g_fInvincibleTime;
+
+	if(g_bLeftSafeRoom) clinetSpawnGodTime[client] = GetEngineTime() + g_fInvincibleTime;
 }
 
 bool HasIdlePlayer(int bot)
@@ -1169,11 +1227,12 @@ public Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{	
-		bLeftSafeRoom = true;
+		g_bLeftSafeRoom = true;
 		iCountDownTime = iDeadBotTime;
 		if(iCountDownTime > 0)
 		{
-			if(CountDownTimer == null) CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
+			delete CountDownTimer;
+			CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
 		}
 		
 		PlayerLeftStartTimer = null;
@@ -1338,7 +1397,7 @@ int GetRandomAliveSurvivor()
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i) && !IsClientInKickQueue(i))
+		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
 		{
 			iClients[iClientCount++] = i;
 		}
@@ -1346,7 +1405,7 @@ int GetRandomAliveSurvivor()
 	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 }
 
-void CheatCommand(int client, const char[] command, const char[] argument1, const char[] argument2)
+stock void CheatCommand(int client, const char[] command, const char[] argument1, const char[] argument2)
 {
 	int userFlags = GetUserFlagBits(client);
 	SetUserFlagBits(client, ADMFLAG_ROOT);
@@ -1434,7 +1493,7 @@ Action Timer_TeleportPlayer(Handle timer, DataPack hPack)
 
 	if (GetClientTeam(client) == TEAM_SURVIVORS && !IsFakeClient(client))
 	{
-		if(bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) 
+		if(g_bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) 
 		{
 			if(IsPlayerAlive(client))
 			{
