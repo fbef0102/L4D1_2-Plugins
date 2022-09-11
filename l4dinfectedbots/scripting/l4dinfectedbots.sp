@@ -2522,7 +2522,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	// if victim was a bot, we setup a timer to spawn a int bot ...
 	if (g_iCurrentMode == 2)
 	{
-		if (IsFakeClient(client) && !IsPlayerTank(client))
+		if (IsFakeClient(client)/* && !IsPlayerTank(client)*/)
 		{
 			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
 			if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected())
@@ -4616,20 +4616,22 @@ public Action Timer_CheckAngry(Handle timer, int UserId)
 	client = GetClientOfUserId(UserId);
 	if (client && IsClientInGame(client) && IsFakeClient(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && IsPlayerTank(client) )
 	{
-		if (g_bFinaleStarted)
-		{
-			g_bAngry[client] = true;
-			return Plugin_Stop;
-		}
+		// if (GetEntProp(client, Prop_Send, "m_zombieState") != 0)
+		// {
+		// 	g_bAngry[client] = true;
+		// 	return Plugin_Stop;
+		// }
 
-		if (GetEntProp(client, Prop_Send, "m_zombieState") != 0)
-		{
-			g_bAngry[client] = true;
-			return Plugin_Stop;
-		}
+		// if (GetEntProp(client, Prop_Send, "m_hasVisibleThreats") != 0)
+		// {
+		// 	g_bAngry[client] = true;
+		// 	return Plugin_Stop;
+		// }
 
-		if (GetEntProp(client, Prop_Send, "m_hasVisibleThreats") != 0)
+		int sequence = GetEntProp(client, Prop_Send, "m_nSequence");
+		if( !(1 <= sequence && sequence <= 4) ) // idle
 		{
+			//PrintToChatAll("m_nSequence = %d, %N is angry",sequence, tank);
 			g_bAngry[client] = true;
 			return Plugin_Stop;
 		}
