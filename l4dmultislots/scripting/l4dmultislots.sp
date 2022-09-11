@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"4.9"
+#define PLUGIN_VERSION 				"5.0"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -604,21 +604,25 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 
 				if(g_iCvar_JoinSurvivrMethod == 1 && g_bPluginStart == true)
 				{
-					if( bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) 
+					int iAliveSurvivor = my_GetRandomSurvivor();
+					if(iAliveSurvivor == 0)
 					{
-						ChangeClientTeam(client, TEAM_SURVIVORS);
-						CPrintToChat(client, "{default}[{green}MultiSlots{default}] %T", "No Second Chance", client);
+						PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
+						return Plugin_Continue;
 					}
-					else if( bKill && iDeadBotTime > 0 )
-					{
-						ChangeClientTeam(client, TEAM_SURVIVORS);
-						PrintHintText(client, "%T", "The survivors has started the game, please wait to be resurrected or rescued", client);
-					}
-					else
-					{
-						ChangeClientTeam(client, TEAM_SURVIVORS);
-						CreateTimer(0.4, Timer_RespawnPlayer, userid);
-					}
+
+					ChangeClientTeam(client, TEAM_SURVIVORS);
+
+					float teleportOrigin[3];
+					GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
+
+					DataPack hPack = new DataPack();
+					hPack.WriteCell(userid);
+					hPack.WriteFloat(teleportOrigin[0]);
+					hPack.WriteFloat(teleportOrigin[1]);
+					hPack.WriteFloat(teleportOrigin[2]);
+
+					CreateTimer(0.1, Timer_TeleportPlayer, hPack);
 				}
 				else if(g_iCvar_JoinSurvivrMethod == 0)
 				{
@@ -1125,8 +1129,7 @@ bool HasIdlePlayer(int bot)
 {
 	if(HasEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))
 	{
-		int client = GetClientOfUserId(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID"));		
-		if(client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client) && IsClientObserver(client))
+		if(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID") > 0)
 		{
 			return true;
 		}
@@ -1416,31 +1419,52 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	return Plugin_Continue;
 }
 
-Action Timer_RespawnPlayer(Handle timer, int userid)
+Action Timer_TeleportPlayer(Handle timer, DataPack hPack)
 {
+	hPack.Reset();
+	float nPos[3];
+	int userid = hPack.ReadCell();
 	int client = GetClientOfUserId(userid);
+	nPos[0] = hPack.ReadFloat();
+	nPos[1] = hPack.ReadFloat();
+	nPos[2] = hPack.ReadFloat();
+	delete hPack;
+
 	if (!client || !IsClientInGame(client)) return Plugin_Continue;
 
-	if (GetClientTeam(client) == TEAM_SURVIVORS && !IsFakeClient(client) && !IsPlayerAlive(client))
+	if (GetClientTeam(client) == TEAM_SURVIVORS && !IsFakeClient(client))
 	{
-		int iAliveSurvivor = my_GetRandomSurvivor();
-		if(iAliveSurvivor == 0)
+		if(bLeftSafeRoom && IsSecondTime(client) && g_bNoSecondChane ) 
 		{
-			PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
+			if(IsPlayerAlive(client))
+			{
+				TeleportEntity( client, nPos, NULL_VECTOR, NULL_VECTOR);
+				ForcePlayerSuicide(client);
+			}
+			CPrintToChat(client, "{default}[{green}MultiSlots{default}] %T", "No Second Chance", client);
 			return Plugin_Continue;
 		}
+		else if(bKill && iDeadBotTime > 0 )
+		{
+			if(IsPlayerAlive(client))
+			{
+				TeleportEntity( client, nPos, NULL_VECTOR, NULL_VECTOR);
+				ForcePlayerSuicide(client);
+			}
+			PrintHintText(client, "%T", "The survivors has started the game, please wait to be resurrected or rescued", client);
+			return Plugin_Continue;
+		}
+		
+		if(!IsPlayerAlive(client)) L4D_RespawnPlayer(client);
+		
+		DataPack hPack2 = new DataPack();
+		hPack2.WriteCell(userid);
+		hPack2.WriteFloat(nPos[0]);
+		hPack2.WriteFloat(nPos[1]);
+		hPack2.WriteFloat(nPos[2]);
+		RequestFrame(OnNextFrame, hPack2); //first time teleport
 
-		L4D_RespawnPlayer(client);
-		ChangeClientTeam(client, TEAM_SURVIVORS);
-		float teleportOrigin[3];
-		GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
-		DataPack hPack = new DataPack();
-		hPack.WriteCell(userid);
-		hPack.WriteFloat(teleportOrigin[0]);
-		hPack.WriteFloat(teleportOrigin[1]);
-		hPack.WriteFloat(teleportOrigin[2]);
-		CreateTimer(0.4, Timer_RespawnPlayer, userid);
-		RequestFrame(OnNextFrame, hPack); //first time teleport
+		//CreateTimer(0.5, Timer_TeleportPlayer, userid);
 	}
 
 	return Plugin_Continue;
