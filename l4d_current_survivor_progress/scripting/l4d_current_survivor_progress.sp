@@ -11,7 +11,7 @@ int SurCurrent = 0;
 
 public Plugin:myinfo =
 {
-    name = "L4D1 Survivor Progress",
+    name = "L4D Survivor Progress",
     author = "CanadaRox, Visor, harry",
     description = "Print survivor progress in flow percents",
     version = "2.3",
