@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.1"
+#define PLUGIN_VERSION 				"5.2"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -466,11 +466,7 @@ public void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 
 public void evtSurvivorRescued(Event event, const char[] name, bool dontBroadcast) 
 {
-	int client = GetClientOfUserId(event.GetInt("victim"));
-	if(client && IsClientInGame(client))
-	{	
-		GiveRandomT1Weapon(client);
-	}
+	CreateTimer(0.1, Timer_GiveRandomT1Weapon, event.GetInt("victim"), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
@@ -1058,23 +1054,6 @@ void StripWeapons(int client) // strip all items from client
 	}
 }
 
-void GiveRandomT1Weapon(int client) // give client random weapon
-{
-	if(GetPlayerWeaponSlot(client, 0) != -1)
-	{
-		int random;
-		if(g_bLeft4Dead2) random = GetRandomInt(1,4);
-		else random = GetRandomInt(1,2);
-		switch(random)
-		{
-			case 1: BypassAndExecuteCommand(client, "give", "smg");
-			case 2: BypassAndExecuteCommand(client, "give", "pumpshotgun");
-			case 3: BypassAndExecuteCommand(client, "give", "smg_silenced");
-			case 4: BypassAndExecuteCommand(client, "give", "shotgun_chrome");
-		}
-	}
-}
-
 int TotalSurvivors() // total bots, including players
 {
 	int kk = 0;
@@ -1526,6 +1505,29 @@ Action Timer_TeleportPlayer(Handle timer, DataPack hPack)
 		RequestFrame(OnNextFrame, hPack2); //first time teleport
 
 		//CreateTimer(0.5, Timer_TeleportPlayer, userid);
+	}
+
+	return Plugin_Continue;
+}
+
+Action Timer_GiveRandomT1Weapon(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+
+	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client))
+	{
+		if(GetPlayerWeaponSlot(client, 0) != -1) return Plugin_Continue;
+		
+		int random;
+		if(g_bLeft4Dead2) random = GetRandomInt(1,4);
+		else random = GetRandomInt(1,2);
+		switch(random)
+		{
+			case 1: BypassAndExecuteCommand(client, "give", "smg");
+			case 2: BypassAndExecuteCommand(client, "give", "pumpshotgun");
+			case 3: BypassAndExecuteCommand(client, "give", "smg_silenced");
+			case 4: BypassAndExecuteCommand(client, "give", "shotgun_chrome");
+		}
 	}
 
 	return Plugin_Continue;
