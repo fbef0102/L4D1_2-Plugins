@@ -293,8 +293,9 @@ public void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast
 				}
 			}
 			
-			if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
+			if( 0 < attacker <= MaxClients && IsClientInGame(attacker) && !g_bDied[victim])
 			{
+				//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iLastHP[victim], damageDone, g_bDied[victim]);
 				g_iDamage[attacker][victim] += damageDone;
 			}
 		}
@@ -343,6 +344,7 @@ public void Event_Player_Death(Event event, const char[] name, bool dontBroadcas
 
 		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
 		{
+			//PrintToChatAll("g_iLastHP[victim]: %d", g_iLastHP[victim]);
 			g_iDamage[attacker][victim] += g_iLastHP[victim];
 		}
 		else
