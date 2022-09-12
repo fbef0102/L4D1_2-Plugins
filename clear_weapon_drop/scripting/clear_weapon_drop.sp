@@ -63,7 +63,7 @@ public Plugin myinfo =
 {
 	name = "Remove drop weapon + remove upgradepack when used",
 	author = "AK978 & HarryPotter",
-	version = "2.8"
+	version = "2.9"
 }
 
 bool bLate;
@@ -269,12 +269,12 @@ bool IsInUse(int entity)
 			return true;
 	}
 	
-	if(HasEntProp(entity, Prop_Data, "m_hOwnerEntity"))
-	{
-		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
-		if (IsValidClient(client))
-			return true;
-	}
+	// if(HasEntProp(entity, Prop_Data, "m_hOwnerEntity"))
+	// {
+	// 	client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+	// 	if (IsValidClient(client))
+	// 		return true;
+	// }
 
 	for (int i = 1; i <= MaxClients; i++) 
 	{

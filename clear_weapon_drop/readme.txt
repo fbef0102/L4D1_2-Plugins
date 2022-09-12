@@ -1,7 +1,7 @@
 Remove drop weapon + remove upgradepack when used
 
 -ChangeLog-
-v2.8
+v2.9
 -Remake Code
 -Remove gnome and cola
 -Create Native
