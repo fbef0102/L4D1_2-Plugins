@@ -162,7 +162,7 @@ float g_fDeadTime[MAXPLAYERS+1];
 public Plugin myinfo =
 {
 	name = "[L4D] Death Soul",
-	author = "Alex Dragokas",
+	author = "Alex Dragokas, Harry",
 	description = "Soul of the dead survivor flies away to the afterlife",
 	version = PLUGIN_VERSION,
 	url = "https://github.com/dragokas"
