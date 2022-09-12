@@ -128,9 +128,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-ConVar g_hSurvivorLimit;
+ConVar g_hSurvivorLimit, sb_transition;
 public void OnPluginStart()
 {
+	sb_transition =  FindConVar("sb_transition");
+
 	g_hSurvivorLimit = FindConVar("survivor_limit");
 	if(g_hSurvivorLimit == null)
 	{
@@ -713,7 +715,7 @@ public Action Timer_PluginStart(Handle timer)
 	}
 
 	int amount;
-	if(g_iSurvivorTransition > 0)
+	if(sb_transition.BoolValue == false && g_iSurvivorTransition > 0)
 	{
 		amount = g_iSurvivorTransition - 4;
 		g_iSurvivorTransition = 0;
