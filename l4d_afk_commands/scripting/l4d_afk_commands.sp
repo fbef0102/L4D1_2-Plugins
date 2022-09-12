@@ -57,7 +57,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.1"
+#define PLUGIN_VERSION 		"4.2"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -146,6 +146,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
+	LoadTranslations("l4d_afk_commands.phrases");
 	RegConsoleCmd("sm_afk", TurnClientToSpectate);
 	RegConsoleCmd("sm_s", TurnClientToSpectate);
 	RegConsoleCmd("sm_away", TurnClientToSpectate);
@@ -966,8 +967,6 @@ public Action WTF(int client, int args) //press m (jointeam)
 	}
 
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
-	
-	if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
 
 	if(args > 2) return Plugin_Handled;
 
@@ -996,6 +995,7 @@ public Action WTF(int client, int args) //press m (jointeam)
 			)
 		)
 		{	
+			if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
 			if(CanClientChangeTeam(client, 2, bHaveAccess)  == false) return Plugin_Handled;
 			return Plugin_Continue;
 		}
@@ -1051,7 +1051,6 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-	if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
 
 	bool bHaveAccess = HasAccess(client, g_sImmueAcclvl);
 	if(g_bTakeABreakBlock == true && bHaveAccess == false) 
@@ -1060,6 +1059,7 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 		return Plugin_Handled;
 	}
 
+	if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
 	if(CanClientChangeTeam(client, 1, bHaveAccess) == false) return Plugin_Handled;
 	
 	RequestFrame(NextFrame, GetClientUserId(client));
@@ -1091,8 +1091,6 @@ public Action WTF3(int client, int args) //sb_takecontrol
 
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 
-	if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
-
 	if(args > 1) return Plugin_Handled;
 
 	bool bHaveAccess = HasAccess(client, g_sImmueAcclvl);
@@ -1102,8 +1100,6 @@ public Action WTF3(int client, int args) //sb_takecontrol
 		return Plugin_Handled;
 	}
 
-	if(CanClientChangeTeam(client, 2, bHaveAccess) == false) return Plugin_Handled;
-	
 	if(args == 1)
 	{
 		char arg1[64];
@@ -1118,6 +1114,8 @@ public Action WTF3(int client, int args) //sb_takecontrol
 			 StrEqual(arg1,"Louis") 
 		)
 		{
+			if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
+			if(CanClientChangeTeam(client, 2, bHaveAccess) == false) return Plugin_Handled;
 			return Plugin_Continue;
 		}
 		ReplyToCommand(client, "Usage: sb_takecontrol <character_name>");	
@@ -1173,8 +1171,7 @@ bool HasIdlePlayer(int bot)
 	{
 		if(HasEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))
 		{
-			int client = GetClientOfUserId(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))	;		
-			if(client > 0)
+			if(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID") > 0)
 			{
 				return true;
 			}
