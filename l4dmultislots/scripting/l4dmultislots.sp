@@ -1060,7 +1060,7 @@ void StripWeapons(int client) // strip all items from client
 
 void GiveRandomT1Weapon(int client) // give client random weapon
 {
-	if(GetPlayerWeaponSlot(client, 1) != -1)
+	if(GetPlayerWeaponSlot(client, 0) != -1)
 	{
 		int random;
 		if(g_bLeft4Dead2) random = GetRandomInt(1,4);
