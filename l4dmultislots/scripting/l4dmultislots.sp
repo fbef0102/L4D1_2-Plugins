@@ -597,7 +597,7 @@ public Action Timer_Event_MapTransition(Handle timer)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && GetClientTeam(client) == 2)
+		if (IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2)
 		{
 			g_iSurvivorTransition++;
 		}
