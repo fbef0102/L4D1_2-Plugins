@@ -196,7 +196,7 @@ public void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast
 	if (g_iClearWeaponTime == 0) return;
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (!IsValidClient(client) || !IsPlayerAlive(client)) return;
+	if (!IsValidClient(client) || GetClientTeam(client) != 2) return;
 		
 	int entity = event.GetInt("propid");	
 	SetTimer_DeleteWeapon(entity);
