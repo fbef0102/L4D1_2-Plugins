@@ -1,7 +1,7 @@
 Allows players to be respawned at one's crosshair.
 
 -ChangeLog-
--v2.4
+-v2.5
 -fixed stuck ceiling when player respawns
 -delete unuseful gamedata
 

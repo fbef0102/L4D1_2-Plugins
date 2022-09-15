@@ -6,7 +6,7 @@
 #include <adminmenu>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION "2.4"
+#define PLUGIN_VERSION "2.5"
 
 #define CVAR_FLAGS	FCVAR_NOTIFY
 
@@ -56,7 +56,7 @@ public void OnPluginStart()
 	LoadTranslations("l4d_sm_respawn.phrases");
 	
 	CreateConVar("l4d_sm_respawn2_version", PLUGIN_VERSION, "SM Respawn Version", CVAR_FLAGS | FCVAR_DONTRECORD);
-	g_cvLoadout = 		CreateConVar("l4d_sm_respawn_loadout", 		"smg", "Respawn players with this loadout", CVAR_FLAGS);
+	g_cvLoadout = 		CreateConVar("l4d_sm_respawn_loadout", 		"pistol,smg", "Respawn players with this loadout, separate by commas", CVAR_FLAGS);
 	g_cvShowAction = 	CreateConVar("l4d_sm_respawn_showaction", 	"1", 	"Notify in chat and log action about respawn? (0 - No, 1 - Yes)", CVAR_FLAGS);
 	g_cvAddTopMenu = 	CreateConVar("l4d_sm_respawn_adminmenu", 	"1", 	"Add 'Respawn player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS);
 	AutoExecConfig(true, "l4d_sm_respawn");
@@ -227,6 +227,8 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 			MenuClientsToSpawn(client, menu.Selection);
 		}
 	}
+
+	return 0;
 }
 
 public int NATIVE_Respawn(Handle plugin, int numParams)
@@ -334,13 +336,18 @@ bool vRespawnPlayer(int client, int target, float vec[3] = {99999.0, 99999.0, 99
 				char sItems[6][64], sLoadout[512];
 				
 				g_cvLoadout.GetString(sLoadout, sizeof sLoadout);
-				ExplodeString(sLoadout, ",", sItems, sizeof sItems, sizeof sItems[]);
-				
-				for( int iItem = 0; iItem < sizeof sItems; iItem++ )
+				if(strlen(sLoadout) > 0)
 				{
-					if ( sItems[iItem][0] != '\0' )
+					StripWeapons( target );
+
+					ExplodeString(sLoadout, ",", sItems, sizeof sItems, sizeof sItems[]);
+					
+					for( int iItem = 0; iItem < sizeof sItems; iItem++ )
 					{
-						vCheatCommand(target, "give", sItems[iItem]);
+						if ( sItems[iItem][0] != '\0' )
+						{
+							vCheatCommand(target, "give", sItems[iItem]);
+						}
 					}
 				}
 				
@@ -350,7 +357,7 @@ bool vRespawnPlayer(int client, int target, float vec[3] = {99999.0, 99999.0, 99
 				}
 				if( g_cvShowAction.BoolValue && client )
 				{
-					ShowActivity2(client, "[SM] ", "%t", "Respawn_Info", target); // "Respawned player '%N'"
+					//ShowActivity2(client, "[SM] ", "%t", "Respawn_Info", target); // "Respawned player '%N'"
 				}
 			}
 		}
@@ -477,4 +484,17 @@ void vCheatCommand(int client, char[] command, char[] arguments = "")
 	SetCommandFlags(command, iCmdFlags & ~FCVAR_CHEAT);
 	FakeClientCommand(client, "%s %s", command, arguments);
 	SetCommandFlags(command, iCmdFlags | GetCommandFlags(command));
+}
+
+void StripWeapons(int client) // strip all items from client
+{
+	int itemIdx;
+	for (int x = 0; x <= 4; x++)
+	{
+		if((itemIdx = GetPlayerWeaponSlot(client, x)) != -1)
+		{  
+			RemovePlayerItem(client, itemIdx);
+			AcceptEntityInput(itemIdx, "Kill");
+		}
+	}
 }
