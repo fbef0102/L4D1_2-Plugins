@@ -10,7 +10,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "4.9"
+#define PLUGIN_VERSION "5.0"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -247,7 +247,7 @@ public void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, con
 {
 	GetCvars();
 	
-	if (IsValidEnt(iCheckpointDoor))
+	if (IsValidEntRef(iCheckpointDoor))
 	{
 		if (iType != 1)
 		{
@@ -403,11 +403,11 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 		}
 		
 		int used = event.GetInt("targetid");
-		if (IsValidEnt(used))
+		if (IsValidEnt(used) && IsValidEntRef(iCheckpointDoor))
 		{
 			char sEntityClass[64];
 			GetEdictClassname(used, sEntityClass, sizeof(sEntityClass));
-			if (strcmp(sEntityClass, "prop_door_rotating_checkpoint") != 0 || used != iCheckpointDoor)
+			if (strcmp(sEntityClass, "prop_door_rotating_checkpoint") != 0 || used != EntRefToEntIndex(iCheckpointDoor))
 			{
 				return Plugin_Continue;
 			}
@@ -533,7 +533,7 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 
 public Action CheckAntiFarm(Handle timer, any entity)
 {
-	if (!entity || (entity = EntRefToEntIndex(entity)) == INVALID_ENT_REFERENCE)
+	if (!entity || (entity = EntRefToEntIndex(entity)) == INVALID_ENT_REFERENCE || !IsValidEntRef(iCheckpointDoor))
 	{
 		delete hAntiFarmTime;
 		return Plugin_Stop;
@@ -714,7 +714,9 @@ public Action AntiPussy(Handle timer)
 {
 	if (bRoundEnd) return Plugin_Stop;
 	
-	if (IsValidEnt(iCheckpointDoor)) EmitSoundToAll("ambient/alarms/klaxon1.wav", iCheckpointDoor, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	if (!IsValidEntRef(iCheckpointDoor)) return Plugin_Stop;
+	
+	EmitSoundToAll("ambient/alarms/klaxon1.wav", iCheckpointDoor, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 	
 	switch(iCountDownHintType)
 	{
@@ -764,7 +766,7 @@ public Action _AntiPussy(Handle timer)
 
 void InitDoor()
 {
-	if (IsValidEnt(iCheckpointDoor))
+	if (IsValidEntRef(iCheckpointDoor))
 	{
 		return;
 	}
@@ -785,6 +787,8 @@ void InitDoor()
 	
 	HookSingleEntityOutput(iCheckpointDoor, "OnBlockedOpening", OnDoorBlocked);
 	HookSingleEntityOutput(iCheckpointDoor, "OnBlockedClosing", OnDoorBlocked);
+
+	iCheckpointDoor = EntIndexToEntRef(iCheckpointDoor);
 }
 
 public void OnDoorAntiSpam(const char[] output, int caller, int activator, float delay)
@@ -1140,37 +1144,34 @@ void ResetPlugin()
 
 void SetCheckpointDoor_Default()
 {
-	if (iCheckpointDoor != 0)
+	if (IsValidEntRef(iCheckpointDoor))
 	{
-		if (IsValidEntity(iCheckpointDoor))
-		{
-			L4D2_SetEntityGlow(iCheckpointDoor, L4D2Glow_None, 0, 0, {0, 0, 0}, false);
-			
-			UnhookSingleEntityOutput(iCheckpointDoor, "OnFullyOpen", OnDoorAntiSpam);
-			UnhookSingleEntityOutput(iCheckpointDoor, "OnFullyClosed", OnDoorAntiSpam);
-			
-			UnhookSingleEntityOutput(iCheckpointDoor, "OnBlockedOpening", OnDoorBlocked);
-			UnhookSingleEntityOutput(iCheckpointDoor, "OnBlockedClosing", OnDoorBlocked);
+		L4D2_SetEntityGlow(iCheckpointDoor, L4D2Glow_None, 0, 0, {0, 0, 0}, false);
+		
+		UnhookSingleEntityOutput(iCheckpointDoor, "OnFullyOpen", OnDoorAntiSpam);
+		UnhookSingleEntityOutput(iCheckpointDoor, "OnFullyClosed", OnDoorAntiSpam);
+		
+		UnhookSingleEntityOutput(iCheckpointDoor, "OnBlockedOpening", OnDoorBlocked);
+		UnhookSingleEntityOutput(iCheckpointDoor, "OnBlockedClosing", OnDoorBlocked);
 
-			if (iType == 1)
-			{
-				SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", UNLOCK);
-				SetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed", fDoorSpeed);
-				AcceptEntityInput(iCheckpointDoor, "Unlock");
-				AcceptEntityInput(iCheckpointDoor, "Close");
-				AcceptEntityInput(iCheckpointDoor, "ForceClosed");
-				AcceptEntityInput(iCheckpointDoor, "Open");
-			}
-			else
-			{
-				ControlDoor(iCheckpointDoor, UNLOCK);
-			}
-			
-			iDoorStatus = UNLOCK;
+		if (iType == 1)
+		{
+			SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", UNLOCK);
+			SetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed", fDoorSpeed);
+			AcceptEntityInput(iCheckpointDoor, "Unlock");
+			AcceptEntityInput(iCheckpointDoor, "Close");
+			AcceptEntityInput(iCheckpointDoor, "ForceClosed");
+			AcceptEntityInput(iCheckpointDoor, "Open");
+		}
+		else
+		{
+			ControlDoor(iCheckpointDoor, UNLOCK);
 		}
 		
-		iCheckpointDoor = 0;
+		iDoorStatus = UNLOCK;
 	}
+		
+	iCheckpointDoor = 0;
 }
 
 void GetColor(int[] array, char[] sTemp)
@@ -1325,4 +1326,11 @@ void PrepCreateTankBotCalls() {
 	hCreateTank = EndPrepSDKCall();
 	if (hCreateTank == null)
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
+}
+
+bool IsValidEntRef(int entity)
+{
+	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE )
+		return true;
+	return false;
 }

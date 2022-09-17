@@ -1,7 +1,7 @@
 Locks Saferoom Door Until Someone Opens It.
 
 -Changelog-
-v4.9
+v5.0
 AlliedModders post: https://forums.alliedmods.net/showpost.php?p=2712869&postcount=54
 - Remake Code
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
