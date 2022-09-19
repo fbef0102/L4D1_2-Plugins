@@ -1043,6 +1043,7 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 		PrintHintText(client, "[TS] %T","Infected can't go idle",client);
 		return Plugin_Handled;
 	}
+
 	if(IsClientIdle(client))
 	{
 		PrintHintText(client, "[TS] %T","Idle",client);
@@ -1051,7 +1052,6 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-
 	bool bHaveAccess = HasAccess(client, g_sImmueAcclvl);
 	if(g_bTakeABreakBlock == true && bHaveAccess == false) 
 	{
@@ -1155,14 +1155,16 @@ bool IsClientIdle(int client)
 
 int FindBotToTakeOver(bool alive)
 {
+	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i)==2 && !HasIdlePlayer(i) && IsPlayerAlive(i) == alive)
 		{
-			return i;
+			iClients[iClientCount++] = i;
 		}
 	}
-	return 0;
+
+	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 }
 
 bool HasIdlePlayer(int bot)
