@@ -372,7 +372,7 @@ bool IsPlayerIncapped(int client)
 
 bool IsValidEntRef(int entity)
 {
-	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE && entity!= -1 )
+	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE)
 		return true;
 	return false;
 }
