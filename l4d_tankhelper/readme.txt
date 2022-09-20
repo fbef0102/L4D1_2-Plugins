@@ -1,6 +1,8 @@
 Tanks throw special infected instead of rock
 
--AlliedModder-
+
+-ChangeLog-
+AlliedModders Post: 
 //Pan Xiaohai & Dragokas & HarryPotter @ 2010-2022
 v1.7
 -Remake Code
