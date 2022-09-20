@@ -52,8 +52,8 @@ ConVar l4d_tank_throw_si_ai, l4d_tank_throw_si_real, l4d_tank_throw_hunter, l4d_
 
 ConVar z_tank_throw_force;
 
-Handle Rock_Timer[2048];
-int iTank[2048];
+Handle Rock_Timer[2048 +1];
+int iTank[2048 +1];
 int throw_tank_health, throw_witch_health, iThrowSILimit[9];
 int L4D2Version;
 bool g_bMapStarted, g_bSpawnWitchBride;
@@ -248,7 +248,7 @@ void GetConVar()
 	g_fWitchKillTime = g_hWitchKillTime.FloatValue;
 }
 
-public Action RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+public void RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
 }
@@ -785,7 +785,10 @@ public Action DeleteParticles(Handle timer, any particle)
 		AcceptEntityInput(particle, "stop");
 		AcceptEntityInput(particle, "kill");
 	}
+
+	return Plugin_Continue;
 }
+
 public bool TraceRayDontHitSelf(int entity, int mask, any data)
 {
 	if(entity == data) 
@@ -1171,7 +1174,7 @@ public Action KickWitch_Timer(Handle timer, int ref)
 
 bool IsValidEntRef(int entity)
 {
-	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE && entity!= -1 )
+	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE)
 		return true;
 	return false;
 }
