@@ -6,7 +6,7 @@
 #include <left4dhooks>
 //#include <l4d2_changelevel>
 
-#define Version "2.4"
+#define Version "2.5"
 #define MAX_ARRAY_LINE 50
 #define MAX_MAPNAME_LEN 64
 #define MAX_CREC_LEN 2
@@ -23,7 +23,7 @@ char announce_map[64];
 char next_mission_def_coop[64];
 char next_mission_def_survival[64];
 char next_mission_def_versus[64];
-char next_mission_type[16];
+char next_mission_type[64];
 char next_mission_map[64];
 char next_mission_name[64];
 bool cvarAnnounceValue, g_bHasRoundEnd, g_bFinalMap;
@@ -161,7 +161,7 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bHasRoundEnd = false;
 
-	if( StrEqual(next_mission_name, "none") == false )
+	if( StrEqual(next_mission_map, "none") == false )
 	{
 		if(g_iCurrentMode == 1)
 		{
@@ -267,7 +267,7 @@ public Action TimerAnnounce(Handle timer, any client)
 {
 	if(IsClientInGame(client))
 	{
-		if (g_iCurrentMode != 3)
+		if (g_iCurrentMode != 3) // not survival
 		{
 			if( g_bFinalMap ) CPrintToChat(client, "%T","Announce Map", client, announce_map);
 		}
@@ -319,7 +319,9 @@ void PluginInitialization()
 		SetFailState("Force Mission Changer settings not found! Shutdown.");
 	
 	next_mission_map = "none";
+	next_mission_name = "none";
 	announce_map = "none";
+	next_mission_type = "none";
 	GetCurrentMap(current_map, sizeof(current_map));
 
 	g_bFinalMap = L4D_IsMissionFinalMap();
@@ -335,7 +337,7 @@ void PluginInitialization()
 				ent = FindEntityByClassname(-1, "trigger_changelevel");
 			}
 
-			if(ent != -1)
+			if(ent == -1)
 			{
 				FormatEx(announce_map, sizeof(announce_map), "Empty");
 				FormatEx(next_mission_type, sizeof(next_mission_type), "next level not found");
@@ -357,7 +359,7 @@ void PluginInitialization()
 			//LogMessage("next mission name: %s",next_mission_name);
 		}
 	}
-	else if(g_iCurrentMode == 2)
+	else if(g_iCurrentMode == 2 && g_bFinalMap)
 	{
 		if(KvJumpToKey(hKVSettings, current_map))
 		{
@@ -386,16 +388,16 @@ void PluginInitialization()
 			next_mission_map = "none";
 			return;
 		}
-
+		
 		if (StrEqual(next_mission_name, "none") == false)
 		{
 			FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_name);
-			FormatEx(next_mission_type, sizeof(next_mission_type), "next map");
+			if(strcmp(next_mission_type, "none") == 0) FormatEx(next_mission_type, sizeof(next_mission_type), "next map");
 		}
 		else
 		{
 			FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_map);
-			FormatEx(next_mission_type, sizeof(next_mission_type), "next map");
+			if(strcmp(next_mission_type, "none") == 0) FormatEx(next_mission_type, sizeof(next_mission_type), "next map");
 		}
 	}
 	else
@@ -418,7 +420,7 @@ void PluginInitialization()
 		}
 		else if(g_iCurrentMode == 2)
 		{
-			if(strlen(next_mission_def_versus) > 0)
+			if(g_bFinalMap && strlen(next_mission_def_versus) > 0)
 			{
 				FormatEx(announce_map, sizeof(announce_map), "%s", next_mission_def_versus);
 				FormatEx(next_mission_type, sizeof(next_mission_type), "default");

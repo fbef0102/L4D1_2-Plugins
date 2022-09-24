@@ -33,7 +33,7 @@
 
 	"Force Pass Map No Tries Left"
 	{
-		"en"			"{default}[{olive}TS{default}] You couldn't pass this map in {green}%d {default}rounds, switching to the {lightgreen}next map{default}."
+		"en"			"{default}[{olive}TS{default}] You couldn't pass this map in {green}%d {default}rounds, switching to the {lightgreen}next level{default}."
 		"es"			"{default}[{olive}TS{default}] No pudo pasar este mapa en {green}%d {default}rondas，cambiando al {blue}siguiente mapa{default}."
 		"zho"			"{default}[{olive}TS{default}] 滅團失敗已達 {green}%d {default}次，正在切換{lightgreen}下一關卡{default}."
 		"chi"			"{default}[{olive}TS{default}] 团灭次数已达 {green}%d {default}次，正在更换{lightgreen}下一关卡{default}."
@@ -49,11 +49,11 @@
 
 	"Announce Map Command"
 	{
-		"#format" 		"{1:t}"
-		"en"			"Next Campaign: %s ({1})"
-		"es"			"Siguiente campaña: %s ({1})"
-		"zho"			"下一張圖: %s ({1})"
-		"chi"			"下一张图: %s ({1})"
+		"#format" 		"{1:s},{2:t}"
+		"en"			"Next Campaign: {1} ({2})"
+		"es"			"Siguiente campaña: {1} ({2})"
+		"zho"			"下一張圖: {1} ({2})"
+		"chi"			"下一张图: {1} ({2})"
 	}
 
 	"invalid map"
@@ -100,7 +100,7 @@
 
 	"Unable to Change Map"
 	{
-		"#format" 	"{1:s, 2:s}"
+		"#format" 	"{1:s},{2:s}"
 		"en"		"{default}[{olive}TS{default}] Unable to change {blue}{1}{default}, reason: {blue}{2}{green} Map does not exist{default}."
 		"zho"		"{default}[{olive}TS{default}] 無法換圖 {blue}{1}{default}, 原因: {blue}{2}{green} 地圖不存在{default}."
 		"chi"		"{default}[{olive}TS{default}] 无法换图 {blue}{1}{default}, 原因: {blue}{2}{green} 地图不存在{default}."

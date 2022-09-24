@@ -4,7 +4,7 @@ Force change to next mission when current mission(final stage) end.
 //Dionys @ 2008~2009
 //Harry @ 2019~2022
 AlliedModders Post: https://forums.alliedmods.net/showpost.php?p=2728817&postcount=676
-v2.4
+v2.5
 -Remake Code
 -Translation Support
 -Support L4D2 coop/versus/realism/survival mode
