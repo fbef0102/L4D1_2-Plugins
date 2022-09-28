@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/9/17)
+> All plugins in here apply to both L4D1/2 (last edited:2022/9/28)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -58,7 +58,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
-* <b>[sm_regexfilter](/sm_regexfilter)</b>: Filter dirty words via Regular Expressions (禁詞表)
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 * <b>[advertisements](/advertisements)</b>: Display advertisements
 * <b>[cannounce](/cannounce)</b>: Replacement of default player connection message, allows for custom connection messages
@@ -78,7 +77,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
-* <b>[l4d_tracerock](/l4d_tracerock)</b>: Tank Trace Rock.
 * <b>[l4d_revive_reload_interrupt](/l4d_revive_reload_interrupt)</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 * <b>[pounceannounce](/pounceannounce)</b>: Announces hunter pounces to the entire server
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
