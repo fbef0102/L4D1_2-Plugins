@@ -15,9 +15,6 @@
 #define UNLOCK 0
 #define LOCK 1
 #define MODEL_TANK "models/infected/hulk.mdl"
-#define MODEL_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_02.mdl"
-#define MODEL_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-02.mdl"
-#define MODEL_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse02.mdl"
 #define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
 
 ConVar lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefore, lsTankDemolitionAfter,
@@ -75,7 +72,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public Plugin myinfo = 
 {
-	name = "[L4D2] Lockdown System",
+	name = "[L4D1/2] Lockdown System",
 	author = "cravenge, Harry",
 	description = "Locks Saferoom Door Until Someone Opens It.",
 	version = PLUGIN_VERSION,
@@ -414,8 +411,6 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 
 			if(IsFakeClient(user) && bDoorBotDisable) return Plugin_Continue;
 
-			sb_unstick.SetBool(false);
-
 			if(g_bIsSafeRoomOpen == true && iDoorOpenChance == 0)
 			{
 				PrintHintText(user, "[TS] %T", "No Chance", user);
@@ -455,7 +450,6 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 
 				if(bTankDemolitionBefore && !bSpawnTank) 
 				{
-
 					if(g_bMapTwoTanks)
 						ExecuteSpawn(true , 2);
 					else
@@ -463,6 +457,8 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 
 					bSpawnTank = true;
 				}
+				
+				sb_unstick.SetBool(false);
 				
 				if (GetTankCount() > 0)
 				{
