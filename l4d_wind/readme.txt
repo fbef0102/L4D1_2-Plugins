@@ -1,7 +1,7 @@
 Create a survivor bot in game + Teleport player
 
 -Changelog-
-v1.3
+v1.4
 -Add 'Teleport player' item in admin menu under 'Player commands' category.
 -You can't teleport player who is hanging from ledge
 
