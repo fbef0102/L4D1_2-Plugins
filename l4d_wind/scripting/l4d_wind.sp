@@ -29,8 +29,8 @@ public Plugin myinfo =
 	name = "Add a survivor bot + Teleport an alive player",
 	author = "Harry Potter",
 	description = "Create a survivor bot + teleport an alive player in game",
-	version = "1.3",
-	url = "https://steamcommunity.com/id/fbef0102/"
+	version = "1.4",
+	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
 public void OnPluginStart()
@@ -41,12 +41,18 @@ public void OnPluginStart()
 
 	g_cvAddBot = 	CreateConVar("l4d_wind_add_bot_enable", 	"1", 	"If 1, Adm can use command to add a survivor bot", CVAR_FLAGS);
 	g_cvAddTopMenu = 	CreateConVar("l4d_wind_teleport_adminmenu", 	"1", 	"Add 'Teleport player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS);
+	AutoExecConfig(true, "l4d_wind");
 
 	g_cvAddTopMenu.AddChangeHook(OnCvarTopMenuChanged);
 
-	OnAdminMenuReady(null);
-
-	AutoExecConfig(true, "l4d_wind");
+	if(g_cvAddTopMenu.BoolValue)
+	{
+		TopMenu topmenu;
+		if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
+		{
+			OnAdminMenuReady(topmenu);
+		}
+	}
 }
 
 public Action sm_addabot(int client, int args)
@@ -81,16 +87,6 @@ public Action sm_addabot(int client, int args)
 	}
 	return Plugin_Handled;
 }
-
-public Action sm_join(int client, int args)
-{
-	if(GetClientTeam(client) == 1)
-		FakeClientCommand(client, "jointeam 2");
-	else
-		PrintToChat(client,"\x01[TS] You are not Spectator...");
- 	return Plugin_Handled;
-}
-
 
 static bool SetTeleportEndPoint(int client)
 {
@@ -130,11 +126,14 @@ void PerformTeleport(int client, int target, float pos[3], bool addbot = false)
 	TeleportEntity(target, pos, NULL_VECTOR, NULL_VECTOR);
 	
 	if(addbot)
+	{
 		LogAction(client,target, "\"%L\" teleported \"%L\" after respawn him (New bot)." , client, target);
+	}
 	else
+	{
 		LogAction(client,target, "\"%L\" teleported \"%L\"" , client, target);
+	}
 }
-
 
 public Action Timer_KickFakeBot(Handle timer, int fakeclient)
 {
@@ -153,10 +152,17 @@ public bool TraceEntityFilterPlayer(int entity, int contentsMask)
 
 public void OnCvarTopMenuChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	RemoveAdminItem();
-	if( convar.BoolValue == true )
+	if(g_cvAddTopMenu.BoolValue)
 	{
-		OnAdminMenuReady(null);
+		TopMenu topmenu;
+		if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
+		{
+			OnAdminMenuReady(topmenu);
+		}
+	}
+	else
+	{
+		RemoveAdminItem();
 	}
 }
 
@@ -169,9 +175,20 @@ public void OnLibraryRemoved(const char[] name)
 	}
 }
 
-public void OnAdminMenuReady(Handle hTopMenu)
+TopMenu hTopMenu;
+public void OnAdminMenuReady(Handle aTopMenu)
 {
-	AddAdminItem(hTopMenu);
+	AddAdminItem(aTopMenu);
+
+	TopMenu topmenu = TopMenu.FromHandle(aTopMenu);
+
+	/* Block us from being called twice */
+	if (hTopMenu == topmenu)
+	{
+		return;
+	}
+
+	hTopMenu = topmenu;
 }
 
 void RemoveAdminItem()
@@ -179,13 +196,13 @@ void RemoveAdminItem()
 	AddAdminItem(null, true);
 }
 
-void AddAdminItem(Handle hTopMenu, bool bRemoveItem = false)
+void AddAdminItem(Handle aTopMenu, bool bRemoveItem = false)
 {
 	TopMenu hAdminMenu;
 	
-	if( hTopMenu != null )
+	if( aTopMenu != null )
 	{
-		hAdminMenu = TopMenu.FromHandle(hTopMenu);
+		hAdminMenu = TopMenu.FromHandle(aTopMenu);
 	}
 	else {
 		if( !LibraryExists("adminmenu") )
@@ -228,7 +245,7 @@ public void AdminMenuTeleportHandler(Handle topmenu, TopMenuAction action, TopMe
 	}
 	else if( action == TopMenuAction_DisplayOption )
 	{
-		FormatEx(buffer, maxlength, "Teleport Player");
+		FormatEx(buffer, maxlength, "傳送玩家");
 	}
 }
 
@@ -254,6 +271,7 @@ void MenuClientsToTeleport(int client, int item = 0)
 		}
 	}
 	if(bNoOneAlive) menu.AddItem("1.", "There Are No Any alive player.");
+	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
 
@@ -263,6 +281,14 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 	{
 		case MenuAction_End:
 			delete menu;
+
+		case MenuAction_Cancel:
+		{
+			if (param2 == MenuCancel_ExitBack && hTopMenu)
+			{
+				hTopMenu.Display(param1, TopMenuPosition_LastCategory);
+			}
+		}
 		
 		case MenuAction_Select:
 		{
@@ -293,10 +319,12 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 			}
 			else
 			{
-				PrintToChatAll("\x01[TS] Target is not a valid alive player.");
+				PrintToChat(client, "\x01[TS] Target is not a valid alive player.");
 			}
 
 			MenuClientsToTeleport(client, menu.Selection);
 		}
 	}
+
+	return 0;
 }
