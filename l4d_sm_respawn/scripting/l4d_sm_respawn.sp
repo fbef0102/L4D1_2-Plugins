@@ -6,7 +6,7 @@
 #include <adminmenu>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION "2.5"
+#define PLUGIN_VERSION "2.6"
 
 #define CVAR_FLAGS	FCVAR_NOTIFY
 
@@ -84,14 +84,29 @@ public void OnPluginStart()
 	
 	g_cvAddTopMenu.AddChangeHook(OnCvarChanged);
 	
-	OnAdminMenuReady(null);
+	if(g_cvAddTopMenu.BoolValue)
+	{
+		TopMenu topmenu;
+		if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
+		{
+			OnAdminMenuReady(topmenu);
+		}
+	}
 }
 
 public void OnCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if( convar == g_cvAddTopMenu )
+	if( g_cvAddTopMenu.BoolValue )
 	{
-		OnAdminMenuReady(null);
+		TopMenu topmenu;
+		if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
+		{
+			OnAdminMenuReady(topmenu);
+		}
+	}
+	else
+	{
+		RemoveAdminItem();
 	}
 }
 
@@ -104,9 +119,20 @@ public void OnLibraryRemoved(const char[] name)
 	}
 }
 
-public void OnAdminMenuReady(Handle hTopMenu)
+TopMenu hTopMenu;
+public void OnAdminMenuReady(Handle aTopMenu)
 {
-	AddAdminItem(hTopMenu);
+	AddAdminItem(aTopMenu);
+
+	TopMenu topmenu = TopMenu.FromHandle(aTopMenu);
+
+	/* Block us from being called twice */
+	if (hTopMenu == topmenu)
+	{
+		return;
+	}
+
+	hTopMenu = topmenu;
 }
 
 stock void RemoveAdminItem()
@@ -114,13 +140,13 @@ stock void RemoveAdminItem()
 	AddAdminItem(null, true);
 }
 
-void AddAdminItem(Handle hTopMenu, bool bRemoveItem = false)
+void AddAdminItem(Handle aTopMenu, bool bRemoveItem = false)
 {
 	TopMenu hAdminMenu;
 	
-	if( hTopMenu != null )
+	if( aTopMenu != null )
 	{
-		hAdminMenu = TopMenu.FromHandle(hTopMenu);
+		hAdminMenu = TopMenu.FromHandle(aTopMenu);
 	}
 	else {
 		if( !LibraryExists("adminmenu") )
@@ -199,6 +225,7 @@ void MenuClientsToSpawn(int client, int item = 0)
 		}
 	}
 	if(bNoOneDead) menu.AddItem("1.", "There Are No Any Dead Survivor");
+	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
 
@@ -208,6 +235,14 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 	{
 		case MenuAction_End:
 			delete menu;
+
+		case MenuAction_Cancel:
+		{
+			if (param2 == MenuCancel_ExitBack && hTopMenu)
+			{
+				hTopMenu.Display(param1, TopMenuPosition_LastCategory);
+			}
+		}
 		
 		case MenuAction_Select:
 		{
@@ -470,12 +505,19 @@ void vPerformTeleport(int client, int target, float pos[3], float ang[3])
 	pos[2] += 5.0;
 	TeleportEntity(target, pos, ang, NULL_VECTOR);
 
-	SDKCall(g_WarpToValidPositionSDKCall, target, 0); //if stuck
+	CreateTimer(0.2, Timer_WarpIfStuck, target, TIMER_FLAG_NO_MAPCHANGE);
 
 	if( g_cvShowAction.BoolValue && client )
 	{
 		LogAction(client, target, "\"%L\" teleported \"%L\" after respawning him" , client, target);
 	}
+}
+
+Action Timer_WarpIfStuck(Handle timer, int target)
+{
+	SDKCall(g_WarpToValidPositionSDKCall, target, 0); //if stuck
+
+	return Plugin_Continue;
 }
 
 void vCheatCommand(int client, char[] command, char[] arguments = "")
