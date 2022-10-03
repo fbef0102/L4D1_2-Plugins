@@ -4,7 +4,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.7.4
+v2.7.5
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 	(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
 -L4D1 Signature update. (Credit to Psykotikism: https://github.com/Psykotikism/L4D1-2_Signatures)
@@ -154,14 +154,9 @@ l4d_infectedbots_sm_zs_disable_gamemode "6"
 // Sets the limit for smokers spawned by the plugin
 l4d_infectedbots_smoker_limit "2"
 
-// The minimum of spawn range for infected in final stage rescue. (coop/realism only)
-l4d_infectedbots_spawn_range_final "0"
-
-// The maximum of spawn range for infected. (default: 1500, coop/realism only)
-l4d_infectedbots_spawn_range_max "2000"
-
 // The minimum of spawn range for infected. (default: 550, coop/realism only)
-l4d_infectedbots_spawn_range_min "400"
+// This cvar will also affect common zombie spawn range and ghost infected player spawn range
+l4d_infectedbots_spawn_range_min "350"
 
 // Sets the max spawn time for special infected spawned by the plugin in seconds.
 l4d_infectedbots_spawn_time_max "60"
@@ -334,13 +329,10 @@ make tank always be playable by real infected player
 
 9. Spawn range (Coop/Realism only)
 Must be careful to adjust, these convars will also affect common zombie spawn range and human ghost infected spawn range.
--l4d_infectedbots_spawn_range_max "2000"
--l4d_infectedbots_spawn_range_min "400"
--l4d_infectedbots_spawn_range_final "0" 
+-l4d_infectedbots_spawn_range_min "350"
 
 Make infected player spawn near very close by survivors for better gaming experience
 -l4d_infectedbots_spawn_range_min "0" 
--l4d_infectedbots_spawn_range_final "0"
 
 10. Spawn Infected together
 bots will only spawn when all other bot spawn timers are at zero, and then spawn together.
@@ -408,9 +400,7 @@ b. How to turn off flashlights on human infected player in coop/survival/realism
 "l4d_infectedbots_adjust_spawn_times", "1", "啟用根據倖存者人數改變特感復活秒數. 1-啟用 0-關閉"
 "l4d_infectedbots_adjust_reduced_spawn_times_on_player", "1", "每有一位倖存者就減少'adjust_spawn_times'特感復活秒數.[原本四位倖存者也計算在內]"
 "l4d_infectedbots_safe_spawn", "0", "倖存者是否離開安全區特感才開始襲擊. 1-不用離開安全區 0-離開安全區"
-"l4d_infectedbots_spawn_range_min", "400", "特感生成的最小範圍.[默認:550] (只作用於戰役/寫實)"
-"l4d_infectedbots_spawn_range_max", "2000", "特感生成的最大範圍.[默認:1500] (只作用於戰役/寫實)"
-"l4d_infectedbots_spawn_range_final", "0", "救援開始後特感生成的範圍.[默認:300] (只作用於戰役/寫實)"
+"l4d_infectedbots_spawn_range_min", "350", "特感生成的最小範圍.[默認:550]，會影響小殭屍生成與靈魂特感玩家復活範圍 (只作用於戰役/寫實)"
 "l4d_infectedbots_witch_spawn_time_max", "150.0", "設置插件生成witch最大的時間."
 "l4d_infectedbots_witch_spawn_time_min", "100.0", "設置插件生成witch最小的時間."
 "l4d_infectedbots_witch_spawn_final", "0", "救援開始後還會不會有witch出現. 1-會 0-不會"

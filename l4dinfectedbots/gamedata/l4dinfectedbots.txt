@@ -5,22 +5,6 @@
 		"Signatures" 
 		{
 			
-			"TakeOverBot"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13CTerrorPlayer11TakeOverBotEb"
-				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x55\x56\x57\x8D\x2A\x2A\x2A\x8B"
-						/* ? ? ? ? ? ? 53 55 56 57 8D ? ? ? 8B */
-			}
-	
-			"SetHumanSpec"
-			{
-				"library"	"server"
-				"linux"		"@_ZN11SurvivorBot17SetHumanSpectatorEP13CTerrorPlayer"
-				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x56\x8D\xB3\x2A\x2A\x2A\x2A\x7E"
-						/* ? ? ? ? ? ? ? ? ? ? 56 8D B3 ? ? ? ? 7E */
-			}
-			
 			"NextBotCreatePlayerBot<Smoker>"
 			{
 				"library"	"server"
@@ -79,20 +63,6 @@
 		}
 		"Signatures"
 		{
-			"TakeOverBot"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13CTerrorPlayer11TakeOverBotEb"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\xC5\x89\x45\xFC\x53\x56\x8D\x85"
-				/* 55 8B EC 81 EC ? ? ? ? A1 ? ? ? ? 33 C5 89 45 FC 53 56 8D 85 */
-			}	
-			"SetHumanSpec"
-			{
-				"library" 	"server"
-				"linux" 	"@_ZN11SurvivorBot17SetHumanSpectatorEP13CTerrorPlayer"
-				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x83\xBE\x24\x43\x00\x00\x00\x7E\x2A\x32\xC0\x5E\x5D\xC2\x04\x00"
-				/* ? ? ? ? ? ? 83 BE 24 43 00 00 00 7E ? 32 C0 5E 5D C2 04 00  */
-			}
 			"FlashLightTurnOn"
 			{
 				"library"	"server"
