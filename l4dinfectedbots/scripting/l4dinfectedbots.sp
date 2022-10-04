@@ -829,8 +829,6 @@ Handle DisplayTimer = null;
 Handle SpawnInfectedBotTimer[L4D_MAXPLAYERS+1] = {null};
 
 //signature call
-static Handle hSpec = null;
-static Handle hSwitch = null;
 static Handle hFlashLightTurnOn = null;
 static Handle hCreateSmoker = null;
 #define NAME_CreateSmoker "NextBotCreatePlayerBot<Smoker>"
@@ -4812,8 +4810,8 @@ void SwitchToSurvivors(int client)
 		PrintHintText(client, "[TS] No alive survivor bots to take over.");
 		return;
 	}
-	SDKCall(hSpec, bot, client);
-	SDKCall(hSwitch, client, true);
+	L4D_SetHumanSpec(bot, client);
+	L4D_TakeOverBot(client);
 	return;
 }
 
@@ -5280,20 +5278,6 @@ void GetGameData()
 
 void PrepSDKCall()
 {
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "SetHumanSpec");
-	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
-	hSpec = EndPrepSDKCall();
-	if( hSpec == null)
-		SetFailState("Could not prep the \"SetHumanSpec\" function.");
-
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "TakeOverBot");
-	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
-	hSwitch = EndPrepSDKCall();
-	if( hSwitch == null)
-		SetFailState("Could not prep the \"TakeOverBot\" function.");
-
 	if(g_bL4D2Version)
 	{
 		StartPrepSDKCall(SDKCall_Player);
