@@ -358,66 +358,326 @@ b. How to turn off flashlights on human infected player in coop/survival/realism
 (adm only) !zlimit - control max special zombies limit
 
 
--漢化指令(Chinese ConVar & Comamnd)-
-"l4d_infectedbots_allow", "1", "打開此插件 (0=關閉此插件)"
-"l4d_infectedbots_modes", "", "此插件只會運作於輸入的遊戲模式名稱，逗號區隔不須空白 (空白=全部)"
-"l4d_infectedbots_modes_off", "", "此插件不要運作於輸入的遊戲模式名稱，逗號區隔不須空白 (空白=無)"
-"l4d_infectedbots_modes_tog", "5", "此插件運作於輸入的遊戲模式代號. 0=全部, 1=戰役/寫實, 2=生存, 4=對抗, 8=清道夫. 數字可以相加"
-"l4d_infectedbots_version", "L4D Infected Bots 插件版本"
-"l4d_infectedbots_boomer_limit", "4", "設定boomer的數量上限."
-"l4d_infectedbots_smoker_limit", "4", "設定smoker的數量上限."
-"l4d_infectedbots_hunter_limit", "4", "設定hunter的數量上限."
-"l4d_infectedbots_tank_limit", "2", "設定tank的數量上限.[不影響劇情的tank]"
-"l4d_infectedbots_add_tanklimit ""1", "超過五人以上玩家，Tank數量上限 = tank_limit + [(存活的倖存者數量-4) ÷ 'add_tanklimit_scale'] × 'add_tanklimit'."
-"l4d_infectedbots_add_tanklimit_scale", "3", "超過五人以上玩家，Tank數量上限 = tank_limit + [(存活的倖存者數量-4) ÷ 'add_tanklimit_scale'] × 'add_tanklimit'.[不影響劇情的tank]"
-"l4d_infectedbots_witch_max_limit", "4", "設定witch的數量上限.[不影響劇情的witch]"
-"l4d_infectedbots_spitter_limit", "4", "設定spitter的數量上限."
-"l4d_infectedbots_jockey_limit", "4", "設定jockey的數量上限."
-"l4d_infectedbots_charger_limit", "4", "設定charger的數量上限."
-"l4d_infectedbots_max_specials", "2", "默認4位或以下活著倖存者的最大特感數量上限(必須讓limit 7項特感數量值加起來超過這條，包括Tank但不包括witch)"
-"l4d_infectedbots_add_specials_scale", "1", "超過五人以上玩家，最大特感數量上限 = max_specials + [(存活的倖存者數量-4) ÷ 'add_specials_scale'] × 'add_specials'."
-"l4d_infectedbots_add_specials", "2", "超過五人以上玩家，最大特感數量上限 = max_specials + [(存活的倖存者數量-4) ÷ 'add_specials_scale'] × 'add_specials'."
-"l4d_infectedbots_adjust_tankhealth_enable", "1", "是否允許根據倖存者人數增加tank生命值. 1-允許 0-不允許"
-"l4d_infectedbots_default_tankhealth", "4000", "設置tank默認的生命值.[4人或4人以下]"
-"l4d_infectedbots_add_tankhealth_scale", "1", "超過五人以上玩家，Tank生命值 = tankhealth + [(存活的倖存者數量-4) ÷ 'add_tankhealth_scale'] × 'add_tankhealth'."
-"l4d_infectedbots_add_tankhealth", "500", "超過五人以上玩家，Tank生命值 = tankhealth + [(存活的倖存者數量-4) ÷ 'add_tankhealth_scale'] × 'add_tankhealth'."
-"l4d_infectedbots_spawn_time_max", "60", "設置特感復活的最大時間."
-"l4d_infectedbots_spawn_time_min", "30", "設置特感復活的最小時間."
-"l4d_infectedbots_coop_versus_tank_playable", "1", "戰役/生存/寫實模式中，玩家是否可以控制tank. 1-可以 0-不可以"
-"l4d_infectedbots_coop_versus", "1", "開啟戰役/生存/寫實中使用!ji加入感染者!js加入倖存者陣營功能. 1-開啟 0-關閉"
-"l4d_infectedbots_stats_board", "0", "特感玩家死後開啟統計介面. 1-開啟 0-不開啟 (L4D1 ONLY)"
-"l4d_infectedbots_coop_versus_announce", "1", "通知玩家如何加入[感染者/倖存者]的方法. 1-通知 0-不通知"
-"l4d_infectedbots_coop_versus_human_ghost_enable", "1", "戰役/生存/寫實中，特感人類玩家復活成靈魂狀態"
-"l4d_infectedbots_coordination", "0", "特感是否等待全體復活才開始一起進攻. 1-等待 0-不等待"
-"l4d_infectedbots_infhud_enable", "1", "特感陣營的顯示界面hud. 1-使用 0-不使用"
-"l4d_infectedbots_infhud_announce", "1", "是否提示特感玩家如何開啟感染者界面hud. 1-提示 0-不提示"
-"l4d_infectedbots_lifespan", "30", "特感生成後多少秒踢出.(AI防卡)"
-"l4d_infectedbots_initial_spawn_timer", "1.0", "離開安全區後，特感第一波進攻的開始時間."
-"l4d_infectedbots_coop_versus_human_limit", "4", "設置使用!ji加入感染者陣營的人數上限."
-"l4d_infectedbots_coop_versus_join_access", "z", "戰役/生存/寫實中有這些權限的玩家能加入特感陣營. (空白=任何人有權限, -1=沒人有權限)"
-"l4d_infectedbots_spawns_disabled_tank", "0", "Tank存在場上時，禁止特感繼續復活. 1-禁止 0-不禁止."
-"l4d_infectedbots_versus_coop", "0", "在對抗/清道夫模式中，強制所有玩家加入特感陣營. 1-強制加入 0-不強制加入"
-"l4d_infectedbots_adjust_spawn_times", "1", "啟用根據倖存者人數改變特感復活秒數. 1-啟用 0-關閉"
-"l4d_infectedbots_adjust_reduced_spawn_times_on_player", "1", "每有一位倖存者就減少'adjust_spawn_times'特感復活秒數.[原本四位倖存者也計算在內]"
-"l4d_infectedbots_safe_spawn", "0", "倖存者是否離開安全區特感才開始襲擊. 1-不用離開安全區 0-離開安全區"
-"l4d_infectedbots_spawn_range_min", "350", "特感生成的最小範圍.[默認:550]，會影響小殭屍生成與靈魂特感玩家復活範圍 (只作用於戰役/寫實)"
-"l4d_infectedbots_witch_spawn_time_max", "150.0", "設置插件生成witch最大的時間."
-"l4d_infectedbots_witch_spawn_time_min", "100.0", "設置插件生成witch最小的時間."
-"l4d_infectedbots_witch_spawn_final", "0", "救援開始後還會不會有witch出現. 1-會 0-不會"
-"l4d_infectedbots_tank_spawn_final,"1", "救援開始後還插件還會不會生成Tank. 1-會 0-不會 [不影響劇情的tank]"
-"l4d_infectedbots_witch_lifespan", "200.0", "witch出現多少秒會被踢出.(AI防卡)"
-"l4d_infectedbots_tank_spawn_probability", "5", "特感復活的時候，每一隻都有多少%幾率會變成tank."
-"l4d_infectedbots_sm_zs_disable_gamemode", "7", "禁止特感在哪些模式中使用!zs[自殺]指令.(1戰役或寫實/2對抗/4生存，把數字加起來)"
-"l4d_infectedbots_adjust_commonlimit_enable", "0", "啟用根據倖存者人數而改變小僵屍數量. 1-開啟 0-關閉"
-"l4d_infectedbots_default_commonlimit", "30", "設置普通僵屍的默認數量上限.[4人或4人以下]" 
-"l4d_infectedbots_add_commonlimit_scale", "1", "超過五人以上玩家，最大普通僵屍數量上限 = default_commonlimit + [(存活的倖存者數量-4) ÷ 'add_commonlimit_scale'] × 'add_commonlimit'." 
-"l4d_infectedbots_add_commonlimit", "2", "超過五人以上玩家，最大普通僵屍數量上限 = default_commonlimit + [(存活的倖存者數量-4) ÷ 'add_commonlimit_scale'] × 'add_commonlimit'."
-"l4d_infectedbots_coop_versus_human_light", "1", "在戰役/寫實/生存模式之下，讓玩家清楚知道哪一隻特感為人類玩家操控, 身體會發出紅色光芒" 
 
-!infhud
-(只限戰役/寫實/生存) !ji - 加入特感
-(只限戰役/寫實/生存) !js - 加入倖存者
-(只限特感) !infhud - 開啟/關閉 特感專屬介面
-(只限特感) !zs - 特感玩家自殺(防卡)
-(只限管理員) !zlimit - ADM控制特感數量上限
-(只限管理員) !timer - ADM控制特感復活時間
+*中文說明*
+-指令-
+cfg/sourcemod/l4dinfectedbots.cfg
+// 存活的生還者數量超過4個時，每加入壹個'l4d_infectedbots_default_commonlimit'的玩家，就增加壹定的值到'l4d_infectedbots_add_commonlimit_scale'
+l4d_infectedbots_add_commonlimit "2"
+
+// 存活的生還者數量超過4個時, 最大普通僵屍數量上限 = default_commonlimit + [(存活的生還者數量-4) ÷ 'add_commonlimit_scale'] × 'add_commonlimit'
+l4d_infectedbots_add_commonlimit_scale "1"
+
+// 存活的生還者數量超過4個時，每加入壹個'l4d_infectedbots_max_specials'的玩家，就增加壹定的值到'l4d_infectedbots_add_specials_scale'
+l4d_infectedbots_add_specials "2"
+
+// 存活的生還者數量超過4個時，最大特感數量上限 = max_specials + [(存活的生還者數量-4) ÷ 'add_specials_scale'] × 'add_specials'
+l4d_infectedbots_add_specials_scale "2"
+
+// 存活的生還者數量超過4個時，每加入壹個'l4d_infectedbots_default_tankhealth'的玩家，就增加壹定的數值到'l4d_infectedbots_add_tankhealth_scale'
+l4d_infectedbots_add_tankhealth "500"
+
+// 存活的生還者數量超過4個時，坦克血量上限 = max_specials + [(存活的生還者數量-4) ÷ 'add_specials_scale'] × 'add_specials']
+l4d_infectedbots_add_tankhealth_scale "1"
+
+// 存活的生還者數量超過4個時，每加入壹個'l4d_infectedbots_tank_limit'的玩家，就增加壹定的值給'l4d_infectedbots_add_tanklimit_scale'
+l4d_infectedbots_add_tanklimit "1"
+
+// 存活的生還者數量超過4個時，Tank數量上限 = tank_limit + [(存活的生還者數量-4) ÷ 'add_tanklimit_scale'] × 'add_tanklimit'
+l4d_infectedbots_add_tanklimit_scale "3"
+
+// 如果爲1，則啓用根據存活的生還者數量調整僵屍數量
+l4d_infectedbots_adjust_commonlimit_enable "1"
+
+// 每增加壹位生還者，則減少(存活的生還者數量-l4d_infectedbots_adjust_reduced_spawn_times_on_player)複活時間（初始4位生還者也算在內）
+l4d_infectedbots_adjust_reduced_spawn_times_on_player "1"
+
+// 如果爲1，則根據生還者數量調整特感複活時間
+l4d_infectedbots_adjust_spawn_times "1"
+
+// 如果爲1，則根據生還者數量修改坦克血量上限
+l4d_infectedbots_adjust_tankhealth_enable "1"
+
+// 0=關閉插件, 1=開啓插件
+l4d_infectedbots_allow "1"
+
+// 如果爲1，則當存活的生還者數量發生變化時宣布插件狀態
+l4d_infectedbots_announcement_enable "1"
+
+// 插件可生成boomer的最大數量
+l4d_infectedbots_boomer_limit "2"
+
+// 插件可生成charger的最大數量
+l4d_infectedbots_charger_limit "2"
+
+// 如果爲1，則玩家可以在戰役/寫實/生還者模式中加入感染者(!ji加入感染者 !js加入生還者)"
+l4d_infectedbots_coop_versus "1"
+
+// 如果爲1，則通知玩家如何加入到生還者和感染者
+l4d_infectedbots_coop_versus_announce "1"
+
+// 如果爲1，則在戰役/寫實/生還者模式中，感染者玩家將以靈魂狀態複活
+l4d_infectedbots_coop_versus_human_ghost_enable "1"
+
+// 如果爲1，則感染者玩家將發出紅色的光
+l4d_infectedbots_coop_versus_human_light "1"
+
+// 在戰役/生還者/清道夫中設置通過插件加入到感染者的玩家數量
+l4d_infectedbots_coop_versus_human_limit "2"
+
+// 有什麽權限的玩家在戰役/寫實/生還者模式中可以加入到感染者 (無內容 = 所有人, -1: 無法加入)
+l4d_infectedbots_coop_versus_join_access "z"
+
+// 如果爲1，玩家可以在戰役/寫實/生還者模式中接管坦克
+l4d_infectedbots_coop_versus_tank_playable "0"
+
+// 如果爲1，則感染者需要等待其他感染者准備好才能壹起被插件生成攻擊生還者
+l4d_infectedbots_coordination "0"
+
+// 當生還者數量不超過5人的僵屍數量
+l4d_infectedbots_default_commonlimit "30"
+
+// 設置坦克默認血量上限, 坦克血量上限受到遊戲難度或模式影響 （若坦克血量上限設置爲4000，則簡單難度3000血，普通難度4000血，對抗類型模式6000血，高級/專家難度血量8000血）
+l4d_infectedbots_default_tankhealth "4000"
+
+// 插件可生成hunter的最大數量
+l4d_infectedbots_hunter_limit "2"
+
+// 是否提示感染者玩家如何開啓HUD
+l4d_infectedbots_infhud_announce "1"
+
+// 感染者玩家是否開啓HUD
+l4d_infectedbots_infhud_enable "1"
+
+// 在地圖第壹關離開安全區後多長時間開始刷特
+l4d_infectedbots_initial_spawn_timer "10"
+
+// 插件可生成jockey的最大數量
+l4d_infectedbots_jockey_limit "2"
+
+// AI特感生成多少秒後踢出（AI防卡）
+l4d_infectedbots_lifespan "30"
+
+// 當生還者數量低于4個及以下時可生成的最大特感數量（必須讓7個特感數量{不包括witch}上限的值加起來超過這個值
+l4d_infectedbots_max_specials "2"
+
+// 在這些模式中啓用插件，逗號隔開不需要空格（全空=全模式啓用插件）
+l4d_infectedbots_modes ""
+
+// 在這些模式中關閉插件，逗號隔開不需要空格（全空=無）
+l4d_infectedbots_modes_off ""
+
+// 在這些模式中啓用插件. 0=全模式, 1=戰役/寫實, 2=生還者, 4=對抗, 8=清道夫 多個模式的數字加到壹起
+l4d_infectedbots_modes_tog "0"
+
+// 如果爲1，則生還者離開安全區域才生成特感
+l4d_infectedbots_safe_spawn "0"
+
+// 在哪些遊戲模式中禁止感染者玩家使用sm_zs (0: 無, 1: 戰役/寫實, 2: 對抗/清道夫, 4: 生還者, 多個模式添加數字輸出)
+l4d_infectedbots_sm_zs_disable_gamemode "6"
+
+// 插件可生成smoker的最大數量
+l4d_infectedbots_smoker_limit "2"
+
+// 特感生成的最小距離 (默認: 550, 僅戰役/寫實)
+// 這個cvar也會影響普通僵屍的生成範圍和靈魂狀態下感染者玩家的複活距離
+l4d_infectedbots_spawn_range_min "350"
+
+// 設置插件生成的特感最大時間(秒)
+l4d_infectedbots_spawn_time_max "60"
+
+// 設置插件生成的特感最小時間(秒)
+l4d_infectedbots_spawn_time_min "40"
+
+// 如果爲1，則當坦克存活時禁止特感複活
+l4d_infectedbots_spawns_disabled_tank "0"
+
+// 插件可生成spitter的最大數量
+l4d_infectedbots_spitter_limit "2"
+
+// 插件可生成tank的最大數量 （不影響劇情tank）
+l4d_infectedbots_tank_limit "1"
+
+// 如果爲1，則最後壹關救援中插件不會生成坦克（不影響劇情生成的坦克）
+l4d_infectedbots_tank_spawn_final "1"
+
+// 每次生成壹個特感的時候多少概率會變成tank
+l4d_infectedbots_tank_spawn_probability "5"
+
+// 如果爲1，則在對抗/清道夫模式中，強迫所有玩家加入到感染者
+l4d_infectedbots_versus_coop "0"
+
+// witch生成多少秒才會踢出（不影響劇情生成的witch）
+l4d_infectedbots_witch_lifespan "200"
+
+// 插件可生成witch的最大數量 （不影響劇情生成的witch）
+l4d_infectedbots_witch_max_limit "6"
+
+// 如果爲1，則救援開始時會生成witch
+l4d_infectedbots_witch_spawn_final "0"
+
+// 插件生成witch的最大時間(秒)
+l4d_infectedbots_witch_spawn_time_max "120.0"
+
+// 插件生成witch的最小時間(秒)
+l4d_infectedbots_witch_spawn_time_min "90.0"
+
+
+
+-如何設置插件cvar-
+1. 設置特感生成
+-l4d_infectedbots_charger_limit
+-l4d_infectedbots_boomer_limit 
+-l4d_infectedbots_hunter_limit
+-l4d_infectedbots_jockey_limit
+-l4d_infectedbots_smoker_limit
+-l4d_infectedbots_spitter_limit
+-l4d_infectedbots_tank_limit
+這7個cvar值加在壹起必須等于或超過l4d_infectedbots_max_specials
+
+例如:
+好的:
+l4d_infectedbots_charger_limit 1
+l4d_infectedbots_boomer_limit 1
+l4d_infectedbots_hunter_limit 1
+l4d_infectedbots_jockey_limit 1
+l4d_infectedbots_smoker_limit 1
+l4d_infectedbots_spitter_limit 1
+l4d_infectedbots_tank_limit  0
+l4d_infectedbots_max_specials 6 
+
+還算好:
+l4d_infectedbots_charger_limit 1
+l4d_infectedbots_boomer_limit 2
+l4d_infectedbots_hunter_limit 3
+l4d_infectedbots_jockey_limit 2
+l4d_infectedbots_smoker_limit 2
+l4d_infectedbots_spitter_limit 2
+l4d_infectedbots_tank_limit  1
+l4d_infectedbots_max_specials 10 
+
+糟糕的:
+l4d_infectedbots_charger_limit 0
+l4d_infectedbots_boomer_limit 1
+l4d_infectedbots_hunter_limit 2
+l4d_infectedbots_jockey_limit 0
+l4d_infectedbots_smoker_limit 1
+l4d_infectedbots_spitter_limit 0
+l4d_infectedbots_tank_limit  0
+l4d_infectedbots_max_specials 9 
+
+* 請注意，插件在所有遊戲模式中都不會計算witch的數量，但在所有遊戲模式中都會計算tank的數量
+
+2. 如果有4個以上存活的生還者，則調整特感生成限制
+例如：
+-l4d_infectedbots_max_specials "4"
+-l4d_infectedbots_add_specials "2"
+-l4d_infectedbots_add_specials_scale "3"
+這意味著，如果有4個以上存活的生還者，每3個玩家加入，最大的特殊限制加2
+因此，如果有10個存活的生還者，則可生成最大的特感數量爲：4+2+2=8
+
+
+如果不想設置特感生成限制，可以設置
+-l4d_infectedbots_add_specials "0"
+
+3. 如果有4個以上存活的生還者，則調整坦克最大血量
+例如：
+-l4d_infectedbots_adjust_tankhealth_enable "1"
+-l4d_infectedbots_default_tankhealth "4000"
+-l4d_infectedbots_add_tankhealth "1200"
+-l4d_infectedbots_add_tankhealth_scale "3"
+這意味著，有4個以上存活的生還者，每3個玩家加入，tank的最大血量就會增加1200
+因此，如果有10個存活的生還者，tank最大血量爲：4000+1200+1200=6400hp
+
+如果想關閉這個功能，不想讓這個插件覆蓋tank最大血量，請設置
+-l4d_infectedbots_adjust_tankhealth_enable "0"
+
+4. 如果有4個以上存活的生還者，則調整僵屍最大數量
+例如：
+- l4d_infectedbots_adjust_commonlimit_enable "1"
+- l4d_infectedbots_default_commonlimit "30"
+- l4d_infectedbots_add_commonlimit_scale "1"
+- l4d_infectedbots_add_commonlimit "2"
+這意味著，有4個以上存活的生還者，每壹個玩家加入, 僵屍最大數量將會增加2個
+因此，如果有10個存活的生還者，僵屍最大數量爲: 30+2+2+2+2+2+2 = 42
+
+如果想關閉這個功能，不想讓這個插件覆蓋僵屍數量，請設置
+-l4d_infectedbots_adjust_commonlimit_enable "0"
+
+5.調整特感生成時間
+根據每個存活的生還者，減少壹定數值的特感生成時間，例如：
+-l4d_infectedbots_spawn_time_max "60"
+-l4d_infectedbots_spawn_time_min "30"
+-l4d_infectedbots_adjust_spawn_times "1"
+-l4d_infectedbots_adjust_reduced_spawn_times_on_player "2"
+這意味著，如果有5個存活的生還者，則特感生成時間爲：[最大: 60-(5*2) = 50, 最小: 30-(5*2) = 20]
+
+如果想關閉這個功能，請設置 
+-l4d_infectedbots_adjust_spawn_times "0"
+
+6. 如何生成坦克
+例如：
+-l4d_infectedbots_tank_limit "2"
+-l4d_infectedbots_tank_spawn_probability "5"
+這意味著，每次生成特感都有5%的幾率生成tank
+請注意，如果達到了tank上限或生成tank的概率爲0%，仍然不會産生坦克 (不影響遊戲生成的坦克)
+
+如果想在最後救援時不生成tank(不影響遊戲生成的坦克)，請設置：
+-l4d_infectedbots_tank_spawn_final "0"
+
+7. 如果有4個以上存活的生還者則調整tank生成限制
+例如：
+-l4d_infectedbots_tank_limit "2"
+-l4d_infectedbots_add_tanklimit "1"
+-l4d_infectedbots_add_tanklimit_scale "5"
+這意味著如果有5個以上存活的生還者，每5個玩家加入，tank可生成上限數量加1
+因此，如果有10個存活的生還者，tank可生成上限數量爲: 2+1=3 (不影響遊戲生成的坦克)
+
+如果不想要設置坦克可生成上限數量，請設置：
+-l4d_infectedbots_add_tanklimit "0"
+
+8. 在戰役/生還者/寫實中加入感染者
+例如：
+-l4d_infectedbots_coop_versus "1"
+-l4d_infectedbots_coop_versus_join_access "z"
+-l4d_infectedbots_coop_versus_human_limit "2"
+只有擁有 "z "權限的玩家才能加入感染者陣營，而有權限的玩家只有2個隊伍名額。
+
+如果想所有玩家可以加入感染者陣營，請設置
+-l4d_infectedbots_coop_versus_join_access ""
+
+在戰役/生還者/寫實中，感染者玩家將以靈魂狀態下複活：
+-l4d_infectedbots_coop_versus_human_ghost_enable "1" 
+
+感染者玩家可以接管生成的tank:
+-l4d_infectedbots_coop_versus_tank_playable "1" 
+
+9. 特感生成距離 (僅戰役/寫實)
+請注意！這個數字也會影響普通僵屍的生成範圍和靈魂狀態下感染者玩家的複活範圍。
+-l4d_infectedbots_spawn_range_min "350"
+
+讓感染者玩家在非常接近幸存者的地方複活，以獲得更好的遊戲體驗。
+-l4d_infectedbots_spawn_range_min "0" 
+
+10. 壹次性生成全部特感
+只有當所有AI特感的複活時間爲零時，才會生成特感，然後壹起生成。
+-l4d_infectedbots_coordination "1" 
+
+當場上有存活的tank時無法生成AI特感
+-l4d_infectedbots_spawns_disabled_tank "1" 
+
+11. 其他
+a. 如何關閉這個消息？
+***[TS] Numbers of Alive Survivor: 4, Infected Limit: 2, Tank Health: 4000, Common Limit: 40***
+- l4d_infectedbots_announcement_enable "0" 
+
+b. 如何在戰役/生還者/寫實中關閉感染者玩家的手電筒 ?
+- l4d_infectedbots_coop_versus_human_light "0" 
+
+-命令-
+(僅戰役/寫實/生還者) !ji - 加入到感染者陣營
+(僅戰役/寫實/生還者) !js - 加入到生還者陣營
+(僅感染者戰役) !infhud - 開關感染者HUD
+(僅感染者戰役) !zs - 感染者玩家自殺 (讓感染者卡住時)
+(僅管理員) !timer - 設置僵屍生成時間
+(僅管理員) !zlimit - 設置僵屍生成數量
