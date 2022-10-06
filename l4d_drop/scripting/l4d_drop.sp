@@ -209,7 +209,18 @@ void DropWeapon(int client, int weapon)
 	if (strcmp(classname, "weapon_pistol") == 0 && GetEntProp(weapon, Prop_Send, "m_isDualWielding") > 0)
 	{
 		int clip = GetEntProp(weapon, Prop_Send, "m_iClip1");
-		clip = clip / 2;
+		int second_clip = 0;
+		if(clip % 2 == 0)
+		{
+			second_clip = clip / 2;
+			clip = clip / 2;
+		}
+		else
+		{
+			second_clip = clip / 2 + 1;
+			clip = clip / 2;
+		}
+		
 		RemovePlayerItem(client, weapon);
 		RemoveEntity(weapon);
 
@@ -226,7 +237,7 @@ void DropWeapon(int client, int weapon)
 
 		DispatchSpawn(single_pistol);
 		EquipPlayerWeapon(client, single_pistol);
-		SetEntProp(single_pistol, Prop_Send, "m_iClip1", clip);
+		SetEntProp(single_pistol, Prop_Send, "m_iClip1", second_clip);
 
 		return;	
 	}

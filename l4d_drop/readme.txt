@@ -6,7 +6,7 @@ v1.9
 -Drop single pistol instead of dual pistols
 
 v1.7
--Original Post: https://forums.alliedmods.net/showpost.php?p=2763385&postcount=90
+-Original Post by Machine&Shadowysn: https://forums.alliedmods.net/showpost.php?p=2763385&postcount=90
 
 -How to use-
 type !drop in chatbox or type sm_drop in console
