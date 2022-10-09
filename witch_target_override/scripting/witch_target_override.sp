@@ -64,9 +64,10 @@ float ActionTime[MAXENTITY+1], EnemyTime[MAXENTITY+1], StuckTime[MAXENTITY+1], P
     TargetDir[MAXENTITY+1][3], LastPos[MAXENTITY+1][3], LastSetPos[MAXENTITY+1][3];
 bool bWitchScared[MAXENTITY+1], bWitchSit[MAXENTITY+1];
 Handle BurnWitchTimer[MAXENTITY+1] = {null};
-static bool ge_bInvalidTrace[MAXENTITY+1];
-static float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
-static float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
+bool ge_bInvalidTrace[MAXENTITY+1];
+float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
+float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
+static bool   g_bConfigLoaded;
 
 public void OnPluginStart()
 {
@@ -121,6 +122,12 @@ public void OnPluginEnd()
 public void OnMapEnd()
 {
 	ResetTimer();
+	g_bConfigLoaded = false;
+}
+
+public void OnConfigsExecuted()
+{
+    g_bConfigLoaded = true;
 }
 
 public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -191,9 +198,8 @@ public void Player_Death(Event event, const char[] event_name, bool dontBroadcas
     }
 }
 
-stock void WitchAttackTarget(int witch, int target, int addHealth)
+void WitchAttackTarget(int witch, int target, int addHealth)
 {
-
 	if(GetEntProp(witch, Prop_Data, "m_iHealth") < 0) return;
 	#if DEBUG
 		PrintToChatAll("witch attacking new target %N, her max health: %d, now health: %d", target, GetEntProp(witch, Prop_Data, "m_iMaxHealth"), GetEntProp(witch, Prop_Data, "m_iHealth"));
@@ -319,7 +325,7 @@ public void witch_spawn(Event event, const char[] event_name, bool dontBroadcast
 	if(g_bCvarReCalculateBurnOverride == false)
 	{
 		delete BurnWitchTimer[witchid];
-		SDKHook(witchid, SDKHook_OnTakeDamageAlive, OnTakeDamageWitch);	
+		SDKHook(witchid, SDKHook_OnTakeDamageAlivePost, OnTakeDamageWitchPost);	
 	}
 }
 
@@ -336,6 +342,9 @@ public Action DelayHookWitch(Handle timer, int ref)
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
+    if (!g_bConfigLoaded)
+        return;
+
     if (!IsValidEntityIndex(entity))
         return;
 
@@ -688,14 +697,17 @@ void RotateVector(float direction[3], float vec[3], float alfa, float result[3])
     AddVectors(result, uuv, result);
 }
 
-public Action OnTakeDamageWitch(int witch, int &attacker, int &inflictor, float &damage, int &damagetype)
+public void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage, int damagetype)
 {
+	if(EnemyTime[witch] > 0.0 && attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) == 2)
+	{
+		StopHookWitch(witch);
+	}
+
 	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null)
 	{
 		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, EntIndexToEntRef(witch));
 	}
-
-	return Plugin_Continue;
 }
 
 public Action BurnWitchDead_Timer(Handle timer, int witch)
