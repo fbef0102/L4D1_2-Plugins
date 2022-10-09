@@ -25,16 +25,16 @@ public OnPluginStart()
 	RegConsoleCmd("sm_cur", CurrentCmd);
 	RegConsoleCmd("sm_current", CurrentCmd);
 	HookEvent("round_start", RoundStartEvent, EventHookMode_PostNoCopy);
-	HookEvent("player_left_start_area", LeftStartAreaEvent, EventHookMode_PostNoCopy);
 }
 public RoundStartEvent(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	SurCurrent = 0;
 }
 
-public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
+
+public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client)
 {
-	CPrintToChatAll("{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", SurCurrent);
+	CPrintToChatAll("{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", GetMaxSurvivorCompletion());
 }
 
 public Action:CurrentCmd(client, args)
