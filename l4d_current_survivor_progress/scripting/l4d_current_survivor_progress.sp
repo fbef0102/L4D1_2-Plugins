@@ -6,7 +6,7 @@
 
 #define MAX(%0,%1) (((%0) > (%1)) ? (%0) : (%1))
 
-ConVar g_hCpBossBuffer;
+ConVar g_hBossBuffer;
 int SurCurrent = 0;
 
 public Plugin:myinfo =
@@ -14,13 +14,13 @@ public Plugin:myinfo =
     name = "L4D Survivor Progress",
     author = "CanadaRox, Visor, harry",
     description = "Print survivor progress in flow percents",
-    version = "2.3",
+    version = "2.4",
     url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
 public OnPluginStart()
 {
-	g_hCpBossBuffer = FindConVar("versus_boss_buffer");
+	g_hBossBuffer = FindConVar("versus_boss_buffer");
 
 	RegConsoleCmd("sm_cur", CurrentCmd);
 	RegConsoleCmd("sm_current", CurrentCmd);
@@ -45,22 +45,40 @@ public Action:CurrentCmd(client, args)
 }
 stock int GetMaxSurvivorCompletion() {
 	float flow = 0.0;
-	float tmp_flow, origin[3];
-	Address pNavArea;
-	for (int client = 1; client <= MaxClients; client++) {
-		if(IsClientInGame(client) && GetClientTeam(client) == 2)
+	if(L4D_IsVersusMode())
+	{
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			GetClientAbsOrigin(client, origin);
-			pNavArea = L4D2Direct_GetTerrorNavArea(origin);
-			if (pNavArea != Address_Null)
+			if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
 			{
-				tmp_flow = L4D2Direct_GetTerrorNavAreaFlow(pNavArea);
-				flow = MAX(flow, tmp_flow);
+				flow = MAX(flow, L4D2Direct_GetFlowDistance(i));
 			}
 		}
+		
+		flow = (flow / L4D2Direct_GetMapMaxFlowDistance()) + (g_hBossBuffer.FloatValue / L4D2Direct_GetMapMaxFlowDistance());
 	}
-	flow = (flow * 100 / L4D2Direct_GetMapMaxFlowDistance()) + (g_hCpBossBuffer.FloatValue / L4D2Direct_GetMapMaxFlowDistance());
-	//PrintToChatAll("%.2f - %d", flow, SurCurrent);
+	else
+	{
+		float tmp_flow, origin[3];
+		Address pNavArea;
+		for (int client = 1; client <= MaxClients; client++) {
+			if(IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
+			{
+				GetClientAbsOrigin(client, origin);
+				pNavArea = L4D2Direct_GetTerrorNavArea(origin);
+				if (pNavArea != Address_Null)
+				{
+					tmp_flow = L4D2Direct_GetTerrorNavAreaFlow(pNavArea);
+					flow = MAX(flow, tmp_flow);
+				}
+			}
+		}
+
+		flow = flow / L4D2Direct_GetMapMaxFlowDistance();
+	}
+
+	//PrintToChatAll("%.2f - %d -%.2f", flow, SurCurrent, (g_hBossBuffer.FloatValue / L4D2Direct_GetMapMaxFlowDistance()));
+	flow = flow * 100;
 	if (flow <= 1.0) flow = SurCurrent * 1.0;
 	else if(flow > 100.0) flow = 100.0;
 

@@ -1,8 +1,9 @@
 Print survivor progress in flow percents
 
 -Changelog-
-v2.3
+v2.4
 -Remake Code
+-Support Coop/Versus/Realism
 
 -Require-
 1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
