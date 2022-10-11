@@ -2,7 +2,7 @@ When a Survivor dies, is hanging, or is incapped, will respawn after a period of
 
 -Changelog-
 AlliedModders Post: https://forums.alliedmods.net/showpost.php?p=2770929&postcount=18
-v3.4
+v3.5
 - Remake Code
 - Don't remove dead body
 - If player replaces a dead bot, respawn player after a period of time.

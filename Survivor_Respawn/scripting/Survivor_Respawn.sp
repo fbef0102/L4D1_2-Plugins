@@ -9,7 +9,7 @@
 #pragma newdecls required
 
 /* Definition Strings */
-#define PLUGIN_VERSION 			"3.4"
+#define PLUGIN_VERSION 			"3.5"
 #define TRANSLATION_FILENAME 	"SurvivorRespawn.phrases"
 
 /* Definition Integers */
@@ -813,6 +813,7 @@ void RespawnTarget_Crosshair( int client, int target )
 	
 	PrintToChatAll( "%t", "Respawned", sPlayerName );
 	clinetReSpawnTime[target] = GetEngineTime() + g_fInvincibleTime;
+	if(bL4D2) L4D2_UseAdrenaline(target, g_fInvincibleTime, false);
 	
 	if ( bCanTeleport )
 		vPerformTeleport( client, target, vsrPos );
