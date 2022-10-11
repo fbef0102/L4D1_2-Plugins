@@ -4,7 +4,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.7.5
+v2.7.6
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 	(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
 -L4D1 Signature update. (Credit to Psykotikism: https://github.com/Psykotikism/L4D1-2_Signatures)
@@ -153,6 +153,9 @@ l4d_infectedbots_sm_zs_disable_gamemode "6"
 
 // Sets the limit for smokers spawned by the plugin
 l4d_infectedbots_smoker_limit "2"
+
+// If 1, infected bots can spawn on the same game frame (careful, this could cause sever laggy)
+l4d_infectedbots_spawn_on_same_frame "0"
 
 // The minimum of spawn range for infected. (default: 550, coop/realism only)
 // This cvar will also affect common zombie spawn range and ghost infected player spawn range
@@ -478,6 +481,9 @@ l4d_infectedbots_sm_zs_disable_gamemode "6"
 
 // 插件可生成smoker的最大數量
 l4d_infectedbots_smoker_limit "2"
+
+// 允許特感在同一個時間點復活沒有誤差 (小心啟動，會影響伺服器卡頓)
+l4d_infectedbots_spawn_on_same_frame 0
 
 // 特感生成的最小距離 (默認: 550, 僅戰役/寫實)
 // 這個cvar也會影響普通僵屍的生成範圍和靈魂狀態下感染者玩家的複活距離
