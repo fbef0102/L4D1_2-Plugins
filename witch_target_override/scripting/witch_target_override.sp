@@ -322,10 +322,11 @@ public void witch_spawn(Event event, const char[] event_name, bool dontBroadcast
 	bWitchSit[witchid] = false;
 	CreateTimer(0.5, DelayHookWitch, EntIndexToEntRef(witchid), TIMER_FLAG_NO_MAPCHANGE );
 
+	SDKHook(witchid, SDKHook_OnTakeDamageAlivePost, OnTakeDamageWitchPost);	
+
 	if(g_bCvarReCalculateBurnOverride == false)
 	{
 		delete BurnWitchTimer[witchid];
-		SDKHook(witchid, SDKHook_OnTakeDamageAlivePost, OnTakeDamageWitchPost);	
 	}
 }
 
@@ -704,7 +705,7 @@ public void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float 
 		StopHookWitch(witch);
 	}
 
-	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null)
+	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null && g_bCvarReCalculateBurnOverride == false)
 	{
 		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, EntIndexToEntRef(witch));
 	}
