@@ -57,7 +57,7 @@ l4d_survivorrespawn_respawnhp "70"
 // How many seconds till the Survivor respawns (Def 30)
 l4d_survivorrespawn_respawntimeout "30"
 
-// Save player statistics if is have died.
+// Save player statistics if he have died.
 l4d_survivorrespawn_savestats "1"
 
 // (L4D2) Which is first slot weapon will be given to the Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - AK47 Assault Rifle, 5 - SCAR-L Desert Rifle,
