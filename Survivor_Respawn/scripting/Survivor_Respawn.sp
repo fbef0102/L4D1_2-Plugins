@@ -845,6 +845,7 @@ void RespawnTarget( int client )
 	
 	PrintToChatAll( "%t", "Respawned", sPlayerName );
 	clinetReSpawnTime[client] = GetEngineTime() + g_fInvincibleTime;
+	if(bL4D2) L4D2_UseAdrenaline(client, g_fInvincibleTime, false);
 
 	EmitSoundToAll(SOUND_RESPAWN, client, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);		
 }
