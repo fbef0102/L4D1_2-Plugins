@@ -202,7 +202,7 @@ public void OnPluginStart()
 	hCvar_HangingDelay 		= CreateConVar("l4d_survivorrespawn_hangingdelay", 		"25", 	"How many seconds till the Survivor is killed while hanging (Def 25)", FCVAR_NOTIFY, true, 0.0, false, _);
 	hCvar_RespawnHP 		= CreateConVar("l4d_survivorrespawn_respawnhp", 		"70", 	"Amount of HP a Survivor will respawn with (Def 70)", FCVAR_NOTIFY, true, 0.0, false, _);
 	hCvar_RespawnBuffHP 	= CreateConVar("l4d_survivorrespawn_respawnbuffhp", 	"30", 	"Amount of buffer HP a Survivor will respawn with (Def 30)", FCVAR_NOTIFY, true, 0.0, false, _);
-	hCvar_SaveStats 		= CreateConVar("l4d_survivorrespawn_savestats", 		"1", 	"Save player statistics if is have died.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_SaveStats 		= CreateConVar("l4d_survivorrespawn_savestats", 		"1", 	"Save player statistics if he have died.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_BotReplaced 		= CreateConVar("l4d_survivorrespawn_botreplaced", 		"1", 	"Respawn bots if is dead in case of using Take Over.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 	"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
 	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", "If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
