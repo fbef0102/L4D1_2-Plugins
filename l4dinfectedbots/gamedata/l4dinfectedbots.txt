@@ -37,14 +37,37 @@
 						/* 83 ? ? 56 57 68 30 */
 			}
 		}
-        "Offsets"
-        {
-            
-            "FlashlightIsOn"
-            {
-                "windows"    "356"
-                "linux"        "357"
-            }  
+		"Offsets"
+		{
+			"FlashlightIsOn"
+			{
+				"windows"    "356"
+				"linux"        "357"
+			}  
+
+			/*Credit: Psykotikism-Mutant_Tanks*/
+			"Tank::GetIntentionInterface::Intention"
+			{
+				"linux"		"11940"
+				"mac"		"11940"
+				"windows"	"11924"
+			}
+
+			/*Credit: Psykotikism-Mutant_Tanks*/
+			"Action<Tank>::FirstContainedResponder"
+			{
+				"linux"		"2"
+				"mac"		"2"
+				"windows"	"1"
+			}
+
+			/*Credit: Psykotikism-Mutant_Tanks*/
+			"TankIdle::GetName"
+			{
+				"linux"		"36"
+				"mac"		"36"
+				"windows"	"35"
+			}
 		}
 	}
 	
@@ -125,6 +148,30 @@
 				"library"	"server"
 				"linux"	"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
 				"mac"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
+			}
+		}
+
+		"Offsets"
+		{
+			"Tank::GetIntentionInterface::Intention"
+			{
+				"linux"		"17176"
+				"mac"		"17176"
+				"windows"	"17204"
+			}
+
+			"Action<Tank>::FirstContainedResponder"
+			{
+				"linux"		"2"
+				"mac"		"2"
+				"windows"	"1"
+			}
+
+			"TankIdle::GetName"
+			{
+				"linux"		"41"
+				"mac"		"41"
+				"windows"	"40"
 			}
 		}
 	}
