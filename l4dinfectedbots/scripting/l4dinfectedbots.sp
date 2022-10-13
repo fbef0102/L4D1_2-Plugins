@@ -4667,7 +4667,7 @@ public Action Timer_CheckAngry(Handle timer, int UserId)
 		IsPlayerAlive(client) && 
 		IsPlayerTank(client))
 	{
-		if (!bIsTankIdle(client))
+		if (!L4D_IsPlayerGhost(client) && !bIsTankIdle(client))
 		{
 			g_bAngry[client] = true;
 			return Plugin_Stop;
