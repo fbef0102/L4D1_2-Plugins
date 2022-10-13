@@ -873,6 +873,14 @@ int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 bool g_bAngry[MAXPLAYERS+1]; //tank is angry in coop/realism
 char g_sJoinInfectedAccesslvl[16];
 
+#define FUNCTION_PATCH "Tank::GetIntentionInterface::Intention"
+#define FUNCTION_PATCH2 "Action<Tank>::FirstContainedResponder"
+#define FUNCTION_PATCH3 "TankIdle::GetName"
+
+int g_iIntentionOffset;
+Handle g_hSDKFirstContainedResponder;
+Handle g_hSDKGetName;
+
 public Plugin myinfo =
 {
 	name = "[L4D/L4D2] Infected Bots (Coop/Versus/Realism/Scavenge/Survival)",
@@ -4652,26 +4660,15 @@ public void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 
 public Action Timer_CheckAngry(Handle timer, int UserId)
 {
-	int client;
-	client = GetClientOfUserId(UserId);
-	if (client && IsClientInGame(client) && IsFakeClient(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && IsPlayerTank(client) )
+	int client = GetClientOfUserId(UserId);
+	if (client && IsClientInGame(client) && 
+		IsFakeClient(client) && 
+		GetClientTeam(client) == TEAM_INFECTED && 
+		IsPlayerAlive(client) && 
+		IsPlayerTank(client))
 	{
-		// if (GetEntProp(client, Prop_Send, "m_zombieState") != 0)
-		// {
-		// 	g_bAngry[client] = true;
-		// 	return Plugin_Stop;
-		// }
-
-		// if (GetEntProp(client, Prop_Send, "m_hasVisibleThreats") != 0)
-		// {
-		// 	g_bAngry[client] = true;
-		// 	return Plugin_Stop;
-		// }
-
-		int sequence = GetEntProp(client, Prop_Send, "m_nSequence");
-		if( !(1 <= sequence && sequence <= 4) ) // idle
+		if (!bIsTankIdle(client))
 		{
-			//PrintToChatAll("m_nSequence = %d, %N is angry",sequence, tank);
 			g_bAngry[client] = true;
 			return Plugin_Stop;
 		}
@@ -5312,11 +5309,11 @@ bool IsAliveSurvivor(int client)
         && IsPlayerAlive(client);
 }
 
-Handle hGameConf;
+GameData hGameData;
 void GetGameData()
 {
-	hGameConf = LoadGameConfigFile("l4dinfectedbots");
-	if( hGameConf != null )
+	hGameData = LoadGameConfigFile("l4dinfectedbots");
+	if( hGameData != null )
 	{
 		PrepSDKCall();
 	}
@@ -5324,7 +5321,7 @@ void GetGameData()
 	{
 		SetFailState("Unable to find l4dinfectedbots.txt gamedata file.");
 	}
-	delete hGameConf;
+	delete hGameData;
 }
 
 void PrepSDKCall()
@@ -5332,20 +5329,20 @@ void PrepSDKCall()
 	if(g_bL4D2Version)
 	{
 		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "FlashLightTurnOn");
+		PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, "FlashLightTurnOn");
 		hFlashLightTurnOn = EndPrepSDKCall();
 	}
 	else
 	{
 		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "FlashlightIsOn");
+		PrepSDKCall_SetFromConf(hGameData, SDKConf_Virtual, "FlashlightIsOn");
 		hFlashLightTurnOn = EndPrepSDKCall();
 	}
 	if (hFlashLightTurnOn == null)
 		SetFailState("FlashLightTurnOn Signature broken");
 
 	//find create bot signature
-	Address replaceWithBot = GameConfGetAddress(hGameConf, "NextBotCreatePlayerBot.jumptable");
+	Address replaceWithBot = GameConfGetAddress(hGameData, "NextBotCreatePlayerBot.jumptable");
 	if (replaceWithBot != Address_Null && LoadFromAddress(replaceWithBot, NumberType_Int8) == 0x68) {
 		// We're on L4D2 and linux
 		PrepWindowsCreateBotCalls(replaceWithBot);
@@ -5365,6 +5362,38 @@ void PrepSDKCall()
 
 		PrepL4D1CreateBotCalls();
 	}
+
+	g_iIntentionOffset = hGameData.GetOffset(FUNCTION_PATCH);
+	if (g_iIntentionOffset == -1)
+	{
+		SetFailState("Failed to load offset: %s", FUNCTION_PATCH);
+	}
+
+	int iOffset = hGameData.GetOffset(FUNCTION_PATCH2);
+	if (g_iIntentionOffset == -1)
+	{
+		SetFailState("Failed to load offset: %s", FUNCTION_PATCH2);
+	}
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetVirtual(iOffset);
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	g_hSDKFirstContainedResponder = EndPrepSDKCall();
+	if (g_hSDKFirstContainedResponder == null)
+	{
+		SetFailState("Your \"%s\" offsets are outdated.", FUNCTION_PATCH2);
+	}
+
+	iOffset = hGameData.GetOffset(FUNCTION_PATCH3);
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetVirtual(iOffset);
+	PrepSDKCall_SetReturnInfo(SDKType_String, SDKPass_Plain);
+	g_hSDKGetName = EndPrepSDKCall();
+	if (g_hSDKGetName == null)
+	{
+		SetFailState("Your \"%s\" offsets are outdated.", FUNCTION_PATCH3);
+	}
+
+	delete hGameData;
 }
 
 void LoadStringFromAdddress(Address addr, char[] buffer, int maxlength) {
@@ -5450,7 +5479,7 @@ void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
 
 void PrepL4D2CreateBotCalls() {
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateSpitter))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateSpitter))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSpitter); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5459,7 +5488,7 @@ void PrepL4D2CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSpitter); return; }
 
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateJockey))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateJockey))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateJockey); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5468,7 +5497,7 @@ void PrepL4D2CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateJockey); return; }
 
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateCharger))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateCharger))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateCharger); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5479,7 +5508,7 @@ void PrepL4D2CreateBotCalls() {
 
 void PrepL4D1CreateBotCalls() {
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateSmoker))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateSmoker))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5488,7 +5517,7 @@ void PrepL4D1CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
 
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateBoomer))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateBoomer))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5497,7 +5526,7 @@ void PrepL4D1CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
 
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateHunter))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateHunter))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5506,7 +5535,7 @@ void PrepL4D1CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
 
 	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateTank))
+	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateTank))
 	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
@@ -5667,5 +5696,51 @@ void GameStart()
 	#endif
 	delete hSpawnWitchTimer;
 	hSpawnWitchTimer = CreateTimer(float(GetRandomInt(g_iWitchPeriodMin, g_iWitchPeriodMax)), SpawnWitchAuto);
+}
+
+// The type of idle mode to check for.
+// Note: It is recommended to set this to "2" on non-finale maps and "0" on finale maps.
+// Note: There is a rare bug where a Tank spawns with no behavior even though they look "idle" to survivors. Set this setting to "0" or "2" to detect this bug.
+// Note: Do not change this setting if you are unsure of how it works.
+// Note: This setting can be used for standard Tanks.
+// --
+// 0: Both
+// 1: Only check for idle Tanks.
+// 2: Only check for Tanks with no behavior (rare bug).
+bool bIsTankIdle(int tank, int type = 0)
+{
+	Address adTank = GetEntityAddress(tank);
+	if (adTank == Address_Null)
+	{
+		return false;
+	}
+
+	Address adIntention = LoadFromAddress((adTank + view_as<Address>(g_iIntentionOffset)), NumberType_Int32);
+	if (adIntention == Address_Null)
+	{
+		return false;
+	}
+
+	Address adBehavior = view_as<Address>(SDKCall(g_hSDKFirstContainedResponder, adIntention));
+	if (adBehavior == Address_Null)
+	{
+		return false;
+	}
+
+	Address adAction = view_as<Address>(SDKCall(g_hSDKFirstContainedResponder, adBehavior));
+	if (adAction == Address_Null)
+	{
+		return false;
+	}
+
+	Address adChildAction = Address_Null;
+	while ((adChildAction = view_as<Address>(SDKCall(g_hSDKFirstContainedResponder, adAction))) != Address_Null)
+	{
+		adAction = adChildAction;
+	}
+
+	char sAction[64];
+	SDKCall(g_hSDKGetName, adAction, sAction, sizeof sAction);
+	return (type != 2 && StrEqual(sAction, "TankIdle")) || (type != 1 && (StrEqual(sAction, "TankBehavior") || adAction == adBehavior));
 }
 ///////////////////////////////////////////////////////////////////////////
