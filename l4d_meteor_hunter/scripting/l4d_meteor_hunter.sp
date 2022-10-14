@@ -308,6 +308,8 @@ public Action CreateRing(Handle hTimer,Handle hPack)
 		AddVectors(nPos, direction, rockpos);
 		CreateRock(rockpos);
 	}
+
+	return Plugin_Continue;
 }
 
 public Action TimerDeleteRock(Handle hTimer, int ref)
@@ -316,6 +318,8 @@ public Action TimerDeleteRock(Handle hTimer, int ref)
 	{
 		AcceptEntityInput(ref, "kill");
 	}
+
+	return Plugin_Continue;
 }
 
 void CreateRock(float Rpos[3])
