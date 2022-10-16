@@ -30,9 +30,6 @@ l4d_specafk_kicktime "30"
 // If 1, player will still be forced to spectate and kicked whether surviros leave saferoom or not.
 l4d_specafk_saferoom_ignore "0"
 
-// If 1, player will be forced to spectate on connect
-l4d_specafk_speconconnect "0"
-
 // time before spec (after warn)
 l4d_specafk_spectime "15"
 
