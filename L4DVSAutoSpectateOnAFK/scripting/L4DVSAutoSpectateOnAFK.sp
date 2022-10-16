@@ -220,7 +220,7 @@ Action tmrStart(Handle timer)
 {
 	ResetPlugin();
 
-	for (int i=1;i<=MAXPLAYERS;i++)
+	for (int i=1;i<=MaxClients;i++)
 	{
 		if(IsClientInGame(i) && !IsFakeClient(i))
 		{
