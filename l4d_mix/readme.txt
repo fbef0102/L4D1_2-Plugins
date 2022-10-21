@@ -1,47 +1,45 @@
-name = "Left 4 Dead Modo Mix",
-author = "Joshe Gatito & ZenServer & Harry",
-description = "Modo de juego Mix"
+L4D1/2 Mix
 
-/*=======================================================================================
-	Change Log:
-
+-ChangeLog-
+1.0 Credits
+	- KaiN - for request and the original idea	
+	- ZenServer -[ Mix ]- - for the original plugin
+	- JOSHE GATITO SPARTANSKII >>> (Ex Aya Supay) - for writing  plugin again and add new commands. 
+	- Harry - fix error, optimize codes, new sourcemod syntax, and handle exception
+	
 1.1 (26-03-2019)
 	- Initial release.
 	- Cleared old code, converted to new syntax and methodmaps.	
+
 1.2 (13-04-2019)
 	- fix error, optimize codes, and handle exception
 	
 1.3 (15-04-2020)
-	- 給那些沒有換隊!survivor與!infected指令的傻B對抗插件強制換隊
+	- 強制換隊
 
 1.4 (11-10-2020)
-	- 強制新語法
-	
+	- Compiled .smx plugin is now compiled with SourceMod version 1.10
+
 1.5 (15-5-2021)
 	- Add A-BB-A-B-A
-	
+
 1.6 (17-5-2021)
 	- Hide ReadyUp Hud if Ready Up plugin is available
-	
+
 1.7 (8-3-2022)
 	- fix client not in game error
-========================================================================================
-	Credits:
 
-	KaiN - for request and the original idea	
-	ZenServer -[ Mix ]- - for the original plugin
-	JOSHE GATITO SPARTANSKII >>> (Ex Aya Supay) - for writing  plugin again and add new commands. 
-	Harry - fix error, optimize codes, new sourcemod syntax, and handle exception
+1.8 (21-10-2022)
+	- Compiled .smx plugin is now compiled with SourceMod version 1.11
 
-========================================================================================*/
+-Require-
+1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
+2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
--ConVar-
-// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA"
-mix_select_order "1"
+-Convars-
+cfg\sourcemod\l4d_mix_player.cfg
+// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA
+l4d_mix_select_order "1"
 
--Commands-
-// Initiate a player mix.
-(In-Game) "sm_mix"
-
-//Initiate a player mix. Admins only.
-(ADMFLAG_BAN) "sm_forcemix"
+-Command-
+None
