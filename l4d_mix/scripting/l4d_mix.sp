@@ -5,6 +5,7 @@
 1.1 (26-03-2019)
 	- Initial release.
 	- Cleared old code, converted to new syntax and methodmaps.	
+
 1.2 (13-04-2019)
 	- fix error, optimize codes, and handle exception
 	
@@ -22,6 +23,9 @@
 
 1.7 (8-3-2022)
 	- fix client not in game error
+
+1.8 (21-10-2022)
+	- Compiled .smx plugin is now compiled with SourceMod version 1.11.
 ========================================================================================
 	Credits:
 
@@ -31,12 +35,13 @@
 	Harry - fix error, optimize codes, new sourcemod syntax, and handle exception
 
 ========================================================================================*/
-#define PLUGIN_VERSION		"1.6"
+#define PLUGIN_VERSION		"1.8"
 
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <sdktools>
+#include <left4dhooks>
 #include <multicolors>
 
 #define TEAM_SPECTATOR 1
@@ -62,7 +67,6 @@ int g_iVotesSurvivorCaptain[66];
 int g_iVotesInfectedCaptain[66];
 int g_iDesignatedTeam[66];
 int g_iSelectedPlayers[66];
-int g_iCvar = 262144;
 char teamName[64] ;
 char oppositeTeamName[64] ;
 
@@ -90,17 +94,20 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	g_CvarMixStatus = CreateConVar("mix_status", "0", "The status of the mix. DO NOT MANUALLY ALTER THIS CVAR U SON OF A FUCK", 262144);	
 
 	g_CvarSurvLimit = FindConVar("survivor_limit");
 	g_CvarMaxPlayerZombies = FindConVar("z_max_player_zombies");
-	
+
+	g_CvarMixStatus = CreateConVar(		"l4d_mix_status", "0", "The status of the mix. DO NOT MANUALLY ALTER THIS CVAR U SON OF A FUCK", FCVAR_DONTRECORD|FCVAR_SPONLY);	
+	g_hPlayerSelectOrder = CreateConVar("l4d_mix_select_order", "1", "0 = ABABAB | 1 = ABBAAB | 2 = ABBABA", FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	CreateConVar(                      	"l4d_mix_version",       PLUGIN_VERSION, "l4d_trade_player Plugin Version", FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY);
+	AutoExecConfig(true,               	"l4d_mix_player");
+
 	CaptainVote_OnPluginStart();
-	g_hPlayerSelectOrder = CreateConVar("mix_select_order", "1", "0 = ABABAB | 1 = ABBAAB | 2 = ABBABA", g_iCvar, true, 0.0, true, 2.0);
 	g_iPlayerSelectOrder = g_hPlayerSelectOrder.IntValue;
 	g_hPlayerSelectOrder.AddChangeHook(ConVarChange_MixOrder);
 	g_CvarMixStatus.AddChangeHook(ConVarChange_MixStatus);
-	
+
 	HookEvent("round_start", Event_RoundStart);
 	HookEvent("round_end", Event_RoundEnd);
 }
@@ -456,7 +463,7 @@ public int Handler_SurvivorCaptainCallback(Menu menu, MenuAction action, int par
 {
 	switch (action)
 	{
-		case 4:
+		case MenuAction_Select:
 		{
 			char item[16];
 			menu.GetItem(param2, item, 16);
@@ -468,6 +475,8 @@ public int Handler_SurvivorCaptainCallback(Menu menu, MenuAction action, int par
 			}
 		}
 	}
+
+	return 0;
 }
 
 void DisplayVoteMenuPlayerSelect()
@@ -521,7 +530,7 @@ public int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int par
 {
 	switch (action)
 	{
-		case 4:
+		case MenuAction_Select:
 		{
 			char item[16];
 			menu.GetItem(param2, item, 16);
@@ -566,7 +575,7 @@ public int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int par
 				CPrintToChat(param1,"{default}[{olive}Mix{default}] This player has left the server, choose again!");
 			}
 		}
-		case 16:
+		case MenuAction_End:
 		{
 			if (menu)
 			{
@@ -574,6 +583,8 @@ public int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int par
 			}
 		}
 	}
+
+	return 0;
 }
 
 public Action Timer_PlayerSelection(Handle timer)
@@ -660,7 +671,7 @@ public int Handler_InfectedCaptainCallback(Menu menu, MenuAction action, int par
 {
 	switch (action)
 	{
-		case 4:
+		case MenuAction_Select:
 		{
 			char item[16];
 			menu.GetItem(param2, item, 16);
@@ -672,6 +683,8 @@ public int Handler_InfectedCaptainCallback(Menu menu, MenuAction action, int par
 			}
 		}
 	}
+
+	return 0;
 }
 
 void ResetCaptains()
@@ -763,21 +776,14 @@ public void CaptainVote_OnMapEnd()
 	ResetHasVoted();
 }
 
-public Action CaptainVote_Event_RoundStart(Event event, char[] name, bool dontBroadcast)
+public void CaptainVote_Event_RoundStart(Event event, char[] name, bool dontBroadcast)
 {
 	g_CvarMixStatus.SetInt(0, false, false);
 }
 
-public Action CaptainVote_Event_RoundEnd(Event event, char[] name, bool dontBroadcast)
+public void CaptainVote_Event_RoundEnd(Event event, char[] name, bool dontBroadcast)
 {
 	g_CvarMixStatus.SetInt(0, false, false);
-}
-
-public int CaptainVote_OnClientDisconnect_Post(int client)
-{
-	g_iVotesSurvivorCaptain[client] = 0;
-	g_iVotesInfectedCaptain[client] = 0;
-	g_bHasVoted[client] = false;
 }
 
 void SwapPlayersToDesignatedTeams()
@@ -810,9 +816,17 @@ public Action MoveToSurvivor(Handle timer, any targetplayer)
 {
 	if(!targetplayer || !IsClientInGame(targetplayer)) return Plugin_Continue;
 
-	FakeClientCommand(targetplayer, "sm_survivor");
-	
-	CreateTimer(0.1, CheckClientInSurvivorTeam, targetplayer, _);
+	int bot = FindBotToTakeOver(true);
+	if (bot==0)
+	{
+		bot = FindBotToTakeOver(false);
+	}
+	if (bot>0)
+	{
+		L4D_SetHumanSpec(bot, targetplayer);
+		L4D_TakeOverBot(targetplayer);
+	}
+
 	return Plugin_Continue;
 }
 
@@ -820,84 +834,11 @@ public Action MoveToInfected(Handle timer, any targetplayer)
 {
 	if(!targetplayer || !IsClientInGame(targetplayer)) return Plugin_Continue;
 
-	FakeClientCommand(targetplayer, "sm_infected");
-	
-	CreateTimer(0.1, CheckClientInInfectedTeam, targetplayer, _);
+	ChangeClientTeam(targetplayer, 3);
+
 	return Plugin_Continue;
 }
 
-public Action:CheckClientInSurvivorTeam(Handle:timer, any:client)
-{
-	if(!client || !IsClientInGame(client)) return;
-	
-	if (GetClientTeam(client) != 2)
-		CreateTimer(0.1, Survivor_Take_Control, client, TIMER_FLAG_NO_MAPCHANGE);
-}
-
-public Action:CheckClientInInfectedTeam(Handle:timer, any:client)
-{
-	if(!client || !IsClientInGame(client)) return;
-	
-	if (GetClientTeam(client) != 3)
-		ChangeClientTeam(client, 3);
-}
-
-public Action:Survivor_Take_Control(Handle:timer, any:client)
-{
-		new localClientTeam = GetClientTeam(client);
-		new String:command[] = "sb_takecontrol";
-		new flags = GetCommandFlags(command);
-		SetCommandFlags(command, flags & ~FCVAR_CHEAT);
-		new String:botNames[][] = { "teengirl", "manager", "namvet", "biker" ,"coach","gambler","mechanic","producer"};
-		
-		new i = 0;
-		while((localClientTeam != 2) && i < 8)
-		{
-			FakeClientCommand(client, "sb_takecontrol %s", botNames[i]);
-			localClientTeam = GetClientTeam(client);
-			i++;
-		}
-		SetCommandFlags(command, flags);
-}
-
-/*
-bool IsSurvivorTeamFull()
-{
-	int g_iSurvivorTeamSize;
-	for(int i = 1; i <= MaxClients; i++) 
-	{
-		if (!IsClientInGame(i) || IsFakeClient(i) || GetClientTeam(i) == TEAM_SURVIVOR)
-		{
-		}
-	}
-	g_iSurvivorTeamSize++;
-	int SurvivorLimit = g_CvarSurvLimit.IntValue;
-	if (SurvivorLimit == g_iSurvivorTeamSize) return true;
-	return false;
-}
-
-bool IsInfectedTeamFull()
-{
-	int g_iInfectedTeamSize;
-	for(int i = 1; i <= MaxClients; i++) 
-	{
-		if (!IsClientInGame(i) || IsFakeClient(i) || GetClientTeam(i) == TEAM_INFECTED)
-		{
-		}
-	}
-	g_iInfectedTeamSize++;
-	int InfectedLimit = g_CvarMaxPlayerZombies.IntValue;
-	if (InfectedLimit == g_iInfectedTeamSize) return true;
-	return false;
-}
-
-bool IsClientInTeam(int client)
-{
-	if (!IsClientInGame(client) || IsFakeClient(client)) return false;
-	if (GetClientTeam(client) == TEAM_SURVIVOR || GetClientTeam(client) == TEAM_INFECTED) return true;
-	return false;
-}
-*/
 public void ConVarChange_MixStatus(Handle convar, char[] oldValue, char[] newValue)
 {
 	CaptainVote_ConVarChange_MixStatus(convar, oldValue, newValue);
@@ -931,4 +872,29 @@ int checkrealplayerinSV()
 			players++;
 		
 	return players;
+}
+
+int FindBotToTakeOver(bool alive)
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i)==TEAM_SURVIVOR && !HasIdlePlayer(i) && IsPlayerAlive(i) == alive)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
+bool HasIdlePlayer(int bot)
+{
+	if(HasEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))
+	{
+		if(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID") > 0)
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
