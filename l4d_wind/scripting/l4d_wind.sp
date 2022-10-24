@@ -5,41 +5,51 @@
 #include <sdktools>
 #include <adminmenu>
 
-#define CVAR_FLAGS	FCVAR_NOTIFY
-static float g_pos[3];
-
-ConVar g_cvAddTopMenu, g_cvAddBot;
-TopMenuObject hAdminTeleportItem;
-bool g_bMenuAdded;
-
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
-{
-	EngineVersion evEngine = GetEngineVersion();
-
-	if (evEngine != Engine_Left4Dead && evEngine != Engine_Left4Dead2)
-	{
-		strcopy(error, err_max, "SM Respawn only supports Left 4 Dead 1 & 2.");
-		return APLRes_SilentFailure;
-	}
-	return APLRes_Success;
-}
-
 public Plugin myinfo = 
 {
 	name = "Add a survivor bot + Teleport an alive player",
 	author = "Harry Potter",
 	description = "Create a survivor bot + teleport an alive player in game",
-	version = "1.4",
+	version = "1.5",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
+bool g_bL4D2Version;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	EngineVersion test = GetEngineVersion();
+
+	if( test == Engine_Left4Dead )
+	{
+		g_bL4D2Version = false;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_bL4D2Version = true;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+
+	return APLRes_Success;
+}
+
+#define CVAR_FLAGS	FCVAR_NOTIFY
+float g_pos[MAXPLAYERS+1][3];
+
+ConVar g_cvAddTopMenu, g_cvAddBot;
+TopMenuObject hAdminTeleportItem;
+bool g_bMenuAdded;
+int g_iTelpeortClient[MAXPLAYERS+1];
+
 public void OnPluginStart()
 {
-	RegAdminCmd("sm_wind", sm_addabot, ADMFLAG_BAN, "add a survivor bot");
 	RegAdminCmd("sm_addbot", sm_addabot, ADMFLAG_BAN, "add a survivor bot");
 	RegAdminCmd("sm_createbot", sm_addabot, ADMFLAG_BAN, "add a survivor bot");
 
-	g_cvAddBot = 	CreateConVar("l4d_wind_add_bot_enable", 	"1", 	"If 1, Adm can use command to add a survivor bot", CVAR_FLAGS);
+	g_cvAddBot = 	CreateConVar(	 "l4d_wind_add_bot_enable", 		"1", 	"If 1, Adm can use command to add a survivor bot", CVAR_FLAGS);
 	g_cvAddTopMenu = 	CreateConVar("l4d_wind_teleport_adminmenu", 	"1", 	"Add 'Teleport player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS);
 	AutoExecConfig(true, "l4d_wind");
 
@@ -65,30 +75,30 @@ public Action sm_addabot(int client, int args)
 		ChangeClientTeam(bot, 2);
 		if(DispatchKeyValue(bot, "classname", "SurvivorBot") == false)
 		{
-			PrintToChatAll("\x01[TS] Failed to add a bot");
+			PrintToChatAll("[TS] Failed to add a bot");
 			return Plugin_Handled;
 		}
 		
 		if(DispatchSpawn(bot) == false)
 		{
-			PrintToChatAll("\x01[TS] Failed to add a bot");
+			PrintToChatAll("[TS] Failed to add a bot");
 			return Plugin_Handled;
 		}
 		SetEntityRenderColor(bot, 128, 0, 0, 255);
  		
-		bool canTeleport = SetTeleportEndPoint(client);
+		bool canTeleport = SetTeleportEndPoint(client, g_pos[client]);
 		if(canTeleport)
 		{
-			PerformTeleport(client,bot,g_pos,true);
+			PerformTeleport(client, bot, g_pos[client], true);
 		}
 		
 		CreateTimer(0.1, Timer_KickFakeBot, bot, TIMER_REPEAT);
-		PrintToChatAll("\x01[TS] Succeed to add a bot, Spectator type \x04!jiaru\x01 to join");
+		PrintToChatAll("[TS] Succeed to add a bot, Spectator type \x04!jiaru\x01 to join");
 	}
 	return Plugin_Handled;
 }
 
-static bool SetTeleportEndPoint(int client)
+bool SetTeleportEndPoint(int client, float vPos[3])
 {
 	float vAngles[3],vOrigin[3];
 	
@@ -106,16 +116,17 @@ static bool SetTeleportEndPoint(int client)
 		GetVectorDistance(vOrigin, vStart, false);
 		float Distance = -35.0;
 		GetAngleVectors(vAngles, vBuffer, NULL_VECTOR, NULL_VECTOR);
-		g_pos[0] = vStart[0] + (vBuffer[0]*Distance);
-		g_pos[1] = vStart[1] + (vBuffer[1]*Distance);
-		g_pos[2] = vStart[2] + (vBuffer[2]*Distance);
+		vPos[0] = vStart[0] + (vBuffer[0]*Distance);
+		vPos[1] = vStart[1] + (vBuffer[1]*Distance);
+		vPos[2] = vStart[2] + (vBuffer[2]*Distance);
 	}
 	else
 	{
-		PrintToChat(client, "[TS] %s", "Could not teleport player after create a bot");
+		PrintToChat(client, "[TS] Could not find %N's crosshair location.", client);
 		delete trace;
 		return false;
 	}
+
 	delete trace;
 	return true;
 }
@@ -251,8 +262,10 @@ public void AdminMenuTeleportHandler(Handle topmenu, TopMenuAction action, TopMe
 
 void MenuClientsToTeleport(int client, int item = 0)
 {
+	g_iTelpeortClient[client] = 0;
+
 	Menu menu = new Menu(MenuHandler_MenuList, MENU_ACTIONS_DEFAULT);
-	menu.SetTitle("Player List");
+	menu.SetTitle("選擇玩家");
 
 	static char sId[16], name[64];
 	bool bNoOneAlive = true;
@@ -280,8 +293,9 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 	switch( action )
 	{
 		case MenuAction_End:
+		{
 			delete menu;
-
+		}
 		case MenuAction_Cancel:
 		{
 			if (param2 == MenuCancel_ExitBack && hTopMenu)
@@ -289,13 +303,12 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 				hTopMenu.Display(param1, TopMenuPosition_LastCategory);
 			}
 		}
-		
 		case MenuAction_Select:
 		{
 			int client = param1;
 			int ItemIndex = param2;
 			
-			static char sUserId[16];
+			char sUserId[16];
 			menu.GetItem(ItemIndex, sUserId, sizeof sUserId);
 			
 			int UserId = StringToInt(sUserId);
@@ -303,28 +316,219 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 			
 			if( target && IsClientInGame(target) && IsPlayerAlive(target))
 			{
-				if( GetEntProp(target, Prop_Send, "m_isHangingFromLedge") ) 
-				{
-					PrintToChat(client, "\x01[TS] Target is hanging from ledge, you can't teleport %N .", target);
-				}
-				else
-				{
-					bool canTeleport = SetTeleportEndPoint(client);
-					if(canTeleport)
-					{
-						PerformTeleport(client,target,g_pos);
-						PrintToChat(client, "\x01[TS] You teleport player %N .", target);
-					}
-				}
-			}
-			else
-			{
-				PrintToChat(client, "\x01[TS] Target is not a valid alive player.");
-			}
+				g_iTelpeortClient[client] = UserId;
+				MenuTeleportToClients(client);
 
+				return 0;
+			}
+			
+			PrintToChat(client, "[TS] Target is not a valid alive player.");
 			MenuClientsToTeleport(client, menu.Selection);
 		}
 	}
 
 	return 0;
+}
+
+void MenuTeleportToClients(int client, int item = 0)
+{
+	Menu menu = new Menu(MenuHandler_MenuList2, MENU_ACTIONS_DEFAULT);
+	menu.SetTitle("選擇傳送地點");
+
+	static char sId[16], name[64];
+	menu.AddItem("crosshair", "準心上 (Crosshair)");
+	menu.AddItem("self", "自己身上 (Self)");
+	for( int i = 1; i <= MaxClients; i++ )
+	{
+		if( IsClientInGame(i) && i != client)
+		{
+			if(!IsPlayerAlive(i)) continue;
+			
+			FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
+			FormatEx(name, sizeof name, "%N", i);
+			
+			menu.AddItem(sId, name);
+		}
+	}
+	menu.ExitBackButton = true;
+	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
+}
+
+public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch( action )
+	{
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_Cancel:
+		{
+			if (param2 == MenuCancel_ExitBack && hTopMenu)
+			{
+				MenuClientsToTeleport(param1);
+			}
+		}
+		case MenuAction_Select:
+		{
+			int client = param1;
+			int ItemIndex = param2;
+			int target = GetClientOfUserId(g_iTelpeortClient[client]);
+
+			if( target && IsClientInGame(target) && IsPlayerAlive(target))
+			{
+				if( GetEntProp(target, Prop_Send, "m_isHangingFromLedge") ) 
+				{
+					PrintToChat(client, "[TS] Target is hanging from ledge, you can't teleport %N.", target);
+				}
+				else if (GetClientTeam(target) == 2 && GetInfectedAttacker(target) > 0)
+				{
+					PrintToChat(client, "[TS] Target is capped by special infected, you can't teleport %N.", target);
+				}
+				else if (GetClientTeam(target) == 3 && L4D_GetSurvivorVictim(target) > 0)
+				{
+					PrintToChat(client, "[TS] Target is busy, you can't teleport %N.", target);
+				}
+				else
+				{
+					char sUserId[16];
+					menu.GetItem(ItemIndex, sUserId, sizeof sUserId);
+					bool canTeleport = false;
+					if(strcmp(sUserId, "crosshair", false) == 0)
+					{
+						if(SetTeleportEndPoint(client, g_pos[client]))
+						{
+							canTeleport = true;
+						}
+					}
+					else if(strcmp(sUserId, "self", false) == 0)
+					{
+						GetClientAbsOrigin(client, g_pos[client]);
+						canTeleport = true;
+					}
+					else
+					{
+						int player = GetClientOfUserId(StringToInt(sUserId));
+						if( player && IsClientInGame(player) && IsPlayerAlive(player))
+						{
+							GetClientAbsOrigin(player, g_pos[client]);
+							canTeleport = true;
+						}
+						else
+						{
+							PrintToChat(client, "[TS] Player is not a valid alive player, choose again!");
+							MenuTeleportToClients(client, menu.Selection);
+
+							return 0;
+						}
+					}
+
+					if(canTeleport)
+					{
+						PerformTeleport(client, target, g_pos[client]);
+						PrintToChat(client, "[TS] You teleport player %N.", target);
+					}
+					else
+					{
+						PrintToChat(client, "[TS] Failed to teleport player %N, try again later!", g_iTelpeortClient[client]);
+					}
+				}
+			}
+			else
+			{
+				PrintToChat(client, "[TS] Target is not a valid alive player, choose again!");
+			}
+
+			MenuClientsToTeleport(client);
+		}
+	}
+
+	return 0;
+}
+
+int L4D_GetSurvivorVictim(int client)
+{
+	int victim;
+
+	if(g_bL4D2Version)
+	{
+		/* Charger */
+		victim = GetEntPropEnt(client, Prop_Send, "m_pummelVictim");
+		if (victim > 0)
+		{
+			return victim;
+		}
+
+		victim = GetEntPropEnt(client, Prop_Send, "m_carryVictim");
+		if (victim > 0)
+		{
+			return victim;
+		}
+
+		/* Jockey */
+		victim = GetEntPropEnt(client, Prop_Send, "m_jockeyVictim");
+		if (victim > 0)
+		{
+			return victim;
+		}
+	}
+
+    /* Hunter */
+	victim = GetEntPropEnt(client, Prop_Send, "m_pounceVictim");
+	if (victim > 0)
+	{
+		return victim;
+ 	}
+
+    /* Smoker */
+ 	victim = GetEntPropEnt(client, Prop_Send, "m_tongueVictim");
+	if (victim > 0)
+	{
+		return victim;
+	}
+
+	return -1;
+}
+
+int GetInfectedAttacker(int client)
+{
+	int attacker;
+
+	if(g_bL4D2Version)
+	{
+		/* Charger */
+		attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
+		if (attacker > 0)
+		{
+			return attacker;
+		}
+
+		attacker = GetEntPropEnt(client, Prop_Send, "m_carryAttacker");
+		if (attacker > 0)
+		{
+			return attacker;
+		}
+		/* Jockey */
+		attacker = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
+		if (attacker > 0)
+		{
+			return attacker;
+		}
+	}
+
+	/* Hunter */
+	attacker = GetEntPropEnt(client, Prop_Send, "m_pounceAttacker");
+	if (attacker > 0)
+	{
+		return attacker;
+	}
+
+	/* Smoker */
+	attacker = GetEntPropEnt(client, Prop_Send, "m_tongueOwner");
+	if (attacker > 0)
+	{
+		return attacker;
+	}
+
+	return -1;
 }
