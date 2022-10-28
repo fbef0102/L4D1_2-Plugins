@@ -39,18 +39,21 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define CVAR_FLAGS	FCVAR_NOTIFY
 float g_pos[MAXPLAYERS+1][3];
 
-ConVar g_cvAddTopMenu, g_cvAddBot;
+ConVar g_cvAddTopMenu, g_cvAddBot, g_cvTeleportInfected;
 TopMenuObject hAdminTeleportItem;
 bool g_bMenuAdded;
 int g_iTelpeortClient[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
-	RegAdminCmd("sm_addbot", sm_addabot, ADMFLAG_BAN, "add a survivor bot");
-	RegAdminCmd("sm_createbot", sm_addabot, ADMFLAG_BAN, "add a survivor bot");
+	RegAdminCmd("sm_addbot", sm_addabot, ADMFLAG_BAN, "Add a survivor bot");
+	RegAdminCmd("sm_createbot", sm_addabot, ADMFLAG_BAN, "Add a survivor bot");
+	RegAdminCmd("sm_teleport", sm_teleport, ADMFLAG_BAN, "Open 'Teleport player' menu");
+	RegAdminCmd("sm_tp", sm_teleport, ADMFLAG_BAN, "Open 'Teleport player' menu");
 
-	g_cvAddBot = 	CreateConVar(	 "l4d_wind_add_bot_enable", 		"1", 	"If 1, Adm can use command to add a survivor bot", CVAR_FLAGS);
-	g_cvAddTopMenu = 	CreateConVar("l4d_wind_teleport_adminmenu", 	"1", 	"Add 'Teleport player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS);
+	g_cvAddBot = 	CreateConVar(	 "l4d_wind_add_bot_enable", 				"1", 	"If 1, Adm can use command to add a survivor bot", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvAddTopMenu = 	CreateConVar("l4d_wind_teleport_adminmenu", 			"1", 	"Add 'Teleport player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvTeleportInfected = 	CreateConVar("l4d_wind_teleport_infected_enable", 	"1", 	"If 1, Adm can teleport special infected", CVAR_FLAGS, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "l4d_wind");
 
 	g_cvAddTopMenu.AddChangeHook(OnCvarTopMenuChanged);
@@ -67,6 +70,7 @@ public void OnPluginStart()
 
 public Action sm_addabot(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
 	if(g_cvAddBot.BoolValue == false) return Plugin_Handled;
 
 	int bot = CreateFakeClient("I am not real.");
@@ -95,6 +99,15 @@ public Action sm_addabot(int client, int args)
 		CreateTimer(0.1, Timer_KickFakeBot, bot, TIMER_REPEAT);
 		PrintToChatAll("[TS] Succeed to add a bot, Spectator type \x04!jiaru\x01 to join");
 	}
+	return Plugin_Handled;
+}
+
+public Action sm_teleport(int client, int args)
+{
+	if(client == 0) return Plugin_Handled;
+	
+	MenuClientsToTeleport(client);
+
 	return Plugin_Handled;
 }
 
@@ -271,9 +284,11 @@ void MenuClientsToTeleport(int client, int item = 0)
 	bool bNoOneAlive = true;
 	for( int i = 1; i <= MaxClients; i++ )
 	{
-		if( IsClientInGame(i) && i != client)
+		if( IsClientInGame(i))
 		{
+			if(i == client) continue;
 			if(!IsPlayerAlive(i)) continue;
+			if(GetClientTeam(i) != 2) continue;
 			
 			FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
 			FormatEx(name, sizeof name, "%N", i);
@@ -283,6 +298,27 @@ void MenuClientsToTeleport(int client, int item = 0)
 			bNoOneAlive = false;
 		}
 	}
+
+	if(g_cvTeleportInfected.BoolValue)
+	{
+		for( int i = 1; i <= MaxClients; i++ )
+		{
+			if( IsClientInGame(i))
+			{
+				if(i == client) continue;
+				if(!IsPlayerAlive(i)) continue;
+				if(GetClientTeam(i) != 3) continue;
+				
+				FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
+				FormatEx(name, sizeof name, "%N", i);
+				
+				menu.AddItem(sId, name);
+				
+				bNoOneAlive = false;
+			}
+		}
+	}
+
 	if(bNoOneAlive) menu.AddItem("1.", "There Are No Any alive player.");
 	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
@@ -317,7 +353,7 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 			if( target && IsClientInGame(target) && IsPlayerAlive(target))
 			{
 				g_iTelpeortClient[client] = UserId;
-				MenuTeleportToClients(client);
+				MenuTeleportToClients(client, target);
 
 				return 0;
 			}
@@ -330,19 +366,22 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 	return 0;
 }
 
-void MenuTeleportToClients(int client, int item = 0)
+void MenuTeleportToClients(int client, int target, int item = 0)
 {
 	Menu menu = new Menu(MenuHandler_MenuList2, MENU_ACTIONS_DEFAULT);
 	menu.SetTitle("選擇傳送地點");
 
 	static char sId[16], name[64];
 	menu.AddItem("crosshair", "準心上 (Crosshair)");
-	menu.AddItem("self", "自己身上 (Self)");
+	if(GetClientTeam(client) != 1 && IsPlayerAlive(client)) menu.AddItem("self", "自己身上 (Self)");
 	for( int i = 1; i <= MaxClients; i++ )
 	{
-		if( IsClientInGame(i) && i != client)
+		if( IsClientInGame(i))
 		{
+			if(i == client) continue;
+			if(i == target) continue;
 			if(!IsPlayerAlive(i)) continue;
+			if(GetClientTeam(i) != 2) continue;
 			
 			FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
 			FormatEx(name, sizeof name, "%N", i);
@@ -350,6 +389,26 @@ void MenuTeleportToClients(int client, int item = 0)
 			menu.AddItem(sId, name);
 		}
 	}
+
+	if(g_cvTeleportInfected.BoolValue)
+	{
+		for( int i = 1; i <= MaxClients; i++ )
+		{
+			if( IsClientInGame(i))
+			{
+				if(i == client) continue;
+				if(i == target) continue;
+				if(!IsPlayerAlive(i)) continue;
+				if(GetClientTeam(i) != 3) continue;
+				
+				FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
+				FormatEx(name, sizeof name, "%N", i);
+				
+				menu.AddItem(sId, name);
+			}
+		}
+	}
+
 	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
@@ -417,7 +476,7 @@ public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int p
 						else
 						{
 							PrintToChat(client, "[TS] Player is not a valid alive player, choose again!");
-							MenuTeleportToClients(client, menu.Selection);
+							MenuTeleportToClients(client, target, menu.Selection);
 
 							return 0;
 						}
