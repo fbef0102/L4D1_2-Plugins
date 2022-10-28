@@ -97,7 +97,6 @@ public Action sm_addabot(int client, int args)
 		}
 		
 		CreateTimer(0.1, Timer_KickFakeBot, bot, TIMER_REPEAT);
-		PrintToChatAll("[TS] Succeed to add a bot, Spectator type \x04!jiaru\x01 to join");
 	}
 	return Plugin_Handled;
 }
