@@ -16,7 +16,14 @@ l4d_wind_add_bot_enable "1"
 // Add 'Teleport player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)
 l4d_wind_teleport_adminmenu "1"
 
+// If 1, Adm can teleport special infected
+l4d_wind_teleport_infected_enable "1"
+
 -Command-
- *add a survivor bot
+	* add a survivor bot (Adm required: ADMFLAG_BAN)
 	 sm_addbot
 	 sm_createbot
+	 
+	* Open 'Teleport player' menu (Adm required: ADMFLAG_BAN)
+	 sm_teleport
+	 sm_tp
