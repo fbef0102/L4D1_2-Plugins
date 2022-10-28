@@ -23,11 +23,35 @@
 	"Respawn_Info"
 	{
 		"en"		"Respawned player '%N'"
-		"ru"		"Оживлён игрок «%N»"
+		"ru"		"Оживлён игрок '%N'"
 		"hu"		"Játékos visszahozva '%N'"
 		"es"		"Reapareciste a '%N'"
 		"sv"        "Förnyade spelare '%N'"
 		"zho"       "復活了 '%N'"
 		"chi"       "复活了 '%N'"
+	}
+	"No Any Dead Survivor"
+	{
+		"en"		"There Are No Any Dead Survivor"
+		"zho"       "沒有死掉的玩家"
+		"chi"       "没有死掉的玩家"
+	}
+	"message_1"
+	{
+		"en"		"You Dumb? %N is still alive!"
+		"zho"       "蠢? 目標玩家還活著!"
+		"chi"       "傻B? 目标玩家还活着!"
+	}
+	"message_2"
+	{
+		"en"		"Failed! %N is not survivor"
+		"zho"       "失敗! 目標玩家不是倖存者"
+		"chi"       "失败! 目标玩家不是生还者"
+	}
+	"message_3"
+	{
+		"en"		"Failed! %N is spectator"
+		"zho"       "失敗! 目標玩家是旁觀者"
+		"chi"       "失败! 目标玩家是旁观者"
 	}
 }
