@@ -6,7 +6,7 @@
 #include <adminmenu>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION "2.6"
+#define PLUGIN_VERSION "2.7"
 
 #define CVAR_FLAGS	FCVAR_NOTIFY
 
@@ -23,10 +23,7 @@ int ACCESS_FLAG = ADMFLAG_BAN;
 
 float VEC_DUMMY[3]	= {99999.0, 99999.0, 99999.0};
 
-ConVar g_cvLoadout;
-ConVar g_cvShowAction;
-ConVar g_cvAddTopMenu;
-ConVar g_cvGameMode;
+ConVar g_cvLoadout, g_cvShowAction, g_cvAddTopMenu, g_cvDestination;
 
 bool g_bLeft4dead2;
 bool g_bMenuAdded;
@@ -57,12 +54,11 @@ public void OnPluginStart()
 	
 	CreateConVar("l4d_sm_respawn2_version", PLUGIN_VERSION, "SM Respawn Version", CVAR_FLAGS | FCVAR_DONTRECORD);
 	g_cvLoadout = 		CreateConVar("l4d_sm_respawn_loadout", 		"pistol,smg", "Respawn players with this loadout, separate by commas", CVAR_FLAGS);
-	g_cvShowAction = 	CreateConVar("l4d_sm_respawn_showaction", 	"1", 	"Notify in chat and log action about respawn? (0 - No, 1 - Yes)", CVAR_FLAGS);
-	g_cvAddTopMenu = 	CreateConVar("l4d_sm_respawn_adminmenu", 	"1", 	"Add 'Respawn player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS);
+	g_cvShowAction = 	CreateConVar("l4d_sm_respawn_showaction", 	"1", 	"Notify in chat and log action about respawn? (0 - No, 1 - Yes)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvAddTopMenu = 	CreateConVar("l4d_sm_respawn_adminmenu", 	"1", 	"Add 'Respawn player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvDestination = 	CreateConVar("l4d_sm_respawn_destination", 	"0", 	"After respawn player, teleport player to 0=Crosshair, 1=Self (You must be alive).", CVAR_FLAGS, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "l4d_sm_respawn");
-	
-	g_cvGameMode = FindConVar("mp_gamemode");
-	
+
 	Handle hGameData = LoadGameConfigFile("l4drespawn");
 	if (hGameData == null) SetFailState("Could not find gamedata file at addons/sourcemod/gamedata/l4drespawn.txt , you FAILED AT INSTALLING");
 	
@@ -198,22 +194,12 @@ void MenuClientsToSpawn(int client, int item = 0)
 	Menu menu = new Menu(MenuHandler_MenuList, MENU_ACTIONS_DEFAULT);
 	menu.SetTitle("%T", "List_Players", client);
 	
-	char sGameMode[16];
-	g_cvGameMode.GetString(sGameMode, sizeof sGameMode);
-	//bool bVersus = (0 == strcmp(sGameMode, "versus"));
-	
 	static char sId[16], name[64];
 	bool bNoOneDead = true;
 	for( int i = 1; i <= MaxClients; i++ )
 	{
-		//if( IsClientInGame(i) && GetClientTeam(i) != 1 )
 		if( IsClientInGame(i) && GetClientTeam(i) == 2 )
 		{
-			//if( bVersus && GetClientTeam(i) == 3 && IsFakeClient(i) )
-			//{
-			//	continue;
-			//}
-			
 			if(IsPlayerAlive(i)) continue;
 			
 			FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
@@ -224,7 +210,12 @@ void MenuClientsToSpawn(int client, int item = 0)
 			bNoOneDead = false;
 		}
 	}
-	if(bNoOneDead) menu.AddItem("1.", "There Are No Any Dead Survivor");
+	if(bNoOneDead)
+	{
+		char sText[64];
+		FormatEx(sText, sizeof(sText), "%T", "No Any Dead Survivor", client);
+		menu.AddItem("1.", sText);
+	}
 	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
@@ -339,17 +330,20 @@ public Action CmdRespawn(int client, int args)
 
 bool vRespawnPlayer(int client, int target, float vec[3] = {99999.0, 99999.0, 99999.0})
 {
-	bool bShouldTeleport;
 	float ang[3];
 	
-	if( vec[0] != VEC_DUMMY[0] || vec[1] != VEC_DUMMY[1] || vec[2] != VEC_DUMMY[2] )
+	if( vec[0] == VEC_DUMMY[0] && vec[1] == VEC_DUMMY[1] && vec[2] == VEC_DUMMY[2] )
 	{
-		bShouldTeleport = true;
+		if(g_cvDestination.IntValue == 0 && GetSpawnEndPoint(client, vec))
+		{
+			//nothing
+		}
+		else
+		{
+			GetClientAbsOrigin(client, vec);
+		}
 	}
-	else if( GetSpawnEndPoint(client, vec) )
-	{
-		bShouldTeleport = true;
-	}
+
 	if( client )
 	{
 		GetClientEyeAngles(client, ang);
@@ -361,64 +355,51 @@ bool vRespawnPlayer(int client, int target, float vec[3] = {99999.0, 99999.0, 99
 		{
 			if(IsPlayerAlive(target))
 			{
-				PrintToChat(client, "[SM] You Dumb? %N is still alive!",target);
+				PrintToChat(client, "[SM] %T", "message_1", client, target);
 				return false;
 			}
+
 			L4D_RespawnPlayer(target);
 			
-			//if( result )
+			char sItems[6][64], sLoadout[512];
+			g_cvLoadout.GetString(sLoadout, sizeof sLoadout);
+			if(strlen(sLoadout) > 0)
 			{
-				char sItems[6][64], sLoadout[512];
-				
-				g_cvLoadout.GetString(sLoadout, sizeof sLoadout);
-				if(strlen(sLoadout) > 0)
-				{
-					StripWeapons( target );
+				StripWeapons( target );
 
-					ExplodeString(sLoadout, ",", sItems, sizeof sItems, sizeof sItems[]);
-					
-					for( int iItem = 0; iItem < sizeof sItems; iItem++ )
+				ExplodeString(sLoadout, ",", sItems, sizeof sItems, sizeof sItems[]);
+				
+				for( int iItem = 0; iItem < sizeof sItems; iItem++ )
+				{
+					if ( sItems[iItem][0] != '\0' )
 					{
-						if ( sItems[iItem][0] != '\0' )
-						{
-							vCheatCommand(target, "give", sItems[iItem]);
-						}
+						vCheatCommand(target, "give", sItems[iItem]);
 					}
 				}
-				
-				if( bShouldTeleport )
-				{
-					vPerformTeleport(client, target, vec, ang);
-				}
-				if( g_cvShowAction.BoolValue && client )
-				{
-					//ShowActivity2(client, "[SM] ", "%t", "Respawn_Info", target); // "Respawned player '%N'"
-				}
 			}
+			
+			vPerformTeleport(client, target, vec, ang);
+
+			int entity = g_iDeadBody[target];
+			g_iDeadBody[target] = 0;
+
+			if( IsValidEntRef(entity) )
+				AcceptEntityInput(entity, "kill");
 		}
 		
 		case 3:
 		{
-			PrintToChat(client, "[SM] Failed! %N is not survivor",target);
+			PrintToChat(client, "[SM] %T", "message_2", client, target);
 			return false;
 		}
 		
 		case 1:
 		{
-			PrintToChat(client, "[SM] Failed! %N is spectator",target);
+			PrintToChat(client, "[SM] %T", "message_3", client, target);
 			return false;
 		}
 	}
 	
-	if( g_iDeadBody[target] && GetClientTeam(target) == 2)
-	{
-		int iDeadBody = EntRefToEntIndex(g_iDeadBody[target]);
-		
-		if( iDeadBody && iDeadBody != INVALID_ENT_REFERENCE && IsValidEntity(iDeadBody) )
-		{
-			AcceptEntityInput(iDeadBody, "kill");
-		}
-	}
 	return true;
 }
 
@@ -444,10 +425,7 @@ bool GetSpawnEndPoint(int client, float vSpawnVec[3])
 			return true;
 		}
 	}
-	if( g_cvShowAction.BoolValue && client )
-	{
-		PrintToChat(client, "[SM] %s", "Could not teleport player after respawn");
-	}
+
 	return false;
 }
 
@@ -539,4 +517,11 @@ void StripWeapons(int client) // strip all items from client
 			AcceptEntityInput(itemIdx, "Kill");
 		}
 	}
+}
+
+bool IsValidEntRef(int entity)
+{
+	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE)
+		return true;
+	return false;
 }
