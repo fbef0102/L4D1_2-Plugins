@@ -20,10 +20,10 @@ l4d_wind_teleport_adminmenu "1"
 l4d_wind_teleport_infected_enable "1"
 
 -Command-
-	* add a survivor bot (Adm required: ADMFLAG_BAN)
-	 sm_addbot
-	 sm_createbot
+** Add a survivor bot (Adm required: ADMFLAG_BAN)
+	"sm_addbot"
+	"sm_createbot"
 	 
-	* Open 'Teleport player' menu (Adm required: ADMFLAG_BAN)
-	 sm_teleport
-	 sm_tp
+** Open 'Teleport player' menu (Adm required: ADMFLAG_BAN)
+	"sm_teleport"
+	"sm_tp"
