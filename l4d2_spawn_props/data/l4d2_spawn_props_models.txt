@@ -1003,6 +1003,7 @@ models/props_exteriors/sandbags_curved.mdl TAG- 白色沙袋 - 6層 - 弧型
 models/props_exteriors/sandbags_straight.mdl TAG- 白色沙袋 - 6層
 models/props/cs_office/vending_machine.mdl TAG- 自動販賣機 - 飲料
 models/props_equipment/snack_machine.mdl TAG- 自動販賣機 - 點心
+models/props_equipment/cooler.mdl TAG- 自動販賣機 - SOFT DRINKS
 models/props_equipment/fountain_drinks.mdl TAG- 自助飲料機
 models/props_unique/atm01.mdl TAG- ATM提款機
 models/props_debris/dead_cow.mdl TAG- 死牛
