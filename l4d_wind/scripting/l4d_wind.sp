@@ -392,7 +392,7 @@ void MenuTeleportToClients(int client, int target, int item = 0)
 	char sText[64];
 	FormatEx(sText, sizeof(sText), "%T", "l4d_wind_6", client);
 	menu.AddItem("crosshair", sText);
-	if(target != client && GetClientTeam(client) != 1 && IsPlayerAlive(client))
+	if(target != client)
 	{
 		FormatEx(sText, sizeof(sText), "%T", "l4d_wind_7", client);
 		menu.AddItem("self", sText);
