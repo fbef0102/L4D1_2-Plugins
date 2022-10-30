@@ -10,7 +10,7 @@ public Plugin myinfo =
 	name = "Add a survivor bot + Teleport an alive player",
 	author = "Harry Potter",
 	description = "Create a survivor bot + teleport an alive player in game",
-	version = "1.5",
+	version = "1.6",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -46,6 +46,8 @@ int g_iTelpeortClient[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
+	LoadTranslations("wind.phrases");
+
 	RegAdminCmd("sm_addbot", sm_addabot, ADMFLAG_BAN, "Add a survivor bot");
 	RegAdminCmd("sm_createbot", sm_addabot, ADMFLAG_BAN, "Add a survivor bot");
 	RegAdminCmd("sm_teleport", sm_teleport, ADMFLAG_BAN, "Open 'Teleport player' menu");
@@ -79,13 +81,13 @@ public Action sm_addabot(int client, int args)
 		ChangeClientTeam(bot, 2);
 		if(DispatchKeyValue(bot, "classname", "SurvivorBot") == false)
 		{
-			PrintToChatAll("[TS] Failed to add a bot");
+			PrintToChat(client, "[TS] %T", "l4d_wind_15", client);
 			return Plugin_Handled;
 		}
 		
 		if(DispatchSpawn(bot) == false)
 		{
-			PrintToChatAll("[TS] Failed to add a bot");
+			PrintToChat(client, "[TS] %T", "l4d_wind_15", client);
 			return Plugin_Handled;
 		}
 		SetEntityRenderColor(bot, 128, 0, 0, 255);
@@ -268,7 +270,7 @@ public void AdminMenuTeleportHandler(Handle topmenu, TopMenuAction action, TopMe
 	}
 	else if( action == TopMenuAction_DisplayOption )
 	{
-		FormatEx(buffer, maxlength, "傳送玩家");
+		FormatEx(buffer, maxlength, "%T", "l4d_wind_1", param);
 	}
 }
 
@@ -277,10 +279,20 @@ void MenuClientsToTeleport(int client, int item = 0)
 	g_iTelpeortClient[client] = 0;
 
 	Menu menu = new Menu(MenuHandler_MenuList, MENU_ACTIONS_DEFAULT);
-	menu.SetTitle("選擇玩家");
+	menu.SetTitle("%T", "l4d_wind_2", client);
 
 	static char sId[16], name[64];
 	bool bNoOneAlive = true;
+
+	if(IsPlayerAlive(client) && GetClientTeam(client) != 1)
+	{
+		FormatEx(sId, sizeof sId, "%i", GetClientUserId(client));
+		FormatEx(name, sizeof name, "%T", "l4d_wind_16", client);
+
+		menu.AddItem(sId, name);
+		bNoOneAlive = false;
+	}
+
 	for( int i = 1; i <= MaxClients; i++ )
 	{
 		if( IsClientInGame(i))
@@ -318,7 +330,13 @@ void MenuClientsToTeleport(int client, int item = 0)
 		}
 	}
 
-	if(bNoOneAlive) menu.AddItem("1.", "There Are No Any alive player.");
+
+	if(bNoOneAlive)
+	{
+		char sText[64];
+		FormatEx(sText, sizeof(sText), "%T", "l4d_wind_3", client);
+		menu.AddItem("1.", sText);
+	}
 	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
@@ -357,7 +375,7 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 				return 0;
 			}
 			
-			PrintToChat(client, "[TS] Target is not a valid alive player.");
+			PrintToChat(client, "[TS] %T", "l4d_wind_4", client);
 			MenuClientsToTeleport(client, menu.Selection);
 		}
 	}
@@ -368,11 +386,17 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 void MenuTeleportToClients(int client, int target, int item = 0)
 {
 	Menu menu = new Menu(MenuHandler_MenuList2, MENU_ACTIONS_DEFAULT);
-	menu.SetTitle("選擇傳送地點");
+	menu.SetTitle("%T", "l4d_wind_5", client);
 
 	static char sId[16], name[64];
-	menu.AddItem("crosshair", "準心上 (Crosshair)");
-	if(GetClientTeam(client) != 1 && IsPlayerAlive(client)) menu.AddItem("self", "自己身上 (Self)");
+	char sText[64];
+	FormatEx(sText, sizeof(sText), "%T", "l4d_wind_6", client);
+	menu.AddItem("crosshair", sText);
+	if(target != client && GetClientTeam(client) != 1 && IsPlayerAlive(client))
+	{
+		FormatEx(sText, sizeof(sText), "%T", "l4d_wind_7", client);
+		menu.AddItem("self", sText);
+	}
 	for( int i = 1; i <= MaxClients; i++ )
 	{
 		if( IsClientInGame(i))
@@ -437,15 +461,15 @@ public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int p
 			{
 				if( GetEntProp(target, Prop_Send, "m_isHangingFromLedge") ) 
 				{
-					PrintToChat(client, "[TS] Target is hanging from ledge, you can't teleport %N.", target);
+					PrintToChat(client, "[TS] %T", "l4d_wind_8", client, target);
 				}
 				else if (GetClientTeam(target) == 2 && GetInfectedAttacker(target) > 0)
 				{
-					PrintToChat(client, "[TS] Target is capped by special infected, you can't teleport %N.", target);
+					PrintToChat(client, "[TS] %T", "l4d_wind_9", client, target);
 				}
 				else if (GetClientTeam(target) == 3 && L4D_GetSurvivorVictim(target) > 0)
 				{
-					PrintToChat(client, "[TS] Target is busy, you can't teleport %N.", target);
+					PrintToChat(client, "[TS] %T", "l4d_wind_10", client, target);
 				}
 				else
 				{
@@ -474,7 +498,7 @@ public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int p
 						}
 						else
 						{
-							PrintToChat(client, "[TS] Player is not a valid alive player, choose again!");
+							PrintToChat(client, "[TS] %T", "l4d_wind_11", client);
 							MenuTeleportToClients(client, target, menu.Selection);
 
 							return 0;
@@ -484,17 +508,17 @@ public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int p
 					if(canTeleport)
 					{
 						PerformTeleport(client, target, g_pos[client]);
-						PrintToChat(client, "[TS] You teleport player %N.", target);
+						PrintToChat(client, "[TS] %T", "l4d_wind_12", client, target);
 					}
 					else
 					{
-						PrintToChat(client, "[TS] Failed to teleport player %N, try again later!", g_iTelpeortClient[client]);
+						PrintToChat(client, "[TS] %T", "l4d_wind_13", client, g_iTelpeortClient[client]);
 					}
 				}
 			}
 			else
 			{
-				PrintToChat(client, "[TS] Target is not a valid alive player, choose again!");
+				PrintToChat(client, "[TS] %T", "l4d_wind_14", client);
 			}
 
 			MenuClientsToTeleport(client);

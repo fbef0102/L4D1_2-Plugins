@@ -1,9 +1,10 @@
 Create a survivor bot in game + Teleport player
 
 -Changelog-
-v1.5
+v1.6
 -Add 'Teleport player' item in admin menu under 'Player commands' category.
 -Add Teleport destination menu
+-Add Translation Support
 
 v1.2
 -Remake code
