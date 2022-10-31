@@ -66,6 +66,7 @@ models/props_vehicles/racecar_damaged.mdl TAG- Jimmy Gibbs Junior的賽車 - 已
 models/props_vehicles/semi_trailer.mdl TAG- 貨櫃車
 models/props_vehicles/semi_trailer_freestanding.mdl TAG- 貨櫃車 - 能站立
 models/props_vehicles/semi_trailer_wrecked.mdl TAG- 貨櫃車 - 倒下
+models/props_trailers/trailer_small01.mdl TAG- 露營拖車
 models/props_vehicles/suv_2001.mdl TAG- 多功能汽車 2001
 models/props_vehicles/tanker001a.mdl TAG- 已爆炸的油罐車 - 無頭
 models/props_vehicles/taxi_city.mdl TAG- 出租車 - 城市
@@ -721,6 +722,7 @@ models/props_unique/grocerystorechiller01.mdl TAG- 超商冷凍櫃
 models/props_furniture/piano.mdl TAG- 鋼琴
 models/props_fairgrounds/fairgrounds_flagpole01.mdl TAG- 旗桿
 models/props_junk/barrel_fire.mdl TAG- 油桶
+models/props_c17/oildrum001.mdl TAG- 油桶 (C17版本)
 models/props_interiors/fridge_mini.mdl TAG- 迷你冰箱
 models/props_interiors/magazine_rack.mdl TAG- 週刊櫃
 models/props_interiors/makeshift_stove_battery.mdl TAG- 臨時爐灶電池
