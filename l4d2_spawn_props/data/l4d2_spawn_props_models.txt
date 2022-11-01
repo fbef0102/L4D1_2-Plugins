@@ -874,8 +874,9 @@ models/props_exteriors/wood_stairs_wide_48.mdl TAG- 寬木製樓梯 - 6階
 models/props_exteriors/wood_porchsteps_01.mdl TAG- 木製樓梯 - 10階 (好用)
 models/props_exteriors/wood_stairs_120.mdl TAG- 木製樓梯 - 15階 (好用)
 models/props_buildings/barn_steps.mdl TAG- 木製樓梯 - 15階 - 有扶手
-models/props_c17/metalladder001.mdl TAG- 梯子 - 8階
-models/props/cs_office/ladder1.mdl TAG- 梯子 - 9階
+models/props_c17/metalladder001.mdl TAG- 灰色梯子 - 8階
+models/props_equipment/metalladder002.mdl TAG- 紅色梯子 - 8階
+models/props/cs_office/ladder1.mdl TAG- 黃色梯子 - 9階
 models/props_vehicles/train_ladder.mdl TAG- 火車梯子 - 9階
 models/props/de_train/ladderaluminium.mdl TAG- 鋁製梯子 - 雙層
 models/props/cs_assault/ladderaluminium128.mdl TAG- 鋁製梯子 - 雙層 - 短
