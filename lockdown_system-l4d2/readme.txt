@@ -1,7 +1,7 @@
 Locks Saferoom Door Until Someone Opens It.
 
 -Changelog-
-v5.0
+v5.1
 AlliedModders post: https://forums.alliedmods.net/showpost.php?p=2712869&postcount=54
 - Remake Code
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
@@ -24,18 +24,21 @@ AlliedModders post: https://forums.alliedmods.net/showpost.php?p=2712869&postcou
 - Set the door glow color
 - Seconds to lock door after opening and closing the saferoom door.
 - after saferoom door is opened, how many chance can the survivors open the door. (stop noobs from playing the doors)
+- Made compatible with the "Saferoom Lock: Scavenge" plugin version 1.2.2+ by Earendil.
 
 v1.7
 -Original Post: https://forums.alliedmods.net/showthread.php?t=281305
 
 -Require-
-1. sourcemod 1.11 or above
-2. "Left4DHooks" plugin version 1.101 or newer: https://forums.alliedmods.net/showthread.php?p=2684862
-3. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+1. "Left4DHooks" plugin version 1.101 or newer: https://forums.alliedmods.net/showthread.php?p=2684862
+2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
 -Related Plugin-
 1. antisaferoomdooropen: https://github.com/fbef0102/Game-Private_Plugin/tree/main/antisaferoomdooropen
 Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
+
+2. Saferoom Lock Scavenge: https://forums.alliedmods.net/showthread.php?t=333086
+Players must complete a small scavenge event to unlock the saferoom
 
 -Convars-
 cfg/sourcemod/lockdown_system-l4d2.cfg

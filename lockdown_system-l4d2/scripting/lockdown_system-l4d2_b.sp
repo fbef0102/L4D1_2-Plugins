@@ -1,19 +1,23 @@
-/*	The Last Stand Gamedate signature fix
-*	(Thanks to Shadowysn's work, [L4D1/2] Direct Infected Spawn (Limit-Bypass), https://forums.alliedmods.net/showthread.php?t=320849)
-*/
-
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-#undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "5.0"
+#define PLUGIN_VERSION "5.1"
 
 #define UNLOCK 0
 #define LOCK 1
+
+#define MODEL_END_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_02.mdl"
+#define MODEL_END_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-02.mdl"
+#define MODEL_END_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse02.mdl"
+
+#define MODEL_START_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_01.mdl"
+#define MODEL_START_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-01.mdl"
+#define MODEL_START_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse01.mdl"
+
 #define MODEL_TANK "models/infected/hulk.mdl"
 #define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
 
@@ -156,7 +160,7 @@ public void OnPluginEnd()
 	sb_unstick.SetBool(sb_unstick_default);
 }
 
-bool g_bValidMap = true;
+bool g_bValidMap, g_bSLSDisable;
 public void OnMapStart()
 {
 	g_bValidMap = true;
@@ -265,6 +269,8 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
+
+	g_bSLSDisable = false;
 }
 
 public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
@@ -372,7 +378,7 @@ public Action OrderShutDown(Handle timer)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-	if( g_bValidMap && /*bLDFinished &&*/ IsClientInGame(client) && GetClientTeam(client) == 2 && buttons & IN_USE)
+	if( g_bValidMap && IsClientInGame(client) && GetClientTeam(client) == 2 && buttons & IN_USE)
 	{
 		if(IsFakeClient(client) && bDoorBotDisable) return Plugin_Handled;
 	}
@@ -382,7 +388,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_bValidMap == false || bRoundEnd)
+	if (g_bValidMap == false || bRoundEnd || g_bSLSDisable)
 	{
 		return Plugin_Continue;
 	}
@@ -770,6 +776,23 @@ void InitDoor()
 	iCheckpointDoor = L4D_GetCheckpointLast();
 	if( iCheckpointDoor == -1 )
 	{
+		iCheckpointDoor = FindEndSafeRoomDoor();
+		return;
+	}
+	else
+	{
+		char sModelName[128];
+		GetEntPropString(iCheckpointDoor, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+		if( strcmp(sModelName, MODEL_START_SAFEROOM_DOOR_1, false) == 0 ||
+			strcmp(sModelName, MODEL_START_SAFEROOM_DOOR_2, false) == 0 ||
+			strcmp(sModelName, MODEL_START_SAFEROOM_DOOR_3, false) == 0) //抓錯安全門
+		{
+			iCheckpointDoor = FindEndSafeRoomDoor();
+		}
+	}
+
+	if(iCheckpointDoor == -1)
+	{
 		iCheckpointDoor = 0;
 		return;
 	}
@@ -789,6 +812,8 @@ void InitDoor()
 
 public void OnDoorAntiSpam(const char[] output, int caller, int activator, float delay)
 {
+	if (g_bSLSDisable) return;
+
 	if (strcmp(output, "OnFullyClosed") == 0)
 	{
 		if(!bLDFinished) return;
@@ -825,7 +850,8 @@ public Action PreventDoorSpam(Handle timer, any entity)
 
 public void OnDoorBlocked(const char[] output, int caller, int activator, float delay)
 {
-	//PrintToChatAll("OnDoorBlockeding caller:%d, activator: %d, output: %s",caller,activator,output);
+	if (g_bSLSDisable) return;
+
 	if (!IsCommonInfected(activator))
 	{
 		return;
@@ -834,7 +860,7 @@ public void OnDoorBlocked(const char[] output, int caller, int activator, float 
 	AcceptEntityInput(activator, "BecomeRagdoll");
 }
 
-void ControlDoor(int entity, int iOperation)
+void ControlDoor(int entity, int iOperation, bool open = true)
 {
 	iDoorStatus = iOperation;
 	
@@ -862,8 +888,11 @@ void ControlDoor(int entity, int iOperation)
 			
 			SetEntProp(entity, Prop_Data, "m_hasUnlockSequence", UNLOCK);
 			AcceptEntityInput(entity, "Unlock");
-			AcceptEntityInput(entity, "ForceClosed");
-			AcceptEntityInput(entity, "Open");
+			if(open)
+			{
+				AcceptEntityInput(entity, "ForceClosed");
+				AcceptEntityInput(entity, "Open");
+			}
 		}
 	}
 }
@@ -1138,12 +1167,10 @@ void ResetPlugin()
 	g_iPlayerSpawn = 0;
 }
 
-void SetCheckpointDoor_Default()
+void SetCheckpointDoor_Default(bool open = true)
 {
 	if (IsValidEntRef(iCheckpointDoor))
 	{
-		L4D2_SetEntityGlow(iCheckpointDoor, L4D2Glow_None, 0, 0, {0, 0, 0}, false);
-		
 		UnhookSingleEntityOutput(iCheckpointDoor, "OnFullyOpen", OnDoorAntiSpam);
 		UnhookSingleEntityOutput(iCheckpointDoor, "OnFullyClosed", OnDoorAntiSpam);
 		
@@ -1155,19 +1182,22 @@ void SetCheckpointDoor_Default()
 			SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", UNLOCK);
 			SetEntPropFloat(iCheckpointDoor, Prop_Data, "m_flSpeed", fDoorSpeed);
 			AcceptEntityInput(iCheckpointDoor, "Unlock");
-			AcceptEntityInput(iCheckpointDoor, "Close");
-			AcceptEntityInput(iCheckpointDoor, "ForceClosed");
-			AcceptEntityInput(iCheckpointDoor, "Open");
+			if(open)
+			{
+				AcceptEntityInput(iCheckpointDoor, "Close");
+				AcceptEntityInput(iCheckpointDoor, "ForceClosed");
+				AcceptEntityInput(iCheckpointDoor, "Open");
+			}
 		}
 		else
 		{
-			ControlDoor(iCheckpointDoor, UNLOCK);
+			ControlDoor(iCheckpointDoor, UNLOCK, open);
 		}
-		
+
+		L4D2_RemoveEntityGlow(iCheckpointDoor);
+
 		iDoorStatus = UNLOCK;
 	}
-		
-	iCheckpointDoor = 0;
 }
 
 void GetColor(int[] array, char[] sTemp)
@@ -1329,4 +1359,48 @@ bool IsValidEntRef(int entity)
 	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE )
 		return true;
 	return false;
+}
+
+int FindEndSafeRoomDoor()
+{
+	// Search for a locked checkpoint door...
+	int ent = MaxClients+1;
+	char sModelName[128];
+	while((ent = FindEntityByClassname(ent, "prop_door_rotating_checkpoint")) != -1)
+	{
+		if(!IsValidEntity(ent)) continue;
+
+		GetEntPropString(ent, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+		if( strcmp(sModelName, MODEL_END_SAFEROOM_DOOR_1, false) == 0 ||
+			strcmp(sModelName, MODEL_END_SAFEROOM_DOOR_2, false) == 0 ||
+			strcmp(sModelName, MODEL_END_SAFEROOM_DOOR_3, false) == 0)
+		{
+			return ent;
+		}
+	}
+
+	return -1;
+}
+
+/*--l4d2_safelockscavenge--*/
+public void SLS_OnDoorStatusChanged(bool locked)
+{
+	if(locked == true)
+	{
+		if(IsValidEntRef(iCheckpointDoor))
+		{
+			SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", UNLOCK);
+			AcceptEntityInput(iCheckpointDoor, "Unlock");
+		}
+		g_bSLSDisable = true;
+	}
+	else
+	{
+		if(IsValidEntRef(iCheckpointDoor))
+		{
+			SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", LOCK);
+			AcceptEntityInput(iCheckpointDoor, "lock");
+		}
+		g_bSLSDisable = false;
+	}
 }
