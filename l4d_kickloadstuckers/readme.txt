@@ -9,8 +9,8 @@ v1.0
 
 -ConVar-
 cfg/sourcemod/l4d_kickloadstuckers.cfg
-// How long before a connected but not ingame player is kicked. (default 60) 
-l4d_kickloadstuckers_duration "90"
+// How long before a connected but not ingame player is kicked. (default 150) 
+l4d_kickloadstuckers_duration "150"
 
 -Command-
 ** Kicks everyone Connected but not ingame (Admin Flag: ADMFLAG_KICK)
