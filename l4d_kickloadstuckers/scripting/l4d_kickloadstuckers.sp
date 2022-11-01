@@ -36,7 +36,7 @@ public void OnPluginStart()
 	RegAdminCmd("sm_kickloading", KickLoaders, ADMFLAG_KICK, "Kicks everyone Connected but not ingame");
 	RegAdminCmd("sm_kickloader", KickLoaders, ADMFLAG_KICK, "Kicks everyone Connected but not ingame");
 	CreateConVar("l4d_kickloadstuckers_version", PLUGIN_VERSION, "Version of L4D Kick Load Stuckers on this server ", 0|FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	cvarDuration = CreateConVar("l4d_kickloadstuckers_duration", "90", "How long before a connected but not ingame player is kicked. (default 60) ", 	0|FCVAR_NOTIFY);
+	cvarDuration = CreateConVar("l4d_kickloadstuckers_duration", "150", "How long before a connected but not ingame player is kicked. (default 150) ", 	0|FCVAR_NOTIFY);
 	
 	AutoExecConfig(true, "l4d_kickloadstuckers");
 	
