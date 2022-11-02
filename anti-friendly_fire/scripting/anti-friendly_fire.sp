@@ -7,16 +7,17 @@
 
 #define CLASSNAME_LENGTH 64
 
-ConVar g_hGod, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hDamageShield, g_hIncapProtect;
+ConVar g_hGod, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hDamageShield, g_hIncapProtect, g_hDamageMulti;
 bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bIncapProtect;
 int g_iDamageShield;
+float g_fDamageMulti;
 
 public Plugin myinfo = 
 {
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.3",
+	version = "1.4",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -51,13 +52,17 @@ public void OnPluginStart()
 								"If 1, Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire.",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
-	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "0",
-								"Do not reflect friendly_fire if damage is below this value (0=Off).",
+	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "1",
+								"Disable friendly fire damage if damage is below this value (0=Off).",
 								FCVAR_NOTIFY, true, 0.0);
 
 	g_hIncapProtect = CreateConVar( "anti_friendly_fire_incap_protect", "1",
-								"If 1, Disable Friendly Fire if damge is about to incapacitate victim.",
+								"If 1, Disable friendly fire if damage is about to incapacitate victim.",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );	
+
+	g_hDamageMulti = CreateConVar( "anti_friendly_fire_damage_multi", "2.0",
+								"Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)",
+								FCVAR_NOTIFY, true, 1.0 );	
 
 	GetCvars();
 	g_hGod.AddChangeHook(ConVarChanged_Cvars);
@@ -66,6 +71,7 @@ public void OnPluginStart()
 	g_hPipeBombDisable.AddChangeHook(ConVarChanged_Cvars);
 	g_hDamageShield.AddChangeHook(ConVarChanged_Cvars);
 	g_hIncapProtect.AddChangeHook(ConVarChanged_Cvars);
+	g_hDamageMulti.AddChangeHook(ConVarChanged_Cvars);
 
 	AutoExecConfig(true, "anti-friendly_fire");
 
@@ -99,11 +105,12 @@ void GetCvars()
 	g_bPipeBombDisable = g_hPipeBombDisable.BoolValue;
 	g_bIncapProtect = g_hIncapProtect.BoolValue;
 	g_iDamageShield = g_hDamageShield.IntValue;
+	g_fDamageMulti = g_hDamageMulti.FloatValue;
 }
 
 public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
-	if(damage <= 0.0 || g_bEnable == false || g_bIncapProtect == false || g_bGod == true) return Plugin_Continue;
+	if(damage <= 0.0 || g_bEnable == false || g_bGod == true) return Plugin_Continue;
 
 	if(attacker == victim ||
 		!IsClientAndInGame(attacker)  || 
@@ -115,9 +122,11 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 
 	int iHealth = GetClientHealth(victim);
 	float fHealth = GetTempHealth(victim);
+	int iDamage = RoundToFloor(damage);
 	//PrintToChatAll("%N attack %N, fHealth: %.2f, iHealth: %d, damage: %.2f", attacker, victim, fHealth, iHealth, damage);
 	
-	if(fHealth + iHealth <= RoundToFloor(damage)) return Plugin_Handled;
+	if(g_bIncapProtect == true && fHealth + iHealth <= iDamage) return Plugin_Handled;
+	if(iDamage <= g_iDamageShield) return Plugin_Handled;
 
 	return Plugin_Continue;
 }
@@ -204,7 +213,7 @@ public void Event_IncapacitatedStart(Event event, const char[] name, bool dontBr
 
 void HurtEntity(int victim, int client, float damage)
 {
-	SDKHooks_TakeDamage(victim, client, client, damage, DMG_SLASH);
+	SDKHooks_TakeDamage(victim, client, client, damage * g_fDamageMulti, DMG_SLASH);
 }
 
 stock bool IsClientAndInGame(int client)
