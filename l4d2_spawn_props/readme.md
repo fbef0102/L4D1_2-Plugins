@@ -114,6 +114,69 @@ English
 		```
 </details>
 
+* <details><summary>Command | 命令</summary>
+
+	* **Spawns an object with the given information, sm_spawnprop <model> [static | dynamic | physics] [cursor | origin] (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_spawnprop
+		```
+
+	* **Save all the spawned object in a stripper file, path: addons/stripper/maps/XXXX.cfg (XXXX is map name) (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_savemap
+		```
+
+	* **Rotates the looking spawned object with the desired angles, Usage: sm_prop_rotate <axys> <angles> [EX: !prop_rotate x 30] (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_rotate
+		```
+
+	* **Remove last spawned object (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_removelast
+		```
+
+	* **Remove the looking object (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_removelook
+		```
+
+	* **Remove all spawned objects (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_removeall
+		```
+
+	* **Move the looking spawned object with the desired movement type, Usage: sm_prop_move <axys> <distance> [EX: !prop_move x 30] (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_move
+		```
+
+	* **Forces the looking spawned object angles, Usage: sm_prop_setang <X Y Z> [EX: !prop_setang 30 0 34] (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_setang
+		```
+
+	* **Sets the looking spawned object position, Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17 (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_setpos
+		```
+
+	* **Locks the looking spawned object, Use for move and rotate (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_lock
+		```
+
+	* **Clone the last spawned object (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_clone
+		```
+
+	* **Print the looking object information (Adm required: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_print
+		```
+</details>
+
 - - - -
 # 中文說明
 創造屬於自己風格的地圖，製作迷宮與障礙物
