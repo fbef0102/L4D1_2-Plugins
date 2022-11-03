@@ -1,11 +1,16 @@
+#pragma semicolon 1
+#pragma newdecls required
 #include <sourcemod>
 #include <sdktools>
 #include <adminmenu>
-#pragma semicolon 1
-#pragma newdecls required
+#include <left4dhooks>
+#include <multicolors>
 #define DEBUG 0
+#define GETVERSION "3.8"
 
-#define GETVERSION "3.7"
+#define CVAR_FLAGS                    FCVAR_NOTIFY
+#define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
+
 #define MAX_ENTITY 2048
 #define MAX_PATHS 20
 
@@ -21,10 +26,7 @@
 char FolderNames[][] = {
 	"addons/stripper",
 	"addons/stripper/maps",
-	"addons/stripper/routing",
-	"addons/stripper/plugin_cache"
 };
-
 
 static char g_sWeaponNames[MAX_WEAPONS][] =
 {
@@ -257,18 +259,10 @@ int g_iSubCategory[MAXPLAYERS+1]			= {0};
 int g_iFileCategory[MAXPLAYERS+1]			= {0};
 int g_iMoveCategory[MAXPLAYERS+1]			= {0};
 int g_iLastObject[MAXPLAYERS+1]			= {-1};
-int g_iLastGrabbedObject[MAXPLAYERS+1]	= {-1};
+int g_iLockObject[MAXPLAYERS+1]	= {-1};
 
 bool g_bSpawned[MAX_ENTITY]				= {false};
-bool g_bGrabbed[MAX_ENTITY]				= {false};
-bool g_bGrab[MAXPLAYERS+1]				= {false};
 bool g_bUnsolid[MAX_ENTITY]				= {false};
-bool g_bLoaded							= false;
-
-float g_vecEntityAngles[MAX_ENTITY][3];
-float g_vecLastEntityAngles[MAXPLAYERS+1][3];
-
-char g_sPath[128];
 
 // Global variables to hold menu position
 int g_iRotateMenuPosition[MAXPLAYERS+1]			= {0};
@@ -295,8 +289,8 @@ ConVar g_cvarExterior;
 ConVar g_cvarDecorative;
 ConVar g_cvarMisc;
 ConVar g_cvarLog;
-ConVar g_cvarAutoload;
-ConVar g_cvarAutoloadType;
+
+int LOCK_COLORS[3] = {255, 140, 0};
 
 public Plugin myinfo = 
 {
@@ -329,58 +323,56 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
+public void OnAllPluginsLoaded()
+{
+	// stripper extension
+	if( FindConVar("stripper_version") == null )
+	{
+		SetFailState("\n==========\nWarning: You should install \"Stripper:Source\" to spawn objects permanently to the map: http://www.bailopan.net/stripper/#install\n==========\n");
+	}
+}
+
 public void OnPluginStart()
 {	
 	LoadTranslations("l4d2_spawn_props.phrases");
 	
-	CreateConVar("l4d2_spawn_props_version", GETVERSION, "Version of the Plugin", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY); //Version
-	g_cvarPhysics 		= CreateConVar("l4d2_spawn_props_physics", 				"1", "Enable the Physics Objects in the menu");
-	g_cvarDynamic 		= CreateConVar("l4d2_spawn_props_dynamic",				"1", "Enable the Dynamic (Non-solid) Objects in the menu");
-	g_cvarStatic 		= CreateConVar("l4d2_spawn_props_static",				"1", "Enable the Static (Solid) Objects in the menu");
-	g_cvarItem 			= CreateConVar("l4d2_spawn_props_items",				"1", "Enable the Items & Weapons Objects in the menu");
-	g_cvarVehicles 		= CreateConVar("l4d2_spawn_props_category_vehicles",	"1", "Enable the Vehicles category");
-	g_cvarFoliage 		= CreateConVar("l4d2_spawn_props_category_foliage",		"1", "Enable the Foliage category");
-	g_cvarInterior 		= CreateConVar("l4d2_spawn_props_category_interior",	"1", "Enable the Interior category");
-	g_cvarExterior 		= CreateConVar("l4d2_spawn_props_category_exterior",	"1", "Enable the Exterior category");
-	g_cvarDecorative 	= CreateConVar("l4d2_spawn_props_category_decorative",	"1", "Enable the Decorative category");
-	g_cvarMisc 			= CreateConVar("l4d2_spawn_props_category_misc", 		"1", "Enable the Misc category");
-	g_cvarLog 			= CreateConVar("l4d2_spawn_props_log_actions", 			"0", "Log if an admin spawns an object?");
-	g_cvarAutoload 		= CreateConVar("l4d2_spawn_props_autoload", 			"0", "Enable the plugin to auto load the cache?");
-	g_cvarAutoloadType 	= CreateConVar("l4d2_spawn_props_autoload_different", 	"1", "Should the paths be different for the teams or not?");
-	
-	RegAdminCmd("sm_spawnprop", CmdSpawnProp, DESIRED_ADM_FLAGS, "Spawns an object with the given information");
-	RegAdminCmd("sm_savemap", CmdSaveMap, DESIRED_ADM_FLAGS, "Save all the spawned object in a stripper file");
+	g_cvarPhysics 		= CreateConVar("l4d2_spawn_props_physics", 				"1", "Enable the Physics Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarDynamic 		= CreateConVar("l4d2_spawn_props_dynamic",				"1", "Enable the Dynamic (Non-solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarStatic 		= CreateConVar("l4d2_spawn_props_static",				"1", "Enable the Static (Solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarItem 			= CreateConVar("l4d2_spawn_props_items",				"1", "Enable the Items & Weapons Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarVehicles 		= CreateConVar("l4d2_spawn_props_category_vehicles",	"1", "Enable the Vehicles category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarFoliage 		= CreateConVar("l4d2_spawn_props_category_foliage",		"1", "Enable the Foliage category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarInterior 		= CreateConVar("l4d2_spawn_props_category_interior",	"1", "Enable the Interior category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarExterior 		= CreateConVar("l4d2_spawn_props_category_exterior",	"1", "Enable the Exterior category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarDecorative 	= CreateConVar("l4d2_spawn_props_category_decorative",	"1", "Enable the Decorative category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarMisc 			= CreateConVar("l4d2_spawn_props_category_misc", 		"1", "Enable the Misc category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarLog 			= CreateConVar("l4d2_spawn_props_log_actions", 			"0", "Log if an admin spawns an object?", CVAR_FLAGS, true, 0.0, true, 1.0);
+	CreateConVar("l4d2_spawn_props_version", GETVERSION, "Version of the Plugin", CVAR_FLAGS_PLUGIN_VERSION); 
+	AutoExecConfig(true, "l4d2_spawn_props");
 
-	RegAdminCmd("sm_prop_rotate", CmdRotate, DESIRED_ADM_FLAGS, "Rotates the last spawned object with the desired angles");
+	RegAdminCmd("sm_spawnprop", CmdSpawnProp, DESIRED_ADM_FLAGS, "Spawns an object with the given information, sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]");
+	RegAdminCmd("sm_savemap", CmdSaveMap, DESIRED_ADM_FLAGS, "Save all the spawned object in a stripper file, path: addons/stripper/maps/XXXX.cfg (XXXX is map name)");
+
+	RegAdminCmd("sm_prop_rotate", CmdRotate, DESIRED_ADM_FLAGS, "Rotates the looking spawned object with the desired angles, Usage: sm_prop_rotate <axys> <angles> [EX: !prop_rotate x 30]");
 	RegAdminCmd("sm_prop_removelast", CmdRemoveLast, DESIRED_ADM_FLAGS, "Remove last spawned object");
 	RegAdminCmd("sm_prop_removelook", CmdRemoveLook, DESIRED_ADM_FLAGS, "Remove the looking object");
-	RegAdminCmd("sm_prop_removeall", CmdRemoveAll, DESIRED_ADM_FLAGS, "Remove all objects");
-	RegAdminCmd("sm_prop_move", CmdMove, DESIRED_ADM_FLAGS, "Move an object with the desired movement type");
-	RegAdminCmd("sm_prop_setang", CmdSetAngles, DESIRED_ADM_FLAGS, "Forces an object angles");
-	RegAdminCmd("sm_prop_setpos", CmdSetPosition, DESIRED_ADM_FLAGS, "Sets the last object position");
+	RegAdminCmd("sm_prop_removeall", CmdRemoveAll, DESIRED_ADM_FLAGS, "Remove all spawned objects");
+	RegAdminCmd("sm_prop_move", CmdMove, DESIRED_ADM_FLAGS, "Move the looking spawned object with the desired movement type, Usage: sm_prop_move <axys> <distance> [EX: !prop_move x 30]");
+	RegAdminCmd("sm_prop_setang", CmdSetAngles, DESIRED_ADM_FLAGS, "Forces the looking spawned object angles, Usage: sm_prop_setang <X Y Z> [EX: !prop_setang 30 0 34]");
+	RegAdminCmd("sm_prop_setpos", CmdSetPosition, DESIRED_ADM_FLAGS, "Sets the looking spawned object position, Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17");
+	RegAdminCmd("sm_prop_lock", CmdLock, DESIRED_ADM_FLAGS, "Locks the looking spawned object, Use for move and rotate");
+	RegAdminCmd("sm_prop_clone", CmdClone, DESIRED_ADM_FLAGS, "Clone the last spawned object");
 	
 	RegAdminCmd("sm_debugprop", CmdDebugProp, ADMFLAG_ROOT, "DEBUG");
 	
 	
-	AutoExecConfig(true, "l4d2_spawn_props");
 	TopMenu topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
 	{
 		OnAdminMenuReady(topmenu);
 	}
 	
-	//DEV
-	RegAdminCmd("sm_spload", CmdLoad, DESIRED_ADM_FLAGS, "Load map");
-	
-	//Events
-	if(g_bLeft4Dead2)
-	{
-		HookEvent("survival_round_start", Event_SurvivalRoundStart);
-		HookEvent("scavenge_round_start", Event_ScavengeRoundStart);
-	}
-	HookEvent("round_start_post_nav", Event_RoundStart);
-	HookEvent("round_end", Event_RoundEnd);
-	
+
 	//Create required folders
 	BuildFileDirectories();
 
@@ -394,56 +386,34 @@ public void OnPluginEnd()
 
 public Action CmdDebugProp(int client, int args)
 {
-	char name[256];
-	int Object = g_iLastObject[client];
-	if(Object > MaxClients && IsValidEntity(Object))
+	if(client == 0) return Plugin_Handled;
+
+	
+	//int Object = g_iLastObject[client];
+	int Object = FindObjectYouAreLooking(client, false); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
 	{
-		GetEntPropString(Object, Prop_Data, "m_iName", name, sizeof(name));
-		PrintToChat(client, "prop: %s", name);
+		CPrintToChat(client, "[TS] %T","You are not looking at a valid object", client);
+		return Plugin_Handled;
 	}
+
+	static char m_ModelName[PLATFORM_MAX_PATH];
+	GetEntPropString(Object, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
+	CPrintToChat(client, "[TS] %T", "Object Model", client, Object, m_ModelName);
+
+	static char name[256];
+	GetEntPropString(Object, Prop_Data, "m_iName", name, sizeof(name));
+	CPrintToChat(client, "[TS] %T", "Object Targetname", client, name);
+
+	static float position[3];
+	GetEntPropVector(Object, Prop_Send, "m_vecOrigin", position);
+	CPrintToChat(client, "[TS] %T", "Object Position", client, position[0], position[1], position[2]);
+
+	static float angle[3];
+	GetEntPropVector(Object, Prop_Data, "m_angRotation", angle);
+	CPrintToChat(client, "[TS] %T", "Object Angle", client, angle[0], angle[1], angle[2]);
+
 	return Plugin_Handled;
-}
-
-public void Event_SurvivalRoundStart(Event hEvent, const char[] sEventName, bool bDontBroadcast)
-{
-	if(g_cvarAutoload.BoolValue && !g_bLoaded)
-	{
-		g_bLoaded = true;
-		SpawnObjects();
-	}
-}
-
-public void Event_ScavengeRoundStart(Event hEvent, const char[] sEventName, bool bDontBroadcast)
-{
-	LogSpawn("Scavenge Round Has Started");
-	if(g_cvarAutoload.BoolValue && !g_bLoaded)
-	{
-		g_bLoaded = true;
-		SpawnObjects();
-	}
-}
-public void Event_RoundStart(Event hEvent, const char[] sEventName, bool bDontBroadcast)
-{
-	if(g_cvarAutoload.BoolValue && g_cvarAutoloadType.BoolValue)
-	{
-		GetRandomMapPath(g_sPath, sizeof(g_sPath));
-	}
-	LogSpawn("Normal Round Has Started");
-	if(g_cvarAutoload.BoolValue && !g_bLoaded)
-	{
-		g_bLoaded = true;
-		SpawnObjects();
-	}
-}
-
-public void Event_RoundEnd(Event hEvent, const char[] sEventName, bool bDontBroadcast)
-{
-	g_bLoaded = false;
-}
-
-public void OnMapEnd()
-{
-	g_bLoaded = false;
 }
 
 public void OnMapStart()
@@ -452,13 +422,6 @@ public void OnMapStart()
 	{
 		g_bSpawned[i] = false;
 		g_bUnsolid[i] = false;
-		g_vecEntityAngles[i][0] = 0.0;
-		g_vecEntityAngles[i][1] = 0.0;
-		g_vecEntityAngles[i][2] = 0.0;
-	}
-	if(g_cvarAutoload.BoolValue && !g_cvarAutoloadType.BoolValue)
-	{
-		GetRandomMapPath(g_sPath, sizeof(g_sPath));
 	}
 
 	int max = MAX_WEAPONS;
@@ -518,9 +481,11 @@ public void OnMapStart()
 
 public Action CmdSpawnProp(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	if(args < 3)
 	{
-		PrintToChat(client, "[SM] Usage: sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]");
+		CPrintToChat(client, "[TS] Usage: sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]");
 		return Plugin_Handled;
 	}
 	char arg1[256];
@@ -535,18 +500,18 @@ public Action CmdSpawnProp(int client, int args)
 	{
 		if(PrecacheModel(model) <= 0)
 		{
-			PrintToChat(client, "[SM] There was a problem spawning the selected model [ERROR: Invalid Model]");
+			CPrintToChat(client, "[TS] There was a problem spawning the selected model [ERROR: Invalid Model]");
 			return Plugin_Handled;
 		}
 	}
-	if(StrContains(arg2, "static") >= 0)
+
+	if(strcmp(arg2, "static", false) == 0)
 	{
 		float VecOrigin[3];
 		float VecAngles[3];
 		int prop = CreateEntityByName("prop_dynamic_override");
 		DispatchKeyValue(prop, "model", model);
 		DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-		SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
 		if(strcmp(arg3, "cursor") == 0)
 		{
 			GetClientEyePosition(client, VecOrigin);
@@ -558,7 +523,7 @@ public Action CmdSpawnProp(int client, int args)
 			}
 			else
 			{
-				PrintToChat(client, "[SM] Vector out of world geometry. Spawning on current position instead");
+				CPrintToChat(client, "[TS] Vector out of world geometry. Spawning on current position instead");
 			}
 		}
 		else if(strcmp(arg3, "origin") == 0)
@@ -568,25 +533,26 @@ public Action CmdSpawnProp(int client, int args)
 		}
 		else
 		{
-			PrintToChat(client, "[SM] Invalid spawn method specified. Use: [cursor | origin]");
+			CPrintToChat(client, "[TS] Invalid spawn method specified. Use: [cursor | origin]");
 			return Plugin_Handled;
 		}
 		VecAngles[0] = 0.0;
 		VecAngles[2] = 0.0;
-		g_vecLastEntityAngles[client][0] = VecAngles[0];
-		g_vecLastEntityAngles[client][1] = VecAngles[1];
-		g_vecLastEntityAngles[client][2] = VecAngles[2];
-		g_iLastObject[client] = prop;
 		DispatchKeyValueVector(prop, "angles", VecAngles);
-		DispatchSpawn(prop);
 		TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(prop);
+
+		SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
 		g_bSpawned[prop] = true;
-		g_vecEntityAngles[prop] = VecAngles;
-		char name[256];
-		GetClientName(client, name, sizeof(name));
-		LogSpawn("%s spawned a static object with model <%s>", name, model);
+		g_bUnsolid[prop] = false;
+
+		LockGlow(client, prop);
+		g_iLastObject[client] = prop;
+		g_iLockObject[client] = prop;
+
+		LogSpawn("%N spawned a static object with model <%s>", client, model);
 	}
-	else if(StrContains(arg2, "dynamic") >= 0)
+	else if(strcmp(arg2, "dynamic", false) == 0)
 	{
 		float VecOrigin[3];
 		float VecAngles[3];
@@ -604,7 +570,7 @@ public Action CmdSpawnProp(int client, int args)
 			}
 			else
 			{
-				PrintToChat(client, "[SM] Vector out of world geometry. Spawning on current position instead");
+				CPrintToChat(client, "[TS] Vector out of world geometry. Spawning on current position instead");
 			}
 		}
 		else if(strcmp(arg3, "origin")== 0)
@@ -614,26 +580,26 @@ public Action CmdSpawnProp(int client, int args)
 		}
 		else
 		{
-			PrintToChat(client, "[SM] Invalid spawn method specified. Use: [cursor | origin]");
+			CPrintToChat(client, "[TS] Invalid spawn method specified. Use: [cursor | origin]");
 			return Plugin_Handled;
 		}
 		VecAngles[0] = 0.0;
 		VecAngles[2] = 0.0;
-		g_vecLastEntityAngles[client][0] = VecAngles[0];
-		g_vecLastEntityAngles[client][1] = VecAngles[1];
-		g_vecLastEntityAngles[client][2] = VecAngles[2];
-		g_iLastObject[client] = prop;
 		DispatchKeyValueVector(prop, "angles", VecAngles);
-		DispatchSpawn(prop);
 		TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(prop);
+
+		SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
 		g_bSpawned[prop] = true;
-		g_vecEntityAngles[prop] = VecAngles;
 		g_bUnsolid[prop] = true;
-		char name[256];
-		GetClientName(client, name, sizeof(name));
-		LogSpawn("%s spawned a dynamic object with model <%s>", name, model);
+
+		LockGlow(client, prop);
+		g_iLastObject[client] = prop;
+		g_iLockObject[client] = prop;
+
+		LogSpawn("%N spawned a dynamic object with model <%s>", client, model);
 	}
-	else if(StrContains(arg2, "physics") >= 0)
+	else if(strcmp(arg2, "physics", false) == 0)
 	{
 		float VecOrigin[3];
 		float VecAngles[3];
@@ -651,7 +617,7 @@ public Action CmdSpawnProp(int client, int args)
 			}
 			else
 			{
-				PrintToChat(client, "[SM] Vector out of world geometry. Spawning on current position instead");
+				CPrintToChat(client, "[TS] Vector out of world geometry. Spawning on current position instead");
 			}
 		}
 		else if(strcmp(arg3, "origin")== 0)
@@ -661,27 +627,26 @@ public Action CmdSpawnProp(int client, int args)
 		}
 		else
 		{
-			PrintToChat(client, "[SM] Invalid spawn method specified. Use: [cursor | origin]");
+			CPrintToChat(client, "[TS] Invalid spawn method specified. Use: [cursor | origin]");
 			return Plugin_Handled;
 		}
 		VecAngles[0] = 0.0;
 		VecAngles[2] = 0.0;
-		g_vecLastEntityAngles[client][0] = VecAngles[0];
-		g_vecLastEntityAngles[client][1] = VecAngles[1];
-		g_vecLastEntityAngles[client][2] = VecAngles[2];
-		g_iLastObject[client] = prop;
 		DispatchKeyValueVector(prop, "angles", VecAngles);
-		DispatchSpawn(prop);
 		TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+		DispatchSpawn(prop);
+
 		g_bSpawned[prop] = true;
-		g_vecEntityAngles[prop] = VecAngles;
-		char name[256];
-		GetClientName(client, name, sizeof(name));
-		LogSpawn("%s spawned a physics object with model <%s>", name, model);
+
+		LockGlow(client, prop);
+		g_iLastObject[client] = prop;
+		g_iLockObject[client] = prop;
+
+		LogSpawn("%N spawned a physics object with model <%s>", client, model);
 	}
 	else
 	{
-		PrintToChat(client, "[SM] Invalid render mode. Use: [static | dynamic | physics]");
+		CPrintToChat(client, "[TS] Invalid render mode. Use: [static | dynamic | physics]");
 		return Plugin_Handled;
 	}
 	return Plugin_Handled;
@@ -703,7 +668,6 @@ public void OnAdminMenuReady(Handle topmenu)
 		g_TopMenuHandle.AddItem("sm_spedit", AdminMenu_Edit, menu_category_prop, "sm_spedit", DESIRED_ADM_FLAGS); //Edit
 		g_TopMenuHandle.AddItem("sm_spspawn", AdminMenu_Spawn, menu_category_prop, "sm_spspawn", DESIRED_ADM_FLAGS); //Spawn
 		g_TopMenuHandle.AddItem("sm_spsave", AdminMenu_Save, menu_category_prop, "sm_spsave", DESIRED_ADM_FLAGS); //Save
-		g_TopMenuHandle.AddItem("sm_spload", AdminMenu_Load, menu_category_prop, "sm_spload", DESIRED_ADM_FLAGS); //Load
 	}
 }
 
@@ -770,11 +734,11 @@ public int MenuHandler_DA_Ask(Menu menu, MenuAction action, int param1, int para
 			if(strcmp(menucmd, "sm_spyes")== 0)
 			{
 				DeleteAllProps();
-				PrintToChat(param1, "[SM] %T", "Successfully deleted all spawned objects", param1);
+				CPrintToChat(param1, "[TS] %T", "Successfully deleted all spawned objects", param1);
 			}
 			else
 			{
-				PrintToChat(param1, "[SM] %T", "Canceled", param1);
+				CPrintToChat(param1, "[TS] %T", "Canceled", param1);
 			}
 			BuildDeleteMenu(param1);
 		}
@@ -805,7 +769,7 @@ public int MenuHandler_Delete(Menu menu, MenuAction action, int param1, int para
 			if(strcmp(menucmd, "sm_spdeleteall")== 0)
 			{
 				BuildDeleteAllAskMenu(param1);
-				PrintToChat(param1, "[SM] %T", "delete all the spawned objects?", param1);
+				CPrintToChat(param1, "[TS] %T", "delete all the spawned objects?", param1);
 			}
 			else if(strcmp(menucmd, "sm_spdeletelook")== 0)
 			{
@@ -980,61 +944,9 @@ void BuildSaveMenu(int client)
 	Menu menu = new Menu(MenuHandler_Save);
 	menu.SetTitle("%T", "Select The Save Method", client);
 	menu.AddItem("sm_spsavestripper", Translate(client, "%t", "Save Stripper File"));
-	menu.AddItem("sm_spsaverouting", Translate(client, "%t", "Save Routing File"));
-	menu.AddItem("sm_spsaveplugin", Translate(client, "%t", "Save Spawn Objects File"));
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	menu.Display(client, MENU_TIME_FOREVER);
-}
-
-void BuildRoutingMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_PathDiff);
-	menu.SetTitle("%T", "Select Path Difficulty", client);
-	menu.AddItem("sm_speasy", Translate(client, "%t", "Easy Path"));
-	menu.AddItem("sm_spmedium", Translate(client, "%t", "Medium Path"));
-	menu.AddItem("sm_sphard", Translate(client, "%t", "Hard Path"));
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.Display(client, MENU_TIME_FOREVER);
-}
-
-public int MenuHandler_PathDiff(Menu menu, MenuAction action, int param1, int param2)
-{
-	switch(action)
-	{
-		case MenuAction_Select:
-		{
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "sm_speasy")== 0)
-			{
-				SaveRoutingPath(param1, RouteType_Easy);
-			}
-			else if(strcmp(menucmd, "sm_spmedium")== 0)
-			{
-				SaveRoutingPath(param1, RouteType_Medium);
-			}
-			else if(strcmp(menucmd, "sm_sphard")== 0)
-			{
-				SaveRoutingPath(param1, RouteType_Hard);
-			}
-			BuildSaveMenu(param1);
-		}
-		case MenuAction_Cancel:
-		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
-			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-			}
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-	}
-
-	return 0;
 }
 
 public int MenuHandler_Save(Menu menu, MenuAction action, int param1, int param2)
@@ -1050,123 +962,6 @@ public int MenuHandler_Save(Menu menu, MenuAction action, int param1, int param2
 				SaveMapStripper(param1);
 				BuildSaveMenu(param1);
 				DeleteAllProps(false);
-			}
-			else if(strcmp(menucmd, "sm_spsaverouting")== 0)
-			{
-				BuildRoutingMenu(param1);
-				DeleteAllProps(false);
-			}
-			else if(strcmp(menucmd, "sm_spsaveplugin")== 0)
-			{
-				SavePluginProps(param1);
-				DeleteAllProps(false);
-			}
-		}
-		case MenuAction_Cancel:
-		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
-			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-			}
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-	}
-
-	return 0;
-}
-
-/*
-////////////////////////////////////////////////////////////////////////////|
-						L O A D       M E N U							    |
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
-*/
-
-public void AdminMenu_Load(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
-{
-	if(action == TopMenuAction_DisplayOption)
-	{
-		Format(buffer, maxlength, Translate(param, "%t", "Load Objects"));
-	}
-	else if(action == TopMenuAction_SelectOption)
-	{
-		BuildLoadAskMenu(param);
-		PrintToChat(param, "[SM] %T", "load the map data cache?", param);
-	}
-}
-
-void BuildLoadAskMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_Load_Ask);
-	menu.SetTitle("%T", "Are you sure?", client);
-	menu.AddItem("sm_spyes", Translate(client, "%t", "Yes"));
-	menu.AddItem("sm_spno", Translate(client, "%t", "No"));
-	menu.ExitButton = true;
-	menu.Display(client, MENU_TIME_FOREVER);
-}
-
-void BuildLoadPropsMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_Load_Props);
-	menu.SetTitle("%T", "Choose a map number please", client);
-	char buffer[16];
-	char buffer2[16];
-	for(int i=1; i <= MAX_PATHS; i++)
-	{
-		Format(buffer, sizeof(buffer), "map%i", i);
-		Format(buffer2, sizeof(buffer2), "Map %i", i);
-		menu.AddItem(buffer, buffer2);
-	}
-	menu.ExitButton = true;
-	menu.Display(client, MENU_TIME_FOREVER);
-}
-
-public int MenuHandler_Load_Props(Menu menu, MenuAction action, int param1, int param2)
-{
-	switch(action)
-	{
-		case MenuAction_Select:
-		{
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			ReplaceString(menucmd, sizeof(menucmd), "map", "", false);
-			int number = StringToInt(menucmd);
-			LoadPluginProps(param1, number);
-			g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-		}
-		case MenuAction_Cancel:
-		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
-			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-			}
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-	}
-
-	return 0;
-}
-
-public int MenuHandler_Load_Ask(Menu menu, MenuAction action, int param1, int param2)
-{
-	switch(action)
-	{
-		case MenuAction_Select:
-		{
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "sm_spyes")== 0)
-			{
-				BuildLoadPropsMenu(param1);
-			}
-			else
-			{
-				PrintToChat(param1, "[SM] %T", "Canceled", param1);
 			}
 		}
 		case MenuAction_Cancel:
@@ -1283,6 +1078,9 @@ void BuildEditPropMenu(int client)
 	menu.SetTitle("%T", "Select an action:", client);
 	menu.AddItem("rotate", Translate(client, "%t", "Rotate"));
 	menu.AddItem("move", Translate(client, "%t", "Move"));
+	menu.AddItem("lock", Translate(client, "%t", "Lock"));
+	menu.AddItem("clone", Translate(client, "%t", "Clone"));
+	menu.AddItem("info", Translate(client, "%t", "Info"));
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	menu.Display(client, MENU_TIME_FOREVER);
@@ -1693,6 +1491,24 @@ public int MenuHandler_EditProp(Menu menu, MenuAction action, int param1, int pa
 			{
 				DisplayMoveMenu(param1);
 			}
+			else if(strcmp(menucmd, "lock")== 0)
+			{
+				CmdLock(param1, 0);
+
+				BuildEditPropMenu(param1);
+			}
+			else if(strcmp(menucmd, "clone")== 0)
+			{
+				CmdClone(param1, 0);
+
+				BuildEditPropMenu(param1);
+			}
+			else if(strcmp(menucmd, "info")== 0)
+			{
+				CmdDebugProp(param1, 0);
+
+				BuildEditPropMenu(param1);
+			}
 		}
 		case MenuAction_Cancel:
 		{
@@ -1846,32 +1662,32 @@ void SetFileCategory(Menu menu, int client)
 		{
 			buffer[--len] = '0';
 		}
-		if(StrContains(buffer, "//Category Vehicles") >= 0)
+		if(strncmp(buffer, "//Category Vehicles", 19, false) == 0)
 		{
 			g_iFileCategory[client] = 1;
 			continue;
 		}
-		else if(StrContains(buffer, "//Category Foliage") >= 0)
+		else if(strncmp(buffer, "//Category Foliage", 18, false) == 0)
 		{
 			g_iFileCategory[client] = 2;
 			continue;
 		}
-		else if(StrContains(buffer, "//Category Interior") >= 0)
+		else if(strncmp(buffer, "//Category Interior", 19, false) == 0)
 		{
 			g_iFileCategory[client] = 3;
 			continue;
 		}
-		else if(StrContains(buffer, "//Category Exterior") >= 0)
+		else if(strncmp(buffer, "//Category Exterior", 19, false) == 0)
 		{
 			g_iFileCategory[client] = 4;
 			continue;
 		}
-		else if(StrContains(buffer, "//Category Decorative") >= 0)
+		else if(strncmp(buffer, "//Category Decorative", 21, false) == 0)
 		{
 			g_iFileCategory[client] = 5;
 			continue;
 		}
-		else if(StrContains(buffer, "//Category Misc") >= 0)
+		else if(strncmp(buffer, "//Category Misc", 15, false) == 0)
 		{
 			g_iFileCategory[client] = 6;
 			continue;
@@ -2024,7 +1840,6 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				int prop = CreateEntityByName("prop_physics_override");
 				DispatchKeyValue(prop, "model", model);
 				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				DispatchSpawn(prop);
 				GetClientEyePosition(param1, VecOrigin);
 				GetClientEyeAngles(param1, VecAngles);
 				
@@ -2035,20 +1850,21 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				}
 				else
 				{
-					PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 				}
 				VecAngles[0] = 0.0;
 				VecAngles[2] = 0.0;
-				g_vecLastEntityAngles[param1] = VecAngles;
-				g_iLastObject[param1] = prop;
 				DispatchKeyValueVector(prop, "angles", VecAngles);
-				DispatchSpawn(prop);
-				g_bSpawned[prop] = true;
-				g_vecEntityAngles[prop] = VecAngles;
 				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				char name[256];
-				GetClientName(param1, name, sizeof(name));
-				LogSpawn("%s spawned a physics object with model <%s>", name, model);
+				DispatchSpawn(prop);
+
+				g_bSpawned[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = prop;
+				g_iLockObject[param1] = prop;
+
+				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
 			}
 			else if(g_iCategory[param1] == 2)
 			{
@@ -2057,21 +1873,21 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				int prop = CreateEntityByName("prop_physics_override");
 				DispatchKeyValue(prop, "model", model);
 				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				DispatchSpawn(prop);
 				GetClientAbsOrigin(param1, VecOrigin);
 				GetClientEyeAngles(param1, VecAngles);
 				VecAngles[0] = 0.0;
 				VecAngles[2] = 0.0;
-				g_vecLastEntityAngles[param1] = VecAngles;
-				g_iLastObject[param1] = prop;
 				DispatchKeyValueVector(prop, "angles", VecAngles);
-				DispatchSpawn(prop);
-				g_bSpawned[prop] = true;
-				g_vecEntityAngles[prop] = VecAngles;
 				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				char name[256];
-				GetClientName(param1, name, sizeof(name));
-				LogSpawn("%s spawned a physics object with model <%s>", name, model);
+				DispatchSpawn(prop);
+
+				g_bSpawned[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = prop;
+				g_iLockObject[param1] = prop;
+
+				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
 			}
 			else if(g_iCategory[param1] == 3)
 			{
@@ -2080,7 +1896,6 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				int prop = CreateEntityByName("prop_dynamic_override");
 				DispatchKeyValue(prop, "model", model);
 				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				DispatchSpawn(prop);
 				GetClientEyePosition(param1, VecOrigin);
 				GetClientEyeAngles(param1, VecAngles);
 				
@@ -2091,22 +1906,23 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				}
 				else
 				{
-					PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 				}
 				VecAngles[0] = 0.0;
 				VecAngles[2] = 0.0;
-				g_vecLastEntityAngles[param1] = VecAngles;
-				g_iLastObject[param1] = prop;
 				DispatchKeyValueVector(prop, "angles", VecAngles);
-				DispatchSpawn(prop);
 				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-			
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
 				g_bSpawned[prop] = true;
 				g_bUnsolid[prop] = true;
-				g_vecEntityAngles[prop] = VecAngles;
-				char name[256];
-				GetClientName(param1, name, sizeof(name));
-				LogSpawn("%s spawned a dynamic object with model <%s>", name, model);
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = prop;
+				g_iLockObject[param1] = prop;
+
+				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
 			}
 			else if(g_iCategory[param1] == 4)
 			{
@@ -2115,22 +1931,23 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				int prop = CreateEntityByName("prop_dynamic_override");
 				DispatchKeyValue(prop, "model", model);
 				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				DispatchSpawn(prop);
 				GetClientAbsOrigin(param1, VecOrigin);
 				GetClientEyeAngles(param1, VecAngles);
 				VecAngles[0] = 0.0;
 				VecAngles[2] = 0.0;
-				g_vecLastEntityAngles[param1] = VecAngles;
-				g_iLastObject[param1] = prop;
 				DispatchKeyValueVector(prop, "angles", VecAngles);
-				DispatchSpawn(prop);
 				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
 				g_bSpawned[prop] = true;
 				g_bUnsolid[prop] = true;
-				g_vecEntityAngles[prop] = VecAngles;
-				char name[256];
-				GetClientName(param1, name, sizeof(name));
-				LogSpawn("%s spawned a dynamic object with model <%s>", name, model);
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = prop;
+				g_iLockObject[param1] = prop;
+
+				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
 			}
 			else if(g_iCategory[param1] == 5)
 			{
@@ -2141,29 +1958,31 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
 				GetClientEyePosition(param1, VecOrigin);
 				GetClientEyeAngles(param1, VecAngles);
-				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
 				
-				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_OPAQUE, RayType_Infinite, TraceRayDontHitSelf, param1);
+				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_SHOT, RayType_Infinite, _TraceFilter);
 				if(TR_DidHit(null))
 				{
 					TR_GetEndPosition(VecOrigin);
 				}
 				else
 				{
-					PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 				}
 				VecAngles[0] = 0.0;
 				VecAngles[2] = 0.0;
-				g_vecLastEntityAngles[param1] = VecAngles;
-				g_iLastObject[param1] = prop;
+
 				DispatchKeyValueVector(prop, "angles", VecAngles);
-				DispatchSpawn(prop);
 				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
 				g_bSpawned[prop] = true;
-				g_vecEntityAngles[prop] = VecAngles;
-				char name[256];
-				GetClientName(param1, name, sizeof(name));
-				LogSpawn("%s spawned a static object with model <%s>", name, model);
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = prop;
+				g_iLockObject[param1] = prop;
+
+				LogSpawn("%N spawned a static object with model <%s>", param1, model);
 			}
 			else if(g_iCategory[param1] == 6)
 			{
@@ -2172,22 +1991,23 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				int prop = CreateEntityByName("prop_dynamic_override");
 				DispatchKeyValue(prop, "model", model);
 				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
-				DispatchSpawn(prop);
+				
 				GetClientAbsOrigin(param1, VecOrigin);
 				GetClientEyeAngles(param1, VecAngles);
 				VecAngles[0] = 0.0;
 				VecAngles[2] = 0.0;
-				g_vecLastEntityAngles[param1] = VecAngles;
-				g_iLastObject[param1] = prop;
 				DispatchKeyValueVector(prop, "angles", VecAngles);
-				DispatchSpawn(prop);
 				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
 				g_bSpawned[prop] = true;
-				g_vecEntityAngles[prop] = VecAngles;
-				char name[256];
-				GetClientName(param1, name, sizeof(name));
-				LogSpawn("%s spawned a static object with model <%s>", name, model);
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = prop;
+				g_iLockObject[param1] = prop;
+
+				LogSpawn("%N spawned a static object with model <%s>", param1, model);
 			}
 			else if(g_iCategory[param1] == 7)
 			{
@@ -2196,7 +2016,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					float vPos[3], vAng[3];
 					if( !SetTeleportEndPoint(param1, vPos, vAng, 1) )
 					{
-						PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 						GetClientEyePosition(param1, vPos);
 						GetClientEyeAngles(param1, vAng);
 					}
@@ -2209,8 +2029,6 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					{
 						vPos[2] += 3.0;
 					}
-
-					g_vecLastEntityAngles[param1] = vAng;
 
 					char classname[64];
 					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeapons2[param2] : g_sWeapons[param2]);
@@ -2225,7 +2043,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchKeyValue(entity_weapon, "model", sModel);
 					DispatchKeyValue(entity_weapon, "rendermode", "3");
 					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_weapon");
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 
 					int count;
 					char sCount[5];
@@ -2245,25 +2063,22 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
 					DispatchSpawn(entity_weapon);
 
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = vAng;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned a weapon object with model <%s>", name, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
+					LogSpawn("%N spawned a weapon object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
 				}
 				else if(g_iSubCategory[param1] == 8)
 				{
 					float vPos[3], vAng[3];
 					if( !SetTeleportEndPoint(param1, vPos, vAng, 2) )
 					{
-						PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 						GetClientEyePosition(param1, vPos);
 						GetClientEyeAngles(param1, vAng);
 					}
-
-					g_vecLastEntityAngles[param1] = vAng;
 
 					int entity_weapon = CreateEntityByName("weapon_melee");
 					if( entity_weapon == -1 )
@@ -2271,6 +2086,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 
 					DispatchKeyValue(entity_weapon, "solid", "6");
 					DispatchKeyValue(entity_weapon, "melee_script_name", g_sMeleeScripts[param2]);
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 
 					//DispatchKeyValue(entity_weapon, "count", "1");
 
@@ -2279,20 +2095,19 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 					SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
 
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = vAng;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned a melee object with script <%s>", name, g_sMeleeScripts[param2]);
+					LogSpawn("%N spawned a melee object with script <%s>", param1, g_sMeleeScripts[param2]);
 				}
 				else if(g_iSubCategory[param1] == 9)
 				{
 					float vPos[3], vAng[3];
 					if( !SetTeleportEndPoint(param1, vPos, vAng, 1) )
 					{
-						PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 						GetClientEyePosition(param1, vPos);
 						GetClientEyeAngles(param1, vAng);
 					}
@@ -2334,8 +2149,6 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 						vAng[2] += 90.0;
 					}
 
-					g_vecLastEntityAngles[param1] = vAng;
-
 					char classname[64];
 					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeapons2[param2] : g_sWeapons[param2]);
 
@@ -2349,7 +2162,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchKeyValue(entity_weapon, "model", sModel);
 					DispatchKeyValue(entity_weapon, "rendermode", "3");
 					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_weapon");
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 
 					int count;
 					char sCount[5];
@@ -2369,26 +2182,22 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
 					DispatchSpawn(entity_weapon);
 
-
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = vAng;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned an item object with model <%s>", name, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
+					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
 				}
 				else if(g_iSubCategory[param1] == 10)
 				{
 					float vPos[3], vAng[3];
 					if( !SetTeleportEndPoint(param1, vPos, vAng, 3) )
 					{
-						PrintToChat(param1, "[SM] Vector out of world geometry. Spawning on current position instead");
+						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
 						GetClientEyePosition(param1, vPos);
 						GetClientEyeAngles(param1, vAng);
 					}
-
-					g_vecLastEntityAngles[param1] = vAng;
 
 					char classname[64];
 					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sOthers2[param2] : g_sOthers[param2]);
@@ -2416,17 +2225,16 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					}
 
 					DispatchKeyValueVector(entity_weapon, "angles", vAng);
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
 					DispatchSpawn(entity_weapon);
 
-
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = vAng;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned an item object with model <%s>", name, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
+					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
 				}
 			}
 			else if(g_iCategory[param1] == 8)
@@ -2446,7 +2254,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchKeyValue(entity_weapon, "model", sModel);
 					DispatchKeyValue(entity_weapon, "rendermode", "3");
 					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_weapon");
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 
 					int count;
 					char sCount[5];
@@ -2472,13 +2280,12 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
 					DispatchSpawn(entity_weapon);
 
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = VecAngles;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned a weapon object with model <%s>", name, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
+					LogSpawn("%N spawned a weapon object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
 				}
 				else if(g_iSubCategory[param1] == 8)
 				{
@@ -2488,6 +2295,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 
 					DispatchKeyValue(entity_weapon, "solid", "6");
 					DispatchKeyValue(entity_weapon, "melee_script_name", g_sMeleeScripts[param2]);
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 
 					//DispatchKeyValue(entity_weapon, "count", "1");
 
@@ -2502,13 +2310,12 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 					SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
 
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = VecAngles;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned a melee object with script <%s>", name, g_sMeleeScripts[param2]);
+					LogSpawn("%N spawned a melee object with script <%s>", param1, g_sMeleeScripts[param2]);
 				}
 				else if(g_iSubCategory[param1] == 9)
 				{
@@ -2527,7 +2334,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchKeyValue(entity_weapon, "model", sModel);
 					DispatchKeyValue(entity_weapon, "rendermode", "3");
 					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_weapon");
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 
 					int count;
 					char sCount[5];
@@ -2553,13 +2360,12 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
 					DispatchSpawn(entity_weapon);
 
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = VecAngles;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned an item object with model <%s>", name, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
+					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
 				}
 				else if(g_iSubCategory[param1] == 10)
 				{
@@ -2596,16 +2402,16 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					VecAngles[2] = 0.0;
 					
 					DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
+					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
 					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
 					DispatchSpawn(entity_weapon);
 
+					LockGlow(param1, entity_weapon);
 					g_iLastObject[param1] = entity_weapon;
+					g_iLockObject[param1] = entity_weapon;
 					g_bSpawned[entity_weapon] = true;
-					g_vecEntityAngles[entity_weapon] = VecAngles;
 
-					char name[256];
-					GetClientName(param1, name, sizeof(name));
-					LogSpawn("%s spawned an item object with model <%s>", name, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
+					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
 				}
 			}
 
@@ -2729,18 +2535,17 @@ public int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, in
 			{
 				case 1:
 				{
-					if(g_iLastObject[param1] <= 0 || !IsValidEntity(g_iLastObject[param1]))
+					int Object = g_iLockObject[param1];
+					if(Object <= MaxClients || !IsValidEntity(Object))
 					{
-						PrintToChat(param1, "[SM] The last object is not valid anymore or you haven't spawned anything yet");
+						CPrintToChat(param1, "[TS] %T","You haven't locked anything yet", param1);
+						g_iRotateMenuPosition[param1] = menu.Selection;
 						DisplayRotateMenu(param1);
 						return 0;
 					}
-					int Object = g_iLastObject[param1];
-					
-					float  vecAngles[3];
-					vecAngles[0] = g_vecLastEntityAngles[param1][0];
-					vecAngles[1] = g_vecLastEntityAngles[param1][1];
-					vecAngles[2] = g_vecLastEntityAngles[param1][2];
+
+					float vecAngles[3];
+					GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
 					
 					if(strcmp(menucmd, "rotate1x")== 0)
 					{
@@ -2851,24 +2656,23 @@ public int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, in
 						vecAngles[2] += 180;
 					}
 					
-					g_vecLastEntityAngles[param1] = vecAngles;
 					TeleportEntity(Object, NULL_VECTOR, vecAngles, NULL_VECTOR);
-					g_vecEntityAngles[g_iLastObject[param1]] = vecAngles;
 					
 					g_iRotateMenuPosition[param1] = menu.Selection;
 					DisplayRotateMenu(param1);
 				}
 				case 2:
 				{
-					if(g_iLastObject[param1] <= 0 || !IsValidEntity(g_iLastObject[param1]))
+					int Object = g_iLockObject[param1];
+					if(Object <= MaxClients || !IsValidEntity(Object))
 					{
-						PrintToChat(param1, "[SM] The last object is not valid anymore or you haven't spawned anything yet");
+						CPrintToChat(param1, "[TS] %T","You haven't locked anything yet", param1);
+						g_iMoveMenuPosition[param1] = menu.Selection; 
 						DisplayMoveMenu(param1);
 						return 0;
 					}
 					
-					int Object = g_iLastObject[param1];
-					float  vecOrigin[3];
+					float vecOrigin[3];
 					GetEntPropVector(Object, Prop_Data, "m_vecOrigin", vecOrigin);
 					
 					if(strcmp(menucmd, "moveup1")== 0)
@@ -2977,144 +2781,71 @@ public bool TraceRayDontHitSelf(int entity, int mask, any data)
 
 void DeleteLookingEntity(int client)
 {
-	float VecOrigin[3];
-	float VecAngles[3];
-	GetClientEyePosition(client, VecOrigin);
-	GetClientEyeAngles(client, VecAngles);
-	TR_TraceRayFilter(VecOrigin, VecAngles, MASK_PLAYERSOLID, RayType_Infinite, TraceRayDontHitSelf, client);
-	if(TR_DidHit(null))
+	int Object = FindObjectYouAreLooking(client, false); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
 	{
-		int Object = TR_GetEntityIndex(null);
-		if(Object > MaxClients && IsValidEntity(Object))
-		{
-			static char class[256];
-			GetEntityClassname(Object, class, sizeof(class));
-			if(strcmp(class, "prop_physics") == 0
-			|| strcmp(class, "prop_dynamic") == 0
-			|| strcmp(class, "prop_physics_override") == 0
-			|| strcmp(class, "prop_dynamic_override") == 0
-			|| StrContains(class, "weapon_melee") >= 0
-			|| StrContains(class, "weapon_") == 0
-			|| strcmp(class, "upgrade_laser_sight") == 0)
-			{
-				g_bSpawned[Object] = false;
-				g_bUnsolid[Object] = false;
-				g_vecEntityAngles[Object][0] = 0.0;
-				g_vecEntityAngles[Object][1] = 0.0;
-				g_vecEntityAngles[Object][2] = 0.0;
-
-				static char m_ModelName[PLATFORM_MAX_PATH];
-				GetEntPropString(Object, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
-				PrintToChat(client, "[SM] %T", "Object Model", client, Object, m_ModelName);
-
-				static float position[3];
-				GetEntPropVector(Object, Prop_Send, "m_vecOrigin", position);
-				PrintToChat(client, "[SM] %T", "Object Position", client, Object, position[0], position[1], position[2]);
-
-				static float angle[3];
-				GetEntPropVector(Object, Prop_Data, "m_angRotation", angle);
-				PrintToChat(client, "[SM] %T", "Object Angle", client, Object, angle[0], angle[1], angle[2]);
-
-				AcceptEntityInput(Object, "KillHierarchy");
-				PrintToChat(client, "[SM] %T", "Successfully removed an object", client, Object);
-				if(Object == g_iLastObject[client])
-				{
-					g_iLastObject[client] = -1;
-					g_vecLastEntityAngles[client][0] = 0.0;
-					g_vecLastEntityAngles[client][1] = 0.0;
-					g_vecLastEntityAngles[client][2] = 0.0;
-					g_bGrab[client] = false;
-					g_bGrabbed[Object] = false;
-				}
-				if(Object == g_iLastGrabbedObject[client])
-				{
-					g_iLastGrabbedObject[client] = -1;
-				}
-				return;
-			}
-		}
+		CPrintToChat(client, "[TS] %T","You are not looking at a valid object", client);
+		return;
 	}
 
-	int Object = GetClientAimTarget(client, false);
-	if(Object == -2)
+	g_bSpawned[Object] = false;
+	g_bUnsolid[Object] = false;
+
+	static char m_ModelName[PLATFORM_MAX_PATH];
+	GetEntPropString(Object, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
+	CPrintToChat(client, "[TS] %T", "Object Model", client, Object, m_ModelName);
+
+	static char name[256];
+	GetEntPropString(Object, Prop_Data, "m_iName", name, sizeof(name));
+	CPrintToChat(client, "[TS] %T", "Object Targetname", client, name);
+
+	static float position[3];
+	GetEntPropVector(Object, Prop_Send, "m_vecOrigin", position);
+	CPrintToChat(client, "[TS] %T", "Object Position", client, position[0], position[1], position[2]);
+
+	static float angle[3];
+	GetEntPropVector(Object, Prop_Data, "m_angRotation", angle);
+	CPrintToChat(client, "[TS] %T", "Object Angle", client, angle[0], angle[1], angle[2]);
+
+	AcceptEntityInput(Object, "KillHierarchy");
+	CPrintToChat(client, "[TS] %T", "Successfully removed an object", client, Object);
+	if(Object == g_iLastObject[client])
 	{
-		PrintToChat(client, "[SM] %T","This plugin won't work in this game",client);
-		SetFailState("Unhandled Behaviour");
-	}
-	if(Object > MaxClients && IsValidEntity(Object))
-	{
-		static char class[256];
-		GetEntityClassname(Object, class, sizeof(class));
-		if(strcmp(class, "prop_physics") == 0
-		|| strcmp(class, "prop_dynamic") == 0
-		|| strcmp(class, "prop_physics_override") == 0
-		|| strcmp(class, "prop_dynamic_override") == 0
-		|| StrContains(class, "weapon_melee") >= 0
-		|| StrContains(class, "weapon_") == 0
-		|| strcmp(class, "upgrade_laser_sight") == 0)
-		{
-			g_bSpawned[Object] = false;
-			g_bUnsolid[Object] = false;
-			g_vecEntityAngles[Object][0] = 0.0;
-			g_vecEntityAngles[Object][1] = 0.0;
-			g_vecEntityAngles[Object][2] = 0.0;
-
-			static char m_ModelName[PLATFORM_MAX_PATH];
-			GetEntPropString(Object, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
-			PrintToChat(client, "[SM] %T", "Object Model", client, Object, m_ModelName);
-
-			static float position[3];
-			GetEntPropVector(Object, Prop_Send, "m_vecOrigin", position);
-			PrintToChat(client, "[SM] %T", "Object Position", client, Object, position[0], position[1], position[2]);
-
-			static float angle[3];
-			GetEntPropVector(Object, Prop_Data, "m_angRotation", angle);
-			PrintToChat(client, "[SM] %T", "Object Angle", client, Object, angle[0], angle[1], angle[2]);
-
-			AcceptEntityInput(Object, "KillHierarchy");
-			PrintToChat(client, "[SM] %T", "Successfully removed an object", client, Object);
-
-			PrintToChat(client, "[SM] %T", "Successfully removed an object", client, Object);
-			if(Object == g_iLastObject[client])
-			{
-				g_iLastObject[client] = -1;
-				g_vecLastEntityAngles[client][0] = 0.0;
-				g_vecLastEntityAngles[client][1] = 0.0;
-				g_vecLastEntityAngles[client][2] = 0.0;
-				if(Object == g_iLastGrabbedObject[client])
-				{
-					g_iLastGrabbedObject[client] = -1;
-				}
-			}
-			return;
-		}
+		g_iLastObject[client] = -1;
 	}
 	
-	PrintToChat(client, "[SM] %T","You are not looking to a valid object",client);
+	if(Object == g_iLockObject[client])
+	{
+		g_iLockObject[client] = -1;
+	}
 }
 
 void DeleteAllProps(bool bRemoveObjects = true)
 {
 	CheatCommand(_, "ent_fire", "l4d2_spawn_props_prop KillHierarchy");
+	int lastlockobject;
 	for(int i=1; i<=MaxClients; i++)
 	{
+		lastlockobject = g_iLockObject[i];
+		if(lastlockobject >= MaxClients && IsValidEntity(lastlockobject))
+		{
+			if(g_bLeft4Dead2)
+			{
+				L4D2_RemoveEntityGlow(lastlockobject);
+			}
+			SetEntityRenderMode(lastlockobject, RENDER_NORMAL);
+		}
+
+		g_iLockObject[i] = -1;
 		g_iLastObject[i] = -1;
-		g_vecLastEntityAngles[i][0] = 0.0;
-		g_vecLastEntityAngles[i][1] = 0.0;
-		g_vecLastEntityAngles[i][2] = 0.0;
-		g_bGrab[i] = false;
-		g_iLastGrabbedObject[i] = -1;
 	}
+
 	for(int i=MaxClients; i < MAX_ENTITY; i++)
 	{
 		if(g_bSpawned[i])
 		{
-			g_bGrabbed[i] = false;
 			g_bSpawned[i] = false;
 			g_bUnsolid[i] = false;
-			g_vecEntityAngles[i][0] = 0.0;
-			g_vecEntityAngles[i][1] = 0.0;
-			g_vecEntityAngles[i][2] = 0.0;
 			if(bRemoveObjects && IsValidEntity(i))
 			{
 				AcceptEntityInput(i, "Kill");
@@ -3148,62 +2879,47 @@ void CheatCommand(int client = 0, char[] command, char[] arguments="")
 	SetUserFlagBits(client, userflags);
 }
 
-//Disabled right now
 void DeleteLastProp(int client)
 {
+	if(g_iLastObject[client] == -1)
+	{
+		CPrintToChat(client, "[TS] %T", "You haven't spawned anything yet", client);
+		return;
+	}
+
 	int Object = g_iLastObject[client];
 	if(Object > MaxClients && IsValidEntity(Object))
 	{
 		static char class[256];
 		GetEntityClassname(Object, class, sizeof(class));
-		if(strcmp(class, "prop_physics") == 0
-		|| strcmp(class, "prop_dynamic") == 0
-		|| strcmp(class, "prop_physics_override") == 0
-		|| strcmp(class, "prop_dynamic_override") == 0
-		|| StrContains(class, "weapon_melee") >= 0
-		|| StrContains(class, "weapon_") == 0
-		|| strcmp(class, "upgrade_laser_sight") == 0)
+		if(strncmp(class, "prop_physics", 12, false) == 0
+		|| strncmp(class, "prop_dynamic", 12, false) == 0
+		|| strncmp(class, "weapon_", 7, false) == 0
+		|| strcmp(class, "upgrade_laser_sight", false) == 0)
 		{
 			AcceptEntityInput(g_iLastObject[client], "KillHierarchy");
-			PrintToChat(client, "[SM] %T","Succesfully deleted the last spawned object",client);
+			CPrintToChat(client, "[TS] %T","Succesfully deleted the last spawned object",client);
 			g_iLastObject[client] = -1;
-			g_vecLastEntityAngles[client][0] = 0.0;
-			g_vecLastEntityAngles[client][1] = 0.0;
-			g_vecLastEntityAngles[client][2] = 0.0;
 			g_bSpawned[Object] = false;
 			g_bUnsolid[Object] = false;
-			g_vecEntityAngles[Object][0] = 0.0;
-			g_vecEntityAngles[Object][1] = 0.0;
-			g_vecEntityAngles[Object][2] = 0.0;
-			g_bGrab[client] = false;
-			g_bGrabbed[Object] = false;
-			if(Object == g_iLastGrabbedObject[client])
+
+			if(Object == g_iLockObject[client])
 			{
-				g_iLastGrabbedObject[client] = -1;
+				g_iLockObject[client] = -1;
 			}
 			return;
 		}
 		else
 		{
-			PrintToChat(client, "[SM] %T", "The last spawned object index is not an object anymore!", client, Object);
+			CPrintToChat(client, "[TS] %T", "The last spawned object index is not an object anymore!", client, Object);
 			g_iLastObject[client] = -1;
-			g_vecLastEntityAngles[client][0] = 0.0;
-			g_vecLastEntityAngles[client][1] = 0.0;
-			g_vecLastEntityAngles[client][2] = 0.0;
 			g_bSpawned[Object] = false;
 			g_bUnsolid[Object] = false;
-			g_vecEntityAngles[Object][0] = 0.0;
-			g_vecEntityAngles[Object][1] = 0.0;
-			g_vecEntityAngles[Object][2] = 0.0;
 		}
 	}
-	else if(Object > 0 && !IsValidEntity(Object))
+	else
 	{
-		PrintToChat(client, "[SM] %T","The last object is not valid anymore",client);
-	}
-	else if(Object <= 0)
-	{
-		PrintToChat(client, "[SM] %T","You haven't spawned anything yet",client);
+		CPrintToChat(client, "[TS] %T","The last object is not valid anymore",client);
 	}
 }
 
@@ -3229,6 +2945,8 @@ void LogSpawn(const char[] format, any ...)
 
 public Action CmdSaveMap(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	SaveMapStripper(client);
 	DeleteAllProps(false);
 	return Plugin_Handled;
@@ -3236,11 +2954,7 @@ public Action CmdSaveMap(int client, int args)
 
 void SaveMapStripper(int client)
 {
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveMapStripper> was called by %N", client);
-	#endif
 	LogSpawn("%N saved the objects for this map on a 'Stripper' file format", client);
-	PrintToChat(client, "\x04[SM] Saving the content. Please Wait");
 	char FileName[256];
 	char map[256];
 	char classname[256];
@@ -3252,66 +2966,46 @@ void SaveMapStripper(int client)
 	{
 		PrintHintText(client, "%T", "The file already exists.", client);
 	}
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveMapStripper> File stated, proceed");
-	#endif
+
 	file = OpenFile(FileName, "a+");
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveMapStripper> File Opened, proceed");
-	#endif
 	if(file == null)
 	{
-		#if DEBUG
-		LogSpawn("[DEBUG] <SaveMapStripper> File Invalid, proceed");
-		#endif
-		PrintToChat(client, "[SM] Failed to create or overwrite the map file");
-		PrintToChat(client, "\x04[SM] Something was probably missing during installation");
-		PrintHintText(client, "[SM] Probably missing addons/stripper folder");
-		PrintToConsole(client, "[SM] Unable to open, write, or find the file!");
-		PrintCenterText(client, "[SM] FAILURE");
+		CPrintToChat(client, "[TS] Failed to create or overwrite the map file");
+		CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
+		PrintHintText(client, "[TS] Failed to create or overwrite the map file");
+		PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
+		PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
 		return;
 	}
 	
-	float  vecOrigin[3];
+	CPrintToChat(client, "{green}[TS] %T", "Saving the content. Please Wait", client);
+
+	float vecOrigin[3];
 	float vecAngles[3];
 	char sModel[256];
 	char sTime[256];
-	int iOrigin[3], iAngles[3];
 	int count;
 	char melee_name[32];
-	FormatTime(sTime, sizeof(sTime), "%Y/%m/%d");
-	file.WriteLine(";----------FILE MODIFICATION (YY/MM/DD): [%s] ---------------||", sTime);
+	FormatTime(sTime, sizeof(sTime), "%Y_%m_%d");
+	file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
 	file.WriteLine(";----------BY: %N----------------------||", client);
 	file.WriteLine("");
 	file.WriteLine("add:");
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveMapStripper> Wrote first information line");
-	#endif
+
 	for(int entity=MaxClients; entity < MAX_ENTITY; entity++)
 	{
-		#if DEBUG
-		LogSpawn("[DEBUG] <SaveMapStripper> CHECK: %i", entity);
-		#endif
 		if(g_bSpawned[entity] && IsValidEntity(entity))
 		{
 			GetEntityClassname(entity, classname, sizeof(classname));
-			#if DEBUG
-			LogSpawn("[DEBUG] <SaveMapStripper> Possible Entity Found: %i <%s>", entity, classname);
-			#endif
-			if(StrContains(classname, "prop_dynamic") >= 0 || StrContains(classname, "prop_physics") >= 0)
+			if(strncmp(classname, "prop_dynamic", 12, false) == 0 || strncmp(classname, "prop_physics", 12, false) == 0)
 			{
 				GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vecOrigin);
-				vecAngles = g_vecEntityAngles[entity];
+				GetEntPropVector(entity, Prop_Send, "m_angRotation", vecAngles);
 				GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
+
 				file.WriteLine("{");
-				if(StrContains(classname, "physics") < 0)
+				file.WriteLine("	\"targetname\" \"l4d2_spawn_props_object_%s\"", sTime);
+				if(strncmp(classname, "prop_dynamic_", 12, false) == 0)
 				{
 					if(g_bUnsolid[entity])
 					{
@@ -3322,33 +3016,26 @@ void SaveMapStripper(int client)
 						file.WriteLine("	\"solid\" \"6\"");
 					}
 				}
-				file.WriteLine("	\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("	\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
+				file.WriteLine("	\"origin\" \"%.2f %.2f %.2f\"", vecOrigin[0], vecOrigin[1], vecOrigin[2]);
+				file.WriteLine("	\"angles\" \"%.2f %.2f %.2f\"", vecAngles[0], vecAngles[1], vecAngles[2]);
 				file.WriteLine("	\"model\"	 \"%s\"", sModel);
-				file.WriteLine("	\"classname\"	\"%s\"", classname);
+				if(strncmp(classname, "prop_dynamic", 12, false) == 0) file.WriteLine("	\"classname\"	\"prop_dynamic_override\"");
+				else file.WriteLine("	\"classname\"	\"prop_physics_override\"");
 				file.WriteLine("}");
 				file.WriteLine("");
-				#if DEBUG
-				LogSpawn("[DEBUG] <SaveMapStripper> END: %i", i);
-				#endif
 			}
 			else if(strcmp(classname, "weapon_melee", false) == 0)
 			{
 				GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vecOrigin);
+				GetEntPropVector(entity, Prop_Send, "m_angRotation", vecAngles);
 				//GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				vecAngles = g_vecEntityAngles[entity];
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
+
 				file.WriteLine("{");
+				file.WriteLine("	\"targetname\" \"l4d2_spawn_props_object_%s\"", sTime);
 				file.WriteLine("	\"solid\" \"6\"");
 				file.WriteLine("	\"classname\"	\"weapon_melee_spawn\"");
-				file.WriteLine("	\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("	\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
+				file.WriteLine("	\"origin\" \"%.2f %.2f %.2f\"", vecOrigin[0], vecOrigin[1], vecOrigin[2]);
+				file.WriteLine("	\"angles\" \"%.2f %.2f %.2f\"", vecAngles[0], vecAngles[1], vecAngles[2]);
 				file.WriteLine("	\"spawnflags\"	\"2\"");
 				file.WriteLine("	\"disableshadows\"	\"1\"");
 
@@ -3363,27 +3050,19 @@ void SaveMapStripper(int client)
 				
 				file.WriteLine("}");
 				file.WriteLine("");
-				#if DEBUG
-				LogSpawn("[DEBUG] <SaveMapStripper> END: %i", i);
-				#endif
 			}
-			else if(StrContains(classname, "weapon_") >= 0 || strcmp(classname, "upgrade_laser_sight", false) == 0)
+			else if(strncmp(classname, "weapon_", 7, false) == 0 || strcmp(classname, "upgrade_laser_sight", false) == 0)
 			{
 				GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vecOrigin);
+				GetEntPropVector(entity, Prop_Send, "m_angRotation", vecAngles);
 				GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				vecAngles = g_vecEntityAngles[entity];
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
+
 				file.WriteLine("{");
+				file.WriteLine("	\"targetname\" \"l4d2_spawn_props_object_%s\"", sTime);
 				file.WriteLine("	\"solid\" \"6\"");
 				file.WriteLine("	\"classname\"	\"%s\"", classname);
-				file.WriteLine("	\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("	\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
+				file.WriteLine("	\"origin\" \"%.2f %.2f %.2f\"", vecOrigin[0], vecOrigin[1], vecOrigin[2]);
+				file.WriteLine("	\"angles\" \"%.2f %.2f %.2f\"", vecAngles[0], vecAngles[1], vecAngles[2]);
 				file.WriteLine("	\"spawnflags\"	\"2\"");
 				file.WriteLine("	\"disableshadows\"	\"1\"");
 
@@ -3396,500 +3075,38 @@ void SaveMapStripper(int client)
 				
 				file.WriteLine("}");
 				file.WriteLine("");
-				#if DEBUG
-				LogSpawn("[DEBUG] <SaveMapStripper> END: %i", i);
-				#endif
 			}
 		}
 	}
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveMapStripper> Wrote all entities");
-	#endif
+
 	FlushFile(file);
 	CloseHandle(file);
-	PrintToChat(client, "\x03[SM] %T (%s)", "Succesfully saved the map data", client, FileName);
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveMapStripper> END");
-	#endif
-}
-
-void SaveRoutingPath(int client, int type)
-{
-	#if DEBUG
-	LogSpawn("[DEBUG] <SaveRoutingPath> was called by %N", client);
-	#endif
-	LogSpawn("%N saved the objects for this map on a \"Routing\" file format", client);
-	PrintToChat(client, "\x04[SM] Saving the content. Please Wait");
-	char FileName[256];
-	char map[256];
-	char classname[256];
-	char targetname[256];
-	File file;
-	bool Exists = false;
-	GetCurrentMap(map, sizeof(map));
-	BuildPath(Path_SM, FileName, sizeof(FileName), "../stripper/routing/%s.cfg", map);
-	if(FileExists(FileName))
-	{
-		PrintHintText(client, "%T", "The file already exists.", client);
-		Exists = true;
-	}
-	file = OpenFile(FileName, "a+");
-	if(file == null)
-	{
-		PrintToChat(client, "[SM] Failed to create or overwrite the map file");
-		PrintToChat(client, "\x04[SM] Something was probably missing during installation");
-		PrintHintText(client, "[SM] Probably missing addons/stripper/maps/routing folder");
-		PrintToConsole(client, "[SM] Unable to open, write, or find the file!");
-		PrintCenterText(client, "[SM] FAILURE");
-		return;
-	}
-	float  vecOrigin[3];
-	float vecAngles[3];
-	char sModel[256];
-	char sTime[256];
-	int iOrigin[3], iAngles[3];
-	int count;
-	char melee_name[32];
-	FormatTime(sTime, sizeof(sTime), "%Y/%m/%d");
-	file.WriteLine(";----------FILE MODIFICATION (YY/MM/DD): [%s] ---------------||", sTime);
-	file.WriteLine(";----------BY: %N----------------------||", client);
-	file.WriteLine("");
-	switch(type)
-	{
-		case RouteType_Easy:
-		{
-			file.WriteLine(";This part was generated for an \"Easy\" routing path.");
-			Format(targetname, sizeof(targetname), "easy_route_blocker");
-		}
-		case RouteType_Medium:
-		{
-			file.WriteLine(";This part was generated for a \"Medium\" routing path.");
-			Format(targetname, sizeof(targetname), "medium_route_blocker");
-		}
-		case RouteType_Hard:
-		{
-			file.WriteLine(";This part was generated for a \"Hard\" routing path.");
-			Format(targetname, sizeof(targetname), "hard_route_blocker");
-		}
-	}
-	file.WriteLine("");
-	file.WriteLine("add:");
-	
-	if(!Exists)
-	{
-		//First, wee add the necessary relays
-		
-		file.WriteLine("; plugin trigger relay");
-		file.WriteLine("; will get fired by Plugin ONLY IN VERSUS, so it doesnt break coop");
-		file.WriteLine("{");
-		file.WriteLine("	\"origin\" \"0 0 0\"");
-		file.WriteLine("	\"spawnflags\" \"1\"");
-		file.WriteLine("	\"targetname\" \"relay_routing_init\"");
-		file.WriteLine("	\"classname\" \"logic_relay\"");
-		file.WriteLine("	");
-		file.WriteLine("	; destroy Valve routing entities so they dont interfere");
-		file.WriteLine("	");
-		file.WriteLine("	\"OnTrigger\" \"director_queryKill0-1\"");
-		file.WriteLine("}");
-		file.WriteLine("");
-		file.WriteLine("{");
-		file.WriteLine("	\"origin\" \"0 0 0\"");
-		file.WriteLine("	\"spawnflags\" \"1\"");
-		file.WriteLine("	\"targetname\" \"relay_routing_disabledbydefault\"");
-		file.WriteLine("	\"classname\" \"logic_auto\"");
-		file.WriteLine("	");
-		file.WriteLine("	\"OnMapSpawn\" \"easy_route_blockerDisable0-1\"");
-		file.WriteLine("	\"OnMapSpawn\" \"easy_route_blockerDisableCollision0-1\"");
-		file.WriteLine("	\"OnMapSpawn\" \"medium_route_blockerDisable0-1\"");
-		file.WriteLine("	\"OnMapSpawn\" \"medium_route_blockerDisableCollision0-1\"");
-		file.WriteLine("	\"OnMapSpawn\" \"hard_route_blockerDisable0-1\"");
-		file.WriteLine("	\"OnMapSpawn\" \"hard_route_blockerDisableCollision0-1\"");
-		file.WriteLine("}");
-		file.WriteLine("; config existence checking entity");
-		file.WriteLine("{");
-		file.WriteLine("	\"origin\" \"0 0 0\"");
-		file.WriteLine("	\"targetname\" \"map_has_routing\"");
-		file.WriteLine("	\"noise\" \"0\"");
-		file.WriteLine("	\"minAngerRange\" \"1\"");
-		file.WriteLine("	\"maxAngerRange\" \"10\"");
-		file.WriteLine("	\"classname\" \"logic_director_query\"");
-		file.WriteLine("	\"OutAnger\" \"DoHeadBangInValue0-1\"");
-		file.WriteLine("}");
-		file.WriteLine("");
-		file.WriteLine("; easy path");
-		file.WriteLine("{");
-		file.WriteLine("	\"origin\" \"0 0 0\"");
-		file.WriteLine("	\"targetname\" \"relay_easy_route_spawn\"");
-		file.WriteLine("	\"spawnflags\" \"0\"");
-		file.WriteLine("	\"classname\" \"logic_relay\"");
-		file.WriteLine("	\"OnTrigger\" \"easy_route_blockerEnable0-1\"");
-		file.WriteLine("	\"OnTrigger\" \"easy_route_blockerEnableCollision0-1\"");
-		file.WriteLine("}");
-		file.WriteLine("");
-		file.WriteLine("; medium path");
-		file.WriteLine("{");
-		file.WriteLine("	\"origin\" \"0 0 0\"");
-		file.WriteLine("	\"targetname\" \"relay_medium_route_spawn\"");
-		file.WriteLine("	\"spawnflags\" \"0\"");
-		file.WriteLine("	\"classname\" \"logic_relay\"");
-		file.WriteLine("	\"OnTrigger\" \"medium_route_blockerEnable0-1\"");
-		file.WriteLine("	\"OnTrigger\" \"medium_route_blockerEnableCollision0-1\"");
-		file.WriteLine("}");
-		file.WriteLine("");
-		file.WriteLine("; hard path");
-		file.WriteLine("{");
-		file.WriteLine("	\"origin\" \"0 0 0\"");
-		file.WriteLine("	\"targetname\" \"relay_hard_route_spawn\"");
-		file.WriteLine("	\"spawnflags\" \"0\"");
-		file.WriteLine("	\"classname\" \"logic_relay\"");
-		file.WriteLine("	\"OnTrigger\" \"hard_route_blockerEnable0-1\"");
-		file.WriteLine("	\"OnTrigger\" \"hard_route_blockerEnableCollision0-1\"");
-		file.WriteLine("}");
-		file.WriteLine("");
-	}
-	for(int i=MaxClients; i < MAX_ENTITY; i++)
-	{
-		if(g_bSpawned[i] && IsValidEntity(i))
-		{
-			GetEntityClassname(i, classname, sizeof(classname));
-			if(StrContains(classname, "prop_dynamic") >= 0 || StrContains(classname, "prop_physics") >= 0)
-			{
-				GetEntPropVector(i, Prop_Send, "m_vecOrigin", vecOrigin);
-				vecAngles = g_vecEntityAngles[i];
-				GetEntPropString(i, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
-				file.WriteLine("{");
-				if(StrContains(classname, "physics") < 0)
-				{
-					if(g_bUnsolid[i])
-					{
-						file.WriteLine("	\"solid\" \"1\"");
-					}
-					else
-					{
-						file.WriteLine("	\"solid\" \"6\"");
-					}
-				}
-				file.WriteLine("	\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("	\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
-				file.WriteLine("	\"model\"	 \"%s\"", sModel);
-				file.WriteLine("	\"targetname\" \"%s\"", targetname);
-				file.WriteLine("	\"classname\"	\"%s\"", classname);
-				file.WriteLine("}");
-				file.WriteLine("");
-			}
-			else if(strcmp(classname, "weapon_melee", false) == 0)
-			{
-				GetEntPropVector(i, Prop_Send, "m_vecOrigin", vecOrigin);
-				//GetEntPropString(i, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				vecAngles = g_vecEntityAngles[i];
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
-				file.WriteLine("{");
-				file.WriteLine("	\"solid\" \"6\"");
-				file.WriteLine("	\"classname\"	\"weapon_melee_spawn\"");
-				file.WriteLine("	\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("	\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
-				file.WriteLine("	\"targetname\" \"%s\"", targetname);
-				file.WriteLine("	\"spawnflags\"	\"2\"");
-				file.WriteLine("	\"disableshadows\"	\"1\"");
-
-				if (HasEntProp(i, Prop_Data, "m_strMapSetScriptName")) //support custom melee
-				{
-					GetEntPropString(i, Prop_Data, "m_strMapSetScriptName", melee_name, sizeof(melee_name));
-					file.WriteLine("	\"melee_weapon\"	\"%s\"", melee_name);
-				}
-
-				file.WriteLine("	\"spawn_without_director\"	\"1\"");
-				file.WriteLine("	\"count\"	\"1\"");
-
-				file.WriteLine("}");
-				file.WriteLine("");
-			}
-			else if(StrContains(classname, "weapon_") >= 0 || strcmp(classname, "upgrade_laser_sight", false) == 0)
-			{
-				GetEntPropVector(i, Prop_Send, "m_vecOrigin", vecOrigin);
-				GetEntPropString(i, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				vecAngles = g_vecEntityAngles[i];
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
-				file.WriteLine("{");
-				file.WriteLine("	\"solid\" \"6\"");
-				file.WriteLine("	\"classname\"	\"%s\"", classname);
-				file.WriteLine("	\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("	\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
-				file.WriteLine("	\"targetname\" \"%s\"", targetname);
-				file.WriteLine("	\"spawnflags\"	\"2\"");
-				file.WriteLine("	\"disableshadows\"	\"1\"");
-
-				if(strcmp(classname,"weapon_ammo_spawn") == 0) 
-					file.WriteLine("	\"model\"	 \"%s\"", sModel);
-
-				StringToLowerCase(sModel);
-				if(g_smModelCount.GetValue(sModel, count) && count > 0)
-					file.WriteLine("	\"count\"	\"%i\"", count);
-
-				file.WriteLine("}");
-				file.WriteLine("");
-			}
-		}
-	}
-	FlushFile(file);
-	CloseHandle(file);
-	PrintToChat(client, "\x03[SM] %T (%s)", "Succesfully saved the map data", client, FileName);
-}
-
-void SavePluginProps(int client)
-{
-	LogSpawn("%N saved the objects for this map on a \"Plugin Cache\" file format", client);
-	PrintToChat(client, "\x04[SM] Saving the content. Please Wait");
-	char FileName[256];
-	char map[256];
-	char classname[256];
-	char FileNameS[256];
-	char FileNameT[256];
-	File file;
-	GetCurrentMap(map, sizeof(map));
-	BuildPath(Path_SM, FileNameS, sizeof(FileNameS), "../stripper/plugin_cache/%s", map);
-	Format(FileName, sizeof(FileName), "%s_1.txt", FileNameS);
-	int map_number = 0;
-	if(FileExists(FileName))
-	{
-		map_number = GetNextMapNumber(FileNameS);
-		if(map_number <= 0)
-		{
-			PrintToChat(client, "\x04[SM] Fatal Error: Too Many path files for this map! (Max: %i)", MAX_PATHS);
-			return;
-		}
-		Format(FileNameT, sizeof(FileNameT), "%s_%i.txt", FileNameS, map_number);
-	}
-	else
-	{
-		Format(FileNameT, sizeof(FileNameT), "%s_1.txt", FileNameS);
-	}
-	file = OpenFile(FileNameT, "a+");
-	if(file == null)
-	{
-		PrintToChat(client, "[SM] Failed to create or overwrite the map file");
-		PrintToChat(client, "\x04[SM] Something was probably missing during installation");
-		PrintHintText(client, "[SM] Probably missing addons/stripper/maps/plugin_cache folder");
-		PrintToConsole(client, "[SM] Unable to open, write, or find the file!");
-		PrintCenterText(client, "[SM] FAILURE");
-		return;
-	}
-	CreateInitFile();
-	float  vecOrigin[3];
-	float vecAngles[3];
-	char sModel[256];
-	char sTime[256];
-	int iOrigin[3], iAngles[3];
-	int count = 0;
-	FormatTime(sTime, sizeof(sTime), "%Y/%m/%d");
-	file.WriteLine("//----------FILE MODIFICATION (YY/MM/DD): [%s] ---------------||", sTime);
-	file.WriteLine("//----------BY: %N----------------------||", client);
-	file.WriteLine("");
-	file.WriteLine("\"Objects_Cache\"");
-	file.WriteLine("{");
-	for(int i=MaxClients; i < MAX_ENTITY; i++)
-	{
-		if(g_bSpawned[i] && IsValidEntity(i))
-		{
-			GetEntityClassname(i, classname, sizeof(classname));
-			if(StrContains(classname, "prop_dynamic") >= 0 || StrContains(classname, "prop_physics") >= 0)
-			{
-				GetEntPropVector(i, Prop_Send, "m_vecOrigin", vecOrigin);
-				vecAngles = g_vecEntityAngles[i];
-				GetEntPropString(i, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-				iOrigin[0] = RoundToFloor(vecOrigin[0]);
-				iOrigin[1] = RoundToFloor(vecOrigin[1]);
-				iOrigin[2] = RoundToFloor(vecOrigin[2]);
-				
-				iAngles[0] = RoundToFloor(vecAngles[0]);
-				iAngles[1] = RoundToFloor(vecAngles[1]);
-				iAngles[2] = RoundToFloor(vecAngles[2]);
-				count++;
-				
-				file.WriteLine("	\"object_%i\"", count);
-				file.WriteLine("	{");
-				if(StrContains(classname, "physics") < 0)
-				{
-					if(g_bUnsolid[i])
-					{
-						file.WriteLine("		\"solid\" \"1\"");
-					}
-					else
-					{
-						file.WriteLine("		\"solid\" \"6\"");
-					}
-				}
-				file.WriteLine("		\"origin\" \"%i %i %i\"", iOrigin[0], iOrigin[1], iOrigin[2]);
-				file.WriteLine("		\"angles\" \"%i %i %i\"", iAngles[0], iAngles[1], iAngles[2]);
-				file.WriteLine("		\"model\"	 \"%s\"", sModel);
-				file.WriteLine("		\"classname\"	\"%s\"", classname);
-				file.WriteLine("	}");
-				file.WriteLine("	");
-			}
-		}
-	}
-	file.WriteLine("	\"total_cache\"");
-	file.WriteLine("	{");
-	file.WriteLine("		\"total\" \"%i\"", count);
-	file.WriteLine("	}");
-	file.WriteLine("}");
-	
-	FlushFile(file);
-	CloseHandle(file);
-	PrintToChat(client, "\x03[SM] %T (%s)", "Succesfully saved the map data", client, FileNameT);
-}
-
-public Action CmdLoad(int client, int args)
-{
-	if(args < 1)
-	{
-		PrintToChat(client, "[SM] Specify a map number");
-	}
-	char arg[5];
-	GetCmdArgString(arg, sizeof(arg));
-	int number = StringToInt(arg);
-	LoadPluginProps(client, number);
-	return Plugin_Handled;
-}
-
-void LoadPluginProps(int client, int number)
-{
-	LogSpawn("%N loaded the objects for this map", client);
-	PrintToChat(client, "\x04[SM] Loading content. Please Wait");
-	char KvFileName[256];
-	char map[256];
-	char name[256];
-	GetCurrentMap(map, sizeof(map));
-	BuildPath(Path_SM, KvFileName, sizeof(KvFileName), "../stripper/plugin_cache/%s_%i.txt", map, number);
-	if(!FileExists(KvFileName))
-	{
-		PrintToChat(client, "\x04[SM] The file does not exist");
-		PrintHintText(client, "\x04[SM] The file does not exist");
-		return;
-	}
-	KeyValues keyvalues = new KeyValues("Objects_Cache");
-	keyvalues.ImportFromFile(KvFileName);
-	keyvalues.Rewind();
-	if(keyvalues.JumpToKey("total_cache"))
-	{
-		int max = keyvalues.GetNum("total", 0);
-		if(max <= 0)
-		{
-			PrintToChat(client, "\x04[SM] No objects found in the cache");
-			return;
-		}
-		char model[256];
-		char class[64];
-		char sCount[5];
-		char sMeleeName[32];
-		float vecOrigin[3];
-		float vecAngles[3];
-		int solid;
-		keyvalues.Rewind();
-		for(int count=1; count <= max; count++)
-		{
-			Format(name, sizeof(name), "object_%i", count);
-			if(keyvalues.JumpToKey(name))
-			{
-				solid = keyvalues.GetNum("solid");
-				keyvalues.GetVector("origin", vecOrigin);
-				keyvalues.GetVector("angles", vecAngles);
-				keyvalues.GetString("model", model, sizeof(model));
-				keyvalues.GetString("classname", class, sizeof(class));
-				keyvalues.GetString("count", sCount, sizeof(sCount));
-				keyvalues.GetString("melee_weapon", sMeleeName, sizeof(sMeleeName));
-				int prop = -1;
-				keyvalues.Rewind();
-				if(StrContains(class, "prop_physics") >= 0)
-				{
-					prop = CreateEntityByName("prop_physics_override");
-					DispatchKeyValue(prop, "model", model);
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				}
-				else if(StrContains(class, "prop_dynamic") >= 0)
-				{
-					prop = CreateEntityByName("prop_dynamic_override");
-					SetEntProp(prop, Prop_Send, "m_nSolidType", solid);
-					DispatchKeyValue(prop, "model", model);
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				}
-				else if(strcmp(class, "weapon_melee_spawn", false) == 0)
-				{
-					prop = CreateEntityByName("weapon_melee");
-					DispatchKeyValue(prop, "solid", "6");
-					DispatchKeyValue(prop, "disableshadows", "1");
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_weapon");
-
-					DispatchKeyValue(prop, "count", "1");
-					DispatchKeyValue(prop, "melee_script_name", sMeleeName);
-				}
-				else if(StrContains(class, "weapon_") >= 0 || strcmp(class, "upgrade_laser_sight", false) == 0)
-				{
-					prop = CreateEntityByName(class);
-					DispatchKeyValue(prop, "solid", "6");
-					if(strcmp(class,"weapon_ammo_spawn") == 0) DispatchKeyValue(prop, "model", model);
-					DispatchKeyValue(prop, "rendermode", "3");
-					DispatchKeyValue(prop, "disableshadows", "1");
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_weapon");
-
-					if(strlen(sCount) > 0) DispatchKeyValue(prop, "count", sCount);
-				}
-				
-				g_vecLastEntityAngles[client][0] = vecAngles[0];
-				g_vecLastEntityAngles[client][1] = vecAngles[1];
-				g_vecLastEntityAngles[client][2] = vecAngles[2];
-				DispatchKeyValueVector(prop, "angles", vecAngles);
-				DispatchSpawn(prop);
-				TeleportEntity(prop, vecOrigin, NULL_VECTOR, NULL_VECTOR);
-				g_bSpawned[prop] = true;
-				g_vecEntityAngles[prop] = vecAngles;				
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-	CloseHandle(keyvalues);
-	PrintToChat(client, "\x03[SM] Succesfully loaded the map data");
-	PrintHintText(client, "[SM] If nothing is visible, you probably forgot something during installation");
+	CPrintToChat(client, "{lightgreen}[TS] %T (addons/stripper/maps/%s.cfg)", "Succesfully saved the map data", client, map);
 }
 
 public Action CmdRotate(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	if(args < 2)
 	{
-		PrintToChat(client, "[SM] Usage: sm_prop_rotate <axys> <angles> [EX: !prop_rotate x 30]");
+		CPrintToChat(client, "[TS] Usage: sm_prop_rotate <axys> <angles> [EX: !prop_rotate x 30]");
 		return Plugin_Handled;
 	}
-	int Object = g_iLastObject[client];
+	//int Object = g_iLastObject[client];
+	int Object = FindObjectYouAreLooking(client); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T","You are not looking at a spawned object", client);
+		return Plugin_Handled;
+	}
+
 	char arg1[16];
 	char arg2[16];
 	GetCmdArg(1, arg1, sizeof(arg1));
 	GetCmdArg(2, arg2, sizeof(arg2));
-	float  vecAngles[3];
-	vecAngles[0] = g_vecLastEntityAngles[client][0];
-	vecAngles[1] = g_vecLastEntityAngles[client][1];
-	vecAngles[2] = g_vecLastEntityAngles[client][2];
+	float vecAngles[3];
+	GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
 	int iAngles = StringToInt(arg2);
 	if(strcmp(arg1, "x")== 0)
 	{
@@ -3905,29 +3122,34 @@ public Action CmdRotate(int client, int args)
 	}
 	else
 	{
-		PrintToChat(client, "[SM] Invalid Axys (x,y,z are allowed)");
+		CPrintToChat(client, "[TS] Invalid Axys (x,y,z are allowed)");
 	}
-	g_vecLastEntityAngles[client] = vecAngles;
 	TeleportEntity(Object, NULL_VECTOR, vecAngles, NULL_VECTOR);
-	g_vecEntityAngles[g_iLastObject[client]] = vecAngles;
+
 	return Plugin_Handled;
 }
 
 public Action CmdRemoveLast(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	DeleteLastProp(client);
 	return Plugin_Handled;
 }
 
 public Action CmdRemoveLook(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	DeleteLookingEntity(client);
 	return Plugin_Handled;
 }
 
 public Action CmdRemoveAll(int client, int args)
 {
-	PrintToChat(client, "\x04[SM] %T","Are you sure(Delete All)?",client);
+	if(client == 0) return Plugin_Handled;
+
+	CPrintToChat(client, "{green}[TS] %T","Are you sure(Delete All)?",client);
 	BuildDeleteAllCmd(client);
 	return Plugin_Handled;
 }
@@ -3953,11 +3175,11 @@ public int MenuHandler_cmd_Ask(Menu menu, MenuAction action, int param1, int par
 			if(strcmp(menucmd, "sm_spyes")== 0)
 			{
 				DeleteAllProps();
-				PrintToChat(param1, "[SM] %T", "Successfully deleted all spawned objects", param1);
+				CPrintToChat(param1, "[TS] %T", "Successfully deleted all spawned objects", param1);
 			}
 			else
 			{
-				PrintToChat(param1, "[SM] %T", "Canceled", param1);
+				CPrintToChat(param1, "[TS] %T", "Canceled", param1);
 			}
 		}
 		case MenuAction_Cancel:
@@ -3972,235 +3194,29 @@ public int MenuHandler_cmd_Ask(Menu menu, MenuAction action, int param1, int par
 	return 0;
 }
 
-int GetNextMapNumber(char[] FileName)
-{
-	char FileNameS[256];
-	for(int i=1; i <= MAX_PATHS; i++)
-	{
-		Format(FileNameS, sizeof(FileNameS), "%s_%i.txt", FileName, i);
-		if(FileExists(FileNameS))
-		{
-			continue;
-		}
-		else
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
-void SpawnObjects()
-{
-	//if disabled
-	if(!g_cvarAutoload.BoolValue)
-	{
-		return;
-	}
-	char KvFileName[256];
-	char name[256];
-	BuildPath(Path_SM, KvFileName, sizeof(KvFileName), "../stripper/plugin_cache/%s.txt", g_sPath);
-	LogSpawn("Spawning props from file %s", KvFileName);
-	if(!FileExists(KvFileName))
-	{
-		LogError("Attempted to load an object file which does not exist (%s)", KvFileName);
-		LogSpawn("[ERROR] Attempted to load an object file which does not exist (%s)", KvFileName);
-		return;
-	}
-	KeyValues keyvalues = new KeyValues("Objects_Cache");
-	keyvalues.ImportFromFile(KvFileName);
-	keyvalues.Rewind();
-	if(keyvalues.JumpToKey("total_cache"))
-	{
-		int max = keyvalues.GetNum("total", 0);
-		if(max <= 0)
-		{
-			LogError("No Objects found for the map number cache");
-			LogSpawn("[ERROR] No Objects found for the map number cache");
-			return;
-		}
-		char model[256];
-		char class[64];
-		char sCount[5];
-		char sMeleeName[32];
-		float vecOrigin[3];
-		float vecAngles[3];
-		int solid;
-		keyvalues.Rewind();
-		for(int count=1; count <= max; count++)
-		{
-			Format(name, sizeof(name), "object_%i", count);
-			if(keyvalues.JumpToKey(name))
-			{
-				solid = keyvalues.GetNum("solid");
-				keyvalues.GetVector("origin", vecOrigin);
-				keyvalues.GetVector("angles", vecAngles);
-				keyvalues.GetString("model", model, sizeof(model));
-				keyvalues.GetString("classname", class, sizeof(class));
-				keyvalues.GetString("count", sCount, sizeof(sCount));
-				keyvalues.GetString("melee_weapon", sMeleeName, sizeof(sMeleeName));
-				int prop = -1;
-				keyvalues.Rewind();
-				if(StrContains(class, "prop_physics") >= 0)
-				{
-					prop = CreateEntityByName("prop_physics_override");
-					DispatchKeyValue(prop, "model", model);
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				}
-				else if(StrContains(class, "prop_dynamic") >= 0)
-				{
-					prop = CreateEntityByName("prop_dynamic_override");
-					SetEntProp(prop, Prop_Send, "m_nSolidType", solid);
-					DispatchKeyValue(prop, "model", model);
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				}
-				else if(strcmp(class, "weapon_melee_spawn", false) == 0)
-				{
-					prop = CreateEntityByName("weapon_melee");
-					DispatchKeyValue(prop, "solid", "6");
-					DispatchKeyValue(prop, "disableshadows", "1");
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_weapon");
-
-					DispatchKeyValue(prop, "count", "1");
-					DispatchKeyValue(prop, "melee_script_name", sMeleeName);
-				}
-				else if(StrContains(class, "weapon_") >= 0 || strcmp(class, "upgrade_laser_sight", false) == 0)
-				{
-					prop = CreateEntityByName(class);
-					DispatchKeyValue(prop, "solid", "6");
-					if(strcmp(class,"weapon_ammo_spawn") == 0) DispatchKeyValue(prop, "model", model);
-					DispatchKeyValue(prop, "rendermode", "3");
-					DispatchKeyValue(prop, "disableshadows", "1");
-					DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_weapon");
-
-					if(strlen(sCount) > 0) DispatchKeyValue(prop, "count", sCount);
-				}
-
-				DispatchKeyValueVector(prop, "angles", vecAngles);
-				DispatchSpawn(prop);
-				TeleportEntity(prop, vecOrigin, NULL_VECTOR, NULL_VECTOR);
-				g_bSpawned[prop] = true;
-				g_vecEntityAngles[prop] = vecAngles;				
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-	CloseHandle(keyvalues);
-}
-void CreateInitFile()
-{
-	char FileName[256];
-	char map[256];
-	File file;
-	GetCurrentMap(map, sizeof(map));
-	BuildPath(Path_SM, FileName, sizeof(FileName), "../stripper/plugin_cache/%s_init.txt", map);
-	
-	if(!FileExists(FileName))
-	{
-		file = OpenFile(FileName, "a+");
-		if(file == null)
-		{
-			return;
-		}
-		file.WriteLine("//Init file for map %s", map);
-		file.WriteLine("//DO NOT FORGET TO REPLACE \" FOR QUOTES!");
-		file.WriteLine("//");
-		file.WriteLine("//The format of the file is:");
-		file.WriteLine("//");
-		file.WriteLine("//	\"coop\" --------> This is the gamemode where the following object list will be loaded");
-		file.WriteLine("//	{");
-		file.WriteLine("//		\"total\"	\"2\" ---------> This is the total object list availables. Randomly, one will be selected");
-		file.WriteLine("//		\"path1\"	\"c5m2_park_1\" -------------> If the plugin chooses the option 1, the file c5m2_park_1.txt will be loaded");
-		file.WriteLine("//		\"path2\"	\"c5m2_park_3\" -------------> Same if the option is 2");
-		file.WriteLine("//	}");
-		file.WriteLine("//");
-		file.WriteLine("// If you have any doubts, please check the example_init.txt file or ask on the plugin topic.");
-		file.WriteLine("//");
-		file.WriteLine("");
-		file.WriteLine("\"PathInit\"");
-		file.WriteLine("{");
-		file.WriteLine("	\"coop\"");
-		file.WriteLine("	{");
-		file.WriteLine("		");
-		file.WriteLine("	}");
-		file.WriteLine("	");
-		file.WriteLine("	\"versus\"");
-		file.WriteLine("	{");
-		file.WriteLine("		");
-		file.WriteLine("	}");
-		file.WriteLine("	");
-		file.WriteLine("	\"survival\"");
-		file.WriteLine("	{");
-		file.WriteLine("		");
-		file.WriteLine("	}");
-		file.WriteLine("	");
-		file.WriteLine("	\"scavenge\"");
-		file.WriteLine("	{");
-		file.WriteLine("		");
-		file.WriteLine("	}");
-		file.WriteLine("}");
-		FlushFile(file);
-		CloseHandle(file);
-	}
-}
-
-void GetRandomMapPath(char[] MapName, int maxlen)
-{
-	char KvFileName[256];
-	char sMap[128];
-	char GameMode[128];
-	GetCurrentMap(sMap, sizeof(sMap));
-	BuildPath(Path_SM, KvFileName, sizeof(KvFileName), "../stripper/plugin_cache/%s_init.txt", sMap);
-	if(!FileExists(KvFileName))
-	{
-		LogError("Unable to find the init file!");
-	}
-	else
-	{
-		KeyValues keyvalues = new KeyValues("PathInit");
-		keyvalues.ImportFromFile(KvFileName);
-		keyvalues.Rewind();
-		ConVar cvarGameMode = FindConVar("mp_gamemode");
-		cvarGameMode.GetString(GameMode, sizeof(GameMode));
-		if(keyvalues.JumpToKey(GameMode))
-		{
-			char sNumber[11];
-			int total_paths = keyvalues.GetNum("total");
-			int random = GetRandomInt(1, total_paths);
-			Format(sNumber, sizeof(sNumber), "path%i", random);
-			keyvalues.GetString(sNumber, MapName, maxlen);
-			CloseHandle(keyvalues);
-			return;
-		}
-		else
-		{
-			LogError("Unable to find the gamemode");
-			Format(MapName, maxlen, "invalid");
-			CloseHandle(keyvalues);
-			return;
-		}
-		
-	}
-	Format(MapName, maxlen, "invalid");
-	return;
-}
-
 public Action CmdMove(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	if(args < 2)
 	{
-		PrintToChat(client, "[SM] Usage: sm_prop_move <axys> <distance> [EX: !prop_move x 30]");
+		CPrintToChat(client, "[TS] Usage: sm_prop_move <axys> <distance> [EX: !prop_move x 30]");
 		return Plugin_Handled;
 	}
-	int Object = g_iLastObject[client];
+
+	//int Object = g_iLastObject[client];
+	int Object = FindObjectYouAreLooking(client); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T","You are not looking at a spawned object", client);
+		return Plugin_Handled;
+	}
+
 	char arg1[16];
 	char arg2[16];
 	GetCmdArg(1, arg1, sizeof(arg1));
 	GetCmdArg(2, arg2, sizeof(arg2));
-	float  vecPosition[3];
+	float vecPosition[3];
 	GetEntPropVector(Object, Prop_Data, "m_vecOrigin", vecPosition);
 	float flPosition = StringToFloat(arg2);
 	if(strcmp(arg1, "x")== 0)
@@ -4217,62 +3233,240 @@ public Action CmdMove(int client, int args)
 	}
 	else
 	{
-		PrintToChat(client, "[SM] Invalid Axys (x,y,z are allowed)");
+		CPrintToChat(client, "[TS] Invalid Axys (x,y,z are allowed)");
 	}
-	g_bGrab[client] = false;
-	g_bGrabbed[Object] = false;
+
 	TeleportEntity(Object, vecPosition, NULL_VECTOR, NULL_VECTOR);
 	return Plugin_Handled;
 }
 
 public Action CmdSetAngles(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	if(args < 3)
 	{
-		PrintToChat(client, "[SM] Usage: sm_prop_setang <X Y Z> [EX: !prop_setang 30 0 34");
+		CPrintToChat(client, "[TS] Usage: sm_prop_setang <X Y Z> [EX: !prop_setang 30 0 34]");
 		return Plugin_Handled;
 	}
-	int Object = g_iLastObject[client];
+
+	//int Object = g_iLastObject[client];
+	int Object = FindObjectYouAreLooking(client); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T","You are not looking at a spawned object", client);
+		return Plugin_Handled;
+	}
+
 	char arg1[16];
 	char arg2[16];
 	char arg3[16];
 	GetCmdArg(1, arg1, sizeof(arg1));
 	GetCmdArg(2, arg2, sizeof(arg2));
 	GetCmdArg(3, arg3, sizeof(arg3));
-	float  vecAngles[3];
+	float vecAngles[3];
 	
 	vecAngles[0] = StringToFloat(arg1);
 	vecAngles[1] = StringToFloat(arg2);
 	vecAngles[2] = StringToFloat(arg3);
-	g_vecLastEntityAngles[client] = vecAngles;
-	g_vecEntityAngles[Object] = vecAngles;
 	
-	g_bGrab[client] = false;
-	g_bGrabbed[Object] = false;
 	TeleportEntity(Object, NULL_VECTOR, vecAngles, NULL_VECTOR);
 	return Plugin_Handled;
 }
 
 public Action CmdSetPosition(int client, int args)
 {
+	if(client == 0) return Plugin_Handled;
+
 	if(args < 3)
 	{
-		PrintToChat(client, "[SM] Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17");
+		CPrintToChat(client, "[TS] Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17");
 		return Plugin_Handled;
 	}
-	int Object = g_iLastObject[client];
+
+	//int Object = g_iLastObject[client];
+	int Object = FindObjectYouAreLooking(client); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T","You are not looking at a spawned object", client);
+		return Plugin_Handled;
+	}
+
 	char arg1[16];
 	char arg2[16];
 	char arg3[16];
 	GetCmdArg(1, arg1, sizeof(arg1));
 	GetCmdArg(2, arg2, sizeof(arg2));
 	GetCmdArg(3, arg3, sizeof(arg3));
-	float  vecPosition[3];
+	float vecPosition[3];
 	
 	vecPosition[0] = StringToFloat(arg1);
 	vecPosition[1] = StringToFloat(arg2);
 	vecPosition[2] = StringToFloat(arg3);
 	TeleportEntity(Object, vecPosition, NULL_VECTOR, NULL_VECTOR);
+	return Plugin_Handled;
+}
+
+public Action CmdLock(int client, int args)
+{
+	if(client == 0) return Plugin_Handled;
+
+	int Object = FindObjectYouAreLooking(client, true); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T","You are not looking at a spawned object", client);
+		return Plugin_Handled;
+	}
+
+	
+	LockGlow(client, Object);
+	g_iLockObject[client] = Object;
+
+	CPrintToChat(client, "[TS] %T", "Succesfully locked spawned object", client, Object);
+
+	return Plugin_Handled;
+}
+
+public Action CmdClone(int client, int args)
+{
+	if(client == 0) return Plugin_Handled;
+
+	int Object = g_iLockObject[client];
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T", "You haven't locked anything yet", client);
+		return Plugin_Handled;
+	}
+
+	float vecOrigin[3];
+	float vecAngles[3];
+	char sModel[256];
+	char classname[256];
+	char sMeleeName[64];
+	GetEntityClassname(Object, classname, sizeof(classname));
+	if(strncmp(classname, "prop_dynamic", 12, false) == 0)
+	{
+		GetEntPropVector(Object, Prop_Send, "m_vecOrigin", vecOrigin);
+		GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
+		GetEntPropString(Object, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+		int prop = CreateEntityByName("prop_dynamic_override");
+		DispatchKeyValue(prop, "model", sModel);
+		DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+		vecOrigin[0] += 30;
+		vecOrigin[1] += 30;
+		TeleportEntity(prop, vecOrigin, vecAngles, NULL_VECTOR);
+		DispatchSpawn(prop);
+
+		if(g_bUnsolid[Object])
+		{
+			SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
+			g_bSpawned[prop] = true;
+			g_bUnsolid[prop] = true;
+		}
+		else
+		{
+			SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
+			g_bSpawned[prop] = true;
+			g_bUnsolid[prop] = false;
+		}
+
+		LockGlow(client, prop);
+		g_iLastObject[client] = prop;
+		g_iLockObject[client] = prop;
+		g_bSpawned[prop] = true;
+
+		LogSpawn("%N spawned a dynamic object with model <%s>", client, sModel);
+	}
+	else if(strncmp(classname, "prop_physics", 12, false) == 0)
+	{
+		GetEntPropVector(Object, Prop_Send, "m_vecOrigin", vecOrigin);
+		GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
+		GetEntPropString(Object, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+		int prop = CreateEntityByName("prop_physics_override");
+		DispatchKeyValue(prop, "model", sModel);
+		DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+		vecOrigin[0] += 30;
+		vecOrigin[1] += 30;
+		TeleportEntity(prop, vecOrigin, vecAngles, NULL_VECTOR);
+		DispatchSpawn(prop);
+
+		LockGlow(client, prop);
+		g_iLastObject[client] = prop;
+		g_iLockObject[client] = prop;
+		g_bSpawned[prop] = true;
+
+		LogSpawn("%N spawned a physics object with model <%s>", client, sModel);
+	}
+	else if(strcmp(classname, "weapon_melee", false) == 0)
+	{
+		GetEntPropVector(Object, Prop_Send, "m_vecOrigin", vecOrigin);
+		GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
+		if (HasEntProp(Object, Prop_Data, "m_strMapSetScriptName")) //support custom melee
+		{
+			GetEntPropString(Object, Prop_Data, "m_strMapSetScriptName", sMeleeName, sizeof(sMeleeName));
+		}
+
+		int entity_weapon = CreateEntityByName("weapon_melee");
+		if( entity_weapon == -1 )
+			ThrowError("Failed to create entity 'weapon_melee'");
+
+		DispatchKeyValue(entity_weapon, "solid", "6");
+		DispatchKeyValue(entity_weapon, "melee_script_name", sMeleeName);
+		vecOrigin[0] += 30;
+		vecOrigin[1] += 30;
+		TeleportEntity(entity_weapon, vecOrigin, vecAngles, NULL_VECTOR);
+		DispatchSpawn(entity_weapon);
+
+		LockGlow(client, entity_weapon);
+		g_iLastObject[client] = entity_weapon;
+		g_iLockObject[client] = entity_weapon;
+		g_bSpawned[entity_weapon] = true;
+
+		LogSpawn("%N spawned a melee object with script <%s>", client, sMeleeName);
+	}
+	else if(strncmp(classname, "weapon_", 7, false) == 0 || strcmp(classname, "upgrade_laser_sight", false) == 0)
+	{
+		GetEntPropVector(Object, Prop_Send, "m_vecOrigin", vecOrigin);
+		GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
+		GetEntPropString(Object, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+		int entity_weapon = CreateEntityByName(classname);
+		if( entity_weapon == -1 )
+			ThrowError("Failed to create entity '%s'", classname);
+
+		DispatchKeyValue(entity_weapon, "solid", "6");
+		DispatchKeyValue(entity_weapon, "model", sModel);
+		DispatchKeyValue(entity_weapon, "rendermode", "3");
+		DispatchKeyValue(entity_weapon, "disableshadows", "1");
+		DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+
+		int count;
+		char sCount[5];
+		StringToLowerCase(sModel);
+		if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+		{
+			IntToString(count, sCount, sizeof(sCount));
+			DispatchKeyValue(entity_weapon, "count", sCount);
+		}
+		else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+		{
+			IntToString(count, sCount, sizeof(sCount));
+			DispatchKeyValue(entity_weapon, "count", sCount);
+		}
+
+		vecOrigin[0] += 30;
+		vecOrigin[1] += 30;
+		TeleportEntity(entity_weapon, vecOrigin, vecAngles, NULL_VECTOR);
+		DispatchSpawn(entity_weapon);
+
+		LockGlow(client, entity_weapon);
+		g_iLastObject[client] = entity_weapon;
+		g_iLockObject[client] = entity_weapon;
+		g_bSpawned[entity_weapon] = true;
+	}
+
 	return Plugin_Handled;
 }
 
@@ -4307,6 +3501,16 @@ public void OnEntityDestroyed(int entity)
 		return;
 
 	g_bSpawned[entity] = false;
+	g_bUnsolid[entity] = false;
+
+	for(int i=1; i<=MaxClients; i++)
+	{
+		if(entity == g_iLockObject[i])
+		{
+			g_iLockObject[i] = -1;
+			g_iLastObject[i] = -1;
+		}
+	}
 }
 
 // Taken from "[L4D2] Weapon/Zombie Spawner"
@@ -4516,4 +3720,92 @@ void StringToLowerCase(char[] input)
     {
         input[i] = CharToLower(input[i]);
     }
+}
+
+int FindObjectYouAreLooking(int client, bool bSpawned = true)
+{
+	float VecOrigin[3];
+	float VecAngles[3];
+	GetClientEyePosition(client, VecOrigin);
+	GetClientEyeAngles(client, VecAngles);
+	if(bSpawned)
+	{
+		TR_TraceRayFilter(VecOrigin, VecAngles, MASK_ALL, RayType_Infinite, TracesSpawnedObjectFilter, client);
+		if (TR_DidHit(null))
+		{
+			return TR_GetEntityIndex(null);
+		}
+	}
+	else
+	{
+		TR_TraceRayFilter(VecOrigin, VecAngles, MASK_ALL, RayType_Infinite, TracesObjectFilter, client);
+		if (TR_DidHit(null))
+		{
+			return TR_GetEntityIndex(null);
+		}
+	}
+
+
+	return 0;
+}
+
+public bool TracesSpawnedObjectFilter(int entity, int contentsMask, int client)
+{
+	if(entity == client) // Check if the TraceRay hit the itself.
+	{
+		return false; // Don't let the entity be hit
+	}
+
+	if (entity > MaxClients && IsValidEntity(entity) && g_bSpawned[entity])
+	{
+		static char entName[64];
+		GetEntPropString(entity, Prop_Data, "m_iName", entName, sizeof(entName));
+		if(strcmp(entName,"l4d2_spawn_props_object") == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+public bool TracesObjectFilter(int entity, int contentsMask, int client)
+{
+	if(entity == client) // Check if the TraceRay hit the itself.
+	{
+		return false; // Don't let the entity be hit
+	}
+
+	if (entity > MaxClients && IsValidEntity(entity))
+	{
+		static char class[256];
+		GetEntityClassname(entity, class, sizeof(class));
+		if(strncmp(class, "prop_physics", 12, false) == 0
+		|| strncmp(class, "prop_dynamic", 12, false) == 0
+		|| strncmp(class, "weapon_", 7, false) == 0
+		|| strcmp(class, "upgrade_laser_sight", false) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void LockGlow(int client, int Object)
+{
+	int lastlockobject = g_iLockObject[client];
+	if(lastlockobject >= MaxClients && IsValidEntity(lastlockobject))
+	{
+		if(g_bLeft4Dead2)
+		{
+			L4D2_RemoveEntityGlow(lastlockobject);
+		}
+		SetEntityRenderMode(lastlockobject, RENDER_NORMAL);
+	}
+
+	if(g_bLeft4Dead2) L4D2_SetEntityGlow(Object, L4D2Glow_Constant, 0, 0, LOCK_COLORS, true);
+
+	SetEntityRenderMode(Object, RENDER_TRANSCOLOR);
+	SetEntityRenderColor(Object, LOCK_COLORS[0], LOCK_COLORS[1], LOCK_COLORS[2], 220);
 }
