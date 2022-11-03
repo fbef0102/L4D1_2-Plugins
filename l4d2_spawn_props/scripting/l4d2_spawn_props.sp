@@ -362,8 +362,7 @@ public void OnPluginStart()
 	RegAdminCmd("sm_prop_setpos", CmdSetPosition, DESIRED_ADM_FLAGS, "Sets the looking spawned object position, Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17");
 	RegAdminCmd("sm_prop_lock", CmdLock, DESIRED_ADM_FLAGS, "Locks the looking spawned object, Use for move and rotate");
 	RegAdminCmd("sm_prop_clone", CmdClone, DESIRED_ADM_FLAGS, "Clone the last spawned object");
-	
-	RegAdminCmd("sm_debugprop", CmdDebugProp, ADMFLAG_ROOT, "DEBUG");
+	RegAdminCmd("sm_prop_print", CmdDebugProp, DESIRED_ADM_FLAGS, "Print the looking object information");
 	
 	
 	TopMenu topmenu;
