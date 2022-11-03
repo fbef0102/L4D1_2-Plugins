@@ -27,8 +27,8 @@
 	"Delete Looking Object"
 	{
 		"en"	"Delete Looking Object"
-		"zho"	"刪除眼前的物件(準心指向)"
-		"chi"	"删除眼前的物件(准心指向)"
+		"zho"	"刪除眼前的物件 (準心指向)"
+		"chi"	"删除眼前的物件 (准心指向)"
 	}
 	"Delete Last Object"
 	{
@@ -141,68 +141,14 @@
 	"Save Stripper File"
 	{
 		"en"	"Save Stripper File"
-		"zho"	"儲存於 Stripper File (推薦)"
-		"chi"	"储存于 Stripper File (推荐)"
-	}
-	"Save Routing File"
-	{
-		"en"	"Save Routing File"
-		"zho"	"儲存於 Routing File (複雜)"
-		"chi"	"储存于 Routing File (复杂)"
-	}
-	"Save Spawn Objects File"
-	{
-		"en"	"Save Spawn Objects File"
-		"zho"	"儲存於 Spawn Objects File (暫存)"
-		"chi"	"储存于 Spawn Objects File (暂存)"
-	}
-	"Select Path Difficulty"
-	{
-		"en"	"Select Path Difficulty"
-		"zho"	"選擇路徑難度"
-		"chi"	"选择路径难度"
-	}
-	"Easy Path"
-	{
-		"en"	"Easy Path"
-		"zho"	"簡單路徑"
-		"chi"	"简单路径"
-	}
-	"Medium Path"
-	{
-		"en"	"Medium Path"
-		"zho"	"中等路徑"
-		"chi"	"中等路径"
-	}
-	"Hard Path"
-	{
-		"en"	"Hard Path"
-		"zho"	"困難路徑"
-		"chi"	"困难路径"
-	}
-	"Load Objects"
-	{
-		"en"	"Load Objects"
-		"zho"	"載入物件"
-		"chi"	"载入物件"
-	}
-	"load the map data cache?"
-	{
-		"en"	"Are you sure that you want the load the map data cache?"
-		"zho"	"你確定從暫存檔案裡載入物件?"
-		"chi"	"你确定从暂存档案里载入物件?"
+		"zho"	"儲存於 Stripper File"
+		"chi"	"储存于 Stripper File"
 	}
 	"Are you sure?"
 	{
 		"en"	"Are you sure?"
 		"zho"	"你確定?"
 		"chi"	"你确定?"
-	}
-	"Choose a map number please"
-	{
-		"en"	"Choose a map number please"
-		"zho"	"選擇地圖編號"
-		"chi"	"选择地图编号"
 	}
 	"Vehicles"
 	{
@@ -257,6 +203,24 @@
 		"en"	"Move"
 		"zho"	"移動"
 		"chi"	"移动"
+	}
+	"Lock"
+	{
+		"en"	"Lock the looking spawned object"
+		"zho"	"鎖定準心指向生成物件"
+		"chi"	"鎖定准心指向生成物件"
+	}
+	"Clone"
+	{
+		"en"	"Clone Locked Object"
+		"zho"	"複製被鎖定的物件"
+		"chi"	"复制被锁定的物件"
+	}
+	"Info"
+	{
+		"en"	"Print the looking object information"
+		"zho"	"列印準心指向物件資訊"
+		"chi"	"列印准心指向物件资讯"
 	}
 	"Rotate 1 degree (X axys)"
 	{
@@ -531,30 +495,37 @@
 	"Object Model"
 	{
 		"#format"	"{1:d},{2:s}"
-		"en"	"Object({1}) Model: {2}"
-		"zho"	"物件({1}) 模組: {2}"
-		"chi"	"物件({1}) 模组: {2}"
+		"en"	"Object ({olive}{1}{default}) Model: {olive}{2}"
+		"zho"	"物件 ({olive}{1}{default}) 模組: {olive}{2}"
+		"chi"	"物件 ({olive}{1}{default}) 模组: {olive}{2}"
+	}
+	"Object Targetname"
+	{
+		"#format"	"{1:s}"
+		"en"	"Object Targetname: {olive}{1}"
+		"zho"	"物件 Targetname: {olive}{1}"
+		"chi"	"物件 Targetname: {olive}{1}"
 	}
 	"Object Position"
 	{
-		"#format"	"{1:d},{2:f},{3:f},{4:f}"
-		"en"	"Object({1}) Position: {2}, {3}, {4}"
-		"zho"	"物件({1}) 位置: {2}, {3}, {4}"
-		"chi"	"物件({1}) 位置: {2}, {3}, {4}"
+		"#format"	"{1:.2f},{2:.2f},{3:.2f}"
+		"en"	"Object Position: {olive}{1} {2} {3}"
+		"zho"	"物件 位置: {olive}{1} {2} {3}"
+		"chi"	"物件 位置: {olive}{1} {2} {3}"
 	}
 	"Object Angle"
 	{
-		"#format"	"{1:d},{2:f},{3:f},{4:f}"
-		"en"	"Object({1}) Angle: {2}, {3}, {4}"
-		"zho"	"物件({1}) 角度: {2}, {3}, {4}"
-		"chi"	"物件({1}) 角度: {2}, {3}, {4}"
+		"#format"	"{1:.2f},{2:.2f},{3:.2f}"
+		"en"	"Object Angle: {olive}{1} {2} {3}"
+		"zho"	"物件 角度: {olive}{1} {2} {3}"
+		"chi"	"物件 角度: {olive}{1} {2} {3}"
 	}
 	"Successfully removed an object"
 	{
 		"#format"	"{1:d}"
-		"en"	"Successfully removed an object({1})"
-		"zho"	"成功地移除了物件({1})"
-		"chi"	"成功地移除了物件({1})"
+		"en"	"Successfully removed an object ({olive}{1}{default})"
+		"zho"	"成功地移除了物件 ({olive}{1}{default})"
+		"chi"	"成功地移除了物件 ({olive}{1}{default})"
 	}
 	"This plugin won't work in this game"
 	{
@@ -562,11 +533,17 @@
 		"zho"	"這個插件在這款遊戲上行不通"
 		"chi"	"这个插件在这款游戏上行不通"
 	}
-	"You are not looking to a valid object"
+	"You are not looking at a valid object"
 	{
-		"en"	"You are not looking to a valid object"
-		"zho"	"你準心並沒有指向一個合法的物件"
-		"chi"	"你准心并没有指向一个合法的物件"
+		"en"	"You are not looking at a valid object"
+		"zho"	"你並沒有指向一個合法的物件"
+		"chi"	"你并没有指向一个合法的物件"
+	}
+	"You are not looking at a spawned object"
+	{
+		"en"	"You are not looking at a spawned object"
+		"zho"	"你並沒有指向一個由此插件生成的物件"
+		"chi"	"你并没有指向一个由此插件生成的物件"
 	}
 	"Succesfully deleted the last spawned object"
 	{
@@ -574,7 +551,14 @@
 		"zho"	"成功地刪除了上一個生成的物件"
 		"chi"	"成功地删除了上一个生成的物件"
 	}
-	"The last spawned object index is not an object anymore!
+	"Succesfully locked spawned object"
+	{
+		"#format"	"{1:d}"
+		"en"	"Succesfully locked spawned object ({olive}{1}{default})"
+		"zho"	"成功地鎖定物件 ({olive}{1}{default})"
+		"chi"	"成功地锁定物件 ({olive}{1}{default})"
+	}
+	"The last spawned object index is not an object anymore!"
 	{
 		"#format"	"{1:d}"
 		"en"	"The last spawned object index {1} is not an object anymore!"
@@ -590,8 +574,20 @@
 	"You haven't spawned anything yet"
 	{
 		"en"	"You haven't spawned anything yet"
-		"zho"	"你還沒生成過任何物件，You idiot!"
-		"chi"	"你还没生成过任何物件，草包"
+		"zho"	"你還沒生成過任何物件"
+		"chi"	"你还没生成过任何物件"
+	}
+	"You haven't locked anything yet"
+	{
+		"en"	"You haven't locked anything yet"
+		"zho"	"你還沒生成鎖定任何物件"
+		"chi"	"你还没生成锁定任何物件"
+	}
+	"Saving the content. Please Wait"
+	{
+		"en"	"Saving the content. Please Wait"
+		"zho"	"正在儲存所有生成物件，請稍後"
+		"chi"	"正在储存所有生成物件，请稍后"
 	}
 	"The file already exists."
 	{
