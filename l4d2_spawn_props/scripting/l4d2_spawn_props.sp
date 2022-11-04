@@ -3806,5 +3806,5 @@ void LockGlow(int client, int Object)
 	if(g_bLeft4Dead2) L4D2_SetEntityGlow(Object, L4D2Glow_Constant, 0, 0, LOCK_COLORS, true);
 
 	SetEntityRenderMode(Object, RENDER_TRANSCOLOR);
-	SetEntityRenderColor(Object, LOCK_COLORS[0], LOCK_COLORS[1], LOCK_COLORS[2], 220);
+	SetEntityRenderColor(Object, 255, 255, 255, 220);
 }
