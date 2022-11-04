@@ -1080,7 +1080,7 @@ public void Event_DoorClose(Event event, const char[] name, bool dontBroadcast)
 
 void DoorPrint(Event event, bool open)
 {
-	if( bLDFinished && blsHint)
+	if( !bRoundEnd && bLDFinished && blsHint)
 	{
 		int client = GetClientOfUserId(event.GetInt("userid"));
 		if( client && IsClientInGame(client) && GetClientTeam(client) == 2)
@@ -1387,12 +1387,12 @@ public void SLS_OnDoorStatusChanged(bool locked)
 {
 	if(locked == true)
 	{
+		g_bSLSDisable = true;
 		if(IsValidEntRef(iCheckpointDoor))
 		{
 			SetEntProp(iCheckpointDoor, Prop_Data, "m_hasUnlockSequence", UNLOCK);
 			AcceptEntityInput(iCheckpointDoor, "Unlock");
 		}
-		g_bSLSDisable = true;
 	}
 	else
 	{
