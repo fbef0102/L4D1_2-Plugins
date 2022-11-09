@@ -100,7 +100,7 @@ public void OnMapStart()
 	}
 }
 
-public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast) 
+public void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
