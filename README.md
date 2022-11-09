@@ -84,6 +84,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
 * <b>[sm_l4d_mapchanger](/sm_l4d_mapchanger)</b>: Force change to next mission when current mission(final stage) end.
 * <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
+* <b>[l4d_vocalize_antiflood](/l4d_vocalize_antiflood)</b>: Stops vocalize flooding when reaching token limit
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
