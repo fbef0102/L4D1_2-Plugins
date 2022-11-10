@@ -1,6 +1,6 @@
 The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.
 (Just for fun)
-video showcase: https://youtu.be/H3KDQPOJDSs
+video showcase: https://youtu.be/nlPU6Xz0xWQ
 
 -ChangeLog-
 v1.3
