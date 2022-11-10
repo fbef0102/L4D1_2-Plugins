@@ -3,10 +3,10 @@ Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bu
 
 Video:
 Left 4 Dead Revive Reload Bug - jam and misfire
-https://youtu.be/f1I-CaU6oXI
+https://youtu.be/MvUwsdmMnfw
 
 Left 4 Dead 2 Revive Reload Bug - Reload Twice
-https://youtu.be/QBAkP6W46Gg
+https://youtu.be/SaLJT_PCzbU
 
 -ChangeLog-
 2022 @ HarryPotter
