@@ -2,7 +2,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "1.7"
+#define PLUGIN_VERSION "1.8"
 #define DEBUG 0
 
 #include <sourcemod>
@@ -210,7 +210,7 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 		SetEntProp(witch, Prop_Data, "m_iHealth", GetEntProp(witch, Prop_Data, "m_iHealth") + addHealth);
 	}
 
-	if(GetEntProp(witch, Prop_Send, "m_bIsBurning") == 1)
+	if(GetEntityFlags(witch) & FL_ONFIRE )
 	{
 		
 		ExtinguishEntity(witch);
