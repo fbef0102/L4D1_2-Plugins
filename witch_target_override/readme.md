@@ -9,10 +9,10 @@ This plugin is private, Please contact [me](https://github.com/fbef0102/Game-Pri
 
 * Image | 圖示
 	* Fear of Witch 
-	再度恐懼Witch
+	> 再度恐懼Witch
 	<br/>![witch_target_override_1](image/witch_target_override_1.jpg)
 	* Auto follows survivor
-	自動跟蹤倖存者
+	> 自動跟蹤倖存者
 	<br/>![witch_target_override_2](image/witch_target_override_2.jpg)
 
 * Apply to | 適用於
