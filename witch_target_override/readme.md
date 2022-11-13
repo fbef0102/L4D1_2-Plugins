@@ -95,7 +95,7 @@ Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/anti-witch_target_override.cfg
+	* cfg/sourcemod/witch_target_override.cfg
     ```php
     // Witch會跟蹤倖存者的機率
     witch_target_override_chance_followsurvivor "100"
