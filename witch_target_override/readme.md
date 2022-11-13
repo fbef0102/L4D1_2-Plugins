@@ -38,8 +38,7 @@ L4D2
 </details>
 
 * Require | 必要安裝
-	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-	2. [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
+<br/>None
 
 * <details><summary>ConVar | 指令</summary>
 
