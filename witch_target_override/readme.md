@@ -89,3 +89,42 @@ Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 * 原理
 	* 出現在Witch看得到的視野之內，她將會自動走向你
 	* 嚇到Witch之後，將目標玩家倒地或殺死之後，自動把目標轉向剩餘的倖存者繼續發難
+
+* 功能
+	1. 詳見下方"指令中文介紹"
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/anti-witch_target_override.cfg
+    ```php
+    // Witch會跟蹤倖存者的機率
+    witch_target_override_chance_followsurvivor "100"
+
+    // 倖存者距離Witch的一定可見範圍內，Witch會跟蹤倖存者 [100.0, 9999.0] 
+    witch_target_override_followsurvivor_range "500.0"
+
+    // Witch的跟蹤速度
+    witch_target_override_followsurvivor_speed "45.0"
+
+    // 如設置數值為1，目標玩家倒地之後繼續追殺其他倖存者
+    witch_target_override_incap "1"
+
+    // 如果Witch在目標玩家倒地之後繼續追殺其他倖存者，增加數值血量. (0=關閉)
+    witch_target_override_incap_health_add "100"
+
+    // 如設置數值為1，目標玩家死亡之後繼續追殺其他倖存者
+    witch_target_override_kill "1"
+
+    // 如果Witch在目標玩家死亡之後繼續追殺其他倖存者，增加數值血量. (0=關閉)
+    witch_target_override_kill_health_add "400"
+
+    // 1=開啟插件. 0=關閉插件
+    witch_target_override_on "1"
+
+    // Witch準備追殺的另外一名倖存者並須在這個範圍之內 [1.0, 9999.0] (如果範圍內沒有倖存者, 那Witch繼續遊戲預設行為)
+    witch_target_override_range "9999"
+
+    // 如設置數值為1，當Witch身上著火並且準備轉移目標之時，重新計算Witch燒傷的時間 (0=官方預設模式下Witch會在著火固定時間後死亡)
+    witch_target_override_recalculate_burn_time "0"
+    ```
+</details>
