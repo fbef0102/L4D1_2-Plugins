@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.7.6 (2009-2022)
+* Version	: 2.7.7 (2009-2022)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.7.7
+*	   - Add convar: "l4d_infectedbots_spawn_where_method", "0", "Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor"
+
 * Version 2.7.6
 *	   - Add convar: "l4d_infectedbots_spawn_on_same_frame", "0", "If 1, infected bots can spawn on the same game frame (careful, this could cause sever laggy)"
 *
@@ -693,7 +696,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.7.5"
+#define PLUGIN_VERSION "2.7.7"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -814,6 +817,7 @@ ConVar h_CoopInfectedPlayerFlashLight;
 ConVar h_StatusAnnouncementEnable;
 ConVar h_CoopInfectedPlayerGhostState;
 ConVar h_InfectedSpawnSameFrame;
+ConVar h_WhereToSpawnInfected;
 ConVar sb_all_bot_game, allow_all_bot_survivor_team, sb_all_bot_team, vs_max_team_switches, versus_tank_bonus_health, z_max_player_zombies;
 int vs_max_team_switches_default;
 bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default;
@@ -866,7 +870,7 @@ bool g_bCvarAllow, g_bMapStarted, g_bSafeSpawn, g_bTankHealthAdjust, g_bVersusCo
 	g_bTankSpawnFinal;
 int g_iZSDisableGamemode, g_iTankHealth, g_iInfectedSpawnTimeMax, g_iInfectedSpawnTimeMin, g_iHumanCoopLimit,
 	g_iReducedSpawnTimesOnPlayer, g_iWitchPeriodMax, g_iWitchPeriodMin, g_iSpawnTankProbability, g_iCommonLimit,
-	g_iTankLimit;
+	g_iTankLimit, g_iWhereToSpawnInfected;
 int g_iPlayerSpawn, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
@@ -1003,6 +1007,7 @@ public void OnPluginStart()
 	h_StatusAnnouncementEnable = CreateConVar("l4d_infectedbots_announcement_enable", "1", "If 1, announce current plugin status when the number of alive survivors changes.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_CoopInfectedPlayerGhostState = CreateConVar("l4d_infectedbots_coop_versus_human_ghost_enable", "1", "If 1, human infected player will spawn as ghost state in coop/survival/realism.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_InfectedSpawnSameFrame = CreateConVar("l4d_infectedbots_spawn_on_same_frame", "0", "If 1, infected bots can spawn on the same game frame (careful, this could cause sever laggy)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	h_WhereToSpawnInfected = CreateConVar("l4d_infectedbots_spawn_where_method", "0", "Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
 	g_hCvarMPGameMode.AddChangeHook(ConVarGameMode);
@@ -1051,6 +1056,7 @@ public void OnPluginStart()
 	h_WitchSpawnFinal.AddChangeHook(ConVarChanged_Cvars);
 	h_TankSpawnFinal.AddChangeHook(ConVarChanged_Cvars);
 	h_InfectedSpawnSameFrame.AddChangeHook(ConVarChanged_Cvars);
+	h_WhereToSpawnInfected.AddChangeHook(ConVarChanged_Cvars);
 
 	g_iMaxPlayerZombies = h_MaxPlayerZombies.IntValue;
 	g_bVersusCoop = h_VersusCoop.BoolValue;
@@ -1182,6 +1188,7 @@ void GetCvars()
 	g_bWitchSpawnFinal = h_WitchSpawnFinal.BoolValue;
 	g_bTankSpawnFinal = h_TankSpawnFinal.BoolValue;
 	g_bInfectedSpawnSameFrame = h_InfectedSpawnSameFrame.BoolValue;
+	g_iWhereToSpawnInfected = h_WhereToSpawnInfected.IntValue;
 }
 
 public void ConVarMaxPlayerZombies(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -3691,8 +3698,10 @@ public Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		}
 	}
 
-	// We get any client ....
-	int anyclient = GetAheadSurvivor();
+	// We get client ....
+	int anyclient;
+	if(g_iWhereToSpawnInfected == 0) anyclient = GetAheadSurvivor();
+	else anyclient = GetRandomAliveSurvivor();
 	if(anyclient == 0)
 	{
 		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn S.I. at this moment.",ZOMBIESPAWN_Attempts);
@@ -5219,6 +5228,19 @@ int GetAheadSurvivor()
 	}
 
 	return (iAheadSurvivor == 0) ? iTemp : iAheadSurvivor;
+}
+
+int GetRandomAliveSurvivor()
+{
+	int iClientCount, iClients[MAXPLAYERS+1];
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
+		{
+			iClients[iClientCount++] = i;
+		}
+	}
+	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 }
 
 void CheckandPrecacheModel(const char[] model)
