@@ -121,6 +121,7 @@ German
 		* Put them in the correct folder ("Left 4 Dead Dedicated Server\left4dead" or "Left 4 Dead 2 Dedicated Server\left4dead2" folder depending on your game).
 		* Copy YOUR vtf files to the materials/decals/TS_SERVER directory, at least they should be in materials, otherwise it won't work. Edit your .vmt file with a text editor if neccesary, to change the path to the .vmt file.
 		* Add the path of the decal to the main config file "addons\sourcemod\configs\map-decals\decal.cfg". The path has to be put relative to the materials folder, and without the file extension.
+		* Prepare your content-server for FastDL, if you don't know what "FastDL" is, please google it
 
 	3. Setup server to work with downloadable content
 		* ConVars in your cfg/server.cfg should be:
@@ -234,6 +235,7 @@ German
 		* 將它們放在正確的資料夾中（“Left 4 Dead Dedicated Server\left4dead”或“Left 4 Dead 2 Dedicated Server\left4dead2”資料夾，具體取決於您的遊戲）。
 		* 將你的vtf文件複製到materials/decals/TS_SERVER目錄下，至少應該在materials裡面，否則不行。如果需要，請使用文本編輯器編輯 .vmt 文件，以更改 .vmt 文件的路徑。
 		* 將塗鴉的路徑添加到主配置文件"addons\sourcemod\configs\map-decals\decal.cfg"。路徑必須相對於materials資料夾，不需要寫上副檔名。
+		* 準備你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
 		
 	3. 設置伺服器以處理可下載的內容
 		* 您的 cfg/server.cfg 中的 ConVars 應該是：
@@ -249,7 +251,7 @@ German
 			```
 		
 	4. 上傳文件到伺服器。
-		* 將“materials”資料夾上傳到內容伺服器
+		* 將“materials”資料夾上傳到網空伺服器
 			* 如果你是 l4d1，your-content-server.com/game/left4dead/materials/decals/TS_SERVER/ <= 這裡是你的 *.vtf.bz2 文件
 			* 如果你是 l4d2，your-content-server.com/game/left4dead2/materials/decals/TS_SERVER/ <= 這裡是你的 *.vtf.bz2 文件
 		* 將“materials”資料夾上傳到基本伺服器。
