@@ -38,8 +38,8 @@ ArrayList g_SoundPath;
 int g_iGlobalPlayMusicIndex = -1;
 char g_sListPath[PLATFORM_MAX_PATH];
 static bool IsClientMuteMp3[MAXPLAYERS+1];
-int g_iMenuPosition[MAXPLAYERS+1] = 0;
-int g_iClientIdx[MAXPLAYERS+1] = 0;
+int g_iMenuPosition[MAXPLAYERS+1] = {0};
+int g_iClientIdx[MAXPLAYERS+1] = {0};
 float g_fSoundVolume[MAXPLAYERS+1];
 float g_fPlayMusicTime;
 char g_soundBasePath[PLATFORM_MAX_PATH];
@@ -328,6 +328,8 @@ public Action tmrStart(Handle timer)
 		CreateTimer(g_fDelay, Timer_PlayMusicRoundStart, TIMER_FLAG_NO_MAPCHANGE);	
 	}
 	ResetPlugin();
+
+	return Plugin_Continue;
 }
 
 public Action Timer_PlayMusicRoundStart(Handle timer)
@@ -353,6 +355,8 @@ public Action Timer_PlayMusicRoundStart(Handle timer)
 			}
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Timer_PlayMusicNewPlayer(Handle timer, int client)
@@ -375,6 +379,8 @@ public Action Timer_PlayMusicNewPlayer(Handle timer, int client)
 				ShowMusicMenu(client, false);
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 void ShowMusicMenu(int client, bool forever = true)
@@ -421,20 +427,22 @@ public int MenuHandler_MenuMusic(Menu menu, MenuAction action, int param1, int p
 				}
 				case 3: {
 					ShowVolumeMenu(client);
-					return;
+					return 0;
 				}
 				case 4: {
 					ShowAllMenu(client, false);
-					return;
+					return 0;
 				}
 				case 5: {
 					ShowAllMenu(client, true);
-					return;
+					return 0;
 				}
 			}
 			ShowMusicMenu(client);
 		}
 	}
+
+	return 0;
 }
 
 void ShowVolumeMenu(int client)
@@ -481,6 +489,8 @@ public int MenuHandler_MenuVolume(Menu menu, MenuAction action, int param1, int 
 			ShowMusicMenu(client);
 		}
 	}
+
+	return 0;
 }
 
 void ShowAllMenu(int client, bool music_type)
@@ -564,6 +574,8 @@ public int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, i
 			ShowAllMenu(client, true);
 		}
 	}
+
+	return 0;
 }
 
 
@@ -599,6 +611,8 @@ public int MenuHandler_MenuChooseMusic(Menu menu, MenuAction action, int param1,
 			ShowAllMenu(client, false);
 		}
 	}
+
+	return 0;
 }
 
 
