@@ -4,7 +4,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.7.6
+v2.7.7
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 	(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
 -L4D1 Signature update. (Credit to Psykotikism: https://github.com/Psykotikism/L4D1-2_Signatures)
@@ -166,6 +166,9 @@ l4d_infectedbots_spawn_time_max "60"
 
 // Sets the minimum spawn time for special infected spawned by the plugin in seconds.
 l4d_infectedbots_spawn_time_min "40"
+
+// Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor
+l4d_infectedbots_spawn_where_method "0"
 
 // If 1, Plugin will disable spawning infected bot when a tank is on the field.
 l4d_infectedbots_spawns_disabled_tank "0"
@@ -494,6 +497,9 @@ l4d_infectedbots_spawn_time_max "60"
 
 // 設置插件生成的特感最小時間(秒)
 l4d_infectedbots_spawn_time_min "40"
+
+// 從哪裡尋找位置復活特感? (0=最前方倖存者附近, 1=隨機的倖存者附近)
+l4d_infectedbots_spawn_where_method "0"
 
 // 如果爲1，則當坦克存活時禁止特感複活
 l4d_infectedbots_spawns_disabled_tank "0"
