@@ -254,7 +254,7 @@ German
 		* 將“materials”資料夾上傳到網空伺服器
 			* 如果你是 l4d1，your-content-server.com/game/left4dead/materials/decals/TS_SERVER/ <= 這裡是你的 *.vtf.bz2 文件
 			* 如果你是 l4d2，your-content-server.com/game/left4dead2/materials/decals/TS_SERVER/ <= 這裡是你的 *.vtf.bz2 文件
-		* 將“materials”資料夾上傳到基本伺服器。
+		* 將“materials”資料夾複製到基本伺服器。
 		* 將“materials”資料夾上傳到您客戶端的遊戲資料夾（出於測試原因）。
 		
 	5. 啟動伺服器並測試
