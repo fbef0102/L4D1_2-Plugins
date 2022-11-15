@@ -147,6 +147,7 @@ German
 		* Aim at a wall and use !paintdecal <decalname> the name you just type in decal.cfg
 		* say !savedecal to save a Decal to the config whilst aiming at it, "!savedecal all" saves all Decals (on current Map), "!savedecal [id]" saves a Decal by id, "!savedecal [last]" saves last painted Decal, "!savedecal [name]" saves all Decals by decalname (on current Map)
 		* The decals will be saved to configs\map-decals\maps\XXXXXX.cfg (XXXXXX is map name)
+		* Restart map to see if the Decal is already on the wall
 
 - - - -
 # 中文說明
@@ -155,7 +156,7 @@ German
 
 * 原理
     * 在地圖的牆壁上放置海報並儲存，所有玩家都能看到
-	* 請自備網空上傳vmt/vtf文件，客戶端才會下載檔案
+	* 請自備網空上傳vmt/vtf文件，客戶端才能下載檔案
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -262,3 +263,4 @@ German
 		* 瞄準牆壁並使用 !paintdecal <decalname> 打上你剛才在decal.cfg文件裡取的命名
 		* 現在您可以使用 !savedecal 將瞄準的現存塗鴉保存到配置中
 		* 保存配置位於 configs\map-decals\maps\XXXXXX.cfg (XXXXXX 是地圖名)
+		* 重啟地圖，查看塗鴉是否已經在牆壁上
