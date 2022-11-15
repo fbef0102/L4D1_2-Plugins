@@ -201,4 +201,4 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		* 打開控制台查看是否下載自製的檔案 (此處圖片顯示正在下載音樂)
 		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 		* 再去你的遊戲本體資料夾查看檔案是否已經下載 
-		br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
