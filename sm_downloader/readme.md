@@ -140,23 +140,23 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 	```php
 	//不要移除任何原有的符號 ( // )
 	//不能傳輸.vpk檔案
-	//Files (Download Only No Precache)
+	//Files (只下載不預緩存)
 	path/anymap.ext
 	path/anymap2.ext
 
-	//Decal Files (Download and Precache)
+	//Decal Files (下載並預緩存)
 	materials/decals/anymap.vmt
 	materials/decals/anymap.vtf
 
-	//Sound Files (Download and Precache)
+	//Sound Files (下載並預緩存)
 	sound/misc/Anymap.wav
 	sound/misc/Anymap3.wav
 
-	//Model Files (Download and Precache)
+	//Model Files (下載並預緩存)
 	models/parachute/parachute_green.mdl
 	```
 
-	* configs\sm_downloader\downloads_simple.ini, 這是簡單版的檔案下載設定文件 (只下載不緩存)
+	* configs\sm_downloader\downloads_simple.ini, 這是簡單版的檔案下載設定文件 (只下載不預緩存)
 	```php
 	path/anymap.ext
 	path/anymap2.ext
