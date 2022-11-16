@@ -32,9 +32,10 @@ bool g_bEnabled, g_bPlay, g_bShowMenu, g_bPlay2, g_bShowMenu2;
 float g_fDelay, g_fDelay2, g_fCvarPlayMusicCoolDown;
 char g_sAccesslvl[16];
 
-ArrayList g_FileSoundPath;
-ArrayList g_SoundPath;
-ArrayList g_NameTag;
+ArrayList g_aFileSoundPath;
+ArrayList g_aSoundPath;
+ArrayList g_aFileNameTag;
+ArrayList g_aNameTag;
 
 int g_iGlobalPlayMusicIndex = -1;
 char g_sListPath[PLATFORM_MAX_PATH];
@@ -81,9 +82,10 @@ public void OnPluginStart()
 	RegConsoleCmd("mp3off", Cmd_MusicOff, "Turn off music when round start/join server");
 	RegConsoleCmd("mp3on", Cmd_MusicOn, "Turn on music when round start/join server");
 
-	g_FileSoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-	g_SoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-	g_NameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	g_aFileSoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	g_aSoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	g_aFileNameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	g_aNameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 	
 	BuildPath(Path_SM, g_sListPath, sizeof(g_sListPath), "data/music_mapstart.txt");
 	
@@ -111,23 +113,25 @@ public void OnPluginStart()
 public void OnPluginEnd()
 {
 	ResetPlugin();
-	delete g_FileSoundPath;
-	delete g_SoundPath;
-	delete g_NameTag;
+	delete g_aFileSoundPath;
+	delete g_aSoundPath;
+	delete g_aFileNameTag;
+	delete g_aNameTag;
 }
 
 public void OnConfigsExecuted()
 {
 	UpdateList();
 
-	if (g_FileSoundPath.Length == 0)
+	if (g_aFileSoundPath.Length == 0)
 		return;
 	
-	char sSoundPath[PLATFORM_MAX_PATH];
+	char sSoundPath[PLATFORM_MAX_PATH], sNameTag[PLATFORM_MAX_PATH];
 	char sDLPath[PLATFORM_MAX_PATH];
 	
-	g_SoundPath.Clear();
-	int iChosenIndex, temp, iRand = -1, iTotalMusicsInFile = g_FileSoundPath.Length;
+	g_aSoundPath.Clear();
+	g_aNameTag.Clear();
+	int iChosenIndex, temp, iRand = -1, iTotalMusicsInFile = g_aFileSoundPath.Length;
 	
 	bool bDownloadAll;
 	if (g_iDownloadMusicNumber == 0 || iTotalMusicsInFile <= g_iDownloadMusicNumber)
@@ -141,7 +145,8 @@ public void OnConfigsExecuted()
 	
 	if(bDownloadAll)
 	{
-		g_SoundPath = g_FileSoundPath.Clone();
+		g_aSoundPath = g_aFileSoundPath.Clone();
+		g_aNameTag = g_aFileNameTag.Clone();
 	}
 	else
 	{
@@ -159,14 +164,17 @@ public void OnConfigsExecuted()
 			iArray[iRand] = temp;
 			iTotalMusicsInFile-- ;
 			/**/
-			g_FileSoundPath.GetString(iChosenIndex, sSoundPath, sizeof(sSoundPath));
-			g_SoundPath.PushString(sSoundPath);
+			g_aFileSoundPath.GetString(iChosenIndex, sSoundPath, sizeof(sSoundPath));
+			g_aSoundPath.PushString(sSoundPath);
+
+			g_aFileNameTag.GetString(iChosenIndex, sNameTag, sizeof(sNameTag));
+			g_aNameTag.PushString(sNameTag);
 		}
 	}
 					
 	
-	for (int i = 0; i < g_SoundPath.Length; i++) {
-		g_SoundPath.GetString(i, sSoundPath, sizeof(sSoundPath));
+	for (int i = 0; i < g_aSoundPath.Length; i++) {
+		g_aSoundPath.GetString(i, sSoundPath, sizeof(sSoundPath));
 		Format(sDLPath, sizeof(sDLPath), "sound/%s", sSoundPath);
 		AddFileToDownloadsTable(sDLPath);
 		PrecacheSound(sSoundPath);
@@ -258,8 +266,8 @@ bool UpdateList(int client = 0)
 		return false;
 	}
 
-	g_FileSoundPath.Clear();
-	g_NameTag.Clear();
+	g_aFileSoundPath.Clear();
+	g_aFileNameTag.Clear();
 	while( !hFile.EndOfFile() && hFile.ReadLine(buffer, sizeof(buffer)) )
 	{
 		int len = strlen(buffer);
@@ -269,18 +277,18 @@ bool UpdateList(int client = 0)
 		TrimString(buffer); // walkaround against line break bug
 
 		SplitString(buffer, " TAG-", sSoundPath, sizeof(sSoundPath));
-		g_FileSoundPath.PushString(sSoundPath);
+		g_aFileSoundPath.PushString(sSoundPath);
 		
 		ReplaceString(buffer, sizeof(buffer), sSoundPath, "", false);
 		ReplaceString(buffer, sizeof(buffer), " TAG- ", "", false);
 
-		g_NameTag.PushString(buffer);
+		g_aFileNameTag.PushString(buffer);
 
 		if (client != 0)
 			PrintToChat(client, "Added: %s - %s", sSoundPath, buffer);
 	}
 
-	if(g_FileSoundPath.Length == 0)
+	if(g_aFileSoundPath.Length == 0)
 	{
 		if (client != 0) PrintToChat(client, "Why No Any Music? You Fool!!!");
 	}
@@ -334,8 +342,8 @@ public Action Timer_PlayMusicRoundStart(Handle timer)
 {
 	char sPath[PLATFORM_MAX_PATH];
 
-	int iRandomIdx = GetRandomInt(0, g_SoundPath.Length - 1);
-	g_SoundPath.GetString(iRandomIdx, sPath, sizeof(sPath));
+	int iRandomIdx = GetRandomInt(0, g_aSoundPath.Length - 1);
+	g_aSoundPath.GetString(iRandomIdx, sPath, sizeof(sPath));
 	for (int j = 1; j <= MaxClients; j++) g_iClientIdx[j] = iRandomIdx;
 
 	for (int j = 1; j <= MaxClients; j++) 
@@ -363,8 +371,8 @@ public Action Timer_PlayMusicNewPlayer(Handle timer, int client)
 	{
 		char sPath[PLATFORM_MAX_PATH];
 		
-		int iRandomIdx = GetRandomInt(0, g_SoundPath.Length - 1);
-		g_SoundPath.GetString(iRandomIdx, sPath, sizeof(sPath));
+		int iRandomIdx = GetRandomInt(0, g_aSoundPath.Length - 1);
+		g_aSoundPath.GetString(iRandomIdx, sPath, sizeof(sPath));
 		g_iClientIdx[client] = iRandomIdx;
 
 		StopSoundCustom(client);
@@ -422,7 +430,7 @@ public int MenuHandler_MenuMusic(Menu menu, MenuAction action, int param1, int p
 				case 2: {
 					StopSoundCustom(client);
 
-					g_SoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
+					g_aSoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
 					EmitSoundCustom(client, sPath);
 				}
 				case 3: {
@@ -483,7 +491,7 @@ public int MenuHandler_MenuVolume(Menu menu, MenuAction action, int param1, int 
 			
 			menu.GetItem(ItemIndex, sItem, sizeof(sItem));
 			g_fSoundVolume[client] = StringToFloat(sItem);
-			g_SoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
+			g_aSoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
 			EmitSoundCustom(client, sPath);
 			
 			ShowMusicMenu(client);
@@ -510,9 +518,9 @@ void ShowAllMenu(int client, bool music_type)
 	
 
 	char sName[PLATFORM_MAX_PATH];
-	for (int i = 0; i < g_SoundPath.Length; i++) {
+	for (int i = 0; i < g_aSoundPath.Length; i++) {
 		IntToString(i, index, sizeof(index));
-		g_NameTag.GetString(i, sName, sizeof(sName));
+		g_aNameTag.GetString(i, sName, sizeof(sName));
 		menu.AddItem(index, sName);
 	}
 	
@@ -542,10 +550,10 @@ public int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, i
 				menu.GetItem(param2, sItem, sizeof(sItem));
 				int MusicIndex = StringToInt(sItem);
 				
-				g_SoundPath.GetString(MusicIndex, sPath, sizeof(sPath));
+				g_aSoundPath.GetString(MusicIndex, sPath, sizeof(sPath));
 		
 				char sName[PLATFORM_MAX_PATH];
-				g_NameTag.GetString(MusicIndex, sName, sizeof(sName));
+				g_aNameTag.GetString(MusicIndex, sName, sizeof(sName));
 				for (int j = 1; j <= MaxClients; j++) 
 				{
 					if (!IsClientInGame(j) || IsFakeClient(j)) continue;
@@ -599,7 +607,7 @@ public int MenuHandler_MenuChooseMusic(Menu menu, MenuAction action, int param1,
 			
 			StopSoundCustom(client);
 
-			g_SoundPath.GetString(MusicIndex, sPath, sizeof(sPath));
+			g_aSoundPath.GetString(MusicIndex, sPath, sizeof(sPath));
 			g_iClientIdx[client] = MusicIndex;
 	
 			StopSound(client, SNDCHAN_AUTO, sPath);
@@ -633,11 +641,11 @@ void StopSoundCustom(int client)
 	static char sPath[PLATFORM_MAX_PATH];
 	if(g_iGlobalPlayMusicIndex >= 0)
 	{
-		g_SoundPath.GetString(g_iGlobalPlayMusicIndex, sPath, sizeof(sPath));
+		g_aSoundPath.GetString(g_iGlobalPlayMusicIndex, sPath, sizeof(sPath));
 		StopSound(client, SNDCHAN_AUTO, sPath);
 	}
 	
-	g_SoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
+	g_aSoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
 	StopSound(client, SNDCHAN_AUTO, sPath);
 }
 
