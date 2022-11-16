@@ -247,6 +247,7 @@ Russian
 		* 將它們放在正確的資料夾中（“Left 4 Dead Dedicated Server\left4dead”或“Left 4 Dead 2 Dedicated Server\left4dead2”資料夾，具體取決於您的遊戲）。
 		* 將您的 MP3 文件複製到 sound/TS_SERVER 資料夾。
 		* 將音樂檔案的路徑添加到主配置文件"addons\sourcemod\data\music_mapstart.txt"。路徑必須相對於sound資料夾，需寫上副檔名。
+		* 準備你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
 
 	3. 設置服務器以處理可下載的內容
 		* 您的 cfg/server.cfg 中的 ConVars 應該是：
