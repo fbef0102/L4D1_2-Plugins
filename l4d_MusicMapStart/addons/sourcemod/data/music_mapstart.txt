@@ -1,2 +1,6 @@
-TS_SERVER/XNET2013_a11.mp3
-TS_SERVER/xnet_2009_b10.mp3
+TS_SERVER/bgm_1.mp3 TAG- bgm_1
+TS_SERVER/bgm_2.mp3 TAG- bgm_2
+TS_SERVER/bgm_3.mp3 TAG- bgm_3
+TS_SERVER/bgm_4.mp3 TAG- bgm_4
+TS_SERVER/SLAM_DUNK.mp3 TAG- SLAM_DUNK
+TS_SERVER/Super_Mario.mp3 TAG- Super_Mario

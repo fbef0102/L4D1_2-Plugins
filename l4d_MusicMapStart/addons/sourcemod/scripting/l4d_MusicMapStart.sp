@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION		"0.9"
+#define PLUGIN_VERSION		"1.4h"
 
 /*
 	Credit to:
@@ -17,9 +17,9 @@ public Plugin myinfo =
 {
     name = "Round start music",
     author = "Dragokasm & HarryPotter",
-    description = "Download and play one random music on map start/round start",
+    description = "Download and play custom music in game",
     version = PLUGIN_VERSION,
-    url = "https://github.com/dragokas/hijackthis"
+    url = "https://forums.alliedmods.net/showthread.php?p=2644771"
 }
 
 #define CVAR_FLAGS		FCVAR_NOTIFY
@@ -34,6 +34,7 @@ char g_sAccesslvl[16];
 
 ArrayList g_FileSoundPath;
 ArrayList g_SoundPath;
+ArrayList g_NameTag;
 
 int g_iGlobalPlayMusicIndex = -1;
 char g_sListPath[PLATFORM_MAX_PATH];
@@ -42,17 +43,7 @@ int g_iMenuPosition[MAXPLAYERS+1] = {0};
 int g_iClientIdx[MAXPLAYERS+1] = {0};
 float g_fSoundVolume[MAXPLAYERS+1];
 float g_fPlayMusicTime;
-char g_soundBasePath[PLATFORM_MAX_PATH];
 
-/*
-EngineVersion g_Engine;
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
-{
-	g_Engine = GetEngineVersion();
-	
-	return APLRes_Success;
-}
-*/
 
 public void OnPluginStart()
 {
@@ -85,17 +76,18 @@ public void OnPluginStart()
 	g_hCvarPlayMusicAccess.AddChangeHook(ConVarChanged);
 
 
-	RegConsoleCmd("sm_music", 			Cmd_Music, 			"Player menu");
+	RegConsoleCmd("sm_music", 			Cmd_Music, 			"Music menu");
 	RegAdminCmd("sm_music_update", 	Cmd_MusicUpdate, ADMFLAG_BAN, "Update music list from config");
-	RegConsoleCmd("mp3off", Cmd_MusicOff);
-	RegConsoleCmd("mp3on", Cmd_MusicOn);
+	RegConsoleCmd("mp3off", Cmd_MusicOff, "Turn off music when round start/join server");
+	RegConsoleCmd("mp3on", Cmd_MusicOn, "Turn on music when round start/join server");
 
 	g_FileSoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 	g_SoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	g_NameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 	
 	BuildPath(Path_SM, g_sListPath, sizeof(g_sListPath), "data/music_mapstart.txt");
 	
-	if (!UpdateList())
+	if (!FileExists(g_sListPath))
 		SetFailState("Cannot open config file \"%s\"!", g_sListPath);
 
 	HookEvent("round_start", 			Event_RoundStart,	EventHookMode_PostNoCopy);
@@ -121,9 +113,10 @@ public void OnPluginEnd()
 	ResetPlugin();
 	delete g_FileSoundPath;
 	delete g_SoundPath;
+	delete g_NameTag;
 }
 
-public void OnMapStart()
+public void OnConfigsExecuted()
 {
 	UpdateList();
 
@@ -185,10 +178,6 @@ public void OnMapStart()
 	{
 		if(sSoundPath[i] == '/') break;
 	}
-	
-	if(i == 0) g_soundBasePath = "";
-	else strcopy(g_soundBasePath, i+2, sSoundPath);
-	//LogMessage("g_soundBasePath:--%s--",g_soundBasePath);
 	
 	g_iGlobalPlayMusicIndex = -1;
 }
@@ -257,7 +246,8 @@ public Action Cmd_MusicUpdate(int client, int args)
 
 bool UpdateList(int client = 0)
 {
-	char sLine[PLATFORM_MAX_PATH];
+	char sSoundPath[PLATFORM_MAX_PATH];
+	char buffer[PLATFORM_MAX_PATH];
 	File hFile = OpenFile(g_sListPath, "r");
 	if( hFile == null )
 	{
@@ -269,17 +259,25 @@ bool UpdateList(int client = 0)
 	}
 
 	g_FileSoundPath.Clear();
-	while( !hFile.EndOfFile() && hFile.ReadLine(sLine, sizeof(sLine)) )
+	g_NameTag.Clear();
+	while( !hFile.EndOfFile() && hFile.ReadLine(buffer, sizeof(buffer)) )
 	{
-		int len = strlen(sLine);
-		if (sLine[len-1] == '\n')
-			sLine[--len] = '\0';
-			
-		if (client != 0)
-			PrintToChat(client, "Added: %s", sLine);
+		int len = strlen(buffer);
+		if (buffer[len-1] == '\n')
+			buffer[--len] = '\0';
 		
-		TrimString(sLine); // walkaround against line break bug
-		g_FileSoundPath.PushString(sLine);
+		TrimString(buffer); // walkaround against line break bug
+
+		SplitString(buffer, " TAG-", sSoundPath, sizeof(sSoundPath));
+		g_FileSoundPath.PushString(sSoundPath);
+		
+		ReplaceString(buffer, sizeof(buffer), sSoundPath, "", false);
+		ReplaceString(buffer, sizeof(buffer), " TAG- ", "", false);
+
+		g_NameTag.PushString(buffer);
+
+		if (client != 0)
+			PrintToChat(client, "Added: %s - %s", sSoundPath, buffer);
 	}
 
 	if(g_FileSoundPath.Length == 0)
@@ -423,6 +421,8 @@ public int MenuHandler_MenuMusic(Menu menu, MenuAction action, int param1, int p
 				}
 				case 2: {
 					StopSoundCustom(client);
+
+					g_SoundPath.GetString(g_iClientIdx[client], sPath, sizeof(sPath));
 					EmitSoundCustom(client, sPath);
 				}
 				case 3: {
@@ -496,7 +496,6 @@ public int MenuHandler_MenuVolume(Menu menu, MenuAction action, int param1, int 
 void ShowAllMenu(int client, bool music_type)
 {
 	Menu menu = null;	
-	char sSoundPath[PLATFORM_MAX_PATH];
 	char index[4];
 	if(music_type)
 	{
@@ -510,11 +509,11 @@ void ShowAllMenu(int client, bool music_type)
 	}
 	
 
+	char sName[PLATFORM_MAX_PATH];
 	for (int i = 0; i < g_SoundPath.Length; i++) {
-		g_SoundPath.GetString(i, sSoundPath, sizeof(sSoundPath));
-		ReplaceStringEx(sSoundPath, sizeof(sSoundPath), g_soundBasePath, "");
 		IntToString(i, index, sizeof(index));
-		menu.AddItem(index, sSoundPath);
+		g_NameTag.GetString(i, sName, sizeof(sName));
+		menu.AddItem(index, sName);
 	}
 	
 	menu.ExitBackButton = true;
@@ -546,8 +545,7 @@ public int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, i
 				g_SoundPath.GetString(MusicIndex, sPath, sizeof(sPath));
 		
 				char sName[PLATFORM_MAX_PATH];
-				FormatEx(sName, sizeof(sName), "%s", sPath);
-				ReplaceStringEx(sName, sizeof(sName), g_soundBasePath, "");
+				g_NameTag.GetString(MusicIndex, sName, sizeof(sName));
 				for (int j = 1; j <= MaxClients; j++) 
 				{
 					if (!IsClientInGame(j) || IsFakeClient(j)) continue;
