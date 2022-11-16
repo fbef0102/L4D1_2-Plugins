@@ -227,6 +227,7 @@ German
 		* Valve 開發者社區 - [塗鴉](http://developer.valvesoftware.com/wiki/Decals)
 		* 文件名
 			* 確保沒有文件有空格或特殊字符，如“長破折號”(–) 等。
+			* 不能有中文
 			
 		* 文件大小
 			* 接下來，建議每個文件不要> 5 MB。大小（以提高下載速度）。

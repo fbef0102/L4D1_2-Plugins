@@ -175,6 +175,9 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 * 玩家如何下載檔案?
 	1. 準備你的自製檔案
 		* 準備好你的所有自製檔案(貼圖、音樂、模組等等)
+		* 文件名
+			* 確保沒有文件有空格或特殊字符，如“長破折號”(–) 等。
+			* 不能有中文
 		* 將它們放在正確的資料夾中（“Left 4 Dead Dedicated Server\left4dead”或“Left 4 Dead 2 Dedicated Server\left4dead2”資料夾，具體取決於您的遊戲）。
 		* 將每個檔案的路徑添加到檔案下載設定文件"configs\sm_downloader\downloads.ini"或"configs\sm_downloader\downloads_simple.ini"。路徑必須相對於"left4dead2" or "left4dead" 資料夾，必須要寫上副檔名。
 		* 準備好你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google

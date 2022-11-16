@@ -9,7 +9,7 @@ if exist ..\..\addons\sourcemod\data (
 
 2>nul del "%list%"
 for %%a in (*.mp3) do (
-	echo TS_SERVER/%%a>> "%list%"
+	echo TS_SERVER/%%a TAG- %%~na>> "%list%"
 )
 
 echo File list is successfully rewrited and saved to: %list%
