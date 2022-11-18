@@ -86,6 +86,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
 * <b>[l4d_vocalize_antiflood](/l4d_vocalize_antiflood)</b>: Stops vocalize flooding when reaching token limit
 * <b>[sm_downloader](/sm_downloader)</b>: SM File/Folder Downloader and Precacher
+* <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
