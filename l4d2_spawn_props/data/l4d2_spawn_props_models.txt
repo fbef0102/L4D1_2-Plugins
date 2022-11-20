@@ -510,6 +510,7 @@ models/props_unique/airport/phone_booth_airport.mdl TAG- 機場電話亭
 models/props_equipment/phone_booth.mdl TAG- 室外電話亭
 models/props_street/bus_stop.mdl TAG- 公交車站台
 models/props_street/newspaper_dispensers.mdl TAG- 四個報紙分類箱
+models/props_downtown/street_lamp01.mdl TAG- 街道路燈
 models/props_urban/parkinglot_light001.mdl TAG- 停車場路燈
 models/props_street/trafficlight01.mdl TAG- 交通路燈 - 大型
 models/props_c17/lamppost03a_on.mdl TAG- 路燈 - 開燈
