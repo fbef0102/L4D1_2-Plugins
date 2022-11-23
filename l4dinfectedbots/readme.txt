@@ -32,7 +32,7 @@ When 5+ player joins the server but no any bot can be taken over, this plugin wi
 2. Zombie Spawn Fix: https://forums.alliedmods.net/showthread.php?t=333351
 To Fixed Special Inected and Player Zombie spawning failures in some cases
 
-3. l4d_ssi_teleport_fix: https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_ssi_teleport_fix
+3. l4d_ssi_teleport_fix: https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Special_Infected_特感/l4d_ssi_teleport_fix
 Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 
 -Convar-
