@@ -30,7 +30,7 @@ English
 * Require | 必要安裝
 	None
 
-* Related Plugin | 相關插件
+* Similar Plugin | 相似插件
 	1. [l4d_telpeort_call](https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_telpeort_call): Teleport Call Menu
 		> 呼叫傳送功能菜單，能傳送玩家到起點、終點、救援區域
 
