@@ -4,7 +4,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 AFK and Join Team Commands Improved Version: https://forums.alliedmods.net/showpost.php?p=2719702&postcount=32
 
 -ChangeLog-
-v4.2
+v4.3
 -Remake Code
 -Add translation support.
 -Update L4D2 "The Last Stand" gamedata, credit to Lux(https://forums.alliedmods.net/showthread.php?p=2714236)
