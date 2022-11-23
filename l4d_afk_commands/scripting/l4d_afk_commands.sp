@@ -57,7 +57,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.2"
+#define PLUGIN_VERSION 		"4.3"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -236,6 +236,8 @@ public void OnPluginStart()
 	HookEvent("witch_harasser_set", OnWitchWokeup);
 	HookEvent("round_start", Event_RoundStart);
 	HookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
+	if(g_bL4D2Version) HookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
+	else HookEvent("create_panic_event" , Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
 	HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
@@ -627,19 +629,21 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 	
 	Clear();
-	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	delete PlayerLeftStartTimer;
+
+	if(L4D_GetGameModeType() != GAMEMODE_SURVIVAL) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 }
 
-public Action Timer_PlayerLeftStart(Handle Timer)
+public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
+{
+	GameStart();
+}
+
+Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{
-		g_bHasLeftSafeRoom = true;
-		g_iCountDownTime = g_iCvarGameTimeBlock;
-		if(g_iCountDownTime > 0)
-		{
-			if(CountDownTimer == null) CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
-		}
+		GameStart();
 
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
@@ -647,7 +651,18 @@ public Action Timer_PlayerLeftStart(Handle Timer)
 	return Plugin_Continue; 
 }
 
-public Action Timer_CountDown(Handle timer)
+void GameStart()
+{
+	g_bHasLeftSafeRoom = true;
+	g_iCountDownTime = g_iCvarGameTimeBlock;
+	if(g_iCountDownTime > 0)
+	{
+		delete CountDownTimer;
+		CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
+	}
+}
+
+Action Timer_CountDown(Handle timer)
 {
 	if(g_iCountDownTime <= 0) 
 	{
