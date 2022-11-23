@@ -7,7 +7,7 @@ Create a survivor bot in game + Teleport player
 * Image | 圖示
 	* teleport menu
 	> 傳送玩家菜單
-	<br/>![l4d_wind_1](image/l4d_wind_1.jpg)
+	<br/>![l4d_wind_2](image/l4d_wind_2.jpg)
 
 * Apply to | 適用於
 ```
@@ -68,6 +68,11 @@ English
 - - - -
 # 中文說明
 新增Bot + 傳送玩家到其他位置上
+
+* 圖示
+	* teleport menu
+	> 傳送玩家菜單
+	<br/>![l4d_wind_1](image/l4d_wind_1.jpg)
 
 * 原理
 	* 管理員輸入!teleport 可以傳送指定玩家到準心上或是其他玩家身上
