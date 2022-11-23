@@ -20,7 +20,7 @@ v1.0
 2. Actions: https://forums.alliedmods.net/showthread.php?t=336374
 
 -Related Plugin: 
-l4d_tracerock: https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_tracerock
+l4d_tracerock: https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Nothing_Impossible_無理改造版/l4d_tracerock/l4d_tracerock
 
 -Convar-
 cfg/sourcemod/l4d_tankhelper.cfg

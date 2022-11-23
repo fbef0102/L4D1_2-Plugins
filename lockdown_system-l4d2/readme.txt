@@ -34,7 +34,7 @@ v1.7
 2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
 
 -Related Plugin-
-1. antisaferoomdooropen: https://github.com/fbef0102/Game-Private_Plugin/tree/main/antisaferoomdooropen
+1. antisaferoomdooropen: https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Survivor_人類/antisaferoomdooropen
 Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
 
 2. Saferoom Lock Scavenge: https://forums.alliedmods.net/showthread.php?t=333086
