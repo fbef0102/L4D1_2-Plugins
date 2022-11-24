@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.7.7 (2009-2022)
+* Version	: 2.7.8 (2009-2022)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,9 +8,13 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.7.8
+*	   - Fixed abnormal Tank Bug. Player gets a special infected with tank skin and abilitiesm, but can not attack or throw rock. This bug only happenes in l4d1.
+*	   - Fixed Music Bugs when switching to infected team in coop/realism/survival.
+*
 * Version 2.7.7
 *	   - Add convar: "l4d_infectedbots_spawn_where_method", "0", "Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor"
-
+*
 * Version 2.7.6
 *	   - Add convar: "l4d_infectedbots_spawn_on_same_frame", "0", "If 1, infected bots can spawn on the same game frame (careful, this could cause sever laggy)"
 *
@@ -696,7 +700,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.7.7"
+#define PLUGIN_VERSION "2.7.8"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -884,6 +888,7 @@ char g_sJoinInfectedAccesslvl[16];
 int g_iIntentionOffset;
 Handle g_hSDKFirstContainedResponder;
 Handle g_hSDKGetName;
+int lastHumanTankId;
 
 public Plugin myinfo =
 {
@@ -1660,7 +1665,12 @@ public void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroad
 
 public Action Timer_VersusCoopTeamChanger(Handle Timer, int client)
 {
-	ChangeClientTeam(client, TEAM_INFECTED);
+	if(IsClientInGame(client))
+	{
+		CleanUpStateAndMusic(client);
+		ChangeClientTeam(client, TEAM_INFECTED);
+	}
+	
 	return Plugin_Continue;
 }
 
@@ -1757,6 +1767,8 @@ public void OnMapStart()
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
+
+	lastHumanTankId = 0;
 }
 
 public void OnMapEnd()
@@ -1844,6 +1856,8 @@ void IsAllowed()
 		HookEvent("player_now_it", Event_GotVomit);
 		HookEvent("revive_success", Event_revive_success);//救起倒地的or 懸掛的
 		HookEvent("player_ledge_release", Event_ledge_release);//懸掛的玩家放開了
+		HookEvent("player_bot_replace", evtBotReplacedPlayer);
+		HookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
 
 		// Hook a sound
 		AddNormalSoundHook(HookSound_Callback);
@@ -2154,6 +2168,7 @@ public Action JoinInfected(int client, int args)
 		{
 			if (HumansOnInfected() < g_iHumanCoopLimit)
 			{
+				CleanUpStateAndMusic(client);
 				ChangeClientTeam(client, TEAM_INFECTED);
 				iPlayerTeam[client] = TEAM_INFECTED;
 			}
@@ -3280,6 +3295,51 @@ public Action TankSpawner(Handle timer, int tank)
 	}
 
 	TankReplacing = false;
+	return Plugin_Continue;
+}
+
+public void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
+{
+	if(g_iCurrentMode != 2) //not versus
+	{
+		int bot = GetClientOfUserId(GetEventInt(event, "bot"));
+		int player = GetClientOfUserId(GetEventInt(event, "player"));
+
+		if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
+			player > 0 && player <= MaxClients && IsClientInGame(player)) 
+		{
+			if(IsPlayerTank(bot) && IsFakeClient(bot) && !IsFakeClient(player))
+			{
+				ForcePlayerSuicide(player);
+				KickClient(bot, "Pass Tank to AI");
+
+				PrintHintText(player, "[TS] %T", "You don't attack survivors", player);
+			}
+		}
+	}
+}
+
+void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
+{
+	lastHumanTankId = event.GetInt("userid");
+	RequestFrame(OnNextFrame_Reset);
+}
+
+void OnNextFrame_Reset()
+{
+	lastHumanTankId = 0;
+}
+
+public Action L4D_OnEnterGhostStatePre(int client)
+{
+	if (lastHumanTankId && GetClientUserId(client) == lastHumanTankId)
+	{
+		lastHumanTankId = 0;
+		L4D_State_Transition(client, STATE_DEATH_ANIM);
+		
+		return Plugin_Handled;
+	}
+	
 	return Plugin_Continue;
 }
 
@@ -4417,10 +4477,11 @@ public void ShowInfectedHUD(int src)
 				if(IsPlayerTank(i) && g_iCurrentMode != 2)
 				{
 					int fus = 100 - GetFrustration(i);
-					if(fus <= 60)
+					if(fus <= 75)
 					{
 						PrintHintText(i, "[TS] Tank Control: %d%%%%", fus);
 					}
+					
 					if(fus <= 5)
 					{
 						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
@@ -4662,6 +4723,11 @@ public void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 
 				CreateTimer(1.0, Timer_CheckAngry, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
+			}
+
+			if(!IsFakeClient(client) && g_iCurrentMode != 2)
+			{
+				CleanUpStateAndMusic(client);
 			}
 		}
 	}
@@ -5199,7 +5265,7 @@ int GetFrustration(int tank_index)
 	return GetEntProp(tank_index, Prop_Send, "m_frustration");
 }
 
-void SetTankFrustration(int client, int iFrustration)
+stock void SetTankFrustration(int client, int iFrustration)
 {
 	SetEntProp(client, Prop_Send, "m_frustration", 100 - iFrustration);
 }
@@ -5764,5 +5830,209 @@ bool bIsTankIdle(int tank, int type = 0)
 	char sAction[64];
 	SDKCall(g_hSDKGetName, adAction, sAction, sizeof sAction);
 	return (type != 2 && StrEqual(sAction, "TankIdle")) || (type != 1 && (StrEqual(sAction, "TankBehavior") || adAction == adBehavior));
+}
+
+void CleanUpStateAndMusic(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	// Resets a players state equivalent to when they die
+	// does stuff like removing any pounces, stops reviving, stops healing, resets hang lighting, resets heartbeat and other sounds.
+	L4D_CleanupPlayerState(client);
+
+	// This fixes the music glitch thats been bothering me and many players for a long time. The music keeps playing over and over when it shouldn't. Doesn't execute
+	// on versus.
+	if(g_iCurrentMode != 2)
+	{
+		if (!g_bL4D2Version)
+		{
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Hospital");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Airport");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Farm");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Small_Town");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Garage");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Hospital");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Airport");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Small_Town");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Farm");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Garage");
+			L4D_StopMusic(client, "Event.Zombat");
+			L4D_StopMusic(client, "Event.Zombat_A2");
+			L4D_StopMusic(client, "Event.Zombat_A3");
+			L4D_StopMusic(client, "Event.Tank");
+			L4D_StopMusic(client, "Event.TankMidpoint");
+			L4D_StopMusic(client, "Event.TankBrothers");
+			L4D_StopMusic(client, "Event.WitchAttack");
+			L4D_StopMusic(client, "Event.WitchBurning");
+			L4D_StopMusic(client, "Event.WitchRage");
+			L4D_StopMusic(client, "Event.HunterPounce");
+			L4D_StopMusic(client, "Event.SmokerChoke");
+			L4D_StopMusic(client, "Event.SmokerDrag");
+			L4D_StopMusic(client, "Event.VomitInTheFace");
+			L4D_StopMusic(client, "Event.LedgeHangTwoHands");
+			L4D_StopMusic(client, "Event.LedgeHangOneHand");
+			L4D_StopMusic(client, "Event.LedgeHangFingers");
+			L4D_StopMusic(client, "Event.LedgeHangAboutToFall");
+			L4D_StopMusic(client, "Event.LedgeHangFalling");
+			L4D_StopMusic(client, "Event.Down");
+			L4D_StopMusic(client, "Event.BleedingOut");
+			L4D_StopMusic(client, "Event.Down");
+		}
+		else
+		{
+			// Music when Mission Starts
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Mall");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Fairgrounds");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Plankcountry");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_Milltown");
+			L4D_StopMusic(client, "Event.MissionStart_BaseLoop_BigEasy");
+			
+			// Checkpoints
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Mall");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Fairgrounds");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Plankcountry");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_Milltown");
+			L4D_StopMusic(client, "Event.CheckPointBaseLoop_BigEasy");
+			
+			// Zombat
+			L4D_StopMusic(client, "Event.Zombat_1");
+			L4D_StopMusic(client, "Event.Zombat_A_1");
+			L4D_StopMusic(client, "Event.Zombat_B_1");
+			L4D_StopMusic(client, "Event.Zombat_2");
+			L4D_StopMusic(client, "Event.Zombat_A_2");
+			L4D_StopMusic(client, "Event.Zombat_B_2");
+			L4D_StopMusic(client, "Event.Zombat_3");
+			L4D_StopMusic(client, "Event.Zombat_A_3");
+			L4D_StopMusic(client, "Event.Zombat_B_3");
+			L4D_StopMusic(client, "Event.Zombat_4");
+			L4D_StopMusic(client, "Event.Zombat_A_4");
+			L4D_StopMusic(client, "Event.Zombat_B_4");
+			L4D_StopMusic(client, "Event.Zombat_5");
+			L4D_StopMusic(client, "Event.Zombat_A_5");
+			L4D_StopMusic(client, "Event.Zombat_B_5");
+			L4D_StopMusic(client, "Event.Zombat_6");
+			L4D_StopMusic(client, "Event.Zombat_A_6");
+			L4D_StopMusic(client, "Event.Zombat_B_6");
+			L4D_StopMusic(client, "Event.Zombat_7");
+			L4D_StopMusic(client, "Event.Zombat_A_7");
+			L4D_StopMusic(client, "Event.Zombat_B_7");
+			L4D_StopMusic(client, "Event.Zombat_8");
+			L4D_StopMusic(client, "Event.Zombat_A_8");
+			L4D_StopMusic(client, "Event.Zombat_B_8");
+			L4D_StopMusic(client, "Event.Zombat_9");
+			L4D_StopMusic(client, "Event.Zombat_A_9");
+			L4D_StopMusic(client, "Event.Zombat_B_9");
+			L4D_StopMusic(client, "Event.Zombat_10");
+			L4D_StopMusic(client, "Event.Zombat_A_10");
+			L4D_StopMusic(client, "Event.Zombat_B_10");
+			L4D_StopMusic(client, "Event.Zombat_11");
+			L4D_StopMusic(client, "Event.Zombat_A_11");
+			L4D_StopMusic(client, "Event.Zombat_B_11");
+			
+			// Zombat specific maps
+			
+			// C1 Mall
+			L4D_StopMusic(client, "Event.Zombat2_Intro_Mall");
+			L4D_StopMusic(client, "Event.Zombat3_Intro_Mall");
+			L4D_StopMusic(client, "Event.Zombat3_A_Mall");
+			L4D_StopMusic(client, "Event.Zombat3_B_Mall");
+			
+			// A2 Fairgrounds
+			L4D_StopMusic(client, "Event.Zombat_Intro_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat_A_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat_B_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat_B_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat2_Intro_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat3_Intro_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat3_A_Fairgrounds");
+			L4D_StopMusic(client, "Event.Zombat3_B_Fairgrounds");
+			
+			// C3 Plankcountry
+			L4D_StopMusic(client, "Event.Zombat_PlankCountry");
+			L4D_StopMusic(client, "Event.Zombat_A_PlankCountry");
+			L4D_StopMusic(client, "Event.Zombat_B_PlankCountry");
+			L4D_StopMusic(client, "Event.Zombat2_Intro_Plankcountry");
+			L4D_StopMusic(client, "Event.Zombat3_Intro_Plankcountry");
+			L4D_StopMusic(client, "Event.Zombat3_A_Plankcountry");
+			L4D_StopMusic(client, "Event.Zombat3_B_Plankcountry");
+			
+			// A2 Milltown
+			L4D_StopMusic(client, "Event.Zombat2_Intro_Milltown");
+			L4D_StopMusic(client, "Event.Zombat3_Intro_Milltown");
+			L4D_StopMusic(client, "Event.Zombat3_A_Milltown");
+			L4D_StopMusic(client, "Event.Zombat3_B_Milltown");
+			
+			// C5 BigEasy
+			L4D_StopMusic(client, "Event.Zombat2_Intro_BigEasy");
+			L4D_StopMusic(client, "Event.Zombat3_Intro_BigEasy");
+			L4D_StopMusic(client, "Event.Zombat3_A_BigEasy");
+			L4D_StopMusic(client, "Event.Zombat3_B_BigEasy");
+			
+			// A2 Clown
+			L4D_StopMusic(client, "Event.Zombat3_Intro_Clown");
+			
+			// Death
+			
+			// ledge hang
+			L4D_StopMusic(client, "Event.LedgeHangTwoHands");
+			L4D_StopMusic(client, "Event.LedgeHangOneHand");
+			L4D_StopMusic(client, "Event.LedgeHangFingers");
+			L4D_StopMusic(client, "Event.LedgeHangAboutToFall");
+			L4D_StopMusic(client, "Event.LedgeHangFalling");
+			
+			// Down
+			// Survivor is down and being beaten by infected
+			
+			L4D_StopMusic(client, "Event.Down");
+			L4D_StopMusic(client, "Event.BleedingOut");
+			
+			// Survivor death
+			// This is for the death of an individual survivor to be played after the health meter has reached zero
+			
+			L4D_StopMusic(client, "Event.SurvivorDeath");
+			L4D_StopMusic(client, "Event.ScenarioLose");
+			
+			// Bosses
+			
+			// Tank
+			L4D_StopMusic(client, "Event.Tank");
+			L4D_StopMusic(client, "Event.TankMidpoint");
+			L4D_StopMusic(client, "Event.TankBrothers");
+			L4D_StopMusic(client, "C2M5.RidinTank1");
+			L4D_StopMusic(client, "C2M5.RidinTank2");
+			L4D_StopMusic(client, "C2M5.BadManTank1");
+			L4D_StopMusic(client, "C2M5.BadManTank2");
+			
+			// Witch
+			L4D_StopMusic(client, "Event.WitchAttack");
+			L4D_StopMusic(client, "Event.WitchBurning");
+			L4D_StopMusic(client, "Event.WitchRage");
+			L4D_StopMusic(client, "Event.WitchDead");
+			
+			// mobbed
+			L4D_StopMusic(client, "Event.Mobbed");
+			
+			// Hunter
+			L4D_StopMusic(client, "Event.HunterPounce");
+			
+			// Smoker
+			L4D_StopMusic(client, "Event.SmokerChoke");
+			L4D_StopMusic(client, "Event.SmokerDrag");
+			
+			// Boomer
+			L4D_StopMusic(client, "Event.VomitInTheFace");
+			
+			// Charger
+			L4D_StopMusic(client, "Event.ChargerSlam");
+			
+			// Jockey
+			L4D_StopMusic(client, "Event.JockeyRide");
+			
+			// Spitter
+			L4D_StopMusic(client, "Event.SpitterSpit");
+			L4D_StopMusic(client, "Event.SpitterBurn");
+		}
+	}
 }
 ///////////////////////////////////////////////////////////////////////////
