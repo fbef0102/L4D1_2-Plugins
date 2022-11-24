@@ -3133,7 +3133,7 @@ void CountInfected_Coop()
 
 public void Event_Incap(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVORS) return;
 
 	int entity = g_iModelIndex[client];
@@ -3145,7 +3145,7 @@ public void Event_Incap(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_revive_success(Event event, const char[] name, bool dontBroadcast)
 {
-	int subject = GetClientOfUserId(GetEventInt(event, "subject"));//被救的那位
+	int subject = GetClientOfUserId(event.GetInt("subject"));//被救的那位
 	if(!subject && !IsClientInGame(subject) && GetClientTeam(subject) != TEAM_SURVIVORS) return;
 
 	int entity = g_iModelIndex[subject];
@@ -3157,7 +3157,7 @@ public void Event_revive_success(Event event, const char[] name, bool dontBroadc
 
 public void Event_ledge_release(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVORS) return;
 
 	int entity = g_iModelIndex[client];
@@ -3169,7 +3169,7 @@ public void Event_ledge_release(Event event, const char[] name, bool dontBroadca
 
 public void Event_GotVomit(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVORS) return;
 
 	int entity = g_iModelIndex[client];
@@ -3302,13 +3302,14 @@ public void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadc
 {
 	if(g_iCurrentMode != 2) //not versus
 	{
-		int bot = GetClientOfUserId(GetEventInt(event, "bot"));
-		int player = GetClientOfUserId(GetEventInt(event, "player"));
+		int bot = GetClientOfUserId(event.GetInt("bot"));
+		int playerid = event.GetInt("player");
+		int player = GetClientOfUserId(playerid);
 
 		if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
 			player > 0 && player <= MaxClients && IsClientInGame(player)) 
 		{
-			if(IsPlayerTank(bot) && IsFakeClient(bot) && !IsFakeClient(player))
+			if(IsPlayerTank(bot) && IsFakeClient(bot) && !IsFakeClient(player) && playerid == lastHumanTankId)
 			{
 				ForcePlayerSuicide(player);
 				KickClient(bot, "Pass Tank to AI");
