@@ -4,7 +4,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 Infected Bots Control Improved Version: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369
 
 -Version-
-v2.7.7
+v2.7.8
 - ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2!
 	(Thanks to Shadowysn: https://forums.alliedmods.net/showthread.php?t=320849 and ProdigySim: https://github.com/ProdigySim/DirectInfectedSpawn)
 -L4D1 Signature update. (Credit to Psykotikism: https://github.com/Psykotikism/L4D1-2_Signatures)
@@ -17,6 +17,7 @@ v2.7.7
 -Add convars to turn off this plugin.
 -Fixed Hunter Tank Bug in l4d1 coop mode when tank is playable.
 -If you want to fix Camera stuck in coop/versus/realism, install this plugin by Forgetest: https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam
+-Fixed Music Bugs when switching to infected team in coop/realism/survival.
 
 v1.0.0
 -Original Post: https://forums.alliedmods.net/showthread.php?t=99746
