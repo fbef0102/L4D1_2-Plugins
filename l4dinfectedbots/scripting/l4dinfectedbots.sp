@@ -4725,11 +4725,6 @@ public void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 				CreateTimer(1.0, Timer_CheckAngry, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 
 			}
-
-			if(!IsFakeClient(client) && g_iCurrentMode != 2)
-			{
-				CleanUpStateAndMusic(client);
-			}
 		}
 	}
 }
@@ -4764,6 +4759,11 @@ public void evtInfectedDeath(Event event, const char[] name, bool dontBroadcast)
 		if (GetClientTeam(client) == TEAM_INFECTED)
 		{
 			queueHUDUpdate(13);
+
+			if(!IsFakeClient(client) && g_iCurrentMode != 2)
+			{
+				CleanUpStateAndMusic(client);
+			}
 		}
 	}
 }
