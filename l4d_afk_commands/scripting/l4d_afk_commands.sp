@@ -103,7 +103,8 @@ int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies;
 ArrayList nClientSwitchTeam;
 ArrayList nClientAttackedByWitch[MAXPLAYERS+1]; //每個玩家被多少個witch攻擊
 //timer
-Handle PlayerLeftStartTimer = null, CountDownTimer = null;
+int g_iRoundStart, g_iPlayerSpawn;
+Handle PlayerLeftStartTimer, CountDownTimer;
 
 bool InCoolDownTime[MAXPLAYERS+1] = {false};//是否還有換隊冷卻時間
 bool bClientJoinedTeam[MAXPLAYERS+1] = {false}; //在冷卻時間是否嘗試加入
@@ -259,6 +260,8 @@ public void OnPluginStart()
 				OnClientPostAdminCheck(i);
 			}
 		}
+
+		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	AutoExecConfig(true, "l4d_afk_commands");
@@ -276,6 +279,8 @@ public void OnPluginEnd()
 {
 	Clear();
 	ResetTimer();
+	ClearDefault();
+	
 	delete nClientSwitchTeam;
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -307,6 +312,7 @@ public void OnMapEnd()
 	g_bMapStarted = false;
 	Clear();
 	ResetTimer();
+	ClearDefault();
 }
 
 public void OnConfigsExecuted()
@@ -462,6 +468,10 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 
 public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
+	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
+		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iPlayerSpawn = 1;	
+
 	int userid = event.GetInt("userid");
 	int player = GetClientOfUserId(userid);
 	if(player > 0 && player <=MaxClients && IsClientInGame(player) && !IsFakeClient(player))
@@ -620,6 +630,7 @@ void GetCvars()
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
+	ClearDefault();
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
@@ -629,14 +640,28 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 	
 	Clear();
-	delete PlayerLeftStartTimer;
 
-	if(L4D_GetGameModeType() != GAMEMODE_SURVIVAL) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
+		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iRoundStart = 1;
 }
 
 public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	GameStart();
+}
+
+Action Timer_PluginStart(Handle timer)
+{
+	ClearDefault();
+
+	if(L4D_GetGameModeType() != GAMEMODE_SURVIVAL)
+	{
+		delete PlayerLeftStartTimer;
+		PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	}
+
+	return Plugin_Continue;
 }
 
 Action Timer_PlayerLeftStart(Handle Timer)
@@ -1783,4 +1808,10 @@ void CleanUpStateAndMusic(int client)
 			L4D_StopMusic(client, "Event.SpitterBurn");
 		}
 	}
+}
+
+void ClearDefault()
+{
+	g_iRoundStart = 0;
+	g_iPlayerSpawn = 0;
 }
