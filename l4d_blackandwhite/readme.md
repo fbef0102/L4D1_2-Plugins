@@ -1,4 +1,4 @@
--# Description | 內容
+# Description | 內容
 Notify people when player is black and white.
 
 * Video | 影片展示
@@ -33,6 +33,10 @@ L4D2
 * Require | 必要安裝
 <br/>None
 
+* Similar Plugin | 相似插件
+	1. [LMC_Black_and_White_Notifier](https://github.com/fbef0102/L4D2-Plugins/tree/master/LMC_Black_and_White_Notifier): Notifies selected team(s) when someone is on final strike and add glow
+		> 顯示誰是黑白狀態，有更多的提示與支援LMC模組
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d_blackandwhite.cfg
@@ -63,7 +67,8 @@ L4D2
 誰是黑白狀態(最後一條生命)
 
 * 原理
-	1. 救起玩家之後判定玩家是否為黑白狀態
+	* 救起玩家之後判定玩家是否為黑白狀態
+    * 支援其他插件回復玩家血量的插件
 
 * 功能
-    1. 可設置光圈顏色與範圍 (只有二代才能)
+	* 可設置光圈顏色與範圍 (只有二代才能)
