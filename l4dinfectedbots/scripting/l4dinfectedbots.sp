@@ -11,6 +11,7 @@
 * Version 2.7.8
 *	   - Fixed abnormal Tank Bug. Player gets a special infected with tank skin and abilitiesm, but can not attack or throw rock. This bug only happenes in l4d1.
 *	   - Fixed Music Bugs when switching to infected team in coop/realism/survival.
+*	   - Disable spawn if official cvar "director_no_specials" is 0
 *
 * Version 2.7.7
 *	   - Add convar: "l4d_infectedbots_spawn_where_method", "0", "Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor"
@@ -822,9 +823,10 @@ ConVar h_StatusAnnouncementEnable;
 ConVar h_CoopInfectedPlayerGhostState;
 ConVar h_InfectedSpawnSameFrame;
 ConVar h_WhereToSpawnInfected;
-ConVar sb_all_bot_game, allow_all_bot_survivor_team, sb_all_bot_team, vs_max_team_switches, versus_tank_bonus_health, z_max_player_zombies;
+ConVar sb_all_bot_game, allow_all_bot_survivor_team, sb_all_bot_team, vs_max_team_switches, versus_tank_bonus_health, z_max_player_zombies,
+	director_no_specials;
 int vs_max_team_switches_default;
-bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default;
+bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default, director_no_specials_bool;
 bool g_bFirstRecord;
 bool DisplayLock = false;
 
@@ -1023,7 +1025,10 @@ public void OnPluginStart()
 	h_Difficulty = FindConVar("z_difficulty");
 	h_common_limit_cvar = FindConVar("z_common_limit");
 
+	director_no_specials = FindConVar("director_no_specials");
+
 	GetCvars();
+	director_no_specials.AddChangeHook(ConVarChanged_Cvars);
 	h_BoomerLimit.AddChangeHook(ConVarChanged_Cvars);
 	h_SmokerLimit.AddChangeHook(ConVarChanged_Cvars);
 	h_HunterLimit.AddChangeHook(ConVarChanged_Cvars);
@@ -1194,6 +1199,8 @@ void GetCvars()
 	g_bTankSpawnFinal = h_TankSpawnFinal.BoolValue;
 	g_bInfectedSpawnSameFrame = h_InfectedSpawnSameFrame.BoolValue;
 	g_iWhereToSpawnInfected = h_WhereToSpawnInfected.IntValue;
+
+	director_no_specials_bool = director_no_specials.BoolValue;
 }
 
 public void ConVarMaxPlayerZombies(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -2989,7 +2996,7 @@ void CheckIfBotsNeeded(int spawn_type)
 
 		InitialSpawnResetTimer = CreateTimer(g_fInitialSpawn + 5.0, Timer_InitialSpawnReset, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
-	else if (spawn_type == 0) // server can't find a valid position
+	else if (spawn_type == 0) // server can't find a valid position or director stop
 	{
 		int SpawnTime = 10;
 
@@ -3719,6 +3726,18 @@ public Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			}
 		}
 
+	}
+
+	// Offiical Cvar: director_no_specials => Disable PZ spawns
+	if(director_no_specials_bool == true)
+	{
+		PrintToServer("[TS] Couldn't spawn due to director_no_specials.");
+		CreateTimer(20.0, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
+
+		if(InfectedBotQueue > 0) InfectedBotQueue--;
+		
+		SpawnInfectedBotTimer[index] = null;
+		return Plugin_Continue;
 	}
 
 	// Before spawning the bot, we determine if an real infected player is dead, since the int infected bot will be controlled by this player
@@ -5719,7 +5738,7 @@ public void ConVarChanged_TankLimitUpdate(ConVar convar, const char[] oldValue, 
 	}
 }
 
-public bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] g_sAcclvl)
 {
 	// no permissions set
 	if (strlen(g_sAcclvl) == 0)
