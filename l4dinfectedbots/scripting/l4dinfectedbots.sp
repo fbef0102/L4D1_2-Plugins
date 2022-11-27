@@ -11,7 +11,7 @@
 * Version 2.7.8
 *	   - Fixed abnormal Tank Bug. Player gets a special infected with tank skin and abilitiesm, but can not attack or throw rock. This bug only happenes in l4d1.
 *	   - Fixed Music Bugs when switching to infected team in coop/realism/survival.
-*	   - Disable spawn if official cvar "director_no_specials" is 0
+*	   - Disable spawn if official cvar "director_no_specials" is 1
 *
 * Version 2.7.7
 *	   - Add convar: "l4d_infectedbots_spawn_where_method", "0", "Where to spawn infected? 0=Near the first ahead survivor. 1=Near the random survivor"
