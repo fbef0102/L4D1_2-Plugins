@@ -12,8 +12,10 @@
 #include <sourcemod>
 #include <clientprefs>
 #include <multicolors>
+#undef REQUIRE_PLUGIN
+#tryinclude <readyup>
 
-#define PLUGIN_VERSION "0.7"
+#define PLUGIN_VERSION "0.8"
 
 enum HelpMenuType {
 	HelpMenuType_List,
@@ -74,7 +76,7 @@ public void OnPluginStart()
 	g_hCookieMenu = RegClientCookie("l4d2_help_menu", "Future", CookieAccess_Protected);
 			
 	CreateConVar("sm_helpmenu_version", PLUGIN_VERSION, "Help menu version", FCVAR_SPONLY|FCVAR_DONTRECORD|FCVAR_NOTIFY).SetString(PLUGIN_VERSION);
-	g_cvarWelcome = CreateConVar("sm_helpmenu_welcome", "1", "Show welcome message to newly connected users.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_cvarWelcome = CreateConVar("sm_helpmenu_welcome", "1", "Show welcome message and help menu to newly connected users.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_cvarAdmins = CreateConVar("sm_helpmenu_admins", "1", "Show a list of online admins in the menu.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_cvarRotation = CreateConVar("sm_helpmenu_rotation", "0", "Shows the map rotation in the menu.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_cvarReload = CreateConVar("sm_helpmenu_autoreload", "1", "Automatically reload the configuration file when changing the map.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -118,6 +120,22 @@ public void OnPluginStart()
 			}
 		}
 	}
+}
+
+bool g_ReadyUpAvailable;
+public void OnAllPluginsLoaded()
+{
+	g_ReadyUpAvailable = LibraryExists("readyup");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (strcmp(name, "readyup") == 0) g_ReadyUpAvailable = false;
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "readyup")) g_ReadyUpAvailable = true;
 }
 
 public void OnClientCookiesCached(int iClient)
@@ -168,9 +186,22 @@ public void OnClientPutInServer(int client)
 public Action Timer_WelcomeMessage(Handle timer, int userid) {
 	int client = GetClientOfUserId(userid);
 	if (client && IsClientInGame(client) && !IsFakeClient(client)) {
-		if(g_bShow[client]) Help_ShowMainMenu(client);
-		if(g_cvarWelcome.BoolValue) CPrintToChat(client, "%T", "WelcomeMessage", client);
+		if(g_cvarWelcome.BoolValue)
+		{
+			CPrintToChat(client, "%T", "WelcomeMessage", client);
+			if(g_bShow[client])
+			{
+				Help_ShowMainMenu(client);
+				if(g_ReadyUpAvailable)
+				{
+					ToggleReadyPanel(false, client);
+					CreateTimer(30.0, Timer_ToggleReadyPanel, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+				}
+			}
+		}
 	}
+
+	return Plugin_Continue;
 }
 
 bool ParseConfigFile(const char[] file) {
@@ -369,12 +400,12 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 
 				CPrintToChat(param1, "%T", "Auto menu", param1, g_bShow[param1] ? "enabled" : "disabled" , param1);
 				Help_ShowMainMenu(param1);
-				return;
+				return 0;
 			}
 			else if (strcmp(szItem, "steam_group") == 0)
 			{
 				ShowMOTDPanel(param1, "", "", MOTDPANEL_TYPE_URL);
-				return;
+				return 0;
 			}
 			else if (strcmp(szItem, "admins") == 0)
 			{
@@ -392,7 +423,7 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 					}
 				}
 				adminMenu.Display(param1, MENU_TIME_FOREVER);
-				return;
+				return 0;
 			}
 
 			int msize = g_helpMenus.Length;
@@ -493,6 +524,8 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 			delete menu;
 		}
 	}
+
+	return 0;
 }
 
 int Help_MenuHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -511,6 +544,8 @@ int Help_MenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 			delete menu;
 		}
 	}
+
+	return 0;
 }
 
 int Help_CustomMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -555,6 +590,8 @@ int Help_CustomMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 			delete menu;
 		}
 	}
+
+	return 0;
 }
 
 
@@ -609,4 +646,15 @@ stock bool CommandExist(char[] command, int commandLen) {
 	Format(command, commandLen, "sm_%s", command);
 
 	return CommandExists(command);
+}
+
+Action Timer_ToggleReadyPanel(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client))
+	{
+		ToggleReadyPanel(true, client);
+	}
+
+	return Plugin_Continue;
 }
