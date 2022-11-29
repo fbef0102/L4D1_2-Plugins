@@ -44,7 +44,7 @@ Russian
 	2. Optional - [[INC] readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/left4dead2/scripting/include/readyup.inc)
 
 * Optional | 輔助插件
-	1. [readyup](/Plugin_插件/Server_伺服器/readyup): Ready Plugin
+	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready Plugin
 		> 準備插件
 
 * Data & Translation Example
