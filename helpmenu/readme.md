@@ -41,7 +41,7 @@ Russian
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
-	2. Optional - [[INC] readyup](/left4dead2/scripting/include/readyup.inc)
+	2. Optional - [[INC] readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/left4dead2/scripting/include/readyup.inc)
 
 * Optional | 輔助插件
 	1. [readyup](/Plugin_插件/Server_伺服器/readyup): Ready Plugin
