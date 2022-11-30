@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Weapon Drop"
-#define PLUGIN_AUTHOR "Machine, dcx2, Electr000999 /z, Senip, Shao, HarryPotter"
+#define PLUGIN_AUTHOR "Machine, dcx2, Electr000999 /z, Senip, Shao, HarryPotter, NoroHime"
 #define PLUGIN_DESC "Allows players to drop the weapon they are holding"
-#define PLUGIN_VERSION "1.9"
+#define PLUGIN_VERSION "1.10"
 #define PLUGIN_URL "https://forums.alliedmods.net/showthread.php?t=123098"
 #define PLUGIN_NAME_SHORT "Weapon Drop"
 #define PLUGIN_NAME_TECH "drop"
@@ -39,6 +39,21 @@ ConVar BlockDropMidAction;
 bool g_bBlockSecondaryDrop;
 bool g_bBlockM60Drop;
 int g_iBlockDropMidAction;
+
+GlobalForward OnWeaponDrop;
+
+
+/**
+ * @brief Called whenever weapon prepared to drop by plugin l4d_drop
+ *
+ * @param client		player index to be drop weapon
+ * @param weapon		weapon index to be drop
+ *
+ * @return				Plugin_Continue to continuing dropping,
+ * 						Plugin_Changed to change weapon target, otherwise to prevent weapon dropping.
+ */
+
+// forward Action OnWeaponDrop(int client, int &weapon);
 
 public Plugin myinfo =
 {
@@ -82,6 +97,8 @@ public void OnPluginStart()
 	GetCvars();
 	
 	LoadTranslations("common.phrases");
+
+	OnWeaponDrop = CreateGlobalForward("OnWeaponDrop", ET_Event, Param_Cell, Param_CellByRef);
 }
 
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -203,6 +220,23 @@ void DropWeapon(int client, int weapon)
 	GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon && 
 	GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= GetGameTime()) return;
 	// slot 2 is throwable
+
+	Action actResult = Plugin_Continue;
+	Call_StartForward(OnWeaponDrop);
+	Call_PushCell(client);
+	Call_PushCellRef(weapon);
+	Call_Finish(actResult);
+	switch (actResult) {
+		case Plugin_Continue, Plugin_Changed :
+		{
+			//nothing
+		}
+		default:
+		{
+			PrintToChat(client, "Third-Party plugin prevents you from weapon dropping");
+			return;
+		}
+	}
 
 	static char classname[32];
 	GetEntityClassname(weapon, classname, sizeof(classname));
