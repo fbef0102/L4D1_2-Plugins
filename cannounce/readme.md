@@ -10,7 +10,6 @@ Replacement of default player connection message, allows for custom connection m
 		> 當玩家連線進來或離開遊戲時顯示
 		<br/>![cannounce_1](image/cannounce_1.jpg)
 
-
 * Apply to | 適用於
 ```
 L4D1
@@ -32,6 +31,10 @@ L4D2
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
+
+* Similar Plugin | 相似插件
+	1. [l4d_playerjoining](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_伺服器/l4d_playerjoining): Informs other players when a client connects to the server and changes teams.while player joins the server
+    	> 當玩家更換隊伍、連線、離開伺服器之時，通知所有玩家 (簡單版的提示)
 
 * <details><summary>ConVar | 指令</summary>
 
