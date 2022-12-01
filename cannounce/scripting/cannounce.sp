@@ -68,7 +68,7 @@ ConVar g_CvarConnectDisplayType = null;
 public Plugin myinfo =
 {
 	name = "Connect Announce",
-	author = "Arg!",
+	author = "Arg!, modify by harry",
 	description = "Replacement of default player connection message, allows for custom connection messages",
 	version = VERSION,
 	url = "http://forums.alliedmods.net/showthread.php?t=77306"
