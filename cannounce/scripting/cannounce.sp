@@ -29,13 +29,10 @@
 #include <sourcemod>
 #include <sdktools>
 #include <geoip>
-#undef REQUIRE_EXTENSIONS
-#include <geoipcity>
-#undef REQUIRE_PLUGIN
 #include <adminmenu>
 #include <multicolors>
 
-#define VERSION "1.9"
+#define VERSION "2.0"
 
 /*****************************************************************
 
@@ -45,9 +42,7 @@
 
 *****************************************************************/
 Handle hTopMenu = null;
-char g_fileset[128];
 char g_filesettings[128];
-bool g_UseGeoIPCity = false;
 
 ConVar g_CvarConnectDisplayType = null;
 /*****************************************************************
@@ -97,7 +92,6 @@ public void OnPluginStart()
 
 	g_CvarConnectDisplayType = CreateConVar("sm_ca_connectdisplaytype", "1", "[1|0] if 1 then displays connect message after admin check and allows the {PLAYERTYPE} placeholder. If 0 displays connect message on client auth (earlier) and disables the {PLAYERTYPE} placeholder");
 	
-	BuildPath(Path_SM, g_fileset, 128, "data/cannounce_messages.txt");
 	BuildPath(Path_SM, g_filesettings, 128, "data/cannounce_settings.txt");
 	
 	//event hooks
@@ -123,17 +117,12 @@ public void OnPluginStart()
 		OnAdminMenuReady(topmenu);
 	}
 	
-	// Check if we have GeoIPCity.ext loaded
-	g_UseGeoIPCity = LibraryExists("GeoIPCity");
-	
 	//create config file if not exists
 	AutoExecConfig(true, "cannounce");
 }
 
 public void OnMapStart()
 {
-	//get, precache and set downloads for player custom sound files
-	LoadSoundFilesCustomPlayer();
 		
 	//precahce and set downloads for sounds files for all players
 	LoadSoundFilesAll();
@@ -203,20 +192,7 @@ public void OnLibraryRemoved(const char[] name)
 	{
 		hTopMenu = null;
 	}
-	
-	// Was the GeoIPCity extension removed?
-	if(StrEqual(name, "GeoIPCity"))
-		g_UseGeoIPCity = false;
 }
-
-
-public void OnLibraryAdded(const char[] name)
-{
-	// Is the GeoIPCity extension running?
-	if(StrEqual(name, "GeoIPCity"))
-		g_UseGeoIPCity = true;
-}
-
 
 /****************************************************************
 
@@ -334,66 +310,62 @@ void GetFormattedMessage( char rawmsg[301], int client,char[] outbuffer, int out
 		//detect LAN ip
 		bIsLanIp = IsLanIP( ip );
 		
-		// Using GeoIPCity extension...
-		if ( g_UseGeoIPCity )
+		if( !GeoipCode2(ip, ccode) )
 		{
-			if( !GeoipGetRecord( ip, city, region, country, ccode, ccode3 ) )
+			if( bIsLanIp )
 			{
-				if( bIsLanIp )
-				{
-					Format( city, sizeof(city), "%T", "LAN City Desc", LANG_SERVER );
-					Format( region, sizeof(region), "%T", "LAN Region Desc", LANG_SERVER );
-					Format( country, sizeof(country), "%T", "LAN Country Desc", LANG_SERVER );
-					Format( ccode, sizeof(ccode), "%T", "LAN Country Short", LANG_SERVER );
-					Format( ccode3, sizeof(ccode3), "%T", "LAN Country Short 3", LANG_SERVER );
-				}
-				else
-				{
-					Format( city, sizeof(city), "%T", "Unknown City Desc", LANG_SERVER );
-					Format( region, sizeof(region), "%T", "Unknown Region Desc", LANG_SERVER );
-					Format( country, sizeof(country), "%T", "Unknown Country Desc", LANG_SERVER );
-					Format( ccode, sizeof(ccode), "%T", "Unknown Country Short", LANG_SERVER );
-					Format( ccode3, sizeof(ccode3), "%T", "Unknown Country Short 3", LANG_SERVER );
-				}
+				Format( ccode, sizeof(ccode), "%T", "LAN Country Short", LANG_SERVER );
+			}
+			else
+			{
+				Format( ccode, sizeof(ccode), "%T", "Unknown Country Short", LANG_SERVER );
 			}
 		}
-		else // Using GeoIP default extension...
+		
+		if( !GeoipCountry(ip, country, sizeof(country)) )
 		{
-			if( !GeoipCode2(ip, ccode) )
+			if( bIsLanIp )
 			{
-				if( bIsLanIp )
-				{
-					Format( ccode, sizeof(ccode), "%T", "LAN Country Short", LANG_SERVER );
-				}
-				else
-				{
-					Format( ccode, sizeof(ccode), "%T", "Unknown Country Short", LANG_SERVER );
-				}
+				Format( country, sizeof(country), "%T", "LAN Country Desc", LANG_SERVER );
 			}
-			
-			if( !GeoipCountry(ip, country, sizeof(country)) )
+			else
 			{
-				if( bIsLanIp )
-				{
-					Format( country, sizeof(country), "%T", "LAN Country Desc", LANG_SERVER );
-				}
-				else
-				{
-					Format( country, sizeof(country), "%T", "Unknown Country Desc", LANG_SERVER );
-				}
+				Format( country, sizeof(country), "%T", "Unknown Country Desc", LANG_SERVER );
 			}
-			
-			// Since the GeoIPCity extension isn't loaded, we don't know the city or region.
+		}
+
+		if(!GeoipCity(ip, city, sizeof(city)))
+		{
 			if( bIsLanIp )
 			{
 				Format( city, sizeof(city), "%T", "LAN City Desc", LANG_SERVER );
-				Format( region, sizeof(region), "%T", "LAN Region Desc", LANG_SERVER );
-				Format( ccode3, sizeof(ccode3), "%T", "LAN Country Short 3", LANG_SERVER );
 			}
 			else
 			{
 				Format( city, sizeof(city), "%T", "Unknown City Desc", LANG_SERVER );
+			}
+		}
+
+		if(!GeoipRegion(ip, region, sizeof(region)))
+		{
+			if( bIsLanIp )
+			{
+				Format( region, sizeof(region), "%T", "LAN Region Desc", LANG_SERVER );
+			}
+			else
+			{
 				Format( region, sizeof(region), "%T", "Unknown Region Desc", LANG_SERVER );
+			}
+		}
+
+		if(!GeoipCode3(ip, ccode3))
+		{
+			if( bIsLanIp )
+			{
+				Format( ccode3, sizeof(ccode3), "%T", "LAN Country Short 3", LANG_SERVER );
+			}
+			else
+			{
 				Format( ccode3, sizeof(ccode3), "%T", "Unknown Country Short 3", LANG_SERVER );
 			}
 		}

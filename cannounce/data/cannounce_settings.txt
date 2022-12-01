@@ -10,21 +10,21 @@
 	// {PLAYERIP}: player IP
 	// {PLAYERTYPE}: player is Adm or not
 	
+	// You can't use {lightgreen}, {red}, {blue} at the same message
 	// {default}: white
 	// {green}: orange
 	// {olive}: green
 	// {lightgreen}: lightgreen
 	// {red}: red
 	// {blue}: blue
-	// * You can't use {lightgreen}, {red}, {blue} together
-	"messages"  //everyone can see
+	"messages"  //display message to everyone (Non-admin)
 	{
-		"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
-		"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) {olive}<ID:{STEAMID}>"
+		"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default})"
+		"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default})"
 	}
-	"messages_admin"  //only adm can see
+	"messages_admin"  //only display message to adm
 	{
-		"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-		"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
+		"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}, {PLAYERREGION}, {PLAYERCITY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
+		"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}, {PLAYERREGION}, {PLAYERCITY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
 	}
 }
