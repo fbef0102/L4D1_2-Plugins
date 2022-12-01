@@ -11,8 +11,6 @@
 
 
 *****************************************************************/
-Handle hKVCustomJoinMessages = null;
-
 ConVar g_CvarPlaySound = null;
 ConVar g_CvarPlaySoundFile = null;
 
@@ -30,10 +28,10 @@ bool noSoundPeriod = false;
 
 
 *****************************************************************/
-#include "cannounce/joinmsg/allow.sp"
-#include "cannounce/joinmsg/disallow.sp"
-#include "cannounce/joinmsg/set.sp"
-#include "cannounce/joinmsg/sound.sp"
+//#include "cannounce/joinmsg/allow.sp"
+//#include "cannounce/joinmsg/disallow.sp"
+//#include "cannounce/joinmsg/set.sp"
+//#include "cannounce/joinmsg/sound.sp"
 
 
 /*****************************************************************
@@ -49,44 +47,26 @@ void SetupJoinMsg()
 	noSoundPeriod = false;
 	
 	//cvars
-	g_CvarPlaySound = CreateConVar("sm_ca_playsound", "0", "Plays a specified (sm_ca_playsoundfile) sound on player connect");
+	g_CvarPlaySound = CreateConVar("sm_ca_playsound", "1", "Plays a specified (sm_ca_playsoundfile) sound on player connect");
 	g_CvarPlaySoundFile = CreateConVar("sm_ca_playsoundfile", "ambient\\alarms\\klaxon1.wav", "Sound to play on player connect if sm_ca_playsound = 1");
 
 	g_CvarPlayDiscSound = CreateConVar("sm_ca_playdiscsound", "0", "Plays a specified (sm_ca_playdiscsoundfile) sound on player discconnect");
 	g_CvarPlayDiscSoundFile = CreateConVar("sm_ca_playdiscsoundfile", "weapons\\cguard\\charging.wav", "Sound to play on player discconnect if sm_ca_playdiscsound = 1");
 
 	g_CvarMapStartNoSound = CreateConVar("sm_ca_mapstartnosound", "30.0", "Time to ignore all player join sounds on a map load");
-
-	
-	//prepare kv custom messages file
-	hKVCustomJoinMessages = CreateKeyValues("CustomJoinMessages");
-	
-	if(!FileToKeyValues(hKVCustomJoinMessages, g_fileset))
-	{
-		KeyValuesToFile(hKVCustomJoinMessages, g_fileset);
-	}
-	
-	SetupJoinMsg_Allow();
-	
-	SetupJoinMsg_DisAllow();
-	
-	SetupJoinMsg_Set();
-	
-	SetupJoinSound_Set();
 }
-
 
 void OnAdminMenuReady_JoinMsg()
 {
 	//Build the "Player Commands" category
-	TopMenuObject player_commands = FindTopMenuCategory(hTopMenu, ADMINMENU_PLAYERCOMMANDS);
-	
-	if (player_commands != INVALID_TOPMENUOBJECT)
-	{
-		OnAdminMenuReady_JoinMsg_Allow(player_commands);
-			
-		OnAdminMenuReady_JoinMsg_DAllow(player_commands);
-	}
+	//TopMenuObject player_commands = FindTopMenuCategory(hTopMenu, ADMINMENU_PLAYERCOMMANDS);
+	//
+	//if (player_commands != INVALID_TOPMENUOBJECT)
+	//{
+	//	OnAdminMenuReady_JoinMsg_Allow(player_commands);
+	//		
+	//	OnAdminMenuReady_JoinMsg_DAllow(player_commands);
+	//}
 }
 
 
@@ -105,45 +85,12 @@ void OnMapStart_JoinMsg()
 	}
 }
 
-void OnPostAdminCheck_JoinMsg(const char[] steamId)
+stock void OnPostAdminCheck_JoinMsg(const char[] steamId)
 {
 	char soundfile[SOUNDFILE_PATH_LEN];
 	
-	char message[MSGLENGTH + 1];
-	char output[301];
-	char soundFilePath[SOUNDFILE_PATH_LEN];
-	
-	bool customSoundPlayed = false;
-	
-	//get from kv file
-	KvRewind(hKVCustomJoinMessages);
-	if(KvJumpToKey(hKVCustomJoinMessages, steamId))
-	{
-		//Custom join MESSAGE
-		KvGetString(hKVCustomJoinMessages, "message", message, sizeof(message), "");
-		
-		if( strlen(message) > 0)
-		{
-			//print output
-			Format(output, sizeof(output), "%c\"%c%s%c\"", 4, 1, message, 4);
-	
-			PrintFormattedMessageToAll(output, -1);
-		}
-		
-		//Custom join SOUND
-		KvGetString(hKVCustomJoinMessages, "soundfile", soundFilePath, sizeof(soundFilePath), "");
-		
-		if( strlen(soundFilePath) > 0 && !noSoundPeriod )
-		{
-			EmitSoundToAll( soundFilePath );
-			customSoundPlayed = true;
-		}
-	} 
-	
-	KvRewind(hKVCustomJoinMessages);
-	
 	//if enabled and custom sound not already played, play all player sound
-	if( g_CvarPlaySound.BoolValue && !customSoundPlayed)
+	if( g_CvarPlaySound.BoolValue)
 	{
 		g_CvarPlaySoundFile.GetString(soundfile, sizeof(soundfile));
 		
@@ -172,7 +119,6 @@ void OnClientDisconnect_JoinMsg()
 
 void OnPluginEnd_JoinMsg()
 {		
-	CloseHandle(hKVCustomJoinMessages);
 }
 
 
