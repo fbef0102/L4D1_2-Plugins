@@ -84,7 +84,7 @@ L4D2
 	2. [Go to account](https://www.maxmind.com/en/account/) -> My License Keys -> Create new license key.  
 	3. Go to this page: https://www.maxmind.com/en/accounts/XXXXXX/geoip/downloads
 		* XXXXXX is your account ID
-		<br/>![ID](https://user-images.githubusercontent.com/12229810/204967420-c47dd273-1c85-42ff-93b1-4d19c7ff2284.jpg)
+		<br/>![ID](https://user-images.githubusercontent.com/12229810/205027221-05798d84-08ab-40c3-8d54-ef66a892c295.jpg)
 	4. Seach "GeoLite2 Country" and "GeoLite2 City" -> download databases.
 	<br/>![GeoLite2 Country](https://user-images.githubusercontent.com/12229810/204966692-ac339bc6-4760-4acc-b320-b776d46e7064.jpg)
 	<br/>![GeoLite2 City](https://user-images.githubusercontent.com/12229810/204966795-a57a5949-abcf-4127-9325-90b9fdb8124f.jpg)
@@ -144,7 +144,7 @@ L4D2
 	2. [到個人帳戶](https://www.maxmind.com/en/account/) -> My License Keys -> Create new license key
 	3. 到這個網頁: https://www.maxmind.com/en/accounts/XXXXXX/geoip/downloads
 		* XXXXXX 是你的帳戶ID
-		<br/>![ID](https://user-images.githubusercontent.com/12229810/204967420-c47dd273-1c85-42ff-93b1-4d19c7ff2284.jpg)
+		<br/>![ID](https://user-images.githubusercontent.com/12229810/205027221-05798d84-08ab-40c3-8d54-ef66a892c295.jpg)
 	4. 搜尋 "GeoLite2 Country" 和 "GeoLite2 City" -> 下載資料庫
 	<br/>![GeoLite2 Country](https://user-images.githubusercontent.com/12229810/204966692-ac339bc6-4760-4acc-b320-b776d46e7064.jpg)
 	<br/>![GeoLite2 City](https://user-images.githubusercontent.com/12229810/204966795-a57a5949-abcf-4127-9325-90b9fdb8124f.jpg)
