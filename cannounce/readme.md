@@ -79,17 +79,8 @@ L4D2
 	None
 </details>
 
-* Country and City Database Installation:
-	1. [Register on maxmind.com](https://www.maxmind.com/en/geolite2/signup) to be able to download databases
-	2. [Go to account](https://www.maxmind.com/en/account/) -> My License Keys -> Create new license key.  
-	3. Go to this page: https://www.maxmind.com/en/accounts/XXXXXX/geoip/downloads
-		* XXXXXX is your account ID
-		<br/>![ID](https://user-images.githubusercontent.com/12229810/205027221-05798d84-08ab-40c3-8d54-ef66a892c295.jpg)
-	4. Seach "GeoLite2 Country" and "GeoLite2 City" -> download databases.
-	<br/>![GeoLite2 Country](https://user-images.githubusercontent.com/12229810/204966692-ac339bc6-4760-4acc-b320-b776d46e7064.jpg)
-	<br/>![GeoLite2 City](https://user-images.githubusercontent.com/12229810/204966795-a57a5949-abcf-4127-9325-90b9fdb8124f.jpg)
-	5. Put mmdb database files to path addons/sourcemod/configs/geoip/ folder
-	6. Recompile all plugins that use geoip.inc, done.
+* Notice:
+	To retrieve data from client, You must [install country and city database](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#country-and-city-database)
 
 * Data Example
 	* data\cannounce_settings.txt
@@ -139,17 +130,9 @@ L4D2
     * 可播放玩家連線音效與玩家離開音效
     * 管理員會看到不同的提示訊息 (譬如只有管理員能看到IP與Steam ID)
 
-* 安裝國家與城市的資料庫:
-	1. 註冊 [maxmind.com](https://www.maxmind.com/en/geolite2/signup)
-	2. [到個人帳戶](https://www.maxmind.com/en/account/) -> My License Keys -> Create new license key
-	3. 到這個網頁: https://www.maxmind.com/en/accounts/XXXXXX/geoip/downloads
-		* XXXXXX 是你的帳戶ID
-		<br/>![ID](https://user-images.githubusercontent.com/12229810/205027221-05798d84-08ab-40c3-8d54-ef66a892c295.jpg)
-	4. 搜尋 "GeoLite2 Country" 和 "GeoLite2 City" -> 下載資料庫
-	<br/>![GeoLite2 Country](https://user-images.githubusercontent.com/12229810/204966692-ac339bc6-4760-4acc-b320-b776d46e7064.jpg)
-	<br/>![GeoLite2 City](https://user-images.githubusercontent.com/12229810/204966795-a57a5949-abcf-4127-9325-90b9fdb8124f.jpg)
-	5. 放 GeoLite2-City.mmdb 與 GeoLite2-Country.mmdb 到路徑 addons/sourcemod/configs/geoip/ 資料夾
-	6. 重新編譯有使用 geoip.inc 的插件，大功告成
+* 必看步驟:
+	* 抓取玩家的地理位置，需[安裝國家與城市的資料庫](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9D%E5%9C%8B%E5%AE%B6%E8%88%87%E5%9F%8E%E5%B8%82%E7%9A%84%E8%B3%87%E6%96%99%E5%BA%AB)
+
 
 * Data設定範例
 	* data\cannounce_settings.txt
