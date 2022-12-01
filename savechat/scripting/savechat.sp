@@ -3,10 +3,10 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <geoip.inc>
-#include <string.inc>
+#include <geoip>
+#include <string>
 
-#define PLUGIN_VERSION "SaveChat_1.5"
+#define PLUGIN_VERSION "SaveChat_1.6"
 
 char chatFile[128];
 Handle fileHandle       = null;
@@ -122,7 +122,7 @@ public void OnClientPostAdminCheck(int client)
 	SaveMessage(msg);
 }
 
-public Action event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast) 
+public void event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	

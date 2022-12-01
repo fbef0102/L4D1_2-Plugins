@@ -59,66 +59,62 @@ public Action Command_GeoList(int client, int args)
 		//detect LAN ip
 		bIsLanIp = IsLanIP( ip );
 		
-		// Using GeoIPCity extension...
-		if ( g_UseGeoIPCity )
+		if( !GeoipCode2(ip, ccode) )
 		{
-			if( !GeoipGetRecord( ip, city, region, country, ccode, ccode3 ) )
+			if( bIsLanIp )
 			{
-				if( bIsLanIp )
-				{
-					Format( city, sizeof(city), "%T", "LAN City Desc", LANG_SERVER );
-					Format( region, sizeof(region), "%T", "LAN Region Desc", LANG_SERVER );
-					Format( country, sizeof(country), "%T", "LAN Country Desc", LANG_SERVER );
-					Format( ccode, sizeof(ccode), "%T", "LAN Country Short", LANG_SERVER );
-					Format( ccode3, sizeof(ccode3), "%T", "LAN Country Short 3", LANG_SERVER );
-				}
-				else
-				{
-					Format( city, sizeof(city), "%T", "Unknown City Desc", LANG_SERVER );
-					Format( region, sizeof(region), "%T", "Unknown Region Desc", LANG_SERVER );
-					Format( country, sizeof(country), "%T", "Unknown Country Desc", LANG_SERVER );
-					Format( ccode, sizeof(ccode), "%T", "Unknown Country Short", LANG_SERVER );
-					Format( ccode3, sizeof(ccode3), "%T", "Unknown Country Short 3", LANG_SERVER );
-				}
+				Format( ccode, sizeof(ccode), "%T", "LAN Country Short", LANG_SERVER );
+			}
+			else
+			{
+				Format( ccode, sizeof(ccode), "%T", "Unknown Country Short", LANG_SERVER );
 			}
 		}
-		else // Using GeoIP default extension...
+		
+		if( !GeoipCountry(ip, country, sizeof(country)) )
 		{
-			if( !GeoipCode2(ip, ccode) )
+			if( bIsLanIp )
 			{
-				if( bIsLanIp )
-				{
-					Format( ccode, sizeof(ccode), "%T", "LAN Country Short", LANG_SERVER );
-				}
-				else
-				{
-					Format( ccode, sizeof(ccode), "%T", "Unknown Country Short", LANG_SERVER );
-				}
+				Format( country, sizeof(country), "%T", "LAN Country Desc", LANG_SERVER );
 			}
-			
-			if( !GeoipCountry(ip, country, sizeof(country)) )
+			else
 			{
-				if( bIsLanIp )
-				{
-					Format( country, sizeof(country), "%T", "LAN Country Desc", LANG_SERVER );
-				}
-				else
-				{
-					Format( country, sizeof(country), "%T", "Unknown Country Desc", LANG_SERVER );
-				}
+				Format( country, sizeof(country), "%T", "Unknown Country Desc", LANG_SERVER );
 			}
-			
-			// Since the GeoIPCity extension isn't loaded, we don't know the city or region.
+		}
+		
+		if(!GeoipCity(ip, city, sizeof(city)))
+		{
 			if( bIsLanIp )
 			{
 				Format( city, sizeof(city), "%T", "LAN City Desc", LANG_SERVER );
-				Format( region, sizeof(region), "%T", "LAN Region Desc", LANG_SERVER );
-				Format( ccode3, sizeof(ccode3), "%T", "LAN Country Short 3", LANG_SERVER );
 			}
 			else
 			{
 				Format( city, sizeof(city), "%T", "Unknown City Desc", LANG_SERVER );
+			}
+		}
+
+		if(!GeoipRegion(ip, region, sizeof(region)))
+		{
+			if( bIsLanIp )
+			{
+				Format( region, sizeof(region), "%T", "LAN Region Desc", LANG_SERVER );
+			}
+			else
+			{
 				Format( region, sizeof(region), "%T", "Unknown Region Desc", LANG_SERVER );
+			}
+		}
+
+		if(!GeoipCode3(ip, ccode3))
+		{
+			if( bIsLanIp )
+			{
+				Format( ccode3, sizeof(ccode3), "%T", "LAN Country Short 3", LANG_SERVER );
+			}
+			else
+			{
 				Format( ccode3, sizeof(ccode3), "%T", "Unknown Country Short 3", LANG_SERVER );
 			}
 		}
