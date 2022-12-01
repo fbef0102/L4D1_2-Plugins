@@ -38,7 +38,7 @@ data\cannounce_settings.txt
 
 
 -Convar-
-cfg\sourcemod\l4d_afk_commands.cfg
+cfg\sourcemod\cannounce.cfg
 // Always allow custom join messages for admins with the ADMIN_KICK flag
 sm_ca_autoallowmsg "1"
 
