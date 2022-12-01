@@ -82,16 +82,6 @@
 	}
 	"l4d_farm05_cornfield"
 	{
-		"next mission map" "l4d_garage01_alleys"
-		"next mission name" "Crash Course"
-	}
-	"l4d_garage02_lots"
-	{
-		"next mission map" "l4d_river01_docks"
-		"next mission name" "The Sacrifice (3 Maps)"
-	}
-    "l4d_river03_port"
-	{
 		"next mission map" "l4d_hospital01_apartment"
 		"next mission name" "No Mercy (5 Maps)"
 	}
