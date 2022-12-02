@@ -61,6 +61,22 @@ L4D2
 		```
 </details>
 
+* <details><summary>API | 串接</summary>
+
+	```c++
+	/**
+	* @brief Called whenever weapon prepared to drop by plugin l4d_drop
+	*
+	* @param client        player index to be drop weapon
+	* @param weapon        weapon index to be drop
+	*
+	* @return              Plugin_Continue to continuing dropping,
+	*                      Plugin_Changed to change weapon target, otherwise to prevent weapon dropping.
+	*/
+	forward Action OnWeaponDrop(int client, int& weapon);
+	```
+</details>
+
 - - - -
 # 中文說明
 玩家可自行丟棄手中的武器
