@@ -10,10 +10,10 @@ Shows a laser for straight-flying fired projectiles
 	    <br/>![l4d_lasertag_1](image/l4d_lasertag_1.jpg)
 
 * Apply to | 適用於
-```
-L4D1
-L4D2
-```
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 
