@@ -87,6 +87,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[sm_downloader](/sm_downloader)</b>: SM File/Folder Downloader and Precacher
 * <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
 * <b>[l4d_shotgun_sound_fix](/l4d_shotgun_sound_fix)</b>: Thirdpersonshoulder Shotgun Sound Fix
+* <b>[l4d_lasertag](/l4d_lasertag)</b>: Shows a laser for straight-flying fired projectiles
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
