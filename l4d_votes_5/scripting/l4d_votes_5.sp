@@ -94,9 +94,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public Plugin myinfo =
 {
 	name = "L4D2 Vote Menu",
-	author = "fenghf, Harry Potter",
+	author = "HarryPotter",
 	description = "Votes Commands",
-	version = "5.9",
+	version = "6.0",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -115,6 +115,7 @@ public void OnPluginStart()
 	RegConsoleCmd("votes", Command_Votes, "open vote meun");
 	RegConsoleCmd("votesforcespectate", Command_Votesforcespectate);
 	RegAdminCmd("sm_restartmap", CommandRestartMap, ADMFLAG_CHANGEMAP, "sm_restartmap - changelevels to the current map");
+	RegAdminCmd("sm_rs", CommandRestartMap, ADMFLAG_CHANGEMAP, "sm_restartmap - changelevels to the current map");
 
 	g_Cvar_Limits = CreateConVar("sm_votes_s", "0.60", "pass vote percentage.", 0, true, 0.05, true, 1.0);
 	VotensHpED = CreateConVar("l4d_VotenshpED", "1", "If 1, Enable Give HP Vote.", FCVAR_NOTIFY);
@@ -1051,11 +1052,7 @@ public int Handler_VoteCallback(Menu menu, MenuAction action, int param1, int pa
 	percent = GetVotePercent(votes, totalVotes);
 
 	CheckVotes();
-	if (action == MenuAction_End)
-	{
-		VoteMenuClose();
-	}
-	else if (action == MenuAction_VoteCancel && param1 == VoteCancel_NoVotes)
+	if (action == MenuAction_VoteCancel && param1 == VoteCancel_NoVotes)
 	{
 		CPrintToChatAll("{default}[{olive}TS{default}] No votes");
 		g_votedelay = VOTEDELAY_TIME;
@@ -1085,6 +1082,7 @@ public int Handler_VoteCallback(Menu menu, MenuAction action, int param1, int pa
 	}
 	else if(action == MenuAction_End)
 	{
+		VoteMenuClose();
 		delete menu;
 	}
 
@@ -1202,7 +1200,6 @@ bool TestVoteDelay(int client)
 
 bool CanStartVotes(int client)
 {
-	
  	if(g_hVoteMenu  != INVALID_HANDLE || IsVoteInProgress())
 	{
 		CPrintToChat(client, "{default}[{olive}TS{default}] A vote is already in progress!");
@@ -1290,8 +1287,8 @@ public Action COLD_DOWN(Handle timer,any client)
 		case (view_as<voteType>(kick)):
 		{
 			//DisplayBuiltinVotePass(vote, "Vote to kick player pass");						
-			CPrintToChatAll("[{olive}TS{default}] %t","votes3_15", kickplayer_name);
-			LogMessage("Vote to kick %s pass",kickplayer_name);
+			CPrintToChatAll("[{olive}TS{default}] %s has been kicked!", kickplayer_name);
+			LogMessage("Vote to kick %s pass", kickplayer_name);
 
 			int player = GetClientOfUserId(kickplayer_userid);
 			if(player && IsClientInGame(player)) KickClient(player, "You have been kicked due to vote");				
@@ -1366,7 +1363,7 @@ void ParseCampaigns()
 	}
 }
 
-public bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] g_sAcclvl)
 {
 	// no permissions set
 	if (strlen(g_sAcclvl) == 0)
