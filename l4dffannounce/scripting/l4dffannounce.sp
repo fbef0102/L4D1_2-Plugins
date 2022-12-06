@@ -6,7 +6,6 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-#include <left4dhooks>
 
 #define CVAR_FLAGS				FCVAR_NOTIFY
 #define MAXENTITIES 2048
@@ -15,8 +14,8 @@ public Plugin myinfo =
 {
 	name = "L4D FF Announce Plugin",
 	author = "Frustian & HarryPotter",
-	description = "Adds Friendly Fire Announcements",
-	version = "1.7",
+	description = "Display Friendly Fire Announcements",
+	version = "1.8",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 //cvar handles
@@ -27,7 +26,6 @@ ConVar AnnounceType;
 int DamageCache[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store Friendly Fire Damage between teammates
 Handle FFTimer[MAXPLAYERS+1]; //Used to be able to disable the FF timer when they do more FF
 
-//bool g_bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -38,12 +36,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
-	//g_bLate = late;
 	return APLRes_Success; 
 }
 
 public void OnPluginStart()
 {
+	LoadTranslations("l4dffannounce.phrases");
 	FFenabled = CreateConVar("l4d_ff_announce_enable", "1", "Enable Announcing Friendly Fire",CVAR_FLAGS);
 	AnnounceType = CreateConVar("l4d_ff_announce_type", "1", "Changes how ff announce displays FF damage (1:In chat; 2: In Hint Box; 3: In center text)",CVAR_FLAGS);
 	
@@ -58,25 +56,12 @@ public void OnPluginStart()
 	
 	//Autoconfig for plugin
 	AutoExecConfig(true, "l4dffannounce");
-
-	// if(g_bLate)
-	// {
-	// 	for(int i = 1; i <= MaxClients; i++)
-	// 	{
-	// 		if(IsClientInGame(i)) OnClientPutInServer(i);
-	// 	}
-	// }
 }
 
 public void OnMapEnd()
 {
 	ResetTimer();
 }
-
-// public void OnClientPutInServer(int client)
-// {
-// 	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
-// }
 
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
@@ -92,7 +77,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 
 	if(GetClientTeam(attacker) == 2 && GetClientTeam(victim) == 2) //人類 kill &友傷
 	{
-		CPrintToChatAll("{green}[提示] {lightgreen}%N {default}星爆氣流斬 {olive}%N{default}.",attacker, victim);
+		CPrintToChatAll("[{olive}TS{default}] %t", "KILL", attacker, victim);
 	}	
 }
 
@@ -172,41 +157,6 @@ public void Event_IncapacitatedStart(Event event, const char[] name, bool dontBr
 	}
 }
 
-// public void OnTakeDamagePost( int victim, int attacker, int inflictor, float fDamage, int damageType) {
-// 	if (FFenabled.BoolValue == false || 
-//		attacker == victim ||
-// 		attacker > MaxClients || attacker < 1 || 
-// 		!IsClientInGame(attacker)  || 
-// 		IsFakeClient(attacker) || 
-// 		GetClientTeam(attacker) != 2 || 
-// 		!IsClientInGame(victim) || 
-// 		GetClientTeam(victim) != 2)
-// 		return; 
-
-// 	if(IsClientInGodFrame(victim)) return;
-	
-// 	int damage = RoundToFloor(fDamage);
-// 	if (FFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
-// 	{
-// 		DamageCache[attacker][victim] += damage;
-// 		delete FFTimer[attacker];
-// 		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
-// 	}
-// 	else //If it's the first friendly fire by that player, it will start the announce timer and store the damage done.
-// 	{
-// 		DamageCache[attacker][victim] = damage;
-// 		delete FFTimer[attacker];
-// 		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
-// 		for (int i = 1; i <= MaxClients; i++)
-// 		{
-// 			if (i != attacker && i != victim)
-// 			{
-// 				DamageCache[attacker][i] = 0;
-// 			}
-// 		}
-// 	}
-// }
-
 public Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker did not friendly fire recently, and announces all FF they did
 {
 	char victim[128];
@@ -229,23 +179,23 @@ public Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker d
 					case 1:
 					{
 						if (IsClientInGame(attackerc) && !IsFakeClient(attackerc))
-							PrintToChat(attackerc, "\x01[\x05TS\x01] \x01你剛造成 \x04%d \x01滴血給 \x03%s\x01.",DamageCache[attackerc][i],victim);
+							CPrintToChat(attackerc, "[{olive}TS{default}] %T", "FF_dealt (C)", attackerc, DamageCache[attackerc][i], victim);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintToChat(i, "\x01[\x05TS\x01] \x03%s \x01造成了 \x04%d \x01滴血給你.",attacker,DamageCache[attackerc][i]);
+							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, attacker, DamageCache[attackerc][i]);
 					}
 					case 2:
 					{
 						if (IsClientInGame(attackerc) && !IsFakeClient(attackerc))
-							PrintHintText(attackerc, "\x01你剛射 \x04%d \x01滴血給 \x03%s",DamageCache[attackerc][i],victim);
+							PrintHintText(attackerc, "%T", "FF_dealt", attackerc, DamageCache[attackerc][i],victim);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintHintText(i, "\x03%s \x01射了 \x04%d \x01滴血給你",attacker,DamageCache[attackerc][i]);
+							PrintHintText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i]);
 					}
 					case 3:
 					{
 						if (IsClientInGame(attackerc) && !IsFakeClient(attackerc))
-							PrintCenterText(attackerc, "\x01你剛射 \x04%d \x01滴血給 \x03%s",DamageCache[attackerc][i],victim);
+							PrintCenterText(attackerc, "%T", "FF_dealt", attackerc, DamageCache[attackerc][i], victim);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintCenterText(i, "\x03%s \x01射了 \x04%d \x01滴血給你",attacker,DamageCache[attackerc][i]);
+							PrintCenterText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i]);
 					}
 				}
 			}
@@ -263,14 +213,6 @@ void ResetTimer()
 	{
 		delete FFTimer[i];
 	}
-}
-
-stock bool IsClientInGodFrame( int client )
-{
-	CountdownTimer timer = L4D2Direct_GetInvulnerabilityTimer(client);
-	if(timer == CTimer_Null) return false;
-
-	return (CTimer_GetRemainingTime(timer) > 0.0);
 }
 
 stock float GetTempHealth(int client)
