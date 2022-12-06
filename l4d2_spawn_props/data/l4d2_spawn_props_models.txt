@@ -866,7 +866,6 @@ models/props_unique/hospital/iv_pole.mdl TAG- 醫院輸液支架
 models/props_c17/hospital_cart01.mdl TAG- 醫院小推車
 models/props/cs_assault/camera.mdl TAG- 監控攝像頭
 models/props_urban/mega_phone001.mdl TAG- 雙頭廣播喇叭
-models/props_junk/wood_pallet001a.mdl TAG- 木棧板
 //Category Misc 雜項
 models/props_exteriors/wood_stairs_swamp.mdl TAG- 沼澤木製樓梯 - 5階
 models/props_exteriors/wood_stairs_120_swamp.mdl TAG- 沼澤木製樓梯 - 15階
@@ -940,6 +939,9 @@ models/props_interiors/handrail_hospital01_32.mdl TAG- 木板條 - 短
 models/props_interiors/handrail_hospital01_64.mdl TAG- 木板條 - 中
 models/props_interiors/handrail_hospital01_128.mdl TAG- 木板條 - 長
 models/props_interiors/handrail_hospital01_256.mdl TAG- 木板條 - 很長
+models/props_junk/wood_pallet001a.mdl TAG- 木棧板
+models/props_swamp/plank001a_192.mdl TAG- 沼澤木棧板 - 有基底
+models/props_swamp/plank001b_192.mdl TAG- 沼澤木棧板
 models/props_fairgrounds/building_support_128.mdl TAG- 建築支撐 - 4層
 models/props_c17/truss02h.mdl TAG- 建築鐵支撐架 - 1層
 models/props_c17/truss02g.mdl TAG- 建築鐵支撐架 - 2層
