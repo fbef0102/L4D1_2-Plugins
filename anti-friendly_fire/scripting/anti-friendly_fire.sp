@@ -17,7 +17,7 @@ public Plugin myinfo =
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.4",
+	version = "1.5",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -52,7 +52,7 @@ public void OnPluginStart()
 								"If 1, Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire.",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
-	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "1",
+	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "0",
 								"Disable friendly fire damage if damage is below this value (0=Off).",
 								FCVAR_NOTIFY, true, 0.0);
 
@@ -60,7 +60,7 @@ public void OnPluginStart()
 								"If 1, Disable friendly fire if damage is about to incapacitate victim.",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );	
 
-	g_hDamageMulti = CreateConVar( "anti_friendly_fire_damage_multi", "2.0",
+	g_hDamageMulti = CreateConVar( "anti_friendly_fire_damage_multi", "1.5",
 								"Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)",
 								FCVAR_NOTIFY, true, 1.0 );	
 
