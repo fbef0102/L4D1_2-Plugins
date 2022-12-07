@@ -1,0 +1,27 @@
+﻿"Phrases"
+{
+	"Alarmed_Car"
+	{
+		"en"		"{olive}%N{green} triggered an alarmed car!"
+		"zho"		"{olive}%N{green} 觸發了警報車!"
+		"chi"		"{olive}%N{green} 触发了警报车!"
+	}
+	"Horde"
+	{
+		"en"		"{olive}%N{green} triggered a horde event!"
+		"zho"		"{olive}%N{green} 觸發了屍潮事件!"
+		"chi"		"{olive}%N{green} 触发了尸潮事件!"
+	}
+	"Final Rescue Start"
+	{
+		"en"		"{green}Final Rescure has started!"
+		"zho"		"{green}最後救援開始!"
+		"chi"		"{green}最后救援开始!"
+	}
+	"Final Rescue"
+	{
+		"en"		"{blue}%N{olive} triggered the final rescue!"
+		"zho"		"{blue}%N{olive} 觸發了救援開關!"
+		"chi"		"{blue}%N{olive} 触发了救援开关!"
+	}
+}

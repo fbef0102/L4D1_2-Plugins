@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/11/29)
+> All plugins in here apply to both L4D1/2 (last edited:2022/12/7)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -88,6 +88,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
 * <b>[l4d_shotgun_sound_fix](/l4d_shotgun_sound_fix)</b>: Thirdpersonshoulder Shotgun Sound Fix
 * <b>[l4d_lasertag](/l4d_lasertag)</b>: Shows a laser for straight-flying fired projectiles
+* <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde?
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
