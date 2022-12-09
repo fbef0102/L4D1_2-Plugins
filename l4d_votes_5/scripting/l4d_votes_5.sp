@@ -714,7 +714,9 @@ public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 			ClientVoteMenu[param1] = false;
 	}
 	else if ( action == MenuAction_End)
+	{
 		delete menu;
+	}
 
 	return 0;
 }
@@ -1083,7 +1085,7 @@ public int Handler_VoteCallback(Menu menu, MenuAction action, int param1, int pa
 	else if(action == MenuAction_End)
 	{
 		VoteMenuClose();
-		delete menu;
+		//delete menu;
 	}
 
 	return 0;
