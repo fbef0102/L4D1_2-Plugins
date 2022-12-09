@@ -238,7 +238,7 @@ void OnGamemode(const char[] output, int caller, int activator, float delay)
 	else if( strcmp(output, "OnVersus") == 0 )
 		g_iCurrentMode = 2;
 	else if( strcmp(output, "OnScavenge") == 0 )
-		g_iCurrentMode = 4;
+		g_iCurrentMode = 2;
 	else
 		g_iCurrentMode = -1;
 }
