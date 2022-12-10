@@ -89,6 +89,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_shotgun_sound_fix](/l4d_shotgun_sound_fix)</b>: Thirdpersonshoulder Shotgun Sound Fix
 * <b>[l4d_lasertag](/l4d_lasertag)</b>: Shows a laser for straight-flying fired projectiles
 * <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde?
+* <b>[tank_witch_spawn_notify](/tank_witch_spawn_notify)</b>: When the tank and witch spawns, it announces itself in chat by making a sound
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others

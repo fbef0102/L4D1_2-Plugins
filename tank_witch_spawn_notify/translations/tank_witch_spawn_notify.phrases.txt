@@ -1,0 +1,15 @@
+﻿"Phrases"
+{
+	"Tank"
+	{
+		"en"		"{green}[{lightgreen}!{green}] {olive}Tank {green}has spawned!"
+		"zho"		"{green}[{lightgreen}!{green}] {olive}Tank {green}在前方!"
+		"chi"		"{green}[{lightgreen}!{green}] {olive}Tank {green}在前方!"
+	}
+	"Witch"
+	{
+		"en"		"{green}[{lightgreen}!{green}] {olive}Witch {green}has spawned!"
+		"zho"		"{green}[{lightgreen}!{green}] {olive}Witch {green}在前方!"
+		"chi"		"{green}[{lightgreen}!{green}] {olive}Witch {green}在前方!"
+	}
+}
