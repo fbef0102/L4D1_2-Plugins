@@ -1,0 +1,38 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"CDirector::OnMapInvokedPanicEvent"
+			{
+				"signature"		"CDirector::OnMapInvokedPanicEvent"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"address"
+				"arguments"
+				{
+					"a1"
+					{
+						"type"	"cbaseentity"
+					}
+					"a2"
+					{
+						"type"	"int"
+					}
+				}
+			}
+		}
+		
+		"Signatures"
+		{
+			"CDirector::OnMapInvokedPanicEvent"
+			{
+				"library"		"server"
+				"linux"			"@_ZN9CDirector22OnMapInvokedPanicEventEP11CBasePlayer20panic_event_reason_t"
+				"windows"		"\x55\x8B\x2A\x8B\x2A\x2A\x53\x56\x57\x8B\x2A\x83\x2A\x2A\x0F\x85\x2A\x2A\x2A\x2A\x89"
+								/* 55 8B ? 8B ? ? 53 56 57 8B ? 83 ? ? 0F 85 ? ? ? ? 89 */
+			}
+		}
+	}
+}
