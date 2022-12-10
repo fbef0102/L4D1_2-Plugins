@@ -57,7 +57,7 @@ English
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
-    3. [Stripper:Source](http://www.bailopan.net/stripper/#install)
+    3. [Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#stripper)
 
 * How to use
 	* Type !admin to call adm menu and you will see "Spawn Objects" option
@@ -180,6 +180,9 @@ English
 - - - -
 # 中文說明
 創造屬於自己風格的地圖，製作迷宮與障礙物
+
+* 必看
+	* 必須[安裝Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dstripper)才能更改地圖
 
 * 如何創造物件?
     1. 管理員輸入!admin->生成物件->生成物件->選擇其中一項
