@@ -22,7 +22,7 @@ Show damage done to S.I. by survivors
 	简体中文
 	```
 
-* <details><summary>Changelog (Click to expand!) | 版本日誌 (點我展開)</summary>
+* <details><summary>Changelog | 版本日誌</summary>
 
     * v2.1
         * Translation Support
