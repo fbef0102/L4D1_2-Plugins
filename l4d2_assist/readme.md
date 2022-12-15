@@ -24,7 +24,7 @@ Show damage done to S.I. by survivors
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    * v2.1
+    * v2.1 (2022-12-16)
         * Translation Support
 
     * v2.0
