@@ -6,7 +6,7 @@
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.0"
+#define PLUGIN_VERSION "2.1"
 
 #define L4D_TEAM_SURVIVOR 2
 #define L4D_TEAM_INFECTED 3
@@ -20,8 +20,8 @@ ConVar g_hCvarMPGameMode;
 
 
 char Temp2[] = ", ";
-char Temp3[] = " (";
-char Temp4[] = " dmg)";
+char Temp3[] = "(";
+char Temp4[] = ")";
 char Temp5[] = "\x05";
 char Temp6[] = "\x01";
 int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
@@ -64,6 +64,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	LoadTranslations("l4d2_assist.phrases");
 	g_hCvarAllow = 		CreateConVar(	"sm_assist_enable", 		"1", 			"If 1, Enables this plugin.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarModes =		CreateConVar(	"sm_assist_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =	CreateConVar(	"sm_assist_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
@@ -255,8 +256,8 @@ public void Event_PlayerIncapacitated(Event event, const char[] name, bool dontB
 	int health = GetEntityHealth(witchid);
 	if (health < 0) health = 0;
 	
-	CPrintToChatAll("{default}[{olive}TS{default}]{green} Witch{default} had{green} %d{default} health remaining.", health);
-	CPrintToChatAll("{green}[提示]{lightgreen} %N {default}反被 {green}Witch {olive}擊☆殺{default}.", victim);
+	CPrintToChatAll("[{olive}TS{default}] %t", "Witch_Health", health);
+	CPrintToChatAll("[{olive}TS{default}] %t", "Witch_Incap", victim);
 
 	g_bShouldAnnounceWitchDamage[witchid] = false;
 }
@@ -291,12 +292,27 @@ public void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast
 				{
 					g_iLastHP[victim] = event.GetInt("health");
 				}
+				
+				if( 0 < attacker <= MaxClients && IsClientInGame(attacker) && !g_bDied[victim])
+				{
+					//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iLastHP[victim], damageDone, g_bDied[victim]);
+					g_iDamage[attacker][victim] += damageDone;
+				}
 			}
-			
-			if( 0 < attacker <= MaxClients && IsClientInGame(attacker) && !g_bDied[victim])
+			else
 			{
-				//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iLastHP[victim], damageDone, g_bDied[victim]);
-				g_iDamage[attacker][victim] += damageDone;
+				//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d", g_iLastHP[victim], damageDone);
+				if( g_iLastHP[victim] - damageDone <= 0) //超過最後血量
+				{
+					damageDone = g_iLastHP[victim];
+				}
+
+				g_iLastHP[victim] = event.GetInt("health");
+
+				if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
+				{
+					g_iDamage[attacker][victim] += damageDone;
+				}
 			}
 		}
 	}
@@ -308,10 +324,11 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 		
 	if(client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
 	{
+		g_bDied[client] = false;
+		g_iLastHP[client] = GetEntProp(client, Prop_Data, "m_iHealth");
+
 		for( int i = 1; i <= MaxClients; i++ )
 		{
-			g_bDied[client] = false;
-			g_iLastHP[client] = GetEntProp(client, Prop_Data, "m_iHealth");
 			g_iDamage[i][client] = 0;
 		}
 	}
@@ -332,8 +349,8 @@ public void Event_Player_Death(Event event, const char[] name, bool dontBroadcas
 			int health = GetEntityHealth(witchid);
 			if (health < 0) health = 0;
 
-			CPrintToChatAll("{default}[{olive}TS{default}]{green} Witch{default} had{green} %d{default} health remaining.", health);
-			CPrintToChatAll("{green}[提示]{lightgreen} %N {default}反被 {green}Witch {olive}爆☆殺{default}.", victim);
+			CPrintToChatAll("{default}[{olive}TS{default}] %t", "Witch_Health", health);
+			CPrintToChatAll("{default}[{olive}TS{default}] %t", "Witch_Kill", victim);
 			g_bShouldAnnounceWitchDamage[witchid] = false;
 			return;
 		}
@@ -370,16 +387,16 @@ public void Event_Player_Death(Event event, const char[] name, bool dontBroadcas
 					StrCat(MsgAssist, sizeof(MsgAssist), Temp2);
 				
 				GetClientName(i, sName, sizeof(sName));
-				FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s%s%i%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],Temp4);
+				FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s %s%i %t%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],"DMG",Temp4);
 				StrCat(MsgAssist, sizeof(MsgAssist), sTempMessage);
 				start = false;
 			}
 		}
 		
-		PrintToChatAll("\x01[\x05TS\x01] \x04%N\x01 got killed by \x03%N\x01 (%d dmg).", victim, attacker, g_iDamage[attacker][victim]);
+		CPrintToChatAll("[{olive}TS{default}] %t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
 		if (AssistFlag == true) 
 		{
-			PrintToChatAll("\x05\x01|| Assist: %s.", MsgAssist);
+			CPrintToChatAll("{olive}{default} %t", "Assist", MsgAssist);
 		}
 	}
 	
