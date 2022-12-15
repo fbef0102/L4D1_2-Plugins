@@ -1,0 +1,39 @@
+﻿"Phrases"
+{
+	"Witch_Health"
+	{
+		"en"		"{green}Witch{default} had {green}%d{default} health remaining."
+		"zho"		"{green}Witch{default} 還剩餘 {green}%d{default} 血量."
+		"chi"		"{green}Witch{default} 还剩余 {green}%d{default} 血量."
+	}
+	"Witch_Incap"
+	{
+		"en"		"{green}Witch{olive} crowned {lightgreen}%N{default}."
+		"zho"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 擊☆殺{default}."
+		"chi"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 击☆杀{default}."
+	}
+	"Witch_Kill"
+	{
+		"en"		"{green}Witch{olive} crowned {lightgreen}%N{default}."
+		"zho"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 擊☆殺{default}."
+		"chi"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 击☆杀{default}."
+	}
+	"DMG"
+	{
+		"en"		"dmg"
+		"zho"		"傷害"
+		"chi"		"伤害"
+	}
+	"Got_Killed_By"
+	{
+		"en"		"{green}%N{default} got killed by {lightgreen}%N{default} (%d dmg)."
+		"zho"		"{green}%N{default} 主要擊殺者 {lightgreen}%N{default} (%d 傷害)."
+		"chi"		"{green}%N{default} 主要击杀者 {lightgreen}%N{default} (%d 伤害)."
+	}
+	"Assist"
+	{
+		"en"		"|| Assist: %s."
+		"zho"		"|| 協助: %s."
+		"chi"		"|| 协助: %s."
+	}
+}
