@@ -2570,7 +2570,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 				PrintToChatAll("[TS] playerdeath");
 			#endif
 			respawnDelay[client] = SpawnTime;
-			if(IsFakeClient(client)) InfectedBotQueue++;
+			InfectedBotQueue++;
 			for(int i = 1; i <= L4D_MAXPLAYERS; i++)
 			{
 				if(SpawnInfectedBotTimer[i] == null)
@@ -2593,7 +2593,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		{
 			if(IsFakeClient(client))
 			{
-				SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+				SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer) + (HumansOnInfected() - 1) * 4;
 				if(SpawnTime <= 0) SpawnTime = 1;
 			}
 			else
@@ -2896,15 +2896,41 @@ public void OnClientDisconnect(int client)
 	{
 		if (GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client))
 		{
-			char name[MAX_NAME_LENGTH];
-			GetClientName(client, name, sizeof(name));
+			int SpawnTime = 0;
+			if (g_iCurrentMode == 2)
+			{
+				if (IsFakeClient(client))
+				{
+					SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+					if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected())
+						SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
 
-			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
-			if (g_bAdjustSpawnTimes)
-				SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+					if(SpawnTime<=0)
+						SpawnTime = 1;
+				}
+				else
+				{
+					return;
+				}
+			}
+			else
+			{
+				SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+				if(g_bAdjustSpawnTimes)
+				{
+					if(IsFakeClient(client))
+					{
+						SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer) + (HumansOnInfected() - 1) * 4;
+						if(SpawnTime <= 0) SpawnTime = 1;
+					}
+					else
+					{
+						SpawnTime = g_iInfectedSpawnTimeMin - TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer + (HumansOnInfected() - 1) * 3;
+						if(SpawnTime <= 6) SpawnTime = 6;
+					}
+				}		
+			}
 
-			if(SpawnTime<=0)
-				SpawnTime = 1;
 			#if DEBUG
 				PrintToChatAll("[TS] OnClientDisconnect");
 			#endif
@@ -3016,8 +3042,17 @@ void CheckIfBotsNeeded(int spawn_type)
 	}
 	else if (spawn_type == -1) // player change team from infected or switch team to infected
 	{
-		int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
-		if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+		int SpawnTime = 0;
+		if (g_iCurrentMode == 2)
+		{
+			SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+			if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+		}
+		else
+		{
+			SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+			if(g_bAdjustSpawnTimes) SpawnTime = SpawnTime - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer) + (HumansOnInfected() - 1) * 4;
+		}
 		if(SpawnTime < 3) SpawnTime = 3;
 
 		InfectedBotQueue++;
@@ -3064,7 +3099,7 @@ void CheckIfBotsNeeded2()
 			if ( (InfectedRealCount + InfectedBotCount + InfectedBotQueue) < g_iMaxPlayerZombies )
 			{
 				int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
-				if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected()) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
+				if (g_bAdjustSpawnTimes) SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer) + (HumansOnInfected() - 1) * 4;
 				if(SpawnTime < 3) SpawnTime = 3;
 				InfectedBotQueue++;
 
@@ -3728,10 +3763,10 @@ public Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 	}
 
-	// Offiical Cvar: director_no_specials => Disable PZ spawns
+	// Official Cvar: director_no_specials is 1 => Disable PZ spawns
 	if(director_no_specials_bool == true)
 	{
-		PrintToServer("[TS] Couldn't spawn due to director_no_specials.");
+		PrintToServer("[TS] Couldn't spawn due to director_no_specials 1.");
 		CreateTimer(20.0, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
 
 		if(InfectedBotQueue > 0) InfectedBotQueue--;
