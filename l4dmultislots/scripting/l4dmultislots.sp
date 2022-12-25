@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.2"
+#define PLUGIN_VERSION 				"5.3"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -213,6 +213,8 @@ public void OnPluginStart()
 	HookEvent("player_spawn", evtPlayerSpawn);
 	HookEvent("player_death", evtPlayerDeath);
 	HookEvent("round_start", 		Event_RoundStart);
+	if(g_bLeft4Dead2) HookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
+	else HookEvent("create_panic_event" , Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
 	HookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
@@ -557,6 +559,13 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_iRoundStart = 1;
 }
 
+public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
+{
+	if(g_bLeftSafeRoom == true) return;
+	
+	GameStart();
+}
+
 public void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if(g_bFinalHasStarted) return;
@@ -698,19 +707,23 @@ int iCountDownTime;
 public Action Timer_PluginStart(Handle timer)
 {
 	ClearDefault();
+	
 	if(g_bSpawnSurvivorsAtStart) CreateTimer(0.2, Timer_SpawnSurvivorWhenRoundStarts, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	
-	delete PlayerLeftStartTimer; 
-	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
-
 	if(g_fSpecCheckInterval > 0.0)
 	{
 		delete SpecCheckTimer;
 		SpecCheckTimer = CreateTimer(g_fSpecCheckInterval, Timer_SpecCheck, _, TIMER_REPEAT);
 	}
 
+	if(L4D_GetGameModeType() != GAMEMODE_SURVIVAL)
+	{
+		delete PlayerLeftStartTimer; 
+		PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	}
+
 	int amount;
-	if(sb_transition.BoolValue == false && g_iSurvivorTransition > 0)
+	if(L4D_GetGameModeType() == GAMEMODE_COOP && sb_transition.BoolValue == false && g_iSurvivorTransition > 0)
 	{
 		amount = g_iSurvivorTransition - 4;
 		g_iSurvivorTransition = 0;
@@ -1207,13 +1220,7 @@ public Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{	
-		g_bLeftSafeRoom = true;
-		iCountDownTime = iDeadBotTime;
-		if(iCountDownTime > 0)
-		{
-			delete CountDownTimer;
-			CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
-		}
+		GameStart();
 		
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
@@ -1530,4 +1537,15 @@ Action Timer_GiveRandomT1Weapon(Handle timer, int userid)
 	}
 
 	return Plugin_Continue;
+}
+
+void GameStart()
+{
+	g_bLeftSafeRoom = true;
+	iCountDownTime = iDeadBotTime;
+	if(iCountDownTime > 0)
+	{
+		delete CountDownTimer;
+		CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
+	}
 }

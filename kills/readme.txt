@@ -8,7 +8,7 @@ v1.6
 -Support versus/coop/realism
 
 -Require-
-[INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+[INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 -ConVar-
 None

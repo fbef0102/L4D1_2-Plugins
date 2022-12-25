@@ -16,7 +16,7 @@ v1.4
 
 -Require-
 1. Left 4 DHooks Direct: https://forums.alliedmods.net/showthread.php?t=321696
-2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+2. [INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 -Example Config-
 data\sm_l4d_mapchanger.txt

@@ -34,7 +34,7 @@ L4D1/2 Mix
 
 -Require-
 1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
-2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+2. [INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 -Convars-
 cfg\sourcemod\l4d_mix_player.cfg
