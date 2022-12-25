@@ -11,6 +11,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	* Message
 		> 存活的倖存者數量改變時顯示訊息
 		<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
+	* Join infected team and play in coop/survival/realism mode.
+		> 在戰役/寫實/生存模式下加入特感陣營
+		<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
 
 * Apply to | 適用於
 	```
@@ -55,7 +58,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in coop/survival/realism when 5+ player joins the server
 		> 創造5位以上倖存者遊玩伺服器
 	2. [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
-		> 修正某些時候特感找不到位置且無法生成的問題 (非100%完整解決特感不生成的問題)
+		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
 
@@ -483,6 +486,18 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		l4d_infectedbots_coop_versus_human_light "0" 
 		```
 	</details>
+
+	3. <details><summary>Couldn't find XXXX Spawn position in 5 tries</summary>
+
+		Special Infected can't spawn sometimes, and server console spamming message
+		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
+
+		* I can't do anything about the nav pathfinding, only Valve or map authors can handle nav problem.
+		* Recommand to install [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)
+	</details>
+
+* Known Issue
+	* In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed. Install [l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam) by Forgetest to fix Camera stuck.
 
 - - - -
 # 中文說明
@@ -923,21 +938,29 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 	3. <details><summary>為什麼有些時候不會有特感生成?</summary>
 
-		* 原因一：地圖故意作者為之，為了怕人類滅團所以停止特感生成一段時間，常發生在三方圖開啟地圖機關的時候
-			* 解決方式法一：去跟作者抱怨
+		問題：特感無法生成，然後伺服器後台經常冒出```Couldn't find xxxxx Spawn position in 5 tries```
+		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
+
+		* 原因一：地圖故意作者為之，為了怕人類滅團所以停止特感生成一段時間，常發生在三方圖開啟地圖機關的時候或者開啟最終章救援無線電之前
+			* 解決方式法一：去跟地圖作者抱怨
   			* 解決方式法二：自己修改地圖vscript
+			* 解決方式法三：推薦安裝[Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)，修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 		2. 原因二：地圖問題，找不到附近的地形特感，常發生在NAV沒有做好的爛圖，譬如死亡都心第一關人類抵達終點安全室的附近
-			* 解決方式法一：去跟作者抱怨
+			* 解決方式法一：去跟地圖作者抱怨
   			* 解決方式法二：自己修改地圖的NAV
-		3. 原因三：有設置指令值```director_no_specials 1```，這會關閉遊戲導演系統
-			* 解決方式：```sm_cvar director_no_specials 0```
-		4. 原因四：所有能生成特感的地方都被倖存者看見，導致特感找不到位置無法復活，常發生在地圖太寬闊的地形，沒有任何障礙物掩護
-			* 解決方式法一：自己修改地圖的NAV
-			* 解決方式法二：把特感生成範圍弄大點，修改官方指令
+		3. 原因三：所有能生成特感的地方都被倖存者看見，導致特感找不到位置無法復活，常發生在地圖太寬闊的地形，沒有任何障礙物掩護
+			* 解決方式法一：去跟地圖作者抱怨
+			* 解決方式法二：自己修改地圖的NAV
+			* 解決方式法三：把特感生成範圍弄大點，修改官方指令
 				* 有副作用，會導致特感生成得太遠攻擊不到倖存者，不建議此方法
 				```php
 				// 預設是1500
 				sm_cvar z_spawn_range 2500
 				```
-			* 解決方式法三：請倖存者隊伍移動位置，讓特感可以生成
+			* 解決方式法四：請倖存者隊伍移動位置，讓特感可以生成
+		4. 原因四：有設置指令值```director_no_specials 1```，這會關閉遊戲導演系統
+			* 解決方式：```sm_cvar director_no_specials 0```
 	</details>
+
+* 已知問題
+	* 在戰役/寫實/生存下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候，如果要修正請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)，由Forgetest大佬開發的插件修正玩家鏡頭卡住等問題
