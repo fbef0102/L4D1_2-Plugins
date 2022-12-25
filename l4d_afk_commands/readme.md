@@ -195,6 +195,8 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		<br/>![image](https://user-images.githubusercontent.com/12229810/209460497-af899ea0-d670-4de8-9da9-e242eeae30e2.png)
 		3. 控制台輸入```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
 		<br/>![image](https://user-images.githubusercontent.com/12229810/209460517-547fe0c9-eb9b-456c-8fc7-f72f2d70f59c.png)
+		4. 控制台輸入```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
+		<br/>![image](https://user-images.githubusercontent.com/12229810/209469875-f17e87bd-907a-4a64-b9b4-023bac157b13.png)
 	* 此插件會禁止玩家濫用閒置的bug，譬如
 		1. 導致witch失去目標
 		2. 省略裝子彈時間
