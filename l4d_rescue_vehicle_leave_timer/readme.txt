@@ -16,7 +16,7 @@ v1.4
 
 -Require-
 1. left4dhooks: https://forums.alliedmods.net/showthread.php?p=2684862
-2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+2. [INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 Example Config:
 data/l4d_rescue_vehicle.cfg

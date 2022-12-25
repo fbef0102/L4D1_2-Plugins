@@ -12,7 +12,7 @@ v0.2.1
 https://forums.alliedmods.net/showthread.php?t=110029
 
 -Require-
-1. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+1. [INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 -Related Plugin: 
 1. lfd_noTeamSay: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/lfd_noTeamSay
