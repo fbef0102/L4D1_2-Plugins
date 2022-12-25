@@ -9,7 +9,7 @@ v1.5
 Original Post by n0limit: https://forums.alliedmods.net/showthread.php?t=93605
 
 -Require-
-1. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+1. [INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 -ConVar-
 // Caps the displayed pounce damage to the maximum able to be dealt.

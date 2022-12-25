@@ -31,7 +31,7 @@ v1.7
 
 -Require-
 1. "Left4DHooks" plugin version 1.101 or newer: https://forums.alliedmods.net/showthread.php?p=2684862
-2. [INC] Multi Colors: https://forums.alliedmods.net/showthread.php?t=247770
+2. [INC] Multi Colors: https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors
 
 -Related Plugin-
 1. antisaferoomdooropen: https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Survivor_人類/antisaferoomdooropen

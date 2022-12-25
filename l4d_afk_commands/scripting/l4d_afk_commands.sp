@@ -648,6 +648,8 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
+	if(g_bHasLeftSafeRoom == true) return;
+	
 	GameStart();
 }
 
@@ -1490,7 +1492,7 @@ int GetSurvivorVictim(int client)
 	return -1;
 }
 
-public bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] g_sAcclvl)
 {
 	// no permissions set
 	if (strlen(g_sAcclvl) == 0)

@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2022/12/16)
+> All plugins in here apply to both L4D1/2 (last edited:2022/12/25)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -8,11 +8,12 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * [Metamod 1.11](https://www.sourcemm.net/downloads.php?branch=1.11-dev) (or newer)
 * [L4DToolZ](https://github.com/Accelerator74/l4dtoolz/releases)
 * [Left 4 DHooks Direct](https://forums.alliedmods.net/showthread.php?p=2684862)
-* [[INC] Multi Colors](https://forums.alliedmods.net/showthread.php?t=247770)
+* [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 # Plugins
 > __Note__  
-**[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
+> **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**<br/>
+> **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
 * <b>[l4d_afk_commands](/l4d_afk_commands)</b>: Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.),but no abuse.
 * <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Show what mode is it now on server name(support any Language) with txt file.
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
