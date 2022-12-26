@@ -648,7 +648,7 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
-	if(g_bHasLeftSafeRoom == true) return;
+	if(g_bHasLeftSafeRoom == true || L4D_GetGameModeType() != GAMEMODE_SURVIVAL) return;
 	
 	GameStart();
 }
