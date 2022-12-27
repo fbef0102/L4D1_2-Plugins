@@ -24,6 +24,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.5 (2022-12-28)
+		* Add 1 cvar "l4d_afk_commands_weapon_reload_block". Player can not change team when he is reloading the weapon.
+
 	* v4.4
 		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2719702&postcount=32)
 		* Remake Code
@@ -78,14 +81,17 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).
 		l4d_afk_commands_infected_spawn_cooltime_block "10.0"
 
+		// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)
+		l4d_afk_commands_observer_access_flag "z"
+
 		// If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)
 		l4d_afk_commands_pressM_block "1"
 
 		// Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_spec_access_flag ""
 
-		// If 1, Allow alive survivor player suicides by using '!zs'.
-		l4d_afk_commands_suicide_allow "1"
+		// Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)
+		l4d_afk_commands_suicide_allow_second "30.0"
 
 		// Players with these flags have access to use command to survivor team. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_survivor_access_flag ""
@@ -99,11 +105,11 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).
 		l4d_afk_commands_throwable_cooltime_block "10.0"
 
+		// If 1, Player can not change team when he is reloading the weapon.
+		l4d_afk_commands_weapon_reload_block "1"
+
 		// If 1, Player can not change team when he startle witch or being attacked by witch.
 		l4d_afk_commands_witch_attack_block "1"
-
-		// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_observer_access_flag "z"
 		```
 </details>
 
@@ -179,8 +185,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		5. Cold Down Time in seconds a player can not change team again after he switches team.
 		6. Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel.
 		7. Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice.
-		8. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
-		9. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
+		8. Reloading the weapon.
+		9. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
+		10. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
 
 
 - - - -
@@ -228,5 +235,6 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		5. 換隊之後短時間內不能換第二次
 		6. 點燃汽油桶、煤氣罐一段時間內
 		7. 丟出火焰瓶、土製炸彈、膽汁瓶一段時間內
-		8. 特感抓住倖存者的期間
-		9. 特感剛復活的時候
+		8. 武器正在裝子彈
+		9. 特感抓住倖存者的期間
+		10. 特感剛復活的時候

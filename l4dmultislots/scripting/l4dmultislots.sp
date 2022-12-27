@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.3"
+#define PLUGIN_VERSION 				"5.4"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -127,11 +127,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-ConVar g_hSurvivorLimit, sb_transition;
+ConVar g_hSurvivorLimit;
 public void OnPluginStart()
 {
-	sb_transition =  FindConVar("sb_transition");
-
 	g_hSurvivorLimit = FindConVar("survivor_limit");
 	if(g_hSurvivorLimit == null)
 	{
@@ -411,7 +409,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 		{
 			for(int i = 1; i <= MaxClients; i++)
 			{
-				if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsAlive(i))
+				if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
 				{
 					if(HasEntProp(i, Prop_Send, "m_humanSpectatorUserID"))
 					{
@@ -432,7 +430,7 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public Action Timer_ChangeTeam(Handle timer, int userid)
+Action Timer_ChangeTeam(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client && IsClientInGame(client))
@@ -493,16 +491,17 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	{
 		if(IsFakeClient(client))
 		{
-			if(g_bEnableKick == false) return;
-			
-			g_bEnableKick = false;
+			if(g_bEnableKick == true)
+			{
+				g_bEnableKick = false;
 
-			//LogMessage("will kick %N bot in few seconds", client);
+				//LogMessage("will kick %N bot in few seconds", client);
 
-			if(!g_bLeftSafeRoom)
-				CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, userid);
-			else
-				CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
+				if(!g_bLeftSafeRoom)
+					CreateTimer(DELAY_KICK_NONEEDBOT_SAFE, Timer_KickNoNeededBot, userid);
+				else
+					CreateTimer(DELAY_KICK_NONEEDBOT, Timer_KickNoNeededBot, userid);
+			}
 		}
 		else
 		{
@@ -514,7 +513,7 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
-		CreateTimer(0.1, Timer_PluginStart);
+		CreateTimer(0.25, Timer_PluginStart);
 	g_iPlayerSpawn = 1;	
 }
 
@@ -555,13 +554,13 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}	
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
-		CreateTimer(0.1, Timer_PluginStart);
+		CreateTimer(0.25, Timer_PluginStart);
 	g_iRoundStart = 1;
 }
 
 public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
-	if(g_bLeftSafeRoom == true) return;
+	if(g_bLeftSafeRoom == true || L4D_GetGameModeType() != GAMEMODE_SURVIVAL) return;
 	
 	GameStart();
 }
@@ -573,13 +572,14 @@ public void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast
 	if(g_bGiveKitFinalStart)
 	{
 		int client = GetRandomAliveSurvivor();
-		int amount = TotalSurvivors() - 4;
+		int amount = TotalSurvivors() - 4; //這是計算全體玩家
+		//int amount = TotalAliveSurvivors() - 4; //這是只計算活人
 
 		float vPos[3];
 		int weapon;
 		if( amount > 0 && client > 0 )
 		{
-			GetClientEyePosition(client, vPos);
+			GetClientAbsOrigin(client, vPos);
 			for(int i = 1; i <= amount; i++)
 			{
 				weapon = CreateEntityByName("weapon_first_aid_kit");
@@ -601,7 +601,7 @@ public void Event_MapTransition(Event event, const char[] name, bool dontBroadca
 	CreateTimer(1.5, Timer_Event_MapTransition, _, TIMER_FLAG_NO_MAPCHANGE); //delay is necessary for waiting all afk human players to take over bot
 }
 
-public Action Timer_Event_MapTransition(Handle timer)
+Action Timer_Event_MapTransition(Handle timer)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
@@ -617,7 +617,7 @@ public Action Timer_Event_MapTransition(Handle timer)
 ////////////////////////////////////
 // timers
 ////////////////////////////////////
-public Action JoinTeam_ColdDown(Handle timer, int userid)
+Action JoinTeam_ColdDown(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client && IsClientInGame(client))
@@ -633,7 +633,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 			{
 				//PrintHintText(client, "%T", "You are already on the team of survivors.", client);
 			}
-			else if((DispatchKeyValue(client, "classname", "info_survivor_position") == true) && !IsAlive(client))
+			else if((DispatchKeyValue(client, "classname", "info_survivor_position") == true) && !IsPlayerAlive(client))
 			{
 				PrintHintText(client, "%T", "Please wait to be revived or rescued", client);
 			}
@@ -704,7 +704,7 @@ public Action JoinTeam_ColdDown(Handle timer, int userid)
 }
 
 int iCountDownTime;
-public Action Timer_PluginStart(Handle timer)
+Action Timer_PluginStart(Handle timer)
 {
 	ClearDefault();
 	
@@ -722,23 +722,25 @@ public Action Timer_PluginStart(Handle timer)
 		PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 	}
 
+	
 	int amount;
-	if(L4D_GetGameModeType() == GAMEMODE_COOP && sb_transition.BoolValue == false && g_iSurvivorTransition > 0)
+	if(L4D_GetGameModeType() == GAMEMODE_COOP && g_iSurvivorTransition > 0)
 	{
 		amount = g_iSurvivorTransition - 4;
-		g_iSurvivorTransition = 0;
 	}
 	else
 	{
 		amount = TotalSurvivors() - 4;
 	}
+	//LogMessage("GameModeType: %d, g_iSurvivorTransition: %d, totalsurivors: %d amount: %d", L4D_GetGameModeType(), g_iSurvivorTransition, TotalSurvivors(), amount);
+	g_iSurvivorTransition = 0;
 
 	int client = GetRandomAliveSurvivor();
 	int weapon;
 	float vPos[3];
 	if( g_bGiveKitSafeRoom && amount > 0 && client > 0 )
 	{
-		GetEntPropVector(client, Prop_Data, "m_vecOrigin", vPos);
+		GetClientAbsOrigin(client, vPos);
 		for(int i = 1; i <= amount; i++)
 		{
 			weapon = CreateEntityByName("weapon_first_aid_kit");
@@ -753,7 +755,7 @@ public Action Timer_PluginStart(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action Timer_SpecCheck(Handle timer)
+Action Timer_SpecCheck(Handle timer)
 {
 	if(g_fSpecCheckInterval == 0.0)
 	{
@@ -780,7 +782,7 @@ public Action Timer_SpecCheck(Handle timer)
 	{
 		if(IsClientInGame(i))		
 		{
-			if((GetClientTeam(i) == TEAM_SURVIVORS) && !IsFakeClient(i) && !IsAlive(i))
+			if((GetClientTeam(i) == TEAM_SURVIVORS) && !IsFakeClient(i) && !IsPlayerAlive(i))
 			{
 				static char PlayerName[100];
 				GetClientName(i, PlayerName, sizeof(PlayerName));
@@ -792,7 +794,7 @@ public Action Timer_SpecCheck(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
+Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if (!client || !IsClientInGame(client)) return Plugin_Stop;
@@ -838,7 +840,7 @@ public Action Timer_TakeOverBotAndDie(Handle timer, int userid)
 	return Plugin_Continue;
 }
 
-public Action Timer_TakeOverBotAndDie2(Handle timer, int userid)
+Action Timer_TakeOverBotAndDie2(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if (!client || !IsClientInGame(client)) return Plugin_Stop;
@@ -884,7 +886,7 @@ public Action Timer_TakeOverBotAndDie2(Handle timer, int userid)
 	return Plugin_Continue;
 }
 
-public Action Timer_KillSurvivor(Handle timer, int client)
+Action Timer_KillSurvivor(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
 	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client))
@@ -896,7 +898,8 @@ public Action Timer_KillSurvivor(Handle timer, int client)
 
 	return Plugin_Continue;
 }
-public Action Timer_KillSurvivor2(Handle timer, int client)
+
+Action Timer_KillSurvivor2(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
 	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client))
@@ -909,7 +912,7 @@ public Action Timer_KillSurvivor2(Handle timer, int client)
 	return Plugin_Continue;
 }
 
-public Action Timer_AutoJoinTeam(Handle timer, int userid)
+Action Timer_AutoJoinTeam(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 
@@ -927,7 +930,7 @@ public Action Timer_AutoJoinTeam(Handle timer, int userid)
 	return Plugin_Continue;
 }
 
-public Action Timer_NewPlayerAutoJoinTeam(Handle timer, int userid)
+Action Timer_NewPlayerAutoJoinTeam(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 
@@ -945,7 +948,7 @@ public Action Timer_NewPlayerAutoJoinTeam(Handle timer, int userid)
 	return Plugin_Continue;
 }
 
-public Action Timer_KickNoNeededBot(Handle timer, int botid)
+Action Timer_KickNoNeededBot(Handle timer, int botid)
 {
 	int botclient = GetClientOfUserId(botid);
 
@@ -954,7 +957,7 @@ public Action Timer_KickNoNeededBot(Handle timer, int botid)
 	
 	if(botclient && IsClientInGame(botclient) && IsFakeClient(botclient) && GetClientTeam(botclient) == TEAM_SURVIVORS)
 	{
-		if(!IsAlive(botclient) || !HasIdlePlayer(botclient))
+		if(!IsPlayerAlive(botclient) || !HasIdlePlayer(botclient))
 		{
 			if(g_bStripBotWeapons) StripWeapons(botclient);
 			KickClient(botclient, "Kicking No Needed Bot");
@@ -963,7 +966,7 @@ public Action Timer_KickNoNeededBot(Handle timer, int botid)
 	return Plugin_Continue;
 }
 
-public Action Timer_KickNoNeededBot2(Handle timer)
+Action Timer_KickNoNeededBot2(Handle timer)
 {
 	if((TotalSurvivors() <= iMaxSurvivors))
 		return Plugin_Continue;
@@ -981,7 +984,7 @@ public Action Timer_KickNoNeededBot2(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer, int client)
+Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer, int client)
 {
 	int team_count = TotalAliveSurvivors();
 	if(team_count < 4) return Plugin_Continue;
@@ -1082,7 +1085,7 @@ int TotalAliveFreeBots() // total bots (excl. IDLE players)
 	int kk = 0;
 	for(int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsAlive(i))
+		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsPlayerAlive(i))
 		{
 			if(!HasIdlePlayer(i))
 				kk++;
@@ -1096,7 +1099,7 @@ int TotalAliveSurvivors() // total alive survivors, including players
 	int kk = 0;
 	for(int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsAlive(i))
+		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsPlayerAlive(i))
 		{
 			kk++;
 		}
@@ -1196,7 +1199,7 @@ bool IsClientIdle(int client)
 	
 	for(int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsAlive(i))
+		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
 		{
 			if(HasEntProp(i, Prop_Send, "m_humanSpectatorUserID"))
 			{
@@ -1208,15 +1211,7 @@ bool IsClientIdle(int client)
 	return false;
 }
 
-bool IsAlive(int client)
-{
-	if(!GetEntProp(client, Prop_Send, "m_lifeState"))
-		return true;
-	
-	return false;
-}
-
-public Action Timer_PlayerLeftStart(Handle Timer)
+Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{	
@@ -1228,7 +1223,7 @@ public Action Timer_PlayerLeftStart(Handle Timer)
 	return Plugin_Continue;
 }
 
-public Action Timer_CountDown(Handle timer)
+Action Timer_CountDown(Handle timer)
 {
 	if(iCountDownTime <= 0) 
 	{
