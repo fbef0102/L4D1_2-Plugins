@@ -196,7 +196,7 @@
 	}
 	"Go Back Your Team"
 	{
-		"#format"		"{1:s}"
+		"#format"		"{1:t}"
 		"en"			"Go Back to {green}{1} {default}Team, Switching team is prohibited after survivors have left safe area!!"
 		"ru"			"Возвращайтесь в команду {green}{1}{default}, смена команды запрещена после того, как выжившие покинули безопасную зону!!"
 		"zho"			"請回到 {green}{1} {default}隊伍, 倖存者離開安全區域後{red}禁止跳隊{default}!!"
@@ -247,7 +247,7 @@
 		"en"			"Can not change team when you startle witch and witch is attacking you."
 		"ru"			"Невозможно сменить команду, когда вы напугали ведьму, а ведьма атакует вас."
 		"zho"			"Witch 干擾期間禁止換隊."
-		"chi"			"被 Witch 干扰了禁止换队"
+		"chi"			"被 Witch 干扰了禁止换队."
 	}
 	"Not gonna happen!"
 	{
@@ -255,5 +255,23 @@
 		"ru"			"Невозможно совершить самоубийство после вступления в команду выживших. Этого не произойдёт!"
 		"zho"			"加入隊伍短時間內禁止自殺. 不可能的任務!"
 		"chi"			"加入生还者后无法迅速自杀. 傻逼醒醒!"
+	}
+	"Can not change team while reloading weapon"
+	{
+		"en"			"Can not change team while reloading a weapon"
+		"zho"			"武器裝彈期間禁止換隊."
+		"chi"			"武器装弹期间禁止换队."
+	}
+	"Survivor"
+	{
+		"en"			"Survivor"
+		"zho"			"倖存者"
+		"chi"			"生还者"
+	}
+	"Infected"
+	{
+		"en"			"Infected"
+		"zho"			"特感"
+		"chi"			"感染者"
 	}
 }
