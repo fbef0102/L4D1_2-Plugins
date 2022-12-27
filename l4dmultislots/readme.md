@@ -31,6 +31,9 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.4 (2022-12-28)
+		* Fixed spawing incorrect numbers of extra kits when in start saferoom.
+
 	* v5.3 (2022-12-25)
 		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2715546&postcount=248)
 		* Remake Code.
