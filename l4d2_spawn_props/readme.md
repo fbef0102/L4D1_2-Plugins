@@ -40,6 +40,9 @@ English
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.9 (2023-1-5)
+        * Fixed Item Position Menu Error.
+
 	* v3.8 (2022-11-3)
         * Remake Code
         * Translation Support
