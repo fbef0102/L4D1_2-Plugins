@@ -6,7 +6,7 @@
 #include <left4dhooks>
 #include <multicolors>
 #define DEBUG 0
-#define GETVERSION "3.8"
+#define GETVERSION "3.9"
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -1442,15 +1442,15 @@ public int MenuHandler_ItemPosition(Menu menu, MenuAction action, int param1, in
 			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
 			if(strcmp(menucmd, "Weapons")== 0)
 			{
-				DisplayVehiclesMenu(param1);
+				DisplayWeaponsMenu(param1);
 			}
 			else if(strcmp(menucmd, "Melees")== 0)
 			{
-				DisplayFoliageMenu(param1);
+				DisplayMeleesMenu(param1);
 			}
 			else if(strcmp(menucmd, "Items")== 0)
 			{
-				DisplayInteriorMenu(param1);
+				DisplayItemsMenu(param1);
 			}
 			else if(strcmp(menucmd, "Others")== 0)
 			{
@@ -3743,7 +3743,6 @@ int FindObjectYouAreLooking(int client, bool bSpawned = true)
 			return TR_GetEntityIndex(null);
 		}
 	}
-
 
 	return 0;
 }
