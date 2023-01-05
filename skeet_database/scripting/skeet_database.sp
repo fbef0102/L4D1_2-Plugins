@@ -556,7 +556,7 @@ void PrintStats()
 	int frags;
 	int skeetscount;
 	int shoved;
-	for (int i=0;i <= survivor_index;++i)
+	for (int i=0;i < survivor_index;++i)
 	{
 		client = survivor_clients[i];
 		frags = Kills[client];
