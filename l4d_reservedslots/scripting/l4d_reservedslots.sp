@@ -75,10 +75,12 @@ public void OnAllPluginsLoaded()
         g_hHideSlots.AddChangeHook(ConVarChanged_Cvars);
 }
 
+bool bOnPluginEnd = false;
 public void OnPluginEnd()
 {
-	/* 	If the plugin has been unloaded, reset visiblemaxplayers. In the case of the server shutting down this effect will not be visible */
-	ResetVisibleMax();
+        bOnPluginEnd = true;
+        /* 	If the plugin has been unloaded, reset visiblemaxplayers. In the case of the server shutting down this effect will not be visible */
+        ResetVisibleMax();
 }
 
 public void OnMapStart()
@@ -99,6 +101,8 @@ public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char
 
 void GetCvars()
 {
+        if(bOnPluginEnd) return;
+        
         g_iMaxplayers = L4dtoolzExtension.IntValue;
         g_iCvarReservedSlots = g_hCvarReservedSlots.IntValue;
         g_hAccess.GetString(g_sAccessAcclvl, sizeof(g_sAccessAcclvl));
@@ -167,7 +171,7 @@ public bool IsServerFull(int client)
         return false;
 }
 
-public bool HasAccess(int client, const char[] g_sAcclvl)
+bool HasAccess(int client, const char[] g_sAcclvl)
 {
         // no permissions set
         if (strlen(g_sAcclvl) == 0)
