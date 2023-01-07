@@ -149,7 +149,7 @@ public void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	
 	static char WeaponName[CLASSNAME_LENGTH];
 	event.GetString("weapon", WeaponName, sizeof(WeaponName));
-	//PrintToChatAll("victim: %d,attacker:%d ,WeaponName is %s, damage is %d",victim,attacker,WeaponName,damage);	
+	//PrintToChatAll("victim: %N, attacker:%N ,WeaponName is %s, damage is %d",victim,attacker,WeaponName,damage);	
 	
 	bool bIsSpecialWeapon = false;
 	if(IsPipeBombExplode(WeaponName)) 
@@ -227,7 +227,7 @@ stock bool IsClientAndInGame(int client)
 
 stock bool IsFire(char[] classname)
 {
-	return StrEqual(classname, "inferno");
+	return strcmp(classname, "inferno") == 0 || strcmp(classname, "entityflame") == 0;
 } 
 
 stock bool IsPipeBombExplode(char[] classname)
