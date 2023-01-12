@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.4"
+#define PLUGIN_VERSION 				"5.5"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -37,7 +37,7 @@ ConVar hMaxSurvivors, hDeadBotTime, hSpecCheckInterval,
 	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons, hSpawnSurvivorsAtStart,
 	hGiveKitSafeRoom, hGiveKitFinalStart, hNoSecondChane, hCvar_InvincibleTime,
-	hCvar_JoinSurvivrMethod;
+	hCvar_JoinSurvivrMethod, survivor_respawn_with_guns;
 
 //value
 int iMaxSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
@@ -48,7 +48,7 @@ bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEn
 float g_fSpecCheckInterval, g_fInvincibleTime;
 Handle SpecCheckTimer, PlayerLeftStartTimer, CountDownTimer;
 float clinetSpawnGodTime[ MAXPLAYERS + 1 ];
-int g_iSurvivorTransition;
+int g_iSurvivorTransition, iOffiicalCvar_survivor_respawn_with_guns;
 
 StringMap g_hSteamIDs;
 
@@ -139,7 +139,10 @@ public void OnPluginStart()
 	{
 		SetFailState("Do not modify \"survivor_limit\" valve above 4, unload l4dmultislots.smx now!");
 	}
+	survivor_respawn_with_guns = FindConVar("survivor_respawn_with_guns");
+
 	g_hSurvivorLimit.AddChangeHook(ConVarChanged_SurvivorCvars);
+	survivor_respawn_with_guns.AddChangeHook(ConVarChanged_Cvars);
 
 	// Load translation
 	LoadTranslations("l4dmultislots.phrases");
@@ -354,6 +357,8 @@ void GetCvars()
 	g_bNoSecondChane = hNoSecondChane.BoolValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
 	g_iCvar_JoinSurvivrMethod = hCvar_JoinSurvivrMethod.IntValue;
+
+	iOffiicalCvar_survivor_respawn_with_guns = survivor_respawn_with_guns.IntValue;
 }
 
 ////////////////////////////////////
@@ -1518,16 +1523,23 @@ Action Timer_GiveRandomT1Weapon(Handle timer, int userid)
 	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client))
 	{
 		if(GetPlayerWeaponSlot(client, 0) != -1) return Plugin_Continue;
-		
-		int random;
-		if(g_bLeft4Dead2) random = GetRandomInt(1,4);
-		else random = GetRandomInt(1,2);
-		switch(random)
+
+		if(iOffiicalCvar_survivor_respawn_with_guns == 0) // 0: Just a pistol
 		{
-			case 1: BypassAndExecuteCommand(client, "give", "smg");
-			case 2: BypassAndExecuteCommand(client, "give", "pumpshotgun");
-			case 3: BypassAndExecuteCommand(client, "give", "smg_silenced");
-			case 4: BypassAndExecuteCommand(client, "give", "shotgun_chrome");
+			return Plugin_Continue;
+		}
+		else if(iOffiicalCvar_survivor_respawn_with_guns > 0) // 1: Downgrade of last primary weapon, 2: Last primary weapon.
+		{
+			int random;
+			if(g_bLeft4Dead2) random = GetRandomInt(1,4);
+			else random = GetRandomInt(1,2);
+			switch(random)
+			{
+				case 1: BypassAndExecuteCommand(client, "give", "smg");
+				case 2: BypassAndExecuteCommand(client, "give", "pumpshotgun");
+				case 3: BypassAndExecuteCommand(client, "give", "smg_silenced");
+				case 4: BypassAndExecuteCommand(client, "give", "shotgun_chrome");
+			}
 		}
 	}
 
