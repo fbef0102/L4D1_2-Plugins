@@ -31,6 +31,13 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.5 (2023-1-13)
+		* Support offical convar: 
+			```php
+			//0: Just a pistol, 1: Downgrade of last primary weapon, 2: Last primary weapon.
+			survivor_respawn_with_guns 1
+			```
+
 	* v5.4 (2022-12-28)
 		* Fixed spawing incorrect numbers of extra kits when in start saferoom.
 
