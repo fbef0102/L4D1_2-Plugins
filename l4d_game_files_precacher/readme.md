@@ -78,7 +78,7 @@ Precaches Game Files To Prevent Crashes. + Prevents late precache of specific mo
 	* <details><summary><b>何時會發生模型缺失的問題?</b></summary>
 
 		* 三方圖作者忘記載入模型，譬如沒有載入小刀模型卻在地圖上生成小刀
-		* 插件作者卻忘記載入模型，譬如安裝了不良的插件生成墮落生還者卻沒有載入墮落生還者的模型
+		* 插件作者忘記載入模型，譬如安裝了不良的插件生成墮落生還者卻沒有載入墮落生還者的模型
 		* 錯誤的模型或不存在，小刀的模型使用空白或不存在的檔案 (地圖出現Error)
 		![l4d_game_files_precacher_2](image/l4d_game_files_precacher_2.jpg)
 		* 在[The passing官方地圖第一關](https://youtu.be/WvtBeYD6i24?t=88)當中，強制用作弊代碼生成witch會導致崩潰，原因是該關卡只有新娘Witch模型沒有普通的Witch模型(2019年大更新已修正) 
