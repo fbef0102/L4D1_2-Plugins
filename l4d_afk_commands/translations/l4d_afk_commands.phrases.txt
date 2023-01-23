@@ -1,4 +1,4 @@
-﻿"Phrases"
+"Phrases"
 {
 	"Usage: sm_swapto"
 	{
@@ -241,6 +241,7 @@
 		"ru"			"У вас нет доступа, чтобы быть наблюдателем."
 		"zho"			"你沒有權限成為觀察者."
 		"chi"			"你没有权限成为观察者."
+		"hu"			"Neked nincs hozzáférésed ahhoz, hogy megfigyelő legyél."
 	}
 	"Witch Attack Block"
 	{
@@ -248,6 +249,7 @@
 		"ru"			"Невозможно сменить команду, когда вы напугали ведьму, а ведьма атакует вас."
 		"zho"			"Witch 干擾期間禁止換隊."
 		"chi"			"被 Witch 干扰了禁止换队."
+		"hu"			"Nem tudsz csapatot váltani, ha megijeszted a boszorkányt, és az éppen rád támad."
 	}
 	"Not gonna happen!"
 	{
@@ -255,23 +257,27 @@
 		"ru"			"Невозможно совершить самоубийство после вступления в команду выживших. Этого не произойдёт!"
 		"zho"			"加入隊伍短時間內禁止自殺. 不可能的任務!"
 		"chi"			"加入生还者后无法迅速自杀. 傻逼醒醒!"
+		"hu"			"Nem tudsz gyorsan öngyilkos lenni, miután csatlakoztál a túlélő csapathoz. Nem fog megtörténni!"
 	}
 	"Can not change team while reloading weapon"
 	{
 		"en"			"Can not change team while reloading a weapon"
 		"zho"			"武器裝彈期間禁止換隊."
 		"chi"			"武器装弹期间禁止换队."
+		"hu"			"Nem lehet csapatot váltani fegyver újra töltés közben."
 	}
 	"Survivor"
 	{
 		"en"			"Survivor"
 		"zho"			"倖存者"
 		"chi"			"生还者"
+		"hu"			"Túlélő"		
 	}
 	"Infected"
 	{
 		"en"			"Infected"
 		"zho"			"特感"
 		"chi"			"感染者"
+		"hu"			"Fertőzött"		
 	}
 }
