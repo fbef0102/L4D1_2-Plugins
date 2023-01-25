@@ -491,6 +491,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		Special Infected can't spawn sometimes, and server console spamming message
 		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
+		* Reason: It means that the game can not find a position to spawn speical infected, usually happen when director stops spawning speical infected (C1m4 before evelator) or NAV problem (can't find any valid nav area to spawn infected near survivors)
 
 		* I can't do anything about the nav pathfinding, only Valve or map authors can handle nav problem.
 		* Recommand to install [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)
