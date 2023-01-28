@@ -9,11 +9,16 @@
 #define CLASSNAME_WEAPON_COLA         "weapon_cola_bottles"
 #define CVAR_FLAGS			FCVAR_NOTIFY
 
-ConVar g_hCvar_ClearWeaponTime, g_hCvar_ClearUpradeGroundPackTime, g_hCvar_ClearGnome, g_hCvar_ClearCola;
+#define MODEL_TONFA "models/weapons/melee/w_tonfa.mdl"
+
+ConVar g_hCvar_ClearSurvivorWeaponTime, g_hCvar_ClearInfectedWeaponTime,
+	g_hCvar_ClearUpradeGroundPackTime, g_hCvar_ClearGnome, g_hCvar_ClearCola;
 
 Handle g_ItemDeleteTimer[MAXENTITIES];
-int g_iClearWeaponTime, g_iUpradeGroundPack_Time;
+float g_fClearSurvivorWeaponTime, g_fClearInfectedWeaponTime;
+float g_fUpradeGroundPack_Time;
 bool g_bL4D2Version, g_bClearGnome, g_bClearCola;
+int g_iModel_Tonfa;
 
 static char upgradegroundpack[][] =
 {
@@ -61,9 +66,9 @@ static char ItemDeleteList[][] =
 
 public Plugin myinfo = 
 {
-	name = "Remove drop weapon + remove upgradepack when used",
-	author = "AK978 & HarryPotter",
-	version = "2.9"
+	name = "Remove drop weapon + remove upgrade pack when deployed",
+	author = "AK978, HarryPotter",
+	version = "3.0"
 }
 
 bool bLate;
@@ -100,17 +105,19 @@ public int Native_Timer_Delete_Weapon(Handle plugin, int numParams)
 
 public void OnPluginStart()
 {
-	g_hCvar_ClearWeaponTime = CreateConVar("sm_drop_clear_weapon_time", "60", "Time in seconds to remove weapon after drops. (0=off)", CVAR_FLAGS, true, 0.0);
+	g_hCvar_ClearSurvivorWeaponTime = CreateConVar("sm_drop_clear_survivor_weapon_time", "60", "Time in seconds to remove weapon after dropped by survivor. (0=off)", CVAR_FLAGS, true, 0.0);
 	if (g_bL4D2Version){
-		g_hCvar_ClearUpradeGroundPackTime = CreateConVar("sm_drop_clear_ground_upgrade_pack_time", "60", "Time in seconds to remove upgradepack on the ground after used. (0=off)", CVAR_FLAGS, true, 0.0);
-		g_hCvar_ClearGnome = CreateConVar("sm_drop_clear_weapon_gnome", "0", "If 1, remove gnome after drops.", CVAR_FLAGS, true, 0.0);
-		g_hCvar_ClearCola = CreateConVar("sm_drop_clear_weapon_cola_bottles", "0", "If 1, remove cola bottles after drops.", CVAR_FLAGS, true, 0.0);
+		g_hCvar_ClearInfectedWeaponTime = CreateConVar("sm_drop_clear_infected_weapon_time", "180", "Time in seconds to remove weapon after dropped by uncommon infected. (0=off)", CVAR_FLAGS, true, 0.0);
+		g_hCvar_ClearUpradeGroundPackTime = CreateConVar("sm_drop_clear_ground_upgrade_pack_time", "60", "Time in seconds to remove upgrade pack after deployed on the ground. (0=off)", CVAR_FLAGS, true, 0.0);
+		g_hCvar_ClearGnome = CreateConVar("sm_drop_clear_survivor_weapon_gnome", "0", "If 1, remove gnome after dropped by survivor.", CVAR_FLAGS, true, 0.0);
+		g_hCvar_ClearCola = CreateConVar("sm_drop_clear_survivor_weapon_cola_bottles", "0", "If 1, remove cola bottles after dropped by survivor.", CVAR_FLAGS, true, 0.0);
 	}
 	
 	GetCvars();
-	g_hCvar_ClearWeaponTime.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvar_ClearSurvivorWeaponTime.AddChangeHook(ConVarChanged_Cvars);
 	if(g_bL4D2Version)
 	{
+		g_hCvar_ClearInfectedWeaponTime.AddChangeHook(ConVarChanged_Cvars);
 		g_hCvar_ClearUpradeGroundPackTime.AddChangeHook(ConVarChanged_Cvars);
 		g_hCvar_ClearGnome.AddChangeHook(ConVarChanged_Cvars);
 		g_hCvar_ClearCola.AddChangeHook(ConVarChanged_Cvars);
@@ -146,13 +153,20 @@ public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char
 
 void GetCvars()
 {
-	g_iClearWeaponTime = g_hCvar_ClearWeaponTime.IntValue;
+	g_fClearSurvivorWeaponTime = g_hCvar_ClearSurvivorWeaponTime.FloatValue;
 	if(g_bL4D2Version)
 	{
-		g_iUpradeGroundPack_Time = g_hCvar_ClearUpradeGroundPackTime.IntValue;
+		g_fClearInfectedWeaponTime = g_hCvar_ClearInfectedWeaponTime.FloatValue;
+		g_fUpradeGroundPack_Time = g_hCvar_ClearUpradeGroundPackTime.FloatValue;
 		g_bClearGnome = g_hCvar_ClearGnome.BoolValue;
 		g_bClearCola = g_hCvar_ClearCola.BoolValue;
 	}
+}
+
+
+public void OnMapStart()
+{	
+	g_iModel_Tonfa = PrecacheModel(MODEL_TONFA, true);
 }
 
 bool g_bConfigLoaded;
@@ -181,6 +195,26 @@ public void OnEntityCreated(int entity, const char[] classname)
 		return;
 
 	delete g_ItemDeleteTimer[entity];
+
+	if(g_bL4D2Version && g_fClearInfectedWeaponTime > 0.0)
+	{
+		switch (classname[0])
+		{
+			case 'w':
+			{
+				if (StrEqual(classname, "weapon_molotov") ||
+					StrEqual(classname, "weapon_pipe_bomb") ||
+					StrEqual(classname, "weapon_vomitjar") ||
+					StrEqual(classname, "weapon_pain_pills") ||
+					StrEqual(classname, "weapon_adrenaline") ||
+					StrEqual(classname, "weapon_first_aid_kit") ||
+					StrEqual(classname, "weapon_melee") )
+				{
+					SDKHook(entity, SDKHook_SpawnPost, OnSpawnPost);
+				}
+			}
+		}
+	}
 }
 
 public void OnEntityDestroyed(int entity)
@@ -193,7 +227,7 @@ public void OnEntityDestroyed(int entity)
 
 public void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_iClearWeaponTime == 0) return;
+	if (g_fClearSurvivorWeaponTime == 0.0) return;
 	
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!IsValidClient(client) || GetClientTeam(client) != 2) return;
@@ -209,7 +243,7 @@ public void Event_Round_End(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_iUpradeGroundPack_Time == 0) return;
+	if (g_fUpradeGroundPack_Time == 0.0) return;
 	
 	int entity = event.GetInt("upgradeid");
 	if (!IsValidEntityIndex(entity)) return;
@@ -217,7 +251,7 @@ public void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast
 	if(Is_UpgradeGroundPack(entity, upgradegroundpack, sizeof(upgradegroundpack)))
 	{	
 		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(float(g_iUpradeGroundPack_Time), Timer_KillGroundPackEntity, entity);
+		g_ItemDeleteTimer[entity] = CreateTimer(g_fUpradeGroundPack_Time, Timer_KillGroundPackEntity, entity);
 	}
 }
 
@@ -336,7 +370,7 @@ void SetTimer_DeleteWeapon(int entity)
 			strcmp(m_ModelName,"models/props_junk/propanecanister001a.mdl") == 0 )
 		{
 			delete g_ItemDeleteTimer[entity];
-			g_ItemDeleteTimer[entity] = CreateTimer(float(g_iClearWeaponTime), Timer_KillWeapon, entity);
+			g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, entity);
 			return;
 		}
 
@@ -347,7 +381,7 @@ void SetTimer_DeleteWeapon(int entity)
 		if (StrContains(item, ItemDeleteList[j], false) != -1)
 		{
 			delete g_ItemDeleteTimer[entity];
-			g_ItemDeleteTimer[entity] = CreateTimer(float(g_iClearWeaponTime), Timer_KillWeapon, entity);
+			g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, entity);
 			return;
 		}
 	}
@@ -356,7 +390,7 @@ void SetTimer_DeleteWeapon(int entity)
 		(g_bClearCola && strcmp(item, CLASSNAME_WEAPON_COLA) == 0) )
 	{
 		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(float(g_iClearWeaponTime), Timer_KillWeapon, entity);
+		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, entity);
 	}
 }
 
@@ -388,4 +422,36 @@ public void OnWeaponEquipPost(int client, int weapon)
 
 	//PrintToChatAll("%N OnWeaponEquipPost %d", client, weapon);
 	delete g_ItemDeleteTimer[weapon];
+}
+
+void OnSpawnPost(int entity)
+{
+    if ( entity <= MaxClients || !IsValidEntity(entity) ) return;
+
+    RequestFrame(OnNextFrame, EntIndexToEntRef(entity));
+}
+
+void OnNextFrame(int entityRef)
+{
+	int weapon = EntRefToEntIndex(entityRef);
+
+	if (weapon == INVALID_ENT_REFERENCE)
+		return;
+
+	if (HasEntProp(weapon, Prop_Send, "m_DroppedByInfectedGender"))
+	{
+		if(GetEntProp(weapon, Prop_Send, "m_DroppedByInfectedGender") > 0) //Dropped By Uncommon Infected
+		{
+			delete g_ItemDeleteTimer[weapon];
+			g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, weapon);
+			return;
+		}
+	}
+
+	int modelIndex = GetEntProp(weapon, Prop_Send, "m_nModelIndex");
+	if(modelIndex == g_iModel_Tonfa) //警棍
+	{
+		delete g_ItemDeleteTimer[weapon];
+		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, weapon);
+	}
 }
