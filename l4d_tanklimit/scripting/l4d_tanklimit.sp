@@ -14,7 +14,7 @@ public Plugin myinfo =
 	author = "Harry Potter",
 	description = "limit tank in server",
 	version = "1.2",
-	url = "https://steamcommunity.com/id/fbef0102/"
+	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -49,7 +49,7 @@ public void OnPluginStart()
 	AutoExecConfig(true, "l4d_tanklimit");
 }
 
-public Action PD_ev_TankSpawn(Event event, const char[] name, bool dontBroadcast) 
+public void PD_ev_TankSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!IsClientInGame(client) || !IsFakeClient(client)) return;
@@ -80,6 +80,8 @@ public Action CheckAndKickTank(Handle timer,any client)
 			KickClient(client);
 		}
 	}
+
+	return Plugin_Continue;
 }
 public void Limit_CvarChange(ConVar convar, const char[] oldValue, const char[] newValue)
 {

@@ -37,10 +37,10 @@ public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char
 
 public Action CheckClients(Handle timer)
 {
-    for (int client = 1; client <= MaxClients; client++)
-    {
-        if (IsClientInGame(client) && !IsFakeClient(client))
-        {
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && !IsFakeClient(client))
+		{
 			QueryClientConVar(client, "mat_texture_list", ClientQueryCallback);
 			QueryClientConVar(client, "mat_queue_mode", ClientQueryCallback_AntiVomit);
 			QueryClientConVar(client, "mat_hdr_level", ClientQueryCallback_HDRLevel);
@@ -50,14 +50,16 @@ public Action CheckClients(Handle timer)
 			QueryClientConVar(client, "l4d_bhop_autostrafe", ClientQueryCallback_l4d_bhop_autostrafe); //ban auto bhop from dll
 			QueryClientConVar(client, "cl_fov", ClientQueryCallback_cl_fov);
 		}
-    }	
+	}	
+
+	return Plugin_Continue;
 }
 
 public void ClientQueryCallback(QueryCookie cookie,  int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
 {
 	if(!IsClientInGame(client)) return;
 
-	switch (result)
+	switch (view_as<int>(result))
 	{
 		case 0:
 		{
