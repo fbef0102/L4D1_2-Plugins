@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/1/7)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/2)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -56,7 +56,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
 * <b>[witch_target_override](/witch_target_override)</b>: Change target when the witch incapacitates or kills victim + witch auto follow survivors
 * <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
-* <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
@@ -91,6 +90,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_lasertag](/l4d_lasertag)</b>: Shows a laser for straight-flying fired projectiles
 * <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde?
 * <b>[tank_witch_spawn_notify](/tank_witch_spawn_notify)</b>: When the tank and witch spawns, it announces itself in chat by making a sound
+* <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
+    * 擊殺殭屍與特殊感染者統計
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
