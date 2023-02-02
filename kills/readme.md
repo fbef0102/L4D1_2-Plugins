@@ -57,3 +57,6 @@ Show statistics of surviviors (kill S.I, C.I. and FF)on round end
 * 原理
     * 滅團時顯示統計
     * 過關時顯示統計
+    
+* 原理
+    * 也可以在聊天室視窗輸入!kills顯示統計
