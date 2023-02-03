@@ -78,7 +78,7 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 		// How to join the game for new player.
 		// 0: Old method. Spawn an alive bot first -> new player takes over.
 		// 1: Switch new player to survivor team (dead state) -> player respawns.
-		l4d_multislots_join_survior_method "1"
+		l4d_multislots_join_survior_method "0"
 
 		// When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)
 		l4d_multislots_alive_bot_time "0"
