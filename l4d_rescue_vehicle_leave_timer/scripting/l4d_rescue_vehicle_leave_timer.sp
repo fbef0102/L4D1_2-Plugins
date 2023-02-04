@@ -142,6 +142,8 @@ public void OnPluginStart()
 	g_hCvarModes.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesOff.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
+
+	GetCvars();
 	g_hCvarAnnounceType.AddChangeHook(ConVarChanged_Cvars);
 }
 
@@ -467,7 +469,7 @@ public Action Timer_Strike(Handle timer)
 	float radius = 1.0, pos[3];
 	for( int i = 1; i <= MaxClients; i++ ) 
 	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
 		{
 			//fade
 			CreateTimer(0.1, Timer_FadeOut, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
