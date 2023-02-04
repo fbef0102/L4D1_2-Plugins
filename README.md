@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/2)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/4)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -37,7 +37,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[hp_tank_show](/hp_tank_show)</b>: Display Tank HP status on his head.
 * <b>[TickrateFixes](/TickrateFixes)</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
-* <b>[clear_weapon_drop](/clear_weapon_drop)</b>: Remove drop weapon + remove upgradepack when used
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
 * <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
 * <b>[l4d_votes_5](/l4d_votes_5)</b>: L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
@@ -53,7 +52,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_rescue_vehicle_leave_timer](/l4d_rescue_vehicle_leave_timer)</b>: When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
 * <b>[helpmenu](/helpmenu)</b>: In-game Help Menu (Support Translation)
 * <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
-* <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
 * <b>[witch_target_override](/witch_target_override)</b>: Change target when the witch incapacitates or kills victim + witch auto follow survivors
 * <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
@@ -92,6 +90,10 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[tank_witch_spawn_notify](/tank_witch_spawn_notify)</b>: When the tank and witch spawns, it announces itself in chat by making a sound
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
+* <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
+    * 開服只執行一次的cfg檔案
+* <b>[clear_weapon_drop](/clear_weapon_drop)</b>: Remove drop weapon + remove upgradepack when used
+    * 如果一段時間後沒有人撿起掉落的武器與物品，則自動移除
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
