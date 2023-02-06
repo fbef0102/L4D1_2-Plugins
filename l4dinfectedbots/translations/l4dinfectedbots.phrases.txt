@@ -79,8 +79,8 @@
 		"#format"		"{1:d}"
 		"en"			"Special Infected Limit has been changed to {1}"
 		"ru"			"Лимит особых заражённых был изменён на {1}"
-		"chi"			"特感數量上限已改成 {1}"
-		"zho"			"特感数量上限已改成 {1}"
+		"zho"			"特感數量上限已改成 {1}"
+		"chi"			"特感数量上限已改成 {1}"
 	}
 	"Current status1"
 	{
