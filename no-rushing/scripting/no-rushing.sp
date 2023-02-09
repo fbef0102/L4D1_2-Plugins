@@ -4,9 +4,9 @@
 
 #define MAX_ENTITIES 2048
 
-#define PLUGIN_VERSION "1.6"
+#define PLUGIN_VERSION "1.7"
 
-#define PLUGIN_NAME "Ready Up Module: No Rushing"
+#define PLUGIN_NAME "No Rushing"
 #define PLUGIN_DESCRIPTION "Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates."
 #define CONFIG_MAPS "configs/norushing"
 #define CVAR_SHOW FCVAR_NOTIFY
@@ -24,10 +24,8 @@ public Plugin myinfo =
 	author = "cravenge & Harry",
 	description = PLUGIN_DESCRIPTION,
 	version = PLUGIN_VERSION,
-	url = "https://steamcommunity.com/id/fbef0102/"
+	url = "https://steamcommunity.com/profiles/76561198026784913"
 };
-
-int GameMode; //1:coop/realism, 2:versus, 3:survival
 
 bool b_LeftSaveRoom = false;
 bool DistanceWarning[MAXPLAYERS+1];
@@ -57,19 +55,19 @@ int i_InfractionResult;
 int g_iPlayerSpawn, g_iRoundStart;
 Handle PlayerLeftStartTimer = null;
 Handle DistanceCheckTimer = null;
-bool bL4D2Version;
 
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 	
 	if( test == Engine_Left4Dead )
 	{
-		bL4D2Version = false;
+		g_bL4D2Version = false;
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
-		bL4D2Version = true;
+		g_bL4D2Version = true;
 	}
 	else
 	{
@@ -82,14 +80,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	GameCheck();
-	
 	CreateConVar("no-rushing_version", PLUGIN_VERSION, "No Rushing Version", FCVAR_SPONLY);
 	h_InfractionLimit = CreateConVar("l4d_rushing_limit", "2", "Maximum rushing limits", FCVAR_SPONLY);
 	h_SurvivorsRequired = CreateConVar("l4d_rushing_require_survivors", "3", "Minimum number of alive survivors before No-Rushing function works. Must be 3 or greater.", FCVAR_SPONLY);
 	h_IgnoreIncapacitated = CreateConVar("l4d_rushing_ignore_incapacitated", "0", "Ignore Incapacitated Survivors?", FCVAR_SPONLY,true, 0.0, true, 1.0);
 	h_IgnoreStraggler = CreateConVar("l4d_rushing_ignore_lagging", "0", "Ignore lagging or lost players behind?", FCVAR_SPONLY,true, 0.0, true, 1.0);
 	h_InfractionResult = CreateConVar("l4d_rushing_action_rushers", "1", "Modes: 0=Teleport only, 1=Teleport and kill after reaching limits, 2=Teleport and kick after reaching limits.", FCVAR_SPONLY,true, 0.0, true, 2.0);
+	AutoExecConfig(true, "no-rushing");
+
 	i_InfractionLimit = h_InfractionLimit.IntValue;
 	i_SurvivorsRequired = h_SurvivorsRequired.IntValue;
 	i_IgnoreIncapacitated = h_IgnoreIncapacitated.IntValue;
@@ -111,15 +109,13 @@ public void OnPluginStart()
 	HookEvent("map_transition", OnFunctionEnd);
 	HookEvent("mission_lost", OnFunctionEnd);
 	HookEvent("finale_win", OnFunctionEnd);
-	HookEvent("scavenge_round_finished", OnFunctionEnd);
+	if(g_bL4D2Version) HookEvent("scavenge_round_finished", OnFunctionEnd);
 	HookEvent("player_spawn",		Event_PlayerSpawn,	EventHookMode_PostNoCopy);
 	
 	LoadTranslations("common.phrases");
 	LoadTranslations("norushing.phrases");
 	
 	CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
-	
-	AutoExecConfig(true, "no-rushing");
 }
 
 public void OnPluginEnd()
@@ -128,31 +124,9 @@ public void OnPluginEnd()
 	ResetTimer();
 }
 
-void GameCheck()
-{
-	char gameMode[16];
-	GetConVarString(FindConVar("mp_gamemode"), gameMode, sizeof(gameMode));
-	if (StrEqual(gameMode, "survival", false))
-	{
-		GameMode = 3;
-	}
-	else if (StrEqual(gameMode, "versus", false) || StrEqual(gameMode, "teamversus", false) || StrEqual(gameMode, "scavenge", false) || StrEqual(gameMode, "teamscavenge", false))
-	{
-		GameMode = 2;
-	}
-	else if (StrEqual(gameMode, "coop", false) || StrEqual(gameMode, "realism", false))
-	{
-		GameMode = 1;
-	}
-	else
-	{
-		GameMode = 0;
- 	}
-}
-
 public void OnConfigsExecuted()
 {
-	if (GameMode != 3)
+	if (L4D_GetGameModeType() != GAMEMODE_SURVIVAL)
 	{
 		g_NoticeDistance = 0.0;
 		g_WarningDistance = 0.0;
@@ -197,7 +171,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	g_iPlayerSpawn = 1;
 }
 
-public Action OnFunctionStart(Event event, const char[] name, bool dontBroadcast)
+public void OnFunctionStart(Event event, const char[] name, bool dontBroadcast)
 {
 	b_LeftSaveRoom = false;
 	for (int i = 1; i <= MaxClients; i++)
@@ -218,27 +192,27 @@ public Action tmrStart(Handle timer)
 {
 	g_MapFlowDistance = L4D2Direct_GetMapMaxFlowDistance();
 	ResetPlugin();
-	if (GameMode != 3)
+	if (L4D_GetGameModeType() != GAMEMODE_SURVIVAL)
 	{
 		if(PlayerLeftStartTimer == null) CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
 	}
+
+	return Plugin_Continue;
 }
 
-public Action OnFunctionEnd(Event event, const char[] name, bool dontBroadcast)
+public void OnFunctionEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
 	ResetTimer();
-	if (GameMode != 3)
+
+	b_LeftSaveRoom = false;
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		b_LeftSaveRoom = false;
-		for (int i = 1; i <= MaxClients; i++)
+		if (IsClientConnected(i) && IsClientInGame(i))
 		{
-			if (IsClientConnected(i) && IsClientInGame(i))
-			{
-				DistanceWarning[i] = false;
-				g_WarningCounter[i] = 0;
-				IsLagging[i] = false;
-			}
+			DistanceWarning[i] = false;
+			g_WarningCounter[i] = 0;
+			IsLagging[i] = false;
 		}
 	}
 }
@@ -479,27 +453,27 @@ bool IsClientDown(int client)
 	return false;
 }
 
-public ConVarInfractionLimit(ConVar convar, const char[] oldValue, const char[] newValue)
+public void ConVarInfractionLimit(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_InfractionLimit = h_InfractionLimit.IntValue;
 }
 
-public ConVarSurvivorsRequired(ConVar convar, const char[] oldValue, const char[] newValue)
+public void ConVarSurvivorsRequired(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_SurvivorsRequired = h_SurvivorsRequired.IntValue;
 }
 
-public ConVarIgnoreIncapacitated(ConVar convar, const char[] oldValue, const char[] newValue)
+public void ConVarIgnoreIncapacitated(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_IgnoreIncapacitated = h_IgnoreIncapacitated.IntValue;
 }
 
-public ConVarIgnoreStraggler(ConVar convar, const char[] oldValue, const char[] newValue)
+public void ConVarIgnoreStraggler(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_IgnoreStraggler = h_IgnoreStraggler.IntValue;
 }
 
-public ConVarInfractionResult(ConVar convar, const char[] oldValue, const char[] newValue)
+public void ConVarInfractionResult(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_InfractionResult = h_InfractionResult.IntValue;
 }
@@ -572,7 +546,7 @@ stock int GetInfectedAttacker(int client)
 {
 	int attacker;
 
-	if(bL4D2Version)
+	if(g_bL4D2Version)
 	{
 		/* Charger */
 		attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
