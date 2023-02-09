@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/4)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/10)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -41,7 +41,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
 * <b>[l4d_votes_5](/l4d_votes_5)</b>: L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
-* <b>[no-rushing](/no-rushing)</b>: Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
 * <b>[l4d_meteor_hunter](/l4d_meteor_hunter)</b>: Hunter high pounces cause meteor strike
 * <b>[lfd_noTeamSay](/lfd_noTeamSay)</b>: Redirecting all 'say_team' messages to 'say'
@@ -94,6 +93,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 開服只執行一次的cfg檔案
 * <b>[clear_weapon_drop](/clear_weapon_drop)</b>: Remove drop weapon + remove upgradepack when used
     * 如果一段時間後沒有人撿起掉落的武器與物品，則自動移除
+* <b>[no-rushing](/no-rushing)</b>: Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
+    * 離隊伍太遠的玩家會傳送回隊伍之中
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
