@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.5"
+#define PLUGIN_VERSION 				"5.6"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -49,6 +49,7 @@ float g_fSpecCheckInterval, g_fInvincibleTime;
 Handle SpecCheckTimer, PlayerLeftStartTimer, CountDownTimer;
 float clinetSpawnGodTime[ MAXPLAYERS + 1 ];
 int g_iSurvivorTransition, iOffiicalCvar_survivor_respawn_with_guns;
+bool g_bIsObserver[ MAXPLAYERS + 1 ];
 
 StringMap g_hSteamIDs;
 
@@ -223,7 +224,8 @@ public void OnPluginStart()
 	HookEvent("finale_start", 			Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 	HookEvent("finale_radio_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 	if(g_bLeft4Dead2) HookEvent("gauntlet_finale_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
-	
+	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre); //換圖不會觸發該事件
+
 	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
 	// ======================================
@@ -394,10 +396,12 @@ public void OnClientPutInServer(int client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	
-	if(client && IsClientInGame(client) && !IsFakeClient(client))
+	if(client && IsClientInGame(client) && !IsFakeClient(client) && g_bIsObserver[client] == false)
 	{
 		CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
+
+	g_bIsObserver[client] = false;
 }
 
 public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast) 
@@ -599,6 +603,13 @@ public void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast
 	g_bFinalHasStarted = true;
 }
 
+public void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
+{
+    int client = GetClientOfUserId(event.GetInt("userid"));
+
+    g_bIsObserver[client] = false;
+}
+
 public void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 {
 	g_iSurvivorTransition = 0;
@@ -610,9 +621,13 @@ Action Timer_Event_MapTransition(Handle timer)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2)
+		if (IsClientInGame(client) && !IsFakeClient(client))
 		{
-			g_iSurvivorTransition++;
+			if(GetClientTeam(client) == 2) g_iSurvivorTransition++;
+			else if(GetClientTeam(client) == 1 && !IsClientIdle(client))
+			{
+				g_bIsObserver[client] = true;
+			}
 		}
 	}
 
@@ -1151,7 +1166,7 @@ bool SpawnFakeClient(bool bAdmBot = false)
 	return false;
 }
 
-public void OnNextFrame(DataPack hPack)
+void OnNextFrame(DataPack hPack)
 {
 	float nPos[3];
 	hPack.Reset();
