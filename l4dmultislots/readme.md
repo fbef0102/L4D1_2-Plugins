@@ -31,6 +31,9 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.6 (2023-2-18)
+		* Observer(not idle) always stay Observer after map map_transition.
+
 	* v5.5 (2023-1-13)
 		* Support offical convar: 
 			```php
