@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/18)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/19)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -18,7 +18,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Show what mode is it now on server name(support any Language) with txt file.
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
 * <b>[l4dffannounce](/l4dffannounce)</b>: Adds Friendly Fire Announcements (who kills teammates).
-* <b>[savechat](/savechat)</b>: Records player chat messages to a file.
 * <b>[l4d_MusicMapStart](/l4d_MusicMapStart)</b>: Download and play one random music on map start/round start.
 * <b>[map-decals](/map-decals)</b>: Allows admins to place any decals into the map that are defined in the the config and save them permanently for each map.
 * <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
@@ -96,6 +95,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 離隊伍太遠的玩家會傳送回隊伍之中
 * <b>[l4dmultislots](/l4dmultislots)</b>: Allows additional survivor players in coop/survival/realism when 5+ player joins the server
     * 創造5位以上倖存者遊玩伺服器
+* <b>[savechat](/savechat)</b>: Records player chat messages to a file.
+    * 紀錄玩家的聊天紀錄到文件裡
     
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
