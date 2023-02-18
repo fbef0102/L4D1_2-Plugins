@@ -9,12 +9,15 @@ Records player chat messages to a file
 
 
 * Apply to | 適用於
-```
-L4D1
-L4D2
-```
+    ```
+    L4D1
+    L4D2
+    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.7 (2023-2-19)
+        * Record comamnds
 
 	* v1.6
         * Remake code
@@ -31,8 +34,11 @@ L4D2
 
 	* cfg\sourcemod\savechat.cfg
 		```php
-        // Record player Steam ID and IP address
-        sc_record_detail "1"
+        // If 1, Record and save console commands.
+        savechat_cosole_command "1"
+
+        // 0=Plugin off, 1=Plugin on.
+        savechat_enable "1"
 		```
 </details>
 
@@ -42,9 +48,9 @@ L4D2
 </details>
 
 * Save Chat File
-    * left4dead\addons\sourcemod\logs\chat\server_xxxxx_chat_yyyy_mm_dd.txt
+    * left4dead\addons\sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt
         * ```xxxxx``` is server port
-        * ```yyyy``` is year
+        * ```yy``` is year
         * ```mm``` is month
         * ```dd``` is day
 
@@ -54,21 +60,20 @@ L4D2
 
 * 原理
     * 當伺服器內玩家打字聊天時，將記錄玩家的對話到文件裡
-    * 拿來抓鬼、看誰他馬講管理員壞話或抱怨伺服器
+    * 當伺服器內玩家在遊戲控制台輸入指令時，將記錄指令到文件裡
+
+* 用意在哪?
+    * 拿來抓鬼、看誰他馬在講管理員壞話或抱怨伺服器
     * 當玩家有吵架或比賽作弊爭議時，方便有證據檢舉
+    * 看哪個混帳在控制台輸入指令導致伺服器崩潰或卡頓
 
 * 功能
     * 會記錄玩家對話當下的IP、時間、Steam ID
+    * 會記錄玩家在遊戲控制台輸入的指令
 
 * Save Chat　文件
-	* left4dead\addons\sourcemod\logs\chat\server_xxxxx_chat_yyyy_mm_dd.txt
+	* left4dead\addons\sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt
         * ```xxxxx``` 是伺服器的端口，也就是port
-        * ```yyyy``` 是年份
+        * ```yy``` 是年份
         * ```mm``` 是月份
         * ```dd``` 是日期
-
-
-
-
-
-    
