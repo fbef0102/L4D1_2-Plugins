@@ -16,7 +16,7 @@ public Plugin myinfo =
 	author = "Harry Potter",
 	description = "Adm type !givehp to set survivor team full health",
 	version = PLUGIN_VERSION,
-	url = "https://steamcommunity.com/id/AkemiHomuraGoddess/"
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 bool L4D2Version = false;
@@ -53,7 +53,7 @@ public Action restore_hp(int client, int args){
 		return Plugin_Handled;
 	}
 	
-	for( int i = 1; i < MaxClients; i++ ) {
+	for( int i = 1; i <= MaxClients; i++ ) {
 		if (IsClientInGame(i) && GetClientTeam(i)==L4D_TEAM_SURVIVOR && IsPlayerAlive(i))
 			CheatCommand(i);
 	}
