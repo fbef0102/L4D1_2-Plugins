@@ -113,6 +113,7 @@ public Action COLD_DOWN(Handle timer, any client)
 	}
 	
 	LogMessage("Last one player left the server, Restart server now");
+	PrintToServer("Last one player left the server, Restart server now");
 
 	UnloadAccelerator();
 
@@ -129,6 +130,8 @@ Action Timer_RestartServer(Handle timer)
 
 	//SetCommandFlags("sv_crash", GetCommandFlags("sv_crash") &~ FCVAR_CHEAT);
 	//ServerCommand("sv_crash");//crash server, make linux auto restart server
+
+	return Plugin_Continue;
 }
 
 void UnloadAccelerator()
