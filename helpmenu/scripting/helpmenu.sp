@@ -415,7 +415,7 @@ int Help_MainMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
 				adminMenu.SetTitle(buf);
 				static char aname[64];
 
-				for (int i = 1; i < MaxClients; ++i) {
+				for (int i = 1; i <= MaxClients; ++i) {
 					// override helpmenu_admin to change who shows in menu
 					if (Client_IsValidHuman(i, true, false, true) && CheckCommandAccess(i, "helpmenu_admin", ADMFLAG_KICK)) {
 						GetClientName(i, aname, sizeof(aname));
