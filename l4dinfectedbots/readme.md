@@ -31,7 +31,11 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v2.7.8
+	```php
+	//mi123645 @ 2009-2011
+	//HarryPotter @ 2019-2023
+	```
+	* v2.7.8 (2023-2-20)
 		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369)
 		* ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2! (Thanks to [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [ProdigySim](https://github.com/ProdigySim/DirectInfectedSpawn)
 		* L4D1 Signature update. Credit to [Psykotikism](https://github.com/Psykotikism/L4D1-2_Signatures).

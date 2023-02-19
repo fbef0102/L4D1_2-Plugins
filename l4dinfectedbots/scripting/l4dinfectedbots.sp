@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.7.8 (2009-2022)
+* Version	: 2.7.8 (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -2006,13 +2006,13 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 }
 public Action Timer_PlayerLeftStart(Handle Timer)
 {
-	if( g_bCvarAllow == false || g_iCurrentMode == 3 )
+	if( g_bCvarAllow == false || g_iCurrentMode == 3 )//生存模式之下 always true
 	{
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
 	}
 
-	if (L4D_HasAnySurvivorLeftSafeArea() || g_bSafeSpawn) //生存模式之下 always true
+	if (L4D_HasAnySurvivorLeftSafeArea() || g_bSafeSpawn ) 
 	{
 		g_bLeftSaveRoom = true;
 		
@@ -2871,7 +2871,7 @@ public void OnClientDisconnect(int client)
 
 	if(g_bCvarAllow == false) return;
 
-	if(!IsFakeClient(client) && g_iCurrentMode != 2 && CheckRealPlayers_InSV() == false)
+	if(!IsFakeClient(client) && g_iCurrentMode != 2 && CheckRealPlayers_InSV(client) == false)
 	{
 		if (!g_bL4D2Version)
 		{
