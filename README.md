@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/19)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/20)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -36,7 +36,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[TickrateFixes](/TickrateFixes)</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
-* <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
 * <b>[l4d_votes_5](/l4d_votes_5)</b>: L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
@@ -97,6 +96,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 創造5位以上倖存者遊玩伺服器
 * <b>[savechat](/savechat)</b>: Records player chat messages to a file.
     * 紀錄玩家的聊天紀錄到文件裡
+* <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
+    * 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
     
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
