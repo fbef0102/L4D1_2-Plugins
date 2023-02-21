@@ -16,7 +16,11 @@ Executes cfg file on server startup
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.3 (2023-2-21)
+		* Support L4D1
+
 	* v1.2 (2023-2-4)
+		* Initial Release
 </details>
 
 * Require | 必要安裝
