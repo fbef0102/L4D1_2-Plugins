@@ -16,7 +16,7 @@ Records player chat messages to a file
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.7 (2023-2-19)
+	* v1.7 (2023-2-21)
         * Record comamnds
 
 	* v1.6

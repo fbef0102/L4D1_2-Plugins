@@ -155,7 +155,7 @@ public void OnClientPostAdminCheck(int client)
 	}
 	
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
-	FormatEx(msg, sizeof(msg), "[%s] (%s | %s) %-25N has joined",
+	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) %-25N has joined.",
 		time,
 		steamID,
 		playerIP,
@@ -190,7 +190,7 @@ public void event_PlayerDisconnect(Event event, const char[] name, bool dontBroa
 		}
 		
 		FormatTime(time, sizeof(time), "%H:%M:%S", -1);
-		FormatEx(msg, sizeof(msg), "[%s] (%s | %s) %-25N has left",
+		FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) %-25N has left.",
 			time,
 			steamID,
 			playerIP,
@@ -234,7 +234,7 @@ stock void LogChat(int client, int args, bool teamchat)
 	}
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
 
-	FormatEx(msg, sizeof(msg), "[%s] (%s | %-9s) [%s] %25N : %s%s",
+	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : %s%s",
 		time,
 		steamID,
 		playerIP,
@@ -258,6 +258,9 @@ stock void LogCommand(int client, int args)
 		strncmp(cmd, "vban", 4, false) == 0 || // join server check
 		strncmp(cmd, "choose_", 7, false) == 0 || // choose_opendoor / choose_closedoor
 		strncmp(cmd, "Vote", 4, false) == 0 || // Vote Yes / Vote No
+		strncmp(cmd, "achievement_", 12, false) == 0 || // achievement_earned x x
+		strncmp(cmd, "joingame", 8, false) == 0 || // joingame
+		strncmp(cmd, "demo", 4, false) == 0 || // demorestart
 		strncmp(cmd, "menuselect", 10, false) == 0 ) //menuselect 1~9
 	{
 		return;
@@ -290,7 +293,7 @@ stock void LogCommand(int client, int args)
 	}
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
 
-	FormatEx(msg, sizeof(msg), "[%s] (%s | %-9s) [%s] %25N : (CMD) %s %s",
+	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : (CMD) %s %s",
 		time,
 		steamID,
 		playerIP,
