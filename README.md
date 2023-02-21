@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/20)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/21)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -77,7 +77,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
 * <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
 * <b>[sm_l4d_mapchanger](/sm_l4d_mapchanger)</b>: Force change to next mission when current mission(final stage) end.
-* <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
 * <b>[sm_downloader](/sm_downloader)</b>: SM File/Folder Downloader and Precacher
 * <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
 * <b>[l4d_shotgun_sound_fix](/l4d_shotgun_sound_fix)</b>: Thirdpersonshoulder Shotgun Sound Fix
@@ -98,6 +97,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 紀錄玩家的聊天紀錄到文件裡
 * <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
     * 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
+* <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
     
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
