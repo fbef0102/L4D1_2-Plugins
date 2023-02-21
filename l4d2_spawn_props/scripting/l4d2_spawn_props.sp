@@ -6,7 +6,7 @@
 #include <left4dhooks>
 #include <multicolors>
 #define DEBUG 0
-#define GETVERSION "3.9"
+#define GETVERSION "4.0"
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -279,6 +279,9 @@ int g_iMeleesMenuPosition[MAXPLAYERS+1]		= {0};
 int g_iItemsMenuPosition[MAXPLAYERS+1]		= {0};
 int g_iOthersMenuPosition[MAXPLAYERS+1]		= {0};
 
+ConVar stripper_cfg_path;
+char g_sCvar_stripper_cfg_path[128];
+
 ConVar g_cvarPhysics;
 ConVar g_cvarDynamic;
 ConVar g_cvarStatic, g_cvarItem;
@@ -329,6 +332,13 @@ public void OnAllPluginsLoaded()
 	if( FindConVar("stripper_version") == null )
 	{
 		SetFailState("\n==========\nWarning: You should install \"Stripper:Source\" to spawn objects permanently to the map: http://www.bailopan.net/stripper/#install\n==========\n");
+	}
+
+	stripper_cfg_path = FindConVar("stripper_cfg_path");
+	if(stripper_cfg_path != null)
+	{
+		GetCvars();
+		stripper_cfg_path.AddChangeHook(ConVarChanged_Cvars);
 	}
 }
 
@@ -381,6 +391,18 @@ public void OnPluginStart()
 public void OnPluginEnd()
 {
 	delete g_smModelCount;
+}
+
+//-------------------------------Cvars-------------------------------
+
+public void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+	stripper_cfg_path.GetString(g_sCvar_stripper_cfg_path, sizeof(g_sCvar_stripper_cfg_path));
 }
 
 public Action CmdDebugProp(int client, int args)
@@ -2959,7 +2981,7 @@ void SaveMapStripper(int client)
 	char classname[256];
 	File file;
 	GetCurrentMap(map, sizeof(map));
-	BuildPath(Path_SM, FileName, sizeof(FileName), "../stripper/maps/%s.cfg", map);
+	BuildPath(Path_SM, FileName, sizeof(FileName), "../../%s/maps/%s.cfg", g_sCvar_stripper_cfg_path, map);
 	
 	if(FileExists(FileName))
 	{
@@ -3080,7 +3102,7 @@ void SaveMapStripper(int client)
 
 	FlushFile(file);
 	CloseHandle(file);
-	CPrintToChat(client, "{lightgreen}[TS] %T (addons/stripper/maps/%s.cfg)", "Succesfully saved the map data", client, map);
+	CPrintToChat(client, "{lightgreen}[TS] %T (%s/maps/%s.cfg)", "Succesfully saved the map data", client, g_sCvar_stripper_cfg_path, map);
 }
 
 public Action CmdRotate(int client, int args)
