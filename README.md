@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/21)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/24)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -98,7 +98,10 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
     * 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
 * <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
-    
+    * 創造屬於自己風格的地圖，製作迷宮與障礙物
+* <b>[l4d2_explosive_cars](/l4d2_explosive_cars)</b>: Cars explode after they take some damage
+    * 車子爆炸啦!
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
