@@ -99,7 +99,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
 * <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
     * 創造屬於自己風格的地圖，製作迷宮與障礙物
-* <b>[l4d2_explosive_cars](/l4d2_explosive_cars)</b>: Cars explode after they take some damage
+* <b>[l4d_explosive_cars](/l4d_explosive_cars)</b>: Cars explode after they take some damage
     * 車子爆炸啦!
 
 # Scripting Compiler
