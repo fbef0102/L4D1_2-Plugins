@@ -9,18 +9,18 @@ In-game Help Menu (Support Translation)
 	<br/>![helpmenu_1](image/helpmenu_1.jpg)
 
 * Apply to | 適用於
-```
-L4D1
-L4D2
-```
+	```
+	L4D1
+	L4D2
+	```
 
 * Translation Support | 支援翻譯
-```
-English
-繁體中文
-简体中文
-Russian
-```
+	```
+	English
+	繁體中文
+	简体中文
+	Russian
+	```
 
 
 * <details><summary>Changelog | 版本日誌</summary>
