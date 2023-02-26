@@ -5,9 +5,8 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 <br/>None
 
 * Image
-	* Cars Explosions
-		> 車子連環爆
-		<br/>![l4d_expertrealism_1](image/l4d_expertrealism_1.gif)
+	* No Glow + No Hud
+	<br/>![l4d_expertrealism_1](image/l4d_expertrealism_1.gif)
 
 * Apply to | 適用於
     ```
