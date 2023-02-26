@@ -5,26 +5,47 @@
 #include <sourcemod>
 #include <multicolors>
 
-ConVar hGlow, hHideHud, sv_glowenable, hHardCoreHUDMODE, hHardCoreHUDButton, hHardCoreHUDTime, hHardCoreHUDAnnounceType;
-int iHideHudFlags, iHardCoreHUDButton, iHardCoreHUDTime, iHardCoreHUDAnnounceType;
-bool bGlow, bHardCoreHUDMODE;
+ConVar g_hCvarEnable, hGlow, hHideHud, sv_glowenable, hHardCoreHUDMODE, hHardCoreHUDButton, 
+	hHardCoreKeepHUDTime, hHardCoreWaitHUDTime, hHardCoreHUDAnnounceType;
+int iHideHudFlags, iHardCoreHUDButton, iHardCoreKeepHUDTime, iHardCoreHUDAnnounceType;
+bool g_bCvarEnable, g_bGlow, bHardCoreHUDMODE;
+float g_hHardCoreWaitHUDTime;
+
 int g_iRoundStart, g_iPlayerSpawn;
 int g_iShowHardCoreHud_TimeLeft[MAXPLAYERS+1];
 Handle g_hHideHardCoreHudTimer[MAXPLAYERS+1];
 bool g_bHideHardCoreHud[MAXPLAYERS+1];
+float g_fKeyTime[MAXPLAYERS+1];
+int g_iKeyState[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
 	name = "L4D1/2 Real Realism Mode",
 	author = "JNC & HarryPotter",
-	description = "ayyy lmao",
-	version = "1.2",
-	url = ""
+	description = "Real Realism Mode + HardCore Mode",
+	version = "1.4",
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
-bool g_bLateLoad;
+bool g_bLateLoad, g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+    EngineVersion test = GetEngineVersion();
+
+    if( test == Engine_Left4Dead )
+    {
+        g_bL4D2Version = false;
+    }
+    else if( test == Engine_Left4Dead2 )
+    {
+        g_bL4D2Version = true;
+    }
+    else
+    {
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+        return APLRes_SilentFailure;
+    }
+
     g_bLateLoad = late;
     return APLRes_Success;
 }
@@ -32,13 +53,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	// Trick
-	sv_glowenable = CreateConVar("sv_glowenable", "1", "Turns on and off the terror glow highlight effects (Hidden Value Cvar)", FCVAR_REPLICATED, true, 0.0, true,1.0);
-	hGlow = CreateConVar("l4d_survivor_glowenable", "0", "If 1, Enable Server Glows for survivor team. (0=Hide Glow)", FCVAR_NOTIFY,true,0.0,true,1.0);
-	hHideHud = CreateConVar("l4d_survivor_hidehud", "64", "HUD hidden flag for survivor team. (1=weapon selection, 2=flashlight, 4=all, 8=health, 16=player dead, 32=needssuit, 64=misc, 128=chat, 256=crosshair, 512=vehicle crosshair, 1024=in vehicle)", FCVAR_NOTIFY,true,0.0);
-	hHardCoreHUDMODE = CreateConVar("l4d_survivor_hardcore_enable", "1", "If 1, Enable HardCore Mode, hide HUD and Glow by default.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hHardCoreHUDButton = CreateConVar("l4d_survivor_hardcore_buttons", "4", "Hud will show while survivors 1: are in stillness, 2: holding SLOW_WALK(Shift), 4: holding DUCK, add numbers together (0: None).", FCVAR_NOTIFY, true, 0.0, true, 7.0);
-	hHardCoreHUDTime = CreateConVar("l4d_survivor_hardcore_time", "1", "0=Instant. Duration of Hud and Glow for HardCore Mode. How long to keep the hud and glow enabled.", FCVAR_NOTIFY, true, 0.0);
-	hHardCoreHUDAnnounceType = CreateConVar("l4d_survivor_hardcore_announce_type", "0", "Changes how message displays for HardCore Mode. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	g_hCvarEnable = 				CreateConVar("l4d_expertrealism_enable",        	"1",    "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	sv_glowenable = 				CreateConVar("sv_glowenable", 						"1", 	"Turns on and off the terror glow highlight effects (Hidden Value Cvar)", FCVAR_REPLICATED, true, 0.0, true,1.0);
+	hGlow = 						CreateConVar("l4d_survivor_glowenable", 			"0", 	"If 1, Enable Server Glows for survivor team. (0=Hide Glow)", FCVAR_NOTIFY,true,0.0,true,1.0);
+	hHideHud = 						CreateConVar("l4d_survivor_hidehud", 				"64", 	"HUD hidden flag for survivor team. (1=weapon selection, 2=flashlight, 4=all, 8=health, 16=player dead, 32=needssuit, 64=misc, 128=chat, 256=crosshair, 512=vehicle crosshair, 1024=in vehicle)", FCVAR_NOTIFY,true,0.0);
+	hHardCoreHUDMODE = 				CreateConVar("l4d_survivor_hardcore_enable", 		"1", 	"If 1, Enable HardCore Mode, enable HUD and Glow if survivors hold hardcore_buttons.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hHardCoreHUDButton = 			CreateConVar("l4d_survivor_hardcore_buttons", 		"4", 	"For HardCore Mode, HUD and Glow will show while survivors 1: stay still, 2: Walk(Shift), 4: Crouch(DUCK), 8: Crouch(DUCK) and stay still, add numbers together (0: None).", FCVAR_NOTIFY, true, 0.0);
+	hHardCoreKeepHUDTime = 			CreateConVar("l4d_survivor_hardcore_keep_time", 	"0", 	"For HardCore Mode, How long to keep the hud and glow enabled after surviors release hardcore_buttons. (0=Instant Disable)", FCVAR_NOTIFY, true, 0.0);
+	hHardCoreWaitHUDTime = 			CreateConVar("l4d_survivor_hardcore_wait_time", 	"1.0", 	"For HardCore Mode, How long does it take to enable the hud and glow after surviors hold hardcore_buttons. (0=Instant Enable)", FCVAR_NOTIFY, true, 0.0);
+	hHardCoreHUDAnnounceType = 		CreateConVar("l4d_survivor_hardcore_announce_type", "0", 	"For HardCore Mode, changes how message displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 
 	// Optional
 	RegAdminCmd( "sm_glowoff", Command_GlowOff, ADMFLAG_BAN, "Hide one client glow");
@@ -47,11 +70,13 @@ public void OnPluginStart()
 	RegAdminCmd( "sm_hud", Command_HideHud, ADMFLAG_BAN, "Hide your hud flag");
 
 	GetCvars();
+	g_hCvarEnable.AddChangeHook(ConVarChange_EnableCvar);
 	hGlow.AddChangeHook(ConVarChange_GlowCvar);
 	hHideHud.AddChangeHook(ConVarChange_HudCvar);
 	hHardCoreHUDMODE.AddChangeHook(ConVarChange_HudCvar);
 	hHardCoreHUDButton.AddChangeHook(ConVarChange_HudCvar);
-	hHardCoreHUDTime.AddChangeHook(ConVarChange_HudCvar);
+	hHardCoreKeepHUDTime.AddChangeHook(ConVarChange_HudCvar);
+	hHardCoreWaitHUDTime.AddChangeHook(ConVarChange_HudCvar);
 	hHardCoreHUDAnnounceType.AddChangeHook(ConVarChange_HudCvar);
 	
 	HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
@@ -73,7 +98,7 @@ public void OnPluginStart()
 			if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
 			{
 				SetHideHudClient(i, iHideHudFlags);
-				SetGlowClient(i, bGlow);
+				SetGlowClient(i, g_bGlow);
 			}
 		}
 	}
@@ -84,44 +109,87 @@ public void OnPluginEnd()
 	ResetTimer();
 }
 
+public void OnMapStart()
+{
+	// This is just for nicknames
+	//SetConVarFloat(FindConVar("mp_playerid_hold"), 0.0, false,false);	// only supported on coop expert
+}
+
 public void OnMapEnd()
 {
 	g_iRoundStart = g_iPlayerSpawn = 0;
 	ResetTimer();
 }
 
+public void ConVarChange_EnableCvar(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	GetCvars();
+	if(g_bCvarEnable)
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+			{
+				HardCoreHideHud(i);
+			}
+		}
+	}
+	else
+	{
+		sv_glowenable.SetInt(1);
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i) && !IsFakeClient(i))
+			{
+				SetGlowClient(i, true);
+				SetHideHudClient(i, 0);
+			}
+		}
+	}
+}
+
 public void ConVarChange_HudCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
-	for (int i = 1; i <= MaxClients; i++)
+	if(g_bCvarEnable)
 	{
-		if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
-			SetHideHudClient(i, iHideHudFlags);
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+				SetHideHudClient(i, iHideHudFlags);
+		}
 	}
 }
 
 public void ConVarChange_GlowCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
-	for (int i = 1; i <= MaxClients; i++)
+	if(g_bCvarEnable)
 	{
-		if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
-			SetGlowClient(i, bGlow);
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+				SetGlowClient(i, g_bGlow);
+		}
 	}
 }
 
 void GetCvars()
 {
-	bGlow = hGlow.BoolValue;
+	g_bCvarEnable = g_hCvarEnable.BoolValue;
+	g_bGlow = hGlow.BoolValue;
 	iHideHudFlags = hHideHud.IntValue;
 	bHardCoreHUDMODE = hHardCoreHUDMODE.BoolValue;
 	iHardCoreHUDButton = hHardCoreHUDButton.IntValue;
-	iHardCoreHUDTime = hHardCoreHUDTime.IntValue;
+	iHardCoreKeepHUDTime = hHardCoreKeepHUDTime.IntValue;
+	g_hHardCoreWaitHUDTime = hHardCoreWaitHUDTime.FloatValue;
 	iHardCoreHUDAnnounceType = hHardCoreHUDAnnounceType.IntValue;
 }
 
 public Action Command_GlowOff(int client, int args)
 {
+	if (!g_bCvarEnable) return Plugin_Handled;
+
 	if (args < 1) {
 		ReplyToCommand(client, "[SM] Usage: !glowoff <name/#userid>");
 		return Plugin_Handled;
@@ -162,6 +230,8 @@ public Action Command_GlowOff(int client, int args)
 
 public Action Command_GlowOn(int client, int args)
 {
+	if (!g_bCvarEnable) return Plugin_Handled;
+
 	if (args < 1) {
 		ReplyToCommand(client, "[SM] Usage: !glowon <name/#userid>");
 		return Plugin_Handled;
@@ -202,6 +272,8 @@ public Action Command_GlowOn(int client, int args)
 
 public Action Command_HideHud(int client, int args)
 {
+	if (!g_bCvarEnable) return Plugin_Handled;
+
 	if (client == 0) {
 		ReplyToCommand(client, "[SM] Can't be used by Server");
 		return Plugin_Handled;
@@ -218,48 +290,62 @@ public Action Command_HideHud(int client, int args)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-	if(bHardCoreHUDMODE == false) return;
+	if (!g_bCvarEnable) return Plugin_Continue;
+	if(bHardCoreHUDMODE == false) return Plugin_Continue;
 
 	if(IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client) )
 	{
-		if(IsBeingPwnt(client)) //被控
+		if(IsPlayerIncap(client) || //倒地
+			IsBeingPwnt(client)) //被控
 		{
 			HardCoreHideHud(client);
-			return;
+			g_iKeyState[client] = 0;
+			return Plugin_Continue;
 		}
 		
 		float flVel[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", flVel);
-		if( (flVel[0] == 0.0 && flVel[1] == 0.0 && flVel[2] == 0.0) && IsPlayerOnTheGround(client)) // 靜止
+		if(IsPlayerOnTheGround(client)) 
 		{
-			if(iHardCoreHUDButton & 1)
+			if(flVel[0] == 0.0 && flVel[1] == 0.0 && flVel[2] == 0.0) // 靜止
 			{
-				HardCoreShowHud(client);
-				delete g_hHideHardCoreHudTimer[client];
-				return;
-			}
-		}
+				if(iHardCoreHUDButton & 1)
+				{
+					CheckKeyState(client);
 
-		if(IsPlayerOnTheGround(client) && !IsPlayerIncap(client)) //在地上未倒地
-		{
+					delete g_hHideHardCoreHudTimer[client];
+					return Plugin_Continue;
+				}
+
+				if(buttons & IN_DUCK && iHardCoreHUDButton & 8)
+				{
+					CheckKeyState(client);
+
+					delete g_hHideHardCoreHudTimer[client];
+					return Plugin_Continue;
+				}
+			}
+
 			if( (buttons & IN_DUCK && iHardCoreHUDButton & 4) ||
 				(buttons & IN_SPEED && iHardCoreHUDButton & 2) )  //shift: IN_SPEED
 			{
-				HardCoreShowHud(client);
+				CheckKeyState(client);
+				
 				delete g_hHideHardCoreHudTimer[client];
-				return;
+				return Plugin_Continue;
 			}
 		}
 
+		g_iKeyState[client] = 0;
 		if(g_hHideHardCoreHudTimer[client] == null && g_bHideHardCoreHud[client] == false)
 		{
-			if(iHardCoreHUDTime == 0)
+			if(iHardCoreKeepHUDTime == 0)
 			{
 				HardCoreHideHud(client);
 			}
 			else
 			{
-				g_iShowHardCoreHud_TimeLeft[client] = iHardCoreHUDTime;
+				g_iShowHardCoreHud_TimeLeft[client] = iHardCoreKeepHUDTime;
 				switch(iHardCoreHUDAnnounceType)
 				{
 					case 0: {/*nothing*/}
@@ -277,11 +363,14 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 public Action Timer_CountDown(Handle timer, int client)
 {
-	if (!IsClientInGame(client) 
+	if (!g_bCvarEnable
+	|| !IsClientInGame(client) 
 	|| GetClientTeam(client) != 2
 	|| !IsPlayerAlive(client))
 	{
@@ -320,14 +409,14 @@ public void OnClientDisconnect(int client)
 	delete g_hHideHardCoreHudTimer[client];
 }
 
-public Action evtRoundStart(Event event, const char[] name, bool dontBroadcast) 
+public void evtRoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(TIMER_START, TimerStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
 }
 
-public Action evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
+public void evtRoundEnd (Event event, const char[] name, bool dontBroadcast) 
 {
 	g_iRoundStart = g_iPlayerSpawn = 0;
 	ResetTimer();
@@ -340,14 +429,17 @@ public void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	g_iPlayerSpawn = 1;
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
+	if (!g_bCvarEnable ||
+		!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
 	
 	SetHideHudClient(client, iHideHudFlags);
-	SetGlowClient(client, bGlow);
+	SetGlowClient(client, g_bGlow);
 }
 
-public Action TimerStart(Handle timer)
+Action TimerStart(Handle timer)
 {
+	if (!g_bCvarEnable) return Plugin_Continue;
+
 	//PrintToChatAll("TimerStart");
 	g_iRoundStart = g_iPlayerSpawn = 0;
 
@@ -356,12 +448,16 @@ public Action TimerStart(Handle timer)
 		if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
 		{
 			SetHideHudClient(i, iHideHudFlags);
-			SetGlowClient(i, bGlow);
+			SetGlowClient(i, g_bGlow);
 		}
 	}
+
+	return Plugin_Continue;
 }
 public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast) 
 {
+	if (!g_bCvarEnable) return;
+
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
 	CreateTimer(0.1, PlayerChangeTeamCheck, userid);//延遲一秒檢查	
@@ -369,25 +465,29 @@ public void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	delete g_hHideHardCoreHudTimer[client];
 }
 
-public Action PlayerChangeTeamCheck(Handle timer,int userid)
+Action PlayerChangeTeamCheck(Handle timer,int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if (!client || !IsClientInGame(client) || IsFakeClient(client)) return;
+	if (!client || !IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 	
 	if(GetClientTeam(client) == 2 && IsPlayerAlive(client))
 	{
 		SetHideHudClient(client, iHideHudFlags);
-		SetGlowClient(client, bGlow);
+		SetGlowClient(client, g_bGlow);
 	}
 	else
 	{
 		SetHideHudClient(client, 0);
 		SetGlowClient(client, true);	
 	}
+
+	return Plugin_Continue;
 }
 
 public void	evtPlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
+	if (!g_bCvarEnable) return;
+
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!client || !IsClientInGame(client) || IsFakeClient(client)) return;
 	
@@ -396,18 +496,21 @@ public void	evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	delete g_hHideHardCoreHudTimer[client];
 }
 
-// Manual Trick, no matter if you server is on sv_glowenable 1 or 0, the client will have a different value, but you already know that
-void SetGlowClient(int client, bool enable)
+void CheckKeyState(int client)
 {
-	if (enable)
-		SendConVarValue(client, sv_glowenable, "1");
-	else
-		SendConVarValue(client, sv_glowenable, "0");
-}
+	if(g_iKeyState[client] == 0)
+	{
+		g_fKeyTime[client] = GetEngineTime() + g_hHardCoreWaitHUDTime;
+		g_iKeyState[client] = 1;
+	}
 
-void SetHideHudClient(int client, int flag)
-{
-	SetEntProp(client, Prop_Send, "m_iHideHUD", flag);
+	if(g_iKeyState[client] == 1)
+	{
+		if(g_fKeyTime[client] <= GetEngineTime() )
+		{
+			HardCoreShowHud(client);
+		}
+	}
 }
 
 stock bool IsPlayerFalling(int client)
@@ -442,10 +545,36 @@ bool IsPlayerIncap(int client)
 }
 bool IsBeingPwnt(int client)
 {
-	if( GetEntPropEnt(client, Prop_Send, "m_pounceAttacker") > 0 )
+	if(g_bL4D2Version)
+	{
+		/* Charger */
+		if ( GetEntPropEnt(client, Prop_Send, "m_pummelAttacker") > 0)
+		{
+			return true;
+		}
+
+		if (GetEntPropEnt(client, Prop_Send, "m_carryAttacker") > 0)
+		{
+			return true;
+		}
+		/* Jockey */
+		if (GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker") > 0)
+		{
+			return true;
+		}
+	}
+
+	/* Hunter */
+	if (GetEntPropEnt(client, Prop_Send, "m_pounceAttacker") > 0)
+	{
 		return true;
-	if( GetEntPropEnt(client, Prop_Send, "m_tongueOwner") > 0 )
+	}
+
+	/* Smoker */
+	if (GetEntPropEnt(client, Prop_Send, "m_tongueOwner") > 0)
+	{
 		return true;
+	}
 
 	return false;
 }
@@ -460,8 +589,22 @@ void HardCoreShowHud(int client)
 void HardCoreHideHud(int client)
 {
 	SetHideHudClient(client, iHideHudFlags);
-	SetGlowClient(client, bGlow);
+	SetGlowClient(client, g_bGlow);
 	g_bHideHardCoreHud[client] = true;
+}
+
+// Manual Trick, no matter if you server is on sv_glowenable 1 or 0, the client will have a different value, but you already know that
+void SetGlowClient(int client, bool enable)
+{
+	if (enable)
+		SendConVarValue(client, sv_glowenable, "1");
+	else
+		SendConVarValue(client, sv_glowenable, "0");
+}
+
+void SetHideHudClient(int client, int flag)
+{
+	SetEntProp(client, Prop_Send, "m_iHideHUD", flag);
 }
 
 void ResetTimer()

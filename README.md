@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/24)
+> All plugins in here apply to both L4D1/2 (last edited:2023/2/27)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -45,7 +45,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 * <b>[advertisements](/advertisements)</b>: Display advertisements
-* <b>[l4d_expertrealism](/l4d_expertrealism)</b>: L4D1/2 Real Realism Mode (No Glow + No Hud)
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
@@ -125,7 +124,9 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 顯示誰觸發了屍潮事件
 * <b>[witch_target_override](/witch_target_override)</b>: Change target when the witch incapacitates or kills victim + witchs auto follow survivors
     * Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
-
+* <b>[l4d_expertrealism](/l4d_expertrealism)</b>: L4D1/2 Real Realism Mode (No Glow + No Hud)
+    * L4D1/2 真寫實模式 (沒有光圈與介面)
+    
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
