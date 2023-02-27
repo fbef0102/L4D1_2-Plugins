@@ -5,6 +5,8 @@
 #include <sourcemod>
 #include <multicolors>
 
+ConVar mp_playerid_hold;
+
 ConVar g_hCvarEnable, hGlow, hHideHud, sv_glowenable, hHardCoreHUDMODE, hHardCoreHUDButton, 
 	hHardCoreKeepHUDTime, hHardCoreWaitHUDTime, hHardCoreHUDAnnounceType;
 int iHideHudFlags, iHardCoreHUDButton, iHardCoreKeepHUDTime, iHardCoreHUDAnnounceType;
@@ -23,7 +25,7 @@ public Plugin myinfo =
 	name = "L4D1/2 Real Realism Mode",
 	author = "JNC & HarryPotter",
 	description = "Real Realism Mode + HardCore Mode",
-	version = "1.4",
+	version = "1.5",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
@@ -52,6 +54,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	mp_playerid_hold = FindConVar("mp_playerid_hold");
+
 	// Trick
 	g_hCvarEnable = 				CreateConVar("l4d_expertrealism_enable",        	"1",    "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	sv_glowenable = 				CreateConVar("sv_glowenable", 						"1", 	"Turns on and off the terror glow highlight effects (Hidden Value Cvar)", FCVAR_REPLICATED, true, 0.0, true,1.0);
@@ -111,14 +115,22 @@ public void OnPluginEnd()
 
 public void OnMapStart()
 {
-	// This is just for nicknames
-	//SetConVarFloat(FindConVar("mp_playerid_hold"), 0.0, false,false);	// only supported on coop expert
 }
 
 public void OnMapEnd()
 {
 	g_iRoundStart = g_iPlayerSpawn = 0;
 	ResetTimer();
+}
+
+public void OnConfigsExecuted()
+{
+	GetCvars();
+	if(g_bCvarEnable)
+	{
+		//This is just for nicknames
+		mp_playerid_hold.SetFloat(0.0);	// only supported on coop expert
+	}
 }
 
 public void ConVarChange_EnableCvar(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -133,6 +145,7 @@ public void ConVarChange_EnableCvar(ConVar convar, const char[] oldValue, const 
 				HardCoreHideHud(i);
 			}
 		}
+		mp_playerid_hold.SetFloat(0.0);
 	}
 	else
 	{
@@ -145,6 +158,7 @@ public void ConVarChange_EnableCvar(ConVar convar, const char[] oldValue, const 
 				SetHideHudClient(i, 0);
 			}
 		}
+		mp_playerid_hold.SetFloat(0.25);
 	}
 }
 

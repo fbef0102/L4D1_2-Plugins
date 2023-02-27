@@ -16,7 +16,12 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.5 (2023-2-28)
+		* Request by eviltechno
+		* Hide players' name above their head on expert
+
 	* v1.4 (2023-2-27)
+		* Request by eviltechno
 		* Remake code
 		* Control glow and hud flag
 		* Enable Hard Core Hud Mode, hide HUD and Glow by default, Hud will show while survivors are in stillness or holding SLOW_WALK(Shift) or holding DUCK
