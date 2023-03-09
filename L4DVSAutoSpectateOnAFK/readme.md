@@ -49,6 +49,10 @@ Forces survivors and infected to spectate if they're AFK after certain time
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
+* Related Plugin | 相關插件
+	1. [l4d_afk_commands](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_afk_commands): Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
+		> 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/L4DVSAutoSpectateOnAFK.cfg
