@@ -11,9 +11,9 @@
 #pragma newdecls required
 #include <sourcemod>
 #include <sdktools>
-#include <sdktools_functions>
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.2"
+#include <multicolors>
+#define PLUGIN_VERSION "2.3"
 
 
 // For cvars
@@ -92,16 +92,16 @@ public void OnPluginStart()
 	HookEvent("player_jump", afkPlayerAction);
 	HookEvent("player_hurt", afkPlayerAction);
 	HookEvent("player_hurt_concise", afkPlayerAction);
+	HookEntityOutput("func_button_timed", "OnPressed", OnButtonPress);
 	
 	// For roundstart and roundend..
-	HookEvent("round_start", Event_RoundStart, EventHookMode_Post);
-	HookEvent("round_end", Event_RoundEnd, EventHookMode_Pre);
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd, EventHookMode_Pre);
-	HookEvent("mission_lost", Event_RoundEnd);
-	HookEvent("map_transition", Event_RoundEnd, EventHookMode_Pre);
-	HookEvent("player_spawn",Event_PlayerSpawn,	EventHookMode_PostNoCopy);
+	HookEvent("round_start", 			Event_RoundStart, 	EventHookMode_PostNoCopy);
+	HookEvent("round_end", 				Event_RoundEnd,		EventHookMode_PostNoCopy);
+	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy);
+	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy);
+	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy);
+	HookEvent("player_spawn",			Event_PlayerSpawn,	EventHookMode_PostNoCopy);
 
-	// Afk manager time limits
 	h_AfkWarnSpecTime = CreateConVar("l4d_specafk_warnspectime", "20", "Warn time before spec", FCVAR_NOTIFY, true, 0.0);
 	h_AfkSpecTime = CreateConVar("l4d_specafk_spectime", "15", "time before spec (after warn)", FCVAR_NOTIFY, true, 0.0);
 	h_AfkWarnKickTime = CreateConVar("l4d_specafk_warnkicktime", "60", "Warn time before kick (while already on spec)", FCVAR_NOTIFY, true, 0.0);
@@ -110,12 +110,11 @@ public void OnPluginStart()
 	h_AfkKickEnabled = CreateConVar("l4d_specafk_kickenabled", "1", "If 1, kick enabled on afk while on spec", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_AfkSaferoomIgnore = CreateConVar("l4d_specafk_saferoom_ignore", "0", "If 1, player will still be forced to spectate and kicked whether surviros leave saferoom or not.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hImmuneAccess = CreateConVar("l4d_specafk_immune_access_flag", "z", "Players with these flags have immune to be kicked while spec. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	// We register the version cvar
 	CreateConVar("l4d_specafk_version", PLUGIN_VERSION, "Version of L4D VS Auto spectate on AFK", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 	AutoExecConfig(true, "L4DVSAutoSpectateOnAFK");
-	// We read the cvars
+	
+
 	ReadCvars();
-	// Hook cvars changes ...
 	h_AfkWarnSpecTime.AddChangeHook(ConVarChanged);
 	h_AfkSpecTime.AddChangeHook(ConVarChanged);
 	h_AfkWarnKickTime.AddChangeHook(ConVarChanged);
@@ -156,9 +155,10 @@ public void ConVarChanged(ConVar convar, const char[] oldValue, const char[] new
 	ReadCvars();
 }
 
+bool g_bFirstMap;
 public void OnMapStart()
 {
-
+	g_bFirstMap = L4D_IsFirstMapInScenario();
 }
 
 public void OnMapEnd()
@@ -220,16 +220,29 @@ Action tmrStart(Handle timer)
 {
 	ResetPlugin();
 
-	for (int i=1;i<=MaxClients;i++)
+	for (int client=1;client<=MaxClients;client++)
 	{
-		if(IsClientInGame(i) && !IsFakeClient(i))
+		if(IsClientInGame(client) && !IsFakeClient(client))
 		{
-			afkResetTimers(i);
+	// If client is not on spec team
+			if (GetClientTeam(client)!=1)
+			{
+				afkPlayerTimeLeftWarn[client] = (g_bFirstMap) ? afkWarnSpecTime * 2 : afkWarnSpecTime;
+				afkPlayerTimeLeftAction[client] = afkSpecTime;
+			}
+			else // if player is on spectators
+			{
+				afkPlayerTimeLeftWarn[client] = (g_bFirstMap) ? afkWarnKickTime * 2 : afkWarnKickTime;
+				afkPlayerTimeLeftAction[client] = afkKickTime;
+			}
+			
+			GetClientAbsOrigin(client, afkPlayerLastPos[client]);
+			GetClientEyeAngles(client, afkPlayerLastEyes[client]);
 		}
 		else
 		{
-			afkPlayerTimeLeftWarn[i] = afkWarnSpecTime;
-			afkPlayerTimeLeftAction[i] = afkSpecTime;
+			afkPlayerTimeLeftWarn[client] = (g_bFirstMap) ? afkWarnSpecTime * 2 : afkWarnSpecTime;
+			afkPlayerTimeLeftAction[client] = afkSpecTime;
 		}
 	}
 
@@ -268,6 +281,14 @@ public void afkPlayerAction (Event event, const char[] name, bool dontBroadcast)
 	// resets his timers
 	if (client > 0 && client < MaxClients && IsClientInGame(client) && !IsFakeClient(client))
 		afkResetTimers(client);
+}
+
+void OnButtonPress(const char[] name, int caller, int activator, float delay)
+{
+	if (activator < 1 || activator > MaxClients || !IsClientInGame(activator))
+		return;
+	
+	afkResetTimers(activator);
 }
 
 public void afkChangedTeam (Event event, const char[] name, bool dontBroadcast)
@@ -329,14 +350,14 @@ Action afkCheckThread(Handle timer)
 {
 	float pos[3];
 	float eyes[3];
-	
+	bool isAFK;
 	// we check all connected (and alive) clients ...
 	for (int i=1;i<=MaxClients;i++)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
 			// If player is not on spectators team ...
-			if (GetClientTeam(i) != 1)
+			if (GetClientTeam(i) > 1)
 			{
 				// If client is alive 
 				if (IsPlayerAlive(i))
@@ -345,8 +366,24 @@ Action afkCheckThread(Handle timer)
 					GetClientAbsOrigin(i, pos);
 					GetClientEyeAngles(i, eyes);
 					
+					isAFK = true;
+					
+					if(GetVectorDistance(pos, afkPlayerLastPos[i]) > 80.0)
+					{
+						isAFK = false;
+					}
+					
+					if(isAFK)
+					{
+						if(eyes[0] != afkPlayerLastEyes[i][0] && 
+							eyes[1] != afkPlayerLastEyes[i][1]) 
+						{
+							isAFK = false;
+						}
+					}
+
 					// if he hasn't moved ..
-					if ((pos[0] == afkPlayerLastPos[i][0])&&(pos[1] == afkPlayerLastPos[i][1])&&(pos[2] == afkPlayerLastPos[i][2])&&(eyes[0] == afkPlayerLastEyes[i][0])&&(eyes[1] == afkPlayerLastEyes[i][1])&&(eyes[2] == afkPlayerLastEyes[i][2]))
+					if (isAFK)
 					{
 						// if the player is not trapped (incapacitated, pounced, etc)
 						if (GetInfectedAttacker(i) == -1)
@@ -386,7 +423,7 @@ Action afkCheckThread(Handle timer)
 									}
 								}
 								else // we just warn him ...
-									PrintHintText(i,"%T", "[AFK] Inactivity detected! 1", i, afkPlayerTimeLeftAction[i]);
+									PrintHintText(i, "%T", "[AFK] Inactivity detected! 1", i, afkPlayerTimeLeftAction[i]);
 								
 							}
 						} // player is not trapped
@@ -397,10 +434,8 @@ Action afkCheckThread(Handle timer)
 					} // player hasn't moved ...
 					else // player moved ...
 					{
-						// we reset his timers
 						afkResetTimers(i);
 					}
-					
 				} // player is alive or is infected
 			} // player is not on spectators ...
 			else if (afkKickEnabled)  // if player is on spectators and kick on spectators is enabled ...
@@ -464,7 +499,7 @@ void afkForceSpectate (int client, bool advertise)
 	// Print forced info
 	if (advertise)
 	{
-		PrintToChat(client, "[\x05TS\x01] You has been switched to \x03Spectators", client);
+		CPrintToChat(client, "%T", "afkForceSpectate", client);
 	}
 }
 
@@ -493,7 +528,7 @@ void afkKickClient (int client)
 	char PlayerName[200];
 	GetClientName(client, PlayerName, sizeof(PlayerName));
 	
-	PrintToChatAll("\x01\x04[TS] \x03%s \x01%t.", PlayerName, "have been kicked from server due to inactivity.");
+	CPrintToChatAll("%t", "have been kicked from server due to inactivity", PlayerName);
 }
 
 Action PlayerLeftStart(Handle Timer)

@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/2/27)
+> All plugins in here apply to both L4D1/2 (last edited:2023/3/9)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -22,7 +22,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
 * <b>[linux_auto_restart](/linux_auto_restart)</b>: make linux auto restart server when the last player disconnects from the server.
 * <b>[skeet_database](/skeet_database)</b>: Skeet Announce Edition (Database).
-* <b>[L4DVSAutoSpectateOnAFK](/L4DVSAutoSpectateOnAFK)</b>: Forces survivors and infected to spectate if they're AFK after certain time.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
 * <b>[pounce_database](/pounce_database)</b>: Pounce Announce Edition (Database).
@@ -126,7 +125,9 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 * <b>[l4d_expertrealism](/l4d_expertrealism)</b>: L4D1/2 Real Realism Mode (No Glow + No Hud)
     * L4D1/2 真寫實模式 (沒有光圈與介面)
-    
+* <b>[L4DVSAutoSpectateOnAFK](/L4DVSAutoSpectateOnAFK)</b>: Forces survivors and infected to spectate if they're AFK after certain time.
+    * 當有玩家AFK一段時間，強制將玩家旁觀並踢出伺服器
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
