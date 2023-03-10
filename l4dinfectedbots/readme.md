@@ -378,7 +378,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	5. <details><summary>Adjust special infected spawn timer</summary>
 
 		* Reduce certain value to spawn timer based per alive player.
-		<br/>If there are 5 **ALIVE** survivors in game, special infected spawn timer [max: 60-(5*2) = 50, min: 30-(5*2) = 20]
+		<br/>If there are 5 **ALIVE** survivors in game, special infected spawn timer [max: 60-(5x2) = 50, min: 30-(5x2) = 20]
 			```php
 			l4d_infectedbots_spawn_time_max "60"
 			l4d_infectedbots_spawn_time_min "30"
@@ -828,7 +828,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	5. <details><summary>調整特感生成時間</summary>
 
 		* 根據每個存活的倖存者，減少一定數值的特感生成時間
-		<br/>如果有5個存活的倖存者，則特感生成時間爲：[最長時間: 60-(5*2) = 50, 最短時間: 30-(5*2) = 20]
+		<br/>如果有5個存活的倖存者，則特感生成時間爲：[最長時間: 60-(5x2) = 50, 最短時間: 30-(5x2) = 20]
 			```php
 			l4d_infectedbots_spawn_time_max "60"
 			l4d_infectedbots_spawn_time_min "30"
