@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/3/9)
+> All plugins in here apply to both L4D1/2 (last edited:2023/3/12)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -127,6 +127,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * L4D1/2 真寫實模式 (沒有光圈與介面)
 * <b>[L4DVSAutoSpectateOnAFK](/L4DVSAutoSpectateOnAFK)</b>: Forces survivors and infected to spectate if they're AFK after certain time.
     * 當有玩家AFK一段時間，強制將玩家旁觀並踢出伺服器
+* <b>[spawn_infected_nolimit](/spawn_infected_nolimit)</b>: Spawn special infected without the director limits!
+    * 輔助插件，不受數量與遊戲限制生成特感
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
