@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/3/12)
+> All plugins in here apply to both L4D1/2 (last edited:2023/3/14)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -32,7 +32,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
 * <b>[l4d_meteor_hunter](/l4d_meteor_hunter)</b>: Hunter high pounces cause meteor strike
-* <b>[lfd_noTeamSay](/lfd_noTeamSay)</b>: Redirecting all 'say_team' messages to 'say'
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
@@ -46,7 +45,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[advertisements](/advertisements)</b>: Display advertisements
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
-* <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
 * <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
 * <b>[lockdown_system-l4d2](/lockdown_system-l4d2)</b>: Locks Saferoom Door Until Someone Opens It.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
@@ -129,7 +127,11 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 當有玩家AFK一段時間，強制將玩家旁觀並踢出伺服器
 * <b>[spawn_infected_nolimit](/spawn_infected_nolimit)</b>: Spawn special infected without the director limits!
     * 輔助插件，不受數量與遊戲限制生成特感
-
+* <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
+    * 管理員可以強制暫停遊戲，也只有管理員能解除暫停
+* <b>[lfd_noTeamSay](/lfd_noTeamSay)</b>: Redirecting all 'say_team' messages to 'say'
+    * 沒有團隊聊天頻道只有公開聊天頻道
+    
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
