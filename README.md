@@ -58,7 +58,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[pounceannounce](/pounceannounce)</b>: Announces hunter pounces to the entire server
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
 * <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
-* <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
 * <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
@@ -131,6 +130,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 管理員可以強制暫停遊戲，也只有管理員能解除暫停
 * <b>[lfd_noTeamSay](/lfd_noTeamSay)</b>: Redirecting all 'say_team' messages to 'say'
     * 沒有團隊聊天頻道只有公開聊天頻道
+* <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
+    * 使用指令顯示人類目前的路程
     
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
