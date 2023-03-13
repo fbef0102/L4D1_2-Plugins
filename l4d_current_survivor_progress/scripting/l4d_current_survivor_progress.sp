@@ -1,4 +1,5 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <left4dhooks>
@@ -9,24 +10,34 @@
 ConVar g_hBossBuffer;
 int SurCurrent = 0;
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
-    name = "L4D Survivor Progress",
+    name = "[L4D1/2] Survivor Progress",
     author = "CanadaRox, Visor, harry",
     description = "Print survivor progress in flow percents",
     version = "2.4",
     url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 	g_hBossBuffer = FindConVar("versus_boss_buffer");
 
 	RegConsoleCmd("sm_cur", CurrentCmd);
 	RegConsoleCmd("sm_current", CurrentCmd);
+
 	HookEvent("round_start", RoundStartEvent, EventHookMode_PostNoCopy);
 }
-public RoundStartEvent(Handle:event, const String:name[], bool:dontBroadcast)
+
+Action CurrentCmd(int client, int args)
+{
+	SurCurrent = GetMaxSurvivorCompletion();
+	CPrintToChat(client, "{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", SurCurrent);
+
+	return Plugin_Handled;
+}
+
+void RoundStartEvent(Event event, const char[] name, bool dontBroadcast) 
 {
 	SurCurrent = 0;
 }
@@ -37,13 +48,7 @@ public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client)
 	CPrintToChatAll("{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", GetMaxSurvivorCompletion());
 }
 
-public Action:CurrentCmd(client, args)
-{
-	SurCurrent = GetMaxSurvivorCompletion();
-	CPrintToChat(client, "{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", SurCurrent);
-	
-}
-stock int GetMaxSurvivorCompletion() {
+int GetMaxSurvivorCompletion() {
 	float flow = 0.0;
 	if(L4D_IsVersusMode())
 	{
