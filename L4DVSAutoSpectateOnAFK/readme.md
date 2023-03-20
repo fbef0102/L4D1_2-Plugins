@@ -5,10 +5,10 @@ Forces survivors and infected to spectate if they're AFK after certain time
 <br/>None
 
 * Image | 圖示
-	*  Warn time and spec
+    *  Warn time and spec
         > AFK警告提示並強制旁觀
         <br/>![L4DVSAutoSpectateOnAFK_1](image/L4DVSAutoSpectateOnAFK_1.jpg)
-	*  Warn time and kick while on spec
+    *  Warn time and kick while on spec
         > 旁觀區AFK警告提示並踢出伺服器
         <br/>![L4DVSAutoSpectateOnAFK_2](image/L4DVSAutoSpectateOnAFK_2.jpg)
 
@@ -19,13 +19,20 @@ Forces survivors and infected to spectate if they're AFK after certain time
     ```
 
 * Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	```
+    ```
+    English
+    繁體中文
+    简体中文
+    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.4 (2023-3-20)
+        * Add a cvar
+            ```php
+            // If 1, Reset time when player types words in chatbox.
+            l4d_specafk_say_reset "1"
+            ```
 
     * v2.3 (2023-3-9)
         * Improve afk detection
@@ -33,15 +40,15 @@ Forces survivors and infected to spectate if they're AFK after certain time
         * Add multicolors 
 
     * v2.2
-		* [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2728816&postcount=98)
-		* Add more hints
-		* Fixed wrong timer
-		* Remake code, convert code to latest syntax
-		* Fix warnings when compiling on SourceMod 1.11.
-		* Optimize code and improve performance
-		* Translation Support
+        * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2728816&postcount=98)
+        * Add more hints
+        * Fixed wrong timer
+        * Remake code, convert code to latest syntax
+        * Fix warnings when compiling on SourceMod 1.11.
+        * Optimize code and improve performance
+        * Translation Support
 
-	* v1.3.1
+    * v1.3.1
         * [Original plugin from djromero](https://forums.alliedmods.net/showthread.php?p=761203)
 </details>
 
@@ -71,6 +78,9 @@ Forces survivors and infected to spectate if they're AFK after certain time
 
         // If 1, player will still be forced to spectate and kicked whether surviros leave saferoom or not.
         l4d_specafk_saferoom_ignore "0"
+
+        // If 1, Reset time when player types words in chatbox.
+        l4d_specafk_say_reset "1"
 
         // time before spec (after warn)
         l4d_specafk_spectime "15"
