@@ -78,7 +78,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	g_iPlayerSpawn = 1;
 }
 
-public Action tmrStart(Handle timer)
+Action tmrStart(Handle timer)
 {
 	g_iPlayerSpawn = 0;
 	g_iRoundStart = 0;
@@ -92,9 +92,11 @@ public Action tmrStart(Handle timer)
 			break;
 		}
 	}
+
+	return Plugin_Continue;
 }
 
-public Action SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+void SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	if (bTempBlock) return;
 
@@ -110,7 +112,7 @@ public Action SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcas
 }
 
 
-public Action SF_t_CheckBots(Handle timer)
+Action SF_t_CheckBots(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -120,6 +122,8 @@ public Action SF_t_CheckBots(Handle timer)
 			break;
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 void SF_Fix()
