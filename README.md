@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/3/14)
+> All plugins in here apply to both L4D1/2 (last edited:2023/3/21)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -30,7 +30,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
-* <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
 * <b>[l4d_meteor_hunter](/l4d_meteor_hunter)</b>: Hunter high pounces cause meteor strike
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
@@ -132,6 +131,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 沒有團隊聊天頻道只有公開聊天頻道
 * <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
     * 使用指令顯示人類目前的路程
+* <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
+    * 解決換圖之後沒有任何倖存者Bot的問題
     
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
