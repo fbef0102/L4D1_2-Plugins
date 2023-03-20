@@ -109,7 +109,7 @@ Forces survivors and infected to spectate if they're AFK after certain time
         * 管理員不受影響
 
 * 用意在哪?
-    * 惡意玩家進來伺服器掛機佔位子，不用等隊友投票跳出踢出遊戲
+    * 惡意玩家進來伺服器掛機佔位子，不用等隊友投票踢出遊戲
     * 強制傻B進來旁觀必須得遊玩
     * 空出伺服器位子讓給其他玩家
 

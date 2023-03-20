@@ -35,7 +35,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
-* <b>[l4d_rescue_vehicle_leave_timer](/l4d_rescue_vehicle_leave_timer)</b>: When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
 * <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
 * <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
@@ -45,7 +44,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
-* <b>[lockdown_system-l4d2](/lockdown_system-l4d2)</b>: Locks Saferoom Door Until Someone Opens It.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, is hanging, or is incapped, will respawn after a period of time.
 * <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw special infected instead of rock
@@ -133,7 +131,9 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 使用指令顯示人類目前的路程
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
     * 解決換圖之後沒有任何倖存者Bot的問題
-    
+* <b>[lockdown_system-l4d2](/lockdown_system-l4d2)</b>: Locks Saferoom Door Until Someone Opens It.
+    * 倖存者必須等待時間到並合力對抗屍潮與Tank才能打開終點安全門
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
