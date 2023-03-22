@@ -5,7 +5,7 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION "5.2"
+#define PLUGIN_VERSION "5.3"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -378,16 +378,30 @@ public Action OrderShutDown(Handle timer)
 	return Plugin_Continue;
 }
 
+Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, float value)
+{
+	if(bDoorBotDisable && client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_SURVIVOR && IsFakeClient(client))
+	{
+		//PrintToChatAll("%N use door %d, caller: %d", client, door, caller);
+		return Plugin_Handled;
+	}
+
+	return Plugin_Continue;
+}
+
+/*
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-	if( g_bValidMap && IsClientInGame(client) && GetClientTeam(client) == 2 && buttons & IN_USE)
+	if( g_bValidMap && bLockdownInit && 
+		IsClientInGame(client) && GetClientTeam(client) == 2 && IsFakeClient(client) && bDoorBotDisable &&
+		buttons & IN_USE)
 	{
-		if(IsFakeClient(client) && bDoorBotDisable) return Plugin_Handled;
+		return Plugin_Handled;
 	}
 	
 	return Plugin_Continue;
 }
-
+*/
 public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_bValidMap == false || bRoundEnd || g_bSLSDisable)
@@ -809,6 +823,8 @@ void InitDoor()
 	
 	HookSingleEntityOutput(g_iEndCheckpointDoor, "OnBlockedOpening", OnDoorBlocked);
 	HookSingleEntityOutput(g_iEndCheckpointDoor, "OnBlockedClosing", OnDoorBlocked);
+
+	SDKHook(g_iEndCheckpointDoor, SDKHook_Use, OnUse_EndCheckpointDoor);
 
 	g_iEndCheckpointDoor = EntIndexToEntRef(g_iEndCheckpointDoor);
 

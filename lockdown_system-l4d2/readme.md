@@ -26,6 +26,9 @@ Locks Saferoom Door Until Someone Opens It.
 	//cravenge @ 2016-2019
 	//HarryPotter @ 2020-2023
 	```
+	* v5.3 (2023-3-22)
+        * Fixed bot unable to open and close normal door on the whole map.
+
 	* v5.2
         * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2712869&postcount=54)
         * Remake Code
