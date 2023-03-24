@@ -227,7 +227,7 @@ public void Event_LandedPounce(Event hEvent, const char[] name, bool dontBroadca
 		{
 			CreateHit(client);
 			CreateForces(client, victim);
-			CPrintToChatAll("[{olive}TS{default}] {green}%N{default} 的高撲造成核彈衝擊波", client);
+			CPrintToChatAll("[{olive}TS{default}] {red}%N{default}'s {green}high pounce{default} causes meteor impacts!!!", client);
 		}
 	}
 }
@@ -245,7 +245,7 @@ void CreateHit(int client)
 	WritePackFloat(hbPack, pos[0]);
 	WritePackFloat(hbPack, pos[1]);
 	WritePackFloat(hbPack, pos[2]);
-	CreateTimer(0.5,CreateRing,hbPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+	CreateTimer(0.5, CreateRing, hbPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 }
 
 void CreateParticles(float pos[3])

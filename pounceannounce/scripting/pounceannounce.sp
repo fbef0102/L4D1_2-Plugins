@@ -4,19 +4,17 @@
 #include <sdktools>
 #include <multicolors>
 
-//globals
-ConVar hMaxPounceDistance;
-ConVar hMinPounceDistance;
-ConVar hMaxPounceDamage;
-//hunter position store
-float infectedPosition[32][3]; //support up to 32 slots on a server
-//cvars
-ConVar hMinPounceAnnounce;
-ConVar hCenterChat;
-ConVar hShowDistance;
-ConVar hCapDamage;
-ConVar hKillDamage;
-int ConVar_maxdmg,ConVar_max,ConVar_min;
+
+ConVar g_hMaxPounceDistance, g_hMinPounceDistance, g_hMaxPounceDamage;
+int g_iMaxPounceDistance, g_iMinPounceDistance, g_iMaxPounceDamage;
+
+
+ConVar g_hMinPounceAnnounce, g_hCenterChat, g_hShowDistance, g_hCapDamage, g_hKillDamage;
+int g_iMinPounceAnnounce, g_iCenterChat, g_iShowDistance, g_iKillDamage;
+bool g_bCapDamage;
+
+
+float infectedPosition[MAXPLAYERS +1][3]; //support up to 32 slots on a server
 
 #define DEBUG 0
 
@@ -42,40 +40,64 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	hMaxPounceDistance = FindConVar("z_pounce_damage_range_max");
-	hMinPounceDistance = FindConVar("z_pounce_damage_range_min");
-	hMaxPounceDamage = FindConVar("z_hunter_max_pounce_bonus_damage");
-	hMinPounceAnnounce = CreateConVar("pounceannounce_minimum","0","The minimum amount of damage required to announce the pounce", FCVAR_NOTIFY);
-	hCenterChat = CreateConVar("pounceannounce_centerchat","0","Announces the pounce to 0: chatbox, 1: center chat.",FCVAR_NOTIFY);
-	hShowDistance = CreateConVar("pounceannounce_showdistance","3","Show the distance the hunter traveled for the pounce.",FCVAR_NOTIFY);
-	hCapDamage = CreateConVar("pounceannounce_capdamage","0","Caps the displayed pounce damage to the maximum able to be dealt.",FCVAR_NOTIFY);
-	hKillDamage = CreateConVar("pounceannounce_killdamage","0","The minimum amount of damage required to instantly kill survivor.(0=Off)",FCVAR_NOTIFY);
+	g_hMinPounceAnnounce 	= CreateConVar("pounceannounce_minimum",		"10",	"The minimum amount of damage required to announce the pounce", FCVAR_NOTIFY, true, 0.0);
+	g_hCenterChat 			= CreateConVar("pounceannounce_centerchat",		"0",	"Announces the pounce to 0: chatbox, 1: center chat.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hShowDistance 		= CreateConVar("pounceannounce_showdistance",	"3",	"Show the distance the hunter traveled for the pounce.\n1=units, 2=units & feet, 3=units & meters, 4=feet, 5=meters", FCVAR_NOTIFY, true, 0.0, true, 5.0);
+	g_hCapDamage 			= CreateConVar("pounceannounce_capdamage",		"0",	"Caps the displayed pounce damage to the maximum able to be dealt.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hKillDamage 			= CreateConVar("pounceannounce_killdamage",		"0",	"The minimum amount of damage required to instantly kill survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0);
+	AutoExecConfig(true, "pounceannounce");
 
-	ConVar_maxdmg = hMaxPounceDamage.IntValue;
-	ConVar_max = hMaxPounceDistance.IntValue;
-	ConVar_min = hMinPounceDistance.IntValue;
-	hMaxPounceDamage.AddChangeHook(Convar_MaxPounceDamage);
-	hMaxPounceDistance.AddChangeHook(Convar_Max);
-	hMinPounceDistance.AddChangeHook(Convar_Min);
+	GetCvars();
+	g_hMinPounceAnnounce.AddChangeHook(ConVarChanged_Cvars);
+	g_hCenterChat.AddChangeHook(ConVarChanged_Cvars);
+	g_hShowDistance.AddChangeHook(ConVarChanged_Cvars);
+	g_hCapDamage.AddChangeHook(ConVarChanged_Cvars);
+	g_hKillDamage.AddChangeHook(ConVarChanged_Cvars);
+
+	HookEvent("lunge_pounce", 	Event_PlayerPounced);
+	HookEvent("ability_use", 	Event_AbilityUse);
+}
+
+public void OnAllPluginsLoaded()
+{
+	g_hMaxPounceDistance = FindConVar("z_pounce_damage_range_max");
+	g_hMinPounceDistance = FindConVar("z_pounce_damage_range_min");
+	g_hMaxPounceDamage = FindConVar("z_hunter_max_pounce_bonus_damage");
+
+	if ( g_hMaxPounceDistance == null ) { g_hMaxPounceDistance 	= CreateConVar( "z_pounce_damage_range_max",  			"1000.0", 	"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
+	if ( g_hMinPounceDistance == null ) { g_hMinPounceDistance 	= CreateConVar( "z_pounce_damage_range_min",  			"300.0", 	"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
+	if ( g_hMaxPounceDamage == null ) 	{ g_hMaxPounceDamage 	= CreateConVar( "z_hunter_max_pounce_bonus_damage", 	"49", 		"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
 	
-	HookEvent("lunge_pounce",Event_PlayerPounced);
-	HookEvent("ability_use",Event_AbilityUse);
-
-	AutoExecConfig(true,"pounceannounce");
+	GetPounceCvars();
+	g_hMaxPounceDistance.AddChangeHook(ConVarChanged_PounceCvars);
+	g_hMinPounceDistance.AddChangeHook(ConVarChanged_PounceCvars);
+	g_hMaxPounceDamage.AddChangeHook(ConVarChanged_PounceCvars);
 }
 
-public void Convar_MaxPounceDamage (ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
-	ConVar_maxdmg = hMaxPounceDamage.IntValue;
+	GetCvars();
 }
 
-public void Convar_Max(ConVar convar, const char[] oldValue, const char[] newValue)
+void GetCvars()
 {
-	ConVar_max = hMaxPounceDistance.IntValue;
+	g_iMinPounceAnnounce 	= g_hMinPounceAnnounce.IntValue;
+	g_iCenterChat 			= g_hCenterChat.IntValue;
+	g_iShowDistance 		= g_hShowDistance.IntValue;
+	g_bCapDamage 			= g_hCapDamage.BoolValue;
+	g_iKillDamage 			= g_hKillDamage.IntValue;
 }
-public void Convar_Min(ConVar convar, const char[] oldValue, const char[] newValue)
+
+void ConVarChanged_PounceCvars (ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	ConVar_min = hMinPounceDistance.IntValue;
+	GetPounceCvars();
+}
+
+void GetPounceCvars()
+{
+	g_iMaxPounceDistance = g_hMaxPounceDistance.IntValue;
+	g_iMinPounceDistance = g_hMinPounceDistance.IntValue;
+	g_iMaxPounceDamage = g_hMaxPounceDamage.IntValue;
 }
 
 public void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast) 
@@ -101,23 +123,15 @@ public void Event_PlayerPounced(Event event, const char[] name, bool dontBroadca
 	int victimId = event.GetInt("victim");
 	int attackerClient = GetClientOfUserId(attackerId);
 	int victimClient = GetClientOfUserId(victimId);
-	int minAnnounce = hMinPounceAnnounce.IntValue;
-	bool centerChat = hCenterChat.BoolValue;
 	
 	char attackerName[MAX_NAME_LENGTH];
 	char victimName[MAX_NAME_LENGTH];
 	char pounceLine[256];
 	char distanceBuffer[64];
 	
-	int showDistance;
 	//distance supplied isn't the actual 2d vector distance needed for damage calculation. See more about it at
 	//http://forums.alliedmods.net/showthread.php?t=93207
 	//int eventDistance = event.GetInt("distance");
-	
-	//get hunter-related pounce cvars
-	int max = ConVar_max;
-	int min = ConVar_min;
-	int maxDmg = ConVar_maxdmg;
 	
 	//Get current position while pounced
 	GetClientAbsOrigin(attackerClient,pouncePosition);
@@ -127,61 +141,59 @@ public void Event_PlayerPounced(Event event, const char[] name, bool dontBroadca
 	
 	//Get damage using hunter damage formula
 	//damage in this is expressed as a float because my server has competitive hunter pouncing where the decimal counts
-	float dmg = (((distance - float(min)) / float(max - min)) * float(maxDmg)) + 1;
-	float killdamage = hKillDamage.FloatValue;
+	float dmg = (((distance - float(g_iMinPounceDistance)) / float(g_iMaxPounceDistance - g_iMinPounceDistance)) * float(g_iMaxPounceDamage)) + 1;
 	
 	//Check if calculate damage is higher than max, and cap to max.
-	if(hCapDamage.BoolValue && dmg > maxDmg)
-		dmg = float(maxDmg) + 1;
+	if(g_bCapDamage && dmg > g_iMaxPounceDamage)
+		dmg = float(g_iMaxPounceDamage) + 1;
 	
-	if(distance >= min && dmg >= minAnnounce)
+	if(distance >= g_iMinPounceDistance && dmg >= g_iMinPounceAnnounce)
 	{
 		GetClientName(attackerClient,attackerName,sizeof(attackerName));
 		GetClientName(victimClient,victimName,sizeof(victimName));
 		#if DEBUG
-		PrintToServer("Pounce: max: %d min: %d dmg: %d dist: %d dmg: %.01f",max,min,maxDmg,distance, dmg);
+			PrintToServer("Pounce: max: %d min: %d dmg: %d dist: %d dmg: %.01f",g_iMaxPounceDistance,g_iMinPounceDistance,g_iMaxPounceDamage,distance, dmg);
 		#endif
-		Format(pounceLine,sizeof(pounceLine),"\x04[SM] %s \x01高撲 \x05%s \x01造成了 \x03%.01f \x01傷害.(最大: \x04%d\x01)",attackerName,victimName,dmg,maxDmg + 1);
+		FormatEx(pounceLine,sizeof(pounceLine),"\x04[SM] %s \x01pounced \x05%s \x01for \x03%.01f \x01damage.(Max: \x04%d\x01)", attackerName,victimName,dmg,g_iMaxPounceDamage + 1);
 		
-		showDistance = hShowDistance.IntValue;
-		if(showDistance > 0)
+		if(g_iShowDistance > 0)
 		{
-			switch(showDistance)
+			switch(g_iShowDistance)
 			{
 				case (view_as<int>(Units)):
 				{
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 單位",distance);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units",distance);
 				}
 				case (view_as<int>(UnitsAndFeet)):
 				{ //units / 16 = feet in game
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 單位 (%d 呎)",distance, distance / 16);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units (%d feet)",distance, distance / 16);
 				}
 				case (view_as<int>(UnitsAndMeters)):
 				{	//0.0213 = conversion rate for units to meters
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 單位 (%.0f 公尺)",distance, distance * 0.0213);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units (%.0f meters)",distance, distance * 0.0213);
 				}
 				case (view_as<int>(Feet)):
 				{
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 呎", distance / 16); 
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d feet", distance / 16); 
 				}
 				case (view_as<int>(Meters)):
 				{
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %.0f 公尺", distance * 0.0213);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %.0f meters", distance * 0.0213);
 				}
 			}
 			StrCat(pounceLine,sizeof(pounceLine),distanceBuffer);
 		}
 
-		if(centerChat)
-			PrintHintTextToAll(pounceLine);
-		else
+		if(g_iCenterChat == 0)
 			CPrintToChatAll(pounceLine);
+		else if(g_iCenterChat == 1)
+			PrintHintTextToAll(pounceLine);
 
-		//PrintToChatAll("killdamage: %f, dmg, %f, victimClient: %N", killdamage, dmg, victimClient);
-		if(killdamage != 0.0 && killdamage <= dmg)
+		//PrintToChatAll("killdamage: %f, dmg, %f, victimClient: %N", g_iKillDamage, dmg, victimClient);
+		if(g_iKillDamage != 0.0 && g_iKillDamage <= dmg)
 		{
 			ForcePlayerSuicide(victimClient);
-			CPrintToChatAll("\x04[SM] %N \x01的高撲對 \x05%N \x01造成了致命一擊");
+			CPrintToChatAll("\x04[SM] %N\x01's high pounce causes \x05%N\x01 instant kill!");
 		}	
 	}
 }
