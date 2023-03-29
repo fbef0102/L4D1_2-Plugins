@@ -1,11 +1,13 @@
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
+#include <regex>
 
 #define CVAR_FLAGS			FCVAR_NOTIFY
 
-ConVar g_ConVarHibernate, sb_all_bot_game, sb_all_bot_team, g_ConVarUnloadExtNum;
-int g_iCvarUnloadExtNum;
+ConVar g_ConVarHibernate, sb_all_bot_game, sb_all_bot_team;
+//ConVar g_ConVarUnloadExtNum;
+//int g_iCvarUnloadExtNum;
 Handle COLD_DOWN_Timer;
 
 public Plugin myinfo =
@@ -13,7 +15,7 @@ public Plugin myinfo =
 	name = "L4D auto restart",
 	author = "Harry Potter",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
-	version = "2.3",
+	version = "2.4",
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -52,10 +54,10 @@ public void OnPluginStart()
 		sb_all_bot_team = FindConVar("sb_all_bot_team");
 	}
 	
-	g_ConVarUnloadExtNum = CreateConVar("liunx_auto_restart_unload_ext_num", 			"0", 	"If you have Accelerator extension, you need specify here order number of this extension in the list: sm exts list", CVAR_FLAGS);
+	//g_ConVarUnloadExtNum = CreateConVar("liunx_auto_restart_unload_ext_num", 			"0", 	"If you have Accelerator extension, you need specify here order number of this extension in the list: sm exts list", CVAR_FLAGS);
 	
 	GetCvars();
-	g_ConVarUnloadExtNum.AddChangeHook(OnCvarChanged);
+	//g_ConVarUnloadExtNum.AddChangeHook(OnCvarChanged);
 	AutoExecConfig(true, "linux_auto_restart");
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);	
@@ -73,7 +75,7 @@ public void OnCvarChanged(ConVar convar, const char[] oldValue, const char[] new
 
 void GetCvars()
 {
-	g_iCvarUnloadExtNum = g_ConVarUnloadExtNum.IntValue;
+	//g_iCvarUnloadExtNum = g_ConVarUnloadExtNum.IntValue;
 }
 
 public void OnMapEnd()
@@ -136,10 +138,35 @@ Action Timer_RestartServer(Handle timer)
 
 void UnloadAccelerator()
 {
-	if( g_iCvarUnloadExtNum )
+	/*if( g_iCvarUnloadExtNum )
 	{
 		ServerCommand("sm exts unload %i 0", g_iCvarUnloadExtNum);
+	}*/
+
+	char responseBuffer[4096];
+	
+	// fetch a list of sourcemod extensions
+	ServerCommandEx(responseBuffer, sizeof(responseBuffer), "%s", "sm exts list");
+	
+	// matching ext name only should sufiice
+	Regex regex = new Regex("\\[([0-9]+)\\] Accelerator");
+	
+	// actually matched?
+	// CapcureCount == 2? (see @note of "Regex.GetSubString" in regex.inc)
+	if (regex.Match(responseBuffer) > 0 && regex.CaptureCount() == 2)
+	{
+		char sAcceleratorExtNum[4];
+		
+		// 0 is the full string "[?] Accelerator"
+		// 1 is the matched extension number
+		regex.GetSubString(1, sAcceleratorExtNum, sizeof(sAcceleratorExtNum));
+		
+		// unload it
+		ServerCommand("sm exts unload %s 0", sAcceleratorExtNum);
+		ServerExecute();
 	}
+	
+	delete regex;
 }
 
 bool CheckPlayerInGame(int client)
