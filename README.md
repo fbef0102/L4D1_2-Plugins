@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/3/24)
+> All plugins in here apply to both L4D1/2 (last edited:2023/3/29)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -20,7 +20,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
 * <b>[l4d_sm_respawn](/l4d_sm_respawn)</b>: Let's you respawn Players by console.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
-* <b>[linux_auto_restart](/linux_auto_restart)</b>: make linux auto restart server when the last player disconnects from the server.
 * <b>[skeet_database](/skeet_database)</b>: Skeet Announce Edition (Database).
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
@@ -135,7 +134,9 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 顯示Hunter造成的高撲傷害與高撲距離
 * <b>[l4d_meteor_hunter](/l4d_meteor_hunter)</b>: Hunter high pounces cause meteor strike
     * Hunter的高撲造成核彈衝擊波
-    
+* <b>[linux_auto_restart](/linux_auto_restart)</b>: make linux auto restart server when the last player disconnects from the server.
+    * 最後一位玩家離開伺服器之後自動關閉Server並重啟
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
