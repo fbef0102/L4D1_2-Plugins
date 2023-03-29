@@ -58,7 +58,7 @@ public void OnPluginStart()
 	
 	GetCvars();
 	//g_ConVarUnloadExtNum.AddChangeHook(OnCvarChanged);
-	AutoExecConfig(true, "linux_auto_restart");
+	//AutoExecConfig(true, "linux_auto_restart");
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);	
 }
