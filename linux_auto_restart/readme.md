@@ -1,5 +1,5 @@
 # Description | 內容
-Allows admins to force the game to pause, only adm can unpause the game.
+Restart server when the last player disconnects from the server.
 
 * Video | 影片展示
 <br/>None
