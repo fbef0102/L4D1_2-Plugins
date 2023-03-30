@@ -6,7 +6,7 @@
 #include <left4dhooks>
 //#include <l4d2_changelevel>
 
-#define Version "2.5"
+#define Version "2.6"
 #define MAX_ARRAY_LINE 50
 #define MAX_MAPNAME_LEN 64
 #define MAX_CREC_LEN 2
@@ -35,7 +35,7 @@ Handle hKVSettings = null;
 
 public Plugin myinfo = 
 {
-	name = "L4D Force Mission Changer",
+	name = "L4D1/L4D2 Force Mission Changer",
 	author = "Dionys, Harry, Jeremy Villanueva",
 	description = "Force change to next mission when current mission end.",
 	version = Version,
@@ -68,16 +68,16 @@ public void OnPluginStart()
 	
 	h_GameMode = FindConVar("mp_gamemode");
 
-	DefMCoop = CreateConVar("sm_l4d_fmc_def_coop", "c2m1_highway", "Mission for change by default on final map in coop/realism. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
-	DefMSurvival = CreateConVar("sm_l4d_fmc_def_survival", "", "Mission for change by default in survival. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
-	DefMVersus = CreateConVar("sm_l4d_fmc_def_versus", "c8m1_apartment", "Mission for change by default on final map in versus. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
-	CheckRoundCounterCoop = CreateConVar("sm_l4d_fmc_crec_coop_map", "3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on non-final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
-	CheckRoundCounterCoopFinal = CreateConVar("sm_l4d_fmc_crec_coop_final", "3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
-	CheckRoundCounterSurvival = CreateConVar("sm_l4d_fmc_crec_survival_map", "5", "Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	ChDelayVS = CreateConVar("sm_l4d_fmc_delay_vs", "13.0", "After final map finishes, delay before force of changelevel in versus. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	ChDelaySurvival = CreateConVar("sm_l4d_fmc_delay_survival", "15.0", "After round ends, delay before force of changelevel in versus. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	ChDelayCOOPFinal = CreateConVar("sm_l4d_fmc_delay_coop_final", "15.0", "After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	cvarAnnounce = CreateConVar("sm_l4d_fmc_announce", "1", "Enables next mission and how many chances left to advertise to players.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
+	DefMCoop 					= CreateConVar("sm_l4d_fmc_def_coop", 			"c2m1_highway", "Mission for change by default on final map in coop/realism. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
+	DefMSurvival 				= CreateConVar("sm_l4d_fmc_def_survival", 		"", "Mission for change by default in survival. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
+	DefMVersus 					= CreateConVar("sm_l4d_fmc_def_versus", 		"c8m1_apartment", "Mission for change by default on final map in versus. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
+	CheckRoundCounterCoop 		= CreateConVar("sm_l4d_fmc_crec_coop_map", 		"3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on non-final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
+	CheckRoundCounterCoopFinal 	= CreateConVar("sm_l4d_fmc_crec_coop_final",	"3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
+	CheckRoundCounterSurvival 	= CreateConVar("sm_l4d_fmc_crec_survival_map", 	"5", "Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	ChDelayVS 					= CreateConVar("sm_l4d_fmc_delay_vs", 			"13.0", "After final map finishes, delay before force of changelevel in versus. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	ChDelaySurvival 			= CreateConVar("sm_l4d_fmc_delay_survival", 	"15.0", "After round ends, delay before force of changelevel in versus. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	ChDelayCOOPFinal			= CreateConVar("sm_l4d_fmc_delay_coop_final", 	"15.0", "After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	cvarAnnounce 				= CreateConVar("sm_l4d_fmc_announce", 			"1", "Enables next mission and how many chances left to advertise to players.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	AutoExecConfig(true, "sm_l4d_mapchanger");
 
 	GetCvars();
@@ -96,16 +96,12 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_fmc_nextmap", Cmd_NextMap, "Display Next Map");
 	RegConsoleCmd("sm_fmc", Cmd_NextMap, "Display Next Map");
 
+	HookUserMessage(GetUserMessageId("PZEndGamePanelMsg"), PZEndGamePanelMsg, true);
+	HookUserMessage(GetUserMessageId("DisconnectToLobby"), OnDisconnectToLobby, true);
 }
 
-public Action Cmd_NextMap(int client, int args)
-{
-	ReplyToCommand(client, "%T","Announce Map Command", client, announce_map, next_mission_type);
 
-	return Plugin_Handled;
-}
-
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -125,7 +121,7 @@ void GetCvars()
 	cvarAnnounceValue = cvarAnnounce.BoolValue;
 }
 
-public void ConVarGameMode(ConVar cvar, const char[] sOldValue, const char[] sintValue)
+void ConVarGameMode(ConVar cvar, const char[] sOldValue, const char[] sintValue)
 {
 	GameModeCheck();
 }
@@ -157,7 +153,39 @@ public void OnClientPutInServer(int client)
 		CreateTimer(10.0, TimerAnnounce, client, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
+Action Cmd_NextMap(int client, int args)
+{
+	ReplyToCommand(client, "%T","Announce Map Command", client, announce_map, next_mission_type);
+
+	return Plugin_Handled;
+}
+
+Action PZEndGamePanelMsg(UserMsg msg_id, BfRead hMsg, const int[] players, int playersNum, bool reliable, bool init)
+{
+	if(g_iCurrentMode == 2 && ChDelayVSValue > 0.0)
+	{
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Continue;
+}
+
+Action OnDisconnectToLobby(UserMsg msg_id, BfRead hMsg, const int[] players, int playersNum, bool reliable, bool init)
+{
+	if(g_iCurrentMode == 2 && ChDelayVSValue > 0.0)
+	{
+		return Plugin_Handled;
+	}
+
+	if(g_iCurrentMode == 1 && ChDelayCOOPFinalValue > 0.0)
+	{
+		return Plugin_Handled;
+	}
+
+	return Plugin_Continue;
+}
+
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	g_bHasRoundEnd = false;
 
@@ -199,7 +227,9 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+
+
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(g_bHasRoundEnd == true) return;
 	g_bHasRoundEnd = true;
@@ -230,13 +260,13 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 }
 
 
-public void Event_FinalWin(Event event, const char[] name, bool dontBroadcast) 
+void Event_FinalWin(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(ChDelayCOOPFinalValue > 0 && g_iCurrentMode == 1 && StrEqual(next_mission_map, "none") == false)
 		CreateTimer(ChDelayCOOPFinalValue, Timer_ChangeMap, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public void Event_MissionLost(Event event, const char[] name, bool dontBroadcast) 
+void Event_MissionLost(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(StrEqual(next_mission_map, "none") == false)
 	{
@@ -263,7 +293,7 @@ public void Event_MissionLost(Event event, const char[] name, bool dontBroadcast
 		}
 }
 
-public Action TimerAnnounce(Handle timer, any client)
+Action TimerAnnounce(Handle timer, any client)
 {
 	if(IsClientInGame(client))
 	{
@@ -280,7 +310,7 @@ public Action TimerAnnounce(Handle timer, any client)
 	return Plugin_Continue;
 }
 
-public Action Timer_ChangeMap(Handle timer)
+Action Timer_ChangeMap(Handle timer)
 {
 	ServerCommand("changelevel %s", next_mission_map);
 	//L4D2_ChangeLevel(next_mission_map);
@@ -468,7 +498,7 @@ void GameModeCheck()
 	}
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iCurrentMode = 1;

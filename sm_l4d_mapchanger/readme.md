@@ -28,6 +28,9 @@ Force change to next mission when current mission(final stage) end + Force chang
 	//Dionys @ 2008~2009
 	//Harry @ 2019~2023
 	```
+    * v2.6 (2023-3-30)
+		* Block players from returning to lobby in coop final or versus final while change to next map 
+
     * v2.5 (2023-1-12)
 	    * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2728817&postcount=676)
 	    * Remake Code
