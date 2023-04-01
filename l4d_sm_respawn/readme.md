@@ -77,5 +77,4 @@ Allows players to be respawned by admin.
 * 功能
 	* 可以加入到管理員菜單下，輸入!admin->玩家指令->復活玩家
 	* 可設置復活後給予的武器
-	* 可設置是否給防彈背心與頭盔
 	* 紀錄log
