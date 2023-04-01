@@ -6,7 +6,7 @@
 #include <adminmenu>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION "2.7"
+#define PLUGIN_VERSION "2.8"
 
 #define CVAR_FLAGS	FCVAR_NOTIFY
 
@@ -27,8 +27,6 @@ ConVar g_cvLoadout, g_cvShowAction, g_cvAddTopMenu, g_cvDestination;
 
 bool g_bLeft4dead2;
 bool g_bMenuAdded;
-
-Handle g_WarpToValidPositionSDKCall;
 
 TopMenuObject hAdminSpawnItem;
 
@@ -58,18 +56,6 @@ public void OnPluginStart()
 	g_cvAddTopMenu = 	CreateConVar("l4d_sm_respawn_adminmenu", 	"1", 	"Add 'Respawn player' item in admin menu under 'Player commands' category? (0 - No, 1 - Yes)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvDestination = 	CreateConVar("l4d_sm_respawn_destination", 	"0", 	"After respawn player, teleport player to 0=Crosshair, 1=Self (You must be alive).", CVAR_FLAGS, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "l4d_sm_respawn");
-
-	Handle hGameData = LoadGameConfigFile("l4drespawn");
-	if (hGameData == null) SetFailState("Could not find gamedata file at addons/sourcemod/gamedata/l4drespawn.txt , you FAILED AT INSTALLING");
-	
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, "WarpToValidPositionIfStuck");
-	g_WarpToValidPositionSDKCall = EndPrepSDKCall();
-	if(g_WarpToValidPositionSDKCall == null)
-	{
-		SetFailState("Could not find signature \"WarpToValidPositionIfStuck\".");
-	}
-	delete hGameData;
 	
 	if( g_bLeft4dead2 )
 	{
@@ -493,7 +479,7 @@ void vPerformTeleport(int client, int target, float pos[3], float ang[3])
 
 Action Timer_WarpIfStuck(Handle timer, int target)
 {
-	SDKCall(g_WarpToValidPositionSDKCall, target, 0); //if stuck
+	L4D_WarpToValidPositionIfStuck(target); //if stuck
 
 	return Plugin_Continue;
 }
