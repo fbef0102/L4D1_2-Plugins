@@ -83,7 +83,7 @@ Remove drop weapon + remove upgrade pack when deployed
 </details>
 
 * Modify weapon delete list
-	* [scripting/clear_weapon_drop.sp line 20~62](scripting/clear_weapon_drop.sp#L20-L62)
+	* [scripting/clear_weapon_drop.sp line 23~65](scripting/clear_weapon_drop.sp#L23-L65)
 
 - - - -
 # 中文說明
@@ -109,7 +109,8 @@ Remove drop weapon + remove upgrade pack when deployed
 	* 是否刪除精靈小矮人
 
 * 修改武器與物品刪除的列表
-	* [scripting/clear_weapon_drop.sp line 20~62](scripting/clear_weapon_drop.sp#L20-L62)
+	* [scripting/clear_weapon_drop.sp line 23~65](scripting/clear_weapon_drop.sp#L23-L65)
+	* 修改完後重新編譯
 
     * 所有武器與物品名稱
 		```php
