@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/4/1)
+> All plugins in here apply to both L4D1/2 (last edited:2023/4/2)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -43,7 +43,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, is hanging, or is incapped, will respawn after a period of time.
-* <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw special infected instead of rock
 * <b>[l4d_graves](/l4d_graves)</b>: When a survivor die, on his body appear a grave.
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
@@ -137,6 +136,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 最後一位玩家離開伺服器之後自動關閉Server並重啟
 * <b>[l4d_sm_respawn](/l4d_sm_respawn)</b>: Allows players to be respawned by admin.
     * 管理員能夠復活死去的玩家
+* <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw special infected instead of rock
+    * Tank不扔石頭而是扔出特感
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
