@@ -8,6 +8,43 @@
 #include <left4dhooks>
 #include <actions> // https://forums.alliedmods.net/showthread.php?t=336374
 
+public Plugin myinfo = 
+{
+	name = "Tanks throw special infected",
+	author = "Pan Xiaohai & HarryPotter",
+	description = "Tanks throw special infected instead of rock",
+	version = "1.8h",
+	url = "https://forums.alliedmods.net/showthread.php?t=140254"
+}
+
+static int ZC_TANK;
+static char sSpawnCommand[32];
+int L4D2Version;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test == Engine_Left4Dead )
+	{
+		L4D2Version = false;
+		ZC_TANK = 5;
+		sSpawnCommand = "z_spawn";
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		L4D2Version = true;
+		ZC_TANK = 8;
+		sSpawnCommand = "z_spawn_old";
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+	
+	return APLRes_Success; 
+}
+
 #define PARTICLE_ELECTRICAL	"electrical_arc_01_system"
 
 #define MODEL_SMOKER "models/infected/smoker.mdl"
@@ -34,6 +71,8 @@ static Handle hCreateTank = null;
 
 #define SOUND_THROWN_MISSILE 		"player/tank/attack/thrown_missile_loop_1.wav"
 
+#define MAXENTITIES                   2048
+
 #define ZC_SMOKER	1
 #define ZC_BOOMER	2
 #define ZC_HUNTER	3
@@ -42,7 +81,6 @@ static Handle hCreateTank = null;
 #define ZC_CHARGER	6
 #define ZC_WITCH 	7
 
-int g_iVelocity ;
 ConVar l4d_tank_throw_si_ai, l4d_tank_throw_si_real, l4d_tank_throw_hunter, l4d_tank_throw_smoker, l4d_tank_throw_boomer,
 	l4d_tank_throw_charger, l4d_tank_throw_spitter, l4d_tank_throw_jockey, l4d_tank_throw_tank, l4d_tank_throw_self,
 	l4d_tank_throw_tank_health, l4d_tank_throw_witch, l4d_tank_throw_witch_health,
@@ -52,51 +90,13 @@ ConVar l4d_tank_throw_si_ai, l4d_tank_throw_si_real, l4d_tank_throw_hunter, l4d_
 
 ConVar z_tank_throw_force;
 
-Handle Rock_Timer[2048 +1];
-int iTank[2048 +1];
+bool g_bIsTraceRock[MAXENTITIES +1];
 int throw_tank_health, throw_witch_health, iThrowSILimit[9];
-int L4D2Version;
-bool g_bMapStarted, g_bSpawnWitchBride;
+bool g_bSpawnWitchBride;
 float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fThrowSIChance[9], z_tank_throw_force_speed, g_fWitchKillTime;
 Handle g_hNextBotPointer, g_hGetLocomotion, g_hJump;
 
 forward void L4D_OnTraceRockCreated(int entity); //from l4d_tracerock
-
-public Plugin myinfo = 
-{
-	name = "Tanks throw special infected",
-	author = "Pan Xiaohai & HarryPotter",
-	description = "Tanks throw special infected instead of rock",
-	version = "1.7",
-	url = "https://forums.alliedmods.net/showthread.php?t=140254"
-}
-
-static int ZC_TANK;
-static char sSpawnCommand[32];
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
-{
-	EngineVersion test = GetEngineVersion();
-	
-	if( test == Engine_Left4Dead )
-	{
-		L4D2Version = false;
-		ZC_TANK = 5;
-		sSpawnCommand = "z_spawn";
-	}
-	else if( test == Engine_Left4Dead2 )
-	{
-		L4D2Version = true;
-		ZC_TANK = 8;
-		sSpawnCommand = "z_spawn_old";
-	}
-	else
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-		return APLRes_SilentFailure;
-	}
-	
-	return APLRes_Success; 
-}
 
 public void OnPluginStart()
 {
@@ -132,15 +132,7 @@ public void OnPluginStart()
 	l4d_tank_throw_tank_limit		= CreateConVar("l4d_tank_throw_tank_limit", "3",  	"Tank Limit on the field[1 ~ 10] (if limit reached, throw Tank teammate or yourself)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 	
 	l4d_tank_throw_witch_limit		= CreateConVar("l4d_tank_throw_witch_limit", "3",  	"Witch Limit on the field[1 ~ 10] (if limit reached, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
 	
-
-
-	HookEvent("round_end", RoundEnd, EventHookMode_PostNoCopy);
-	HookEvent("finale_win", RoundEnd, EventHookMode_PostNoCopy);
-	HookEvent("mission_lost", RoundEnd, EventHookMode_PostNoCopy);
-	HookEvent("map_transition", RoundEnd, EventHookMode_PostNoCopy);
-	
 	AutoExecConfig(true, "l4d_tankhelper");
-	g_iVelocity = FindSendPropInfo("CBasePlayer", "m_vecVelocity[0]");
  
 	GetConVar();
 	z_tank_throw_force.AddChangeHook(ConVarChange);
@@ -176,14 +168,8 @@ public void OnPluginStart()
 	AddNormalSoundHook(OnNormalSoundPlay);
 }
 
-public void OnPluginEnd()
-{
-	ResetTimer();
-}
-
 public void OnMapStart()
 { 
-	g_bMapStarted = true;
 	PrecacheModel(MODEL_SMOKER, true);
 	PrecacheModel(MODEL_BOOMER, true);
 	PrecacheModel(MODEL_HUNTER, true);
@@ -200,12 +186,6 @@ public void OnMapStart()
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
-}
-
-public void OnMapEnd()
-{
-	g_bMapStarted = false;
-	ResetTimer();
 }
 
 public void ConVarChange(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -248,96 +228,49 @@ void GetConVar()
 	g_fWitchKillTime = g_hWitchKillTime.FloatValue;
 }
 
-public void RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+//-------------------------------Left4Dhooks API Forward-------------------------------
+
+public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3], const float vecAng[3], const float vecVel[3], const float vecRot[3])
 {
-	ResetTimer();
-}
-
-public void OnEntityCreated(int entity, const char[] classname)
-{
-	if(!g_bMapStarted)
-		return;
-
-	if (!IsValidEntityIndex(entity))
-		return;
-
-	switch (classname[0])
+	if(tank < 0 || g_bIsTraceRock[rock])
 	{
-		case 't':
-		{
-			if(strcmp(classname, "tank_rock", true) == 0)
-			{
-				SDKHook(entity, SDKHook_SpawnPost, OnSpawnPost);
-			}
-		}
-	}
-	}
-
-public void OnSpawnPost(int entity)
-{
-	if( !IsValidEntity(entity) ) return;
-	 
-	int client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-
-	delete Rock_Timer[entity];
-
-	if(IsAliveTank(client))
-	{
-		iTank[entity] = client;
-		float random = GetRandomFloat(1.0, 100.0);
-		if( (IsFakeClient(client) && random <= fl4d_tank_throw_si_ai) ||
-			(!IsFakeClient(client) && random <= fl4d_tank_throw_si_real) )
-		{
-			Rock_Timer[entity] = CreateTimer(0.1, Timer_TraceRock, entity, TIMER_REPEAT);
-		}
-	}
-}
-
-public void OnEntityDestroyed(int entity)
-{
-	if (!IsValidEntityIndex(entity))
+		g_bIsTraceRock[rock] = false;
 		return;
+	}
 
-	delete Rock_Timer[entity];
-}
-
-public void L4D_OnTraceRockCreated(int entity)
-{
-	delete Rock_Timer[entity];
-}
-
-public Action Timer_TraceRock(Handle timer, any entity)
-{
-	float velocity[3], pos[3];
-	
-	GetEntDataVector(entity, g_iVelocity, velocity);
-	float v=GetVectorLength(velocity);
-	if(v>500.0)
-	{	
-		GetEntPropVector(entity, Prop_Send, "m_vecOrigin", pos);
-		if(StuckCheck(entity, pos) && IsAliveTank(iTank[entity]))
+	float random = GetRandomFloat(1.0, 100.0);
+	if( (IsFakeClient(tank) && random <= fl4d_tank_throw_si_ai) ||
+		(!IsFakeClient(tank) && random <= fl4d_tank_throw_si_real) )
+	{
+		if(IsRockStuck(rock, vecPos) == false)
 		{
+			float velocity[3];
+			velocity[0] = vecVel[0]; velocity[1] = vecVel[1]; velocity[2] = vecVel[2];
+			
 			NormalizeVector(velocity, velocity);
 			ScaleVector(velocity, z_tank_throw_force_speed * 1.4);
-			int new_helper_si = CreateSI(iTank[entity], pos, velocity);
+			int new_helper_si = CreateSI(tank, vecPos, vecAng, velocity);
 			if(new_helper_si > 0)
 			{
-				Rock_Timer[entity] = null;
-				RemoveEdict(entity);
-				if(L4D2Version)
-				{
-					DisplayParticle(0, PARTICLE_ELECTRICAL, pos, NULL_VECTOR);	
-				}
-				return Plugin_Stop;
+				RemoveEdict(rock);
+				if(L4D2Version) DisplayParticle(0, PARTICLE_ELECTRICAL, vecPos, NULL_VECTOR);	
+				if(new_helper_si <= MaxClients) L4D_WarpToValidPositionIfStuck(new_helper_si);
 			}
 		}
-		Rock_Timer[entity] = null;
-		return Plugin_Stop;
 	}
-
-	return Plugin_Continue;
 }
-bool StuckCheck(int ent, float pos[3])
+
+//-------------------------------Other API Forward-------------------------------
+
+// from l4d_tracerock.smx by Harry, Tank's rock will trace survivor until hit something.
+public void L4D_OnTraceRockCreated(int rock)
+{
+	g_bIsTraceRock[rock] = true;
+}
+
+//--------------------------------------------------------------
+
+bool IsRockStuck(int ent, const float pos[3])
 {
 	float vAngles[3];
 	float vOrigin[3];
@@ -352,14 +285,15 @@ bool StuckCheck(int ent, float pos[3])
 		if(dis>100.0)
 		{
 			delete trace;
-			return true;
+			return false;
 		}
 	}
+	
 	delete trace;
-	return false;
+	return true;
 }
 
-int CreateSI(int thetank, const float pos[3], const float velocity[3])
+int CreateSI(int thetank, const float pos[3], const float ang[3], const float velocity[3])
 {
 	int selected=0;
 	int chooseclass=0;
@@ -555,11 +489,11 @@ int CreateSI(int thetank, const float pos[3], const float velocity[3])
 		{
 			if( g_bSpawnWitchBride )
 			{
-				selected = L4D2_SpawnWitchBride(pos,NULL_VECTOR);
+				selected = L4D2_SpawnWitchBride(pos, ang);
 			}
 			else
 			{
-				selected = L4D2_SpawnWitch(pos,NULL_VECTOR);
+				selected = L4D2_SpawnWitch(pos, ang);
 			}
 			if(selected > MaxClients)
 			{
@@ -716,7 +650,7 @@ int CreateSI(int thetank, const float pos[3], const float velocity[3])
 	{
 		// PrintToChatAll("%d was throw: %.2f %.2f %.2f %.2f %.2f %.2f", 
 		//  	selected, pos[0], pos[1], pos[2], velocity[0], velocity[1], velocity[2]);
-		TeleportEntity(selected, pos, NULL_VECTOR, velocity);
+		TeleportEntity(selected, pos, ang, velocity);
 	}
  
  	return selected;
@@ -816,31 +750,6 @@ int PrecacheParticle(const char[] sEffectName)
 	}
 
 	return index;
-}
-
-bool IsValidEntityIndex(int entity)
-{
-    return (MaxClients+1 <= entity <= GetMaxEntities());
-}
-
-void ResetTimer()
-{
-	int maxents = GetMaxEntities();
-	for (int entity = 1; entity < maxents; entity++)
-	{
-		delete Rock_Timer[entity];
-	}
-}
-
-bool IsAliveTank(int client)
-{
-	if(client > 0 && client <= MaxClients && IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
-	{
-		if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZC_TANK)
-			return true;
-	}
-
-	return false;
 }
 
 Handle hGameConf;
