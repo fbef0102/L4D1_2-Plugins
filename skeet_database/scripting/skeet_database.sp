@@ -562,7 +562,7 @@ void PrintStats()
 		frags = Kills[client];
 		skeetscount = Skeets[client];
 		shoved = DeadStoped[client];
-		PrintToChatAll("\x04%N \x03(Frags: \x01%i \x03| Skeets: \x01%i \x03| Deadstops: \x01%i\x03)", client, frags, skeetscount, shoved);
+		PrintToChatAll("\x04%N \x03(Kills: \x01%i \x03| Skeets: \x01%i \x03| Deadstops: \x01%i\x03)", client, frags, skeetscount, shoved);
 	}
 	PrintToChatAll("\x01------------------------------");
 }
