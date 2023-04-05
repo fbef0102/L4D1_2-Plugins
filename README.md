@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/4/2)
+> All plugins in here apply to both L4D1/2 (last edited:2023/4/6)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -138,6 +138,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 管理員能夠復活死去的玩家
 * <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw special infected instead of rock
     * Tank不扔石頭而是扔出特感
+* <b>[l4d_pig_infected_notify](/l4d_pig_infected_notify)</b>: Show who is pig teammate in infected team
+    * 顯示誰是豬隊友 (譬如推Tank拍死隊友、Boomer炸到Tank、Hunter跳樓自殺、Charger著火死亡等等)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
