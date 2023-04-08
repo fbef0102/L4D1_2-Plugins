@@ -9,8 +9,8 @@
 #pragma newdecls required
 
 /* Definition Strings */
-#define PLUGIN_VERSION 			"3.5"
-#define TRANSLATION_FILENAME 	"SurvivorRespawn.phrases"
+#define PLUGIN_VERSION 			"3.6"
+#define TRANSLATION_FILENAME 	"Survivor_Respawn.phrases"
 
 /* Definition Integers */
 #define TEAM_SPECTATOR 	1
@@ -19,8 +19,8 @@
 /* Booleans */
 bool g_bEnableHuman = false;
 bool g_bEnableBots = false;
-bool bRespawnIncapped = false;
-bool bIncludeHanging = false;
+//bool bRespawnIncapped = false;
+//bool bIncludeHanging = false;
 bool bEnablesRespawnLimit = false;
 bool bRescuable[ MAXPLAYERS + 1 ] = {false};
 bool bFinaleEscapeStarted = false;
@@ -30,16 +30,16 @@ static bool bL4D2;
 /* ConVars */
 ConVar hCvar_EnableHuman;
 ConVar hCvar_EnableBots;
-ConVar hCvar_RespawnHanging;
-ConVar hCvar_RespawnIncapped;
+//ConVar hCvar_RespawnHanging;
+//ConVar hCvar_RespawnIncapped;
 ConVar hCvar_RespawnRespect;
 ConVar hCvar_RespawnLimit;
 ConVar hCvar_RespawnTimeout;
 ConVar hCvar_RespawnHP;
 ConVar hCvar_RespawnBuffHP;
-ConVar hCvar_IncapDelay;
-ConVar hCvar_HangingDelay;
-ConVar hCvar_SaveStats;
+//ConVar hCvar_IncapDelay;
+//ConVar hCvar_HangingDelay;
+//ConVar hCvar_SaveStats;
 ConVar hCvar_BotReplaced;
 ConVar hCvar_InvincibleTime;
 ConVar hCvar_EscapeDisable;
@@ -154,7 +154,7 @@ public Plugin myinfo =
     author 		= "Mortiegama And Ernecio (Satanael) & HarryPotter",
     description = "When a Survivor dies, is hanging, or is incapped, will respawn after a period of time.",
     version 	= PLUGIN_VERSION,
-    url 		= "https://steamcommunity.com/profiles/76561198404709570/"
+    url 		= "https://steamcommunity.com/profiles/76561198026784913"
 }
 
 
@@ -191,18 +191,18 @@ public void OnPluginStart()
 	Load_Translations();
 	
 	CreateConVar( 						   "l4d_survivorrespawn_version", 	PLUGIN_VERSION, "Survivor Respawning Version", FCVAR_SPONLY|FCVAR_DONTRECORD|FCVAR_NOTIFY);
-	hCvar_EnableHuman 		= CreateConVar("l4d_survivorrespawn_enablehuman", 		"1", 	"Enables Human Survivors to respawn automatically when incapped and/or killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_EnableBots 		= CreateConVar("l4d_survivorrespawn_enablebot", 		"1", 	"Allows Bots to respawn automatically when incapped and/or killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_RespawnHanging 	= CreateConVar("l4d_survivorrespawn_hanging", 			"0", 	"Survivors will be killed when hanging and respawn afterwards (Def 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_RespawnIncapped 	= CreateConVar("l4d_survivorrespawn_incapped", 			"0", 	"Survivors will be killed when incapped and respawn afterwards (Def 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_EnableHuman 		= CreateConVar("l4d_survivorrespawn_enablehuman", 		"1", 	"Enables Human Survivors to respawn automatically when killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_EnableBots 		= CreateConVar("l4d_survivorrespawn_enablebot", 		"1", 	"Allows Bots to respawn automatically when killed (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	//hCvar_RespawnHanging 	= CreateConVar("l4d_survivorrespawn_hanging", 			"0", 	"Survivors will be killed when hanging and respawn afterwards (Def 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	//hCvar_RespawnIncapped = CreateConVar("l4d_survivorrespawn_incapped", 			"0", 	"Survivors will be killed when incapped and respawn afterwards (Def 0)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_RespawnRespect 	= CreateConVar("l4d_survivorrespawn_limitenable", 		"1", 	"Enables the respawn limit for Survivors (Def 1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_RespawnLimit 		= CreateConVar("l4d_survivorrespawn_deathlimit", 		"3", 	"Amount of times a Survivor can respawn before permanently dying (Def 3)", FCVAR_NOTIFY, true, 0.0, false, _);
 	hCvar_RespawnTimeout 	= CreateConVar("l4d_survivorrespawn_respawntimeout", 	"30", 	"How many seconds till the Survivor respawns (Def 30)", FCVAR_NOTIFY, true, 0.0, false, _);
-	hCvar_IncapDelay 		= CreateConVar("l4d_survivorrespawn_incapdelay", 		"25", 	"How many seconds till the Survivor is killed after being incapacitated (Def 25)", FCVAR_NOTIFY, true, 0.0, false, _);
-	hCvar_HangingDelay 		= CreateConVar("l4d_survivorrespawn_hangingdelay", 		"25", 	"How many seconds till the Survivor is killed while hanging (Def 25)", FCVAR_NOTIFY, true, 0.0, false, _);
+	//hCvar_IncapDelay 		= CreateConVar("l4d_survivorrespawn_incapdelay", 		"25", 	"How many seconds till the Survivor is killed after being incapacitated (Def 25)", FCVAR_NOTIFY, true, 0.0, false, _);
+	//hCvar_HangingDelay 		= CreateConVar("l4d_survivorrespawn_hangingdelay", 	"25", 	"How many seconds till the Survivor is killed while hanging (Def 25)", FCVAR_NOTIFY, true, 0.0, false, _);
 	hCvar_RespawnHP 		= CreateConVar("l4d_survivorrespawn_respawnhp", 		"70", 	"Amount of HP a Survivor will respawn with (Def 70)", FCVAR_NOTIFY, true, 0.0, false, _);
 	hCvar_RespawnBuffHP 	= CreateConVar("l4d_survivorrespawn_respawnbuffhp", 	"30", 	"Amount of buffer HP a Survivor will respawn with (Def 30)", FCVAR_NOTIFY, true, 0.0, false, _);
-	hCvar_SaveStats 		= CreateConVar("l4d_survivorrespawn_savestats", 		"1", 	"Save player statistics if he have died.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	//hCvar_SaveStats 		= CreateConVar("l4d_survivorrespawn_savestats", 		"1", 	"Save player statistics if he have died.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_BotReplaced 		= CreateConVar("l4d_survivorrespawn_botreplaced", 		"1", 	"Respawn bots if is dead in case of using Take Over.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 	"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
 	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", "If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -224,16 +224,16 @@ public void OnPluginStart()
 	GetCvars();
 	hCvar_EnableHuman.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EnableBots.AddChangeHook(ConVarChanged_Cvars);
-	hCvar_RespawnHanging.AddChangeHook(ConVarChanged_Cvars);
-	hCvar_RespawnIncapped.AddChangeHook(ConVarChanged_Cvars);
+	//hCvar_RespawnHanging.AddChangeHook(ConVarChanged_Cvars);
+	//hCvar_RespawnIncapped.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnRespect.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnLimit.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnTimeout.AddChangeHook(ConVarChanged_Cvars);
-	hCvar_SaveStats.AddChangeHook(ConVarChanged_Cvars);
+	//hCvar_SaveStats.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_InvincibleTime.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EscapeDisable.AddChangeHook(ConVarChanged_Cvars);
 	
-	AutoExecConfig( true, "SurvivorRespawn" );
+	AutoExecConfig( true, "Survivor_Respawn" );
 	
 	HookEvent("player_bot_replace", OnBotSwap);
 	HookEvent("bot_player_replace", OnBotSwap);
@@ -241,9 +241,9 @@ public void OnPluginStart()
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post );
 	HookEvent("player_bot_replace", Event_BotReplace, EventHookMode_Post );
 	HookEvent("bot_player_replace", Event_PlayerReplace );
-	HookEvent("player_ledge_grab", Event_PlayerLedgeGrab);
+	//HookEvent("player_ledge_grab", Event_PlayerLedgeGrab);
 	HookEvent("revive_success", Event_ReviveSuccess);
-	HookEvent("player_incapacitated", Event_PlayerIncapped);
+	//HookEvent("player_incapacitated", Event_PlayerIncapped);
 	HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("map_transition", Event_RoundEnd, EventHookMode_PostNoCopy);
@@ -311,13 +311,13 @@ void GetCvars()
 {
 	g_bEnableHuman = hCvar_EnableHuman.BoolValue;
 	g_bEnableBots = hCvar_EnableBots.BoolValue;
-	bIncludeHanging = hCvar_RespawnHanging.BoolValue;
-	bRespawnIncapped = hCvar_RespawnIncapped.BoolValue;
+	//bIncludeHanging = hCvar_RespawnHanging.BoolValue;
+	//bRespawnIncapped = hCvar_RespawnIncapped.BoolValue;
 	bEnablesRespawnLimit = hCvar_RespawnRespect.BoolValue;
 	g_iRespawnLimit = hCvar_RespawnLimit.IntValue;
 	g_iRespawnTimeout = hCvar_RespawnTimeout.IntValue;
 	g_fRespawnTimeout = hCvar_RespawnTimeout.FloatValue;
-	g_bSaveStats = hCvar_SaveStats.BoolValue;
+	//g_bSaveStats = hCvar_SaveStats.BoolValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
 	g_bEscapeDisable = hCvar_EscapeDisable.BoolValue;
 }
@@ -360,12 +360,13 @@ public void Finale_Escape_Start(Event event, const char[] name, bool dontBroadca
 	bFinaleEscapeStarted = true;
 }
 
-public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
+void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
 {
 	bFinaleEscapeStarted = true;
 }
 
-public void Event_PlayerLedgeGrab( Event hEvent, const char[] sName, bool bDontBroadcast )
+/*
+void Event_PlayerLedgeGrab( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "userid" ) );
 
@@ -376,7 +377,7 @@ public void Event_PlayerLedgeGrab( Event hEvent, const char[] sName, bool bDontB
 	}
 }
 
-public Action Timer_HangingRespawn( Handle hTimer, any client)
+Action Timer_HangingRespawn( Handle hTimer, any client)
 {
 	if (IsValidClient(client) && bRescuable[client] && IsPlayerHanging(client))
 	{
@@ -399,7 +400,8 @@ public Action Timer_HangingRespawn( Handle hTimer, any client)
 	return Plugin_Stop;
 }
 
-public void Event_PlayerIncapped( Event hEvent, const char[] sName, bool bDontBroadcast )
+
+void Event_PlayerIncapped( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "userid" ) );
 
@@ -410,7 +412,8 @@ public void Event_PlayerIncapped( Event hEvent, const char[] sName, bool bDontBr
 	}
 }
 
-public Action Timer_IncapRespawn( Handle hTimer, any client)
+
+Action Timer_IncapRespawn( Handle hTimer, any client)
 {
 	if (IsValidClient(client) && bRescuable[client] && IsPlayerIncapped(client))
 	{
@@ -427,8 +430,8 @@ public Action Timer_IncapRespawn( Handle hTimer, any client)
 	
 	return Plugin_Continue;
 }
-
-public void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
+*/
+void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 {
 	int bot = GetClientOfUserId(GetEventInt(event, "bot"));
 	int player = GetClientOfUserId(GetEventInt(event, "player"));
@@ -447,7 +450,7 @@ public void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
+void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "userid" ) );
 
@@ -511,7 +514,7 @@ public void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroad
 	}
 }
 
-public void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
+void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int bot = GetClientOfUserId( hEvent.GetInt( "bot" ) );
 	
@@ -537,7 +540,7 @@ public void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadc
 }
 
 // bot死亡，其有閒置的玩家取代bot時不會觸發此事件，只觸發player_spawn與player_team
-public void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
+void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "player" ) );
 	int bot = GetClientOfUserId( hEvent.GetInt( "bot" ) );
@@ -582,7 +585,7 @@ public void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBro
 	}
 }
 
-public void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
+void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
 {	
 	int UserID = hEvent.GetInt( "userid" );
 	int client = GetClientOfUserId(UserID);
@@ -628,7 +631,7 @@ public void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroad
 	}
 }
 
-public void Event_ReviveSuccess( Event hEvent, const char[] sName, bool bDontBroadcast )
+void Event_ReviveSuccess( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "victim" ) );
 	bRescuable[client] = false;
@@ -636,7 +639,7 @@ public void Event_ReviveSuccess( Event hEvent, const char[] sName, bool bDontBro
 
 /******************************************************************************************************/
 
-public Action CMD_Respawn( int client, int args )
+Action CMD_Respawn( int client, int args )
 {
 	if ( args < 1 )
 	{
@@ -667,7 +670,7 @@ public Action CMD_Respawn( int client, int args )
 	return Plugin_Handled;
 }
 
-public Action CMD_DisplayMenu( int client, int args )
+Action CMD_DisplayMenu( int client, int args )
 {
 	if ( client == 0 )
 	{
@@ -693,7 +696,7 @@ void DisplayRespawnMenu( int client )
 		hMenu.Display( client, MENU_TIME_FOREVER );
 }
 
-public int MenuHandler_Respawn( Menu hMenu, MenuAction hAction, int Param1, int Param2 )
+int MenuHandler_Respawn( Menu hMenu, MenuAction hAction, int Param1, int Param2 )
 {
 	if ( hAction == MenuAction_End )
 		delete hMenu;
@@ -739,7 +742,7 @@ public int MenuHandler_Respawn( Menu hMenu, MenuAction hAction, int Param1, int 
 
 /******************************************************************************************************/
 
-public Action Timer_Respawn( Handle hTimer, any client )
+Action Timer_Respawn( Handle hTimer, any client )
 {
 	RespawnTimer[client] = null;
 	if(g_bIsOpenSafeRoom || g_bRoundEnd) 
@@ -763,7 +766,7 @@ public Action Timer_Respawn( Handle hTimer, any client )
 	return Plugin_Continue;
 }
 /***********************************************************/
-public Action TimerCount( Handle hTimer, int client )
+Action TimerCount( Handle hTimer, int client )
 {
 	if( g_bRoundEnd || RespawnTimer[client] == null || Seconds[client]  <= 0 || !IsClientInGame( client ) || GetClientTeam(client) != TEAM_SURVIVOR || IsPlayerAlive( client ) || IsClientIdle( client )) 
 	{
@@ -850,7 +853,7 @@ void RespawnTarget( int client )
 	EmitSoundToAll(SOUND_RESPAWN, client, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);		
 }
 
-public Action Timer_LoadStatDelayed( Handle hTimer, int UserId )
+Action Timer_LoadStatDelayed( Handle hTimer, int UserId )
 {
 	int client = GetClientOfUserId( UserId );
 	if( client > 0 && IsClientInGame( client ) )
@@ -981,7 +984,7 @@ bool bSetTeleportEndPoint( int client )
 	return true;
 }
 
-public bool bTraceEntityFilterPlayer( int entity, int contentsMask )
+bool bTraceEntityFilterPlayer( int entity, int contentsMask )
 {
 	return ( entity > MaxClients || !entity );
 }
@@ -1125,7 +1128,7 @@ public void OnClientDisconnect(int client)
 	delete IncapTimer[client];
 }
 
-public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
+Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
 {
 	if(!IsValidEntity(inflictor) || damage <= 0.0) return Plugin_Continue;
 
@@ -1156,7 +1159,7 @@ int my_GetRandomClient()
 	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 }
 
-public Action RespawnAgain( Handle hTimer, int UserID )
+Action RespawnAgain( Handle hTimer, int UserID )
 {
 	int client = GetClientOfUserId( UserID );
 	if( client == 0 || IsPlayerAlive( client ) || !IsClientInGame( client ) || IsClientIdle( client ) || GetClientTeam(client) != TEAM_SURVIVOR) 
