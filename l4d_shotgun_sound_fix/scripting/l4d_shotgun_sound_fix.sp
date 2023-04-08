@@ -1,5 +1,6 @@
 #include <sourcemod>
 #include <sdktools>
+#include <ThirdPersonShoulder_Detect>
 
 #pragma semicolon 1
 #pragma newdecls required
