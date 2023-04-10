@@ -272,7 +272,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 </details>
 
 * How to set the correct Convar ?
-	1. <details><summary>Set special limit</summary>
+	1. <details><summary>Set Max Special Limit</summary>
 
 		```php
 		l4d_infectedbots_charger_limit
@@ -281,10 +281,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		l4d_infectedbots_jockey_limit
 		l4d_infectedbots_smoker_limit
 		l4d_infectedbots_spitter_limit
-		l4d_infectedbots_tank_limit
 		```
 
-		These 7 values combined together must equal or exceed ```l4d_infectedbots_max_specials```
+		These 6 values combined together must equal or exceed ```l4d_infectedbots_max_specials```
 		* For example
 			```php
 			// Good
@@ -294,7 +293,6 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			l4d_infectedbots_jockey_limit 1
 			l4d_infectedbots_smoker_limit 1
 			l4d_infectedbots_spitter_limit 1
-			l4d_infectedbots_tank_limit  0
 			l4d_infectedbots_max_specials 6 
 			```
 
@@ -302,11 +300,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			// Also Good
 			l4d_infectedbots_charger_limit 1
 			l4d_infectedbots_boomer_limit 2
-			l4d_infectedbots_hunter_limit 3
+			l4d_infectedbots_hunter_limit 4
 			l4d_infectedbots_jockey_limit 2
 			l4d_infectedbots_smoker_limit 2
 			l4d_infectedbots_spitter_limit 2
-			l4d_infectedbots_tank_limit  1
 			l4d_infectedbots_max_specials 10 
 			```
 
@@ -318,11 +315,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			l4d_infectedbots_jockey_limit 0
 			l4d_infectedbots_smoker_limit 1
 			l4d_infectedbots_spitter_limit 0
-			l4d_infectedbots_tank_limit  0
 			l4d_infectedbots_max_specials 9 
 			```
 
-		> __Note__ Note that it does not counts witch in all gamemode, but it counts tank in all gamemode.
+		> __Note__ Max Special Limit does not count witch, but it counts tank in all gamemode.
 	</details>
 
 	2. <details><summary>Adjust special limit if 5+ alive players</summary>
@@ -722,7 +718,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 </details>
 
 * 如何設置正確的指令值?
-	1. <details><summary>設置特感生成</summary>
+	1. <details><summary>設置特感生成最大數量限制</summary>
 
 		```php
 		l4d_infectedbots_charger_limit
@@ -731,10 +727,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		l4d_infectedbots_jockey_limit
 		l4d_infectedbots_smoker_limit
 		l4d_infectedbots_spitter_limit
-		l4d_infectedbots_tank_limit
 		```
 
-		這7個cvar值加在一起必須等於或超過 ```l4d_infectedbots_max_specials```
+		這6個cvar值加在一起必須等於或超過 ```l4d_infectedbots_max_specials```
 		* For example
 			```php
 			// 好的
@@ -744,7 +739,6 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			l4d_infectedbots_jockey_limit 1
 			l4d_infectedbots_smoker_limit 1
 			l4d_infectedbots_spitter_limit 1
-			l4d_infectedbots_tank_limit  0
 			l4d_infectedbots_max_specials 6 
 			```
 
@@ -752,11 +746,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			// 好的
 			l4d_infectedbots_charger_limit 1
 			l4d_infectedbots_boomer_limit 2
-			l4d_infectedbots_hunter_limit 3
+			l4d_infectedbots_hunter_limit 4
 			l4d_infectedbots_jockey_limit 2
 			l4d_infectedbots_smoker_limit 2
 			l4d_infectedbots_spitter_limit 2
-			l4d_infectedbots_tank_limit  1
 			l4d_infectedbots_max_specials 10 
 			```
 
@@ -768,11 +761,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			l4d_infectedbots_jockey_limit 0
 			l4d_infectedbots_smoker_limit 1
 			l4d_infectedbots_spitter_limit 0
-			l4d_infectedbots_tank_limit  0
 			l4d_infectedbots_max_specials 9 
 			```
 
-		> __Note__ 請注意，插件在所有遊戲模式中都不會計算witch的數量，但在所有遊戲模式中都會計算tank的數量
+		> __Note__ 請注意，最大數量限制不包含witch的數量，但會包含tank的數量
 	</details>
 
 	2. <details><summary>如果第5位以上存活的倖存者，則調整特感最大生成數量</summary>
