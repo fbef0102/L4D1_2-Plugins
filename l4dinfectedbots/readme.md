@@ -35,6 +35,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.7.9 (2023-4-13)
+		* Fixed Not Working in Survival Mode
+		* Fixed cvar "l4d_infectedbots_adjust_spawn_times" calculation mistake
+
 	* v2.7.8 (2023-2-20)
 		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369)
 		* ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2! (Thanks to [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [ProdigySim](https://github.com/ProdigySim/DirectInfectedSpawn)
@@ -100,7 +104,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// Reduce certain value to maximum spawn timer based per alive player
 		l4d_infectedbots_adjust_reduced_spawn_times_on_player "1"
 
-		// If 1, The plugin will adjust spawn timers depending on the gamemode
+		// If 1, The plugin will adjust spawn timers depending on the gamemode and human players on infected team
 		l4d_infectedbots_adjust_spawn_times "1"
 
 		// If 1, adjust and overrides tank health by this plugin.
@@ -382,7 +386,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			l4d_infectedbots_adjust_reduced_spawn_times_on_player "2"
 			```
 
-		* To close this feature, do not want to overrides zombie common limit by this plugin, set
+		* To close this feature, do not want to overrides special infected limit by this plugin, set
 			```php
 			l4d_infectedbots_adjust_spawn_times "0"
 			```
@@ -546,7 +550,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// 每增加一位倖存者，則減少(存活的倖存者數量-l4d_infectedbots_adjust_reduced_spawn_times_on_player)復活時間（初始4位倖存者也算在內）
 		l4d_infectedbots_adjust_reduced_spawn_times_on_player "1"
 
-		// 如果爲1，則根據倖存者數量調整特感復活時間
+		// 如果爲1，則根據倖存者數量與特感隊伍的真人玩家數量調整特感復活時間
 		l4d_infectedbots_adjust_spawn_times "1"
 
 		// 如果爲1，則根據倖存者數量修改Tank血量上限
