@@ -121,6 +121,8 @@ public Action COLDOWN(Handle timer, any client)
 		ClientTeam[client] = GetClientTeam(client);
 		ProcessPlayerLerp(client,true);
 	}
+
+	return Plugin_Continue;
 }
 
 public Action OnTeamChangeDelay(Handle timer, any client)
@@ -284,6 +286,10 @@ float GetLerpTime(int client)
 		flLerpRatio = clamp( flLerpRatio, hMinInterpRatio.FloatValue, hMaxInterpRatio.FloatValue );
 	}
 	else
+	{
+		/*if ( flLerpRatio == 0 )
+			flLerpRatio = 1.0;*/
+	}
 
 	lerpTime = MAX( flLerpAmount, flLerpRatio / updateRate );
 	
