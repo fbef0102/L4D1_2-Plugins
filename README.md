@@ -139,7 +139,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * Tank不扔石頭而是扔出特感
 * <b>[l4d_pig_infected_notify](/l4d_pig_infected_notify)</b>: Show who is pig teammate in infected team
     * 顯示誰是豬隊友 (譬如推Tank拍死隊友、Boomer炸到Tank、Hunter跳樓自殺、Charger著火死亡等等)
-* <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, is hanging, or is incapped, will respawn after a period of time.
+* <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, will respawn after a period of time.
     * 當人類玩家死亡時，過一段時間自動復活
 
 # Scripting Compiler
