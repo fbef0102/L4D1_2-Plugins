@@ -14,6 +14,12 @@
 
 #define NEXTLEVEL_Seconds 6.0
 
+#define GAMEMODE_UNKNOWN	0
+#define GAMEMODE_COOP 		1
+#define GAMEMODE_VERSUS 	2
+#define GAMEMODE_SURVIVAL 	3
+#define GAMEMODE_SCAVENGE 	4
+
 ConVar DefMCoop, DefMSurvival, DefMVersus, CheckRoundCounterCoop, CheckRoundCounterCoopFinal, ChDelayVS, 
 	ChDelaySurvival, CheckRoundCounterSurvival, ChDelayCOOPFinal, cvarAnnounce, h_GameMode;
 
@@ -68,15 +74,15 @@ public void OnPluginStart()
 	
 	h_GameMode = FindConVar("mp_gamemode");
 
-	DefMCoop 					= CreateConVar("sm_l4d_fmc_def_coop", 			"c2m1_highway", "Mission for change by default on final map in coop/realism. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
-	DefMSurvival 				= CreateConVar("sm_l4d_fmc_def_survival", 		"", "Mission for change by default in survival. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
-	DefMVersus 					= CreateConVar("sm_l4d_fmc_def_versus", 		"c8m1_apartment", "Mission for change by default on final map in versus. (Empty=Don't Change Map by default)", FCVAR_NOTIFY);
+	DefMCoop 					= CreateConVar("sm_l4d_fmc_def_coop", 			"c2m1_highway", "Mission for change by default on final map in coop/realism", FCVAR_NOTIFY);
+	DefMSurvival 				= CreateConVar("sm_l4d_fmc_def_survival", 		"c5m5_bridge", "Mission for change by default in survival.", FCVAR_NOTIFY);
+	DefMVersus 					= CreateConVar("sm_l4d_fmc_def_versus", 		"c8m1_apartment", "Mission for change by default on final map in versus.", FCVAR_NOTIFY);
 	CheckRoundCounterCoop 		= CreateConVar("sm_l4d_fmc_crec_coop_map", 		"3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on non-final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
 	CheckRoundCounterCoopFinal 	= CreateConVar("sm_l4d_fmc_crec_coop_final",	"3", "Quantity of rounds (tries) events survivors wipe out before force of changelevel on final maps in coop/realism (0=off)", FCVAR_NOTIFY, true, 0.0);
 	CheckRoundCounterSurvival 	= CreateConVar("sm_l4d_fmc_crec_survival_map", 	"5", "Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	ChDelayVS 					= CreateConVar("sm_l4d_fmc_delay_vs", 			"13.0", "After final map finishes, delay before force of changelevel in versus. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	ChDelaySurvival 			= CreateConVar("sm_l4d_fmc_delay_survival", 	"15.0", "After round ends, delay before force of changelevel in versus. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	ChDelayCOOPFinal			= CreateConVar("sm_l4d_fmc_delay_coop_final", 	"15.0", "After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	ChDelayVS 					= CreateConVar("sm_l4d_fmc_delay_vs", 			"13.0", "After final map finishes, delay before force of changelevel in versus. (0=Don't force to change map)", FCVAR_NOTIFY, true, 0.0);
+	ChDelaySurvival 			= CreateConVar("sm_l4d_fmc_delay_survival", 	"15.0", "After round ends, delay before force of changelevel in versus. (0=Don't force to change map)", FCVAR_NOTIFY, true, 0.0);
+	ChDelayCOOPFinal			= CreateConVar("sm_l4d_fmc_delay_coop_final", 	"15.0", "After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=Don't force to change map)", FCVAR_NOTIFY, true, 0.0);
 	cvarAnnounce 				= CreateConVar("sm_l4d_fmc_announce", 			"1", "Enables next mission and how many chances left to advertise to players.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	AutoExecConfig(true, "sm_l4d_mapchanger");
 
@@ -85,6 +91,7 @@ public void OnPluginStart()
 	h_GameMode.AddChangeHook(ConVarGameMode);
 	DefMCoop.AddChangeHook(ConVarChanged_Cvars);
 	DefMSurvival.AddChangeHook(ConVarChanged_Cvars);
+	DefMVersus.AddChangeHook(ConVarChanged_Cvars);
 	CheckRoundCounterCoop.AddChangeHook(ConVarChanged_Cvars);
 	CheckRoundCounterCoopFinal.AddChangeHook(ConVarChanged_Cvars);
 	CheckRoundCounterSurvival.AddChangeHook(ConVarChanged_Cvars);
@@ -162,7 +169,7 @@ Action Cmd_NextMap(int client, int args)
 
 Action PZEndGamePanelMsg(UserMsg msg_id, BfRead hMsg, const int[] players, int playersNum, bool reliable, bool init)
 {
-	if(g_iCurrentMode == 2 && ChDelayVSValue > 0.0)
+	if(g_iCurrentMode == GAMEMODE_VERSUS && ChDelayVSValue > 0.0)
 	{
 		return Plugin_Handled;
 	}
@@ -172,12 +179,12 @@ Action PZEndGamePanelMsg(UserMsg msg_id, BfRead hMsg, const int[] players, int p
 
 Action OnDisconnectToLobby(UserMsg msg_id, BfRead hMsg, const int[] players, int playersNum, bool reliable, bool init)
 {
-	if(g_iCurrentMode == 2 && ChDelayVSValue > 0.0)
+	if(g_iCurrentMode == GAMEMODE_VERSUS && ChDelayVSValue > 0.0)
 	{
 		return Plugin_Handled;
 	}
 
-	if(g_iCurrentMode == 1 && ChDelayCOOPFinalValue > 0.0)
+	if(g_iCurrentMode == GAMEMODE_COOP && ChDelayCOOPFinalValue > 0.0 && CheckRoundCounterCoopFinalValue > 0)
 	{
 		return Plugin_Handled;
 	}
@@ -191,7 +198,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 	if( StrEqual(next_mission_map, "none") == false )
 	{
-		if(g_iCurrentMode == 1)
+		if(g_iCurrentMode == GAMEMODE_COOP)
 		{
 			int left;
 			if(g_bFinalMap)
@@ -215,7 +222,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 				}
 			}
 		}
-		else if(g_iCurrentMode == 3)
+		else if(g_iCurrentMode == GAMEMODE_SURVIVAL)
 		{
 			int left;
 			if(CheckRoundCounterSurvivalValue > 0 && CoopRoundEndCounter > 0) 
@@ -236,14 +243,14 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 	if(StrEqual(next_mission_map, "none") == false)
 	{
-		if(g_iCurrentMode == 2 && InSecondHalfOfRound() && g_bFinalMap)
+		if(g_iCurrentMode == GAMEMODE_VERSUS && InSecondHalfOfRound() && g_bFinalMap)
 		{
 			if( ChDelayVSValue > 0 )
 			{
 				CreateTimer(ChDelayVSValue, Timer_ChangeMap, TIMER_FLAG_NO_MAPCHANGE);
 			}
 		}
-		else if(g_iCurrentMode == 3)
+		else if(g_iCurrentMode == GAMEMODE_SURVIVAL)
 		{
 			CoopRoundEndCounter++;
 			
@@ -262,7 +269,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Event_FinalWin(Event event, const char[] name, bool dontBroadcast) 
 {
-	if(ChDelayCOOPFinalValue > 0 && g_iCurrentMode == 1 && StrEqual(next_mission_map, "none") == false)
+	if(ChDelayCOOPFinalValue > 0 && g_iCurrentMode == GAMEMODE_COOP && StrEqual(next_mission_map, "none") == false)
 		CreateTimer(ChDelayCOOPFinalValue, Timer_ChangeMap, TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -270,7 +277,7 @@ void Event_MissionLost(Event event, const char[] name, bool dontBroadcast)
 {
 	if(StrEqual(next_mission_map, "none") == false)
 	{
-		if(g_iCurrentMode == 1)
+		if(g_iCurrentMode == GAMEMODE_COOP)
 		{
 			CoopRoundEndCounter += 1;//Intentos Realizados +1
 			if(g_bFinalMap)
@@ -297,7 +304,7 @@ Action TimerAnnounce(Handle timer, any client)
 {
 	if(IsClientInGame(client))
 	{
-		if (g_iCurrentMode != 3) // not survival
+		if (g_iCurrentMode == GAMEMODE_COOP || g_iCurrentMode == GAMEMODE_VERSUS) // not survival
 		{
 			if( g_bFinalMap ) CPrintToChat(client, "%T","Announce Map", client, announce_map);
 		}
@@ -357,7 +364,7 @@ void PluginInitialization()
 	g_bFinalMap = L4D_IsMissionFinalMap();
 	KvRewind(hKVSettings);
 
-	if(g_iCurrentMode == 1)
+	if(g_iCurrentMode == GAMEMODE_COOP)
 	{
 		if(!g_bFinalMap)
 		{
@@ -389,7 +396,7 @@ void PluginInitialization()
 			//LogMessage("next mission name: %s",next_mission_name);
 		}
 	}
-	else if(g_iCurrentMode == 2 && g_bFinalMap)
+	else if(g_iCurrentMode == GAMEMODE_VERSUS && g_bFinalMap)
 	{
 		if(KvJumpToKey(hKVSettings, current_map))
 		{
@@ -399,7 +406,7 @@ void PluginInitialization()
 			//LogMessage("next mission name: %s",next_mission_name);
 		}
 	}
-	else if(g_iCurrentMode == 3)
+	else if(g_iCurrentMode == GAMEMODE_SURVIVAL)
 	{
 		if(KvJumpToKey(hKVSettings, current_map))
 		{
@@ -432,7 +439,7 @@ void PluginInitialization()
 	}
 	else
 	{
-		if(g_iCurrentMode == 1)
+		if(g_iCurrentMode == GAMEMODE_COOP)
 		{
 			if(StrEqual(announce_map, "Empty")) return;
 
@@ -448,7 +455,7 @@ void PluginInitialization()
 				FormatEx(next_mission_type, sizeof(next_mission_type), "none");
 			}
 		}
-		else if(g_iCurrentMode == 2)
+		else if(g_iCurrentMode == GAMEMODE_VERSUS)
 		{
 			if(g_bFinalMap && strlen(next_mission_def_versus) > 0)
 			{
@@ -462,7 +469,7 @@ void PluginInitialization()
 				FormatEx(next_mission_type, sizeof(next_mission_type), "none");
 			}
 		}
-		else if(g_iCurrentMode == 3)
+		else if(g_iCurrentMode == GAMEMODE_SURVIVAL)
 		{
 			if(strlen(next_mission_def_survival) > 0)
 			{
@@ -501,13 +508,13 @@ void GameModeCheck()
 void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
-		g_iCurrentMode = 1;
+		g_iCurrentMode = GAMEMODE_COOP;
 	else if( strcmp(output, "OnSurvival") == 0 )
-		g_iCurrentMode = 3;
+		g_iCurrentMode = GAMEMODE_SURVIVAL;
 	else if( strcmp(output, "OnVersus") == 0 )
-		g_iCurrentMode = 2;
+		g_iCurrentMode = GAMEMODE_VERSUS;
 	else if( strcmp(output, "OnScavenge") == 0 )
-		g_iCurrentMode = 2;
+		g_iCurrentMode = GAMEMODE_SCAVENGE;
 }
 
 bool InSecondHalfOfRound() {

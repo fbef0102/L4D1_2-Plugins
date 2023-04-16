@@ -2,6 +2,8 @@
 # Description | 內容
 Force change to next mission when current mission(final stage) end + Force change to next level when survivors wipe out (Apply to survival).
 
+> __Note__ This Plugin has been discontinued, [New Version here](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/sm_l4d_mapchanger)
+
 * [Video | 影片展示](https://youtu.be/ehyyDp0RCMQ)
 
 * Image | 圖示
@@ -11,8 +13,8 @@ Force change to next mission when current mission(final stage) end + Force chang
 
 * Apply to | 適用於
     ```
-    L4D1
-    L4D2
+    L4D1 coop/survival/versus
+    L4D2 coop/survival/versus/realism
     ```
 
 * Translation Support | 支援翻譯
@@ -71,22 +73,22 @@ Force change to next mission when current mission(final stage) end + Force chang
 		// Quantity of rounds (tries) events survivors wipe out before force of changelevel in survival. (0=off)
 		sm_l4d_fmc_crec_survival_map "5"
 
-		// Mission for change by default on final map in coop/realism. (Empty=Don't Change Map by default)
+		// Mission for change by default on final map in coop/realism.
 		sm_l4d_fmc_def_coop "c2m1_highway"
 
-		// Mission for change by default in survival. (Empty=Don't Change Map by default)
-		sm_l4d_fmc_def_survival ""
+		// Mission for change by default in survival.
+		sm_l4d_fmc_def_survival "c5m5_bridge"
 
-		// Mission for change by default on final map in versus. (Empty=Don't Change Map by default)
+		// Mission for change by default on final map in versus.
 		sm_l4d_fmc_def_versus "c8m1_apartment"
 
-		// After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=off)
+		// After final rescue vehicle leaving, delay before force of changelevel in coop/realism. (0=Don't force to change map)
 		sm_l4d_fmc_delay_coop_final "15.0"
 
-		// After round ends, delay before force of changelevel in versus. (0=off)
+		// After quantity of rounds end in survival, delay before force of changelevel in survival. (0=Don't force to change map)
 		sm_l4d_fmc_delay_survival "15.0"
 
-		// After final map finishes, delay before force of changelevel in versus. (0=off)
+		// After final map finishes, delay before force of changelevel in versus. (0=Don't force to change map)
 		sm_l4d_fmc_delay_vs "13.0"
 		```
 </details>
@@ -124,6 +126,10 @@ Force change to next mission when current mission(final stage) end + Force chang
 - - - -
 # 中文說明
 最後一關結束時自動換圖 + 滅團N次後切換到下一個關卡 (生存模式也適用)
+
+> __Note__ 此插件已停止更新，如要更多功能，[新版插件請點擊這裡](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/sm_l4d_mapchanger)
+> * 玩家可以投票下一張地圖
+> * 清道夫模式也適用
 
 * 原理
     * 戰役/寫實模式中當倖存者滅團超過N次時，自動切換到下一個關卡
