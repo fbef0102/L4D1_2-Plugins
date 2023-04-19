@@ -2,6 +2,7 @@
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <sdktools>
+#include <left4dhooks>
 #include <multicolors>
 
 #define SCORE_DELAY_EMPTY_SERVER 3.0
@@ -96,7 +97,7 @@ public Plugin myinfo =
 	name = "L4D2 Vote Menu",
 	author = "HarryPotter",
 	description = "Votes Commands",
-	version = "6.0",
+	version = "6.1",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -680,7 +681,7 @@ public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 		{
 			if (player == param1)
 			{
-				CPrintToChatAll("{default}[{olive}TS{default}] Kick yourself? choose again");
+				CPrintToChat(param1, "{default}[{olive}TS{default}] Kick yourself? choose again");
 				CreateVoteKickMenu(param1);
 				return 0;
 			}
@@ -701,7 +702,7 @@ public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 		}	
 		else
 		{
-			CPrintToChatAll("{default}[{olive}TS{default}] Target is not in game, choose again!");
+			CPrintToChat(param1, "{default}[{olive}TS{default}] Target is not in game, choose again!");
 			CreateVoteKickMenu(param1);
 		}	
 	}
@@ -1099,8 +1100,15 @@ public Action Timer_forcespectate(Handle timer, any client)
 	
 	if (g_iSpectatePenaltyCounter[client] != 0)
 	{
-		if (GetClientTeam(client) == 3||GetClientTeam(client) == 2)
+		if ( (GetClientTeam(client) == 3 || GetClientTeam(client) == 2))
 		{
+			ChangeClientTeam(client, 1);
+			CPrintToChat(client, "{default}[{olive}TS{default}] You have been voted to be forcespectated! Wait {green}%ds {default}to rejoin team again.", g_iSpectatePenaltyCounter[client]);
+			bClientJoinedTeam = true;	//client tried to join the infected again when not allowed
+		}
+		else if(GetClientTeam(client) == 1 && IsClientIdle(client))
+		{
+			L4D_TakeOverBot(client);
 			ChangeClientTeam(client, 1);
 			CPrintToChat(client, "{default}[{olive}TS{default}] You have been voted to be forcespectated! Wait {green}%ds {default}to rejoin team again.", g_iSpectatePenaltyCounter[client]);
 			bClientJoinedTeam = true;	//client tried to join the infected again when not allowed
@@ -1381,5 +1389,24 @@ bool HasAccess(int client, char[] g_sAcclvl)
 		return true;
 	}
 
+	return false;
+}
+
+bool IsClientIdle(int client)
+{
+	if(GetClientTeam(client) != 1)
+		return false;
+	
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		{
+			if(HasEntProp(i, Prop_Send, "m_humanSpectatorUserID"))
+			{
+				if(GetClientOfUserId(GetEntProp(i, Prop_Send, "m_humanSpectatorUserID")) == client)
+						return true;
+			}
+		}
+	}
 	return false;
 }

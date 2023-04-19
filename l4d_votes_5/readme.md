@@ -18,6 +18,9 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v6.1 (2023-4-19)
+        * Optimize code
+
 	* v6.0 (2022-12-5)
         * Remake Code
         * Changes to fix warnings when compiling on SourceMod 1.11.
