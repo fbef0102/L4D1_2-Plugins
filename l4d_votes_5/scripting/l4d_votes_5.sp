@@ -113,7 +113,6 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_votes", Command_Votes, "open vote meun");
 	RegConsoleCmd("sm_callvote", Command_Votes, "open vote meun");
 	RegConsoleCmd("sm_callvotes", Command_Votes, "open vote meun");
-	RegConsoleCmd("votes", Command_Votes, "open vote meun");
 	RegConsoleCmd("votesforcespectate", Command_Votesforcespectate);
 	RegAdminCmd("sm_restartmap", CommandRestartMap, ADMFLAG_CHANGEMAP, "sm_restartmap - changelevels to the current map");
 	RegAdminCmd("sm_rs", CommandRestartMap, ADMFLAG_CHANGEMAP, "sm_restartmap - changelevels to the current map");
