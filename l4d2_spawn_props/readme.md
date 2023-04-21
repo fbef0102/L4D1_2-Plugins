@@ -77,6 +77,24 @@ Let admins spawn any kind of objects and saved to cfg
 
 	* **Save Object**
         1. Admin types !admin in chat->Spawn Objects->Save Objects->Save Stripper File
+		2. All Spawned objects will be saved into addons\stripper\maps\xxxxx.cfg
+			* xxxx is map name
+		3. Restart Map
+
+	* **Delete Object**
+        1. Modify file: addons\stripper\maps\xxxxx.cfg
+			* xxxx is map name
+		2. Find the object you want to delete by classname, origin, angles
+		3. Delete code {}，for example:
+			```php
+			{
+				"solid" "6"
+				"origin" "2408 -140 0"
+				"angles" "0 93 0"
+				"model"	 "models/props/cs_militia/boxes_frontroom.mdl"
+				"classname"	"prop_dynamic"
+			}
+			```
 
 * Why I can't read object spawn menu?
 	* The data/l4d2_spawn_props_models.txt is Chinese language
@@ -200,6 +218,25 @@ Let admins spawn any kind of objects and saved to cfg
 
 * 如何儲存物件?
     1. 管理員輸入!admin->生成物件->儲存物件
+	2. 生成的物件會儲存於addons\stripper\maps\xxxxx.cfg
+		* xxxx是地圖名
+	3. 重啟地圖
+
+* 如何刪除已經儲存的物件?
+	1. 編輯檔案 addons\stripper\maps\xxxxx.cfg
+		* xxxx是地圖名
+	2. 透過 ```"classname" "origin" "angles"```關鍵字查找你要刪除的物件
+	3. 刪除整段上下{}，譬如
+		```php
+		{
+			"solid" "6"
+			"origin" "2408 -140 0"
+			"angles" "0 93 0"
+			"model"	 "models/props/cs_militia/boxes_frontroom.mdl"
+			"classname"	"prop_dynamic"
+		}
+		```
+
 
 * 如何增加更多模組?
 	* 編輯檔案 data/l4d2_spawn_props_models.txt
