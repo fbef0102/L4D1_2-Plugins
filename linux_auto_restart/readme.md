@@ -15,6 +15,9 @@ Restart server when the last player disconnects from the server.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.5 (2023-4-22)
+		* Optimize Code
+
 	* v2.4 (2023-3-29)
 		* Auto detect Accelerator extension and unload extension　before shutdown
         * Remove Cvar
