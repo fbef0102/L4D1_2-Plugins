@@ -225,7 +225,10 @@ Let admins spawn any kind of objects and saved to cfg
 * 如何刪除已經儲存的物件?
 	1. 編輯檔案 addons\stripper\maps\xxxxx.cfg
 		* xxxx是地圖名
-	2. 透過 ```"classname" "origin" "angles"```關鍵字查找你要刪除的物件
+	2. 透過 ```"model" "origin" "angles"```關鍵字查找你要刪除的物件
+		* origin: 位置
+		* angles: 角度
+		* model: 模組
 	3. 刪除整段上下{}，譬如
 		```php
 		{
