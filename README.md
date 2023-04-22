@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/4/14)
+> All plugins in here apply to both L4D1/2 (last edited:2023/4/22)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -37,7 +37,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
-* <b>[advertisements](/advertisements)</b>: Display advertisements
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
@@ -141,6 +140,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 顯示誰是豬隊友 (譬如推Tank拍死隊友、Boomer炸到Tank、Hunter跳樓自殺、Charger著火死亡等等)
 * <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, will respawn after a period of time.
     * 當人類玩家死亡時，過一段時間自動復活
+* <b>[advertisements](/advertisements)</b>: Display advertisements
+    * 廣告&公告欄插件，每隔一段時間於聊天框自動顯示一段公告內容
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

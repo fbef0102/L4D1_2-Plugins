@@ -3,34 +3,26 @@
 #include <sourcemod>
 #include <regex>
 
-#define CVAR_FLAGS			FCVAR_NOTIFY
-
-ConVar g_ConVarHibernate, sb_all_bot_game, sb_all_bot_team;
-//ConVar g_ConVarUnloadExtNum;
-//int g_iCvarUnloadExtNum;
-Handle COLD_DOWN_Timer;
-
 public Plugin myinfo =
 {
 	name = "L4D auto restart",
 	author = "Harry Potter",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
-	version = "2.4",
+	version = "2.5",
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
-static bool Isl4d2;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	EngineVersion test = GetEngineVersion();
 
 	if( test == Engine_Left4Dead )
 	{
-		Isl4d2 = false;
+		
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
-		Isl4d2 = true;
+		
 	}
 	else
 	{
@@ -41,24 +33,17 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
+#define CVAR_FLAGS			FCVAR_NOTIFY
+
+ConVar g_hConVarHibernate;
+Handle COLD_DOWN_Timer;
+
+bool g_bNoOneInServer;
+
 public void OnPluginStart()
 {
-	g_ConVarHibernate = FindConVar("sv_hibernate_when_empty");
-
-	if(Isl4d2)
-	{
-		sb_all_bot_game = FindConVar("sb_all_bot_game");
-	}
-	else
-	{
-		sb_all_bot_team = FindConVar("sb_all_bot_team");
-	}
-	
-	//g_ConVarUnloadExtNum = CreateConVar("liunx_auto_restart_unload_ext_num", 			"0", 	"If you have Accelerator extension, you need specify here order number of this extension in the list: sm exts list", CVAR_FLAGS);
-	
-	GetCvars();
-	//g_ConVarUnloadExtNum.AddChangeHook(OnCvarChanged);
-	//AutoExecConfig(true, "linux_auto_restart");
+	g_hConVarHibernate = FindConVar("sv_hibernate_when_empty");
+	g_hConVarHibernate.AddChangeHook(ConVarChanged_Hibernate);
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);	
 }
@@ -68,14 +53,24 @@ public void OnPluginEnd()
 	delete COLD_DOWN_Timer;
 }
 
-public void OnCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Hibernate(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
-	GetCvars();
+	g_hConVarHibernate.SetBool(false);
 }
 
-void GetCvars()
-{
-	//g_iCvarUnloadExtNum = g_ConVarUnloadExtNum.IntValue;
+public void OnMapStart()
+{	
+	if(g_bNoOneInServer)
+	{
+		g_bNoOneInServer = false;
+		if(CheckPlayerInGame(0) == false) //沒有玩家在伺服器中
+		{
+			g_bNoOneInServer = true;
+
+			delete COLD_DOWN_Timer;
+			COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
+		}
+	}
 }
 
 public void OnMapEnd()
@@ -83,27 +78,39 @@ public void OnMapEnd()
 	delete COLD_DOWN_Timer;
 }
 
-public void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
+public void OnConfigsExecuted()
+{
+	if(g_bNoOneInServer)
+	{
+		g_bNoOneInServer = false;
+		if(CheckPlayerInGame(0) == false) //沒有玩家在伺服器中
+		{
+			g_bNoOneInServer = true;
+
+			delete COLD_DOWN_Timer;
+			COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
+		}
+	}
+}
+
+void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if(!client || IsFakeClient(client) || (IsClientConnected(client) && !IsClientInGame(client))) return; //連線中尚未進來的玩家離線
 	if(client && !CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
-		if(Isl4d2)
-			sb_all_bot_game.SetInt(1);
-		else
-			sb_all_bot_team.SetInt(1);
-
-		g_ConVarHibernate.SetInt(0);
+		g_bNoOneInServer = true;
 
 		delete COLD_DOWN_Timer;
 		COLD_DOWN_Timer = CreateTimer(15.0, COLD_DOWN);
 	}
 }
-public Action COLD_DOWN(Handle timer, any client)
+
+Action COLD_DOWN(Handle timer, any client)
 {
 	if(CheckPlayerInGame(0)) //有玩家在伺服器中
 	{
+		g_bNoOneInServer = false;
 		COLD_DOWN_Timer = null;
 		return Plugin_Continue;
 	}

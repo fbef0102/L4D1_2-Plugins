@@ -9,7 +9,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PL_VERSION	"2.2.0"
+#define PL_VERSION	"2.2.1"
 #define UPDATE_URL	"http://ErikMinekus.github.io/sm-advertisements/update.txt"
 
 public Plugin myinfo =
@@ -38,7 +38,7 @@ char g_sCvarSoundFile[PLATFORM_MAX_PATH];
  */
 public void OnPluginStart()
 {
-    CreateConVar("sm_advertisements_version", PL_VERSION, "Display advertisements", FCVAR_NOTIFY);
+    CreateConVar("sm_advertisements_version", PL_VERSION, "Display advertisements Version", FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY);
     g_hEnabled  = CreateConVar("sm_advertisements_enabled",  "1",                  "Enable/disable displaying advertisements.", FCVAR_NOTIFY);
     g_hFile     = CreateConVar("sm_advertisements_file",     "advertisements.txt", "File to read the advertisements from.", FCVAR_NOTIFY);
     g_hInterval = CreateConVar("sm_advertisements_interval", "30",                 "Amount of seconds between advertisements.", FCVAR_NOTIFY);
@@ -70,6 +70,9 @@ public void OnConfigsExecuted()
 {
     ParseAds();
     //RestartTimer();
+
+    g_hSoundFile.GetString(g_sCvarSoundFile, sizeof(g_sCvarSoundFile));
+    if (strlen(g_sCvarSoundFile) > 0) PrecacheSound(g_sCvarSoundFile);
 }
 /*
 public void OnLibraryAdded(const char[] name)
@@ -79,12 +82,6 @@ public void OnLibraryAdded(const char[] name)
     }
 }
 */
-public void OnMapStart()
-{
-    g_hSoundFile.GetString(g_sCvarSoundFile, sizeof(g_sCvarSoundFile));
-    if (strlen(g_sCvarSoundFile) > 0) PrecacheSound(g_sCvarSoundFile);
-	
-}
 
 public void ConVarChange_File(ConVar convar, const char[] oldValue, const char[] newValue)
 {
