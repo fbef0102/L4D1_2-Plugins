@@ -1,19 +1,37 @@
-// Advertisements 2.0
-// by Tsunami
-//
 // Types
 // -----
 // center: Center message
 // chat: Chat message
 // hint: Hint message
 // menu: Menu message
-// top: Top message
 //
-// Flags (optional)
 // -----
-// Accepts flags of admins that will not see the advertisement.
-// When omitted everyone will see the advertisement.
-// When left empty only admins will see the advertisement.
+//	Following named colors are supported in L4D1/L4D2:
+//	 - {default}	(white color)
+//	 - {green}		(olive color)
+//	 - {olive}		(green color)
+//	 - {lightgreen}	(light green color)
+//	 - {red}		(red color)
+//	 - {blue}		(blue color)
+//	 Warning: {lightgreen}、{red}、{blue}, these 3 colors can not be used at the same sentence
+
+// 中文說明
+// -----
+// center: 廣告文字顯示於螢幕中央
+// chat: 廣告文字顯示於聊天框
+// hint: 廣告文字顯示於螢幕下方黑底白字框
+// menu: 廣告文字顯示於Menu菜單
+//
+// -----
+//	以下顏色只支援於 L4D1/L4D2:
+//	 - {default}	(白色)
+//	 - {green}		(橘色)
+//	 - {olive}		(綠色)
+//	 - {lightgreen}	(淺綠色)
+//	 - {red}		(紅色)
+//	 - {blue}		(藍色)
+//	 注意事項: 藍色、紅色、淺綠色，這三種顏色不可出現在同一句話裡
+//
 
 "Advertisements"
 {
