@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/4/22)
+> All plugins in here apply to both L4D1/2 (last edited:2023/4/23)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -14,7 +14,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 > __Note__  
 > **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**<br/>
 > **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**
-* <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Show what mode is it now on server name(support any Language) with txt file.
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
 * <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
 * <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
@@ -142,6 +141,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 當人類玩家死亡時，過一段時間自動復活
 * <b>[advertisements](/advertisements)</b>: Display advertisements
     * 廣告&公告欄插件，每隔一段時間於聊天框自動顯示一段公告內容
+* <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Server name with txt file (Support any language)
+    * 伺服器房名可以寫中文的插件
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

@@ -15,11 +15,11 @@ char g_sDefaultN[68];
 
 public Plugin myinfo = 
 {
-	name = "L4D Dynamic中文伺服器名",
+	name = "L4D Dynamic Host Name",
 	author = "Harry Potter",
-	description = "Show what mode is it now on chinese server name with txt file",
+	description = "Server name with txt file (Support any language)",
 	version = PLUGIN_VERSION,
-	url = "myself"
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 public void OnPluginStart()

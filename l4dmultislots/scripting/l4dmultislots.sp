@@ -15,7 +15,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"5.6"
+#define PLUGIN_VERSION 				"5.7"
 #define CVAR_FLAGS					FCVAR_NOTIFY
 #define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
@@ -398,6 +398,8 @@ public void OnClientPutInServer(int client)
 	
 	if(client && IsClientInGame(client) && !IsFakeClient(client) && g_bIsObserver[client] == false)
 	{
+		if(L4D_IsVersusMode() || L4D2_IsScavengeMode()) return;
+
 		CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 
