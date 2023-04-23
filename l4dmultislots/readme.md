@@ -13,8 +13,8 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 
 * Apply to | 適用於
 	```
-	L4D1 Coop/Survival
-	L4D2 Coop/Survival/Realism
+	L4D1
+	L4D2
 	```
 
 * Translation Support | 支援翻譯
@@ -30,6 +30,9 @@ Allows additional survivor players in coop/survival/realism when 5+ player joins
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v5.7 (2023-4-23)
+		* Don't spawn bot automatically when 5+ survivors join in versus/scavenge (player still can join survivor via command)
 
 	* v5.6 (2023-2-18)
 		* Observer(not idle) always stay Observer after map map_transition.
