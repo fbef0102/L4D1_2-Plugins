@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/4/23)
+> All plugins in here apply to both L4D1/2 (last edited:2023/4/24)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -44,7 +44,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
-* <b>[l4d_revive_reload_interrupt](/l4d_revive_reload_interrupt)</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
 * <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
@@ -143,6 +142,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 廣告&公告欄插件，每隔一段時間於聊天框自動顯示一段公告內容
 * <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Server name with txt file (Support any language)
     * 伺服器房名可以寫中文的插件
+* <b>[l4d_revive_reload_interrupt](/l4d_revive_reload_interrupt)</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
+    * 解決裝子彈的時候拯救隊友會卡彈的問題 (存在超過十年的Bug)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
