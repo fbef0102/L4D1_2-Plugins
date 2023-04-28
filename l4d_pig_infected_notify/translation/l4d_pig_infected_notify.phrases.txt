@@ -146,7 +146,7 @@
 	}
 	"l4d_pig_infected6"
 	{
-		"#format"	"{1:N},{2:N}"
+		"#format"	"{1:N}"
 		"en"	"{green}[SM] {olive}{1}{default} kills {red}AI{default} Boomer to stumble {green}Tank{default}."
 		"zho"	"{green}[提示] {olive}{1}{default} 殺死 {red}AI{default} Boomer 炸暈 {green}Tank{default}."
 		"chi"	"{green}[提示] {olive}{1}{default} 杀死 {red}AI{default} Boomer 炸晕 {green}坦克{default}。"
