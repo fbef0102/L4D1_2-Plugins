@@ -18,6 +18,9 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v6.2 (2023-5-1)
+        * Optimize code
+        
 	* v6.1 (2023-4-19)
         * Optimize code
 
