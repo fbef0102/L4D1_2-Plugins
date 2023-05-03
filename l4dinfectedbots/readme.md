@@ -65,9 +65,11 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 * Related Plugin | 相關插件
 	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in coop/survival/realism when 5+ player joins the server
 		> 創造5位以上倖存者遊玩伺服器
-	2. [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
+	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
+		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
+	3. [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
 		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
+	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
 
 * <details><summary>ConVar | 指令</summary>
