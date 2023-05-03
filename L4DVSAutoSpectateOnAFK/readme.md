@@ -104,7 +104,7 @@ Forces survivors and infected to spectate if they're AFK after certain time
 
 * 原理
 	* 如果玩家不動則一段時間後強制旁觀
-        * 倒地、掛邊、被特感抓則忽略
+        * 倒地、掛邊、被特感抓、打字聊天則忽略
     * 如果玩家在旁觀區不下來玩則一段時間後強制踢出伺服器
         * 管理員不受影響
 
@@ -132,10 +132,13 @@ Forces survivors and infected to spectate if they're AFK after certain time
         // 為1時，即使玩家在安全區域內依然強制旁觀並踢出伺服器
         l4d_specafk_saferoom_ignore "0"
 
+        // 為1時，玩家聊天打字視為不是AFK掛機狀態
+        l4d_specafk_say_reset "1"
+
         // 在遊戲中偵測AFK 20秒後開始出現警告提示
         l4d_specafk_warnspectime "20"
 
-        // 30秒後強制旁觀 (當已經檢測AFK一段時間過後)
+        // 15秒後強制旁觀 (當已經檢測AFK一段時間過後)
         l4d_specafk_spectime "15"
 
         // 在旁觀區偵測AFK 60秒後開始出現警告提示
