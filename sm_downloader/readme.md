@@ -7,17 +7,20 @@ SM File/Folder Downloader and Precacher
 
 * Image | 圖示
 	* client connecting server and downloading custom files
-	> 玩家連線伺服器時下載自製的檔案
-	<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
+		> 玩家連線伺服器時下載自製的檔案
+		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 
 * Apply to | 適用於
-```
-L4D1
-L4D2
-```
+	```
+	L4D1
+	L4D2
+	```
 
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * 1.8 (2023-5-4)
+		* Fixed custom spray blocked and fail to download
 
     * 1.7 (2022-11-16)
 	    * Remake Code
@@ -33,24 +36,24 @@ L4D2
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/map-decals.cfg
-	```php
-	// (Download & Precache) Full path of the normal downloader configuration to load. 
-	// IE: configs/sm_downloader/downloads.ini
-	sm_downloader_config "configs/sm_downloader/downloads.ini"
+		```php
+		// (Download & Precache) Full path of the normal downloader configuration to load. 
+		// IE: configs/sm_downloader/downloads.ini
+		sm_downloader_config "configs/sm_downloader/downloads.ini"
 
-	// 0=Plugin off, 1=Plugin on.
-	sm_downloader_enabled "1"
+		// 0=Plugin off, 1=Plugin on.
+		sm_downloader_enabled "1"
 
-	// If 1, Enable normal downloader file.
-	sm_downloader_normal "1"
+		// If 1, Enable normal downloader file.
+		sm_downloader_normal "1"
 
-	// If 1, Enable simple downloader file.
-	sm_downloader_simple "0"
+		// If 1, Enable simple downloader file.
+		sm_downloader_simple "0"
 
-	// (Download Only No Precache) Full path of the simple downloader configuration to load. 
-	// IE: configs/sm_downloader/downloads_simple.ini
-	sm_simple_downloader_config "configs/sm_downloader/downloads_simple.ini"
-	```
+		// (Download Only No Precache) Full path of the simple downloader configuration to load. 
+		// IE: configs/sm_downloader/downloads_simple.ini
+		sm_simple_downloader_config "configs/sm_downloader/downloads_simple.ini"
+		```
 </details>
 
 * <details><summary>Command | 命令</summary>
@@ -60,38 +63,38 @@ L4D2
 
 * Data Example
 	* configs\sm_downloader\downloads.ini, this is normal downloader configuration
-	```php
-	//Don't modify or remove the Comment Lines ( // )
-	//Can not download .VPK files 
-	//Files (Download Only No Precache)
-	path/anymap.ext
-	path/anymap2.ext
+		```php
+		//Don't modify or remove the Comment Lines ( // )
+		//Can not download .VPK files 
+		//Files (Download Only No Precache)
+		path/anymap.ext
+		path/anymap2.ext
 
-	//Decal Files (Download and Precache)
-	materials/decals/anymap.vmt
-	materials/decals/anymap.vtf
+		//Decal Files (Download and Precache)
+		materials/decals/anymap.vmt
+		materials/decals/anymap.vtf
 
-	//Sound Files (Download and Precache)
-	sound/misc/Anymap.wav
-	sound/misc/Anymap3.wav
+		//Sound Files (Download and Precache)
+		sound/misc/Anymap.wav
+		sound/misc/Anymap3.wav
 
-	//Model Files (Download and Precache)
-	models/parachute/parachute_green.mdl
-	```
+		//Model Files (Download and Precache)
+		models/parachute/parachute_green.mdl
+		```
 
 	* configs\sm_downloader\downloads_simple.ini, this is simple downloader configuration (Download Only No Precache)
-	```php
-	path/anymap.ext
-	path/anymap2.ext
+		```php
+		path/anymap.ext
+		path/anymap2.ext
 
-	materials/decals/anymap.vmt
-	materials/decals/anymap.vtf
+		materials/decals/anymap.vmt
+		materials/decals/anymap.vtf
 
-	sound/misc/Anymap.wav
-	sound/misc/Anymap3.wav
+		sound/misc/Anymap.wav
+		sound/misc/Anymap3.wav
 
-	models/parachute/parachute_green.mdl
-	```
+		models/parachute/parachute_green.mdl
+		```
 
 	> __Note__ If you don't know which file to use, just enable and use the normal downloader configuration
 
@@ -137,38 +140,38 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 
 * Data設定範例
 	* configs\sm_downloader\downloads.ini, 這是正常版的檔案下載設定文件
-	```php
-	//不要移除任何原有的符號 ( // )
-	//不能傳輸.vpk檔案
-	//Files (只下載不預緩存)
-	path/anymap.ext
-	path/anymap2.ext
+		```php
+		//不要移除任何原有的符號 ( // )
+		//不能傳輸.vpk檔案
+		//Files (只下載不預緩存)
+		path/anymap.ext
+		path/anymap2.ext
 
-	//Decal Files (下載並預緩存)
-	materials/decals/anymap.vmt
-	materials/decals/anymap.vtf
+		//Decal Files (下載並預緩存)
+		materials/decals/anymap.vmt
+		materials/decals/anymap.vtf
 
-	//Sound Files (下載並預緩存)
-	sound/misc/Anymap.wav
-	sound/misc/Anymap3.wav
+		//Sound Files (下載並預緩存)
+		sound/misc/Anymap.wav
+		sound/misc/Anymap3.wav
 
-	//Model Files (下載並預緩存)
-	models/parachute/parachute_green.mdl
-	```
+		//Model Files (下載並預緩存)
+		models/parachute/parachute_green.mdl
+		```
 
 	* configs\sm_downloader\downloads_simple.ini, 這是簡單版的檔案下載設定文件 (只下載不預緩存)
-	```php
-	path/anymap.ext
-	path/anymap2.ext
+		```php
+		path/anymap.ext
+		path/anymap2.ext
 
-	materials/decals/anymap.vmt
-	materials/decals/anymap.vtf
+		materials/decals/anymap.vmt
+		materials/decals/anymap.vtf
 
-	sound/misc/Anymap.wav
-	sound/misc/Anymap3.wav
+		sound/misc/Anymap.wav
+		sound/misc/Anymap3.wav
 
-	models/parachute/parachute_green.mdl
-	```
+		models/parachute/parachute_green.mdl
+		```
 
 	> __Note__ 如果你不知道這兩設定文件有捨差別又是在幹嗎, 建議你一律使用正常版的檔案下載設定文件
 
