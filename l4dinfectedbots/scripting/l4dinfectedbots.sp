@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.7.9 (2009-2023)
+* Version	: 2.8.0 (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.8.0 (2023-5-5)
+*	   - Add Special Infected Weight
+*	   - Add and modify convars about Special Infected Weight
+*
 * Version 2.7.9 (2023-4-13)
 *	   - Fixed Not Working in Survival Mode
 *	   - Fixed cvar "l4d_infectedbots_adjust_spawn_times" calculation mistake
@@ -705,7 +709,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.7.9"
+#define PLUGIN_VERSION "2.8.0"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -718,6 +722,15 @@
 #define ZOMBIECLASS_SPITTER	4
 #define ZOMBIECLASS_JOCKEY	5
 #define ZOMBIECLASS_CHARGER	6
+
+#define NUM_TYPES_INFECTED_MAX 7 // for spawning
+int SI_SMOKER = 0;
+int SI_BOOMER = 1;
+int SI_HUNTER = 2;
+int SI_SPITTER = 3;
+int SI_JOCKEY = 4;
+int SI_CHARGER = 5;
+int SI_TANK = 6;
 
 #define MAXENTITIES 2048
 #define SUICIDE_TIME 10
@@ -735,6 +748,8 @@
 // l4d1/2 value
 static char sSpawnCommand[32];
 static int ZOMBIECLASS_TANK;
+int NUM_INFECTED;
+
 
 // Variables
 int InfectedRealCount; // Holds the amount of real alive infected players
@@ -743,12 +758,9 @@ int InfectedBotCount; // Holds the amount of infected bots in any gamemode
 int InfectedBotQueue; // Holds the amount of bots that are going to spawn (including human infected player in coop/realism/survival)
 int g_iCurrentMode = 0; // Holds the g_iCurrentMode, 1 for coop and realism, 2 for versus, teamversus, scavenge and teamscavenge, 3 for survival
 int TanksPlaying; // Holds the amount of tanks on the playing field
-int g_iBoomerLimit; // Sets the Boomer Limit, related to the boomer limit cvar
-int g_iSmokerLimit; // Sets the Smoker Limit, related to the smoker limit cvar
-int g_iHunterLimit; // Sets the Hunter Limit, related to the hunter limit cvar
-int g_iSpitterLimit; // Sets the Spitter Limit, related to the Spitter limit cvar
-int g_iJockeyLimit; // Sets the Jockey Limit, related to the Jockey limit cvar
-int g_iChargerLimit; // Sets the Charger Limit, related to the Charger limit cvar
+int g_iSpawnWeights[NUM_TYPES_INFECTED_MAX];
+int g_iSpawnLimits[NUM_TYPES_INFECTED_MAX];
+int g_iSpawnCounts[NUM_TYPES_INFECTED_MAX];
 int g_iMaxPlayerZombies; // Holds the amount of the maximum amount of special zombies on the field
 int MaxPlayerTank; // Used for setting an additional slot for each tank that spawns
 int g_iCoordinationBotReady; // Used to determine how many bots are ready, used only for the coordination feature
@@ -758,12 +770,6 @@ int iPlayersInSurvivorTeam;
 bool b_HasRoundStarted; // Used to state if the round started or not
 bool g_bHasRoundEnded; // States if the round has ended or not
 bool g_bLeftSaveRoom; // States if the survivors have left the safe room
-bool canSpawnBoomer; // States if we can spawn a boomer (releated to spawn restrictions)
-bool canSpawnSmoker; // States if we can spawn a smoker (releated to spawn restrictions)
-bool canSpawnHunter; // States if we can spawn a hunter (releated to spawn restrictions)
-bool canSpawnSpitter; // States if we can spawn a spitter (releated to spawn restrictions)
-bool canSpawnJockey; // States if we can spawn a jockey (releated to spawn restrictions)
-bool canSpawnCharger; // States if we can spawn a charger (releated to spawn restrictions)
 bool g_bFinaleStarted; // States whether the finale has started or not
 bool TankReplacing; // Used only in coop, prevents the Sound hook event from triggering over and over again
 bool PlayerLifeState[MAXPLAYERS+1]; // States whether that player has the lifestate changed from switching the gamemode
@@ -775,15 +781,13 @@ bool bDisableSurvivorModelGlow;
 bool g_bSurvivalStart;
 bool g_bIsCoordination;
 bool g_bInfectedSpawnSameFrame;
+bool g_bScaleWeights;
 
 // ConVar
 ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
-ConVar h_BoomerLimit; // Related to the Boomer limit cvar
-ConVar h_SmokerLimit; // Related to the Smoker limit cvar
-ConVar h_HunterLimit; // Related to the Hunter limit cvar
-ConVar h_SpitterLimit; // Related to the Spitter limit cvar
-ConVar h_JockeyLimit; // Related to the Jockey limit cvar
-ConVar h_ChargerLimit; // Related to the Charger limit cvar
+ConVar g_hSpawnWeights[NUM_TYPES_INFECTED_MAX];
+ConVar g_hSpawnLimits[NUM_TYPES_INFECTED_MAX];
+ConVar g_hScaleWeights;
 ConVar h_MaxPlayerZombies; // Related to the max specials cvar
 ConVar h_PlayerAddZombiesScale;
 ConVar h_PlayerAddZombies;
@@ -880,7 +884,7 @@ bool g_bCvarAllow, g_bMapStarted, g_bSafeSpawn, g_bTankHealthAdjust, g_bVersusCo
 	g_bTankSpawnFinal;
 int g_iZSDisableGamemode, g_iTankHealth, g_iInfectedSpawnTimeMax, g_iInfectedSpawnTimeMin, g_iHumanCoopLimit,
 	g_iReducedSpawnTimesOnPlayer, g_iWitchPeriodMax, g_iWitchPeriodMin, g_iSpawnTankProbability, g_iCommonLimit,
-	g_iTankLimit, g_iWhereToSpawnInfected;
+	g_iTankLimit, g_iWitchLimit, g_iWhereToSpawnInfected;
 int g_iPlayerSpawn, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
@@ -914,12 +918,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		ZOMBIECLASS_TANK = 5;
 		sSpawnCommand = "z_spawn";
 		g_bL4D2Version = false;
+		NUM_INFECTED = 3;
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
 		ZOMBIECLASS_TANK = 8;
 		sSpawnCommand = "z_spawn_old";
 		g_bL4D2Version = true;
+		NUM_INFECTED = 6;
 	}
 	else
 	{
@@ -937,8 +943,8 @@ public void OnPluginStart()
 	GetGameData();
 
 	// Add a sourcemod command so players can easily join infected in coop/realism/survival
-	RegConsoleCmd("sm_ji", JoinInfected);
-	RegConsoleCmd("sm_js", JoinSurvivors);
+	RegConsoleCmd("sm_ji", JoinInfected, "(Coop/Realism/Survival only) Join Infected");
+	RegConsoleCmd("sm_js", JoinSurvivors, "(Coop/Realism/Survival only) Join Survivors");
 	RegConsoleCmd("sm_zs", ForceInfectedSuicide,"suicide myself (if infected get stuck or somthing)");
 	RegAdminCmd("sm_zlimit", Console_ZLimit, ADMFLAG_SLAY,"control max special zombies limit");
 	RegAdminCmd("sm_timer", Console_Timer, ADMFLAG_SLAY,"control special zombies spawn timer");
@@ -949,7 +955,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_checkqueue", CheckQueue);
 
 	// Hook "say" so clients can toggle HUD on/off for themselves
-	RegConsoleCmd("sm_infhud", Command_Say);
+	RegConsoleCmd("sm_infhud", Command_Say, "(Infected only) Toggle HUD on/off for themselves");
 
 	// We register the version cvar
 	CreateConVar("l4d_infectedbots_version", PLUGIN_VERSION, "Version of L4D Infected Bots", FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -959,16 +965,29 @@ public void OnPluginStart()
 	g_hCvarModes =		CreateConVar(	"l4d_infectedbots_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", FCVAR_NOTIFY );
 	g_hCvarModesOff =	CreateConVar(	"l4d_infectedbots_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", FCVAR_NOTIFY );
 	g_hCvarModesTog =	CreateConVar(	"l4d_infectedbots_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", FCVAR_NOTIFY );
-	h_BoomerLimit = CreateConVar("l4d_infectedbots_boomer_limit", "2", "Sets the limit for boomers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
-	h_SmokerLimit = CreateConVar("l4d_infectedbots_smoker_limit", "2", "Sets the limit for smokers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
-	h_HunterLimit = CreateConVar("l4d_infectedbots_hunter_limit", "2", "Sets the limit for hunters spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
-	h_WitchLimit = CreateConVar("l4d_infectedbots_witch_max_limit", "6", "Sets the limit for witches spawned by the plugin (does not affect director witches)", FCVAR_NOTIFY, true, 0.0);
+	
+	g_hSpawnLimits[SI_BOOMER] = CreateConVar("l4d_infectedbots_boomer_limit", "2", "Sets the limit for boomers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
+	g_hSpawnLimits[SI_SMOKER] = CreateConVar("l4d_infectedbots_smoker_limit", "2", "Sets the limit for smokers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
+	g_hSpawnLimits[SI_HUNTER] = CreateConVar("l4d_infectedbots_hunter_limit", "2", "Sets the limit for hunters spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
 	if (g_bL4D2Version)
 	{
-		h_SpitterLimit = CreateConVar("l4d_infectedbots_spitter_limit", "2", "Sets the limit for spitters spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
-		h_JockeyLimit = CreateConVar("l4d_infectedbots_jockey_limit", "2", "Sets the limit for jockeys spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
-		h_ChargerLimit = CreateConVar("l4d_infectedbots_charger_limit", "2", "Sets the limit for chargers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
+		g_hSpawnLimits[SI_SPITTER] = CreateConVar("l4d_infectedbots_spitter_limit", "2", "Sets the limit for spitters spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
+		g_hSpawnLimits[SI_JOCKEY] = CreateConVar("l4d_infectedbots_jockey_limit", "2", "Sets the limit for jockeys spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
+		g_hSpawnLimits[SI_CHARGER] = CreateConVar("l4d_infectedbots_charger_limit", "2", "Sets the limit for chargers spawned by the plugin", FCVAR_NOTIFY, true, 0.0);
 	}
+	g_hSpawnWeights[SI_BOOMER] = CreateConVar("l4d_infectedbots_boomer_weight", "100", "The weight for a boomer spawning", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	g_hSpawnWeights[SI_SMOKER] = CreateConVar("l4d_infectedbots_smoker_weight", "100", "The weight for a smoker spawning", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	g_hSpawnWeights[SI_HUNTER] = CreateConVar("l4d_infectedbots_hunter_weight", "100", "The weight for a hunter spawning", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	if (g_bL4D2Version)
+	{
+		g_hSpawnWeights[SI_CHARGER] = CreateConVar("l4d_infectedbots_charger_weight", "100", "The weight for a charger spawning", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+		g_hSpawnWeights[SI_JOCKEY] = CreateConVar("l4d_infectedbots_jockey_weight", "100", "The weight for a jockey spawning", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+		g_hSpawnWeights[SI_SPITTER] = CreateConVar("l4d_infectedbots_spitter_weight", "100", "The weight for a spitter spawning", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	}
+	g_hScaleWeights = CreateConVar("l4d_infectedbots_scale_weights", "0", "If 1, Scale spawn weights with the limits of corresponding SI", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	
+	h_WitchLimit = CreateConVar("l4d_infectedbots_witch_max_limit", "6", "Sets the limit for witches spawned by the plugin (does not affect director witches)", FCVAR_NOTIFY, true, 0.0);
+	
 	h_TankLimit = CreateConVar("l4d_infectedbots_tank_limit", "1", "Sets the limit for tanks spawned by the plugin (does not affect director tanks)", FCVAR_NOTIFY, true, 0.0);
 	h_PlayerAddTankLimitScale = CreateConVar("l4d_infectedbots_add_tanklimit_scale", "3", "If server has more than 4+ alive players, how many tanks on the field = 'tank_limit' + [(alive players - 4) ÷ 'add_tanklimit_scale' × 'add_tanklimit'].", FCVAR_NOTIFY, true, 1.0);
 	h_PlayerAddTankLimit = CreateConVar("l4d_infectedbots_add_tanklimit", "1", "If server has more than 4+ alive players, increase the certain value to 'l4d_infectedbots_tank_limit' each 'l4d_infectedbots_add_tanklimit_scale' players joins", FCVAR_NOTIFY, true, 0.0);
@@ -1033,15 +1052,26 @@ public void OnPluginStart()
 
 	GetCvars();
 	director_no_specials.AddChangeHook(ConVarChanged_Cvars);
-	h_BoomerLimit.AddChangeHook(ConVarChanged_Cvars);
-	h_SmokerLimit.AddChangeHook(ConVarChanged_Cvars);
-	h_HunterLimit.AddChangeHook(ConVarChanged_Cvars);
+	g_hSpawnLimits[SI_BOOMER].AddChangeHook(ConVarChanged_Cvars);
+	g_hSpawnLimits[SI_SMOKER].AddChangeHook(ConVarChanged_Cvars);
+	g_hSpawnLimits[SI_HUNTER].AddChangeHook(ConVarChanged_Cvars);
 	if (g_bL4D2Version)
 	{
-		h_SpitterLimit.AddChangeHook(ConVarChanged_Cvars);
-		h_JockeyLimit.AddChangeHook(ConVarChanged_Cvars);
-		h_ChargerLimit.AddChangeHook(ConVarChanged_Cvars);
+		g_hSpawnLimits[SI_SPITTER].AddChangeHook(ConVarChanged_Cvars);
+		g_hSpawnLimits[SI_JOCKEY].AddChangeHook(ConVarChanged_Cvars);
+		g_hSpawnLimits[SI_CHARGER].AddChangeHook(ConVarChanged_Cvars);
 	}
+	g_hSpawnWeights[SI_BOOMER].AddChangeHook(ConVarChanged_Cvars);
+	g_hSpawnWeights[SI_SMOKER].AddChangeHook(ConVarChanged_Cvars);
+	g_hSpawnWeights[SI_HUNTER].AddChangeHook(ConVarChanged_Cvars);
+	if (g_bL4D2Version)
+	{
+		g_hSpawnWeights[SI_SPITTER].AddChangeHook(ConVarChanged_Cvars);
+		g_hSpawnWeights[SI_JOCKEY].AddChangeHook(ConVarChanged_Cvars);
+		g_hSpawnWeights[SI_CHARGER].AddChangeHook(ConVarChanged_Cvars);
+	}
+	g_hScaleWeights.AddChangeHook(ConVarChanged_Cvars);
+	h_WitchLimit.AddChangeHook(ConVarChanged_Cvars);
 	h_SafeSpawn.AddChangeHook(ConVarChanged_Cvars);
 	h_TankHealth.AddChangeHook(ConVarChanged_Cvars);
 	h_InfectedSpawnTimeMax.AddChangeHook(ConVarChanged_Cvars);
@@ -1165,15 +1195,26 @@ public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char
 
 void GetCvars()
 {
-	g_iBoomerLimit = h_BoomerLimit.IntValue;
-	g_iSmokerLimit = h_SmokerLimit.IntValue;
-	g_iHunterLimit = h_HunterLimit.IntValue;
+	g_iSpawnLimits[SI_BOOMER] = g_hSpawnLimits[SI_BOOMER].IntValue;
+	g_iSpawnLimits[SI_SMOKER] = g_hSpawnLimits[SI_SMOKER].IntValue;
+	g_iSpawnLimits[SI_HUNTER] = g_hSpawnLimits[SI_HUNTER].IntValue;
 	if(g_bL4D2Version)
 	{
-		g_iSpitterLimit = h_SpitterLimit.IntValue;
-		g_iJockeyLimit = h_JockeyLimit.IntValue;
-		g_iChargerLimit = h_ChargerLimit.IntValue;
+		g_iSpawnLimits[SI_CHARGER] = g_hSpawnLimits[SI_CHARGER].IntValue;
+		g_iSpawnLimits[SI_JOCKEY] = g_hSpawnLimits[SI_JOCKEY].IntValue;
+		g_iSpawnLimits[SI_SPITTER] = g_hSpawnLimits[SI_SPITTER].IntValue;
 	}
+	g_iSpawnWeights[SI_BOOMER] = g_hSpawnWeights[SI_BOOMER].IntValue;
+	g_iSpawnWeights[SI_SMOKER] = g_hSpawnWeights[SI_SMOKER].IntValue;
+	g_iSpawnWeights[SI_HUNTER] = g_hSpawnWeights[SI_HUNTER].IntValue;
+	if(g_bL4D2Version)
+	{
+		g_iSpawnWeights[SI_CHARGER] = g_hSpawnWeights[SI_CHARGER].IntValue;
+		g_iSpawnWeights[SI_JOCKEY] = g_hSpawnWeights[SI_JOCKEY].IntValue;
+		g_iSpawnWeights[SI_SPITTER] = g_hSpawnWeights[SI_SPITTER].IntValue;
+	}
+	g_bScaleWeights = g_hScaleWeights.BoolValue;
+	g_iWitchLimit = h_WitchLimit.IntValue;
 	g_bSafeSpawn = h_SafeSpawn.BoolValue;
 	g_iTankHealth = h_TankHealth.IntValue;
 	g_iInfectedSpawnTimeMax = h_InfectedSpawnTimeMax.IntValue;
@@ -3273,35 +3314,32 @@ public Action Timer_RestoreColor(Handle timer, int client)
 	return Plugin_Continue;
 }
 
-public Action KickWitch_Timer(Handle timer, int ref)
+Action KickWitch_Timer(Handle timer, int ref)
 {
 	if( g_bCvarAllow == false) return Plugin_Continue;
 
 	if(IsValidEntRef(ref))
 	{
 		int entity = EntRefToEntIndex(ref);
-		if(IsWitch(entity))
+		bool bKill = true;
+		float clientOrigin[3];
+		float witchOrigin[3];
+		GetEntPropVector(entity, Prop_Send, "m_vecOrigin", witchOrigin);
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			bool bKill = true;
-			float clientOrigin[3];
-			float witchOrigin[3];
-			GetEntPropVector(entity, Prop_Send, "m_vecOrigin", witchOrigin);
-			for (int i = 1; i <= MaxClients; i++)
+			if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
 			{
-				if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
+				GetClientAbsOrigin(i, clientOrigin);
+				if (GetVectorDistance(clientOrigin, witchOrigin, true) < Pow(1500.0, 2.0))
 				{
-					GetClientAbsOrigin(i, clientOrigin);
-					if (GetVectorDistance(clientOrigin, witchOrigin, true) < Pow(1500.0,2.0))
-					{
-						bKill = false;
-						break;
-					}
+					bKill = false;
+					break;
 				}
 			}
-
-			if(bKill) AcceptEntityInput(ref, "kill"); //remove witch
-			else CreateTimer(g_fWitchKillTime,KickWitch_Timer,EntIndexToEntRef(entity),TIMER_FLAG_NO_MAPCHANGE);
 		}
+
+		if(bKill) AcceptEntityInput(ref, "kill"); //remove witch
+		else CreateTimer(g_fWitchKillTime,KickWitch_Timer,EntIndexToEntRef(entity),TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	return Plugin_Continue;
@@ -3519,21 +3557,9 @@ public void evtFinaleStart(Event event, const char[] name, bool dontBroadcast)
 
 int BotTypeNeeded()
 {
-	#if DEBUG
-	LogMessage("Determining Bot type now");
-	#endif
-	#if DEBUG
-		PrintToChatAll("[TS] Determining Bot type now");
-	#endif
-
 	// current count ...
-	int boomers=0;
-	int smokers=0;
-	int hunters=0;
-	int spitters=0;
-	int jockeys=0;
-	int chargers=0;
-	int tanks=0;
+	for (int i = 0; i < NUM_TYPES_INFECTED_MAX; i++)
+		g_iSpawnCounts[i] = 0;
 
 	for (int i=1;i<=MaxClients;i++)
 	{
@@ -3545,19 +3571,19 @@ int BotTypeNeeded()
 			{
 				// We count depending on class ...
 				if (IsPlayerSmoker(i))
-					smokers++;
+					g_iSpawnCounts[SI_SMOKER]++;
 				else if (IsPlayerBoomer(i))
-					boomers++;
+					g_iSpawnCounts[SI_BOOMER]++;
 				else if (IsPlayerHunter(i))
-					hunters++;
+					g_iSpawnCounts[SI_HUNTER]++;
 				else if (IsPlayerTank(i))
-					tanks++;
+					g_iSpawnCounts[SI_TANK]++;
 				else if (g_bL4D2Version && IsPlayerSpitter(i))
-					spitters++;
+					g_iSpawnCounts[SI_SPITTER]++;
 				else if (g_bL4D2Version && IsPlayerJockey(i))
-					jockeys++;
+					g_iSpawnCounts[SI_JOCKEY]++;
 				else if (g_bL4D2Version && IsPlayerCharger(i))
-					chargers++;
+					g_iSpawnCounts[SI_CHARGER]++;
 			}
 		}
 	}
@@ -3565,8 +3591,8 @@ int BotTypeNeeded()
 	if  (g_bL4D2Version)
 	{
 		if ( ( (g_bFinaleStarted && g_bTankSpawnFinal == true) || !g_bFinaleStarted ) &&
-			tanks < g_iTankLimit && 
-			GetRandomInt(1, 100) <= g_iSpawnTankProbability ) 
+			g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
+			GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
 		{
 			#if DEBUG
 			LogMessage("Bot type returned Tank");
@@ -3575,13 +3601,13 @@ int BotTypeNeeded()
 		}
 		else //spawn other S.I.
 		{
-			int random = GetRandomInt(1, 6);
+			/*int random = GetRandomInt(1, 6);
 			int i=0;
 			while(i++<5)
 			{
 				if (random == 1)
 				{
-					if ((smokers < g_iSmokerLimit) && (canSpawnSmoker))
+					if (smokers < g_iSmokerLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Smoker");
@@ -3592,7 +3618,7 @@ int BotTypeNeeded()
 				}
 				if (random == 2)
 				{
-					if ((boomers < g_iBoomerLimit) && (canSpawnBoomer))
+					if (boomers < g_iBoomerLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Boomer");
@@ -3603,7 +3629,7 @@ int BotTypeNeeded()
 				}
 				if (random == 3)
 				{
-					if ((hunters < g_iHunterLimit) && (canSpawnHunter))
+					if (hunters < g_iHunterLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Hunter");
@@ -3614,7 +3640,7 @@ int BotTypeNeeded()
 				}
 				if (random == 4)
 				{
-					if ((spitters < g_iSpitterLimit) && (canSpawnSpitter))
+					if (spitters < g_iSpitterLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Spitter");
@@ -3625,7 +3651,7 @@ int BotTypeNeeded()
 				}
 				if (random == 5)
 				{
-					if ((jockeys < g_iJockeyLimit) && (canSpawnJockey))
+					if (jockeys < g_iJockeyLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Jockey");
@@ -3636,7 +3662,7 @@ int BotTypeNeeded()
 				}
 				if (random == 6)
 				{
-					if ((chargers < g_iChargerLimit) && (canSpawnCharger))
+					if (chargers < g_iChargerLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Charger");
@@ -3645,14 +3671,15 @@ int BotTypeNeeded()
 					}
 					random = 1;
 				}
-			}
+			}*/
+
+			return GenerateIndex()+1;
 		}
 	}
 	else
 	{
 		if ( ( (g_bFinaleStarted && g_bTankSpawnFinal == true) || !g_bFinaleStarted ) &&
-			tanks < g_iTankLimit && 
-			GetRandomInt(1, 100) <= g_iSpawnTankProbability ) 
+			g_iSpawnCounts[SI_TANK] < g_iTankLimit) 
 		{
 			#if DEBUG
 			LogMessage("Bot type returned Tank");
@@ -3661,14 +3688,14 @@ int BotTypeNeeded()
 		}
 		else
 		{
-			int random = GetRandomInt(1, 3);
+			/*int random = GetRandomInt(1, 3);
 
 			int i=0;
 			while(i++<10)
 			{
 				if (random == 1)
 				{
-					if ((smokers < g_iSmokerLimit) && (canSpawnSmoker)) // we need a smoker ???? can we spawn a smoker ??? is smoker bot allowed ??
+					if (smokers < g_iSmokerLimit)
 					{
 						#if DEBUG
 						LogMessage("Returning Smoker");
@@ -3679,7 +3706,7 @@ int BotTypeNeeded()
 				}
 				if (random == 2)
 				{
-					if ((boomers < g_iBoomerLimit) && (canSpawnBoomer))
+					if (boomers < g_iBoomerLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Boomer");
@@ -3690,7 +3717,7 @@ int BotTypeNeeded()
 				}
 				if (random == 3)
 				{
-					if ((hunters < g_iHunterLimit) && (canSpawnHunter))
+					if (hunters < g_iHunterLimit)
 					{
 						#if DEBUG
 						LogMessage("Bot type returned Hunter");
@@ -3700,10 +3727,10 @@ int BotTypeNeeded()
 					random=1;
 				}
 			}
+			*/
+			return GenerateIndex()+1;
 		}
 	}
-	return 0;
-
 }
 
 public Action Timer_Spawn_InfectedBot(Handle timer, int index)
@@ -4913,7 +4940,7 @@ void CheatCommand(int client,  char[] command, char[] arguments = "")
 	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
 	FakeClientCommand(client, "%s %s", command, arguments);
 	SetCommandFlags(command, flags);
-	SetUserFlagBits(client, userFlags);
+	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
 }
 
 
@@ -5068,7 +5095,7 @@ bool CheckRealPlayers_InSV(int client = 0)
 	return false;
 }
 
-bool IsWitch(int entity)
+stock bool IsWitch(int entity)
 {
     if (entity > 0 && IsValidEntity(entity) && IsValidEdict(entity))
     {
@@ -5141,7 +5168,7 @@ public Action SpawnWitchAuto(Handle timer)
 	{
 		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn witch at this moment.",ZOMBIESPAWN_Attempts);
 	}
-	else if (witches < h_WitchLimit.IntValue)
+	else if (witches < g_iWitchLimit)
 	{
 		if(L4D_GetRandomPZSpawnPosition(anyclient,7,ZOMBIESPAWN_Attempts,vecPos) == true)
 		{
@@ -5829,7 +5856,8 @@ bool HasAccess(int client, char[] g_sAcclvl)
 		return false;
 
 	// check permissions
-	if ( GetUserFlagBits(client) & ReadFlagString(g_sAcclvl) )
+	int userFlags = GetUserFlagBits(client);
+	if ( (userFlags & ReadFlagString(g_sAcclvl)) || (userFlags & ADMFLAG_ROOT))
 	{
 		return true;
 	}
@@ -5862,17 +5890,6 @@ void GameStart()
 	}
 
 	GetSpawnDisConvars();
-
-	// We reset some settings
-	canSpawnBoomer = true;
-	canSpawnSmoker = true;
-	canSpawnHunter = true;
-	if (g_bL4D2Version)
-	{
-		canSpawnSpitter = true;
-		canSpawnJockey = true;
-		canSpawnCharger = true;
-	}
 
 	// We check if we need to spawn bots
 	CheckIfBotsNeeded(2);
@@ -6134,5 +6151,55 @@ void CleanUpStateAndMusic(int client)
 			L4D_StopMusic(client, "Event.SpitterBurn");
 		}
 	}
+}
+
+
+int GenerateIndex()
+{
+	int TotalSpawnWeight, StandardizedSpawnWeight;
+	
+	//temporary spawn weights factoring in SI spawn limits
+	int[] TempSpawnWeights = new int[NUM_INFECTED];
+	float[] IntervalEnds = new float[NUM_INFECTED];
+	for(int i = 0; i < NUM_INFECTED; i++)
+	{
+		if(g_iSpawnCounts[i] < g_iSpawnLimits[i])
+		{
+			if(g_bScaleWeights)
+				TempSpawnWeights[i] = (g_iSpawnLimits[i] - g_iSpawnCounts[i]) * g_iSpawnWeights[i];
+			else
+				TempSpawnWeights[i] = g_iSpawnWeights[i];
+		}
+		else
+		{
+			TempSpawnWeights[i] = 0;
+		}
+		
+		TotalSpawnWeight += TempSpawnWeights[i];
+	}
+	
+	//calculate end intervals for each spawn
+	float unit = 1.0/TotalSpawnWeight;
+	for (int i = 0; i < NUM_INFECTED; i++)
+	{
+		if (TempSpawnWeights[i] >= 0)
+		{
+			StandardizedSpawnWeight += TempSpawnWeights[i];
+			IntervalEnds[i] = StandardizedSpawnWeight * unit;
+		}
+	}
+	
+	float r = GetRandomFloat(0.0, 1.0); //selector r must be within the ith interval for i to be selected
+	for (int i = 0; i < NUM_INFECTED; i++)
+	{
+		//negative and 0 weights are ignored
+		if (TempSpawnWeights[i] <= 0) continue;
+		//r is not within the ith interval
+		if (IntervalEnds[i] < r) continue;
+		//selected index i because r is within ith interval
+		return i;
+	}
+
+	return -1; //no selection because all weights were negative or 0
 }
 ///////////////////////////////////////////////////////////////////////////

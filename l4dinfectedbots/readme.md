@@ -35,6 +35,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.0 (2023-5-5)
+		* Add Special Infected Weight
+		* Add and modify convars about Special Infected Weight
+
 	* v2.7.9 (2023-4-13)
 		* Fixed Not Working in Survival Mode
 		* Fixed cvar "l4d_infectedbots_adjust_spawn_times" calculation mistake
@@ -119,10 +123,16 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		l4d_infectedbots_announcement_enable "1"
 
 		// Sets the limit for boomers spawned by the plugin
-		l4d_infectedbots_boomer_limit "2"
+		l4d_infectedbots_boomer_limit "100"
+
+		// The weight for a boomer spawning [0-100]
+		l4d_infectedbots_boomer_weight "100"
 
 		// Sets the limit for chargers spawned by the plugin
 		l4d_infectedbots_charger_limit "2"
+
+		// The weight for a charger spawning [0-100]
+		l4d_infectedbots_charger_weight "100"
 
 		// If 1, players can join the infected team in coop/survival/realism (!ji in chat to join infected, !js to join survivors)
 		l4d_infectedbots_coop_versus "1"
@@ -157,6 +167,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// Sets the limit for hunters spawned by the plugin
 		l4d_infectedbots_hunter_limit "2"
 
+		// The weight for a hunter spawning [0-100]
+		l4d_infectedbots_hunter_weight "100"
+
 		// Toggle whether Infected HUD announces itself to clients.
 		l4d_infectedbots_infhud_announce "1"
 
@@ -168,6 +181,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		// Sets the limit for jockeys spawned by the plugin
 		l4d_infectedbots_jockey_limit "2"
+
+		// The weight for a jockey spawning [0-100]
+		l4d_infectedbots_jockey_weight "100"
 
 		// Amount of seconds before a special infected bot is kicked
 		l4d_infectedbots_lifespan "30"
@@ -187,11 +203,17 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// If 1, spawn special infected before survivors leave starting safe room area.
 		l4d_infectedbots_safe_spawn "0"
 
+		// If 1, Scale spawn weights with the limits of corresponding SI
+		l4d_infectedbots_scale_weights "0"
+
 		// Disable sm_zs in these gamemode (0: None, 1: coop/realism, 2: versus/scavenge, 4: survival, add numbers together)
 		l4d_infectedbots_sm_zs_disable_gamemode "6"
 
 		// Sets the limit for smokers spawned by the plugin
 		l4d_infectedbots_smoker_limit "2"
+
+		// The weight for a smoker spawning [0-100]
+		l4d_infectedbots_smoker_weight "100"
 
 		// If 1, infected bots can spawn on the same game frame (careful, this could cause sever laggy)
 		l4d_infectedbots_spawn_on_same_frame "0"
@@ -214,6 +236,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		// Sets the limit for spitters spawned by the plugin
 		l4d_infectedbots_spitter_limit "2"
+
+		// The weight for a spitter spawning [0-100]
+		l4d_infectedbots_spitter_weight "100"
 
 		// Sets the limit for tanks spawned by the plugin (does not affect director tanks)
 		l4d_infectedbots_tank_limit "1"
@@ -476,6 +501,28 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			```
 	</details>
 
+	11. <details><summary>Set Weight of Special Infected</summary>
+
+		* Increase chance to spawn specific special infected except for tank and witch, For example
+			```php
+			// Most of time, spawn hunter and charger on the field
+			// If hunter limit reached and charger limit reached, spawn other infected
+			l4d_infectedbots_boomer_weight "5"
+			l4d_infectedbots_charger_weight "90"
+			l4d_infectedbots_hunter_weight "100"
+			l4d_infectedbots_jockey_weight "10"
+			l4d_infectedbots_smoker_weight "5"
+			l4d_infectedbots_spitter_weight "8"
+			```
+
+		* Scale spawn weights with the limits of corresponding SI
+			```php
+			// If 1, The weight of infected would be increased if limit is greater than others
+			// If 1, The weight of infected would be decreased if there are same type of infecteds on the field
+			l4d_infectedbots_scale_weights "1" 
+			```
+	</details>
+
 * Q&A
 	1. <details><summary>How to disable this message?</summary>
 
@@ -511,8 +558,8 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
 
 * 原理
-	* 此插件控制遊戲導演生成系統，用於控制遊戲生成多特感，提升遊戲難度
-	* 當倖存者變多時，殭屍數量變多、特感數量變多、Tank數量變多、Tank血量變多
+	* 此插件控制遊戲導演生成系統，能夠強制無視遊戲特感數量限制，生成多特感
+	* 當倖存者變多時，殭屍數量變多、特感數量變多、Tank數量變多、Tank血量變多，提升遊戲難度
 	* 此插件可以讓玩家在戰役/寫實/生存模式下加入特感陣營，用來惡搞戰役玩家XD
 
 * 功能
@@ -567,8 +614,14 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// 插件可生成boomer的最大數量
 		l4d_infectedbots_boomer_limit "2"
 
+		// 插件生成boomer的權重值 [0~100]
+		l4d_infectedbots_boomer_weight "100"
+
 		// 插件可生成charger的最大數量
 		l4d_infectedbots_charger_limit "2"
+
+		// 插件生成charger的權重值 [0~100]
+		l4d_infectedbots_charger_weight "100"
 
 		// 如果爲1，則玩家可以在戰役/寫實/生存模式中加入感染者(!ji加入感染者 !js加入倖存者)"
 		l4d_infectedbots_coop_versus "1"
@@ -603,6 +656,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// 插件可生成hunter的最大數量
 		l4d_infectedbots_hunter_limit "2"
 
+		// 插件生成hunter的權重值 [0~100]
+		l4d_infectedbots_hunter_weight "100"
+
 		// 是否提示感染者玩家如何開啓HUD
 		l4d_infectedbots_infhud_announce "1"
 
@@ -614,6 +670,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		// 插件可生成jockey的最大數量
 		l4d_infectedbots_jockey_limit "2"
+
+		// 插件生成jockey的權重值 [0~100]
+		l4d_infectedbots_jockey_weight "100"
 
 		// AI特感生成多少秒後踢出（AI防卡）
 		l4d_infectedbots_lifespan "30"
@@ -633,11 +692,18 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// 如果爲1，即使倖存者尚未離開安全區域，遊戲依然能生成特感
 		l4d_infectedbots_safe_spawn "0"
 
+		// 如果爲1，可生成的最大數量越多，該特感的權重值越高
+		// 如果爲1，場上相同特感種類的數量越多，該特感的權重值越低
+		l4d_infectedbots_scale_weights "0"
+
 		// 在哪些遊戲模式中禁止感染者玩家使用sm_zs (0: 無, 1: 戰役/寫實, 2: 對抗/清道夫, 4: 倖存者, 多個模式添加數字輸出)
 		l4d_infectedbots_sm_zs_disable_gamemode "6"
 
 		// 插件可生成smoker的最大數量
 		l4d_infectedbots_smoker_limit "2"
+
+		// 插件生成smoker的權重值 [0~100]
+		l4d_infectedbots_smoker_weight "5"
 
 		// 允許特感在同一個時間點復活沒有誤差 (小心啟動，會影響伺服器卡頓)
 		l4d_infectedbots_spawn_on_same_frame 0
@@ -660,6 +726,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		// 插件可生成spitter的最大數量
 		l4d_infectedbots_spitter_limit "2"
+
+		// 插件生成spitter的權重值 [0~100]
+		l4d_infectedbots_spitter_weight "100"
 
 		// 插件可生成tank的最大數量 （不影響劇情tank）
 		l4d_infectedbots_tank_limit "1"
@@ -919,6 +988,28 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		* 當場上有存活的tank時停止生成AI特感。
 			```php
 			l4d_infectedbots_spawns_disabled_tank "1" 
+			```
+	</details>
+
+	11. <details><summary>設置特感的權重</summary>
+
+		* 除了Tank與Witch以外可以增減特感的權重, 譬如
+			```php
+			// 每一次特感生成, 有很大的機率生成Hunter與Charger
+			// 如果Hunter與Charger達到最大數量限制, 則根據權重分配生成其他特感
+			l4d_infectedbots_boomer_weight "5"
+			l4d_infectedbots_charger_weight "90"
+			l4d_infectedbots_hunter_weight "100"
+			l4d_infectedbots_jockey_weight "10"
+			l4d_infectedbots_smoker_weight "5"
+			l4d_infectedbots_spitter_weight "8"
+			```
+
+		* 可根據"場上特感數量"與"生成最大數量"兩種值調整每個特感的權重 (公式如何計算，不要問)
+			```php
+			// 如果爲1，可生成的最大數量越多，該特感的權重值越高
+			// 如果爲1，場上相同特感種類的數量越多，該特感的權重值越低
+			l4d_infectedbots_scale_weights "1"
 			```
 	</details>
 
