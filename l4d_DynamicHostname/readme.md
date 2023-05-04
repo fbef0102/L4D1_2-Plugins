@@ -17,6 +17,10 @@ Server name with txt file (Support any language)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.8 (2023-5-4)
+        * Optimize Code
+        * Can use different host name by server port
+
 	* v1.7
         * By HarryPotter
 </details>
@@ -39,16 +43,18 @@ Server name with txt file (Support any language)
 </details>
 
 * How to Modify Server Host Name
-    1. Modify ```configs\hostname\server_hostname.txt```
+    1. Install and launch server, file ```configs\hostname\server_hostname_xxxxx.txt``` will be auto-generated
+        * ```xxxxx``` is server port
+    2. Modify file
         ```php
         [中文亞洲] Asia L4D - 乂煞氣@惡靈勢力
         ```
-    2. Write down convar in cfg/server.cfg
+    3. Write down plugin convar in cfg/server.cfg
         ```php
         //League notice displayed on server name (Empty=Disable)
         l4d_current_mode "Harry's mod"
         ```
-    3. The Server name will change on map change or restart server
+    4. The Server name will change on map change or server restart
         ```php
         [中文亞洲] Asia L4D - 乂煞氣@惡靈勢力 (Harry's mod)
         ```
@@ -60,18 +66,21 @@ Server name with txt file (Support any language)
 
 * 原理
 	* 伺服器房名只能寫英文，裝上這個插件之後，伺服器房名可以寫中文
+    * 文件```configs\hostname\server_hostname.txt```是預設的房名
 
 * 步驟
-    1. 打開文件 ```configs\hostname\server_hostname.txt``` 並輸入房名 (可以寫中文)
+    1. 安裝插件後啟動伺服器，會自動產生文件 ```configs\hostname\server_hostname_xxxxxx.txt```
+        * ```xxxxx```是伺服器的端口，也就是port
+    2. 請打開並輸入房名 (可以寫中文)
         ```php
         [中文亞洲] Asia L4D - 乂煞氣@惡靈勢力
         ```
-    2. 以下指令寫入 cfg/server.cfg
+    3. 插件的指令寫入 cfg/server.cfg
         ```php
-        //房名之後的模式介紹，不可以寫中文 (可以留白)
+        //房名之後的模式介紹，不可以寫中文 (可以留白不寫)
         l4d_current_mode "Harry's mod"
         ```
-    3. 等待伺服器重啟或換圖之後，房名會變成
+    4. 等待伺服器重啟或換圖之後，房名會變成
         ```php
         [中文亞洲] Asia L4D - 乂煞氣@惡靈勢力 (Harry's mod)
         ```
