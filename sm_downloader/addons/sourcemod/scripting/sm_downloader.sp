@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define SM_DOWNLOADER_VERSION		"1.7"
+#define SM_DOWNLOADER_VERSION		"1.8"
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 
 ConVar g_enabled=null;
@@ -42,14 +42,14 @@ public void OnPluginStart()
 	AutoExecConfig(true, "sm_downloader");
 }
 
-public void OnCvarFileChange_control(ConVar convar, const char[] oldValue, const char[] newValue)
+void OnCvarFileChange_control(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if(g_enabled.BoolValue){
 		if(g_normal.BoolValue) ReadDownloads();
 	}
 }
 
-public void OnCvarFileSimpleChange_control(ConVar convar, const char[] oldValue, const char[] newValue)
+void OnCvarFileSimpleChange_control(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if(g_enabled.BoolValue){
 		if(g_simple.BoolValue) ReadDownloadsSimple();
@@ -63,7 +63,7 @@ public void OnConfigsExecuted(){
 	}
 }
 
-public void ReadFileFolder(char[] path){
+void ReadFileFolder(char[] path){
 	Handle dirh = null;
 	char buffer[256];
 	char tmp_path[256];
@@ -115,7 +115,7 @@ public void ReadFileFolder(char[] path){
 	delete dirh;
 }
 
-public void ReadDownloads(){
+void ReadDownloads(){
 
 	char sConVarPath[PLATFORM_MAX_PATH];
 	g_file.GetString(sConVarPath, sizeof(sConVarPath));
@@ -154,7 +154,7 @@ public void ReadDownloads(){
 	delete fileh;
 }
 
-public void ReadItem(char[] buffer){
+void ReadItem(char[] buffer){
 	int len = strlen(buffer);
 	if (buffer[len-1] == '\n')
 		buffer[--len] = '\0';
@@ -209,7 +209,7 @@ public void ReadItem(char[] buffer){
 	}
 }
 
-public void ReadDownloadsSimple(){
+void ReadDownloadsSimple(){
 
 	char sConVarPath[PLATFORM_MAX_PATH];
 	g_file_simple.GetString(sConVarPath, sizeof(sConVarPath));
@@ -246,7 +246,7 @@ public void ReadDownloadsSimple(){
 	delete fileh;
 }
 
-public void ReadItemSimple(char[] buffer){
+void ReadItemSimple(char[] buffer){
 	int len = strlen(buffer);
 	if (buffer[len-1] == '\n')
 		buffer[--len] = '\0';
@@ -261,25 +261,14 @@ public void ReadItemSimple(char[] buffer){
 	}
 }
 
-public Action OnFileSend(int client, const char[] sFile)
-{
-	//LogMessage("hello\nhello\nhello\nOnFileSend %N %s",client, sFile);
-	return Plugin_Handled;
-}
-
-public Action OnFileReceive(int client, const char[] sFile)
-{
-	//LogMessage("hello\nhello\nhello\nOnFileReceive %N %s",client, sFile);
-	return Plugin_Handled;
-}
 /*
 public void OnClientConnected(int client)
 {  
   if(IsClientConnected(client)&&!IsClientInGame(client)&&!IsFakeClient(client))
  	CreateTimer(6.0,TimerShowMessage,client);
 }
-*/
-public Action TimerShowMessage(Handle timer, any client)
+
+Action TimerShowMessage(Handle timer, any client)
 {
   if((IsClientConnected(client)&&IsClientInGame(client)&&!IsFakeClient(client))||!IsClientConnected(client))
 	return Plugin_Handled;
@@ -293,7 +282,7 @@ public Action TimerShowMessage(Handle timer, any client)
 
 }
 
-public Action TimerShowMessage2(Handle timer,any client)
+Action TimerShowMessage2(Handle timer,any client)
 {
   if(!IsClientConnected(client))
 	return Plugin_Stop;
@@ -314,3 +303,4 @@ public Action TimerShowMessage2(Handle timer,any client)
   
   return Plugin_Continue;
 }
+*/
