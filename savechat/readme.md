@@ -76,7 +76,7 @@ Records player chat messages to a file
     * 會記錄玩家在遊戲控制台輸入的指令
 
 * Save Chat　文件
-	* left4dead\addons\sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt
+	* sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt
         * ```xxxxx``` 是伺服器的端口，也就是port
         * ```yy``` 是年份
         * ```mm``` 是月份
