@@ -54,7 +54,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 如果一段時間後沒有人撿起掉落的武器與物品，則自動移除
 * <b>[no-rushing](/no-rushing)</b>: Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
     * 離隊伍太遠的玩家會傳送回隊伍之中
-* <b>[l4dmultislots](/l4dmultislots)</b>: Allows additional survivor players in coop/survival/realism when 5+ player joins the server
+* <b>[l4dmultislots](/l4dmultislots)</b>: Allows additional survivor players in server when 5+ player joins the server
     * 創造5位以上倖存者遊玩伺服器
 * <b>[savechat](/savechat)</b>: Records player chat messages to a file.
     * 紀錄玩家的聊天紀錄到文件裡
