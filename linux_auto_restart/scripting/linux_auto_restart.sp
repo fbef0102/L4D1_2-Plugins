@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "L4D auto restart",
 	author = "Harry Potter",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
-	version = "2.5",
+	version = "2.6",
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -80,6 +80,7 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
+	g_hConVarHibernate.SetBool(false);
 	if(g_bNoOneInServer)
 	{
 		g_bNoOneInServer = false;
