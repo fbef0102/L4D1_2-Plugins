@@ -38,4 +38,12 @@
 	{
 		"en" "You already played on the {blue}Survivor Team{default} this round. You will spawn {green}dead{default}."
 	}
+	"Sorry! No survivor slots"
+	{
+		"en" "Sorry! Numbers of survivor has reached limit!"
+	}
+	"Too many survivors, unbalance"
+	{
+		"en" "Sorry! Team is unbalance, too many players in survivor team!"
+	}
 }
