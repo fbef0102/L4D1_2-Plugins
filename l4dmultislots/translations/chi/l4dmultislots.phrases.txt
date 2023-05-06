@@ -38,4 +38,12 @@
 	{
 		"chi" "你已于当前回合当过{blue}生还者队伍{default}. 给予 {green}死亡{default} Bot."
 	}
+	"Sorry! No survivor slots"
+	{
+		"chi" "抱歉! 生还者数量已达上限!"
+	}
+	"Too many survivors, unbalance"
+	{
+		"chi" "抱歉! 队伍目前不平衡, 太多玩家在生还者队伍!"
+	}
 }

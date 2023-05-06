@@ -1,18 +1,21 @@
-//本插件用來防止玩家換隊濫用的Bug
-//禁止期間不能閒置、不能打指令換隊、亦不可按M換隊
-//(離開安全區域才會生效)
-//1.嚇了Witch或被Witch抓倒 期間禁止換隊 (防止Witch失去目標)
-//2.被特感抓住期間 期間禁止換隊 (防止濫用特感控了無傷)
-//3.人類玩家死亡 期間禁止換隊 (防止玩家故意死亡 然後跳隊裝B)
-//4.換隊成功之後 必須等待數秒才能再換隊 (防止玩家頻繁換隊洗頻伺服器)
-//5.出安全室之後 不得隨意換隊 (防止跳狗)
-//6.玩家點燃火瓶、汽油或油桶期間禁止換隊 (防止友傷bug、防止Witch失去目標)
-//7.玩家投擲火瓶、土製炸彈、膽汁期間禁止換隊 (防止Witch失去目標)
-//8.玩家武器裝彈期間禁止換隊 (防止快速隊伍切換省略裝彈時間)
-//9.特感玩家剛復活的期間 (防止切換特感)
-//1.特感玩家抓住了人類 (防止jockey and ghost charger的爭議)
-//111.管理員可以強制玩家更換隊伍 "sm_swapto <player> <team>"
-/*
+/*本插件用來防止玩家換隊濫用的Bug (離開安全區域才會生效)
+* 禁止期間不能閒置、不能打指令換隊、亦不可按M換隊
+* 有以下情況不能使用命令換隊，否則強制旁觀
+* 1.嚇了Witch或被Witch抓倒期間禁止換隊 (防止Witch失去目標)
+* 2.被特感抓住期間期間禁止換隊 (防止濫用特感控了無傷)
+* 3.人類玩家死亡期間禁止換隊 (防止玩家故意死亡 然後跳隊裝B)
+* 4.換隊成功之後，必須等待數秒才能再換隊 (防止玩家頻繁換隊洗頻伺服器)
+* 5.離開安全區域或是生存模式計時開始一段時間之後，不得隨意換隊 (防止跳狗)
+* 6.玩家點燃火瓶、汽油或油桶期間禁止換隊 (防止友傷bug、防止Witch失去目標)
+* 7.玩家投擲火瓶、土製炸彈、膽汁期間禁止換隊 (防止友傷bug、防止Witch失去目標)
+* 8.玩家武器裝彈期間禁止換隊 (防止快速隊伍切換省略裝彈時間)
+* 9.特感玩家剛復活的期間禁止換隊 (防止切換特感)
+* 10.特感玩家抓住了人類 (防止Jockey瞬移與Ghost Charger的爭議)
+* 11.對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊 (防止一方的玩家數量過多)
+* 
+* Admin 功能
+* 1.管理員可以強制玩家更換隊伍 "sm_swapto <player> <team>"
+* 
 **Change team to Spectate
 	"sm_afk"
 	"sm_s"
@@ -58,7 +61,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.5"
+#define PLUGIN_VERSION 		"4.6"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -73,7 +76,7 @@
 #include <left4dhooks>
 
 #undef REQUIRE_PLUGIN
-#include <unscramble> //compatible with r2comp_unscramble (https://forums.alliedmods.net/showthread.php?t=327711)
+#include <unscramble> //https://github.com/fbef0102/Game-Private_Plugin/blob/main/left4dead2/scripting/include/unscramble.inc
 
 #define STEAMID_SIZE 		32
 #define L4D_TEAM_NAME(%1) (%1 == 2 ? "Survivors" : (%1 == 3 ? "Infected" : (%1 == 1 ? "Spectators" : "Unknown")))
@@ -83,22 +86,24 @@ const int ARRAY_COUNT = 2;
 #define MODEL_GASCAN			"models/props_junk/gascan001a.mdl"
 #define MODEL_BARREL			"models/props_industrial/barrel_fuel.mdl"
 
-//convar
-ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSeconds, g_hWeaponReloadBlock,
-	g_hInfectedCapBlock, g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmueAccess,
-	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
-	g_hObsCommandAccess,
-	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableCooldown, g_hInfectedSpawnCooldown;
 ConVar g_hGameMode, g_hZMaxPlayerZombies;
 
+ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSeconds, g_hWeaponReloadBlock,
+	g_hInfectedCapBlock, g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmuneAccess,
+	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
+	g_hObsCommandAccess,
+	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableCooldown, g_hInfectedSpawnCooldown,
+	g_hVSCommandBalance, g_hVSUnBalanceLimit;
+
 //value
-char g_sImmueAcclvl[16], g_sSpecCommandAccesslvl[16], g_sInfCommandAccesslvl[16], 
+char g_sImmuneAcclvl[16], g_sSpecCommandAccesslvl[16], g_sInfCommandAccesslvl[16], 
 	g_sSurCommandAccesslvl[16], g_sObsCommandAccesslvl[16];
-bool g_bL4D2Version, g_bHasLeftSafeRoom, g_bMapStarted, g_bGameTeamSwitchBlock;
 bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bInfectedAttackBlock, 
-	g_bWitchAttackBlock, g_bInfectedCapBlock, g_bPressMBlock, g_bTakeABreakBlock;
+	g_bWitchAttackBlock, g_bInfectedCapBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance;
 float g_fBreakPropCooldown, g_fThrowableCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
-int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies;
+int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies, g_iVSUnBalanceLimit;
+
+bool g_bL4D2Version, g_bHasLeftSafeRoom, g_bMapStarted, g_bGameTeamSwitchBlock;
 
 //arraylist
 ArrayList nClientSwitchTeam;
@@ -117,7 +122,7 @@ float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 int iClientFlags[MAXPLAYERS+1];
-int g_iGameMode;
+int g_iGameMode; // 1=Coop/Realism, 2=Versus/Scavenge, 3=Survival
 
 public Plugin myinfo =
 {
@@ -192,27 +197,28 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_ob", TurnClientToObserver, "Switch team to fully an observer.");
 	RegConsoleCmd("sm_observe", TurnClientToObserver, "Switch team to fully an observer.");
 
-	g_hZMaxPlayerZombies = FindConVar("z_max_player_zombies");
-	g_hCoolTime = CreateConVar("l4d_afk_commands_changeteam_cooltime_block", "10.0", "Cold Down Time in seconds a player can not change team again after he switches team. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	g_hDeadSurvivorBlock = CreateConVar("l4d_afk_commands_deadplayer_block", "1", "If 1, Dead Survivor player can not switch team.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hGameTimeBlock = CreateConVar("l4d_afk_commands_during_game_seconds_block", "0", "Player can switch team until players have left start safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedAttackBlock = CreateConVar("l4d_afk_commands_infected_attack_block", "1", "If 1, Player can not change team when he is capped by special infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hWitchAttackBlock = CreateConVar("l4d_afk_commands_witch_attack_block", "1", "If 1, Player can not change team when he startle witch or being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", "30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	g_hWeaponReloadBlock = CreateConVar("l4d_afk_commands_weapon_reload_block", "1", "If 1, Player can not change team when he is reloading the weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedCapBlock = CreateConVar("l4d_afk_commands_infected_cap_block", "1", "If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-
-	g_hWPressMBlock = CreateConVar("l4d_afk_commands_pressM_block", "1", "If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hTakeABreakBlock = CreateConVar("l4d_afk_commands_takeabreak_block", "1", "If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hTakeControlBlock = CreateConVar("l4d_afk_commands_takecontrol_block", "1", "If 1, Block player from using 'sb_takecontrol' command in console.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hBreakPropCooldown = CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", "15.0", "Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hThrowableCooldown = CreateConVar("l4d_afk_commands_throwable_cooltime_block", "10.0", "Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedSpawnCooldown = CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", "10.0", "Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hImmueAccess = CreateConVar("l4d_afk_commands_immue_block_flag", "-1", "Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	g_hSpecCommandAccess = CreateConVar("l4d_afk_commands_spec_access_flag", "", "Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	g_hInfCommandAccess = CreateConVar("l4d_afk_commands_infected_access_flag", "", "Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	g_hSurCommandAccess = CreateConVar("l4d_afk_commands_survivor_access_flag", "", "Players with these flags have access to use command to survivor team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	g_hObsCommandAccess = CreateConVar("l4d_afk_commands_observer_access_flag", "z", "Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hZMaxPlayerZombies = 		FindConVar("z_max_player_zombies");
+	g_hCoolTime = 				CreateConVar("l4d_afk_commands_changeteam_cooltime_block", 		"10.0", "Cold Down Time in seconds a player can not change team again after he switches team. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	g_hDeadSurvivorBlock = 		CreateConVar("l4d_afk_commands_deadplayer_block", 				"1", 	"If 1, Dead Survivor player can not switch team.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hGameTimeBlock = 			CreateConVar("l4d_afk_commands_during_game_seconds_block", 		"0", 	"Player can not switch team after players have left start safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
+	g_hInfectedAttackBlock = 	CreateConVar("l4d_afk_commands_infected_attack_block", 			"1", 	"If 1, Player can not change team when he is capped by special infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hWitchAttackBlock = 		CreateConVar("l4d_afk_commands_witch_attack_block", 			"1", 	"If 1, Player can not change team when he startle witch or being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", 			"30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	g_hWeaponReloadBlock = 		CreateConVar("l4d_afk_commands_weapon_reload_block", 			"1", 	"If 1, Player can not change team when he is reloading the weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedCapBlock = 		CreateConVar("l4d_afk_commands_infected_cap_block", 			"1", 	"If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hWPressMBlock = 			CreateConVar("l4d_afk_commands_pressM_block", 					"1", 	"If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hTakeABreakBlock = 		CreateConVar("l4d_afk_commands_takeabreak_block", 				"0", 	"If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hTakeControlBlock = 		CreateConVar("l4d_afk_commands_takecontrol_block", 				"1", 	"If 1, Block player from using 'sb_takecontrol' command in console.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hBreakPropCooldown = 		CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", 		"15.0", "Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
+	g_hThrowableCooldown = 		CreateConVar("l4d_afk_commands_throwable_cooltime_block", 		"10.0", "Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0);
+	g_hInfectedSpawnCooldown = 	CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", 	"10.0", "Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).", FCVAR_NOTIFY, true, 0.0);
+	g_hImmuneAccess = 			CreateConVar("l4d_afk_commands_immune_block_flag", 				"-1", 	"Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hSpecCommandAccess = 		CreateConVar("l4d_afk_commands_spec_access_flag", 				"", 	"Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hInfCommandAccess = 		CreateConVar("l4d_afk_commands_infected_access_flag", 			"", 	"Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hSurCommandAccess = 		CreateConVar("l4d_afk_commands_survivor_access_flag", 			"", 	"Players with these flags have access to use command to survivor team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hObsCommandAccess = 		CreateConVar("l4d_afk_commands_observer_access_flag", 			"z", 	"Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hVSCommandBalance = 		CreateConVar("l4d_afk_commands_versus_teams_balance_enable", 	"1", 	"If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hVSUnBalanceLimit = 		CreateConVar("l4d_afk_commands_versus_teams_unbalance_limit", 	"2", 	"Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.", FCVAR_NOTIFY, true, 1.0);
 	
 	GetCvars();
 	g_hGameMode = FindConVar("mp_gamemode");
@@ -231,12 +237,14 @@ public void OnPluginStart()
 	g_hBreakPropCooldown.AddChangeHook(ConVarChanged_Cvars);
 	g_hThrowableCooldown.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedSpawnCooldown.AddChangeHook(ConVarChanged_Cvars);
-	g_hImmueAccess.AddChangeHook(ConVarChanged_Cvars);
+	g_hImmuneAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpecCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hSurCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hObsCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hZMaxPlayerZombies.AddChangeHook(ConVarChanged_Cvars);
+	g_hVSCommandBalance.AddChangeHook(ConVarChanged_Cvars);
+	g_hVSUnBalanceLimit.AddChangeHook(ConVarChanged_Cvars);
 	
 	HookEvent("witch_harasser_set", OnWitchWokeup);
 	HookEvent("round_start", Event_RoundStart);
@@ -346,7 +354,7 @@ void GameModeCheck()
 	}
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iGameMode = 1;
@@ -358,7 +366,7 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 		g_iGameMode = 2;
 }
 
-public Action Command_SwapTo(int client, int args)
+Action Command_SwapTo(int client, int args)
 {
 	if (args < 2)
 	{
@@ -414,7 +422,7 @@ public Action Command_SwapTo(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action ForceSurvivorSuicide(int client, int args)
+Action ForceSurvivorSuicide(int client, int args)
 {
 	if (g_fSurvivorSuicideSeconds > 0.0 && client && GetClientTeam(client) == 2 && !IsFakeClient(client) && IsPlayerAlive(client))
 	{
@@ -448,7 +456,7 @@ public Action ForceSurvivorSuicide(int client, int args)
 	return Plugin_Handled;
 }
 
-public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if(!victim || !IsClientAndInGame(victim)) return;
@@ -470,7 +478,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	}
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -492,7 +500,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	}
 }
 
-public void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
+void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
 {
 	char sTemp[42];
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -512,7 +520,7 @@ public void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public Action checksurvivorspawn(Handle timer, int client)
+Action checksurvivorspawn(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
 	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0 && client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
@@ -548,7 +556,7 @@ public void OnClientDisconnect(int client)
 	Clear(client);
 }
 
-public Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
+Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
 {
 	if (!IsValidEdict(victim) || !IsValidEdict(attacker) || !IsValidEdict(inflictor) ) { return Plugin_Continue; }
 	
@@ -563,7 +571,7 @@ public Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &da
 	return Plugin_Continue;
 }
 
-public void OnWitchWokeup(Event event, const char[] name, bool dontBroadcast) 
+void OnWitchWokeup(Event event, const char[] name, bool dontBroadcast) 
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
@@ -589,17 +597,17 @@ public void OnEntityDestroyed(int entity)
 	}
 }
 
-public void Event_PlayerChangeTeam(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerChangeTeam(Event event, const char[] name, bool dontBroadcast) 
 {
 	CreateTimer(0.1, ClientReallyChangeTeam, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE); // check delay
 }
 
-public void ConVarChange_CvarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChange_CvarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GameModeCheck();
 }
 
-public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -614,7 +622,7 @@ void GetCvars()
 	g_hInfCommandAccess.GetString(g_sInfCommandAccesslvl,sizeof(g_sInfCommandAccesslvl));
 	g_hSurCommandAccess.GetString(g_sSurCommandAccesslvl,sizeof(g_sSurCommandAccesslvl));
 	g_hObsCommandAccess.GetString(g_sObsCommandAccesslvl,sizeof(g_sObsCommandAccesslvl));
-	g_hImmueAccess.GetString(g_sImmueAcclvl,sizeof(g_sImmueAcclvl));
+	g_hImmuneAccess.GetString(g_sImmuneAcclvl,sizeof(g_sImmuneAcclvl));
 	g_fSurvivorSuicideSeconds = g_hSurvivorSuicideSeconds.FloatValue;
 	g_bWeaponReloadBlock = g_hWeaponReloadBlock.BoolValue;
 	g_bInfectedCapBlock = g_hInfectedCapBlock.BoolValue;
@@ -626,16 +634,17 @@ void GetCvars()
 	g_fThrowableCooldown = g_hThrowableCooldown.FloatValue;
 	g_fInfectedSpawnCooldown = g_hInfectedSpawnCooldown.FloatValue;
 	g_iZMaxPlayerZombies = g_hZMaxPlayerZombies.IntValue;
-	
+	g_bVSCommandBalance = g_hVSCommandBalance.BoolValue;
+	g_iVSUnBalanceLimit = g_hVSUnBalanceLimit.IntValue;
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
 	ClearDefault();
 }
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	for (int i = 0; i < (nClientSwitchTeam.Length / ARRAY_COUNT); i++) {
 		nClientSwitchTeam.Set( (i * ARRAY_COUNT) + ARRAY_TEAM, 0);
@@ -648,7 +657,7 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_iRoundStart = 1;
 }
 
-public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
+void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(g_bHasLeftSafeRoom == true || L4D_GetGameModeType() != GAMEMODE_SURVIVAL) return;
 	
@@ -733,7 +742,7 @@ void Clear(int client = -1)
 
 }
 
-public Action TurnClientToSpectate(int client, int argCount)
+Action TurnClientToSpectate(int client, int argCount)
 {
 	if (client == 0)
 	{
@@ -791,7 +800,7 @@ public Action TurnClientToSpectate(int client, int argCount)
 	return Plugin_Handled;
 }
 
-public Action TurnClientToObserver(int client, int args)
+Action TurnClientToObserver(int client, int args)
 {
 	if (client == 0)
 	{
@@ -829,26 +838,28 @@ public Action TurnClientToObserver(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Timer_Respectate(Handle timer, int client)
+Action Timer_Respectate(Handle timer, int client)
 {
 	ChangeClientTeam(client, 1);
 
 	return Plugin_Continue;
 }
 
-public Action TurnClientToSurvivors(int client, int args)
+Action TurnClientToSurvivors(int client, int args)
 { 
 	if (client == 0)
 	{
 		PrintToServer("[TS] command cannot be used by server.");
 		return Plugin_Handled;
 	}
-	if (GetClientTeam(client) == 2)			//if client is survivor
+
+	int team = GetClientTeam(client);
+	if (team == 2)			//if client is survivor
 	{
 		PrintHintText(client, "[TS] %T","You are already in survivor team.",client);
 		return Plugin_Handled;
 	}
-	if (IsClientIdle(client))
+	if (team == 1 && IsClientIdle(client))
 	{
 		PrintHintText(client, "[TS] %T","You are in idle, Press Left Mouse to play",client);
 		return Plugin_Handled;
@@ -862,14 +873,56 @@ public Action TurnClientToSurvivors(int client, int args)
 		return Plugin_Handled;
 	}
 
-	if(CanClientChangeTeam(client,2) == false) return Plugin_Handled;
+	if(CanClientChangeTeam(client, 2) == false) return Plugin_Handled;
 	
 	int maxSurvivorSlots = GetTeamMaxSlots(2);
 	int survivorUsedSlots = GetTeamHumanCount(2);
 	int freeSurvivorSlots = (maxSurvivorSlots - survivorUsedSlots);
-
+	int maxInfectedSlots = GetTeamMaxSlots(3);
+	int infectedUsedSlots = GetTeamHumanCount(3);
+	int freeInfectedSlots = (maxInfectedSlots - infectedUsedSlots);
 	//PrintToChatAll("Number of Survivor Slots %d.\nNumber of Survivor Players %d.\nNumber of Free Slots %d.", maxSurvivorSlots, survivorUsedSlots, freeSurvivorSlots);
 	
+	//檢查平衡
+	if(g_bVSCommandBalance && g_iGameMode == 2)
+	{
+		if(team <= 1)
+		{
+			if(survivorUsedSlots >= infectedUsedSlots + g_iVSUnBalanceLimit ) //特感比較少人
+			{
+				if(freeInfectedSlots > 0) //特感還有位子
+				{
+					PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
+					return Plugin_Handled;
+				}
+			}
+			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
+			{
+				//嘗試跳隊到倖存者
+			}
+			else //雙方隊伍數量相等
+			{
+				//嘗試跳隊到倖存者
+			}
+		}
+		else
+		{
+			if(survivorUsedSlots >= infectedUsedSlots + g_iVSUnBalanceLimit ) //特感比較少人
+			{
+				PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
+				return Plugin_Continue;
+			}
+			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
+			{
+				//嘗試跳隊到倖存者
+			}
+			else //雙方隊伍數量相等
+			{
+				//嘗試跳隊到倖存者
+			}
+		}
+	}
+
 	if (freeSurvivorSlots <= 0)
 	{
 		PrintHintText(client, "[TS] %T","Survivor team is full now.",client);
@@ -912,14 +965,21 @@ public Action TurnClientToSurvivors(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action TurnClientToInfected(int client, int args)
+Action TurnClientToInfected(int client, int args)
 { 
 	if (client == 0)
 	{
 		PrintToServer("[TS] command cannot be used by server.");
 		return Plugin_Handled;
 	}
-	if (GetClientTeam(client) == 3)			//if client is Infected
+
+	if(g_iGameMode != 2)
+	{
+		return Plugin_Handled;
+	}
+
+	int team = GetClientTeam(client);
+	if (team == 3)			//if client is Infected
 	{
 		PrintHintText(client, "[TS] %T","You are already in infected team.",client);
 		return Plugin_Handled;
@@ -933,21 +993,61 @@ public Action TurnClientToInfected(int client, int args)
 		return Plugin_Handled;
 	}
 
-	if(CanClientChangeTeam(client,3) == false) return Plugin_Handled;
+	if(CanClientChangeTeam(client, 3) == false) return Plugin_Handled;
 
+	int maxSurvivorSlots = GetTeamMaxSlots(2);
+	int survivorUsedSlots = GetTeamHumanCount(2);
+	int freeSurvivorSlots = (maxSurvivorSlots - survivorUsedSlots);
 	int maxInfectedSlots = GetTeamMaxSlots(3);
 	int infectedUsedSlots = GetTeamHumanCount(3);
 	int freeInfectedSlots = (maxInfectedSlots - infectedUsedSlots);
+
+	//檢查平衡
+	if(g_bVSCommandBalance && g_iGameMode == 2)
+	{
+		if(team <= 1)
+		{
+			if(survivorUsedSlots >= infectedUsedSlots + g_iVSUnBalanceLimit ) //特感比較少人
+			{
+				//嘗試跳隊到特感
+			}
+			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
+			{
+				if(freeSurvivorSlots > 0) //人類還有位子
+				{
+					PrintHintText(client, "%T", "Too many infected, unbalance", client); 
+					return Plugin_Handled;
+				}
+			}
+			else //雙方隊伍數量相等
+			{
+				//嘗試跳隊到特感
+			}
+		}
+		else
+		{
+			if(survivorUsedSlots >= infectedUsedSlots + g_iVSUnBalanceLimit ) //特感比較少人
+			{
+				//嘗試跳隊到特感
+			}
+			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
+			{
+				PrintHintText(client, "%T", "Too many infected, unbalance", client); 
+				return Plugin_Continue;
+			}
+			else //雙方隊伍數量相等
+			{
+				//嘗試跳隊到特感
+			}
+		}
+	}
+
 	if (freeInfectedSlots <= 0)
 	{
 		PrintHintText(client, "[TS] %T","Infected team is full now.",client);
 		return Plugin_Handled;
 	}
-	if(g_iGameMode != 2)
-	{
-		return Plugin_Handled;
-	}
-	
+
 	ChangeClientTeam(client, 3);
 	clientteam[client] = 3;
 	
@@ -979,25 +1079,28 @@ int GetTeamMaxSlots(int team)
 int GetTeamHumanCount(int team)
 {
 	int humans = 0;
-	
-	int i;
-	for(i = 1; i < (MaxClients + 1); i++)
+	int iTeam;
+	for(int i = 1; i < (MaxClients + 1); i++)
 	{
-		if(IsClientInGameHuman(i) && GetClientTeam(i) == team)
+		if(IsClientInGame(i) && !IsFakeClient(i))
 		{
-			humans++;
+			iTeam = GetClientTeam(i);
+			if(iTeam == 1 && team == 2)
+			{
+				if(IsClientIdle(i)) humans++;
+			}
+			else if (iTeam == team)
+			{
+				humans++;
+			}
 		}
 	}
 	
 	return humans;
 }
-//client is in-game and not a bot and not spec
-bool IsClientInGameHuman(int client)
-{
-	return IsClientInGame(client) && !IsFakeClient(client) && ((GetClientTeam(client) == 2 || GetClientTeam(client) == 3));
-}
 
-public bool IsInteger(char[] buffer)
+
+bool IsInteger(char[] buffer)
 {
     int len = strlen(buffer);
     for (int i = 0; i < len; i++)
@@ -1009,7 +1112,7 @@ public bool IsInteger(char[] buffer)
     return true;    
 }
 
-public Action WTF(int client, int args) //press m (jointeam)
+Action WTF(int client, int args) //press m (jointeam)
 {
 	if (client == 0)
 	{
@@ -1021,7 +1124,7 @@ public Action WTF(int client, int args) //press m (jointeam)
 
 	if(args > 2) return Plugin_Handled;
 
-	bool bHaveAccess = HasAccess(client, g_sImmueAcclvl);
+	bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
 	if(g_bPressMBlock == true && bHaveAccess == false) 
 	{
 		PrintHintText(client, "[TS] %T","This function has been blocked!",client);	
@@ -1081,7 +1184,7 @@ public Action WTF(int client, int args) //press m (jointeam)
 	return Plugin_Continue;
 }
 
-public Action WTF2(int client, int args) //esc->take a break (go_away_from_keyboard)
+Action WTF2(int client, int args) //esc->take a break (go_away_from_keyboard)
 {
 	if (client == 0)
 	{
@@ -1107,7 +1210,7 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-	bool bHaveAccess = HasAccess(client, g_sImmueAcclvl);
+	bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
 	if(g_bTakeABreakBlock == true && bHaveAccess == false) 
 	{
 		PrintHintText(client, "[TS] %T","This function has been blocked!",client);	
@@ -1121,7 +1224,7 @@ public Action WTF2(int client, int args) //esc->take a break (go_away_from_keybo
 	return Plugin_Continue;
 }
 
-public void go_away_from_keyboard_NextFrame(any iUserID)
+void go_away_from_keyboard_NextFrame(any iUserID)
 {
 	int client = GetClientOfUserId(iUserID);
 	
@@ -1143,7 +1246,7 @@ public void go_away_from_keyboard_NextFrame(any iUserID)
 	}	
 }
 
-public Action WTF3(int client, int args) //sb_takecontrol
+Action WTF3(int client, int args) //sb_takecontrol
 {
 	if (client == 0)
 	{
@@ -1155,7 +1258,7 @@ public Action WTF3(int client, int args) //sb_takecontrol
 
 	if(args > 1) return Plugin_Handled;
 
-	bool bHaveAccess = HasAccess(client, g_sImmueAcclvl);
+	bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
 	if(g_bTakeControlBlock == true && bHaveAccess == false) 
 	{
 		ReplyToCommand(client, "[TS] %T","This function has been blocked!",client);	
@@ -1246,7 +1349,7 @@ bool HasIdlePlayer(int bot)
 
 bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 { 
-	if(g_bHasLeftSafeRoom == false || bIsAdm || HasAccess(client, g_sImmueAcclvl)) return true;
+	if(g_bHasLeftSafeRoom == false || bIsAdm || HasAccess(client, g_sImmuneAcclvl)) return true;
 
 	int team = GetClientTeam(client);
 	if(team == 2)
@@ -1326,7 +1429,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 
 void StartChangeTeamCoolDown(int client)
 {
-	if( InCoolDownTime[client] || g_bHasLeftSafeRoom == false || HasAccess(client, g_sImmueAcclvl)) return;
+	if( InCoolDownTime[client] || g_bHasLeftSafeRoom == false || HasAccess(client, g_sImmuneAcclvl)) return;
 	if(fCoolTime > 0.0)
 	{
 		InCoolDownTime[client] = true;
@@ -1335,7 +1438,7 @@ void StartChangeTeamCoolDown(int client)
 	}
 }
 
-public Action ClientReallyChangeTeam(Handle timer, int usrid)
+Action ClientReallyChangeTeam(Handle timer, int usrid)
 {
 	int client = GetClientOfUserId(usrid);
 	if(!IsClientAndInGame(client) || IsFakeClient(client)) return Plugin_Continue;
@@ -1354,7 +1457,7 @@ public Action ClientReallyChangeTeam(Handle timer, int usrid)
 		}
 	}
 
-	if(HasAccess(client, g_sImmueAcclvl)) return Plugin_Continue;
+	if(HasAccess(client, g_sImmuneAcclvl)) return Plugin_Continue;
 
 	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0)
 	{
@@ -1407,7 +1510,7 @@ public Action ClientReallyChangeTeam(Handle timer, int usrid)
 	return Plugin_Continue;
 }
 
-public Action Timer_CanJoin(Handle timer, int client)
+Action Timer_CanJoin(Handle timer, int client)
 {
 	if (!InCoolDownTime[client] || 
 	!IsClientInGame(client) || 
@@ -1548,7 +1651,7 @@ bool HasAccess(int client, char[] g_sAcclvl)
 		return false;
 
 	// check permissions
-	if ( iClientFlags[client] & ReadFlagString(g_sAcclvl) )
+	if ( iClientFlags[client] & ReadFlagString(g_sAcclvl) || (iClientFlags[client] & ADMFLAG_ROOT))
 	{
 		return true;
 	}
@@ -1601,13 +1704,13 @@ public void OnEntityCreated(int entity, const char[] classname)
 	}
 }
 
-public void SpawnPost(int entity)
+void SpawnPost(int entity)
 {
 	// 1 frame later required to get velocity
 	RequestFrame(OnNextFrame, EntIndexToEntRef(entity));
 }
 
-public void OnNextFrame(int entity)
+void OnNextFrame(int entity)
 {
 	// Validate entity
 	if( EntRefToEntIndex(entity) == INVALID_ENT_REFERENCE || !IsValidEntity(entity) )

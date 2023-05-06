@@ -1,4 +1,4 @@
-"Phrases"
+﻿"Phrases"
 {
 	"Usage: sm_swapto"
 	{
@@ -271,13 +271,25 @@
 		"en"			"Survivor"
 		"zho"			"倖存者"
 		"chi"			"生还者"
-		"hu"			"Túlélő"		
+		"hu"			"Túlélő"
 	}
 	"Infected"
 	{
 		"en"			"Infected"
 		"zho"			"特感"
 		"chi"			"感染者"
-		"hu"			"Fertőzött"		
+		"hu"			"Fertőzött"
+	}
+	"Too many survivors, unbalance"
+	{
+		"en" 	"Sorry! Team is unbalance, too many players in survivor team!"
+		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在生還者隊伍!"
+		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在生还者队伍!"
+	}
+	"Too many infected, unbalance"
+	{
+		"en" 	"Sorry! Team is unbalance, too many players in infected team!"
+		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在特感隊伍!"
+		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在特感队伍!"
 	}
 }

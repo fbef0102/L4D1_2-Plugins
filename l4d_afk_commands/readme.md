@@ -24,6 +24,18 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.6 (2023-5-6)
+		* Add more cvars
+			```php
+			// If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.
+			// If team is unbanlance, will fail to join team!
+			l4d_afk_commands_versus_teams_balance_enable "1"
+
+			// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
+			l4d_afk_commands_versus_teams_unbalance_limit "2"
+			```
+		* Update Translation files
+
 	* v4.5 (2022-12-28)
 		* Add 1 cvar "l4d_afk_commands_weapon_reload_block". Player can not change team when he is reloading the weapon.
 
@@ -60,14 +72,14 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// If 1, Dead Survivor player can not switch team.
 		l4d_afk_commands_deadplayer_block "1"
 
-		// Player can switch team until players have left start safe area for at least x seconds (0=off).
+		// Player can not switch team after players have left start safe area for at least x seconds (0=off).
 		l4d_afk_commands_during_game_seconds_block "0"
 
 		// Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).
 		l4d_afk_commands_igniteprop_cooltime_block "15.0"
 
 		// Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_immue_block_flag "-1"
+		l4d_afk_commands_immune_block_flag "-1"
 
 		// Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_infected_access_flag ""
@@ -97,13 +109,20 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		l4d_afk_commands_survivor_access_flag ""
 
 		// If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')
-		l4d_afk_commands_takeabreak_block "1"
+		l4d_afk_commands_takeabreak_block "0"
 
 		// If 1, Block player from using 'sb_takecontrol' command in console.
 		l4d_afk_commands_takecontrol_block "1"
 
 		// Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).
 		l4d_afk_commands_throwable_cooltime_block "10.0"
+
+		// If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.
+		// If team is unbanlance, will fail to join team!
+		l4d_afk_commands_versus_teams_balance_enable "1"
+
+		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
+		l4d_afk_commands_versus_teams_unbalance_limit "2"
 
 		// If 1, Player can not change team when he is reloading the weapon.
 		l4d_afk_commands_weapon_reload_block "1"
@@ -177,17 +196,18 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * Notice
 	* The plugin will work once survivor has left the saferoom or survival begins
-	* You can't go idle or use command to switch team if you are in one of below situation
+	* You can't go idle or use command to switch team if
 		1. You startle witch or witch attacks you.
 		2. You are capped by special infected.
 		3. You are a dead survivor.
-		4. Player can switch team until players have left start safe area for at least X seconds. (set time by convar below)
+		4. Player can not switch team after players have left start safe area for at least X seconds. (set time by convar)
 		5. Cold Down Time in seconds a player can not change team again after he switches team.
 		6. Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel.
 		7. Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice.
 		8. Reloading the weapon.
 		9. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
 		10. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
+		11. Team is unbalance in Versus/Scavenge Mode.
 
 
 - - - -
@@ -195,6 +215,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 
 * 原理
+	* 提供加入倖存者陣營的命令
+	* 提供加入特感陣營的命令
+	* 提供加入旁觀者陣營的命令
 	* 此插件會控制玩家切換隊伍的行為包括
 		1. 使用ESC->休息一下
 		<br/>![POI)A31HUG3M(O (0IK`SY2](https://user-images.githubusercontent.com/12229810/209460474-e795534e-335c-4cff-83e7-3a737ec0d47e.png)
@@ -229,12 +252,26 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		* 離開安全區域或是生存模式計時開始
 	* 有以下情況不能使用命令換隊，否則強制旁觀
 		1. 嚇到Witch或者Witch正在攻擊你
+			* 防止Witch失去目標
 		2. 被特感抓住的期間
+			* 防止濫用特感控了無傷
 		3. 你已經是死亡的倖存者
-		4. 離開安全區域或是生存模式計時開始之後一段時間內 (查看指令設置的時間)
+			* 防止玩家故意死亡，然後跳隊
+		4. 離開安全區域或是生存模式計時開始一段時間之後查看指令設置的時間)
 		5. 換隊之後短時間內不能換第二次
+			* 防止玩家頻繁換隊洗頻伺服器
 		6. 點燃汽油桶、煤氣罐一段時間內
+			* 防止友傷bug
+			* 防止Witch失去目標
 		7. 丟出火焰瓶、土製炸彈、膽汁瓶一段時間內
+			* 防止友傷bug
+			* 防止Witch失去目標
 		8. 武器正在裝子彈
+			* 防止快速隊伍切換省略裝彈時間
 		9. 特感抓住倖存者的期間
+			* 防止Jockey瞬移
+			* 防止Ghost Charger的爭議
 		10. 特感剛復活的時候
+			* 防止切換特感
+		11. 對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊
+			* 防止一方的玩家數量過多
