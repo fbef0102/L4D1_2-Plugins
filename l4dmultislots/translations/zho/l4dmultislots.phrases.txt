@@ -38,4 +38,12 @@
 	{
 		"zho" "你已於當前回合當過{blue}生還者隊伍{default}. 給予 {green}死亡{default} Bot."
 	}
+	"Sorry! No survivor slots"
+	{
+		"zho" "抱歉! 倖存者數量已達上限!"
+	}
+	"Too many survivors, unbalance"
+	{
+		"zho" "抱歉! 隊伍目前不平衡, 太多玩家在倖存者隊伍!"
+	}
 }

@@ -67,7 +67,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 * Related Plugin | 相關插件
-	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in coop/survival/realism when 5+ player joins the server
+	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
 		> 創造5位以上倖存者遊玩伺服器
 	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
 		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
