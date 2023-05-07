@@ -24,6 +24,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.7 (2023-5-7)
+		* Player can not change team while he is getting up or staggering.
+
 	* v4.6 (2023-5-6)
 		* Add more cvars
 			```php
@@ -74,6 +77,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 		// Player can not switch team after players have left start safe area for at least x seconds (0=off).
 		l4d_afk_commands_during_game_seconds_block "0"
+
+		// If 1, Player can not change team while he is getting up or staggering.
+		l4d_afk_commands_getup_stagger_block "1"
 
 		// Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).
 		l4d_afk_commands_igniteprop_cooltime_block "15.0"
@@ -208,7 +214,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		9. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
 		10. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
 		11. Team is unbalance in Versus/Scavenge Mode.
-
+		12. Getting up or staggering animation.
 
 - - - -
 # 中文說明
@@ -275,3 +281,5 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 			* 防止切換特感
 		11. 對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊
 			* 防止一方的玩家數量過多
+		12. 起身或硬直狀態中禁止換隊
+			* 防止略過硬直狀態

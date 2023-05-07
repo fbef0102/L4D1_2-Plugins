@@ -292,4 +292,10 @@
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在特感隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在特感队伍!"
 	}
+	"Get Up Stagger Block"
+	{
+		"en" 	"Can not change team while getting up or staggering!"
+		"zho" 	"起身或硬直狀態中禁止換隊!"
+		"chi" 	"起身或硬直状态中禁止换队!"
+	}
 }
