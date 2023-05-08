@@ -13,7 +13,7 @@
 //	 - {lightgreen}	(light green color)
 //	 - {red}		(red color)
 //	 - {blue}		(blue color)
-//	 Warning: {lightgreen}、{red}、{blue}, these 3 colors can not be used at the same sentence
+//	 Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
 
 // 中文說明
 // -----

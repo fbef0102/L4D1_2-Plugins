@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/5/6)
+> All plugins in here apply to both L4D1/2 (last edited:2023/5/9)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -22,7 +22,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
 * <b>[pounce_database](/pounce_database)</b>: Pounce Announce Edition (Database).
-* <b>[hp_tank_show](/hp_tank_show)</b>: Display Tank HP status on his head.
 * <b>[TickrateFixes](/TickrateFixes)</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
@@ -144,6 +143,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 伺服器房名可以寫中文的插件
 * <b>[l4d_revive_reload_interrupt](/l4d_revive_reload_interrupt)</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
     * 解決裝子彈的時候拯救隊友會卡彈的問題 (存在超過十年的Bug)
+* <b>[hp_tank_show](/hp_tank_show)</b>: Shows a sprite at the tank head that goes from green to red based on its HP
+    * Tank頭上顯示血量狀態
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
