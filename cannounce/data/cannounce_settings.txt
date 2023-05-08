@@ -10,13 +10,13 @@
 	// {PLAYERIP}: player IP
 	// {PLAYERTYPE}: player is Adm or not
 	
-	// You can't use {lightgreen}, {red}, {blue} at the same message
 	// {default}: white
 	// {green}: orange
 	// {olive}: green
 	// {lightgreen}: lightgreen
 	// {red}: red
 	// {blue}: blue
+	// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
 	"messages"  //display message to everyone (Non-admin)
 	{
 		"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default})"
