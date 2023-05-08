@@ -77,7 +77,7 @@ Display advertisements
 		//	 - {lightgreen}	(light green color)
 		//	 - {red}		(red color)
 		//	 - {blue}		(blue color)
-		//	 Warning: {lightgreen}、{red}、{blue}, these 3 colors can not be used at the same sentence
+		//	 Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
 		"Advertisements"
 		{
 			"1"
@@ -125,7 +125,7 @@ Display advertisements
 		//	 - {lightgreen}	(淺綠色)
 		//	 - {red}		(紅色)
 		//	 - {blue}		(藍色)
-		//	 注意事項: 藍色、紅色、淺綠色，這三種顏色不可出現在同一句話裡
+		//	 注意事項: 藍色、紅色、淺綠色，這三種顏色的其中兩種不可出現在同一句話裡
 		//
 		"Advertisements"
 		{

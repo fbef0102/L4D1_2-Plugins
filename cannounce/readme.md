@@ -100,13 +100,13 @@ L4D2
 		// {PLAYERIP}: player IP
 		// {PLAYERTYPE}: player is Adm or not
 
-		// You can't use {lightgreen}, {red}, {blue} at the same message
 		// {default}: white
 		// {green}: orange
 		// {olive}: green
 		// {lightgreen}: lightgreen
 		// {red}: red
 		// {blue}: blue
+		// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
 		"messages" //display message to everyone (Non-admin)
 		{
 			"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
@@ -152,13 +152,13 @@ L4D2
 		// {PLAYERIP}: 玩家IP
 		// {PLAYERTYPE}: 玩家是否為管理員
 
-		// 你不能同時在一個訊息內使用顏色 {lightgreen}, {red}, {blue}
 		// {default}: 白色
 		// {green}: 橘色
 		// {olive}: 綠色
 		// {lightgreen}: 淺綠色
 		// {red}: 紅色
 		// {blue}: 藍色
+		// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
 		"messages" //除了管理員外所有人會看到的
 		{
 			"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default})"
