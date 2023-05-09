@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/5/9)
+> All plugins in here apply to both L4D1/2 (last edited:2023/5/10)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -31,7 +31,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
 * <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
-* <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
@@ -145,6 +144,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 解決裝子彈的時候拯救隊友會卡彈的問題 (存在超過十年的Bug)
 * <b>[hp_tank_show](/hp_tank_show)</b>: Shows a sprite at the tank head that goes from green to red based on its HP
     * Tank頭上顯示血量狀態
+* <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
+    * 遊戲中頻繁檢測每一位玩家並踢出可能試圖使用作弊指令的客戶
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
