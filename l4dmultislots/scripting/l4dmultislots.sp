@@ -881,7 +881,7 @@ Action Timer_PluginStart(Handle timer)
 
 	
 	int amount;
-	if(L4D_GetGameModeType() == GAMEMODE_COOP && g_iSurvivorTransition > 0)
+	if((L4D_IsCoopMode() || L4D2_IsRealismMode()) && g_iSurvivorTransition > 0)
 	{
 		amount = g_iSurvivorTransition - 4;
 	}
