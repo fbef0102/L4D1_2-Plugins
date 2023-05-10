@@ -1,6 +1,6 @@
 
 # Description | 內容
-Remove drop weapon + remove upgrade pack when deployed
+Remove weapon dropped by survivor or uncommon infected + remove upgrade pack when deployed
 
 * Video | 影片展示
 <br/>None
@@ -20,6 +20,10 @@ Remove drop weapon + remove upgrade pack when deployed
 	//AK978 @ 2019
 	//Harry @ 2021-2023
 	```
+	* v3.1 (2023-5-10)
+		* Will not remove Scavenge Gascan.
+		* Optimize code and improve performance
+
 	* v3.0 (2023-1-28)
 		* Remove weapon after dropped by uncommon infected.
 
@@ -83,7 +87,7 @@ Remove drop weapon + remove upgrade pack when deployed
 </details>
 
 * Modify weapon delete list
-	* [scripting/clear_weapon_drop.sp line 23~65](scripting/clear_weapon_drop.sp#L23-L65)
+	* [scripting/clear_weapon_drop.sp line 91~124](scripting/clear_weapon_drop.sp#L91-L124)
 
 - - - -
 # 中文說明
@@ -109,7 +113,7 @@ Remove drop weapon + remove upgrade pack when deployed
 	* 是否刪除精靈小矮人
 
 * 修改武器與物品刪除的列表
-	* [scripting/clear_weapon_drop.sp line 23~65](scripting/clear_weapon_drop.sp#L23-L65)
+	* [scripting/clear_weapon_drop.sp line 91~124](scripting/clear_weapon_drop.sp#L91-L124)
 	* 修改完後重新編譯
 
     * 所有武器與物品名稱
