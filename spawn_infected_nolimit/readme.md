@@ -15,8 +15,11 @@ Spawn special infected without the director limits!
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2.4 (2023-5-10)
+		* Update API
+
 	* v1.2.3 (2023-3-12)
-		* Create Native api
+		* Create Native API
 
 	* v1.2.2
 		* [Original Plugin by Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849)
@@ -55,16 +58,12 @@ Spawn special infected without the director limits!
 	* @brief 			   Spawn special infected without the director limits!
 	*
 	* @param zomb          S.I. Name: "tank", "witch", "smoker", "hunter", "boomer"," jockey", "charger", "spitter" 
-	* @param pos_1         Vector coordinate where special will be spawned
-	* @param pos_2         Vector coordinate where special will be spawned
-	* @param pos_3         Vector coordinate where special will be spawned
-	* @param ang_1         QAngle where special will be facing
-	* @param ang_2         QAngle where special will be facing
-	* @param ang_3         QAngle where special will be facing
+	* @param vecPos        Vector coordinate where the special will be spawned
+	* @param vecAng         QAngle where special will be facing
 	*
-	* @return              nothing
+	* @return              client index of the spawned special infected, -1 if fail to spawn
 	*/
-	native void NoLimit_CreateInfected(const char[] zomb, float pos_1, float pos_2, float pos_3, float ang_1, float ang_2, float ang_3);
+	native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3]);
 	```
 </details>
 
