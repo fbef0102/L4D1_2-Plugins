@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
-#define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix)"
+#define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.2.3"
+#define PLUGIN_VERSION "1.2.4"
 #define PLUGIN_URL ""
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
@@ -104,6 +104,29 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	}
 	CreateNative("NoLimit_CreateInfected", Native_CreateInfected);
 	return APLRes_Success;
+}
+
+/**
+* @brief 			   Spawn special infected without the director limits!
+*
+* @param zomb          S.I. Name: "tank", "witch", "smoker", "hunter", "boomer"," jockey", "charger", "spitter" 
+* @param vecPos        Vector coordinate where the special will be spawned
+* @param vecAng         QAngle where special will be facing
+*
+* @return              client index of the spawned special infected, -1 if fail to spawn
+* native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3]);
+*/
+int Native_CreateInfected(Handle plugin, int numParams)
+{
+	char zomb[10];
+	GetNativeString(1, zomb, sizeof(zomb));
+
+	float vPos[3], vAng[3];
+	GetNativeArray(2, vPos, sizeof(vPos));
+	GetNativeArray(3, vAng, sizeof(vAng));
+
+	int bot = CreateInfected(zomb, vPos, vAng);
+	return bot;
 }
 
 public Plugin myinfo = 
@@ -366,24 +389,7 @@ bool TraceRayDontHitPlayers(int entity, int mask, any data)
 	return true;
 }
 
-public int Native_CreateInfected(Handle plugin, int numParams)
-{
-	char zomb[10];
-	float pos[3];
-	float ang[3];
-	GetNativeString(1,zomb,10);
-	pos[0] = view_as<float>(GetNativeCell(2));
-	pos[1] = view_as<float>(GetNativeCell(3));
-	pos[2] = view_as<float>(GetNativeCell(4));
-	ang[0] = view_as<float>(GetNativeCell(5));
-	ang[1] = view_as<float>(GetNativeCell(6));
-	ang[2] = view_as<float>(GetNativeCell(7));
-
-	int bot = CreateInfected(zomb,pos,ang);
-	return bot;
-}
-
-int CreateInfected(const char[] zomb, float pos[3], float ang[3])
+int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 {
 	int bot = -1;
 	
