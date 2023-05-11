@@ -87,7 +87,7 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 </details>
 
 * Modify weapon delete list
-	* [scripting/clear_weapon_drop.sp line 91~124](scripting/clear_weapon_drop.sp#L91-L124)
+	* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
 
 - - - -
 # 中文說明
@@ -95,7 +95,8 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 * 原理
     * 當人類從手上掉落物器或物品時，一段時間過後如果沒有人撿起或者使用將自動移除
-		* 玩家死亡、丟棄、更換武器與物品都算掉落
+		* 玩家死亡、丟棄、更換武器與物品
+		* 玩家從手中丟出汽油桶、瓦斯桶、氧氣罐、煙火盒、精靈小矮人、可樂瓶也算 (不會移除黃色與綠色的汽油桶)
 	* 當人類放置燃燒彈包與高爆彈包於地上之後，一段時間過後將自動移除
     * 當特殊一般感染者掉落武器或物品時，一段時間過後如果沒有人撿起或者使用將自動移除
 		* CEDA防疫人員的膽汁瓶
@@ -113,7 +114,7 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 	* 是否刪除精靈小矮人
 
 * 修改武器與物品刪除的列表
-	* [scripting/clear_weapon_drop.sp line 91~124](scripting/clear_weapon_drop.sp#L91-L124)
+	* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
 	* 修改完後重新編譯
 
     * 所有武器與物品名稱
@@ -154,10 +155,4 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 		煙火盒 => weapon_fireworkcrate
 		瓦斯罐 => weapon_propanetank
 		氧氣罐 => weapon_oxygentan
-		```
-    
-	* 所有升級包模組
-		```php
-		已拆開的燃燒彈包 => models/props/terror/incendiary_ammo.mdl
-		已拆開的高爆彈包 => models/props/terror/exploding_ammo.mdl
 		```
