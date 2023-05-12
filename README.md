@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/5/10)
+> All plugins in here apply to both L4D1/2 (last edited:2023/5/12)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -42,7 +42,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
-* <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit (with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch)
 * <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
@@ -146,6 +145,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * Tank頭上顯示血量狀態
 * <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
     * 遊戲中頻繁檢測每一位玩家並踢出可能試圖使用作弊指令的客戶
+* <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
+    * 修復Source引擎的踩頭跳躍bug
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
