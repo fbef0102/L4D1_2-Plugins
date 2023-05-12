@@ -147,6 +147,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 遊戲中頻繁檢測每一位玩家並踢出可能試圖使用作弊指令的客戶
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
     * 修復Source引擎的踩頭跳躍bug
+* <b>[l4d_finale_stage_fix](/l4d_finale_stage_fix)</b>: Fixed the final stage get stucked
+    * 解決最後救援卡關，永遠不能來救援載具的問題
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
