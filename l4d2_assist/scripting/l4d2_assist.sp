@@ -6,7 +6,7 @@
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.1"
+#define PLUGIN_VERSION "2.2"
 
 #define L4D_TEAM_SURVIVOR 2
 #define L4D_TEAM_INFECTED 3
@@ -69,7 +69,7 @@ public void OnPluginStart()
 	g_hCvarModes =		CreateConVar(	"sm_assist_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =	CreateConVar(	"sm_assist_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog =	CreateConVar(	"sm_assist_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
-	g_hTankOnly = 		CreateConVar(	"sm_assist_tank_only", 		"1", 			"If 1, only show Damage done to Tank.",CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hTankOnly = 		CreateConVar(	"sm_assist_tank_only", 		"0", 			"If 1, only show Damage done to Tank.",CVAR_FLAGS, true, 0.0, true, 1.0);
 	
 	g_hCvarMPGameMode 	= FindConVar("mp_gamemode");
 	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
@@ -371,6 +371,7 @@ public void Event_Player_Death(Event event, const char[] name, bool dontBroadcas
 				ClearDmgSI(victim);
 				return;
 			}
+			g_iDamage[attacker][victim] += g_iLastHP[victim];
 		}
 		
 		char MsgAssist[512];
