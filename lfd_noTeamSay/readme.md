@@ -21,6 +21,9 @@ Redirecting all 'say_team' messages to 'say'
 	//bullet28 @ 2020
 	//HarryPotter @ 2020-2023
 	```
+	* v2.3 (2023-5-13)
+		* Optimize Code
+
 	* v2.2
         * Remake Code
         * Fixed compatibility with plugin "sm_regexfilter" 1.3 by Twilight Suzuka, HarryPotter
