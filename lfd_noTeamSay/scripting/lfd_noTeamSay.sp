@@ -1,9 +1,3 @@
-/* Change Log
-* 2.2 (2021/7/7)
--Fixed compatibility with plugin "sm_regexfilter" v1.3+ by Twilight Suzuka, HarryPotter
-
-*/
-
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
@@ -14,7 +8,7 @@ public Plugin myinfo =
 	name = "No Team Chat",
 	author = "bullet28, HarryPotter",
 	description = "Redirecting all 'say_team' messages to 'say' in order to remove (Survivor) prefix when it's useless",
-	version = "2.2",
+	version = "2.3",
 	url = "https://forums.alliedmods.net/showthread.php?p=2691314"
 }
 
@@ -44,28 +38,6 @@ public void OnPluginStart() {
 	AutoExecConfig(true, "lfd_noTeamSay");
 }
 
-ConVar g_hRegexfilterPlugin = null;
-bool g_bRegexfilterPluginEnable = false;
-public void OnAllPluginsLoaded()
-{
-	// sm_regexfilter
-	g_hRegexfilterPlugin = FindConVar("regexfilter_enable");
-	if(g_hRegexfilterPlugin != null)
-	{
-		GetCvars2();
-		g_hRegexfilterPlugin.AddChangeHook(OnConVarChange2);
-	}
-}
-
-public void OnConVarChange2(ConVar convar, char[] oldValue, char[] newValue) {
-	GetCvars2();
-}
-
-void GetCvars2()
-{
-	g_bRegexfilterPluginEnable = g_hRegexfilterPlugin.BoolValue;
-}
-
 public void OnConVarChange(ConVar convar, char[] oldValue, char[] newValue) {
 	GetCvars();
 }
@@ -80,13 +52,13 @@ void GetCvars()
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
 	
-	if (client <= 0 || g_bRegexfilterPluginEnable == true)
+	if (client <= 0)
 		return Plugin_Continue;
 	
 	if (strcmp(command, "say_team", false) != 0)
 		return Plugin_Continue;
 
-	if(BaseComm_IsClientGagged(client) == true) //this client has been gagged
+	if (BaseComm_IsClientGagged(client) == true) //this client has been gagged
 		return Plugin_Continue;	
 		
 	for (int i = 0; i < sizeof ignoreList; i++) {
@@ -95,12 +67,9 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 		}
 	}
 
-	char buffer[512];
-	Format(buffer, sizeof(buffer), "\x03%N\x01 :  %s", client, sArgs);
-
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i) && !IsFakeClient(i)) {
-			SayText2(i, client, buffer);
+			SayText2(i, client, sArgs);
 		}
 	}
 
@@ -108,11 +77,19 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 }
 
 void SayText2(int client, int sender, const char[] msg) {
-	Handle hMessage = StartMessageOne("SayText2", client);
-	if (hMessage != null) {
+
+	static char name[MAX_NAME_LENGTH];
+	GetClientName(client, name, sizeof(name));
+
+	Handle hMessage = StartMessageOne("SayText2", client, USERMSG_RELIABLE);
+	if(hMessage != null) 
+	{
 		BfWriteByte(hMessage, sender);
 		BfWriteByte(hMessage, true);
+		BfWriteString(hMessage, "L4D_Chat_All");
+		BfWriteString(hMessage, name);
 		BfWriteString(hMessage, msg);
+		BfWriteByte(hMessage, true);
 		EndMessage();
 	}
 }
