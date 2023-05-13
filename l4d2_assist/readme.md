@@ -24,6 +24,13 @@ Show damage done to S.I. by survivors
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	```php
+	//[E]c @ 2010-2012
+	//HarryPotter @ 2019-2023
+	```
+    * v2.2 (2023-5-14)
+        * Optimize code
+
     * v2.1 (2022-12-16)
         * Translation Support
 
@@ -54,7 +61,7 @@ Show damage done to S.I. by survivors
         sm_assist_modes_tog "0"
 
         // If 1, only show damage done to Tank.
-        sm_assist_tank_only "1"
+        sm_assist_tank_only "0"
 		```
 </details>
 
