@@ -6,7 +6,7 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION 	"2.7"
+#define PLUGIN_VERSION 	"2.8"
 #define PLUGIN_NAME		"l4d_pig_infected_notify"
 #define DEBUG 0
 
@@ -189,15 +189,15 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		
 	if (victimteam == 3)//infected dead
 	{	
-		if(attacker != 0 && IsClientInGame(attacker))//someone kill infected
+		if(attacker != 0 && IsClientInGame(attacker))//someone kills infected
 		{
 			int attackerteam = GetClientTeam(attacker);
-			if(attackerteam == 2 && victimzombieclass == ZC_BOOMER)//sur kill Boomer
+			if(attackerteam == 2 && victimzombieclass == ZC_BOOMER)//sur kills Boomer
 			{
 				g_cBoomerDeath[victim].attackerid = GetClientUserId(attacker);
 				g_cBoomerDeath[victim].eDeathType = eDeath_SurvivorKill;
 			}
-			else if (PlayerIsTank(attacker))//Tank kill infected
+			else if (PlayerIsTank(attacker))//Tank kills infected
 			{
 				static char Tank_weapon[64];
 				//Tank weapon
@@ -223,7 +223,7 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 				|| victimzombieclass == ZC_SMOKER 
 				|| victimzombieclass == ZC_CHARGER  
 				|| victimzombieclass == ZC_SPITTER
-				|| victimzombieclass == ZC_JOCKEY ) //Tank kill teammates S.I. (Hunter,Smoker,....)	
+				|| victimzombieclass == ZC_JOCKEY ) //Tank kills teammates S.I. (Hunter,Smoker,....)	
 				{
 					if(!IsFakeClient(victim))//真人SI player
 					{	
@@ -232,6 +232,17 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 					else
 					{
 						CPrintToChatAll("%t", "Tank kill teammate", Tank_weapon, "AI");
+					}
+				}
+				else if(victimzombieclass == ZC_TANK ) //Tank kills Tank
+				{
+					if(!IsFakeClient(victim))//真人SI player
+					{	
+						CPrintToChatAll("%t", "Tank kill Tank", Tank_weapon);
+					}
+					else
+					{
+						CPrintToChatAll("%t", "Tank kill Tank", Tank_weapon);
 					}
 				}
 			}

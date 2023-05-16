@@ -112,6 +112,13 @@
 		"zho"	"{green}[提示] {green}Tank {olive}{1}死{default} {2}隊友."
 		"chi"	"{green}[提示] {green}坦克 {olive}{1}死{default} {2}队友。"
 	}
+	"Tank kill Tank"
+	{
+		"#format"	"{1:t}"
+		"en"	"{green}[SM] {green}Tank {olive}{1}{default} {2}another Tank."
+		"zho"	"{green}[提示] {green}Tank {olive}{1}死{default} 另一隻Tank."
+		"chi"	"{green}[提示] {green}坦克 {olive}{1}死{default} 另一只Tank。"
+	}
 	"l4d_pig_infected1"
 	{
 		"en"	"{green}[SM] {green}Tank{default} get stumble by the door."
