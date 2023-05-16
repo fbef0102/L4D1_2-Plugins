@@ -23,6 +23,9 @@ Show who is pig teammate in infected team
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.7 (2023-5-16)
+        * Optimize Code
+
     * v2.6 (2023-4-6)
         * Translation Support
 

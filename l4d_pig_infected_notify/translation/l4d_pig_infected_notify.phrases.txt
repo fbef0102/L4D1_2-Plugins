@@ -114,10 +114,9 @@
 	}
 	"l4d_pig_infected1"
 	{
-		"#format"	"{1:N}"
-		"en"	"{green}[SM] {olive}{1}{default} used door to stumble {green}Tank{default}."
-		"zho"	"{green}[提示] {olive}{1}{default} 用門暈眩 {green}Tank{default}."
-		"chi"	"{green}[提示] {olive}{1}{default} 用门击晕 {green}坦克{default}。"
+		"en"	"{green}[SM] {green}Tank{default} get stumble by the door."
+		"zho"	"{green}[提示] {green}Tank{default} 被門暈眩."
+		"chi"	"{green}[提示] {green}Tank{default} 被门晕眩."
 	}
 	"l4d_pig_infected2"
 	{
