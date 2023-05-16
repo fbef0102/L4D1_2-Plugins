@@ -6,16 +6,18 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION 	"2.6"
+#define PLUGIN_VERSION 	"2.7"
 #define PLUGIN_NAME		"l4d_pig_infected_notify"
 #define DEBUG 0
 
-#define ZC_SMOKER		1
-#define ZC_BOOMER		2
-#define ZC_HUNTER		3
-#define ZC_SPITTER		4
-#define ZC_JOCKEY		5
-#define ZC_CHARGER		6
+public Plugin myinfo = 
+{
+	name = "[L4D/L4D2] Pig Infected Notify",
+	author = "Harry Potter",
+	description = "Show who the god teammate boom the Tank, Tank use which weapon(car,pounch,rock) to kill teammates S.I. and Witch , player open door to stun tank",
+	version = PLUGIN_VERSION,
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
+}
 
 int ZC_TANK;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -39,75 +41,66 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     return APLRes_Success;
 }
 
+#define TEAM_SPECTATOR		1
+#define TEAM_SURVIVOR		2
+#define TEAM_INFECTED		3
+#define TEAM_HOLD_OUT		4
+
+#define ZC_SMOKER		1
+#define ZC_BOOMER		2
+#define ZC_HUNTER		3
+#define ZC_SPITTER		4
+#define ZC_JOCKEY		5
+#define ZC_CHARGER		6
+
+#define ZC_Stumble_Time		1.0
+
 #define TRANSLATION_FILE		PLUGIN_NAME ... ".phrases"
 
-public Plugin myinfo = 
+enum EDeathType
 {
-	name = "[L4D/L4D2] Pig Infected Notify",
-	author = "Harry Potter",
-	description = "Show who the god teammate boom the Tank, Tank use which weapon(car,pounch,rock) to kill teammates S.I. and Witch , player open door to stun tank",
-	version = PLUGIN_VERSION,
-	url = "https://steamcommunity.com/profiles/76561198026784913/"
+	eDeath_None,
+	eDeath_SurvivorKill,
+	eDeath_Suicide,
+	eDeath_TankKill,
 }
-int Tankclient;
+
+enum struct CBoomerDeath
+{
+	int attackerid;
+	EDeathType eDeathType;
+	char sWeapon[64];
+
+	void Clear(){
+		this.attackerid = 0;
+		this.eDeathType = eDeath_None;
+		this.sWeapon[0] = '\0';
+	}
+}
+
+CBoomerDeath g_cBoomerDeath[MAXPLAYERS+1];
+
+float g_fTankStaggerEngineTime[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
 	LoadTranslations(TRANSLATION_FILE);
 
-	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("door_open", Event_DoorOpen);
-	HookEvent("door_close", Event_DoorClose);
+	HookEvent("player_spawn",           Event_PlayerSpawn);
+	HookEvent("player_death", 			Event_PlayerDeath);
 }
 
-void Event_DoorOpen(Event event, const char[] name, bool dontBroadcast)
-{
-	Tankclient = GetTankClient();
-	if(Tankclient == -1) return;
-	
-	int Surplayer = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(Surplayer<=0 || !IsClientInGame(Surplayer) || GetClientTeam(Surplayer) != 2) return;
-
-
-	if(IsTooClose(Surplayer, Tankclient))
-	{
-		CreateTimer(1.0, Timer_TankStumbleByDoorCheck, Surplayer);//tank stumble check
-	}
-}
-
-void Event_DoorClose(Event event, const char[] name, bool dontBroadcast)
-{
-	Tankclient = GetTankClient();
-	if(Tankclient == -1) return;
-	
-	int Surplayer = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(Surplayer<=0 || !IsClientInGame(Surplayer) || GetClientTeam(Surplayer) != 2) return;
-	
-	if(IsTooClose(Surplayer, Tankclient))
-	{
-		CreateTimer(1.0, Timer_TankStumbleByDoorCheck, Surplayer);//tank stumble check
-	}
-}
-
-Action Timer_TankStumbleByDoorCheck(Handle timer, any client)
-{
-	if(Tankclient<0 || !IsClientInGame(Tankclient)) return Plugin_Continue;
-	if(client<0 || !IsClientInGame(client)) return Plugin_Continue;
-	
-	if (L4D_IsPlayerStaggering(Tankclient))//tank在暈眩 by door
-	{
-		CPrintToChatAll("%t", "l4d_pig_infected1", client);
-	}
-	
-	return Plugin_Continue;
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{ 
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	g_cBoomerDeath[client].Clear();
 }
 
 void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
-	Tankclient = GetTankClient();
-	
-	int victim = GetClientOfUserId(GetEventInt(event, "userid"));
-	if( IsWitch(GetEventInt(event, "attackerentid")) && victim != 0 && IsClientInGame(victim) && GetClientTeam(victim) == 3 )
+	int victim = GetClientOfUserId(event.GetInt("userid"));
+	g_cBoomerDeath[victim].Clear();
+	if( IsWitch(event.GetInt("attackerentid")) && victim != 0 && IsClientInGame(victim) && GetClientTeam(victim) == 3 )
 	{
 		if(!IsFakeClient(victim))//真人特感 player
 		{
@@ -120,7 +113,7 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		return;
 	}
 	
-	int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
+	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	static char weapon[32];
 	GetEventString(event, "weapon", weapon, sizeof(weapon));//殺死人的武器名稱
 	static char victimname[8];
@@ -157,7 +150,10 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		}
 		else if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_BOOMER)
 		{
-			CreateTimer(0.1, Timer_BoomerSuicideCheck, victim);//boomer suicide check	
+			CreateTimer(0.1, Timer_BoomerSuicideCheck, GetClientUserId(victim));//boomer suicide check
+			
+			g_cBoomerDeath[victim].attackerid = 0;
+			g_cBoomerDeath[victim].eDeathType = eDeath_Suicide;
 		}
 		else
 		{
@@ -198,17 +194,12 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 			int attackerteam = GetClientTeam(attacker);
 			if(attackerteam == 2 && victimzombieclass == ZC_BOOMER)//sur kill Boomer
 			{
-				if(Tankclient > 0 && IsTooClose(victim, Tankclient))
-				{
-					Handle h_Pack;
-					CreateDataTimer(0.1, Timer_SurKillBoomerCheck, h_Pack);//sur kill Boomer check	
-					WritePackCell(h_Pack, victim);
-					WritePackCell(h_Pack, attacker);
-				}
+				g_cBoomerDeath[victim].attackerid = GetClientUserId(attacker);
+				g_cBoomerDeath[victim].eDeathType = eDeath_SurvivorKill;
 			}
 			else if (PlayerIsTank(attacker))//Tank kill infected
 			{
-				static char Tank_weapon[50];
+				static char Tank_weapon[64];
 				//Tank weapon
 				if(StrEqual(weapon,"tank_claw"))
 					FormatEx(Tank_weapon, sizeof(Tank_weapon), "punches");
@@ -222,10 +213,11 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 				//Tank kill boomer
 				if(victimzombieclass == ZC_BOOMER)
 				{
-					Handle h_Pack;
-					CreateDataTimer(0.1,Timer_TankKillBoomerCheck,h_Pack);//tank kill Boomer check
-					WritePackCell(h_Pack, victim);
-					WritePackString(h_Pack, Tank_weapon);
+					CreateTimer(0.1, Timer_TankKillBoomerCheck, GetClientUserId(victim));//tank kill Boomer check
+
+					g_cBoomerDeath[victim].attackerid = GetClientUserId(attacker);
+					g_cBoomerDeath[victim].eDeathType = eDeath_TankKill;
+					g_cBoomerDeath[victim].sWeapon = Tank_weapon;
 				}
 				else if(victimzombieclass == ZC_HUNTER 
 				|| victimzombieclass == ZC_SMOKER 
@@ -247,67 +239,87 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-Action Timer_SurKillBoomerCheck(Handle timer, Handle h_Pack)
+//Left4Dhooks API Forward-------------------------------
+
+public void L4D2_OnStagger_Post(int tank, int source)
 {
-	if(Tankclient<0 || !IsClientInGame(Tankclient)) return Plugin_Continue;
-	
-	ResetPack(h_Pack);
-	int client = ReadPackCell(h_Pack);
-	int surclient = ReadPackCell(h_Pack);
-	
-	if(client<0 || !IsClientInGame(client)) return Plugin_Continue;
-	if(surclient<0 || !IsClientInGame(surclient)) return Plugin_Continue;
-	
-	if(L4D_IsPlayerStaggering(Tankclient))//tank在暈眩 by 人類殺死的Boomer
+	if(!PlayerIsTank(tank)) return;
+	if(g_fTankStaggerEngineTime[tank] > GetEngineTime()) return;
+
+	g_fTankStaggerEngineTime[tank] = GetEngineTime() + ZC_Stumble_Time;
+
+	if(source > 0 && source <= MaxClients && IsClientInGame(source) && GetClientTeam(source) == TEAM_INFECTED )
 	{
-		static char clientName[128];
-		GetClientName(client,clientName,128);
-		static char surclientName[128];
-		GetClientName(surclient,surclientName,128);
-		if(!IsFakeClient(client))//真人boomer player
-			CPrintToChatAll("%t", "l4d_pig_infected5", surclient, client);
-		else
-			CPrintToChatAll("%t", "l4d_pig_infected6", surclient);
+		if(GetEntProp(source, Prop_Send, "m_zombieClass") == ZC_BOOMER)
+		{
+			switch(g_cBoomerDeath[source].eDeathType)
+			{
+				case eDeath_SurvivorKill:
+				{
+					int surclient = GetClientOfUserId(g_cBoomerDeath[source].attackerid);
+					if(!surclient || !IsClientInGame(surclient)) return;
+
+					if(!IsFakeClient(source))//真人boomer player
+						CPrintToChatAll("%t", "l4d_pig_infected5", surclient, source);
+					else
+						CPrintToChatAll("%t", "l4d_pig_infected6", surclient);
+				}
+				case eDeath_Suicide:
+				{
+					if(!IsFakeClient(source))//真人boomer player
+					{	
+						CPrintToChatAll("%t", "l4d_pig_infected13", source);
+					}
+					else
+					{
+						CPrintToChatAll("%t", "l4d_pig_infected14");
+					}
+				}
+				case eDeath_TankKill:
+				{
+					if(!IsFakeClient(source))//真人SI player
+					{	
+						CPrintToChatAll("%t", "l4d_pig_infected7", g_cBoomerDeath[source].sWeapon, source);
+					}
+					else	
+					{
+						CPrintToChatAll("%t", "l4d_pig_infected8", g_cBoomerDeath[source].sWeapon);
+					}
+				}
+
+			}
+
+			g_cBoomerDeath[source].eDeathType = eDeath_None;
+		}
 	}
-	
-	return Plugin_Continue;
+	else if(source > MaxClients && IsValidEntity(source))
+	{
+		static char classname[64];
+		GetEntityClassname(source, classname, sizeof(classname));
+		if(strncmp(classname, "prop_door_rotating", false) == 0 
+			|| strncmp(classname, "prop_door_rotating_checkpoint", false) == 0 )
+		{
+			CPrintToChatAll("%t", "l4d_pig_infected1");
+		}
+	}
 }
 
-Action Timer_TankKillBoomerCheck(Handle timer, Handle h_Pack)
-{
-	if(Tankclient<0 || !IsClientInGame(Tankclient)) return Plugin_Continue;
-	
-	static char Tank_weapon[128];
-	
-	ResetPack(h_Pack);
-	int client = ReadPackCell(h_Pack);
-	ReadPackString(h_Pack, Tank_weapon, sizeof(Tank_weapon));
-	
-	if(client<0 || !IsClientInGame(client)) return Plugin_Continue;
+//Timer & Frame-------------------------------
 
-	static char clientName[128];
-	GetClientName(client,clientName,128);
-	if(L4D_IsPlayerStaggering(Tankclient) && IsTooClose(client, Tankclient))//tank在暈眩 by tank殺死的Boomer
+Action Timer_TankKillBoomerCheck(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	
+	if(!client || !IsClientInGame(client)) return Plugin_Continue;
+	if(g_cBoomerDeath[client].eDeathType == eDeath_None) return Plugin_Continue;
+
+	if(!IsFakeClient(client))//真人SI player
 	{
-		if(!IsFakeClient(client))//真人SI player
-		{	
-			CPrintToChatAll("%t", "l4d_pig_infected7", Tank_weapon, client);
-		}
-		else	
-		{
-			CPrintToChatAll("%t", "l4d_pig_infected8", Tank_weapon);
-		}
+		CPrintToChatAll("%t", "l4d_pig_infected9", g_cBoomerDeath[client].sWeapon, client);
 	}
 	else
 	{
-		if(!IsFakeClient(client))//真人SI player
-		{
-			CPrintToChatAll("%t", "l4d_pig_infected9", Tank_weapon, client);
-		}
-		else
-		{
-			CPrintToChatAll("%t", "l4d_pig_infected10", Tank_weapon);
-		}
+		CPrintToChatAll("%t", "l4d_pig_infected10", g_cBoomerDeath[client].sWeapon);
 	}
 	
 	return Plugin_Continue;
@@ -316,75 +328,26 @@ Action Timer_TankKillBoomerCheck(Handle timer, Handle h_Pack)
 
 Action Timer_BoomerSuicideCheck(Handle timer, any client)
 {	
-	if(client<0 || !IsClientInGame(client)) return Plugin_Continue;
-	
-	static char clientName[128];
-	GetClientName(client,clientName,128);
-	Tankclient = GetTankClient();
-	if(Tankclient<0 || !IsClientInGame(Tankclient))
-	{
-		if(!IsFakeClient(client))//真人boomer player
-		{	
-			CPrintToChatAll("%t", "l4d_pig_infected11", client);
-		}
-		else
-		{
-			CPrintToChatAll("%t", "l4d_pig_infected12");
-		}
-		return Plugin_Continue;
-	}
-	
-	if (L4D_IsPlayerStaggering(Tankclient) && IsTooClose(client, Tankclient))//tank在暈眩 by 自殺的boomer
-	{
-		if(!IsFakeClient(client))//真人boomer player
-		{	
-			CPrintToChatAll("%t", "l4d_pig_infected13", client);
-		}
-		else
-		{
-			CPrintToChatAll("%t", "l4d_pig_infected14");
-		}
+	client = GetClientOfUserId(client);
+	if(!client || !IsClientInGame(client)) return Plugin_Continue;
+	if(g_cBoomerDeath[client].eDeathType == eDeath_None) return Plugin_Continue;
+
+	if(!IsFakeClient(client))//真人boomer player
+	{	
+		CPrintToChatAll("%t", "l4d_pig_infected11", client);
 	}
 	else
 	{
-		if(!IsFakeClient(client))//真人boomer player
-		{	
-			CPrintToChatAll("%t", "l4d_pig_infected11", client);
-		}
-		else
-		{
-			CPrintToChatAll("%t", "l4d_pig_infected12");
-		}
+		CPrintToChatAll("%t", "l4d_pig_infected12");
 	}
 	
 	return Plugin_Continue;
 }
 
-int GetTankClient()
-{
-	for (int client = 1; client <= MaxClients; client++)
-		if(	PlayerIsTank(client) )//Tank player
-			return  client;
-	return -1;
-}
-
 bool PlayerIsTank(int client)
 {
-	if(client != 0 && IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) == 3 && GetEntProp(client, Prop_Send, "m_zombieClass") == ZC_TANK) 
+	if(client > 0 && client <= MaxClients && IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) == TEAM_INFECTED && GetEntProp(client, Prop_Send, "m_zombieClass") == ZC_TANK) 
 		return true;
-	return false;
-}
-
-bool IsTooClose(int client, int tank)
-{
-	float fClientLocation[3], fTankLocation[3];
-	GetEntPropVector(client, Prop_Send, "m_vecOrigin", fClientLocation);
-	GetEntPropVector(tank, Prop_Send, "m_vecOrigin", fTankLocation);
-
-	if(GetVectorDistance(fClientLocation, fTankLocation, true) <= 400*400)
-	{
-		return true;
-	}
 
 	return false;
 }
