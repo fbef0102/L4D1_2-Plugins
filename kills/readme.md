@@ -26,6 +26,9 @@ Show statistics of surviviors (kill S.I, C.I. and FF)on round end
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.7 (2023-5-17)
+		* Optimize code
+
 	* v1.6 (2023-2-2)
 		* Translation Support
 		* Support 5+ survivors
