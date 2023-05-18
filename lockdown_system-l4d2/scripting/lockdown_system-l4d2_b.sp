@@ -5,7 +5,7 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION "5.3"
+#define PLUGIN_VERSION "5.4"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -26,7 +26,7 @@ ConVar lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefor
 	lsDoorBotDisable, lsMapOff, lsPreventDoorSpamDuration, lsDoorLockColor, lsDoorUnlockColor, lsDoorGlowRange, lsDoorOpenChance,
 	lsCountDownHintType;
 
-int iAntiFarmDuration, iDuration, iMobs, iType, iDoorStatus, g_iEndCheckpointDoor, g_iStartCheckpointDoor, iSystemTime, iGetInLimit, 
+int iAntiFarmDuration, iDuration, iMobs, iType, g_iEndCheckpointDoor, g_iStartCheckpointDoor, iSystemTime, iGetInLimit, 
 	iDoorOpeningTankInterval, iDoorGlowRange, g_iDoorOpenChance, iDoorOpenChance, iCountDownHintType;
 int _iDoorOpeningTankInterval, g_iRoundStart, g_iPlayerSpawn, g_iDoorLockColors[3], g_iDoorUnlockColors[3],
 	iMinSurvivorPercent;
@@ -142,7 +142,7 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("mission_lost", Event_RoundEnd); //wipe out
 	HookEvent("map_transition", Event_RoundEnd); //mission complete
-	HookEvent("player_use", OnPlayerUsePre, EventHookMode_Pre);
+	//HookEvent("player_use", OnPlayerUsePre, EventHookMode_Pre);
 	HookEvent("entity_killed", TC_ev_EntityKilled);
 	HookEvent("door_open",			Event_DoorOpen);
 	HookEvent("door_close",			Event_DoorClose);
@@ -164,6 +164,28 @@ bool g_bValidMap, g_bSLSDisable;
 public void OnMapStart()
 {
 	g_bValidMap = true;
+}
+
+public void OnMapEnd()
+{
+	bAntiFarmInit = false;
+	bLockdownInit = false;
+	bLDFinished = false;
+	
+	SetCheckpointDoor_Default();
+
+	ResetPlugin();
+}
+
+public void OnConfigsExecuted()
+{
+	GetCvars();
+
+	if(!g_bFirstRecord)
+	{
+		sb_unstick_default = sb_unstick.BoolValue;
+		g_bFirstRecord = true;
+	}
 
 	char sCvar[1024];
 	lsMapOff.GetString(sCvar, sizeof(sCvar));
@@ -208,7 +230,6 @@ public void OnMapStart()
 		g_bValidMap = false;
 	}
 
-
 	if (g_bValidMap)
 	{
 		PrecacheSound("doors/latchlocked2.wav", true);
@@ -220,31 +241,10 @@ public void OnMapStart()
 		{
 			PrecacheModel(MODEL_TANK, true);
 		}
-
 	}
 }
 
-public void OnMapEnd()
-{
-	bAntiFarmInit = false;
-	bLockdownInit = false;
-	bLDFinished = false;
-	
-	SetCheckpointDoor_Default();
-
-	ResetPlugin();
-}
-
-public void OnConfigsExecuted()
-{
-	if(!g_bFirstRecord)
-	{
-		sb_unstick_default = sb_unstick.BoolValue;
-		g_bFirstRecord = true;
-	}
-}
-
-public void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
+void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
 {
 	GetCvars();
 	
@@ -259,12 +259,12 @@ public void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, con
 	}
 }
 
-public void OnLSCVarsChanged(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
+void OnLSCVarsChanged(ConVar cvar, const char[] sOldValue, const char[] sNewValue)
 {
 	GetCvars();
 }
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -275,14 +275,14 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_iEndCheckpointDoor = -1;
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iPlayerSpawn = 1;
 }
 
-public Action tmrStart(Handle timer)
+Action tmrStart(Handle timer)
 {
 	if (g_bValidMap == false)
 	{
@@ -311,7 +311,7 @@ public Action tmrStart(Handle timer)
 }
 
 
-public void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcast) 
+void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcast) 
 {
 	if (g_bValidMap == false || !bTankDemolitionAfter || !bLDFinished)
 	{
@@ -324,7 +324,7 @@ public void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcas
 	}
 }
 
-public Action Timer_SpawnTank(Handle timer)
+Action Timer_SpawnTank(Handle timer)
 {
 	if(RealFreePlayersOnInfected())
 		CheatCommand(my_GetRandomClient(), sSpawnCommand, "tank auto");
@@ -334,7 +334,7 @@ public Action Timer_SpawnTank(Handle timer)
 	return Plugin_Continue;
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	if (bRoundEnd) return;
 
@@ -364,7 +364,7 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	sb_unstick.SetBool(sb_unstick_default);
 }
 
-public Action ForceEndLockdown(Handle timer)
+Action ForceEndLockdown(Handle timer)
 {
 	delete hLockdownTime;
 	bLDFinished = true;
@@ -372,7 +372,7 @@ public Action ForceEndLockdown(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action OrderShutDown(Handle timer)
+Action OrderShutDown(Handle timer)
 {
 	SetCheckpointDoor_Default();
 	return Plugin_Continue;
@@ -380,10 +380,140 @@ public Action OrderShutDown(Handle timer)
 
 Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, float value)
 {
-	if(bDoorBotDisable && client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_SURVIVOR && IsFakeClient(client))
+	if (g_bValidMap == false || bRoundEnd || g_bSLSDisable)
 	{
-		//PrintToChatAll("%N use door %d, caller: %d", client, door, caller);
-		return Plugin_Handled;
+		return Plugin_Continue;
+	}
+	
+	if (IsSurvivor(client))
+	{
+		if(bDoorBotDisable && IsFakeClient(client))
+		{
+			return Plugin_Handled;
+		}
+
+		if (!IsPlayerAlive(client))
+		{
+			return Plugin_Continue;
+		}
+
+		if(IsValidEntRef(g_iStartCheckpointDoor))
+		{
+			AcceptEntityInput(g_iStartCheckpointDoor, "Kill");
+			g_iStartCheckpointDoor = -1;
+		}
+
+		if(g_bIsSafeRoomOpen == true && iDoorOpenChance == 0)
+		{
+			PrintHintText(client, "[TS] %T", "No Chance", client);
+			return Plugin_Handled;
+		}
+		
+		int state = GetEntProp(door, Prop_Data, "m_eDoorState");
+		if (state==DOOR_STATE_CLOSED)
+		{
+			if(iMinSurvivorPercent > 0 && !bSurvivorsAssembleAlready)
+			{
+				float clientOrigin[3];
+				float doorOrigin[3];
+				int iParam = 0, iReached = 0;
+				GetEntPropVector(door, Prop_Send, "m_vecOrigin", doorOrigin);
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if(IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+					{
+						iParam ++;
+						GetClientAbsOrigin(i, clientOrigin);
+						if (GetVectorDistance(clientOrigin, doorOrigin, true) <= 750 * 750)
+						{
+							iReached++;
+						}
+					}
+				}
+
+				iParam = RoundToCeil(iMinSurvivorPercent / 100.0 * iParam);
+				if(iReached < iParam)
+				{
+					PrintHintText(client, "[TS] %T", "SurvivorReached", client, iReached, iParam);
+					return Plugin_Handled;
+				}
+
+				bSurvivorsAssembleAlready = true;
+			}
+
+			if(bTankDemolitionBefore && !bSpawnTank) 
+			{
+				if(g_bMapTwoTanks)
+					ExecuteSpawn(true , 2);
+				else
+					ExecuteSpawn(true , 1);
+
+				bSpawnTank = true;
+			}
+			
+			sb_unstick.SetBool(false);
+			
+			if (GetTankCount() > 0)
+			{
+				if (bLDFinished || bLockdownInit)
+				{
+					bAntiFarmInit = true;
+					return Plugin_Handled;
+				}
+				
+				
+				if (!bAntiFarmInit)
+				{
+					bAntiFarmInit = true;
+					iSystemTime = iAntiFarmDuration;
+					
+					PrintHintText(client, "[TS] %T", "Tank is still alive", client);
+					EmitSoundToAll("doors/latchlocked2.wav", door, SNDCHAN_AUTO);
+
+					GetClientAbsOrigin(client, fFirstUserOrigin);
+					GetClientName(client, sKeyMan, sizeof(sKeyMan));
+					
+					ExecuteSpawn(false, iMobs);
+					
+					if (hAntiFarmTime == null)
+					{
+						hAntiFarmTime = CreateTimer(float(iAntiFarmDuration) + 1.0, EndAntiFarm);
+					}
+					CreateTimer(1.0, CheckAntiFarm, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+					SDKHook(door, SDKHook_Touch, OnTouch);
+				}
+			}
+			else
+			{
+				if (bAntiFarmInit)
+				{
+					return Plugin_Handled;
+				}
+				
+				if (!bLockdownInit)
+				{
+					bLockdownInit = true;
+					iSystemTime = iDuration;
+
+					GetClientAbsOrigin(client, fFirstUserOrigin);
+					GetClientName(client, sKeyMan, sizeof(sKeyMan));
+					
+					ExecuteSpawn(false, iMobs);
+					if (iType == 1)
+					{
+						ControlDoor(g_iEndCheckpointDoor, UNLOCK);
+					}
+					
+					if (hLockdownTime == null)
+					{
+						hLockdownTime = CreateTimer(float(iDuration) + 1.0, EndLockdown);
+					}
+
+					CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+					SDKHook(door, SDKHook_Touch, OnTouch);
+				}
+			}
+		}
 	}
 
 	return Plugin_Continue;
@@ -402,7 +532,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	return Plugin_Continue;
 }
 */
-public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
+/*
+Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_bValidMap == false || bRoundEnd || g_bSLSDisable)
 	{
@@ -416,6 +547,7 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 		{
 			return Plugin_Continue;
 		}
+		
 		if(bDoorBotDisable && IsFakeClient(user))
 		{
 			return Plugin_Continue;
@@ -425,7 +557,7 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 		if (IsValidEnt(used) && IsValidEntRef(g_iEndCheckpointDoor))
 		{
 			char sEntityClass[64];
-			GetEdictClassname(used, sEntityClass, sizeof(sEntityClass));
+			GetEntityClassname(used, sEntityClass, sizeof(sEntityClass));
 			if (strcmp(sEntityClass, "prop_door_rotating_checkpoint") != 0 || used != EntRefToEntIndex(g_iEndCheckpointDoor))
 			{
 				return Plugin_Continue;
@@ -554,8 +686,12 @@ public Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
 	
 	return Plugin_Continue;
 }
+*/
 
-public Action CheckAntiFarm(Handle timer, any entity)
+
+
+
+Action CheckAntiFarm(Handle timer, any entity)
 {
 	if (!entity || (entity = EntRefToEntIndex(entity)) == INVALID_ENT_REFERENCE || !IsValidEntRef(g_iEndCheckpointDoor))
 	{
@@ -606,14 +742,14 @@ public Action CheckAntiFarm(Handle timer, any entity)
 	return Plugin_Continue;
 }
 
-public Action EndAntiFarm(Handle timer)
+Action EndAntiFarm(Handle timer)
 {
 	hAntiFarmTime = null;
 	
 	return Plugin_Continue;
 }
 
-public Action LockdownOpening(Handle timer, any entity)
+Action LockdownOpening(Handle timer, any entity)
 {
 	if (!entity || (entity = EntRefToEntIndex(entity)) == INVALID_ENT_REFERENCE)
 	{
@@ -697,7 +833,7 @@ public Action LockdownOpening(Handle timer, any entity)
 	return Plugin_Continue;
 }
 
-public Action EndLockdown(Handle timer)
+Action EndLockdown(Handle timer)
 {
 	if (hLockdownTime == null)
 	{
@@ -710,7 +846,7 @@ public Action EndLockdown(Handle timer)
 	return Plugin_Stop;
 }
 
-public Action LaunchTankDemolition(Handle timer)
+Action LaunchTankDemolition(Handle timer)
 {
 	if (bTankDemolitionAfter == false)
 	{
@@ -726,7 +862,7 @@ public Action LaunchTankDemolition(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action LaunchSlayTimer(Handle timer)
+Action LaunchSlayTimer(Handle timer)
 {
 	iSystemTime = iGetInLimit;
 	if(iSystemTime > 0) CreateTimer(1.0, AntiPussy, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -734,7 +870,7 @@ public Action LaunchSlayTimer(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action AntiPussy(Handle timer)
+Action AntiPussy(Handle timer)
 {
 	if (bRoundEnd) return Plugin_Stop;
 	
@@ -771,7 +907,7 @@ public Action AntiPussy(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action _AntiPussy(Handle timer)
+Action _AntiPussy(Handle timer)
 {
 	if(bRoundEnd) return Plugin_Stop;
 	
@@ -856,7 +992,7 @@ void InitDoor()
 	g_iStartCheckpointDoor = EntIndexToEntRef(g_iStartCheckpointDoor);
 }
 
-public void OnDoorAntiSpam(const char[] output, int caller, int activator, float delay)
+void OnDoorAntiSpam(const char[] output, int caller, int activator, float delay)
 {
 	if (g_bSLSDisable) return;
 
@@ -879,7 +1015,7 @@ public void OnDoorAntiSpam(const char[] output, int caller, int activator, float
 	CreateTimer(fPreventDoorSpamDuration, PreventDoorSpam, EntIndexToEntRef(caller), TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action PreventDoorSpam(Handle timer, any entity)
+Action PreventDoorSpam(Handle timer, any entity)
 {
 	if (!entity || (entity = EntRefToEntIndex(entity)) == INVALID_ENT_REFERENCE)
 	{
@@ -894,7 +1030,7 @@ public Action PreventDoorSpam(Handle timer, any entity)
 	return Plugin_Continue;
 }
 
-public void OnDoorBlocked(const char[] output, int caller, int activator, float delay)
+void OnDoorBlocked(const char[] output, int caller, int activator, float delay)
 {
 	if (g_bSLSDisable) return;
 
@@ -908,8 +1044,6 @@ public void OnDoorBlocked(const char[] output, int caller, int activator, float 
 
 void ControlDoor(int entity, int iOperation)
 {
-	iDoorStatus = iOperation;
-	
 	switch (iOperation)
 	{
 		case LOCK:
@@ -981,7 +1115,7 @@ stock bool IsCommonInfected(int entity)
 	if (IsValidEnt(entity))
 	{
 		char sEntityClass[64];
-		GetEdictClassname(entity, sEntityClass, sizeof(sEntityClass));
+		GetEntityClassname(entity, sEntityClass, sizeof(sEntityClass));
 		return strcmp(sEntityClass, "infected") == 0;
 	}
 	
@@ -1005,19 +1139,27 @@ stock void ExecuteSpawn(bool btank, int iCount)
 		if(anyclient > 0)
 		{
 			char sCommand[16];
-			strcopy(sCommand, sizeof(sCommand), "z_spawn");
+			strcopy(sCommand, sizeof(sCommand), sSpawnCommand);
 			int iFlags = GetCommandFlags(sCommand);
 			SetCommandFlags(sCommand, iFlags & ~FCVAR_CHEAT);
 			for (int i = 0; i < iCount; i++)
 			{
-				FakeClientCommand(anyclient, "z_spawn mob auto");
+				if(g_bL4D2Version)
+				{
+					FakeClientCommand(anyclient, "z_spawn_old mob auto");
+				}
+				else
+				{
+					FakeClientCommand(anyclient, "z_spawn mob auto");
+				}
+				
 			}
 			SetCommandFlags(sCommand, iFlags);
 		}	
 	}
 }
 
-public Action Timer_CreateTank(Handle timer)
+Action Timer_CreateTank(Handle timer)
 {
 	CreateTankBot();
 
@@ -1051,7 +1193,7 @@ void CreateTankBot()
 	}
 }
 
-public Action AttackOnTank(Handle timer, int tank)
+Action AttackOnTank(Handle timer, int tank)
 {
 	tank = GetClientOfUserId(tank);
 	if(tank && IsClientInGame(tank))
@@ -1109,13 +1251,13 @@ bool IsPlayerTank (int client)
     return (GetEntProp(client, Prop_Send, "m_zombieClass") == ZOMBIECLASS_TANK);
 }
 
-public void Event_DoorOpen(Event event, const char[] name, bool dontBroadcast)
+void Event_DoorOpen(Event event, const char[] name, bool dontBroadcast)
 {
 	if( event.GetBool("checkpoint") )
 		DoorPrint(event, true);
 }
 
-public void Event_DoorClose(Event event, const char[] name, bool dontBroadcast)
+void Event_DoorClose(Event event, const char[] name, bool dontBroadcast)
 {
 	if( event.GetBool("checkpoint") )
 		DoorPrint(event, false);
@@ -1164,7 +1306,7 @@ void GetCvars()
 	}
 }
 
-public void OnTouch(int door, int other)
+void OnTouch(int door, int other)
 {
 	if(!bDoorOpeningTeleport || iType == 1) return;
 
@@ -1198,7 +1340,7 @@ bool IsWitch(int entity)
     if (entity > 0 && IsValidEntity(entity) && IsValidEdict(entity))
     {
         char strClassName[64];
-        GetEdictClassname(entity, strClassName, sizeof(strClassName));
+        GetEntityClassname(entity, strClassName, sizeof(strClassName));
         return strcmp(strClassName, "witch") == 0;
     }
     return false;
@@ -1236,8 +1378,6 @@ void SetCheckpointDoor_Default()
 
 		L4D2_RemoveEntityGlow(g_iEndCheckpointDoor);
 
-		iDoorStatus = UNLOCK;
-
 		g_iEndCheckpointDoor = -1;
 	}
 }
@@ -1264,7 +1404,7 @@ void GetColor(int[] array, char[] sTemp)
 	array[2] = StringToInt(sColors[2]);
 }
 
-public int GetSurvivor() {
+int GetSurvivor() {
 	for( int i = 1; i <= MaxClients; i++ ) {
 		if( IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i) ) {
 		    return i;
@@ -1450,6 +1590,8 @@ int FindEndSafeRoomDoor()
 
 	return -1;
 }
+
+//Other API Forward-------------------------------
 
 /*--l4d2_safelockscavenge--*/
 public void SLS_OnDoorStatusChanged(bool locked)
