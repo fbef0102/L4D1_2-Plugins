@@ -26,6 +26,9 @@ Locks Saferoom Door Until Someone Opens It.
 	//cravenge @ 2016-2019
 	//HarryPotter @ 2020-2023
 	```
+	* v5.4 (2023-5-18)
+        * Optimize code and improve performance
+
 	* v5.3 (2023-3-22)
         * Fixed bot unable to open and close normal door on the whole map.
 
@@ -52,6 +55,7 @@ Locks Saferoom Door Until Someone Opens It.
         * Seconds to lock door after opening and closing the saferoom door.
         * after saferoom door is opened, how many chance can the survivors open the door. (stop noobs from playing the doors)
         * Made compatible with the "Saferoom Lock: Scavenge" plugin version 1.2.2+ by Earendil.
+        
 	* v1.7
         * [Original Post by cravenge](https://forums.alliedmods.net/showthread.php?t=281305)
 </details>
