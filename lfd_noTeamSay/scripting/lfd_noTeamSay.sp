@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "No Team Chat",
 	author = "bullet28, HarryPotter",
 	description = "Redirecting all 'say_team' messages to 'say' in order to remove (Survivor) prefix when it's useless",
-	version = "2.3",
+	version = "2.4",
 	url = "https://forums.alliedmods.net/showthread.php?p=2691314"
 }
 
@@ -79,7 +79,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 void SayText2(int client, int sender, const char[] msg) {
 
 	static char name[MAX_NAME_LENGTH];
-	GetClientName(client, name, sizeof(name));
+	GetClientName(sender, name, sizeof(name));
 
 	Handle hMessage = StartMessageOne("SayText2", client, USERMSG_RELIABLE);
 	if(hMessage != null) 
