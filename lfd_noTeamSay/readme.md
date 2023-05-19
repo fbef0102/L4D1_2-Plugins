@@ -21,6 +21,9 @@ Redirecting all 'say_team' messages to 'say'
 	//bullet28 @ 2020
 	//HarryPotter @ 2020-2023
 	```
+	* v2.4 (2023-5-20)
+		* Fixed Error
+
 	* v2.3 (2023-5-13)
 		* Optimize Code
 
