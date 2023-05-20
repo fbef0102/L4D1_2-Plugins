@@ -13,7 +13,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw special infected instead of rock",
-	version = "1.8h",
+	version = "1.9h",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -293,7 +293,7 @@ bool IsRockStuck(int ent, const float pos[3])
 	return true;
 }
 
-int CreateSI(int thetank, const float pos[3], const float ang[3], const float velocity[3])
+stock int CreateSI(int thetank, const float pos[3], const float ang[3], const float velocity[3])
 {
 	int selected=0;
 	int chooseclass=0;
@@ -489,11 +489,11 @@ int CreateSI(int thetank, const float pos[3], const float ang[3], const float ve
 		{
 			if( g_bSpawnWitchBride )
 			{
-				selected = L4D2_SpawnWitchBride(pos, ang);
+				selected = L4D2_SpawnWitchBride(pos, NULL_VECTOR);
 			}
 			else
 			{
-				selected = L4D2_SpawnWitch(pos, ang);
+				selected = L4D2_SpawnWitch(pos, NULL_VECTOR);
 			}
 			if(selected > MaxClients)
 			{
@@ -648,9 +648,10 @@ int CreateSI(int thetank, const float pos[3], const float ang[3], const float ve
 
 	if (selected > 0) 
 	{
-		// PrintToChatAll("%d was throw: %.2f %.2f %.2f %.2f %.2f %.2f", 
-		//  	selected, pos[0], pos[1], pos[2], velocity[0], velocity[1], velocity[2]);
-		TeleportEntity(selected, pos, ang, velocity);
+		/*PrintToChatAll("%d (%d) was throw: %.2f %.2f %.2f %.2f %.2f %.2f", 
+			selected, chooseclass, pos[0], pos[1], pos[2], velocity[0], velocity[1], velocity[2]);*/
+
+		TeleportEntity(selected, pos, NULL_VECTOR, velocity);
 	}
  
  	return selected;
@@ -1247,9 +1248,9 @@ public void OnActionCreated( BehaviorAction action, int actor, const char[] name
 
 public Action OnUpdate( BehaviorAction action, int actor, float interval, ActionResult result ) 
 {
-	if ( GetEntityFlags(action.Actor) & FL_ONGROUND )
+	if ( GetEntityFlags(actor) & FL_ONGROUND )
 	{
-		action.OnUpdate = INVALID_FUNCTION;
+		//action.OnUpdate = INVALID_FUNCTION;
 		return Plugin_Continue;
 	}
 

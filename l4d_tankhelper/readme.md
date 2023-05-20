@@ -30,6 +30,9 @@ Tanks throw special infected instead of rock
 	//Pan Xiaohai @ 2010-2011
 	//Harry @ 2022-2023
 	```
+	* v1.9h (2023-5-21)
+        * Fixed crash and error
+
 	* v1.8h
 		* Use left4dhooks to optimize code
 
