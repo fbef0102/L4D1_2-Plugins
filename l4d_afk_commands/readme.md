@@ -24,6 +24,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.8 (2023-5-22)
+		* Support l4d2 all mutation mode
+
 	* v4.7 (2023-5-7)
 		* Player can not change team while he is getting up or staggering.
 

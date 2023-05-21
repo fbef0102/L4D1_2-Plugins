@@ -14,7 +14,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"5.8"
+#define PLUGIN_VERSION 				"5.9"
 
 public Plugin myinfo = 
 {
@@ -402,7 +402,7 @@ Action JoinTeam(int client,int args)
 	if(g_bCvar_JoinCommandBlock == true)
 		return Plugin_Handled;
 
-	if(g_bCvar_VSCommandBalance && (L4D_IsVersusMode() || L4D2_IsScavengeMode()))
+	if(g_bCvar_VSCommandBalance && L4D_HasPlayerControlledZombies())
 	{
 		CreateTimer(0.15, JoinTeam_VSCommandBalance, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -423,7 +423,7 @@ public void OnClientPutInServer(int client)
 	
 	if(client && IsClientInGame(client) && !IsFakeClient(client) && g_bIsObserver[client] == false)
 	{
-		if(L4D_IsVersusMode() || L4D2_IsScavengeMode())
+		if(L4D_HasPlayerControlledZombies())
 		{
 			//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
