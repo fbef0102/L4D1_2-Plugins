@@ -35,6 +35,9 @@ Allows additional survivor players in server when 5+ player joins the server
 	//mi123645 @ 2009-2010
 	//HarryPotter @ 2020-2023
 	```
+	* v5.9 (2023-5-22)
+		* Support l4d2 all mutation mode, New player won't be swapped to survivor team if infected team is available in current mode.
+
 	* v5.8 (2023-5-6)
 		* Support Versus/Scavenge. Server will not always switch new player to survivor team.
 		* Add more cvars

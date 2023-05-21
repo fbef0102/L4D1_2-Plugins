@@ -62,7 +62,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.7"
+#define PLUGIN_VERSION 		"4.8"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -113,7 +113,7 @@ const int ARRAY_COUNT = 2;
 #define MODEL_GASCAN			"models/props_junk/gascan001a.mdl"
 #define MODEL_BARREL			"models/props_industrial/barrel_fuel.mdl"
 
-ConVar g_hGameMode, g_hZMaxPlayerZombies;
+ConVar g_hZMaxPlayerZombies;
 
 ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSeconds, g_hWeaponReloadBlock, g_hGetUpStaggerBlock, 
 	g_hInfectedCapBlock, g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmuneAccess,
@@ -130,7 +130,7 @@ bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpSt
 float g_fBreakPropCooldown, g_fThrowableCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
 int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies, g_iVSUnBalanceLimit;
 
-bool g_bHasLeftSafeRoom, g_bMapStarted, g_bGameTeamSwitchBlock;
+bool g_bHasLeftSafeRoom, g_bGameTeamSwitchBlock;
 
 //arraylist
 ArrayList nClientSwitchTeam;
@@ -149,7 +149,6 @@ float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 int iClientFlags[MAXPLAYERS+1];
-int g_iGameMode; // 1=Coop/Realism, 2=Versus/Scavenge, 3=Survival
 
 methodmap PlayerAnimState {
 	property int m_eCurrentMainSequenceActivity {
@@ -253,8 +252,6 @@ public void OnPluginStart()
 	g_hVSUnBalanceLimit = 		CreateConVar("l4d_afk_commands_versus_teams_unbalance_limit", 	"2", 	"Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.", FCVAR_NOTIFY, true, 1.0);
 	
 	GetCvars();
-	g_hGameMode = FindConVar("mp_gamemode");
-	g_hGameMode.AddChangeHook(ConVarChange_CvarGameMode);
 	g_hCoolTime.AddChangeHook(ConVarChanged_Cvars);
 	g_hDeadSurvivorBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hGameTimeBlock.AddChangeHook(ConVarChanged_Cvars);
@@ -348,55 +345,14 @@ public void OnLibraryAdded(const char[] name)
 
 public void OnMapStart()
 {
-	g_bMapStarted = true;
 	nClientSwitchTeam.Clear();
 }
 
 public void OnMapEnd()
 {
-	g_bMapStarted = false;
 	Clear();
 	ResetTimer();
 	ClearDefault();
-}
-
-public void OnConfigsExecuted()
-{
-	GameModeCheck();
-}
-
-void GameModeCheck()
-{
-	if(g_bMapStarted == false){
-		g_iGameMode = 0;
-		return;
-	}
-		
-	int entity = CreateEntityByName("info_gamemode");
-	if( IsValidEntity(entity) )
-	{
-		DispatchSpawn(entity);
-		HookSingleEntityOutput(entity, "OnCoop", OnGamemode, true);
-		HookSingleEntityOutput(entity, "OnSurvival", OnGamemode, true);
-		HookSingleEntityOutput(entity, "OnVersus", OnGamemode, true);
-		HookSingleEntityOutput(entity, "OnScavenge", OnGamemode, true);
-		ActivateEntity(entity);
-		AcceptEntityInput(entity, "PostSpawnActivate");
-		if( IsValidEntity(entity) ) // Because sometimes "PostSpawnActivate" seems to kill the ent.
-			RemoveEdict(entity); // Because multiple plugins creating at once, avoid too many duplicate ents in the same frame
-	}
-}
-
-void OnGamemode(const char[] output, int caller, int activator, float delay)
-{
-	if( strcmp(output, "OnCoop") == 0 )
-		g_iGameMode = 1;
-	else if( strcmp(output, "OnSurvival") == 0 )
-		g_iGameMode = 3;
-	else if( strcmp(output, "OnVersus") == 0 )
-		g_iGameMode = 2;
-	else if( strcmp(output, "OnScavenge") == 0 )
-		g_iGameMode = 2;
 }
 
 Action Command_SwapTo(int client, int args)
@@ -635,11 +591,6 @@ void Event_PlayerChangeTeam(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(0.1, ClientReallyChangeTeam, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE); // check delay
 }
 
-void ConVarChange_CvarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	GameModeCheck();
-}
-
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
@@ -807,7 +758,7 @@ Action TurnClientToSpectate(int client, int argCount)
 	{
 		if(CanClientChangeTeam(client,1) == false) return Plugin_Handled;
 		
-		if(iTeam == 2 && g_iGameMode != 2)
+		if(iTeam == 2 && L4D_HasPlayerControlledZombies() == false)
 		{
 			if(IsPlayerAlive(client)) 
 			{
@@ -919,7 +870,7 @@ Action TurnClientToSurvivors(int client, int args)
 	//PrintToChatAll("Number of Survivor Slots %d.\nNumber of Survivor Players %d.\nNumber of Free Slots %d.", maxSurvivorSlots, survivorUsedSlots, freeSurvivorSlots);
 	
 	//檢查平衡
-	if(g_bVSCommandBalance && g_iGameMode == 2)
+	if(g_bVSCommandBalance && L4D_HasPlayerControlledZombies())
 	{
 		if(team <= 1)
 		{
@@ -972,7 +923,7 @@ Action TurnClientToSurvivors(int client, int args)
 		}
 		if (bot==0) return Plugin_Handled;
 		
-		if(g_iGameMode != 2) //coop/survival
+		if(L4D_HasPlayerControlledZombies() == false) //coop/survival
 		{
 			if(GetClientTeam(client) == 3) ChangeClientTeam(client,1);
 
@@ -1008,7 +959,7 @@ Action TurnClientToInfected(int client, int args)
 		return Plugin_Handled;
 	}
 
-	if(g_iGameMode != 2)
+	if(L4D_HasPlayerControlledZombies() == false)
 	{
 		return Plugin_Handled;
 	}
@@ -1038,7 +989,7 @@ Action TurnClientToInfected(int client, int args)
 	int freeInfectedSlots = (maxInfectedSlots - infectedUsedSlots);
 
 	//檢查平衡
-	if(g_bVSCommandBalance && g_iGameMode == 2)
+	if(g_bVSCommandBalance && L4D_HasPlayerControlledZombies())
 	{
 		if(team <= 1)
 		{
@@ -1821,7 +1772,7 @@ void CleanUpStateAndMusic(int client)
 
 	// This fixes the music glitch thats been bothering me and many players for a long time. The music keeps playing over and over when it shouldn't. Doesn't execute
 	// on versus.
-	if(g_iGameMode != 2)
+	if(L4D_HasPlayerControlledZombies() == false)
 	{
 		if (!g_bL4D2Version)
 		{
