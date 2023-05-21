@@ -35,6 +35,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.1 (2023-5-22)
+		* Support l4d2 all mutation mode.
+
 	* v2.8.0 (2023-5-5)
 		* Add Special Infected Weight
 		* Add and modify convars about Special Infected Weight
