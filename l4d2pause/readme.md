@@ -22,6 +22,9 @@ Allows admins to force the game to pause, only adm can unpause the game.
 	//pvtschlag @ 2009
 	//HarryPotter @ 2019-2023
 	```
+	* v1.5 (2023-5-22)
+		* The game would be unpaused if admin disconnects.
+
 	* v1.4 (2023-3-14)
 		* Optimize code
 
@@ -66,5 +69,6 @@ Allows admins to force the game to pause, only adm can unpause the game.
 * 原理
 	* 管理員輸入 !forcepause 強制暫停遊戲
 	* 管理員輸入 !forcepause 解除暫停
+	* 當發動暫停的管理員離開伺服器時，遊戲會自動解除暫停
 
 
