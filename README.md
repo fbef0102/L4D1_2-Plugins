@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/5/12)
+> All plugins in here apply to both L4D1/2 (last edited:2023/5/22)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -149,6 +149,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 修復Source引擎的踩頭跳躍bug
 * <b>[l4d_finale_stage_fix](/l4d_finale_stage_fix)</b>: Fixed the final stage get stucked
     * 解決最後救援卡關，永遠不能來救援載具的問題
+* <b>[l4d2_spritetrail_fix](/l4d2_spritetrail_fix)</b>: Fixed the final stage get stucked
+    * 修復Source引擎的bug，看不見spritetrail物件的發光效果
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
