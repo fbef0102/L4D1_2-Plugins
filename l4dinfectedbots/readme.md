@@ -17,8 +17,8 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 * Apply to | 適用於
 	```
-	L4D1 Coop/Survival/Versus
-	L4D2 Coop/Survival/Versus/Realism
+	L4D1 all modes
+	L4D2 all modes
 	```
 
 * Translation Support | 支援翻譯
@@ -35,6 +35,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.2 (2023-5-27)
+		* Add a convar, including dead survivors or not
+		* Add a convar, disable infected bots spawning or not in versus/scavenge mode
+
 	* v2.8.1 (2023-5-22)
 		* Support l4d2 all mutation mode.
 
@@ -131,6 +135,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// The weight for a boomer spawning [0-100]
 		l4d_infectedbots_boomer_weight "100"
 
+		// If 1, including 4+ alive and dead players in the server.
+		l4d_infectedbots_calculate_including_dead_player "0"
+
 		// Sets the limit for chargers spawned by the plugin
 		l4d_infectedbots_charger_limit "2"
 
@@ -166,6 +173,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		// Sets Default Health for Tank, Tank hp is affected by gamemode and difficulty (Example, Set Tank health 4000hp, but in Easy: 3000, Normal: 4000, Versus: 6000, Advanced/Expert: 8000)
 		l4d_infectedbots_default_tankhealth "4000"
+
+		// If 1, disable infected bots spawning in versus/scavenge mode. (Does not disable witch spawn and does not affect director boss spawn)
+		l4d_infectedbots_disable_infected_bots "0"
 
 		// Sets the limit for hunters spawned by the plugin
 		l4d_infectedbots_hunter_limit "2"
@@ -553,6 +563,22 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		* Recommand to install [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)
 	</details>
 
+	4. <details><summary>Count 5+ players including dead</summary>
+
+		* Adjust special limit, tank health, zombie zommon, Tank limit according to 5+ alive and dead survivor players
+			```php
+			l4d_infectedbots_calculate_including_dead_player "1"
+			```
+	</details>
+
+	5. <details><summary>Disable infected bots spawning in versus/scavenge mode.</summary>
+
+		* Only allow real infected players to spawn on the field in versus/scavenge mode.
+			```php
+			l4d_infectedbots_disable_infected_bots "1"
+			```
+	</details>
+
 * Known Issue
 	* In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed. Install [l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam) by Forgetest to fix Camera stuck.
 
@@ -620,6 +646,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// 插件生成boomer的權重值 [0~100]
 		l4d_infectedbots_boomer_weight "100"
 
+		// 為1，計算4+以上的倖存者時也包含死亡的倖存者
+		l4d_infectedbots_calculate_including_dead_player "0"
+
 		// 插件可生成charger的最大數量
 		l4d_infectedbots_charger_limit "2"
 
@@ -655,6 +684,10 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 		// 設置Tank默認血量上限, Tank血量上限受到遊戲難度或模式影響 （若Tank血量上限設置爲4000，則簡單難度3000血，普通難度4000血，對抗類型模式6000血，高級/專家難度血量8000血）
 		l4d_infectedbots_default_tankhealth "4000"
+		
+		// 為1，對抗/清道夫模式下關閉特感bots生成，只允許真人特感玩家生成
+		// (此插件會繼續生成Witch、不影響導演系統)
+		l4d_infectedbots_disable_infected_bots "0"
 
 		// 插件可生成hunter的最大數量
 		l4d_infectedbots_hunter_limit "2"
@@ -1059,6 +1092,22 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 			* 解決方式法四：請倖存者隊伍移動位置，讓特感可以生成
 		4. 原因四：有設置指令值```director_no_specials 1```，這會關閉遊戲導演系統
 			* 解決方式：```sm_cvar director_no_specials 0```
+	</details>
+
+	4. <details><summary>計算第5位以上死亡的倖存者</summary>
+
+		* 調整特感最大生成數量、Tank血量、普通殭屍最大數量、tank生成限制時，計算倖存者數量時也包含死亡的玩家
+			```php
+			l4d_infectedbots_calculate_including_dead_player "1"
+			```
+	</details>
+
+	5. <details><summary>停止特感Bots生成.</summary>
+
+		* 在對抗/清道夫模式中，關閉特感bots生成，只允許真人特感玩家生成特感 (此插件會繼續生成Witch、不影響導演系統)
+			```php
+			l4d_infectedbots_disable_infected_bots "1"
+			```
 	</details>
 
 * 已知問題
