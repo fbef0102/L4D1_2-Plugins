@@ -5,7 +5,7 @@
 #include <sdkhooks>
 #include <left4dhooks>
 
-#define GETVERSION "2.1"
+#define GETVERSION "2.2"
 #define ARRAY_SIZE 2048
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn entity when it's index is above this
 #define EXLOPDE_INTERVAL 6.0
@@ -785,7 +785,10 @@ void AttachParticle(int car, const char[] Particle_Name)
 
 void PanicEvent()
 {
-	L4D_ForcePanicEvent();
+	int anyclient = GetAnyRandomClient();
+	if(anyclient == 0) return;
+
+	CheatCommand(anyclient, "z_spawn", "mob", "auto");
 }
 
 bool IsValidEntityIndex(int entity)
@@ -816,4 +819,15 @@ void ResetPlugin()
 {
 	g_iRoundStart = 0;
 	g_iPlayerSpawn = 0;
+}
+
+void CheatCommand(int client, char[] command, char[] arguments = "", char[] extra = "")
+{
+	int userFlags = GetUserFlagBits(client);
+	SetUserFlagBits(client, ADMFLAG_ROOT);
+	int flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s %s", command, arguments, extra);
+	SetCommandFlags(command, flags);
+	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
 }

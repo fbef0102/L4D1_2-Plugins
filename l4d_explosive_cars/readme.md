@@ -20,6 +20,9 @@ Cars explode after they take some damage
 	//honorcode23 @ 2010-2011
 	//HarryPotter @ 2021-2023
 	```
+	* v2.2 (2023-5-28)
+		* Use ```z_spawn mob auto``` instead of L4D_ForcePanicEvent()
+		
 	* v2.1 (2023-2-14)
 		* Support L4D1
 
