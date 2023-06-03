@@ -4,7 +4,7 @@
 #include <sourcemod>
 #include <sdktools>
 
-#define PLUGIN_VERSION "1.8"
+#define PLUGIN_VERSION "1.9-2023/6/3"
 
 #define		DN_TAG		"[DHostName]"
 #define		SYMBOL_LEFT		'('
@@ -70,7 +70,7 @@ void ChangeServerName()
 
 		BuildPath(Path_SM, sPath, sizeof(sPath),"configs/hostname/server_hostname_%s.txt", sHostport);
 		file = OpenFile(sPath, "a");
-		file.WriteLine(readData);
+		file.WriteString(readData, false);
 		file.Close();
 		
 		file = OpenFile(sPath, "r");
