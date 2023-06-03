@@ -17,6 +17,9 @@ Server name with txt file (Support any language)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.9 (2023-6-3)
+        * Fixed hostname two lines
+
 	* v1.8 (2023-5-4)
         * Optimize Code
         * Can use different host name by server port
