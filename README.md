@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/5/22)
+> All plugins in here apply to both L4D1/2 (last edited:2023/6/9)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -36,7 +36,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
-* <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[l4d_graves](/l4d_graves)</b>: When a survivor die, on his body appear a grave.
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
@@ -151,6 +150,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 解決最後救援卡關，永遠不能來救援載具的問題
 * <b>[l4d2_spritetrail_fix](/l4d2_spritetrail_fix)</b>: Fixed the final stage get stucked
     * 修復Source引擎的bug，看不見spritetrail物件的發光效果
+* <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
+    * 踢出卡Loading連線中的玩家
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
