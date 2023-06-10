@@ -150,7 +150,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 解決最後救援卡關，永遠不能來救援載具的問題
 * <b>[l4d2_spritetrail_fix](/l4d2_spritetrail_fix)</b>: Fixed the final stage get stucked
     * 修復Source引擎的bug，看不見spritetrail物件的發光效果
-* <b>[l4d_kickloadstuckerse](/l4d_kickloadstuckerse)</b>: Kicks Clients that get stuck in server connecting state
+* <b>[l4d_kickloadstuckers](/l4d_kickloadstuckers)</b>: Kicks Clients that get stuck in server connecting state
     * 踢出卡Loading連線中的玩家
 
 # Scripting Compiler
