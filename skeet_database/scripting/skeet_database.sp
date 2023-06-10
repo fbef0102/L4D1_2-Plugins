@@ -32,7 +32,7 @@ public Plugin myinfo =
 	name = "Skeet Announce Edition (Database)",
 	description = "Announce dmg/skeet/frag/ds original from thrillkill/n0limit, fixed by JNC",
 	author = "Autor: thrillkill - edited: JNC - improve: Harry",
-	version = "2.2",
+	version = "2.3-2023/6/11",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
@@ -483,7 +483,7 @@ void Statistic(int client)
 		KeyValuesToFile(Data, datafilepath_1v1);
 	else
 		KeyValuesToFile(Data, datafilepath);
-	CloseHandle(Data);
+	delete Data;
 	if(CvarAnnounce == 1)
 	{
 		PrintToChat(client, "\x01[\x04SM\x01] \x03You \x04have \x01%d skeets%s", skeet, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
@@ -693,6 +693,7 @@ void PrintTopSkeetersToClient(int client)
 	{
 		if (!FileToKeyValues(Data, datafilepath_1v1))
 		{
+			delete Data;
 			return;
 		}
 	}
@@ -700,9 +701,11 @@ void PrintTopSkeetersToClient(int client)
 	{	
 		if (!FileToKeyValues(Data, datafilepath))
 		{
+			delete Data;
 			return;
 		}
 	}
+
 	KvJumpToKey(Data, "info", false);
 	count = KvGetNum(Data, "count", 0);
 	char[][] names = new char[count][64];
@@ -719,7 +722,7 @@ void PrintTopSkeetersToClient(int client)
 		totalskeets += skeets[i][1];
 		KvGotoNextKey(Data, true);
 	}
-	CloseHandle(Data);
+	delete Data;
 	SortCustom2D(skeets, count, Sort_Function);
 	Handle Panell = CreatePanel();
 	int oneshot = GetConVarInt(OneShotSkeet);
@@ -759,8 +762,7 @@ void PrintTopSkeetersToClient(int client)
 		Format(text, 255, "There are no skeets on this server yet%s", (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 	}
 	SendPanelToClient(Panell, client, TopSkeetPanelHandler, 5);
-	CloseHandle(Panell);
-	return;
+	delete Panell;
 }
 
 void PrintTopSkeeters()
@@ -771,6 +773,7 @@ void PrintTopSkeeters()
 	{
 		if (!FileToKeyValues(Data, datafilepath_1v1))
 		{
+			delete Data;
 			return;
 		}
 	}
@@ -778,6 +781,7 @@ void PrintTopSkeeters()
 	{	
 		if (!FileToKeyValues(Data, datafilepath))
 		{
+			delete Data;
 			return;
 		}
 	}
@@ -797,7 +801,7 @@ void PrintTopSkeeters()
 		totalskeets += skeets[i][1];
 		KvGotoNextKey(Data, true);
 	}
-	CloseHandle(Data);
+	delete Data;
 	SortCustom2D(skeets, count, Sort_Function);
 	Handle Panell = CreatePanel();
 	int oneshot = GetConVarInt(OneShotSkeet);
@@ -843,8 +847,7 @@ void PrintTopSkeeters()
 			SendPanelToClient(Panell, i, TopSkeetPanelHandler, 5);
 		}
 	}
-	CloseHandle(Panell);
-	return;
+	delete Panell;
 }
 
 void PrintSkeetsToClient(int client)
@@ -863,6 +866,7 @@ void PrintSkeetsToClient(int client)
 		if (!FileToKeyValues(Data, datafilepath_1v1))
 		{
 			PrintToChat(client, "\x03There is no \x01data in 1v1.");
+			delete Data;
 			return;
 		}
 	}
@@ -871,6 +875,7 @@ void PrintSkeetsToClient(int client)
 		if (!FileToKeyValues(Data, datafilepath))
 		{
 			PrintToChat(client, "\x03There is no \x01data.");
+			delete Data;
 			return;
 		}
 	}
@@ -879,7 +884,7 @@ void PrintSkeetsToClient(int client)
 	KvJumpToKey(Data, "data", false);
 	KvJumpToKey(Data, auth, false);
 	skeet = KvGetNum(Data, "skeet", 0);
-	CloseHandle(Data);
+	delete Data;
 	if (skeet == 1)
 	{
 		PrintToChat(client, "\x04You \x03only \x011 skeet%s", (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
@@ -910,6 +915,7 @@ void ShowSkeetRank(int client)
 	{
 		if (!FileToKeyValues(Data, datafilepath_1v1))
 		{
+			delete Data;
 			return;
 		}
 	}
@@ -917,6 +923,7 @@ void ShowSkeetRank(int client)
 	{	
 		if (!FileToKeyValues(Data, datafilepath))
 		{
+			delete Data;
 			return;
 		}
 	}
@@ -937,8 +944,7 @@ void ShowSkeetRank(int client)
 	}
 	int place = TopTo(skeet);
 	PrintToChat(client, "Skeet Ranking: %d/%d%s", place, count, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
-	CloseHandle(Data);
-	return;
+	delete Data;
 }
 
 int TopTo(int skeeti)
@@ -949,6 +955,7 @@ int TopTo(int skeeti)
 	{
 		if (!FileToKeyValues(Data, datafilepath_1v1))
 		{
+			delete Data;
 			return 0;
 		}
 	}
@@ -956,6 +963,7 @@ int TopTo(int skeeti)
 	{	
 		if (!FileToKeyValues(Data, datafilepath))
 		{
+			delete Data;
 			return 0;
 		}
 	}
@@ -975,7 +983,7 @@ int TopTo(int skeeti)
 		}
 		KvGotoNextKey(Data, true);
 	}
-	CloseHandle(Data);
+	delete Data;
 	return total;
 }
 

@@ -1,7 +1,7 @@
 Announces hunter pounces to the entire server, and save record to data/pounce_database.txt
 
 -Changelog-
-v1.1
+v1.2
 
 -Convar-
 cfg\sourcemod\pounce_database.cfg
