@@ -30,8 +30,8 @@ public Plugin:myinfo =
 	name = "Pounce Announce (database)",
 	author = "Harry Potter",
 	description = "Announces hunter pounces to the entire server, and save record to data/pounce_database.txt",
-	version = "1.1",
-	url = "https://steamcommunity.com/id/AkemiHomuraGoddess/"
+	version = "1.2-2023/6/11",
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -294,7 +294,7 @@ Statistic(client)
 	ReplaceString(clientname, 32, "\"", "", true);
 	new String:clientauth[32];
 	GetClientAuthId(client, AuthId_Steam2, clientauth, 32);
-	new Handle:Data = CreateKeyValues("pouncedata", "", "");
+	Handle Data = CreateKeyValues("pouncedata", "", "");
 	new count;
 	new pounce;
 	FileToKeyValues(Data, datafilepath);
@@ -314,7 +314,7 @@ Statistic(client)
 	KvSetString(Data, "name", clientname);
 	KvRewind(Data);
 	KeyValuesToFile(Data, datafilepath);
-	CloseHandle(Data);
+	delete Data;
 	if(GetConVarBool(hChat) == true)
 	{
 		PrintToChat(client, "\x01[\x04SM\x01] \x03You \x04have \x01%d pounces.", pounce);
@@ -323,10 +323,11 @@ Statistic(client)
 
 PrintTopPouncers(client = 0)
 {
-	new Handle:Data = CreateKeyValues("pouncedata", "", "");
+	Handle Data = CreateKeyValues("pouncedata", "", "");
 	new count;
 	if (!FileToKeyValues(Data, datafilepath))
 	{
+		delete Data;
 		return;
 	}
 	KvJumpToKey(Data, "info", false);
@@ -345,7 +346,7 @@ PrintTopPouncers(client = 0)
 		totalspounces += pounces[i][1];
 		KvGotoNextKey(Data, true);
 	}
-	CloseHandle(Data);
+	delete Data;
 	SortCustom2D(pounces, count, Sort_Function, Handle:0);
 	
 	new Handle:Panell = CreatePanel(Handle:0);
@@ -383,8 +384,7 @@ PrintTopPouncers(client = 0)
 	{
 		SendPanelToClient(Panell, client, TopPouncePanelHandler, 5);
 	}
-	CloseHandle(Panell);
-	return;
+	delete Panell;
 }
 
 public TopPouncePanelHandler(Handle:menu, MenuAction:action, param1, param2)
@@ -401,10 +401,11 @@ ShowPounceRank(client)
 			client = 1;
 		}
 	}
-	new Handle:Data = CreateKeyValues("pouncedata", "", "");
+	Handle Data = CreateKeyValues("pouncedata", "", "");
 	new count;
 	if (!FileToKeyValues(Data, datafilepath))
 	{
+		delete Data;
 		return;
 	}
 	KvJumpToKey(Data, "info", false);
@@ -424,16 +425,16 @@ ShowPounceRank(client)
 	}
 	new place = TopTo(pounce);
 	PrintToChat(client, "Pounce Ranking: \x04%d\x01/\x05%d", place, count);
-	CloseHandle(Data);
-	return;
+	delete Data;
 }
 
 TopTo(pouncei)
 {
-	new Handle:Data = CreateKeyValues("pouncedata", "", "");
+	Handle Data = CreateKeyValues("pouncedata", "", "");
 	new count;
 	if (!FileToKeyValues(Data, datafilepath))
 	{
+		delete Data;
 		return 0;
 	}
 	KvJumpToKey(Data, "info", false);
@@ -452,7 +453,7 @@ TopTo(pouncei)
 		}
 		KvGotoNextKey(Data, true);
 	}
-	CloseHandle(Data);
+	delete Data;
 	return totalwin;
 }
 
@@ -465,11 +466,12 @@ PrintPouncesToClient(client)
 			client = 1;
 		}
 	}
-	new Handle:Data = CreateKeyValues("pouncedata", "", "");
+	Handle Data = CreateKeyValues("pouncedata", "", "");
 	new pounce;
 	if (!FileToKeyValues(Data, datafilepath))
 	{
 		PrintToChat(client, "\x03There is no \x01data yet.");
+		delete Data;
 		return;
 	}
 	new String:auth[32];
@@ -477,7 +479,7 @@ PrintPouncesToClient(client)
 	KvJumpToKey(Data, "data", false);
 	KvJumpToKey(Data, auth, false);
 	pounce = KvGetNum(Data, "pounce", 0);
-	CloseHandle(Data);
+	delete Data;
 	if (pounce == 1)
 	{
 		PrintToChat(client, "\x04You \x03only \x01have 1 pounce.");
@@ -490,7 +492,6 @@ PrintPouncesToClient(client)
 	{
 		PrintToChat(client, "\x04You \x03have \x01%d pounces.", pounce);
 	}
-	return;
 }
 
 public Sort_Function(array1[], array2[], completearray[][], Handle:hndl)

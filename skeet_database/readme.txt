@@ -1,7 +1,7 @@
 Skeet Announce Edition, and save record to data/skeet_database.txt
 
 -Changelog-
-v2.2
+v2.3
 Autor: thrillkill
 Edited: JNC
 Improve: Harry
