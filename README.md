@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/6/12)
+> All plugins in here apply to both L4D1/2 (last edited:2023/6/13)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -29,7 +29,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
 * <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
-* <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
@@ -154,6 +153,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 統計高撲的數量與顯示前五名高撲的大佬 (支援文件儲存)
 * <b>[skeet_database](/skeet_database)</b>: Top Skeet Announce (Data Support)
     * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
+* <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
+    * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
