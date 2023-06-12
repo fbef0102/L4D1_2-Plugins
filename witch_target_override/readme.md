@@ -9,7 +9,7 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
         <br/>![witch_target_override_1](image/witch_target_override_1.jpg)
 	* Auto follows survivor
         > 自動跟蹤倖存者
-        <br/>![witch_target_override_2](image/witch_target_override_2.jpg)
+        <br/>![witch_target_override_2](image/witch_target_override_2.gif)
 
 * Apply to | 適用於
     ```
