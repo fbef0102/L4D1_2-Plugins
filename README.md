@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/6/9)
+> All plugins in here apply to both L4D1/2 (last edited:2023/6/12)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -18,10 +18,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
 * <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
-* <b>[skeet_database](/skeet_database)</b>: Skeet Announce Edition (Database).
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
-* <b>[pounce_database](/pounce_database)</b>: Pounce Announce Edition (Database).
 * <b>[TickrateFixes](/TickrateFixes)</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
@@ -152,6 +150,10 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 修復Source引擎的bug，看不見spritetrail物件的發光效果
 * <b>[l4d_kickloadstuckers](/l4d_kickloadstuckers)</b>: Kicks Clients that get stuck in server connecting state
     * 踢出卡Loading連線中的玩家
+* <b>[pounce_database](/pounce_database)</b>: Top Pounce Announce (Data Support)
+    * 統計高撲的數量與顯示前五名高撲的大佬 (支援文件儲存)
+* <b>[skeet_database](/skeet_database)</b>: Top Skeet Announce (Data Support)
+    * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
