@@ -1,10 +1,18 @@
-/* 
-* Pounce Announce
-*/
-
+#pragma semicolon 1
+#pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <sdkhooks>
 #include <sdktools>
+
+enum struct CPlayerPounceData
+{
+	char m_sName[64];
+	int m_iPounces;
+
+	int m_iPosition;
+}
+
+#define TOP_NUMBER 5
 
 //globals
 ConVar hEnablePlugin;
@@ -14,23 +22,25 @@ ConVar hMaxPounceDamage;
 ConVar g_hCvarMPGameMode;
 ConVar g_hCvarModesTog;
 ConVar g_hCvarSurvivorRequired;
-new bool:g_bCvarAllow;
+bool g_bCvarAllow;
 ConVar g_hCvarSurvivorLimit;
 //hunter position store
-new Float:infectedPosition[MAXPLAYERS+1][3]; //support up to 32 slots on a server
+float infectedPosition[MAXPLAYERS+1][3]; //support up to 32 slots on a server
 //cvars
 ConVar hMinPounceAnnounce;
 ConVar hChat;
-new ConVar_maxdmg,ConVar_max,ConVar_min;
-new String:datafilepath[256];
+int ConVar_maxdmg,ConVar_max,ConVar_min;
+char datafilepath[256];
 #define DATA_FILE_NAME "pounce_database.txt"
 
-public Plugin:myinfo = 
+KeyValues g_hData;
+
+public Plugin myinfo = 
 {
-	name = "Pounce Announce (database)",
+	name = "Top Pounce Announce (Data Support)",
 	author = "Harry Potter",
 	description = "Announces hunter pounces to the entire server, and save record to data/pounce_database.txt",
-	version = "1.2-2023/6/11",
+	version = "1.3-2023/6/12",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
@@ -47,7 +57,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 	hMaxPounceDistance = FindConVar("z_pounce_damage_range_max");
 	hMinPounceDistance = FindConVar("z_pounce_damage_range_min");
@@ -63,57 +73,73 @@ public OnPluginStart()
 	g_hCvarModesTog =	CreateConVar("pounce_database_modes_tog",		"4",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus. Add numbers together.", FCVAR_SPONLY|FCVAR_NOTIFY );
 	g_hCvarSurvivorRequired =	CreateConVar("pounce_database_survivors_required",		"4",			"Numbers of Survivors required at least to enable this plugin", FCVAR_SPONLY|FCVAR_NOTIFY );
 
-	HookConVarChange(hMaxPounceDamage, Convar_MaxPounceDamage);
-	ConVar_maxdmg = GetConVarInt(hMaxPounceDamage);
+	hMaxPounceDamage.AddChangeHook(Convar_MaxPounceDamage);
+	ConVar_maxdmg = hMaxPounceDamage.IntValue;
 	
 	if(hMaxPounceDistance != null)
 	{
-		HookConVarChange(hMaxPounceDistance, Convar_Max);
-		ConVar_max = GetConVarInt(hMaxPounceDistance);
+		hMaxPounceDistance.AddChangeHook(Convar_Max);
+		ConVar_max = hMaxPounceDistance.IntValue;
 	}
 
 	if(hMinPounceDistance != null)
 	{
-		HookConVarChange(hMinPounceDistance, Convar_Min);
-		ConVar_min = GetConVarInt(hMinPounceDistance);
+		hMinPounceDistance.AddChangeHook(Convar_Min);
+		ConVar_min = hMinPounceDistance.IntValue;
 	}
 
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
 	g_hCvarSurvivorLimit = FindConVar("survivor_limit");
-	HookConVarChange(hEnablePlugin, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarMPGameMode, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarModesTog, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarSurvivorRequired, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarSurvivorLimit, ConVarChanged_Allow);
+	hEnablePlugin.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarSurvivorRequired.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarSurvivorLimit.AddChangeHook(ConVarChanged_Allow);
 
-	BuildPath(PathType:0, datafilepath, 256, "data/%s", DATA_FILE_NAME);
+	BuildPath(Path_SM, datafilepath, 256, "data/%s", DATA_FILE_NAME);
 	RegConsoleCmd("sm_pounces", Command_Stats, "Show your current pounce statistics and rank.", 0);
 	RegConsoleCmd("sm_pounce5", Command_Top, "Show TOP 5 pounce players in statistics.", 0);
 
 	AutoExecConfig(true,"pounce_database");
 }
 
-public OnConfigsExecuted()
+public void OnPluginEnd()
 {
-	IsAllowed();
+	delete g_hData;
 }
 
-IsAllowed()
+public void OnConfigsExecuted()
 {
-	new bool:bCvarAllow = GetConVarBool(hEnablePlugin);
-	new bool:bAllowMode = IsAllowedGameMode();
-	new SurvivorsLimit = GetConVarInt(g_hCvarSurvivorLimit);
-	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true && SurvivorsLimit>= GetConVarInt(g_hCvarSurvivorRequired))
+	IsAllowed();
+
+	g_hData = new KeyValues("pouncedata");
+	if (!g_hData.ImportFromFile(datafilepath))
+	{
+		g_hData.JumpToKey("data", true);
+		g_hData.GoBack();
+		g_hData.JumpToKey("info", true);
+		g_hData.SetNum("count", 0);
+		g_hData.Rewind();
+		g_hData.ExportToFile(datafilepath);
+	}
+}
+
+void IsAllowed()
+{
+	bool bCvarAllow = hEnablePlugin.BoolValue;
+	bool bAllowMode = IsAllowedGameMode();
+	int SurvivorsLimit = g_hCvarSurvivorLimit.IntValue;
+	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true && SurvivorsLimit>= g_hCvarSurvivorRequired.IntValue)
 	{
 		g_bCvarAllow = true;
-		ConVar_maxdmg = GetConVarInt(hMaxPounceDamage);
-		ConVar_max = GetConVarInt(hMaxPounceDistance);
-		ConVar_min = GetConVarInt(hMinPounceDistance);
+		ConVar_maxdmg = hMaxPounceDamage.IntValue;
+		ConVar_max = hMaxPounceDistance.IntValue;
+		ConVar_min = hMinPounceDistance.IntValue;
 		
 		HookEvent("lunge_pounce",Event_PlayerPounced);
 		HookEvent("ability_use",Event_AbilityUse);
 	}
-	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false || SurvivorsLimit < GetConVarInt(g_hCvarSurvivorRequired)) )
+	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false || SurvivorsLimit < g_hCvarSurvivorRequired.IntValue) )
 	{
 		g_bCvarAllow = false;
 		UnhookEvent("lunge_pounce",Event_PlayerPounced);
@@ -122,17 +148,17 @@ IsAllowed()
 }
 
 
-bool:IsAllowedGameMode()
+bool IsAllowedGameMode()
 {
 	if( g_hCvarMPGameMode == INVALID_HANDLE )
 		return false;
 
-	new iCvarModesTog = GetConVarInt(g_hCvarModesTog);
+	int iCvarModesTog = g_hCvarModesTog.IntValue;
 	if( iCvarModesTog == 0) return true;
 
-	decl String:CurrentGameMode[32];
-	GetConVarString(g_hCvarMPGameMode, CurrentGameMode, sizeof(CurrentGameMode));
-	new g_iCurrentMode = 0;
+	char CurrentGameMode[32];
+	g_hCvarMPGameMode.GetString(CurrentGameMode, sizeof(CurrentGameMode));
+	int g_iCurrentMode = 0;
 	if(StrEqual(CurrentGameMode,"coop", false))
 	{
 		g_iCurrentMode = 1;
@@ -155,38 +181,49 @@ bool:IsAllowedGameMode()
 	return true;
 }
 
-public ConVarChanged_Allow(Handle:convar, const String:oldValue[], const String:newValue[])
+void ConVarChanged_Allow(ConVar convar, const char[] oldValue, const char[] newValue)
 {	
 	IsAllowed();
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
 	PrecacheSound("player/damage1.wav", true);
 	PrecacheSound("player/damage2.wav", true);
 	PrecacheSound("player/neck_snap_01.wav", true);
 }
 
-public Action:Command_Stats(client, args)
+public void OnMapEnd()
 {
-	if(g_bCvarAllow)
-	{
-		PrintPouncesToClient(client);
-		ShowPounceRank(client);
-	}
-	return Plugin_Continue;
+    delete g_hData;
 }
 
-public Action:Command_Top(client, args)
+Action Command_Stats(int client, int args)
 {
-	if(g_bCvarAllow)
-		PrintTopPouncers(client);
-	return Plugin_Continue;
+	if(client == 0) return Plugin_Handled;
+
+	if(!g_bCvarAllow) return Plugin_Handled;
+
+	PrintPouncesToClient(client);
+	ShowPounceRank(client);
+	
+	return Plugin_Handled;
 }
 
-public Convar_MaxPounceDamage (Handle:convar, const String:oldValue[], const String:newValue[])
+Action Command_Top(int client, int args)
 {
-	new newdmg=StringToInt(newValue);
+	if(client == 0) return Plugin_Handled;
+
+	if(!g_bCvarAllow) return Plugin_Handled;
+
+	PrintTopPouncers(client);
+	
+	return Plugin_Handled;
+}
+
+void Convar_MaxPounceDamage (ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	int newdmg=StringToInt(newValue);
 	if (newdmg<1)
 		newdmg=1;
 	else if (newdmg>1000)
@@ -194,292 +231,320 @@ public Convar_MaxPounceDamage (Handle:convar, const String:oldValue[], const Str
 	ConVar_maxdmg = newdmg;
 	
 }
-public Convar_Max (Handle:convar, const String:oldValue[], const String:newValue[])
+void Convar_Max (ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	new newmax=StringToInt(newValue);
+	int newmax=StringToInt(newValue);
 	if (newmax<1)
 		newmax=1;
 
 	ConVar_max = newmax;
 	
 }
-public Convar_Min (Handle:convar, const String:oldValue[], const String:newValue[])
+void Convar_Min (ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	new newmin=StringToInt(newValue);
+	int newmin=StringToInt(newValue);
 	if (newmin<1)
 		newmin=1;
 
 	ConVar_min = newmin;	
 }
 
-public Event_AbilityUse(Handle:event, const String:name[], bool:dontBroadcast)
+void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast) 
 {
-	new user = GetClientOfUserId(GetEventInt(event, "userid"));
+	int user = GetClientOfUserId(GetEventInt(event, "userid"));
 	
 	//Save the location of the player who just used an infected ability
 	GetClientAbsOrigin(user,infectedPosition[user]);
 
 }
-public Event_PlayerPounced(Handle:event, const String:name[], bool:dontBroadcast)
+
+void Event_PlayerPounced(Event event, const char[] name, bool dontBroadcast) 
 {
-	new attackerClient = GetClientOfUserId(GetEventInt(event, "userid"));
-	new victimClient = GetClientOfUserId(GetEventInt(event, "victim"));
+	int attackerClient = GetClientOfUserId(GetEventInt(event, "userid"));
+	int victimClient = GetClientOfUserId(GetEventInt(event, "victim"));
 	if(!IsClientInGame(attackerClient) || IsFakeClient(attackerClient) || GetClientTeam(attackerClient) != 3) return;
 	if(!IsClientInGame(victimClient) || IsFakeClient(victimClient) || GetClientTeam(victimClient) != 2) return;
 	
-	new Float:pouncePosition[3];
-	new minAnnounce = GetConVarInt(hMinPounceAnnounce);
+	float pouncePosition[3];
+	int minAnnounce = hMinPounceAnnounce.IntValue;
 	
 	//get hunter-related pounce cvars
-	new max = ConVar_max;
-	new min = ConVar_min;
-	new maxDmg = ConVar_maxdmg;
+	int max = ConVar_max;
+	int min = ConVar_min;
+	int maxDmg = ConVar_maxdmg;
 	
 	//Get current position while pounced
 	GetClientAbsOrigin(attackerClient,pouncePosition);
 	
 	//Calculate 2d distance between previous position and pounce position
-	new distance = RoundToNearest(GetVectorDistance(infectedPosition[attackerClient], pouncePosition));
+	int distance = RoundToNearest(GetVectorDistance(infectedPosition[attackerClient], pouncePosition));
 	
 	//Get damage using hunter damage formula
 	//damage in this is expressed as a float because my server has competitive hunter pouncing where the decimal counts
-	new Float:dmg = (((distance - float(min)) / float(max - min)) * float(maxDmg)) + 1;
+	float dmg = (((distance - float(min)) / float(max - min)) * float(maxDmg)) + 1;
 	
 	if(distance >= min && dmg >= minAnnounce)
 	{
-		Statistic(attackerClient);
-		PrintTopPouncers();
+		CreateTimer(0.0, Timer_Statistic, GetClientUserId(attackerClient), TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Timer_PrintTopPouncers, 0, TIMER_FLAG_NO_MAPCHANGE);
+								
 		Pounced(attackerClient);
 		
-		if(GetConVarBool(hChat) == true)
+		if(hChat.BoolValue)
 		{
-			decl String:pounceLine[256];
+			char pounceLine[256];
 			Format(pounceLine,sizeof(pounceLine),"\x01[\x05TS\x01] \x04%N \x01pounced \x05%N \x01for \x03%.01f \x01damage.(Max: %d)",attackerClient,victimClient,dmg,maxDmg + 1);
 			PrintToChatAll(pounceLine);	
 		}
 	}
 }
 
-Pounced(client)
+void Pounced(int client)
 {
 	CreateTimer(0.1, Award, client, 2);
 }
 
-public Action:Award(Handle:timer, any:client)
+Action Award(Handle timer, int client)
 {
-	if (client < any:0 && !IsClientInGame(client))
+	if (client <= 0 && !IsClientInGame(client))
 	{
-		return Action:4;
+		return Plugin_Continue;
 	}
 	
-	new random = GetRandomInt(1, 3);
+	int random = GetRandomInt(1, 3);
 	switch(random)
 	{
 		case 1 : EmitSoundToAll("player/damage1.wav", client, 3, 140, 0, 1.0);
 		case 2 : EmitSoundToAll("player/damage2.wav", client, 3, 140, 0, 1.0);
 		case 3 : EmitSoundToAll("player/neck_snap_01.wav", client, 3, 140, 0, 1.0);
 	}
-	return Action:4;
+
+	return Plugin_Continue;
 }
 
-Statistic(client)
+Action Timer_PrintTopPouncers(Handle timer, int attacker)
 {
-	new String:clientname[32];
-	GetClientName(client, clientname, 32);
-	ReplaceString(clientname, 32, "'", "", true);
-	ReplaceString(clientname, 32, "<", "", true);
-	ReplaceString(clientname, 32, "{", "", true);
-	ReplaceString(clientname, 32, "}", "", true);
-	ReplaceString(clientname, 32, "\n", "", true);
-	ReplaceString(clientname, 32, "\"", "", true);
-	new String:clientauth[32];
-	GetClientAuthId(client, AuthId_Steam2, clientauth, 32);
-	Handle Data = CreateKeyValues("pouncedata", "", "");
-	new count;
-	new pounce;
-	FileToKeyValues(Data, datafilepath);
-	KvJumpToKey(Data, "data", true);
-	if (!KvJumpToKey(Data, clientauth, false))
-	{
-		KvGoBack(Data);
-		KvJumpToKey(Data, "info", true);
-		count = KvGetNum(Data, "count", 0);
-		KvSetNum(Data, "count", ++count);
-		KvGoBack(Data);
-		KvJumpToKey(Data, "data", true);
-		KvJumpToKey(Data, clientauth, true);
-	}
-	pounce = KvGetNum(Data, "pounce", 0);
-	KvSetNum(Data, "pounce", ++pounce);
-	KvSetString(Data, "name", clientname);
-	KvRewind(Data);
-	KeyValuesToFile(Data, datafilepath);
-	delete Data;
-	if(GetConVarBool(hChat) == true)
-	{
-		PrintToChat(client, "\x01[\x04SM\x01] \x03You \x04have \x01%d pounces.", pounce);
-	}
+	PrintTopPouncers(0);
+	return Plugin_Continue;
 }
 
-PrintTopPouncers(client = 0)
+void PrintTopPouncers(int client = 0)
 {
-	Handle Data = CreateKeyValues("pouncedata", "", "");
-	new count;
-	if (!FileToKeyValues(Data, datafilepath))
-	{
-		delete Data;
-		return;
-	}
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	new String:names[count][32];
-	new pounces[count][2];
-	new totalspounces=0;
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
-	KvGotoFirstSubKey(Data, true);
-	for (new i=0;i<count;++i)
-	{
-		KvGetString(Data, "name", names[i], 32, "Unnamed");
-		pounces[i][0] = i;
-		pounces[i][1] = KvGetNum(Data, "pounce", 0);
-		totalspounces += pounces[i][1];
-		KvGotoNextKey(Data, true);
-	}
-	delete Data;
-	SortCustom2D(pounces, count, Sort_Function, Handle:0);
+	if(g_hData == null) return;
+	g_hData.Rewind();
+
+	g_hData.JumpToKey("info", false);
+	int count = g_hData.GetNum("count", 0);
+
+	CPlayerPounceData CTopPlayer[TOP_NUMBER];
+	int totalspounces=0, Max_pounces, iPounces, Max_index;
+	bool bIgnore;
+	g_hData.GoBack();
+	g_hData.JumpToKey("data", false);
 	
-	new Handle:Panell = CreatePanel(Handle:0);
-	SetPanelTitle(Panell, "Top 5 Pouncers                     ", false);
-	DrawPanelText(Panell, "\n ");
-	new String:text[256];
+	for(int current = 0; current < TOP_NUMBER; current++)
+	{
+		g_hData.GotoFirstSubKey(true);
+
+		Max_pounces = 0;
+		Max_index = 0;
+		for (int index=1; index <= count ;++index, g_hData.GotoNextKey(true))
+		{
+			iPounces = g_hData.GetNum("pounce", 0);
+			if(iPounces <= 0) continue;
+
+			if(current == 0)
+			{
+				totalspounces += iPounces;
+			}
+			else
+			{
+				bIgnore = false;
+				for(int previous = 0; previous < current; previous++)
+				{
+					//PrintToChatAll("%d - CTopPlayer[previous].m_iPosition: %d", previous, CTopPlayer[previous].m_iPosition);
+					if(index == CTopPlayer[previous].m_iPosition)
+					{
+						//PrintToChatAll("index(%d) == CTopPlayer[previous].m_iPosition", index);
+						if(current-1==previous) g_hData.GetString("name", CTopPlayer[previous].m_sName, sizeof(CPlayerPounceData::m_sName), "Unnamed");
+						bIgnore = true;
+						break;
+					}
+				}
+				if(bIgnore) continue;
+			}
+			
+			if(iPounces > Max_pounces)
+			{
+				//PrintToChatAll("iPounces: %d, Max_pounces: %d, index: %d", iPounces, Max_pounces, index);
+				Max_pounces 	= iPounces;
+				Max_index 		= index;
+			}
+		}
+		//PrintToChatAll("Max_pounces: %d, Max_index: %d", Max_pounces, Max_index);
+		CTopPlayer[current].m_iPounces 		= Max_pounces;
+		CTopPlayer[current].m_iPosition 	= Max_index;
+		g_hData.GoBack();
+	}
+	g_hData.GotoFirstSubKey(true);
+	for (int index=1; index <= count ;++index, g_hData.GotoNextKey(true))
+	{
+		if(index == CTopPlayer[TOP_NUMBER-1].m_iPosition)
+		{
+			g_hData.GetString("name", CTopPlayer[TOP_NUMBER-1].m_sName, sizeof(CPlayerPounceData::m_sName), "Unnamed");
+			break;
+		}
+	}
+	
+	Panel panel = new Panel();
+	static char sBuffer[128];
+	FormatEx(sBuffer, sizeof(sBuffer), "Top %d Pouncers", TOP_NUMBER);
+	panel.SetTitle(sBuffer);
+	panel.DrawText("\n ");
 	if (totalspounces)
 	{
-		if (count > 5) count = 5;
-		for (new i=0;i<count;++i)
+		for (int i=0 ; i<TOP_NUMBER && i < count;++i)
 		{
-			Format(text, 255, "%d pounces - %s", pounces[i][1], names[pounces[i][0]]);
-			DrawPanelItem(Panell, text);
+			FormatEx(sBuffer, sizeof(sBuffer), "%d pounces - %s", CTopPlayer[i].m_iPounces, CTopPlayer[i].m_sName);
+			panel.DrawItem(sBuffer);
 		}
-		DrawPanelText(Panell, "\n");
-		Format(text, 255, "Total %d pounces on the server.", totalspounces);
-		DrawPanelText(Panell, text);
+		panel.DrawText("\n ");
+		FormatEx(sBuffer, sizeof(sBuffer), "Total %d pounces on the server.", totalspounces);
+		panel.DrawText(sBuffer);
 	}
 	else
 	{
-		Format(text, 255, "There are no pounces on this server yet.");
+		FormatEx(sBuffer, sizeof(sBuffer), "There are no pounces on this server yet.");
 	}
 	
 	if(client == 0)
 	{
-		for (new i=1;i<=MaxClients;++i)
+		for (int player = 1; player<=MaxClients; ++player)
 		{	
-			if (IsClientInGame(i) && !IsFakeClient(i))
+			if (IsClientInGame(player) && !IsFakeClient(player))
 			{
-				SendPanelToClient(Panell, i, TopPouncePanelHandler, 5);
+				panel.Send(player, TopPouncePanelHandler, 5);
 			}
 		}
 	}
 	else
 	{
-		SendPanelToClient(Panell, client, TopPouncePanelHandler, 5);
+		panel.Send(client, TopPouncePanelHandler, 5);
 	}
-	delete Panell;
+	delete panel;
 }
 
-public TopPouncePanelHandler(Handle:menu, MenuAction:action, param1, param2)
+Action Timer_Statistic(Handle timer, int attacker)
+{
+	if(g_hData == null) return Plugin_Continue;
+	g_hData.Rewind();
+	g_hData.JumpToKey("data", true);
+
+	attacker = GetClientOfUserId(attacker);
+	if(attacker > 0 && IsClientInGame(attacker))
+	{
+		static char clientname[32];
+		GetClientName(attacker, clientname, 32);
+		ReplaceString(clientname, 32, "'", "", true);
+		ReplaceString(clientname, 32, "<", "", true);
+		ReplaceString(clientname, 32, "{", "", true);
+		ReplaceString(clientname, 32, "}", "", true);
+		ReplaceString(clientname, 32, "\n", "", true);
+		ReplaceString(clientname, 32, "\"", "", true);
+		static char clientauth[32];
+		GetClientAuthId(attacker, AuthId_Steam2, clientauth, 32);
+		if (!g_hData.JumpToKey(clientauth, false))
+		{
+			g_hData.GoBack();
+			g_hData.JumpToKey("info", true);
+			int count = g_hData.GetNum("count", 0);
+			count++;
+			g_hData.SetNum("count", count);
+			g_hData.GoBack();
+			g_hData.JumpToKey("data", true);
+			g_hData.JumpToKey(clientauth, true);
+		}
+		int pounce = g_hData.GetNum("pounce", 0);
+		pounce++;
+		g_hData.SetNum("pounce", pounce);
+		g_hData.SetString("name", clientname);
+		g_hData.Rewind();
+
+		g_hData.ExportToFile(datafilepath);
+		if(hChat.BoolValue)
+		{
+			PrintToChat(attacker, "\x01[\x04SM\x01] \x03You \x04have \x01%d pounces.", pounce);
+		}
+	}
+
+	return Plugin_Continue;
+}
+
+int TopPouncePanelHandler(Handle menu, MenuAction action, int param1, int param2)
 {
 	return 0;
 }
 
-ShowPounceRank(client)
+void ShowPounceRank(int client)
 {
-	if (!IsDedicatedServer())
-	{
-		if (!client)
-		{
-			client = 1;
-		}
-	}
-	Handle Data = CreateKeyValues("pouncedata", "", "");
-	new count;
-	if (!FileToKeyValues(Data, datafilepath))
-	{
-		delete Data;
-		return;
-	}
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
-	new pounce;
-	new String:auth[32];
+	if(g_hData == null) return;
+	g_hData.Rewind();
+
+	g_hData.JumpToKey("info", false);
+	int count = g_hData.GetNum("count", 0);
+	g_hData.GoBack();
+	g_hData.JumpToKey("data", false);
+	int pounce;
+	char auth[32];
 	GetClientAuthId(client, AuthId_Steam2, auth, 32);
-	if (KvJumpToKey(Data, auth, false))
+	if (g_hData.JumpToKey(auth, false))
 	{
-		pounce = KvGetNum(Data, "pounce", 0);
+		pounce = g_hData.GetNum("pounce", 0);
 	}
 	else
 	{
 		pounce = 0;
 	}
-	new place = TopTo(pounce);
-	PrintToChat(client, "Pounce Ranking: \x04%d\x01/\x05%d", place, count);
-	delete Data;
+	int rank = TopTo(pounce);
+	PrintToChat(client, "Pounce Ranking: \x04%d\x01/\x05%d", rank, count);
+	delete g_hData;
 }
 
-TopTo(pouncei)
+int TopTo(int pouncei)
 {
-	Handle Data = CreateKeyValues("pouncedata", "", "");
-	new count;
-	if (!FileToKeyValues(Data, datafilepath))
+	if(g_hData == null) return 0;
+	g_hData.Rewind();
+	
+	g_hData.JumpToKey("info", false);
+	int count = g_hData.GetNum("count", 0);
+	int pounce;
+	g_hData.GoBack();
+	g_hData.JumpToKey("data", false);
+	g_hData.GotoFirstSubKey(true);
+	int total;
+	for (int i=0;i < count;++i)
 	{
-		delete Data;
-		return 0;
-	}
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	new pounce[count];
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
-	KvGotoFirstSubKey(Data, true);
-	new totalwin;
-	for (new i=0;i < count;++i)
-	{
-		pounce[i] = KvGetNum(Data, "pounce", 0);
-		if (pounce[i] >= pouncei)
+		pounce = g_hData.GetNum("pounce", 0);
+		if (pounce >= pouncei)
 		{
-			totalwin++;
+			total++;
 		}
-		KvGotoNextKey(Data, true);
+		g_hData.GotoNextKey(true);
 	}
-	delete Data;
-	return totalwin;
+	return total;
 }
 
-PrintPouncesToClient(client)
+void PrintPouncesToClient(int client)
 {
-	if (!IsDedicatedServer())
-	{
-		if (!client)
-		{
-			client = 1;
-		}
-	}
-	Handle Data = CreateKeyValues("pouncedata", "", "");
-	new pounce;
-	if (!FileToKeyValues(Data, datafilepath))
-	{
-		PrintToChat(client, "\x03There is no \x01data yet.");
-		delete Data;
-		return;
-	}
-	new String:auth[32];
+	if(g_hData == null) return;
+	g_hData.Rewind();
+
+	char auth[32];
 	GetClientAuthId(client, AuthId_Steam2, auth, 32);
-	KvJumpToKey(Data, "data", false);
-	KvJumpToKey(Data, auth, false);
-	pounce = KvGetNum(Data, "pounce", 0);
-	delete Data;
+	g_hData.JumpToKey("data", false);
+	g_hData.JumpToKey(auth, false);
+	int pounce = g_hData.GetNum("pounce", 0);
+	delete g_hData;
 	if (pounce == 1)
 	{
 		PrintToChat(client, "\x04You \x03only \x01have 1 pounce.");
@@ -492,17 +557,4 @@ PrintPouncesToClient(client)
 	{
 		PrintToChat(client, "\x04You \x03have \x01%d pounces.", pounce);
 	}
-}
-
-public Sort_Function(array1[], array2[], completearray[][], Handle:hndl)
-{
-	if (array1[1] > array2[1])
-	{
-		return -1;
-	}
-	if (array1[1] == array2[1])
-	{
-		return 0;
-	}
-	return 1;
 }
