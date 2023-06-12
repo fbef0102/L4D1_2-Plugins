@@ -5,6 +5,16 @@
 #include <sdkhooks>
 #include <sdktools>
 
+enum struct CPlayerSkeetData
+{
+	char m_sName[64];
+	int m_iSkeets;
+
+	int m_iPosition;
+}
+
+#define TOP_NUMBER 5
+
 ConVar hEnablePlugin, OneShotSkeet,hCvarAnnounce, g_hCvarMPGameMode,
 	g_hCvarModesTog, g_hCvarSurvivorRequired, g_hCvarAIHunter, g_hCvar1v1Separate;
 bool g_bCvarAllow;
@@ -24,17 +34,32 @@ int g_damage[MAXPLAYERS+1][MAXPLAYERS+1];
 int g_iDamageDealt[MAXPLAYERS+1][MAXPLAYERS+1];
 int g_iLastHealth[MAXPLAYERS+1];
 int g_iSurvivorLimit = 4;
-int CvarAnnounce;
+bool CvarAnnounce;
 bool Is1v1;
+
+KeyValues g_hData;
 
 public Plugin myinfo =
 {
-	name = "Skeet Announce Edition (Database)",
-	description = "Announce dmg/skeet/frag/ds original from thrillkill/n0limit, fixed by JNC",
-	author = "Autor: thrillkill - edited: JNC - improve: Harry",
-	version = "2.3-2023/6/11",
+	name = "Top Skeet Announce (Data Support)",
+	description = "Announce hunter skeet to the entire server, and save record to data/skeet_database.tx",
+	author = "thrillkill, JNC, Harry",
+	version = "2.4-2023/6/12",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test != Engine_Left4Dead2 && test != Engine_Left4Dead)
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+	
+	return APLRes_Success; 
+}
 
 public void OnPluginStart()
 {
@@ -46,17 +71,17 @@ public void OnPluginStart()
 	g_hCvarAIHunter =	CreateConVar("skeet_database_ai_hunter_enable",		"0",			"Count AI Hunter also?[1: Yes, 0: No]", FCVAR_NOTIFY , true, 0.0, true, 1.0);
 	g_hCvar1v1Separate =	CreateConVar("skeet_database_1v1_seprate",		"1",		"Record 1v1 skeet database in 1v1 mode.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	CvarAnnounce = GetConVarInt(hCvarAnnounce);
-	HookConVarChange(hCvarAnnounce, ConVarChange_hCvarAnnounce);
+	GetCvars();
+	hCvarAnnounce.AddChangeHook(ConVarChange_hCvarAnnounce);
 	
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
 	g_hCvarSurvivorLimit = FindConVar("survivor_limit");
 	g_hCvarInfectedLimit = FindConVar("z_max_player_zombies");
-	HookConVarChange(hEnablePlugin, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarMPGameMode, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarModesTog, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarSurvivorRequired, ConVarChanged_Allow);
-	HookConVarChange(g_hCvarSurvivorLimit, ConVarChanged_Allow);
+	hEnablePlugin.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarSurvivorRequired.AddChangeHook(ConVarChanged_Allow);
+	g_hCvarSurvivorLimit.AddChangeHook(ConVarChanged_Allow);
 
 	BuildPath(Path_SM, datafilepath, 256, "data/%s", "skeet_database.txt");
 	BuildPath(Path_SM, datafilepath_1v1, 256, "data/%s", "1v1_skeet_database.txt");
@@ -66,12 +91,17 @@ public void OnPluginStart()
 	AutoExecConfig(true,"skeet_database");
 }
 
+public void OnPluginEnd()
+{
+	delete g_hData;
+}
+
 public void OnConfigsExecuted()
 {
 	IsAllowed();
 
-	int SurvivorsLimit = GetConVarInt(g_hCvarSurvivorLimit);
-	int InfectedLimit = GetConVarInt(g_hCvarInfectedLimit);
+	int SurvivorsLimit = g_hCvarSurvivorLimit.IntValue;
+	int InfectedLimit = g_hCvarInfectedLimit.IntValue;
 	if(SurvivorsLimit == 1 && InfectedLimit == 1)
 	{
 		Is1v1 = true;
@@ -80,17 +110,43 @@ public void OnConfigsExecuted()
 	{
 		Is1v1 = false;
 	}
+
+	g_hData = new KeyValues("skeetdata");
+	if(g_hCvar1v1Separate.BoolValue && Is1v1)
+	{
+		if (!g_hData.ImportFromFile(datafilepath_1v1))
+		{
+			g_hData.JumpToKey("data", true);
+			g_hData.GoBack();
+			g_hData.JumpToKey("info", true);
+			g_hData.SetNum("count", 0);
+			g_hData.Rewind();
+			g_hData.ExportToFile(datafilepath_1v1);
+		}
+	}
+	else
+	{	
+		if (!g_hData.ImportFromFile(datafilepath))
+		{
+			g_hData.JumpToKey("data", true);
+			g_hData.GoBack();
+			g_hData.JumpToKey("info", true);
+			g_hData.SetNum("count", 0);
+			g_hData.Rewind();
+			g_hData.ExportToFile(datafilepath);
+		}
+	}
 }
 
 void IsAllowed()
 {
-	bool bCvarAllow = GetConVarBool(hEnablePlugin);
+	bool bCvarAllow = hEnablePlugin.BoolValue;
 	bool bAllowMode = IsAllowedGameMode();
-	int SurvivorsLimit = GetConVarInt(g_hCvarSurvivorLimit);
-	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true && SurvivorsLimit>= GetConVarInt(g_hCvarSurvivorRequired))
+	int SurvivorsLimit = g_hCvarSurvivorLimit.IntValue;
+	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true && SurvivorsLimit>= g_hCvarSurvivorRequired.IntValue)
 	{
 		g_bCvarAllow = true;
-		CvarAnnounce = GetConVarInt(hCvarAnnounce);
+		GetCvars();
 		HookEvent("player_hurt", Event_PlayerHurt);
 		HookEvent("ability_use", Event_AbilityUse);
 		HookEvent("player_death", Event_PlayerDeath);
@@ -102,7 +158,7 @@ void IsAllowed()
 		HookEvent("player_shoved", Event_PlayerShoved);
 		HookEvent("lunge_pounce", Event_LungePounce);
 	}
-	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false || SurvivorsLimit < GetConVarInt(g_hCvarSurvivorRequired)) )
+	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false || SurvivorsLimit < g_hCvarSurvivorRequired.IntValue) )
 	{
 		g_bCvarAllow = false;
 		UnhookEvent("player_hurt", Event_PlayerHurt);
@@ -123,11 +179,11 @@ bool IsAllowedGameMode()
 	if( g_hCvarMPGameMode == INVALID_HANDLE )
 		return false;
 
-	int iCvarModesTog = GetConVarInt(g_hCvarModesTog);
+	int iCvarModesTog = g_hCvarModesTog.IntValue;
 	if( iCvarModesTog == 0) return true;
 
 	char CurrentGameMode[32];
-	GetConVarString(g_hCvarMPGameMode, CurrentGameMode, sizeof(CurrentGameMode));
+	g_hCvarMPGameMode.GetString(CurrentGameMode, sizeof(CurrentGameMode));
 	int g_iCurrentMode = 0;
 	if(StrEqual(CurrentGameMode,"coop", false))
 	{
@@ -151,31 +207,19 @@ bool IsAllowedGameMode()
 	return true;
 }
 
-public void ConVarChanged_Allow(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Allow(ConVar convar, const char[] oldValue, const char[] newValue)
 {	
 	IsAllowed();
 }
 
-public void ConVarChange_hCvarAnnounce(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChange_hCvarAnnounce(ConVar convar, const char[] oldValue, const char[] newValue)
 {	
-	CvarAnnounce = GetConVarInt(hCvarAnnounce);
+	GetCvars();
 }
 
-public Action Command_Stats(int client, int args)
+void GetCvars()
 {
-	if(g_bCvarAllow)
-	{
-		ShowSkeetRank(client);
-		PrintSkeetsToClient(client);
-	}
-	return Plugin_Continue;
-}
-
-public Action Command_Top(int client, int args)
-{
-	if(g_bCvarAllow)
-		PrintTopSkeetersToClient(client);
-	return Plugin_Continue;
+	CvarAnnounce = hCvarAnnounce.BoolValue;
 }
 
 public void OnMapStart()
@@ -184,15 +228,42 @@ public void OnMapStart()
 	ClearSkeetCounter();
 }
 
-public Action Event_LungePounce(Event event, const char[] name, bool dontBroadcast) 
+public void OnMapEnd()
+{
+    delete g_hData;
+}
+
+Action Command_Stats(int client, int args)
+{
+	if(client == 0) return Plugin_Handled;
+
+	if(!g_bCvarAllow) return Plugin_Handled;
+
+	ShowSkeetRank(client);
+	PrintSkeetsToClient(client);
+
+	return Plugin_Handled;
+}
+
+Action Command_Top(int client, int args)
+{
+	if(client == 0) return Plugin_Handled;
+
+	if(!g_bCvarAllow) return Plugin_Handled;
+
+	PrintTopSkeeters(client);
+
+	return Plugin_Handled;
+}
+
+void Event_LungePounce(Event event, const char[] name, bool dontBroadcast) 
 {
 	int attacker = GetClientOfUserId(event.GetInt("userid"));
 	g_bIsPouncing[attacker] = false;
 	g_bHasLandedPounce[attacker] = true;
-	return Plugin_Continue;
 }
 
-public Action weapon_fire(Event event, const char[] name, bool dontBroadcast) 
+void weapon_fire(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
@@ -200,10 +271,9 @@ public Action weapon_fire(Event event, const char[] name, bool dontBroadcast)
 	{
 		g_bShotCounted[i][client] = false;
 	}
-	return Plugin_Continue;
 }
 
-public Action Event_Replace(Event event, const char[] name, bool dontBroadcast) 
+void Event_Replace(Event event, const char[] name, bool dontBroadcast) 
 {
 	int player = GetClientOfUserId(event.GetInt("player"));
 	int bot = GetClientOfUserId(event.GetInt("bot"));
@@ -211,15 +281,14 @@ public Action Event_Replace(Event event, const char[] name, bool dontBroadcast)
 	Skeets[bot] = 0;
 	Kills[player] = 0;
 	Kills[bot] = 0;
-	return Plugin_Continue;
 }
 
-public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if (!victim || !IsClientInGame(victim))
 	{
-		return Plugin_Continue;
+		return;
 	}
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int damage = event.GetInt("dmg_health");
@@ -235,22 +304,22 @@ public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcas
 			int remaining_health = event.GetInt("health");
 			if (0 >= remaining_health)
 			{
-				return Plugin_Continue;
+				return;
 			}
 			g_iLastHealth[victim] = remaining_health;
 			g_iDamageDealt[victim][attacker] += damage;
 		}
 	}
-	return Plugin_Continue;
 }
 
-public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if (!victim || !IsClientInGame(victim))
 	{
-		return Plugin_Continue;
+		return;
 	}
+
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	if (attacker == 0 || !IsClientInGame(attacker))
 	{
@@ -258,15 +327,17 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 		{
 			ClearDamage(victim);
 		}
-		return Plugin_Continue;
+
+		return;
 	}
 	if (GetClientTeam(attacker) == 2 && GetClientTeam(victim) == 3)
 	{
 		int zombieclass = GetEntProp(victim, Prop_Send, "m_zombieClass");
 		if (zombieclass == 5)
 		{
-			return Plugin_Continue;
+			return;
 		}
+
 		int lasthealth = g_iLastHealth[victim];
 		g_iDamageDealt[victim][attacker] += lasthealth ;
 		if (zombieclass == 3 && g_bIsPouncing[victim] == true)
@@ -295,13 +366,13 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 				{
 					if (!IsFakeClient(attacker))
 					{
-						int mode = GetConVarInt(OneShotSkeet);
+						int mode = OneShotSkeet.IntValue;
 						if (mode == 1)
 						{
 							if (shots == 1)
 							{
-								Statistic(attacker);
-								PrintTopSkeeters();
+								CreateTimer(0.0, Timer_Statistic, GetClientUserId(attacker), TIMER_FLAG_NO_MAPCHANGE);
+								CreateTimer(0.1, Timer_PrintTopSkeeters, 0, TIMER_FLAG_NO_MAPCHANGE);
 								Skeeted(attacker);
 								Skeets[attacker]++;
 								Kills[attacker]++;
@@ -309,22 +380,22 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 						}
 						else
 						{
-							Statistic(attacker);
-							PrintTopSkeeters();
+							CreateTimer(0.0, Timer_Statistic, GetClientUserId(attacker), TIMER_FLAG_NO_MAPCHANGE);
+							CreateTimer(0.1, Timer_PrintTopSkeeters, 0, TIMER_FLAG_NO_MAPCHANGE);
 							Skeeted(attacker);
 							Skeets[attacker]++;
 							Kills[attacker]++;
 						}
 						if (shots == 1)
 						{
-							if(CvarAnnounce == 1)
+							if(CvarAnnounce)
 							{
 								PrintToChatAll("\x01[\x04SM\x01] %N skeeted %N in 1 shot%s", attacker, victim, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 							}
 						}
 						else
 						{
-							if(CvarAnnounce == 1)
+							if(CvarAnnounce)
 							{
 								PrintToChatAll("\x01[\x04SM\x01] %N skeeted %N in %i shots%s", attacker, victim, shots, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 							}
@@ -342,10 +413,9 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 	{
 		ClearDamage(victim);
 	}
-	return Plugin_Continue;
 }
 
-public Action Event_AbilityUse(Event event, const char[] name, bool dontBroadcast) 
+void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (IsClientInGame(client) && IsPlayerHunter(client))
@@ -353,10 +423,9 @@ public Action Event_AbilityUse(Event event, const char[] name, bool dontBroadcas
 		g_bIsPouncing[client] = true;
 		CreateTimer(0.1, Timer_GroundedCheck, client, TIMER_REPEAT);
 	}
-	return Plugin_Continue;
 }
 
-public Action Timer_GroundedCheck(Handle timer, int client)
+Action Timer_GroundedCheck(Handle timer, int client)
 {
 	if ( !IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 3 || !IsPlayerHunter(client) || IsGrounded(client) || IsOnLadder(client) )
 	{
@@ -368,24 +437,24 @@ public Action Timer_GroundedCheck(Handle timer, int client)
 	return Plugin_Continue;
 }
 
-public Action Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if (!victim || !IsClientInGame(victim))
 	{
-		return Plugin_Continue;
+		return;
 	}
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	if (attacker == 0 || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2)
 	{
-		return Plugin_Continue;
+		return;
 	}
 	int zombieclass = GetEntProp(victim, Prop_Send, "m_zombieClass");
 	if (zombieclass == 3 && g_bIsPouncing[victim])
 	{
-		if (IsFakeClient(victim) && !GetConVarBool(g_hCvarAIHunter) )
+		if (IsFakeClient(victim) && !g_hCvarAIHunter.BoolValue )
 		{
-			return Plugin_Continue;
+			return;
 		}
 		g_bIsPouncing[victim] = false;
 		g_bHasLandedPounce[attacker] = false;
@@ -394,31 +463,30 @@ public Action Event_PlayerShoved(Event event, const char[] name, bool dontBroadc
 		WritePackCell(pack, attacker);
 		WritePackCell(pack, victim);
 	}
-	return Plugin_Continue;
 }
 
-public Action Timer_DeadstopCheck(Handle timer, Handle pack)
+Action Timer_DeadstopCheck(Handle timer, Handle pack)
 {
 	ResetPack(pack, false);
 	int attacker = ReadPackCell(pack);
 	if (!g_bHasLandedPounce[attacker])
 	{
 		int victim = ReadPackCell(pack);
-		if (!IsFakeClient(victim) || (IsFakeClient(victim) && GetConVarBool(g_hCvarAIHunter)) )
+		if (!IsFakeClient(victim) || (IsFakeClient(victim) && g_hCvarAIHunter.BoolValue) )
 		{
 			if (IsClientInGame(victim) && IsClientInGame(attacker))
 			{
 				DeadStoped[attacker]++;
 				if (!IsFakeClient(attacker))
 				{
-					if(CvarAnnounce == 1)
+					if(CvarAnnounce)
 					{
 						PrintToChat(attacker, "\x01[\x04SM\x01] \x03You \x01DeadStoped \x04%N%s", victim, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 					}
 				}
 				if (!IsFakeClient(victim))
 				{
-					if(CvarAnnounce == 1)
+					if(CvarAnnounce)
 					{
 						PrintToChat(victim, "\x01[\x04SM\x01] \x03You \x01were deadstopped by \x04%N%s", attacker, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 					}
@@ -440,54 +508,6 @@ void remove_damage(int client)
 bool IsGrounded(int client)
 {
 	return (GetEntProp(client, Prop_Data, "m_fFlags") & FL_ONGROUND) > 0;
-}
-
-void Statistic(int client)
-{
-	char clientname[32];
-	GetClientName(client, clientname, 32);
-	ReplaceString(clientname, 32, "'", "", true);
-	ReplaceString(clientname, 32, "<", "", true);
-	ReplaceString(clientname, 32, "{", "", true);
-	ReplaceString(clientname, 32, "}", "", true);
-	ReplaceString(clientname, 32, "\n", "", true);
-	ReplaceString(clientname, 32, "\"", "", true);
-	char clientauth[32];
-	GetClientAuthId(client, AuthId_Steam2, clientauth, 32);
-	Handle Data = CreateKeyValues("skeetdata", "", "");
-	int count;
-	int skeet;
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
-		FileToKeyValues(Data, datafilepath_1v1);
-	else
-		FileToKeyValues(Data, datafilepath);
-
-	KvJumpToKey(Data, "data", true);
-	if (!KvJumpToKey(Data, clientauth, false))
-	{
-		KvGoBack(Data);
-		KvJumpToKey(Data, "info", true);
-		count = KvGetNum(Data, "count", 0);
-		count++;
-		KvSetNum(Data, "count", count);
-		KvGoBack(Data);
-		KvJumpToKey(Data, "data", true);
-		KvJumpToKey(Data, clientauth, true);
-	}
-	skeet = KvGetNum(Data, "skeet", 0);
-	skeet++;
-	KvSetNum(Data, "skeet", skeet);
-	KvSetString(Data, "name", clientname);
-	KvRewind(Data);
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
-		KeyValuesToFile(Data, datafilepath_1v1);
-	else
-		KeyValuesToFile(Data, datafilepath);
-	delete Data;
-	if(CvarAnnounce == 1)
-	{
-		PrintToChat(client, "\x01[\x04SM\x01] \x03You \x04have \x01%d skeets%s", skeet, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
-	}
 }
 
 void ClearDamage(int client)
@@ -522,7 +542,7 @@ void ClearSkeetCounter()
 	}
 }
 
-public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	for (int i=1;i <= MaxClients;++i)
 	{
@@ -530,11 +550,10 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	}
 	if (!g_bRoundEndAnnounce)
 	{
-		if(CvarAnnounce == 1)
+		if(CvarAnnounce)
 			PrintStats();
 		g_bRoundEndAnnounce = true;
 	}
-	return Plugin_Continue;
 }
 
 void PrintStats()
@@ -567,7 +586,7 @@ void PrintStats()
 	PrintToChatAll("\x01------------------------------");
 }
 
-public int SortByDamageDesc(int elem1, int elem2, const int[] array, Handle hndl)
+int SortByDamageDesc(int elem1, int elem2, const int[] array, Handle hndl)
 {
 	if (Kills[elem1] > Kills[elem2])
 	{
@@ -588,11 +607,10 @@ public int SortByDamageDesc(int elem1, int elem2, const int[] array, Handle hndl
 	return 0;
 }
 
-public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	ClearSkeetCounter();
 	g_bRoundEndAnnounce = false;
-	return Plugin_Continue;
 }
 
 void Skeeted(int client)
@@ -601,7 +619,7 @@ void Skeeted(int client)
 	timerDeath[client] = 200;
 }
 
-public Action Award(Handle timer, int client)
+Action Award(Handle timer, int client)
 {
 	if (!IsClientInGame(client)) return Plugin_Continue;
 
@@ -646,245 +664,192 @@ bool IsPlayerHunter(int client)
 	return false;
 }
 
-public Action Command_Say(int client, int args)
+Action Timer_PrintTopSkeeters(Handle timer, int attacker)
 {
-	if (args < 1)
-	{
-		return Plugin_Continue;
-	}
-	char text[16];
-	GetCmdArg(1, text, 15);
-	if (StrContains(text, "!skeets", true))
-	{
-		if (StrContains(text, "/skeets", true))
-		{
-			if (StrContains(text, "!top10", true))
-			{
-				if (StrContains(text, "!rank", true))
-				{
-					return Plugin_Continue;
-				}
-				ShowSkeetRank(client);
-				return Plugin_Continue;
-			}
-			PrintTopSkeetersToClient(client);
-			return Plugin_Continue;
-		}
-		PrintSkeetsToClient(client);
-		return Plugin_Continue;
-	}
-	PrintSkeetsToClient(client);
+	PrintTopSkeeters(0);
 	return Plugin_Continue;
 }
 
-void PrintTopSkeetersToClient(int client)
+void PrintTopSkeeters(int client)
 {
-	if (!IsDedicatedServer())
-	{
-		if (!client)
-		{
-			client = 1;
-		}
-	}
-	Handle Data = CreateKeyValues("skeetdata", "", "");
-	int count;
+	if(g_hData == null) return;
+	g_hData.Rewind();
 
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
+	g_hData.JumpToKey("info", false);
+	int count = g_hData.GetNum("count", 0);
+
+	CPlayerSkeetData CTopPlayer[TOP_NUMBER];
+	int totalskeets=0, Max_skeets, iSkeets, Max_index;
+	bool bIgnore;
+	g_hData.GoBack();
+	g_hData.JumpToKey("data", false);
+	
+	for(int current = 0; current < TOP_NUMBER; current++)
 	{
-		if (!FileToKeyValues(Data, datafilepath_1v1))
+		g_hData.GotoFirstSubKey(true);
+
+		Max_skeets = 0;
+		Max_index = 0;
+		for (int index=1; index <= count ;++index, g_hData.GotoNextKey(true))
 		{
-			delete Data;
-			return;
+			iSkeets = g_hData.GetNum("skeet", 0);
+			if(iSkeets <= 0) continue;
+
+			if(current == 0)
+			{
+				totalskeets += iSkeets;
+			}
+			else
+			{
+				bIgnore = false;
+				for(int previous = 0; previous < current; previous++)
+				{
+					//PrintToChatAll("%d - CTopPlayer[previous].m_iPosition: %d", previous, CTopPlayer[previous].m_iPosition);
+					if(index == CTopPlayer[previous].m_iPosition)
+					{
+						//PrintToChatAll("index(%d) == CTopPlayer[previous].m_iPosition", index);
+						if(current-1==previous) g_hData.GetString("name", CTopPlayer[previous].m_sName, sizeof(CPlayerSkeetData::m_sName), "Unnamed");
+						bIgnore = true;
+						break;
+					}
+				}
+				if(bIgnore) continue;
+			}
+			
+			if(iSkeets > Max_skeets)
+			{
+				//PrintToChatAll("iSkeets: %d, Max_skeets: %d, index: %d", iSkeets, Max_skeets, index);
+				Max_skeets 	= iSkeets;
+				Max_index 	= index;
+			}
 		}
+		//PrintToChatAll("Max_skeets: %d, Max_index: %d", Max_skeets, Max_index);
+		CTopPlayer[current].m_iSkeets 		= Max_skeets;
+		CTopPlayer[current].m_iPosition 	= Max_index;
+		g_hData.GoBack();
 	}
-	else
-	{	
-		if (!FileToKeyValues(Data, datafilepath))
+	g_hData.GotoFirstSubKey(true);
+	for (int index=1; index <= count ;++index, g_hData.GotoNextKey(true))
+	{
+		if(index == CTopPlayer[TOP_NUMBER-1].m_iPosition)
 		{
-			delete Data;
-			return;
+			g_hData.GetString("name", CTopPlayer[TOP_NUMBER-1].m_sName, sizeof(CPlayerSkeetData::m_sName), "Unnamed");
+			break;
 		}
 	}
 
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	char[][] names = new char[count][64];
-	int[][] skeets = new int[count][2];
-	int totalskeets=0;
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
-	KvGotoFirstSubKey(Data, true);
-	for (int i=0;i<count;++i)
-	{
-		KvGetString(Data, "name", names[i], 64, "Unnamed");
-		skeets[i][0] = i;
-		skeets[i][1] = KvGetNum(Data, "skeet", 0);
-		totalskeets += skeets[i][1];
-		KvGotoNextKey(Data, true);
-	}
-	delete Data;
-	SortCustom2D(skeets, count, Sort_Function);
-	Handle Panell = CreatePanel();
-	int oneshot = GetConVarInt(OneShotSkeet);
+	Panel panel = new Panel();
+	int oneshot = OneShotSkeet.IntValue;
+	static char sBuffer[128];
 	if (oneshot == 1)
 	{
 		if(g_hCvar1v1Separate.BoolValue && Is1v1)
-			SetPanelTitle(Panell, "Best One Shot Skeeters In 1v1");
+			FormatEx(sBuffer, sizeof(sBuffer), "Best One Shot Skeeters In 1v1");
 		else
-			SetPanelTitle(Panell, "Best One Shot Skeeters");
+			FormatEx(sBuffer, sizeof(sBuffer), "Best One Shot Skeeters");
 	}
 	else
 	{
 		if(g_hCvar1v1Separate.BoolValue && Is1v1)
-			SetPanelTitle(Panell, "Top 5 Skeeters In 1v1");
+			FormatEx(sBuffer, sizeof(sBuffer), "Top %d Skeeters In 1v1", TOP_NUMBER);
 		else 
-			SetPanelTitle(Panell, "Top 5 Skeeters");
+			FormatEx(sBuffer, sizeof(sBuffer), "Top %d Skeeters", TOP_NUMBER);
 	}
-	DrawPanelText(Panell, "\n ");
-	char text[256];
+	panel.SetTitle(sBuffer);
+	panel.DrawText("\n ");
 	if (totalskeets)
 	{
-		if (count > 5)
+		for (int i=0 ; i<TOP_NUMBER && i < count;++i)
 		{
-			count = 5;
+			FormatEx(sBuffer, sizeof(sBuffer), "%d skeets - %s", CTopPlayer[i].m_iSkeets, CTopPlayer[i].m_sName);
+			panel.DrawItem(sBuffer);
 		}
-		for (int i=0;i<count;++i)
-		{
-			Format(text, 255, "%d skeets - %s", skeets[i][1], names[skeets[i][0]]);
-			DrawPanelItem(Panell, text);
-		}
-		DrawPanelText(Panell, "\n ");
-		Format(text, 255, "Total %d skeets on the server%s", totalskeets, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
-		DrawPanelText(Panell, text);
+		panel.DrawText("\n ");
+		FormatEx(sBuffer, sizeof(sBuffer), "Total %d skeets on the server%s", totalskeets, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
+		panel.DrawText(sBuffer);
 	}
 	else
 	{
-		Format(text, 255, "There are no skeets on this server yet%s", (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
+		Format(sBuffer, sizeof(sBuffer), "There are no skeets on this server yet%s", (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 	}
-	SendPanelToClient(Panell, client, TopSkeetPanelHandler, 5);
-	delete Panell;
+
+	if(client == 0)
+	{
+		for (int player = 1; player<=MaxClients; ++player)
+		{	
+			if (IsClientInGame(player) && !IsFakeClient(player))
+			{
+				panel.Send(player, TopSkeetPanelHandler, 5);
+			}
+		}
+	}
+	else 
+	{
+		panel.Send(client, TopSkeetPanelHandler, 5);
+	}
+
+	delete panel;
 }
 
-void PrintTopSkeeters()
+Action Timer_Statistic(Handle timer, int attacker)
 {
-	Handle Data = CreateKeyValues("skeetdata", "", "");
-	int count;
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
+	if(g_hData == null) return Plugin_Continue;
+	g_hData.Rewind();
+	g_hData.JumpToKey("data", true);
+
+	attacker = GetClientOfUserId(attacker);
+	if(attacker > 0 && IsClientInGame(attacker))
 	{
-		if (!FileToKeyValues(Data, datafilepath_1v1))
+		static char clientname[32];
+		GetClientName(attacker, clientname, 32);
+		ReplaceString(clientname, 32, "'", "", true);
+		ReplaceString(clientname, 32, "<", "", true);
+		ReplaceString(clientname, 32, "{", "", true);
+		ReplaceString(clientname, 32, "}", "", true);
+		ReplaceString(clientname, 32, "\n", "", true);
+		ReplaceString(clientname, 32, "\"", "", true);
+		static char clientauth[32];
+		GetClientAuthId(attacker, AuthId_Steam2, clientauth, 32);
+		if (!g_hData.JumpToKey(clientauth, false))
 		{
-			delete Data;
-			return;
+			g_hData.GoBack();
+			g_hData.JumpToKey("info", true);
+			int count = g_hData.GetNum("count", 0);
+			count++;
+			g_hData.SetNum("count", count);
+			g_hData.GoBack();
+			g_hData.JumpToKey("data", true);
+			g_hData.JumpToKey(clientauth, true);
 		}
-	}
-	else
-	{	
-		if (!FileToKeyValues(Data, datafilepath))
-		{
-			delete Data;
-			return;
-		}
-	}
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	char[][] names = new char[count][64];
-	int[][] skeets = new int[count][2];
-	int totalskeets=0;
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
-	KvGotoFirstSubKey(Data, true);
-	for (int i=0;i<count;++i)
-	{
-		KvGetString(Data, "name", names[i], 64, "Unnamed");
-		skeets[i][0] = i;
-		skeets[i][1] = KvGetNum(Data, "skeet", 0);
-		totalskeets += skeets[i][1];
-		KvGotoNextKey(Data, true);
-	}
-	delete Data;
-	SortCustom2D(skeets, count, Sort_Function);
-	Handle Panell = CreatePanel();
-	int oneshot = GetConVarInt(OneShotSkeet);
-	if (oneshot == 1)
-	{
+		int skeet = g_hData.GetNum("skeet", 0);
+		skeet++;
+		g_hData.SetNum("skeet", skeet);
+		g_hData.SetString("name", clientname);
+		g_hData.Rewind();
+
 		if(g_hCvar1v1Separate.BoolValue && Is1v1)
-			SetPanelTitle(Panell, "5 Best One Shot skeeters In 1v1");
+			g_hData.ExportToFile(datafilepath_1v1);
 		else
-			SetPanelTitle(Panell, "5 Best One Shot skeeters");
-	}
-	else
-	{
-		if(g_hCvar1v1Separate.BoolValue && Is1v1)
-			SetPanelTitle(Panell, "Top 5 Skeeters In 1v1");
-		else 
-			SetPanelTitle(Panell, "Top 5 Skeeters");
-	}
-	DrawPanelText(Panell, "\n ");
-	char text[256];
-	if (totalskeets)
-	{
-		if (count > 5)
+			g_hData.ExportToFile(datafilepath);
+		if(CvarAnnounce)
 		{
-			count = 5;
-		}
-		for (int i=0;i<count;++i)
-		{
-			Format(text, 255, "%d skeets - %s", skeets[i][1], names[skeets[i][0]]);
-			DrawPanelItem(Panell, text);
-		}
-		DrawPanelText(Panell, "\n ");
-		Format(text, 255, "Total %d skeets on the server%s", totalskeets, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
-		DrawPanelText(Panell, text);
-	}
-	else
-	{
-		Format(text, 255, "There are no skeets on this server yet%s", (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
-	}
-	for (int i=1;i<=MaxClients;++i)
-	{	
-		if (IsClientInGame(i) && !IsFakeClient(i))
-		{
-			SendPanelToClient(Panell, i, TopSkeetPanelHandler, 5);
+			PrintToChat(attacker, "\x01[\x04SM\x01] \x03You \x04have \x01%d skeets%s", skeet, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 		}
 	}
-	delete Panell;
+
+	return Plugin_Continue;
 }
 
 void PrintSkeetsToClient(int client)
 {
-	if (!IsDedicatedServer())
-	{
-		if (!client)
-		{
-			client = 1;
-		}
-	}
-	Handle Data = CreateKeyValues("skeetdata", "", "");
-	int skeet;
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
-	{
-		if (!FileToKeyValues(Data, datafilepath_1v1))
-		{
-			PrintToChat(client, "\x03There is no \x01data in 1v1.");
-			delete Data;
-			return;
-		}
-	}
-	else
-	{	
-		if (!FileToKeyValues(Data, datafilepath))
-		{
-			PrintToChat(client, "\x03There is no \x01data.");
-			delete Data;
-			return;
-		}
-	}
+	if(g_hData == null) return;
+	g_hData.Rewind();
+
 	char auth[32];
 	GetClientAuthId(client, AuthId_Steam2, auth, 32);
-	KvJumpToKey(Data, "data", false);
-	KvJumpToKey(Data, auth, false);
-	skeet = KvGetNum(Data, "skeet", 0);
-	delete Data;
+	g_hData.JumpToKey("data", false);
+	g_hData.JumpToKey(auth, false);
+	int skeet = g_hData.GetNum("skeet", 0);
 	if (skeet == 1)
 	{
 		PrintToChat(client, "\x04You \x03only \x011 skeet%s", (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
@@ -902,105 +867,53 @@ void PrintSkeetsToClient(int client)
 
 void ShowSkeetRank(int client)
 {
-	if (!IsDedicatedServer())
-	{
-		if (!client)
-		{
-			client = 1;
-		}
-	}
-	Handle Data = CreateKeyValues("skeetdata", "", "");
-	int count;
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
-	{
-		if (!FileToKeyValues(Data, datafilepath_1v1))
-		{
-			delete Data;
-			return;
-		}
-	}
-	else
-	{	
-		if (!FileToKeyValues(Data, datafilepath))
-		{
-			delete Data;
-			return;
-		}
-	}
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
+	if(g_hData == null) return;
+	g_hData.Rewind();
+
+	g_hData.JumpToKey("info", false);
+	int count = g_hData.GetNum("count", 0);
+	g_hData.GoBack();
+	g_hData.JumpToKey("data", false);
 	int skeet;
 	char auth[32];
 	GetClientAuthId(client, AuthId_Steam2, auth, 32);
-	if (KvJumpToKey(Data, auth, false))
+	if (g_hData.JumpToKey(auth, false))
 	{
-		skeet = KvGetNum(Data, "skeet", 0);
+		skeet = g_hData.GetNum("skeet", 0);
 	}
 	else
 	{
 		skeet = 0;
 	}
-	int place = TopTo(skeet);
-	PrintToChat(client, "Skeet Ranking: %d/%d%s", place, count, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
-	delete Data;
+	int rank = TopTo(skeet);
+	PrintToChat(client, "Skeet Ranking: %d/%d%s", rank, count, (g_hCvar1v1Separate.BoolValue && Is1v1) ? " in 1v1." : ".");
 }
 
 int TopTo(int skeeti)
 {
-	Handle Data = CreateKeyValues("skeetdata", "", "");
-	int count;
-	if(g_hCvar1v1Separate.BoolValue && Is1v1)
-	{
-		if (!FileToKeyValues(Data, datafilepath_1v1))
-		{
-			delete Data;
-			return 0;
-		}
-	}
-	else
-	{	
-		if (!FileToKeyValues(Data, datafilepath))
-		{
-			delete Data;
-			return 0;
-		}
-	}
-	KvJumpToKey(Data, "info", false);
-	count = KvGetNum(Data, "count", 0);
-	int[] skeet = new int[count];
-	KvGoBack(Data);
-	KvJumpToKey(Data, "data", false);
-	KvGotoFirstSubKey(Data, true);
+	if(g_hData == null) return 0;
+	g_hData.Rewind();
+	
+	g_hData.JumpToKey("info", false);
+	int count = g_hData.GetNum("count", 0);
+	int skeet;
+	g_hData.GoBack();
+	g_hData.JumpToKey("data", false);
+	g_hData.GotoFirstSubKey(true);
 	int total;
 	for (int i=0;i < count;++i)
 	{
-		skeet[i] = KvGetNum(Data, "skeet", 0);
-		if (skeet[i] >= skeeti)
+		skeet = g_hData.GetNum("skeet", 0);
+		if (skeet >= skeeti)
 		{
 			total++;
 		}
-		KvGotoNextKey(Data, true);
+		g_hData.GotoNextKey(true);
 	}
-	delete Data;
 	return total;
 }
 
-public int Sort_Function(int[] array1, int[] array2, int[][] completearray, Handle hndl)
-{
-	if (array1[1] > array2[1])
-	{
-		return -1;
-	}
-	if (array1[1] == array2[1])
-	{
-		return 0;
-	}
-	return 1;
-}
-
-public int TopSkeetPanelHandler(Handle menu, MenuAction action, int param1, int param2)
+int TopSkeetPanelHandler(Handle menu, MenuAction action, int param1, int param2)
 {
 	return 0;
 }
