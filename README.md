@@ -1,6 +1,6 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/6/13)
+> All plugins in here apply to both L4D1/2 (last edited:2023/6/15)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -155,6 +155,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
+* <b>[simple-chatprocessor](/simple-chatprocessor)</b>: Process chat and allows other plugins to manipulate chat.
+    * 輔助插件，控制玩家在聊天窗口輸入的文字與顏色
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
