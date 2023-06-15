@@ -15,6 +15,9 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2h (2023-6-16)
+		* Fixed error "Exception reported: Unable to end message, no message is in progress"
+
 	* v1.1h (2023-6-15)
 		* L4D1/2 Only
 		* Add chinese translation 
