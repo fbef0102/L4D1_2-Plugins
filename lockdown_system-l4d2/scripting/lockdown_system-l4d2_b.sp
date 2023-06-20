@@ -5,7 +5,7 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION "5.4"
+#define PLUGIN_VERSION "5.5-2023/6/20"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -225,7 +225,7 @@ public void OnConfigsExecuted()
 		}
 	}
 
-	if(L4D_IsMissionFinalMap())
+	if(L4D_IsMissionFinalMap(true))
 	{
 		g_bValidMap = false;
 	}
