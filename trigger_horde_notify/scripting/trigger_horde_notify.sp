@@ -7,7 +7,7 @@
 #include <dhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION			"1.0"
+#define PLUGIN_VERSION			"1.1-2023/6/20"
 #define PLUGIN_NAME			    "trigger_horde_notify"
 #define DEBUG 0
 
@@ -51,7 +51,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar g_hAlarmCarNotify, g_hColdDown;
 
 float g_fColdDown, g_fTriggerHordeTime;
-bool g_bAlarmCarNotify, g_bValidMap, g_bRescueStart;
+bool g_bAlarmCarNotify, g_bFinalMap, g_bRescueStart;
 
 public void OnPluginStart()
 {
@@ -114,7 +114,7 @@ MRESReturn DTR_OnMapInvokedPanicEvent_Post(int pThis, Handle hReturn, Handle hPa
     if(DHookIsNullParam(hParams, 1)) return MRES_Ignored;
 
     int client = DHookGetParam(hParams, 1); //觸發者
-    int type_Horde = DHookGetParam(hParams, 2); //屍潮類型 0/1: 一代守殭屍方式/機關屍潮, 1: 警報車
+    int type_Horde = DHookGetParam(hParams, 2); //屍潮類型 0: 一代守殭屍方式/機關屍潮, 1: 警報車
     //PrintToChatAll("觸發者: %d - 屍潮類型: %d", client, type_Horde);
 
     if(g_fTriggerHordeTime < GetEngineTime() && client > 0 && client < MaxClients + 1 && IsClientInGame(client))
@@ -136,11 +136,11 @@ MRESReturn DTR_OnMapInvokedPanicEvent_Post(int pThis, Handle hReturn, Handle hPa
 
 public void OnMapStart()
 {
-    g_bValidMap = false;
+    g_bFinalMap = false;
 
-    if(L4D_IsMissionFinalMap())
+    if(L4D_IsMissionFinalMap(true))
     {
-        g_bValidMap = true;
+        g_bFinalMap = true;
 
         int entity = -1;
         if ((entity = FindEntityByClassname(entity, "trigger_finale")) != -1)
@@ -155,7 +155,7 @@ public void OnEntityCreated(int entity, const char[] classname) //late spawn
     if (!IsValidEntityIndex(entity))
         return;
 
-    if(!g_bValidMap)
+    if(!g_bFinalMap)
         return;
 
     switch (classname[0])

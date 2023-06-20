@@ -30,6 +30,9 @@ Who called the horde ?
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.1 (2023-6-20)
+        * Require lef4dhooks v1.33 or above
+
 	* v1.0
 		* Request by Yabi
         * Intital Release
