@@ -16,6 +16,9 @@ Records player chat messages to a file
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.9 (2023-6-28)
+        * Optimize code
+        
 	* v1.8 (2023-5-9)
         * Optimize code
 
