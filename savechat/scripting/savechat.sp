@@ -6,7 +6,7 @@
 #include <geoip>
 #include <string>
 
-#define PLUGIN_VERSION "1.8"
+#define PLUGIN_VERSION "1.9"
 
 ConVar hostport;
 char sHostport[10];
@@ -363,7 +363,7 @@ void SaveMessage(const char[] message)
 	fileHandle = OpenFile(chatFile, "a");  /* Append */
 	if(fileHandle == null)
 	{
-		CreateDirectory("/addons/sourcemod/logs/chat", 0);
+		CreateDirectory("/addons/sourcemod/logs/chat", 511);
 		fileHandle = OpenFile(chatFile, "a"); //open again
 	}
 	WriteFileLine(fileHandle, message);
