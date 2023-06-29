@@ -1,0 +1,49 @@
+"MatchModes"
+{
+
+// You can delete any section. Or add your own, for example:
+//
+//	"Test"
+//	{
+//		"test"				//config's directory: cfg/test.cfg
+//		{
+//			"name" "Test Mode"	//that appears in the menu
+//		}
+//		//.... (list of other configs)
+//	}
+
+// 你可以隨意修改或新增, 舉例:
+//
+//	"Test" //名稱隨意
+//	{
+//		"test"				//執行cfg文件的路徑為: cfg/test.cfg
+//		{
+//			"name" "Test Mode"	//出現在選單介面上的名稱
+//		}
+//		//.... (list of other configs)
+//	}
+
+	"Test"
+	{
+		"test" //  cfg/test.cfg
+		{
+			"name" "Exec cfg/test.cfg" // appears in the menu
+		}
+	}
+
+	"HarryMode"
+	{
+		"HarryMode/HarryMode_4v4" //  cfg/HarryMode/HarryMode_4v4.cfg
+		{
+			"name" "HarryMode 4v4 " // appears in the menu
+		}
+		"HarryMode/HarryMode_3v3"//  cfg/HarryMode/HarryMode_3v3.cfg
+		{
+			"name" "HarryMode 3v3 "
+		}
+		"HarryMode/HarryMode_2v2" //  cfg/HarryMode/HarryMode_2v2.cfg
+		{
+			"name" "HarryMode 2v2 "
+		}
+	}
+}
