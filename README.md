@@ -1,14 +1,11 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1/2 (last edited:2023/6/15)
+> All plugins in here apply to both L4D1 or L4D2 (last edited:2023/6/30)
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
-* [Sourcemod 1.11](https://www.sourcemod.net/downloads.php?branch=1.11-dev) (or newer)
-* [Metamod 1.11](https://www.sourcemm.net/downloads.php?branch=1.11-dev) (or newer)
-* [L4DToolZ](https://github.com/Accelerator74/l4dtoolz/releases)
-* [Left 4 DHooks Direct](https://forums.alliedmods.net/showthread.php?p=2684862)
-* [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+* [L4D1 Server Install](https://github.com/fbef0102/L4D1-Server4Dead#server-install)
+* [L4D2 Server Install](https://github.com/fbef0102/L4D2-Server4Dead#server-install)
 
 # Plugins
 > __Note__  
@@ -157,12 +154,19 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
 * <b>[simple-chatprocessor](/simple-chatprocessor)</b>: Process chat and allows other plugins to manipulate chat.
     * 輔助插件，控制玩家在聊天窗口輸入的文字與顏色
+* <b>[match_vote](/match_vote)</b>: Type !match/!load/!mode to vote a new mode
+    * 輸入!match/!load/!mode投票執行cfg文件，用於更換模式或玩法
+* <b>[l4d1_block_player_swim](/l4d1_block_player_swim)</b>: Disable the 'water hopping' spam in l4d1.
+    * 修復L4D1遊戲的Bug: 水上游泳
+* <b>[l4d1_weapon_limits](/l4d1_weapon_limits)</b>: Maximum of each L4D1 weapons the survivors can pick up
+    * 限制L4D1遊戲中每個武器可以拿取的數量，超過就不能拿取
+* <b>[l4d1_ban_twotank_glitch_player](/l4d1_ban_twotank_glitch_player)</b>: Ban player who uses L4D1 / Split tank glitchpick up
+    * 修復L4D1遊戲的Bug: 雙重Tank生成的問題
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
-* <b>[L4D1-Competitive-Plugins](https://github.com/fbef0102/L4D1-Competitive-Plugins)</b>
-* <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
+* <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>: L4D2 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
 * <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
 * <b>[L4D2-Server4Dead](https://github.com/fbef0102/L4D2-Server4Dead)</b>: Setup your own L4D2 Servers.
 * <b>[Game-Private_Plugin](https://github.com/fbef0102/Game-Private_Plugin)</b>: Private Plugin List.
