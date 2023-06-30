@@ -1,0 +1,9 @@
+"Phrases"
+{
+	"Message"
+	{
+		"en"			"Sorry, Reserverd Slots for Admin.."
+		"zho"			"抱歉, 剩餘位子只限管理員加入..."
+		"chi"			"抱歉, 剩余位子只限管理员加入..."
+	}
+}

@@ -9,7 +9,7 @@ Maximum of each L4D1 weapons the survivors can pick up
 
 * Apply to | 適用於
     ```
-    L4D2
+    L4D1
     ```
 
 * [L4D2 Version | 適用於L4D2的版本](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_limits)
