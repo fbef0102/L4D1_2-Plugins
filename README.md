@@ -25,7 +25,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
-* <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots (剩餘通道只能管理員加入.. Sorry, Reserverd Slots for Admin..)
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
@@ -162,6 +161,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 限制L4D1遊戲中每個武器可以拿取的數量，超過就不能拿取
 * <b>[l4d1_ban_twotank_glitch_player](/l4d1_ban_twotank_glitch_player)</b>: Ban player who uses L4D1 / Split tank glitchpick up
     * 修復L4D1遊戲的Bug: 雙重Tank生成的問題
+* <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
+    * 當伺服器快滿人的時候，預留通道給管理員加入 (訊息提示: 剩餘通道只能管理員加入.. )
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
