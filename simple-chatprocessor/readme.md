@@ -42,6 +42,8 @@ Process chat and allows other plugins to manipulate chat.
 		> 禁詞表，任何人打字說出髒話或敏感詞彙，字詞會被屏蔽、玩家禁言並處死，網路並非法外之地
 	2. [l4d_mute_player_list](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/l4d_mute_player_list): Player can personally mute someone chat text and mic voice.
 		> 玩家可以在個人列表上封鎖其他人的語音與聊天文字
+	3. [simple-chatcolors](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Fun_%E5%A8%9B%E6%A8%82/simple-chatcolors): Changes the colors of players chat based on config file.
+		> 根據管理員或玩家身分修改聊天窗口的對話顏色
 
 * <details><summary>ConVar | 指令</summary>
 
