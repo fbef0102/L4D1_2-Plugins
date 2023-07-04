@@ -68,80 +68,79 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	3. Optional - [[INC] unscramble.inc](https://github.com/raziEiL/r2comp-standalone/blob/master/sourcemod/scripting/include/unscramble.inc)
 
-* <details><summary>ConVar | 指令</summary>
+* <details><summary>ConVar</summary>
 
 	* cfg/sourcemod/l4d_afk_commands.cfg
 		```php
-		// Cold Down Time in seconds a player can not change team again after he switches team. (0=off)
+		// Cold Down Time in seconds a player can not change team gain after he switches team. (0=off)
 		l4d_afk_commands_changeteam_cooltime_block "10.0"
 
 		// If 1, Dead Survivor player can not switch team.
 		l4d_afk_commands_deadplayer_block "1"
-
-		// Player can not switch team after players have left start safe area for at least x seconds (0=off).
+		
+		// Player can not switch team after players have left stat safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
 		l4d_afk_commands_during_game_seconds_block "0"
 
-		// If 1, Player can not change team while he is getting up or staggering.
-		l4d_afk_commands_getup_stagger_block "1"
-
-		// Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).
-		l4d_afk_commands_igniteprop_cooltime_block "15.0"
-
-		// Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_immune_block_flag "-1"
-
-		// Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_infected_access_flag ""
-
-		// If 1, Player can not change team when he is capped by special infected.
+		// If 1, Player can not change team when he is capped by secial infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 		l4d_afk_commands_infected_attack_block "1"
 
-		// If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
-		l4d_afk_commands_infected_cap_block "1"
+		// If 1, Player can not change team when he startle witch r being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		l4d_afk_commands_witch_attack_block "1"
 
-		// Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).
-		l4d_afk_commands_infected_spawn_cooltime_block "10.0"
-
-		// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_observer_access_flag "z"
-
-		// If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)
-		l4d_afk_commands_pressM_block "1"
-
-		// Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_spec_access_flag ""
-
-		// Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)
+		// Allow alive survivor player suicide by using '!zs' afte joining survivor team for at least X seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
 		l4d_afk_commands_suicide_allow_second "30.0"
 
-		// Players with these flags have access to use command to survivor team. (Empty = Everyone, -1: Nobody)
-		l4d_afk_commands_survivor_access_flag ""
+		// If 1, Player can not change team when he is reloading te weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		l4d_afk_commands_weapon_reload_block "1"
 
-		// If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')
+		// If 1, Player can not change team while he is getting upor staggering.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		l4d_afk_commands_getup_stagger_block "1"
+
+		// If 1, Infected player can not change team when he has pouced/ridden/charged/smoked a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		l4d_afk_commands_infected_cap_block "1"
+
+		// If 1, Block player from using 'jointeam' command in consoe. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0)
+		l4d_afk_commands_pressM_block "1"
+		
+		// If 1, Block player from using 'go_away_from_keyboard' comand in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0)
 		l4d_afk_commands_takeabreak_block "0"
 
 		// If 1, Block player from using 'sb_takecontrol' command in console.
 		l4d_afk_commands_takecontrol_block "1"
-
-		// Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).
+		
+		// Cold Down Time in seconds a player can not change team fter he ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
+		l4d_afk_commands_igniteprop_cooltime_block "15.0"
+		
+		// Cold Down Time in seconds a player can not change team fter he throws molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0);
 		l4d_afk_commands_throwable_cooltime_block "10.0"
-
-		// If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.
-		// If team is unbanlance, will fail to join team!
+		
+		// Cold Down Time in seconds an infected player can not chage team after he is spawned as a special infected. (0=off).", FCVAR_NOTIFY, true, 0.0);
+		l4d_afk_commands_infected_spawn_cooltime_block "10.0"
+		
+		// Players with these flags have immune to all 'block' limit(Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+		l4d_afk_commands_immune_block_flag "-1"
+		
+		// Players with these flags have access to use command to spctator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+		l4d_afk_commands_spec_access_flag ""
+		
+		// Players with these flags have access to use command to inected team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+		l4d_afk_commands_infected_access_flag ""
+		
+		// Players with these flags have access to use command to suvivor team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+		l4d_afk_commands_survivor_access_flag ""
+		
+		// Players with these flags have access to use command to bean observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+		l4d_afk_commands_observer_access_flag "z"
+		
+		// If 1, Check team balance when player tries to use commandto join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!", FCVAR_NOTIFY, true, 0.0, tre, 1.0);
 		l4d_afk_commands_versus_teams_balance_enable "1"
-
-		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
+		
+		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.", FCVAR_NOTIFY, true, 1.0);
 		l4d_afk_commands_versus_teams_unbalance_limit "2"
-
-		// If 1, Player can not change team when he is reloading the weapon.
-		l4d_afk_commands_weapon_reload_block "1"
-
-		// If 1, Player can not change team when he startle witch or being attacked by witch.
-		l4d_afk_commands_witch_attack_block "1"
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
+* <details><summary>Command</summary>
 	
 	* **Change team to Spectate**
 		```php
@@ -224,12 +223,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 
 * 原理
-	* 提供加入倖存者陣營的命令
-	* 提供加入特感陣營的命令
-	* 提供加入旁觀者陣營的命令
+	* 提供加入倖存者陣營、特感陣營、旁觀者陣營的命令
 	* 此插件會控制玩家切換隊伍的行為包括
 		1. 使用ESC->休息一下
-		<br/>![POI)A31HUG3M(O (0IK`SY2](https://user-images.githubusercontent.com/12229810/209460474-e795534e-335c-4cff-83e7-3a737ec0d47e.png)
+		<br/>![image](https://user-images.githubusercontent.com/12229810/209460474-e795534e-335c-4cff-83e7-3a737ec0d47e.png)
 		2. 對抗模式下按M切換隊伍
 		<br/>![image](https://user-images.githubusercontent.com/12229810/209460497-af899ea0-d670-4de8-9da9-e242eeae30e2.png)
 		3. 控制台輸入```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
@@ -238,51 +235,167 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		<br/>![image](https://user-images.githubusercontent.com/12229810/209469875-f17e87bd-907a-4a64-b9b4-023bac157b13.png)
 	* 此插件會禁止玩家濫用閒置的bug，譬如
 		1. 導致witch失去目標
-		2. 省略裝子彈時間
+		2. 省略裝子彈時間、硬直狀態、起身動畫
 		3. 逃避特感抓住造成的傷害
 		4. 特感故意切換旁觀省略下次的靈魂特感復活時間
 		5. 死亡倖存者玩家跳隊重新拿到活著的倖存者Bot
 		6. 遊戲開始後故意跳隊到對面擾亂對方隊伍
-	* 盡量不要安裝其他也有換隊指令的插件，否則換隊衝突後果自負
-	* 倖存者玩家如果要成為旁觀者而非閒置狀態可以輸入```!ob```
+		7. 玩家頻繁換隊洗頻伺服器
+	* 在對抗/清道夫模式中，檢查雙方隊伍的真人玩家數量，如果雙方隊伍數量不平衡則切換隊伍會失敗
 
 * 功能
-	1. 可設置跳隊到倖存者、特感、旁觀的權限
-	2. 可設置每個跳隊限制的功能開關與冷卻時間限制
-	3. 可設置管理員不會受到此插件的換隊限制影響
-	4. 可禁用ESC-休息一下
-	5. 可禁用對抗模式下按M切換隊伍與控制台輸入```jointeam```
-	6. 管理員可以輸入```sm_swapto <玩家名稱> <隊伍數字>```，強制該位玩家換到隊伍
-		* 隊伍數字，請寫1或2或3，1為旁觀者, 2為倖存者, 3為特感
-	7. 倖存者可以輸入```!zs```自殺，可以使用指令關閉這項功能
+	* 查看下方"指令中文介紹" 與 "命令中文介紹"
 
 * 注意事項
-	* 遊戲開始之後此插件才會生效
-		* 離開安全區域或是生存模式計時開始
+	* 盡量不要安裝其他也有換隊指令的插件，否則換隊衝突後果自負
+	* 遊戲開始之後所有關於切換隊伍的限制才會生效
+		* 離開安全區域
+		* 生存模式計時開始
 	* 有以下情況不能使用命令換隊，否則強制旁觀
 		1. 嚇到Witch或者Witch正在攻擊你
-			* 防止Witch失去目標
 		2. 被特感抓住的期間
-			* 防止濫用特感控了無傷
 		3. 你已經是死亡的倖存者
-			* 防止玩家故意死亡，然後跳隊
 		4. 離開安全區域或是生存模式計時開始一段時間之後查看指令設置的時間)
 		5. 換隊之後短時間內不能換第二次
-			* 防止玩家頻繁換隊洗頻伺服器
-		6. 點燃汽油桶、煤氣罐一段時間內
-			* 防止友傷bug
-			* 防止Witch失去目標
-		7. 丟出火焰瓶、土製炸彈、膽汁瓶一段時間內
-			* 防止友傷bug
-			* 防止Witch失去目標
+		6. 點燃汽油桶、煙火盒、燃油桶一段時間內
+		7. 丟出火瓶、土製炸彈、膽汁瓶一段時間內
 		8. 武器正在裝子彈
-			* 防止快速隊伍切換省略裝彈時間
 		9. 特感抓住倖存者的期間
-			* 防止Jockey瞬移
-			* 防止Ghost Charger的爭議
 		10. 特感剛復活的時候
-			* 防止切換特感
 		11. 對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊
-			* 防止一方的玩家數量過多
 		12. 起身或硬直狀態中禁止換隊
-			* 防止略過硬直狀態
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/l4d_afk_commands.cfg
+		```php
+		// 擁有這些權限的管理員不會受到此插件的換隊限制影響 (留白 = 任何人都不會受到限制, -1: 所有人都會受到限制)
+		l4d_afk_commands_immune_block_flag "-1"
+
+		// 切換換隊成功之後的10秒內不能隨意切換隊伍，否則強制旁觀 (0=關閉這項功能)
+		l4d_afk_commands_changeteam_cooltime_block "10.0"
+
+		// 倖存者離開安全室超過X秒之後，所有玩家不能隨意切換隊伍 (0=關閉這項功能).
+		l4d_afk_commands_during_game_seconds_block "0"
+
+		// 特感復活後的10秒內不能隨意切換隊伍，否則強制旁觀. (0=關閉這項功能)
+		l4d_afk_commands_infected_spawn_cooltime_block "10.0"
+
+		// 倖存者點燃火瓶、汽油桶、煙火盒、燃油桶的15秒內不能隨意切換隊伍，否則強制旁觀 (0=關閉這項功能).
+		l4d_afk_commands_igniteprop_cooltime_block "15.0"
+
+		// 倖存者投擲火瓶、土製炸彈、膽汁瓶之後的10秒內不能隨意切換隊伍，否則強制旁觀 (0=關閉這項功能).
+		l4d_afk_commands_throwable_cooltime_block "10.0"
+
+		// 為1時，死亡的倖存者玩家不可以切換隊伍
+		l4d_afk_commands_deadplayer_block "1"
+
+		// 為1時，起身或硬直狀態中禁止換隊
+		l4d_afk_commands_getup_stagger_block "1"
+
+		// 為1時，當倖存者被特感抓住期間禁止換隊
+		l4d_afk_commands_infected_attack_block "1"
+
+		// 為1時，當特感抓住倖存者期間禁止換隊
+		l4d_afk_commands_infected_cap_block "1"
+
+		// 為1時，禁止玩家在控制台輸入 'jointeam' 指令. (同時禁用玩家使用M按鍵換隊)
+		l4d_afk_commands_pressM_block "1"
+
+		// 為1時，禁止玩家在控制台輸入 'go_away_from_keyboard' 指令. (同時禁用玩家使用 ESC-休息一下)
+		l4d_afk_commands_takeabreak_block "0"
+
+		// 為1時，禁止玩家在控制台輸入 'sb_takecontrol' 指令
+		l4d_afk_commands_takecontrol_block "1"
+
+		// 為1時，倖存者裝彈期間不可切換隊伍
+		l4d_afk_commands_weapon_reload_block "1"
+
+		// 為1時，倖存者驚嚇Witch或被Witch攻擊期間不可切換隊伍
+		l4d_afk_commands_witch_attack_block "1"
+
+		// 擁有這些權限的管理員可以使用指令切換到倖存者陣營. (留白 = 任何人都可以切換, -1: 禁止所有人切換)
+		l4d_afk_commands_survivor_access_flag ""
+
+		// 擁有這些權限的管理員可以使用指令切換到特感陣營. (留白 = 任何人都可以切換, -1: 禁止所有人切換)
+		l4d_afk_commands_infected_access_flag ""
+
+		// 擁有這些權限的管理員可以使用指令切換到旁觀者陣營. (留白 = 任何人都可以切換, -1: 禁止所有人切換)
+		l4d_afk_commands_spec_access_flag ""
+
+		// 擁有這些權限的管理員可以使用指令成為完全旁觀者. (留白 = 任何人都可以切換, -1: 禁止所有人切換)
+		l4d_afk_commands_observer_access_flag "z"
+
+		// 加入倖存者30秒之後才能使用指令!zs自殺 (0=禁止使用指令!zs自殺)
+		l4d_afk_commands_suicide_allow_second "30.0"
+
+		// 為1時，在對抗/清道夫模式中，檢查雙方隊伍的真人玩家數量並平衡
+		// 如果雙方隊伍數量不平衡則切換隊伍會失敗
+		l4d_afk_commands_versus_teams_balance_enable "1"
+
+		// 在對抗/清道夫模式中，雙方隊伍的真人玩家數量差距超過2位以上時，則視為不平衡
+		l4d_afk_commands_versus_teams_unbalance_limit "2"
+		```
+</details>
+
+* <details><summary>命令中文介紹 (點我展開)</summary>
+	
+	* **切換到旁觀者陣營 (戰役模式下會變成閒置狀態)**
+		```php
+		sm_afk
+		sm_s
+		sm_away
+		sm_idle
+		sm_spectate
+		sm_spec
+		sm_spectators
+		sm_joinspectators
+		sm_joinspectator
+		sm_jointeam1
+		sm_js
+		```
+
+	* **切換到倖存者陣營 (戰役模式下會變成閒置狀態)**
+		```php
+		sm_join
+		sm_bot
+		sm_jointeam
+		sm_survivors
+		sm_survivor
+		sm_sur
+		sm_joinsurvivors
+		sm_joinsurvivor
+		sm_jointeam2
+		sm_jg
+		sm_takebot
+		sm_takeover
+		```
+
+	* **切換到特感陣營**
+		```php
+		sm_infected
+		sm_inf
+		sm_joininfected
+		sm_joininfecteds
+		sm_jointeam3
+		sm_zombie
+		```
+
+	* **成為完全旁觀者 (倖存者玩家如果要成為旁觀者而非閒置狀態則輸入這些指令)**
+		```php
+		sm_observer
+		sm_ob
+		sm_observe
+		```
+
+	* **倖存者自殺，可以使用指令關閉這項功能**
+		```php
+		sm_zs
+		```
+
+	* **管理員可以輸入```sm_swapto <玩家名稱> <隊伍數字>```，強制該位玩家換到隊伍 (權限: ADMFLAG_BAN)**
+		* 隊伍數字，請寫1或2或3，1為旁觀者, 2為倖存者, 3為特感
+			```php
+			sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)
+			```
+</details>
