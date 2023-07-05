@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.8.2  (2009-2023)
+* Version	: 2.8.3  (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.8.3 (2023-7-5)
+*	   - Override L4D2 Vscripts to control infected limit.
+
 * Version 2.8.2 (2023-5-27)
 *	   - Add a convar, including dead survivors or not
 *	   - Add a convar, disable infected bots spawning or not in versus/scavenge mode
@@ -716,7 +719,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.8.2-2023/5/27"
+#define PLUGIN_VERSION "2.8.3"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -890,7 +893,7 @@ bool g_bCvarAllow, g_bMapStarted, g_bSafeSpawn, g_bTankHealthAdjust, g_bVersusCo
 	g_bTankSpawnFinal;
 int g_iZSDisableGamemode, g_iTankHealth, g_iInfectedSpawnTimeMax, g_iInfectedSpawnTimeMin, g_iHumanCoopLimit,
 	g_iReducedSpawnTimesOnPlayer, g_iWitchPeriodMax, g_iWitchPeriodMin, g_iSpawnTankProbability, g_iCommonLimit,
-	g_iTankLimit, g_iWitchLimit, g_iWhereToSpawnInfected;
+	g_iTankLimit, g_iWitchLimit, g_iWhereToSpawnInfected, g_iCvar_z_common_limit;
 int g_iPlayerSpawn, g_bSpawnWitchBride;
 float g_fIdletime_b4slay, g_fInitialSpawn, g_fWitchKillTime;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
@@ -908,9 +911,9 @@ int lastHumanTankId;
 
 public Plugin myinfo =
 {
-	name = "[L4D/L4D2] Infected Bots (Coop/Versus/Realism/Scavenge/Survival)",
+	name = "[L4D/L4D2] Infected Bots (Coop/Versus/Realism/Scavenge/Survival/Mutation)",
 	author = "djromero (SkyDavid), MI 5, Harry Potter",
-	description = "Spawns infected bots in versus, allows playable special infected in coop/survival, and changable z_max_player_zombies limit",
+	description = "Spawns multi infected bots in versus + allows playable special infected in coop/survival + unlock infected limitt",
 	version = PLUGIN_VERSION,
 	url = "https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371"
 }
@@ -1054,12 +1057,15 @@ public void OnPluginStart()
 	g_hCvarModesOff.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
 	h_Difficulty = FindConVar("z_difficulty");
-	h_common_limit_cvar = FindConVar("z_common_limit");
 
+	h_common_limit_cvar = FindConVar("z_common_limit");
 	director_no_specials = FindConVar("director_no_specials");
 
+	GetOfficalCvars();
+	director_no_specials.AddChangeHook(ConVarChanged_OfficialCvars);
+	h_common_limit_cvar.AddChangeHook(ConVarChanged_OfficialCvars);
+
 	GetCvars();
-	director_no_specials.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpawnLimits[SI_BOOMER].AddChangeHook(ConVarChanged_Cvars);
 	g_hSpawnLimits[SI_SMOKER].AddChangeHook(ConVarChanged_Cvars);
 	g_hSpawnLimits[SI_HUNTER].AddChangeHook(ConVarChanged_Cvars);
@@ -1199,8 +1205,19 @@ public void OnPluginStart()
 	AutoExecConfig(true, "l4dinfectedbots");
 }
 
+void ConVarChanged_OfficialCvars(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	GetOfficalCvars();
+}
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void GetOfficalCvars()
+{
+	director_no_specials_bool = director_no_specials.BoolValue;
+	g_iCvar_z_common_limit = h_common_limit_cvar.IntValue;
+}
+
+
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -1258,8 +1275,6 @@ void GetCvars()
 	g_iWhereToSpawnInfected = h_WhereToSpawnInfected.IntValue;
 	g_bIncludingDeadPlayers = h_IncludingDeadPlayers.BoolValue;
 	g_bDisableInfectedBot = h_DisableInfectedBot.BoolValue;
-
-	director_no_specials_bool = director_no_specials.BoolValue;
 }
 
 public void ConVarMaxPlayerZombies(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -1413,18 +1428,18 @@ void TweakSettings()
 			// If the game is L4D 2...
 			if (g_bL4D2Version)
 			{
-				SetConVarInt(FindConVar("z_smoker_limit"), 0);
-				SetConVarInt(FindConVar("z_boomer_limit"), 0);
-				SetConVarInt(FindConVar("z_hunter_limit"), 0);
-				SetConVarInt(FindConVar("z_spitter_limit"), 0);
-				SetConVarInt(FindConVar("z_jockey_limit"), 0);
-				SetConVarInt(FindConVar("z_charger_limit"), 0);
+				SetConVarInt(FindConVar("z_smoker_limit"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("z_boomer_limit"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("z_hunter_limit"), g_iSpawnLimits[SI_HUNTER]);
+				SetConVarInt(FindConVar("z_spitter_limit"), g_iSpawnLimits[SI_SPITTER]);
+				SetConVarInt(FindConVar("z_jockey_limit"), g_iSpawnLimits[SI_JOCKEY]);
+				SetConVarInt(FindConVar("z_charger_limit"), g_iSpawnLimits[SI_CHARGER]);
 			}
 			else
 			{
-				SetConVarInt(FindConVar("z_gas_limit"), 0);
-				SetConVarInt(FindConVar("z_exploding_limit"), 0);
-				SetConVarInt(FindConVar("z_hunter_limit"), 0);
+				SetConVarInt(FindConVar("z_gas_limit"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("z_exploding_limit"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("z_hunter_limit"), g_iSpawnLimits[SI_HUNTER]);
 			}
 		}
 		case 2: // Versus, Better Versus Infected AI
@@ -1432,18 +1447,18 @@ void TweakSettings()
 			// If the game is L4D 2...
 			if (g_bL4D2Version)
 			{
-				SetConVarInt(FindConVar("z_smoker_limit"), 0);
-				SetConVarInt(FindConVar("z_boomer_limit"), 0);
-				SetConVarInt(FindConVar("z_hunter_limit"), 0);
-				SetConVarInt(FindConVar("z_spitter_limit"), 0);
-				SetConVarInt(FindConVar("z_jockey_limit"), 0);
-				SetConVarInt(FindConVar("z_charger_limit"), 0);
+				SetConVarInt(FindConVar("z_smoker_limit"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("z_boomer_limit"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("z_hunter_limit"), g_iSpawnLimits[SI_HUNTER]);
+				SetConVarInt(FindConVar("z_spitter_limit"), g_iSpawnLimits[SI_SPITTER]);
+				SetConVarInt(FindConVar("z_jockey_limit"), g_iSpawnLimits[SI_JOCKEY]);
+				SetConVarInt(FindConVar("z_charger_limit"), g_iSpawnLimits[SI_CHARGER]);
 			}
 			else
 			{
-				SetConVarInt(FindConVar("z_gas_limit"), 999);
-				SetConVarInt(FindConVar("z_exploding_limit"), 999);
-				SetConVarInt(FindConVar("z_hunter_limit"), 999);
+				SetConVarInt(FindConVar("z_gas_limit"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("z_exploding_limit"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("z_hunter_limit"), g_iSpawnLimits[SI_HUNTER]);
 			}
 
 			if (g_bVersusCoop)
@@ -1453,40 +1468,38 @@ void TweakSettings()
 		{
 			if (g_bL4D2Version)
 			{
-				SetConVarInt(FindConVar("survival_max_smokers"), 0);
-				SetConVarInt(FindConVar("survival_max_boomers"), 0);
-				SetConVarInt(FindConVar("survival_max_hunters"), 0);
-				SetConVarInt(FindConVar("survival_max_spitters"), 0);
-				SetConVarInt(FindConVar("survival_max_jockeys"), 0);
-				SetConVarInt(FindConVar("survival_max_chargers"), 0);
-				//SetConVarInt(FindConVar("survival_max_specials"), g_iMaxPlayerZombies);
-				SetConVarInt(FindConVar("survival_max_specials"), 0);
+				SetConVarInt(FindConVar("survival_max_smokers"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("survival_max_boomers"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("survival_max_hunters"), g_iSpawnLimits[SI_HUNTER]);
+				SetConVarInt(FindConVar("survival_max_spitters"), g_iSpawnLimits[SI_SPITTER]);
+				SetConVarInt(FindConVar("survival_max_jockeys"), g_iSpawnLimits[SI_JOCKEY]);
+				SetConVarInt(FindConVar("survival_max_chargers"), g_iSpawnLimits[SI_CHARGER]);
+				SetConVarInt(FindConVar("survival_max_specials"), g_iMaxPlayerZombies);
 				SetConVarInt(FindConVar("survival_tank_stage_interval"), 9999999);
 				SetConVarInt(FindConVar("survival_special_limit_increase"), 0);
 				SetConVarInt(FindConVar("survival_special_spawn_interval"), 9999999);
 				SetConVarInt(FindConVar("survival_special_stage_interval"), 9999999);
 
-				SetConVarInt(FindConVar("z_smoker_limit"), 0);
-				SetConVarInt(FindConVar("z_boomer_limit"), 0);
-				SetConVarInt(FindConVar("z_hunter_limit"), 0);
-				SetConVarInt(FindConVar("z_spitter_limit"), 0);
-				SetConVarInt(FindConVar("z_jockey_limit"), 0);
-				SetConVarInt(FindConVar("z_charger_limit"), 0);
+				SetConVarInt(FindConVar("z_smoker_limit"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("z_boomer_limit"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("z_hunter_limit"), g_iSpawnLimits[SI_HUNTER]);
+				SetConVarInt(FindConVar("z_spitter_limit"), g_iSpawnLimits[SI_SPITTER]);
+				SetConVarInt(FindConVar("z_jockey_limit"), g_iSpawnLimits[SI_JOCKEY]);
+				SetConVarInt(FindConVar("z_charger_limit"), g_iSpawnLimits[SI_CHARGER]);
 			}
 			else
 			{
-				SetConVarInt(FindConVar("holdout_max_smokers"), 0);
-				SetConVarInt(FindConVar("holdout_max_boomers"), 0);
-				SetConVarInt(FindConVar("holdout_max_hunters"), 0);
-				//SetConVarInt(FindConVar("holdout_max_specials"), g_iMaxPlayerZombies);
-				SetConVarInt(FindConVar("holdout_max_specials"), 0);
+				SetConVarInt(FindConVar("holdout_max_smokers"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("holdout_max_boomers"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("holdout_max_hunters"), g_iSpawnLimits[SI_HUNTER]);
+				SetConVarInt(FindConVar("holdout_max_specials"), g_iMaxPlayerZombies);
 				SetConVarInt(FindConVar("holdout_tank_stage_interval"), 9999999);
 				SetConVarInt(FindConVar("holdout_special_spawn_interval"), 9999999);
 				SetConVarInt(FindConVar("holdout_special_stage_interval"), 9999999);
 
-				SetConVarInt(FindConVar("z_gas_limit"), 0);
-				SetConVarInt(FindConVar("z_exploding_limit"), 0);
-				SetConVarInt(FindConVar("z_hunter_limit"), 0);
+				SetConVarInt(FindConVar("z_gas_limit"), g_iSpawnLimits[SI_SMOKER]);
+				SetConVarInt(FindConVar("z_exploding_limit"), g_iSpawnLimits[SI_BOOMER]);
+				SetConVarInt(FindConVar("z_hunter_limit"), g_iSpawnLimits[SI_HUNTER]);
 			}
 		}
 	}
@@ -1501,10 +1514,8 @@ void TweakSettings()
 		SetConVarInt(director_allow_infected_bots, 0);
 		//SetConVarInt(FindConVar("versus_special_respawn_interval"), 99999999);
 	}
-	#if DEBUG
-	LogMessage("Tweaking Settings");
-	#endif
 
+	//LogMessage("Tweaking Settings");
 }
 
 void ResetCvars()
@@ -1610,7 +1621,7 @@ public void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBr
 	}
 }
 
-public Action Timer_PluginStart(Handle timer)
+Action Timer_PluginStart(Handle timer)
 {
 	if (g_bCvarAllow == false)
 		return Plugin_Continue;
@@ -1691,7 +1702,7 @@ public Action Timer_PluginStart(Handle timer)
 	infHUDTimer = CreateTimer(1.0, showInfHUD, _, TIMER_REPEAT);
 
 	#if DEBUG
-		PrintToChatAll("[TS] PluginStart()!");
+		LogMessage("[TS] PluginStart()!");
 	#endif
 	delete PlayerLeftStartTimer;
 	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
@@ -3701,7 +3712,8 @@ int BotTypeNeeded()
 	else
 	{
 		if ( ( (g_bFinaleStarted && g_bTankSpawnFinal == true) || !g_bFinaleStarted ) &&
-			g_iSpawnCounts[SI_TANK] < g_iTankLimit) 
+			g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
+			GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
 		{
 			#if DEBUG
 			LogMessage("Bot type returned Tank");
@@ -6237,4 +6249,81 @@ int GenerateIndex()
 
 	return -1; //no selection because all weights were negative or 0
 }
+
 ///////////////////////////////////////////////////////////////////////////
+
+public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
+{
+	if (strcmp(sKey, "BoomerLimit", false) == 0) {
+
+		retVal = g_iSpawnLimits[SI_BOOMER];
+		//PrintToServer("BoomerLimit %d", retVal);
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "SmokerLimit", false) == 0) {
+
+		retVal = g_iSpawnLimits[SI_SMOKER];
+		//PrintToServer("SmokerLimit %d", retVal);
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "HunterLimit", false) == 0) {
+
+		retVal = g_iSpawnLimits[SI_HUNTER];
+		//PrintToServer("HunterLimit %d", retVal);
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "SpitterLimit", false) == 0) {
+
+		retVal = g_iSpawnLimits[SI_SPITTER];
+		//PrintToServer("SpitterLimit %d", retVal);
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "JockeyLimit", false) == 0) {
+
+		retVal = g_iSpawnLimits[SI_JOCKEY];
+		//PrintToServer("JockeyLimit %d", retVal);
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "ChargerLimit", false) == 0) {
+
+		retVal = g_iSpawnLimits[SI_CHARGER];
+		//PrintToServer("ChargerLimit %d", retVal);
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "MaxSpecials", false) == 0 || strcmp(sKey, "cm_MaxSpecials", false) == 0 || strcmp(sKey, "cm_BaseSpecialLimit", false) == 0) {
+
+		retVal = g_iMaxPlayerZombies;
+		//PrintToServer("MaxSpecials %d", retVal);
+
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "DominatorLimit", false) == 0 || strcmp(sKey, "cm_DominatorLimit", false) == 0) { // Maximum number of Hunters, Smokers, Jockeys and Chargers allowed to be in play simultaneously.
+
+		retVal = g_iMaxPlayerZombies;
+		//PrintToServer("DominatorLimit %d", retVal);
+
+		return Plugin_Handled;
+	}
+	else if(strcmp(sKey, "CommonLimit", false) == 0 || strcmp(sKey, "cm_CommonLimit", false) == 0) {
+
+		retVal = g_iCvar_z_common_limit;
+		//PrintToServer("CommonLimit %d", retVal);
+
+		return Plugin_Handled;
+	}
+
+	return Plugin_Continue;
+}
+
+public Action L4D_OnGetScriptValueFloat(const char[] sKey, float &retVal)
+{
+	if(strcmp(sKey, "SpecialRespawnInterval", false) == 0 || strcmp(sKey, "cm_SpecialRespawnInterval", false) == 0) {
+
+		retVal = 999999.9;
+		//PrintToServer("L4D_OnGetScriptValueFloat SpecialRespawnInterval %.1f", retVal);
+
+		return Plugin_Handled;
+	}
+
+	return Plugin_Continue;
+}
