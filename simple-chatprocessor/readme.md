@@ -15,6 +15,9 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.3h (2023-7-5)
+		* Fixed Crash
+
 	* v1.2h (2023-6-16)
 		* Fixed error "Exception reported: Unable to end message, no message is in progress"
 
