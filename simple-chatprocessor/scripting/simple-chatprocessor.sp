@@ -38,7 +38,7 @@ $Copyright: (c) Simple Plugins 2008-2009$
 #include <sourcemod>
 #undef REQUIRE_PLUGIN
 
-#define PLUGIN_VERSION				"1.2h-2023/6/16"
+#define PLUGIN_VERSION				"1.3h-2023/7/5"
 #define SENDER_WORLD			0
 #define MAXLENGTH_INPUT			128 	// Inclues \0 and is the size of the chat input box.
 #define MAXLENGTH_NAME			64		// This is backwords math to get compability.  Sourcemod has it set at 32, but there is room for more.
@@ -537,6 +537,7 @@ public void OnGameFrame() {
 					pb.AddString("params", "");
 					pb.AddString("params", "");
 					pb.AddString("params", "");
+					EndMessage();
 				}
 			}
 			else {
@@ -554,9 +555,9 @@ public void OnGameFrame() {
 					buf.WriteByte(client);
 					buf.WriteByte(bChat);
 					buf.WriteString(sTranslation);
+					EndMessage();
 				}
 			}
-			if(numClientsFinish > 0) EndMessage();
 		}
 		else {
 			client = pack.ReadCell();
