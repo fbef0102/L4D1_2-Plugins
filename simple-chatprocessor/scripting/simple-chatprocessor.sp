@@ -54,44 +54,18 @@ $Copyright: (c) Simple Plugins 2008-2009$
 
 enum eMods {
 	GameType_Unknown,
-	GameType_AOC,
-	GameType_CSGO,
-	GameType_CSS,
-	GameType_DOD,
-	GameType_FF,
-	GameType_HIDDEN,
-	GameType_HL2DM,
-	GameType_INS,
 	GameType_L4D,
 	GameType_L4D2,
-	GameType_NEO,
-	GameType_SGTLS,
-	GameType_TF,
-	GameType_DM,
-	GameType_ZPS,
 };
 
 ArrayList g_hDPArray = null;
 
-eMods g_CurrentMod;
+/*eMods g_CurrentMod;
 char g_sGameName[eMods][32] = {
 	"Unknown",
-	"Age of Chivalry",
-	"Counter-Strike: GO",
-	"Counter Strike",
-	"Day Of Defeat",
-	"Fortress Forever",
-	"Hidden: Source",
-	"Half Life 2: Deathmatch",
-	"Insurgency",
 	"Left 4 Dead",
 	"Left 4 Dead 2",
-	"Neotokyo",
-	"Stargate TLS",
-	"Team Fortress 2",
-	"Dark Messiah",
-	"Zombie Panic: Source"
-};
+};*/
 StringMap
 	  g_hChatFormats;
 GlobalForward
@@ -120,9 +94,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart() {
 	CreateConVar("scp_version", PLUGIN_VERSION, "Plugin Version", FCVAR_DONTRECORD|FCVAR_NOTIFY|FCVAR_CHEAT);
 
-	g_CurrentMod = GetCurrentMod();
+	//g_CurrentMod = GetCurrentMod();
 	g_hChatFormats = new StringMap();
-	LogMessage("[SCP] Recognized mod [%s].", g_sGameName[g_CurrentMod]);
+	//LogMessage("[SCP] Recognized mod [%s].", g_sGameName[g_CurrentMod]);
 
 	/**
 	Hook the usermessage or error out if the mod doesn't support saytext2
@@ -135,9 +109,6 @@ public void OnPluginStart() {
 	else {
 		UserMsg umSayText = GetUserMessageId("SayText");
 		if (umSayText != INVALID_MESSAGE_ID) {
-			if (g_CurrentMod != GameType_DOD) {
-				SetFailState("Unsupported game");
-			}
 
 			g_bSayText2 = false;
 			HookUserMessage(umSayText, OnSayText, true);
@@ -161,7 +132,7 @@ public void OnPluginStart() {
 		BuildPath(Path_SM, sTranslationLocation, sizeof(sTranslationLocation), "translations/%s.txt", sTranslationFile);
 
 		if (FileExists(sTranslationLocation)) {
-			LogMessage("[SCP] Loading translation file [%s].", sTranslationFile);
+			//LogMessage("[SCP] Loading translation file [%s].", sTranslationFile);
 			LoadTranslations(sTranslationFile);
 			if (!GetChatFormats(sTranslationLocation)) {
 				LogError("[SCP] Could not parse the translation file");
@@ -698,51 +669,13 @@ stock eMods GetCurrentMod() {
 	char sGameType[64];
 	GetGameFolderName(sGameType, sizeof(sGameType));
 
-	if (StrEqual(sGameType, "tf", false)) {
-		return GameType_TF;
-	}
-	if (StrEqual(sGameType, "aoc", false)) {
-		return GameType_AOC;
-	}
-	if (StrEqual(sGameType, "csgo", false)) {
-		return GameType_CSGO;
-	}
-	if (StrEqual(sGameType, "cstrike", false)) {
-		return GameType_CSS;
-	}
-	if (StrEqual(sGameType, "dod", false)) {
-		return GameType_DOD;
-	}
-	if (StrEqual(sGameType, "ff", false)) {
-		return GameType_FF;
-	}
-	if (StrEqual(sGameType, "hidden", false)) {
-		return GameType_HIDDEN;
-	}
-	if (StrEqual(sGameType, "hl2mp", false)) {
-		return GameType_HL2DM;
-	}
-	if (StrEqual(sGameType, "insurgency", false) || StrEqual(sGameType, "ins", false)) {
-		return GameType_INS;
-	}
 	if (StrEqual(sGameType, "left4dead", false) || StrEqual(sGameType, "l4d", false)) {
 		return GameType_L4D;
 	}
 	if (StrEqual(sGameType, "left4dead2", false) || StrEqual(sGameType, "l4d2", false)) {
 		return GameType_L4D2;
 	}
-	if (StrEqual(sGameType, "nts", false)) {
-		return GameType_NEO;
-	}
-	if (StrEqual(sGameType, "sgtls", false)) {
-		return GameType_SGTLS;
-	}
-	if (StrEqual(sGameType, "zps", false)) {
-		return GameType_ZPS;
-	}
-	if (StrEqual(sGameType, "mmdarkmessiah", false)) {
-		return GameType_DM;
-	}
+
 	LogMessage("Unknown Game Folder: %s", sGameType);
 	return GameType_Unknown;
 }

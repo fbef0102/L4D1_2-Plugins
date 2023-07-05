@@ -1,5 +1,5 @@
 # Description | 內容
-Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
+Spawns multi infected bots in versus + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 
 * Video | 影片展示
 <br>None
@@ -17,7 +17,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 * Apply to | 適用於
 	```
-	L4D1 all modes
+	L4D1 coop/versus/realism/survival/scavenge + all mutation modes
 	L4D2 all modes
 	```
 
@@ -35,6 +35,9 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.3 (2023-7-5)
+		* Override L4D2 Vscripts to control infected limit.
+
 	* v2.8.2 (2023-5-27)
 		* Add a convar, including dead survivors or not
 		* Add a convar, disable infected bots spawning or not in versus/scavenge mode
@@ -584,15 +587,17 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 - - - -
 # 中文說明
-多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
+多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制 + 解除特感隊伍的人數限制 (可達成對抗 10 VS 10 玩法)
 
 * 原理
 	* 此插件控制遊戲導演生成系統，能夠強制無視遊戲特感數量限制，生成多特感
 	* 當倖存者變多時，殭屍數量變多、特感數量變多、Tank數量變多、Tank血量變多，提升遊戲難度
 	* 此插件可以讓玩家在戰役/寫實/生存模式下加入特感陣營，用來惡搞戰役玩家XD
+	* 解鎖特感隊伍的人數上限，可以加入第五位以上的特感真人玩家，達成對抗 10 VS 10 玩法
+	* **支援所有模式包括突變模式**
 
 * 功能
-	1. 見下方指令中文介紹與如何設置正確的指令值
+	* 見下方指令中文介紹與如何設置正確的指令值
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -713,7 +718,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 		// AI特感生成多少秒後踢出（AI防卡）
 		l4d_infectedbots_lifespan "30"
 
-		// 當倖存者數量低于4個及以下時可生成的最大特感數量（必須讓7個特感數量{不包括witch}上限的值加起來超過這個值
+		// 當倖存者數量低于4個及以下時可生成的最大特感數量（必須讓6個特感數量[Smoker, Boomer, Hunter, Spitter, Jockey, Charger]上限的值加起來超過這個值)
 		l4d_infectedbots_max_specials "2"
 
 		// 在這些模式中啓用插件，逗號隔開不需要空格（全空=全模式啓用插件）
@@ -880,7 +885,7 @@ Spawns infected bots in L4D1 versus, and gives greater control of the infected b
 
 	2. <details><summary>如果第5位以上存活的倖存者，則調整特感最大生成數量</summary>
 
-		* 例如: 如果第5位以上存活的倖存者，每3個玩家加入，最大的特殊限制加2
+		* 例如: 如果第5位以上存活的倖存者，每3個玩家加入，最大的特感數量加2
 		<br/>因此，如果有10個存活的倖存者，則特感最大生成數量爲：4+2+2=8
 			```php
 			l4d_infectedbots_max_specials "4"

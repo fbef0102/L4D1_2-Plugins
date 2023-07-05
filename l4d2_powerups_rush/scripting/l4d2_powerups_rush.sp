@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "2.2.1"
+#define PLUGIN_VERSION "1.0h-2023/7/5"
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -6,6 +6,7 @@
 #include <sdkhooks>
 #include <sdktools>
 #include <left4dhooks>
+#include <multicolors>
 //Set this value to 1 to enable debugging
 #define DEBUG 0
 
@@ -128,6 +129,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
+#define TRANSLATION_FILE		"l4d2_powerups_rush.phrases"
+
 float fGameTimeSave[MAXPLAYERS+1];
 ConVar hCvar_AnimSpeed;
 
@@ -138,6 +141,8 @@ float fTickRate;
 
 public void OnPluginStart()
 {
+	LoadTranslations(TRANSLATION_FILE);
+
 	//ConVars
 	RegAdminCmd("sm_giveadren", Command_GiveAdrenaline, ADMFLAG_CHEATS, "Gives Adrenaline to all Survivors.");
 	RegAdminCmd("sm_givepills", Command_GivePills, ADMFLAG_CHEATS, "Give Pills to all Survivors.");
@@ -264,12 +269,12 @@ public Action Timer_Notify(Handle Timer, any client)
 		switch(powerups_broadcast_type.IntValue)
 		{
 			case 0: {/*nothing*/}
-			case 1: PrintToChat(client, "\x01[\x05TS\x01] In this server, using the \x04Adrenaline \x01(or \x04Pills\x01) will grant a \x04Reload, Firing, and Melee Swing bonus \x01during that duration");
-			case 2: PrintHintText(client, "In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration");
+			case 1: CPrintToChat(client, "%T", "broadcast (C)", client);
+			case 2: PrintHintText(client, "%T", "broadcast", client);
 			case 3: 
 			{
-				PrintToChat(client, "\x01[\x05TS\x01] In this server, using the \x04Adrenaline \x01(or \x04Pills\x01) will grant a \x04Reload, Firing, and Melee Swing bonus \x01during that duration");
-				PrintHintText(client, "In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration");
+				CPrintToChat(client, "broadcast (C)", client);
+				PrintHintText(client, "%T", "broadcast", client);
 			}
 		}
 	}
@@ -324,7 +329,7 @@ public Action Timer_PlayerLeftStart(Handle Timer)
 	return Plugin_Continue; 
 }
 
-public Action Timer_GiveAdrenaline(Handle timer)
+Action Timer_GiveAdrenaline(Handle timer)
 {
 	if (g_powerups_plugin_on)
 	{
@@ -343,7 +348,7 @@ public Action Command_GiveAdrenaline(int client, int args)
 	return Plugin_Handled;
 }
 
-public void GiveAdrenalineToAll()
+void GiveAdrenalineToAll()
 {
 	int flags = GetCommandFlags("give");	
 	SetCommandFlags("give", flags & ~FCVAR_CHEAT);	
@@ -352,7 +357,7 @@ public void GiveAdrenalineToAll()
 		if (IsClientInGame(i) && GetClientTeam(i) == 2)
 		{
 			FakeClientCommand(i, "give adrenaline");
-			PrintToChat(i, "\x01[\x05TS\x01] Grabbin' \x04Adrenaline");
+			CPrintToChat(i, "%T", "Grabbin Adrenaline", i);
 		}
 	}
 	SetCommandFlags("give", flags|FCVAR_CHEAT);
@@ -386,7 +391,7 @@ public void GivePillsToAll()
 		if (IsClientInGame(i) && GetClientTeam(i) == 2)
 		{
 			FakeClientCommand(i, "give pain_pills");
-			PrintToChat(i, "\x01[\x05TS\x01] Grabbin' \x04Pills");
+			CPrintToChat(i, "%T", "Grabbin Pill", i);
 		}
 	}
 	SetCommandFlags("give", flags|FCVAR_CHEAT);
@@ -423,12 +428,12 @@ public void GiveRandomToAll()
 			if (luck == 1)
 			{
 				FakeClientCommand(i, "give adrenaline");
-				PrintToChat(i, "\x01[\x05TS\x01] Grabbin' \x04Adrenaline");
+				CPrintToChat(i, "%T", "Grabbin Adrenaline", i);
 			}
 			if (luck == 2)
 			{
 				FakeClientCommand(i, "give pain_pills");
-				PrintToChat(i, "\x01[\x05TS\x01] Grabbin' \x04Pills");
+				CPrintToChat(i, "%T", "Grabbin Pill", i);
 			}
 		}
 	}
@@ -449,16 +454,16 @@ public void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroad
 			//use a second adrenaline while the first one is still active
 			delete g_powerups_countdown[client];
 			#if DEBUG
-				PrintToChat(client, "\x04[DEBUG] \x03Resetting powerups timers");
+				CPrintToChat(client, "{green}[DEBUG] {lightgreen}Resetting powerups timers");
 			#endif
 			g_usedhealth[client] = 0;
 			
 			switch(powerups_notify_type.IntValue)
 			{
 				case 0: {/*nothing*/}
-				case 1: {PrintToChat(client, "\x01[\x05TS\x01] Reload, Firing, and Melee Swing Rates increased!");}
-				case 2: {PrintHintText(client, "Reload, Firing, and Melee Swing Rates increased!");}
-				case 3: {PrintCenterText(client, "Reload, Firing, and Melee Swing Rates increased!");}
+				case 1: {CPrintToChat(client, "%T", "notify (C)", client);}
+				case 2: {PrintHintText(client, "%T", "notify", client);}
+				case 3: {PrintCenterText(client, "%T", "notify", client);}
 			}
 			
 			g_powerups_timeleft[client] = powerups_duration.FloatValue;
@@ -488,16 +493,16 @@ public void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 				//a second bottle of pills while the first one is still active
 				delete g_powerups_countdown[client];
 				#if DEBUG
-				PrintToChat(client, "\x04[DEBUG] \x03Resetting powerups timers");
+				CPrintToChat(client, "{green}[DEBUG] {lightgreen}Resetting powerups timers");
 				#endif
 				g_usedhealth[client] = 0;
 				
 				switch(powerups_notify_type.IntValue)
 				{
 					case 0: {/*nothing*/}
-					case 1: {PrintToChat(client, "\x01[\x05TS\x01] Reload, Firing, and Melee Swing Rates increased!");}
-					case 2: {PrintHintText(client, "Reload, Firing, and Melee Swing Rates increased!");}
-					case 3: {PrintCenterText(client, "Reload, Firing, and Melee Swing Rates increased!");}
+					case 1: {CPrintToChat(client, "%T", "notify (C)", client);}
+					case 2: {PrintHintText(client, "%T", "notify", client);}
+					case 3: {PrintCenterText(client, "%T", "notify", client);}
 				}
 				
 				g_powerups_timeleft[client] = powerups_duration.FloatValue;
@@ -533,9 +538,9 @@ public Action Timer_Countdown(Handle timer, any client)
 		switch(powerups_notify_type.IntValue)
 		{
 			case 0: {/*nothing*/}
-			case 1: {PrintToChat(client, "\x01[\x05TS\x01] Reload, Firing, and Melee Swing Rates returning to normal...");}
-			case 2: {PrintHintText(client,"Reload, Firing, and Melee Swing Rates returning to normal...");}
-			case 3: {PrintCenterText(client, "Reload, Firing, and Melee Swing Rates returning to normal...");}
+				case 1: {CPrintToChat(client, "%T", "notify_normal (C)", client);}
+				case 2: {PrintHintText(client, "%T", "notify_normal", client);}
+				case 3: {PrintCenterText(client, "%T", "notify_normal", client);}
 		}
 
 		g_usedhealth[client] = 0;
@@ -548,9 +553,9 @@ public Action Timer_Countdown(Handle timer, any client)
 		switch(powerups_timer_type.IntValue)
 		{
 			case 0: {/*nothing*/}
-			case 1: {PrintToChat(client,"Powerups time left: \x04%.0f\x01", g_powerups_timeleft[client]);}
-			case 2: {PrintHintText(client,"Powerups time left: %.0f", g_powerups_timeleft[client]);}
-			case 3: {PrintCenterText(client,"Powerups time left: %.0f", g_powerups_timeleft[client]);}
+			case 1: {CPrintToChat(client,"%T", "Powerups time (C)", client, g_powerups_timeleft[client]);}
+			case 2: {PrintHintText(client,"%T", "Powerups time", client, g_powerups_timeleft[client]);}
+			case 3: {PrintCenterText(client,"%T", "Powerups time", client, g_powerups_timeleft[client]);}
 		}
 		g_powerups_timeleft[client] -= 1.0;
 
@@ -599,7 +604,7 @@ void AdrenReload (int client)
 	if (GetClientTeam(client) == 2)
 	{
 		#if DEBUG
-		PrintToChatAll("\x03Client \x01%i\x03; start of reload detected",client );
+			CPrintToChatAll("{lightgreen}Client {default}%i{lightgreen}; start of reload detected",client );
 		#endif
 		int iEntid = GetEntDataEnt2(client, g_iActiveWO);
 		if (IsValidEntity(iEntid)==false) return;
@@ -607,7 +612,7 @@ void AdrenReload (int client)
 		char stClass[32];
 		GetEntityNetClass(iEntid,stClass,32);
 		#if DEBUG
-		PrintToChatAll("\x03-class of gun: \x01%s",stClass );
+			CPrintToChatAll("{lightgreen}-class of gun: {default}%s",stClass );
 		#endif
 
 		//for non-shotguns
@@ -651,18 +656,18 @@ void AdrenReload (int client)
 void MagStart (int iEntid, int client)
 {
 	#if DEBUG
-	PrintToChatAll("\x05-magazine loader detected,\x03 gametime \x01%f", GetGameTime());
+		CPrintToChatAll("{olive}-magazine loader detected,{lightgreen} gametime {default}%f", GetGameTime());
 	#endif
 	float flGameTime = GetGameTime();
 	float flNextTime_ret = GetEntDataFloat(iEntid,g_iNextPAttO);
 	#if DEBUG
-	PrintToChatAll("\x03- pre, gametime \x01%f\x03, retrieved nextattack\x01 %i %f\x03, retrieved time idle \x01%i %f",
-		flGameTime,
-		g_iNextAttO,
-		GetEntDataFloat(client,g_iNextAttO),
-		g_iTimeIdleO,
-		GetEntDataFloat(iEntid,g_iTimeIdleO)
-		);
+		CPrintToChatAll("{lightgreen}- pre, gametime {default}%f{lightgreen}, retrieved nextattack{default} %i %f{lightgreen}, retrieved time idle {default}%i %f",
+			flGameTime,
+			g_iNextAttO,
+			GetEntDataFloat(client,g_iNextAttO),
+			g_iTimeIdleO,
+			GetEntDataFloat(iEntid,g_iTimeIdleO)
+			);
 	#endif
 
 	//this is a calculation of when the next primary attack will be after applying reload values
@@ -687,14 +692,14 @@ void MagStart (int iEntid, int client)
 	SetEntDataFloat(iEntid, g_iNextPAttO, flNextTime_calc, true);
 	SetEntDataFloat(client, g_iNextAttO, flNextTime_calc, true);
 	#if DEBUG
-	PrintToChatAll("\x03- post, calculated nextattack \x01%f\x03, gametime \x01%f\x03, retrieved nextattack\x01 %i %f\x03, retrieved time idle \x01%i %f",
-		flNextTime_calc,
-		flGameTime,
-		g_iNextAttO,
-		GetEntDataFloat(client,g_iNextAttO),
-		g_iTimeIdleO,
-		GetEntDataFloat(iEntid,g_iTimeIdleO)
-		);
+		CPrintToChatAll("{lightgreen}- post, calculated nextattack {default}%f{lightgreen}, gametime {default}%f{lightgreen}, retrieved nextattack{default} %i %f{lightgreen}, retrieved time idle {default}%i %f",
+			flNextTime_calc,
+			flGameTime,
+			g_iNextAttO,
+			GetEntDataFloat(client,g_iNextAttO),
+			g_iTimeIdleO,
+			GetEntDataFloat(iEntid,g_iTimeIdleO)
+			);
 	#endif
 }
 
@@ -723,17 +728,17 @@ public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
 		return Plugin_Stop;
 
 	#if DEBUG
-	PrintToChatAll("\x03-autoshotgun detected, iEntid \x01%i\x03, startO \x01%i\x03, insertO \x01%i\x03, endO \x01%i",
-		iEntid,
-		g_iShotStartDurO,
-		g_iShotInsertDurO,
-		g_iShotEndDurO
-		);
-	PrintToChatAll("\x03- pre mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_AutoI,
-		g_fl_AutoS,
-		g_fl_AutoE
-		);
+		CPrintToChatAll("{lightgreen}-autoshotgun detected, iEntid {default}%i{lightgreen}, startO {default}%i{lightgreen}, insertO {default}%i{lightgreen}, endO {default}%i",
+			iEntid,
+			g_iShotStartDurO,
+			g_iShotInsertDurO,
+			g_iShotEndDurO
+			);
+		CPrintToChatAll("{lightgreen}- pre mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
+			g_fl_AutoI,
+			g_fl_AutoS,
+			g_fl_AutoE
+			);
 	#endif
 		
 	//then we set the new times in the gun
@@ -757,11 +762,11 @@ public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
 	}
 
 	#if DEBUG
-	PrintToChatAll("\x03- after mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_AutoS,
-		g_fl_AutoI,
-		g_fl_AutoE
-		);
+		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
+			g_fl_AutoS,
+			g_fl_AutoI,
+			g_fl_AutoE
+			);
 	#endif
 
 	return Plugin_Stop;
@@ -791,17 +796,17 @@ public Action Timer_SpasShotgunStart (Handle timer, Handle hPack)
 		return Plugin_Stop;
 
 	#if DEBUG
-	PrintToChatAll("\x03-autoshotgun detected, iEntid \x01%i\x03, startO \x01%i\x03, insertO \x01%i\x03, endO \x01%i",
-		iEntid,
-		g_iShotStartDurO,
-		g_iShotInsertDurO,
-		g_iShotEndDurO
-		);
-	PrintToChatAll("\x03- pre mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_SpasS,
-		g_fl_SpasI,
-		g_fl_SpasE
-		);
+		CPrintToChatAll("{lightgreen}-autoshotgun detected, iEntid {default}%i{lightgreen}, startO {default}%i{lightgreen}, insertO {default}%i{lightgreen}, endO {default}%i",
+			iEntid,
+			g_iShotStartDurO,
+			g_iShotInsertDurO,
+			g_iShotEndDurO
+			);
+		CPrintToChatAll("{lightgreen}- pre mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
+			g_fl_SpasS,
+			g_fl_SpasI,
+			g_fl_SpasE
+			);
 	#endif
 		
 	//then we set the new times in the gun
@@ -817,11 +822,11 @@ public Action Timer_SpasShotgunStart (Handle timer, Handle hPack)
 	CreateTimer(0.3, Timer_ShotgunEnd, hPack, TIMER_REPEAT);
 
 	#if DEBUG
-	PrintToChatAll("\x03- after mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_SpasS,
-		g_fl_SpasI,
-		g_fl_SpasE
-		);
+		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
+			g_fl_SpasS,
+			g_fl_SpasI,
+			g_fl_SpasE
+			);
 	#endif
 
 	return Plugin_Stop;
@@ -852,17 +857,17 @@ public Action Timer_PumpshotgunStart (Handle timer, Handle hPack)
 		return Plugin_Stop;
 
 	#if DEBUG
-	PrintToChatAll("\x03-pumpshotgun detected, iEntid \x01%i\x03, startO \x01%i\x03, insertO \x01%i\x03, endO \x01%i",
-		iEntid,
-		g_iShotStartDurO,
-		g_iShotInsertDurO,
-		g_iShotEndDurO
-		);
-	PrintToChatAll("\x03- pre mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_PumpS,
-		g_fl_PumpI,
-		g_fl_PumpE
-		);
+		CPrintToChatAll("{lightgreen}-pumpshotgun detected, iEntid {default}%i{lightgreen}, startO {default}%i{lightgreen}, insertO {default}%i{lightgreen}, endO {default}%i",
+			iEntid,
+			g_iShotStartDurO,
+			g_iShotInsertDurO,
+			g_iShotEndDurO
+			);
+		CPrintToChatAll("{lightgreen}- pre mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
+			g_fl_PumpS,
+			g_fl_PumpI,
+			g_fl_PumpE
+			);
 	#endif
 
 	//then we set the new times in the gun
@@ -885,11 +890,11 @@ public Action Timer_PumpshotgunStart (Handle timer, Handle hPack)
 	}
 
 	#if DEBUG
-	PrintToChatAll("\x03- after mod, start \x01%f\x03, insert \x01%f\x03, end \x01%f",
-		g_fl_PumpS,
-		g_fl_PumpI,
-		g_fl_PumpE
-		);
+		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
+			g_fl_PumpS,
+			g_fl_PumpI,
+			g_fl_PumpE
+			);
 	#endif
 
 	return Plugin_Stop;
@@ -903,7 +908,7 @@ public Action Timer_MagEnd (Handle timer, any iEntid)
 		return Plugin_Stop;
 
 	#if DEBUG
-	PrintToChatAll("\x03Reset playback, magazine loader");
+		CPrintToChatAll("{lightgreen}Reset playback, magazine loader");
 	#endif
 
 	if (iEntid <= 0
@@ -928,7 +933,7 @@ public Action Timer_MagEnd2 (Handle timer, Handle hPack)
 	}
 
 	#if DEBUG
-	PrintToChatAll("\x03Reset playback, magazine loader");
+		CPrintToChatAll("{lightgreen}Reset playback, magazine loader");
 	#endif
 
 	if (iCid <= 0
@@ -941,7 +946,7 @@ public Action Timer_MagEnd2 (Handle timer, Handle hPack)
 	SetEntDataFloat(iVMid, g_iVMStartTimeO, flStartTime_calc, true);
 
 	#if DEBUG
-	PrintToChatAll("\x03- end mag loader, icid \x01%i\x03 starttime \x01%f\x03 gametime \x01%f", iCid, flStartTime_calc, GetGameTime());
+		CPrintToChatAll("{lightgreen}- end mag loader, icid {default}%i{lightgreen} starttime {default}%f{lightgreen} gametime {default}%f", iCid, flStartTime_calc, GetGameTime());
 	#endif
 
 	return Plugin_Stop;
@@ -950,7 +955,7 @@ public Action Timer_MagEnd2 (Handle timer, Handle hPack)
 public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
 {
 	#if DEBUG
-	PrintToChatAll("\x03-autoshotgun tick");
+		CPrintToChatAll("{lightgreen}-autoshotgun tick");
 	#endif
 
 	ResetPack(hPack);
@@ -972,7 +977,7 @@ public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
 	if (GetEntData(iEntid,g_iShotRelStateO)==0)
 	{
 		#if DEBUG
-		PrintToChatAll("\x03-shotgun end reload detected");
+			CPrintToChatAll("{lightgreen}-shotgun end reload detected");
 		#endif
 
 		SetEntDataFloat(iEntid, g_iPlayRateO, 1.0, true);
@@ -995,7 +1000,7 @@ public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
 public Action Timer_ShotgunEndCock (Handle timer, Handle hPack)
 {
 	#if DEBUG
-	PrintToChatAll("\x03-autoshotgun tick");
+		CPrintToChatAll("{lightgreen}-autoshotgun tick");
 	#endif
 
 	ResetPack(hPack);
@@ -1017,7 +1022,7 @@ public Action Timer_ShotgunEndCock (Handle timer, Handle hPack)
 	if (GetEntData(iEntid,g_iShotRelStateO) == 0)
 	{
 		#if DEBUG
-		PrintToChatAll("\x03-shotgun end reload + cock detected");
+			CPrintToChatAll("{lightgreen}-shotgun end reload + cock detected");
 		#endif
 
 		SetEntDataFloat(iEntid, g_iPlayRateO, 1.0, true);
@@ -1081,7 +1086,7 @@ void MA_Rebuild ()
 	if (IsServerProcessing()==false)
 		return;
 	#if DEBUG
-	PrintToChatAll("\x03Rebuilding melee registry");
+		CPrintToChatAll("{lightgreen}Rebuilding melee registry");
 	#endif
 	for (int iI = 1 ; iI <= MaxClients ; iI++)
 	{
@@ -1090,7 +1095,7 @@ void MA_Rebuild ()
 			g_iMARegisterCount++;
 			g_iMARegisterIndex[g_iMARegisterCount]=iI;
 			#if DEBUG
-			PrintToChatAll("\x03-registering \x01%i",iI);
+				CPrintToChatAll("{lightgreen}-registering {default}%i",iI);
 			#endif
 		}
 	}
@@ -1102,7 +1107,7 @@ void MA_Clear ()
 {
 	g_iMARegisterCount=0;
 	#if DEBUG
-	PrintToChatAll("\x03Clearing melee registry");
+		CPrintToChatAll("{lightgreen}Clearing melee registry");
 	#endif
 	for (int iI = 1 ; iI <= MaxClients ; iI++)
 	{
@@ -1121,7 +1126,7 @@ void DT_Rebuild ()
 	if (IsServerProcessing()==false)
 		return;
 	#if DEBUG
-	PrintToChatAll("\x03Rebuilding weapon firing registry");
+		CPrintToChatAll("{lightgreen}Rebuilding weapon firing registry");
 	#endif
 	for (int iI = 1 ; iI <= MaxClients ; iI++)
 	{
@@ -1130,7 +1135,7 @@ void DT_Rebuild ()
 			g_iDTRegisterCount++;
 			g_iDTRegisterIndex[g_iDTRegisterCount]=iI;
 			#if DEBUG
-			PrintToChatAll("\x03-registering \x01%i",iI);
+				CPrintToChatAll("{lightgreen}-registering {default}%i",iI);
 			#endif
 		}
 	}
@@ -1142,7 +1147,7 @@ void DT_Clear ()
 {
 	g_iDTRegisterCount=0;
 	#if DEBUG
-	PrintToChatAll("\x03Clearing weapon firing registry");
+		CPrintToChatAll("{lightgreen}Clearing weapon firing registry");
 	#endif
 	for (int iI = 1 ; iI <= MaxClients ; iI++)
 	{
@@ -1202,7 +1207,7 @@ void MA_OnGameFrame()
 		//actions: do nothing
 		if (iEntid == g_iMAEntid_notmelee[iCid])
 		{
-			// PrintToChatAll("\x03Client \x01%i\x03; non melee weapon, ignoring",iCid );
+			// CPrintToChatAll("{lightgreen}Client {default}%i{lightgreen}; non melee weapon, ignoring",iCid );
 			continue;
 		}
 
@@ -1217,7 +1222,7 @@ void MA_OnGameFrame()
 				&& (flGameTime - flNextTime_ret) > 1.0)
 		{
 			#if DEBUG
-			PrintToChatAll("\x03Client \x01%i\x03; hasn't swung weapon",iCid );
+				CPrintToChatAll("{lightgreen}Client {default}%i{lightgreen}; hasn't swung weapon",iCid );
 			#endif
 			g_iMAAttCount[iCid]=0;
 		}
@@ -1230,7 +1235,7 @@ void MA_OnGameFrame()
 		if (g_iMAEntid[iCid] == iEntid
 				&& g_flMANextTime[iCid] >= flNextTime_ret)
 		{
-			// PrintToChatAll("\x03DT client \x01%i\x03; before shot made",iCid );
+			// CPrintToChatAll("{lightgreen}DT client {default}%i{lightgreen}; before shot made",iCid );
 			continue;
 		}
 
@@ -1244,7 +1249,7 @@ void MA_OnGameFrame()
 				&& g_flMANextTime[iCid] < flNextTime_ret)
 		{
 			//----DEBUG----
-			//PrintToChatAll("\x03DT after adjusted shot\n-pre, client \x01%i\x03; entid \x01%i\x03; enginetime\x01 %f\x03; NextTime_orig \x01 %f\x03; interval \x01%f",iCid,iEntid,flGameTime,flNextTime_ret, flNextTime_ret-flGameTime );
+			//CPrintToChatAll("{lightgreen}DT after adjusted shot\n-pre, client {default}%i{lightgreen}; entid {default}%i{lightgreen}; enginetime{default} %f{lightgreen}; NextTime_orig {default} %f{lightgreen}; interval {default}%f",iCid,iEntid,flGameTime,flNextTime_ret, flNextTime_ret-flGameTime );
 
 			//this is a calculation of when the next primary attack will be after applying double tap values
 			//flNextTime_calc = ( flNextTime_ret - flGameTime ) * g_flMA_attrate + flGameTime;
@@ -1258,7 +1263,7 @@ void MA_OnGameFrame()
 			SetEntDataFloat(iEntid, g_iNextPAttO, flNextTime_calc, true);
 
 			#if DEBUG
-			PrintToChatAll("\x03-post, NextTime_calc \x01 %f\x03; new interval \x01%f", GetEntDataFloat(iEntid,g_iNextPAttO), GetEntDataFloat(iEntid,g_iNextPAttO)-flGameTime );
+				CPrintToChatAll("{lightgreen}-post, NextTime_calc {default} %f{lightgreen}; new interval {default}%f", GetEntDataFloat(iEntid,g_iNextPAttO), GetEntDataFloat(iEntid,g_iNextPAttO)-flGameTime );
 			#endif
 
 			continue;
@@ -1274,7 +1279,7 @@ void MA_OnGameFrame()
 		//         the known-melee or known-non-melee variable
 
 		#if DEBUG
-		PrintToChatAll("\x03DT client \x01%i\x03; weapon switch inferred",iCid );
+			CPrintToChatAll("{lightgreen}DT client {default}%i{lightgreen}; weapon switch inferred",iCid );
 		#endif
 
 		//check if the weapon is a melee
@@ -1343,7 +1348,7 @@ void DT_OnGameFrame()
 		//DEBUG
 		/*int iNextAttO = FindSendPropInfo("CTerrorPlayer","m_flNextAttack");
 		int iIdleTimeO = FindSendPropInfo("CTerrorGun","m_flTimeWeaponIdle");
-		PrintToChatAll("\x03DT, NextAttack \x01%i %f\x03, TimeIdle \x01%i %f",
+		CPrintToChatAll("{lightgreen}DT, NextAttack {default}%i %f{lightgreen}, TimeIdle {default}%i %f",
 			iNextAttO,
 			GetEntDataFloat(iCid,iNextAttO),
 			iIdleTimeO,
@@ -1359,7 +1364,7 @@ void DT_OnGameFrame()
 			&& g_flDTNextTime[iCid] >= flNextTime_ret)
 		{
 			//----DEBUG----
-			//PrintToChatAll("\x03DT client \x01%i\x03; before shot made",iCid );
+			//CPrintToChatAll("{lightgreen}DT client {default}%i{lightgreen}; before shot made",iCid );
 			continue;
 		}
 
@@ -1372,7 +1377,7 @@ void DT_OnGameFrame()
 		if (flNextTime2_ret > flGameTime)
 		{
 			//----DEBUG----
-			//PrintToChatAll("\x03DT client \x01%i\x03; melee attack inferred",iCid );
+			//CPrintToChatAll("{lightgreen}DT client {default}%i{lightgreen}; melee attack inferred",iCid );
 			continue;
 		}
 
@@ -1384,7 +1389,7 @@ void DT_OnGameFrame()
 			&& g_flDTNextTime[iCid] < flNextTime_ret)
 		{
 			#if DEBUG
-			PrintToChatAll("\x03DT after adjusted shot\n-pre, client \x01%i\x03; entid \x01%i\x03; enginetime\x01 %f\x03; NextTime_orig \x01 %f\x03; interval \x01%f",iCid,iEntid,flGameTime,flNextTime_ret, flNextTime_ret-flGameTime );
+				CPrintToChatAll("{lightgreen}DT after adjusted shot\n-pre, client {default}%i{lightgreen}; entid {default}%i{lightgreen}; enginetime{default} %f{lightgreen}; NextTime_orig {default} %f{lightgreen}; interval {default}%f",iCid,iEntid,flGameTime,flNextTime_ret, flNextTime_ret-flGameTime );
 			#endif
 			//this is a calculation of when the next primary attack
 			//will be after applying double tap values
@@ -1397,7 +1402,7 @@ void DT_OnGameFrame()
 			SetEntDataFloat(iEntid, g_iNextPAttO, flNextTime_calc, true);
 
 			#if DEBUG
-			PrintToChatAll("\x03-post, NextTime_calc \x01 %f\x03; new interval \x01%f",GetEntDataFloat(iEntid,g_iNextPAttO), GetEntDataFloat(iEntid,g_iNextPAttO)-flGameTime );
+				CPrintToChatAll("{lightgreen}-post, NextTime_calc {default} %f{lightgreen}; new interval {default}%f",GetEntDataFloat(iEntid,g_iNextPAttO), GetEntDataFloat(iEntid,g_iNextPAttO)-flGameTime );
 			#endif
 			continue;
 		}
@@ -1410,7 +1415,7 @@ void DT_OnGameFrame()
 		if (g_iDTEntid[iCid] != iEntid)
 		{
 			#if DEBUG
-			PrintToChatAll("\x03DT client \x01%i\x03; weapon switch inferred", iCid );
+				CPrintToChatAll("{lightgreen}DT client {default}%i{lightgreen}; weapon switch inferred", iCid );
 			#endif
 			//now we update the stored vars
 			g_iDTEntid[iCid] = iEntid;
@@ -1418,7 +1423,7 @@ void DT_OnGameFrame()
 			continue;
 		}
 		#if DEBUG
-		PrintToChatAll("\x03DT client \x01%i\x03; reached end of checklist...", iCid );
+			CPrintToChatAll("{lightgreen}DT client {default}%i{lightgreen}; reached end of checklist...", iCid );
 		#endif
 	}
 }
