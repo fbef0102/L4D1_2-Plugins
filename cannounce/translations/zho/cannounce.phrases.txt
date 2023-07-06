@@ -1,0 +1,56 @@
+"Phrases"
+{
+	"CA Admin"
+	{
+		"zho"			"管理員"
+	}
+	"CA Public"
+	{
+		"zho"			"玩家"
+	}
+	"LAN City Desc"
+	{
+		"zho"			"IP地址"
+	}
+	"LAN Region Desc"
+	{
+		"zho"			"區網"
+	}
+	"LAN Country Desc"
+	{
+		"zho"			"區域網路"
+	}
+	
+	"LAN Country Short"
+	{
+		"zho"			"LN"
+	}
+	
+	"LAN Country Short 3"
+	{
+		"zho"			"LAN"
+	}
+	
+	"Unknown City Desc"
+	{
+		"zho"			"某地"
+	}
+	"Unknown Region Desc"
+	{
+		"zho"			"未知地區"
+	}
+	"Unknown Country Desc"
+	{
+		"zho"			"未知國家"
+	}
+	
+	"Unknown Country Short"
+	{
+		"zho"			"??"
+	}
+	
+	"Unknown Country Short 3"
+	{
+		"zho"			"???"
+	}
+}
