@@ -11,10 +11,18 @@ Replacement of default player connection message, allows for custom connection m
 		<br/>![cannounce_1](image/cannounce_1.jpg)
 
 * Apply to | 適用於
-```
-L4D1
-L4D2
-```
+	```
+	L4D1
+	L4D2
+	```
+
+* Translation Support | 支援翻譯
+	```
+	English
+	繁體中文
+	简体中文
+	Русский
+	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -85,40 +93,42 @@ L4D2
 * Notice
 	* To retrieve data from client, You must [install country and city database](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#country-and-city-database)
 
-* Data Example
-	* data\cannounce_settings.txt
-	```php
-	"CountryShow"
-	{
-		// {PLAYERNAME}: player name
-		// {STEAMID}: player STEAMID
-		// {PLAYERCOUNTRY}: player country name
-		// {PLAYERCOUNTRYSHORT}: player country short name
-		// {PLAYERCOUNTRYSHORT3}: player country another short name
-		// {PLAYERCITY}: player city name
-		// {PLAYERREGION}: player region name
-		// {PLAYERIP}: player IP
-		// {PLAYERTYPE}: player is Adm or not
+* <details><summary>Data Example</summary>
 
-		// {default}: white
-		// {green}: orange
-		// {olive}: green
-		// {lightgreen}: lightgreen
-		// {red}: red
-		// {blue}: blue
-		// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
-		"messages" //display message to everyone (Non-admin)
+	* data\cannounce_settings.txt
+		```php
+		"CountryShow"
 		{
-			"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
-			"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) {olive}<ID:{STEAMID}>"
+			// {PLAYERNAME}: player name
+			// {STEAMID}: player STEAMID
+			// {PLAYERCOUNTRY}: player country name
+			// {PLAYERCOUNTRYSHORT}: player country short name
+			// {PLAYERCOUNTRYSHORT3}: player country another short name
+			// {PLAYERCITY}: player city name
+			// {PLAYERREGION}: player region name
+			// {PLAYERIP}: player IP
+			// {PLAYERTYPE}: player is Adm or not
+
+			// {default}: white
+			// {green}: orange
+			// {olive}: green
+			// {lightgreen}: lightgreen
+			// {red}: red
+			// {blue}: blue
+			// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
+			"messages" //display message to everyone (Non-admin)
+			{
+				"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
+				"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) {olive}<ID:{STEAMID}>"
+			}
+			"messages_admin" //only display message to adm
+			{
+				"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
+				"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
+			}
 		}
-		"messages_admin" //only display message to adm
-		{
-			"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-			"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-		}
-	}
-	```
+		```
+</details>
 
 - - - -
 # 中文說明
@@ -137,40 +147,41 @@ L4D2
 	* 抓取玩家的地理位置，需[安裝國家與城市的資料庫](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9D%E5%9C%8B%E5%AE%B6%E8%88%87%E5%9F%8E%E5%B8%82%E7%9A%84%E8%B3%87%E6%96%99%E5%BA%AB)
 
 
-* Data設定範例
+* <details><summary>Data設定範例</summary>
+
 	* data\cannounce_settings.txt
-	```php
-	"CountryShow"
-	{
-		// {PLAYERNAME}: 玩家名稱
-		// {STEAMID}: 玩家steam id
-		// {PLAYERCOUNTRY}: 玩家的國家
-		// {PLAYERCOUNTRYSHORT}: 玩家的國家短代號
-		// {PLAYERCOUNTRYSHORT3}: 玩家的國家短代號(多一些代號)
-		// {PLAYERCITY}: 玩家的城市
-		// {PLAYERREGION}: 玩家的地區(省,州)
-		// {PLAYERIP}: 玩家IP
-		// {PLAYERTYPE}: 玩家是否為管理員
-
-		// {default}: 白色
-		// {green}: 橘色
-		// {olive}: 綠色
-		// {lightgreen}: 淺綠色
-		// {red}: 紅色
-		// {blue}: 藍色
-		// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
-		"messages" //除了管理員外所有人會看到的
+		```php
+		"CountryShow"
 		{
-			"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default})"
-			"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default})"
-		}
-		"messages_admin" //管理員會看到的
-		{
-			"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-			"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-		}
-	}
-	```
+			// {PLAYERNAME}: 玩家名稱
+			// {STEAMID}: 玩家steam id
+			// {PLAYERCOUNTRY}: 玩家的國家
+			// {PLAYERCOUNTRYSHORT}: 玩家的國家短代號
+			// {PLAYERCOUNTRYSHORT3}: 玩家的國家短代號(多一些代號)
+			// {PLAYERCITY}: 玩家的城市
+			// {PLAYERREGION}: 玩家的地區(省,州)
+			// {PLAYERIP}: 玩家IP
+			// {PLAYERTYPE}: 玩家是否為管理員
 
+			// {default}: 白色
+			// {green}: 橘色
+			// {olive}: 綠色
+			// {lightgreen}: 淺綠色
+			// {red}: 紅色
+			// {blue}: 藍色
+			// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
+			"messages" //除了管理員外所有人會看到的
+			{
+				"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default})"
+				"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default})"
+			}
+			"messages_admin" //管理員會看到的
+			{
+				"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
+				"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
+			}
+		}
+		```
+</details>
 
 
