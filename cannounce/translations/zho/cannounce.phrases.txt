@@ -14,11 +14,11 @@
 	}
 	"LAN Region Desc"
 	{
-		"zho"			"本地子網"
+		"zho"			"區網"
 	}
 	"LAN Country Desc"
 	{
-		"zho"			"局域網"
+		"zho"			"區域網路"
 	}
 	
 	"LAN Country Short"
@@ -33,7 +33,7 @@
 	
 	"Unknown City Desc"
 	{
-		"zho"			"某些地方"
+		"zho"			"某地"
 	}
 	"Unknown Region Desc"
 	{
