@@ -4,8 +4,18 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 * Video | 影片展示
 <br>None
 
-* Image | 圖示
-<br>None
+* <details><summary>Image</summary>
+
+	* Control and block switch team behavior
+		1. ESC->TAKE A BREAK
+		<br/>![l4d_afk_commands_1](image/l4d_afk_commands_1.jpg)
+		2. Press M to switch team
+		<br/>![l4d_afk_commands_2](image/l4d_afk_commands_2.jpg)
+		3. Type ```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>``` in game console
+		<br/>![l4d_afk_commands_3](image/l4d_afk_commands_3.jpg)
+		4. Type ```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>``` in game console
+		<br/>![l4d_afk_commands_3](image/l4d_afk_commands_4.jpg)
+</details>
 
 * Apply to | 適用於
 	```
@@ -129,7 +139,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// Players with these flags have access to use command to suvivor team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 		l4d_afk_commands_survivor_access_flag ""
 		
-		// Players with these flags have access to use command to bean observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+		// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 		l4d_afk_commands_observer_access_flag "z"
 		
 		// If 1, Check team balance when player tries to use commandto join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!", FCVAR_NOTIFY, true, 0.0, tre, 1.0);
@@ -203,11 +213,11 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 </details>
 
 * Notice
-	* The plugin will work once survivor has left the saferoom or survival begins
-	* You can't go idle or use command to switch team if
-		1. You startle witch or witch attacks you.
-		2. You are capped by special infected.
-		3. You are a dead survivor.
+	* The plugin will work once survivor has left the saferoom or survival/scavenge begins
+	* Player can not go idle or use command to switch team if the following situation, otherwise force to be spectator
+		1. Startle witch or witch attacks you.
+		2. Capped by special infected.
+		3. Dead survivor.
 		4. Player can not switch team after players have left start safe area for at least X seconds. (set time by convar)
 		5. Cold Down Time in seconds a player can not change team again after he switches team.
 		6. Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel.
@@ -222,17 +232,21 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 # 中文說明
 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 
+* <details><summary>圖示</summary>
+
+	* 此插件會限制玩家切換隊伍的行為包括
+		1. ESC->休息一下
+		<br/>![l4d_afk_commands_1](image/zho/l4d_afk_commands_1.jpg)
+		2. 對抗模式下按M切換隊伍
+		<br/>![l4d_afk_commands_2](image/zho/l4d_afk_commands_2.jpg)
+		3. 控制台輸入```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
+		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_3.jpg)
+		4. 控制台輸入```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
+		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_4.jpg)
+</details>
+
 * 原理
 	* 提供加入倖存者陣營、特感陣營、旁觀者陣營的命令
-	* 此插件會控制玩家切換隊伍的行為包括
-		1. 使用ESC->休息一下
-		<br/>![image](https://user-images.githubusercontent.com/12229810/209460474-e795534e-335c-4cff-83e7-3a737ec0d47e.png)
-		2. 對抗模式下按M切換隊伍
-		<br/>![image](https://user-images.githubusercontent.com/12229810/209460497-af899ea0-d670-4de8-9da9-e242eeae30e2.png)
-		3. 控制台輸入```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
-		<br/>![image](https://user-images.githubusercontent.com/12229810/209460517-547fe0c9-eb9b-456c-8fc7-f72f2d70f59c.png)
-		4. 控制台輸入```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
-		<br/>![image](https://user-images.githubusercontent.com/12229810/209469875-f17e87bd-907a-4a64-b9b4-023bac157b13.png)
 	* 此插件會禁止玩家濫用閒置的bug，譬如
 		1. 導致witch失去目標
 		2. 省略裝子彈時間、硬直狀態、起身動畫
