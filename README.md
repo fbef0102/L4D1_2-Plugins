@@ -20,7 +20,6 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
 * <b>[TickrateFixes](/TickrateFixes)</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
-* <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
@@ -167,6 +166,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 為人類屍體造一個墓碑以做紀念
 * <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop/realism.
     * 戰役/寫實模式下，AI Tank一生成會直接往前進並攻擊倖存者，而非待在原地等待
+* <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
+    * 救援開始之後，所有人重力變低，可以跳很高
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
