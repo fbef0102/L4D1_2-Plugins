@@ -9,8 +9,8 @@ Forces AI tank to leave stasis and attack while spawn in coop/realism.
 
 * Apply to | 適用於
 	```
-	L4D1
-	L4D2
+	L4D1 Coop
+	L4D2 Coop/Realism
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -44,6 +44,7 @@ Forces AI tank to leave stasis and attack while spawn in coop/realism.
 </details>
 
 - - - -
+# 中文說明
 戰役/寫實模式下，AI Tank一生成會直接往前進並攻擊倖存者，而非待在原地等待
 
 * 原理
