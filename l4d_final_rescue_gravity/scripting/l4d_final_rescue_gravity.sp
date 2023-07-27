@@ -9,7 +9,7 @@ public Plugin myinfo =
 	name = "[L4D1/2] final rescue gravity",
 	author = "Harry Potter",
 	description = "Set client gravity after final rescue starts just for fun.",
-	version = "1.6",
+	version = "1.7-2023/7/27",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
@@ -119,12 +119,12 @@ public void OnConfigsExecuted()
 	IsAllowed();
 }
 
-public void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	IsAllowed();
 }
 
-public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -231,7 +231,7 @@ bool IsAllowedGameMode()
 	return true;
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iCurrentMode = 1;
@@ -247,19 +247,19 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 //					Event
 // ====================================================================================================
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	bFinalHasStart = false;
 	ChangeAllClientGravityToNormal();
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	bFinalHasStart = false;
 	ChangeAllClientGravityToNormal();
 }
 
-public void OnFinaleStart_Event(Event event, const char[] name, bool dontBroadcast)
+void OnFinaleStart_Event(Event event, const char[] name, bool dontBroadcast)
 {
 	if(bFinalHasStart) return;
 
@@ -270,7 +270,7 @@ public void OnFinaleStart_Event(Event event, const char[] name, bool dontBroadca
 	CreateTimer(g_fCheckInterval, Timer_SetGravity, _, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!client || !IsClientInGame(client)) return;
@@ -278,7 +278,7 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	if (bFinalHasStart) ChangeClientGravity(client, g_fGravityValue);
 }
 
-public void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
+void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
 {
 	#if DEBUG
 		PrintToChatAll("Finale_Vehicle_Ready");
