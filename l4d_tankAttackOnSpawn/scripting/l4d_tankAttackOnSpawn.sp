@@ -17,8 +17,8 @@ public Plugin myinfo =
 {
     name = "[L4D2] Coop Tank Stasis",
     author = "BHaType, XDglory, Harry Potter",
-    description = "Tank leave stasis while spawn in coop",
-    version = "0.2",
+    description = "Forces AI tank to leave stasis and attack while spawn in coop/realism",
+    version = "1.0h-2023/7/27",
     url = "https://forums.alliedmods.net/showthread.php?t=319342"
 };
 
@@ -67,7 +67,7 @@ public void OnConfigsExecuted()
 	IsAllowed();
 }
 
-public void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	IsAllowed();
 }
@@ -126,7 +126,7 @@ bool IsAllowedGameMode()
 	return true;
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iCurrentMode = 1;
@@ -141,36 +141,37 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 // ====================================================================================================
 //					EVENTS
 // ====================================================================================================
-public void eSpawn (Event event, const char[] name, bool dontbroadcast)
+void eSpawn (Event event, const char[] name, bool dontbroadcast)
 {
     //PrintToChatAll("tank sapwns");
     CreateTimer(g_hCvarSecond.FloatValue, tLeaveStasis, event.GetInt("userid"));
 }
 
-public void Event_Round_Start (Event event, const char[] name, bool dontbroadcast)
+void Event_Round_Start (Event event, const char[] name, bool dontbroadcast)
 {
     bHasLeftSafeArea = false;
 }
 // ====================================================================================================
 //					FUNCTIONS
 // ====================================================================================================
-public Action tLeaveStasis (Handle timer, int userid)
+Action tLeaveStasis (Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	if (!g_bCvarAllow || !client || !IsClientInGame(client) || !IsFakeClient(client) || GetClientTeam(client) != TEAM_INFECTED || !IsPlayerAlive(client) || !IsPlayerTank(client))
-		return;
+		return Plugin_Continue;
 
 	if ( bHasLeftSafeArea || LeftStartArea()) 
 	{
 		SendTank(client);
-		return;
+		return Plugin_Continue;
 	}
 
 	CreateTimer(g_hCvarSecond.FloatValue, tLeaveStasis, userid);
+
+	return Plugin_Continue;
 } 
 
-
-public void SendTank(int client)
+void SendTank(int client)
 {
 	//PrintToChatAll("tank %N chase", client);
 	SetEntProp(client, Prop_Send, "m_zombieState", 1);

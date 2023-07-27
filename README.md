@@ -1,6 +1,7 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to both L4D1 or L4D2 (last edited:2023/6/30)
+> All plugins in here apply to both L4D1 or L4D2 <br/>
+> 2023/7/27 Updated
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -27,14 +28,11 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
-* <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop.
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
-* <b>[l4d_graves](/l4d_graves)</b>: When a survivor die, on his body appear a grave.
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
-* <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
 * <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
@@ -163,7 +161,12 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 修復L4D1遊戲的Bug: 雙重Tank生成的問題
 * <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
     * 當伺服器快滿人的時候，預留通道給管理員加入 (訊息提示: 剩餘通道只能管理員加入.. )
-
+* <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
+    * 人類死亡後，靈魂升天
+* <b>[l4d_graves](/l4d_graves)</b>: When a survivor die, on his body appear a grave.
+    * 為人類屍體造一個墓碑以做紀念
+* <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: Forces AI tank to leave stasis and attack while spawn in coop/realism.
+    * 戰役/寫實模式下，AI Tank一生成會直接往前進並攻擊倖存者，而非待在原地等待
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
