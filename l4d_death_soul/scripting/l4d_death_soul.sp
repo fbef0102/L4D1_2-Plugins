@@ -1,36 +1,6 @@
-#define PLUGIN_VERSION 		"1.7"
+#define PLUGIN_VERSION 		"1.0h-2023/7/27"
 
 /*=======================================================================================
-	Change Log:
-1.7 (14-Feb-2022) by Harry
-	- Remove soul when player changes team.
-	- Remove CPR
-	
-1.6 (22-Oct-2019)
-	- Added L4D2 support
-	- Fixed case when fader is not worked for negative values
-	- Kill soul when player disconnects
-	- Kill all souls on round end (for safe)
-	- Other safe checks
-
-1.5 (22-Aug-2019)
-	- Client is replaced by UserId in sound timer (for safe).
-
-1.4 (05-Apr-2019)
-	- Add disconnect
-	
-1.3 (30-Mar-2019)
-	- Laser trace is now begins from the ground regardless if user died in the air
-	
-1.2 (12-Feb-2019)
-	- Added safe plugin unloading
-	
-1.1 (09-Feb-2019)
-	- Fixed "Client is not connected" in DissolveDelayed
-	
-1.0 (02-Feb-2019)
-	- Initial release.
-
 =========================================================================================
 
 	Credits:

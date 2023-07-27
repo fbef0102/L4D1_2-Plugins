@@ -1,7 +1,4 @@
-// 2018-2022 @ samuelviveiros a.k.a Dartz8901, Harry
-
 /************************************************************************
-  [L4D & L4D2] Graves (v1.3, 2022-2-15)
 
   DESCRIPTION: 
   
@@ -38,31 +35,6 @@
 
     Have fun!
 
-  CHANGELOG:
-  2022-2-15 (v1.2)
-  - Optimaze code
-
-  2018-12-27 (v1.1.1)
-    - Added the l4d_graves_delay CVAR that determines how long it will 
-      take for the grave to spawn. This delay is necessary to avoid cases, 
-      for example, where a Tank has just killed a survivor and the grave
-      appears instantly, and Tank immediately breaks the grave.
-
-    - Added the l4d_graves_not_solid CVAR that allows you to turn grave 
-      solidity on or off. The reason is that some players have said that 
-      they sometimes get stuck on the grave when it spawns. In such cases, 
-      the admin may prefer to disable solidity. Do not forget to update 
-      the cfg file with this CVAR.
-
-    - Fixed client index issue when calling GetClientTeam function.
-
-  2018-12-27 (v1.0.1)
-    - Function RemoveEntity has been replaced by function AcceptEntityInput, 
-      passing the "Kill" parameter, so that it work with the online compiler.
-
-  2018-12-26 (v1.0.0)
-    - Initial release.
-
  ************************************************************************/
 
 #include <sourcemod>
@@ -77,7 +49,7 @@
 /**
  * Semantic versioning <https://semver.org/>
  */
-#define PLUGIN_VERSION	"1.3"
+#define PLUGIN_VERSION	"1.0h-2023/7/27"
 #define ENTITY_SAFE_LIMIT 2000
 
 public Plugin myinfo = 
