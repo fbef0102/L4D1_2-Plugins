@@ -4,12 +4,8 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 * [Video | 影片展示](https://youtu.be/SapXAIOsNJI)
 
 * Image | 圖示
-	* Fear of Witch 
-        > 再度恐懼Witch
-        <br/>![witch_target_override_1](image/witch_target_override_1.jpg)
-	* Auto follows survivor
-        > 自動跟蹤倖存者
-        <br/>![witch_target_override_2](image/witch_target_override_2.gif)
+    <br/>![witch_target_override_1](image/witch_target_override_1.gif)
+    <br/>![witch_target_override_2](image/witch_target_override_2.gif)
 
 * Apply to | 適用於
     ```
@@ -19,8 +15,8 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.8 (2022-11-14)
-		* [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2732048&postcount=9)
+    * v1.8 (2022-11-14)
+        * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2732048&postcount=9)
         * Witch is allowed to chase another target after she incapacitates a survivor. 
         * Witch is allowed to chase another target after she kills a survivor. 
         * Witch will not follow survivor if there is a wall between witch and survivor.
@@ -28,7 +24,7 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
         * Witch burns for a set amount of time and die. (z_witch_burn_time 15 seconds = default)
         * Support L4D1
 
-	* v1.0
+    * v1.0
         * Initial Release
         * Thanks to BHaType, xZk, cravenge and silvers
 </details>
@@ -38,7 +34,7 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg/sourcemod/witch_target_override.cfg
+    * cfg/sourcemod/witch_target_override.cfg
         ```php
         // Chance of following survivors [0, 100]
         witch_target_override_chance_followsurvivor "100"
@@ -74,7 +70,7 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 
 * <details><summary>Command | 命令</summary>
 
-	None
+    None
 </details>
 
 - - - -
@@ -82,15 +78,15 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 
 * 原理
-	* 出現在Witch看得到的視野之內，她將會自動走向你
-	* 嚇到Witch之後，將目標玩家倒地或殺死之後，自動把目標轉向剩餘的倖存者繼續發難
+    * 出現在Witch看得到的視野之內，她將會自動走向你
+    * 嚇到Witch之後，將目標玩家倒地或殺死之後，自動把目標轉向剩餘的倖存者繼續發難
 
 * 功能
-	1. 詳見下方"指令中文介紹"
+    1. 詳見下方"指令中文介紹"
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/witch_target_override.cfg
+    * cfg/sourcemod/witch_target_override.cfg
         ```php
         // Witch會跟蹤倖存者的機率
         witch_target_override_chance_followsurvivor "100"
