@@ -5,86 +5,15 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 <br>None
 
 * Image | 圖示
-	* Spawn many Special Infected on the field.
-		> 在場上生成多特感
-		<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
-	* Message
-		> 存活的倖存者數量改變時顯示訊息
-		<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
+	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
+	<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
 	* Join infected team and play in coop/survival/realism mode.
 		> 在戰役/寫實/生存模式下加入特感陣營
 		<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
 
-* Apply to | 適用於
-	```
-	L4D1 coop/versus/realism/survival/scavenge + all mutation modes
-	L4D2 all modes
-	```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//mi123645 @ 2009-2011
-	//HarryPotter @ 2019-2023
-	```
-	* v2.8.3 (2023-7-5)
-		* Override L4D2 Vscripts to control infected limit.
-
-	* v2.8.2 (2023-5-27)
-		* Add a convar, including dead survivors or not
-		* Add a convar, disable infected bots spawning or not in versus/scavenge mode
-
-	* v2.8.1 (2023-5-22)
-		* Support l4d2 all mutation mode.
-
-	* v2.8.0 (2023-5-5)
-		* Add Special Infected Weight
-		* Add and modify convars about Special Infected Weight
-
-	* v2.7.9 (2023-4-13)
-		* Fixed Not Working in Survival Mode
-		* Fixed cvar "l4d_infectedbots_adjust_spawn_times" calculation mistake
-
-	* v2.7.8 (2023-2-20)
-		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369)
-		* ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2! (Thanks to [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [ProdigySim](https://github.com/ProdigySim/DirectInfectedSpawn)
-		* L4D1 Signature update. Credit to [Psykotikism](https://github.com/Psykotikism/L4D1-2_Signatures).
-		* Remake Code
-		* Add translation support.
-		* Update L4D2 "The Last Stand" gamedata, credit to [Lux](https://forums.alliedmods.net/showthread.php?p=2714236), [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [Machine](https://forums.alliedmods.net/member.php?u=74752)
-		* Spawn infected without being limited by the director.
-		* Join infected team in coop/survival/realism mode.
-		* Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only, didn't work if you host a listen server)
-		* Add convars to turn off this plugin.
-		* Fixed Hunter Tank Bug in l4d1 coop mode when tank is playable.
-		* If you want to fix Camera stuck in coop/versus/realism, install [this plugin by Forgetest](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
-		* Fixed Music Bugs when switching to infected team in coop/realism/survival.
-
-	* v1.0.0
-		* [Original Plugin By mi123645](https://forums.alliedmods.net/showthread.php?t=99746)
-</details>
-
-* Require
+* Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
-* Related Plugin | 相關插件
-	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
-		> 創造5位以上倖存者遊玩伺服器
-	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
-		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
-	3. [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
-		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
-		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -452,6 +381,7 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 
 	7. <details><summary>Adjust Tank limit if 5+ alive players</summary>
 
+		* Tank limit = The number of tanks on the field at the same time
 		* This means that if server has 5+ alive survivors, each 5 players join, Tank limit plus 1
 		<br/>So if there are 10 alive survivors, tank limit: 2+1 = 3 (Does not affect director tanks)
 			```php
@@ -574,7 +504,15 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 			```
 	</details>
 
-	5. <details><summary>Disable infected bots spawning in versus/scavenge mode.</summary>
+	5. <details><summary>How to control Human Infected spawn time in versus/scavenge mode?</summary>
+
+		* Modfiy Offical Convar, you can write down the following in cfg/server.cfg
+			```php
+			sm_cvar z_ghost_delay_min "20"
+			sm_cvar z_ghost_delay_max "30"
+			```
+
+	6. <details><summary>Disable infected bots spawning in versus/scavenge mode.</summary>
 
 		* Only allow real infected players to spawn on the field in versus/scavenge mode.
 			```php
@@ -583,7 +521,74 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 	</details>
 
 * Known Issue
-	* In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed. Install [l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam) by Forgetest to fix Camera stuck.
+	* In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed. Install [l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+
+* Apply to | 適用於
+	```
+	L4D1 coop/versus/realism/survival/scavenge + all mutation modes
+	L4D2 all modes
+	```
+
+* Translation Support | 支援翻譯
+	```
+	English
+	繁體中文
+	简体中文
+	Russian
+	```
+
+* Related Plugin | 相關插件
+	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
+		> 創造5位以上倖存者遊玩伺服器
+	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
+		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
+	3. [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
+		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
+	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
+		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//mi123645 @ 2009-2011
+	//HarryPotter @ 2019-2023
+	```
+	* v2.8.3 (2023-7-5)
+		* Override L4D2 Vscripts to control infected limit.
+
+	* v2.8.2 (2023-5-27)
+		* Add a convar, including dead survivors or not
+		* Add a convar, disable infected bots spawning or not in versus/scavenge mode
+
+	* v2.8.1 (2023-5-22)
+		* Support l4d2 all mutation mode.
+
+	* v2.8.0 (2023-5-5)
+		* Add Special Infected Weight
+		* Add and modify convars about Special Infected Weight
+
+	* v2.7.9 (2023-4-13)
+		* Fixed Not Working in Survival Mode
+		* Fixed cvar "l4d_infectedbots_adjust_spawn_times" calculation mistake
+
+	* v2.7.8 (2023-2-20)
+		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1369)
+		* ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2! (Thanks to [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [ProdigySim](https://github.com/ProdigySim/DirectInfectedSpawn)
+		* L4D1 Signature update. Credit to [Psykotikism](https://github.com/Psykotikism/L4D1-2_Signatures).
+		* Remake Code
+		* Add translation support.
+		* Update L4D2 "The Last Stand" gamedata, credit to [Lux](https://forums.alliedmods.net/showthread.php?p=2714236), [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [Machine](https://forums.alliedmods.net/member.php?u=74752)
+		* Spawn infected without being limited by the director.
+		* Join infected team in coop/survival/realism mode.
+		* Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only, didn't work if you host a listen server)
+		* Add convars to turn off this plugin.
+		* Fixed Hunter Tank Bug in l4d1 coop mode when tank is playable.
+		* If you want to fix Camera stuck in coop/versus/realism, install [this plugin by Forgetest](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+		* Fixed Music Bugs when switching to infected team in coop/realism/survival.
+
+	* v1.0.0
+		* [Original Plugin By mi123645](https://forums.alliedmods.net/showthread.php?t=99746)
+</details>
 
 - - - -
 # 中文說明
@@ -967,6 +972,7 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 
 	7. <details><summary>如果第5位以上存活的倖存者，則調整tank生成限制</summary>
 
+		* Tank上限 = 場上同時存在Tank的數量
 		* 這意味著如果有第5位以上存活的倖存者，每5個玩家加入，tank可生成上限數量加1
 		<br/>因此，如果有10個存活的倖存者，tank可生成上限數量爲: 2+1=3 (不影響遊戲生成的Tank)
 			```php
@@ -1107,7 +1113,15 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 			```
 	</details>
 
-	5. <details><summary>停止特感Bots生成.</summary>
+	5. <details><summary>(對抗/清道夫)如何控制真人特感玩家的復活時間?</summary>
+
+		* 修改官方指令，將下列指令寫入 cfg/server.cfg
+			```php
+			sm_cvar z_ghost_delay_min "20"
+			sm_cvar z_ghost_delay_max "30"
+			```
+
+	6. <details><summary>停止特感Bots生成</summary>
 
 		* 在對抗/清道夫模式中，關閉特感bots生成，只允許真人特感玩家生成特感 (此插件會繼續生成Witch、不影響導演系統)
 			```php
@@ -1116,4 +1130,4 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 	</details>
 
 * 已知問題
-	* 在戰役/寫實/生存下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候，如果要修正請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)，由Forgetest大佬開發的插件修正玩家鏡頭卡住等問題
+	* 在戰役/寫實/生存下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候，如果要修正請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
