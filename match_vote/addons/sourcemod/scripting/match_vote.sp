@@ -13,7 +13,7 @@ public Plugin myinfo =
 {
 	name = "Match Vote",
 	author = "HarryPotter",
-	description = "type !match/!load/!mode to vote a new mode",
+	description = "Type !match/!load/!mode to vote a new mode",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
@@ -292,13 +292,7 @@ bool StartMatchVote(int client, const char[] cfgpatch, const char[] cfgname)
 		return false;
 	}
 
-	eBuiltinVoteCreateError error;
-	g_hMatchVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End, error);
-	if(g_hMatchVote == null)
-	{
-		CPrintToChat(client, "[{olive}Matchvote{default}] Can not create BuiltinVote, Error code: %d", client, view_as<int>(error));
-		return false;
-	}
+	g_hMatchVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
 
 	FormatEx(sBuffer, sizeof(sBuffer), "Change '%s' mode?", cfgname);
 	SetBuiltinVoteArgument(g_hMatchVote, sBuffer);
