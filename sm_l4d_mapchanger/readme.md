@@ -7,55 +7,11 @@ Force change to next mission when current mission(final stage) end + Force chang
 * [Video | 影片展示](https://youtu.be/ehyyDp0RCMQ)
 
 * Image | 圖示
-	* Next Map
-		> 下一張地圖
-		<br/>![sm_l4d_mapchanger_1](image/sm_l4d_mapchanger_1.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1 coop/survival/versus
-    L4D2 coop/survival/versus/realism
-    ```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//Dionys @ 2008~2009
-	//Harry @ 2019~2023
-	```
-    * v2.6 (2023-3-30)
-		* Block players from returning to lobby in coop final or versus final while change to next map 
-
-    * v2.5 (2023-1-12)
-	    * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2728817&postcount=676)
-	    * Remake Code
-	    * Translation Support
-	    * Support L4D2 coop/versus/realism/survival mode
-	    * Support normal stage and final stage
-	    * After several round end events(tries) survivors wipe out, force server to change map (next level or next map).
-		* Support Survival
-
-    * v1.4
-	    * [Original Post by Dionys](https://forums.alliedmods.net/showthread.php?t=81982)
-</details>
+	<br/>![sm_l4d_mapchanger_1](image/sm_l4d_mapchanger_1.jpg)
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
-* Related Plugin | 相關插件
-	1. [l4d_restartmap_command](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/l4d_restartmap_command): Admin say !restartmap to restart current map + Force of restartmap after Quantity of rounds (tries) events survivors wipe out
-    	> 管理員輸入!restartmap能重新地圖關卡 + 滅團N次後重新地圖
-
-	2. [l4d_random_map_vote](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/l4d_random_map_vote):Vote to change map, the map is chosen randomly from data
-    	> 投票更換地圖，但是地圖是隨機挑選的
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -102,7 +58,8 @@ Force change to next mission when current mission(final stage) end + Force chang
 		```
 </details>
 
-* Example Config
+* <details><summary>Example Config</summary>
+
 	* data\sm_l4d_mapchanger.txt
 		```php
 		"ForceMissionChangerSettings"
@@ -122,6 +79,51 @@ Force change to next mission when current mission(final stage) end + Force chang
 			}
 		} 
 		```
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1 coop/survival/versus
+    L4D2 coop/survival/versus/realism
+    ```
+
+* Translation Support | 支援翻譯
+	```
+	English
+	繁體中文
+	简体中文
+	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_restartmap_command](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/l4d_restartmap_command): Admin say !restartmap to restart current map + Force of restartmap after Quantity of rounds (tries) events survivors wipe out
+    	> 管理員輸入!restartmap能重新地圖關卡 + 滅團N次後重新地圖
+
+	2. [l4d_random_map_vote](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/l4d_random_map_vote):Vote to change map, the map is chosen randomly from data
+    	> 投票更換地圖，但是地圖是隨機挑選的
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//Dionys @ 2008~2009
+	//Harry @ 2019~2023
+	```
+    * v2.6 (2023-3-30)
+		* Block players from returning to lobby in coop final or versus final while change to next map 
+
+    * v2.5 (2023-1-12)
+	    * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2728817&postcount=676)
+	    * Remake Code
+	    * Translation Support
+	    * Support L4D2 coop/versus/realism/survival mode
+	    * Support normal stage and final stage
+	    * After several round end events(tries) survivors wipe out, force server to change map (next level or next map).
+		* Support Survival
+
+    * v1.4
+	    * [Original Post by Dionys](https://forums.alliedmods.net/showthread.php?t=81982)
+</details>
 
 - - - -
 # 中文說明
@@ -142,7 +144,8 @@ Force change to next mission when current mission(final stage) end + Force chang
 	* 可設定滅團的次數，請查看指令
 	* 可設定文件決定切換到哪一張地圖
 
-* 文件設定
+* <details><summary>文件設定</summary>
+
 	* data\sm_l4d_mapchanger.txt
 		```php
 		"ForceMissionChangerSettings"
@@ -162,3 +165,4 @@ Force change to next mission when current mission(final stage) end + Force chang
 			}
 		} 
 		```
+</details>
