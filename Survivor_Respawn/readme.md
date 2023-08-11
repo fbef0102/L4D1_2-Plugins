@@ -7,55 +7,9 @@ When a Survivor dies, will respawn after a period of time.
 * Image | 圖示
 <br/>None
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//Ernecio @ 2020
-	//HarryPotter @ 2021-2023
-	```
-	* v3.7 (2023-4-14)
-		* More hints and translation
-
-	* v3.6 (2023-4-9)
-		* Remove useless cvars
-		* Optimize code
-
-	* v3.5
-		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2770929&postcount=14)
-		* Remake Code
-		* Don't remove dead body
-		* If player replaces a dead bot, respawn player after a period of time.
-		* Invincible time after survivor respawn by this plugin.
-		* Respawn again if player dies within Invincible time.
-		* Disable respawning while the final escape starts (rescue vehicle ready)
-
-	* v2.1
-		* [Original Plugin by Ernecio](https://forums.alliedmods.net/showthread.php?t=323033)
-</details>
-
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
-
-* Related Plugin | 相關插件
-	1. [MultiSlots Improved](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.
-		> 創造5位以上倖存者遊玩伺服器
-	2. [Infected Bots Control Improved](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
-		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -120,6 +74,54 @@ When a Survivor dies, will respawn after a period of time.
 		```php
 		sm_respawnexmenu
 		```
+</details>
+
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* Translation Support | 支援翻譯
+	```
+	English
+	繁體中文
+	简体中文
+	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [MultiSlots Improved](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.
+		> 創造5位以上倖存者遊玩伺服器
+	2. [Infected Bots Control Improved](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
+		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//Ernecio @ 2020
+	//HarryPotter @ 2021-2023
+	```
+	* v3.7 (2023-4-14)
+		* More hints and translation
+
+	* v3.6 (2023-4-9)
+		* Remove useless cvars
+		* Optimize code
+
+	* v3.5
+		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2770929&postcount=14)
+		* Remake Code
+		* Don't remove dead body
+		* If player replaces a dead bot, respawn player after a period of time.
+		* Invincible time after survivor respawn by this plugin.
+		* Respawn again if player dies within Invincible time.
+		* Disable respawning while the final escape starts (rescue vehicle ready)
+
+	* v2.1
+		* [Original Plugin by Ernecio](https://forums.alliedmods.net/showthread.php?t=323033)
 </details>
 
 - - - -
