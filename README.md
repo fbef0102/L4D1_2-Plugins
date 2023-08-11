@@ -44,7 +44,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 創造5位以上倖存者遊玩伺服器
 * <b>[savechat](/savechat)</b>: Records player chat messages to a file.
     * 紀錄玩家的聊天紀錄到文件裡
-* <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns multi infected bots in versus + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
+* <b>[l4dinfectedbots](/l4dinfectedbots)</b>: Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
     * 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制 + 解除特感隊伍的人數限制 (可達成對抗 10 VS 10 玩法)
 * <b>[l4d2_spawn_props](/l4d2_spawn_props)</b>: Let admins spawn any kind of objects and saved to cfg
     * 創造屬於自己風格的地圖，製作迷宮與障礙物
