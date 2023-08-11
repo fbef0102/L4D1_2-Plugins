@@ -76,7 +76,8 @@ Allows admins to place any decals into the map that are defined in the the confi
 	```
 </details>
 
-* How do I add a new decal
+* <details><summary>How do I add a new decal</summary>
+
 	1. Preparation of vmt/vtf files
 		* Tool - [VTFEdit](https://nemstools.github.io/pages/VTFLib-Download.html)
 		* Valve Developer Community - [Decals](http://developer.valvesoftware.com/wiki/Decals)
@@ -124,6 +125,7 @@ Allows admins to place any decals into the map that are defined in the the confi
 		* say !savedecal to save a Decal to the config whilst aiming at it, "!savedecal all" saves all Decals (on current Map), "!savedecal [id]" saves a Decal by id, "!savedecal [last]" saves last painted Decal, "!savedecal [name]" saves all Decals by decalname (on current Map)
 		* The decals will be saved to configs\map-decals\maps\XXXXXX.cfg (XXXXXX is map name)
 		* Restart map to see if the Decal is already on the wall
+</details>
 
 * Apply to | 適用於
 	```
@@ -224,7 +226,8 @@ Allows admins to place any decals into the map that are defined in the the confi
 	```
 </details>
 
-* 如何添加新塗鴉
+* <details><summary>如何添加新塗鴉</summary>
+
 	1. 準備vmt/vtf文件
 		* 工具 - [VTFEdit](https://nemstools.github.io/pages/VTFLib-Download.html)
 		* Valve 開發者社區 - [塗鴉](http://developer.valvesoftware.com/wiki/Decals)
@@ -274,3 +277,4 @@ Allows admins to place any decals into the map that are defined in the the confi
 		* 現在您可以使用 !savedecal 將瞄準的現存塗鴉保存到配置中
 		* 保存配置位於 configs\map-decals\maps\XXXXXX.cfg (XXXXXX 是地圖名)
 		* 重啟地圖，查看塗鴉是否已經在牆壁上
+</details>
