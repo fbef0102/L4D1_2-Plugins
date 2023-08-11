@@ -78,7 +78,8 @@ Download and play custom music in game
 		```
 </details>
 
-* How do I add music
+* <details><summary>How do I add music</summary>
+
 	1. Preparation of mp3 files
 		* file names
 			* Ensure no file has space or special characters like "long dash" (–) or so.
@@ -125,6 +126,7 @@ Download and play custom music in game
 
 	5. Start the server and test
 		* Join Server and type !music in chatbox.
+</details>
 
 * Apply to | 適用於
 	```
@@ -175,7 +177,8 @@ Download and play custom music in game
 		// 回合開始之後過多少秒才播放音樂
 		l4d_music_mapstart_delay_roundstart "1.0"
 
-		// 每次切換關卡需要下載多少的音樂數量？ [0 - 下載全部音樂]
+		// 介面顯示的音樂歌曲數量 [0 - 介面顯示全部的音樂歌曲]
+		// 每張關卡下載的音樂歌曲數量 [0 - 下載全部的音樂歌曲]
 		l4d_music_mapstart_download_number "3"
 
 		// 開啟此插件. (1 - 開啟 / 0 - 關閉)
@@ -233,7 +236,8 @@ Download and play custom music in game
 		```
 </details>
 
-* 如何添加新音樂
+* <details><summary>如何添加新音樂</summary>
+
 	1. MP3文件的準備
 		* 文件名
 			* 確保沒有文件有空格或特殊字符，如"長破折號"(–) 等。
@@ -280,6 +284,7 @@ Download and play custom music in game
 
 	5. 啟動服務器並測試
 		* 加入服務器並在聊天視窗輸入!music
+</details>
 
 > __Warning__ 切勿使用版權音樂以免觸法，請尊重智慧財產權，一切後果自負
 

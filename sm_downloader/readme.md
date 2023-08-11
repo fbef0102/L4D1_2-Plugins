@@ -80,7 +80,8 @@ SM File/Folder Downloader and Precacher
 	> __Note__ If you don't know which file to use, just enable and use the normal downloader configuration
 </details>
 
-* How to make the client download custom files
+* <details><summary>How to make the client download custom files</summary>
+
 	1. Preparation of custom files
 		* Prepare your custom files.
 		* Put them in your game folder
@@ -118,6 +119,7 @@ SM File/Folder Downloader and Precacher
 		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 		* Browse your game folder, check files are already there.
 		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+</details>
 
 * Apply to | 適用於
 	```
@@ -185,7 +187,8 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 	> __Note__ 如果你不知道這兩設定文件有捨差別又是在幹嗎, 建議你一律使用正常版的檔案下載設定文件
 </details>
 
-* 玩家如何下載檔案?
+* <details><summary>玩家如何下載檔案?</summary>
+
 	1. 準備你的自製檔案
 		* 準備好你的所有自製檔案(貼圖、音樂、模組等等)
 		* 文件名
@@ -226,3 +229,4 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 		* 再去你的遊戲資料夾查看檔案是否已經下載 
 		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+</details>
