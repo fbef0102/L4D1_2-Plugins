@@ -1,5 +1,5 @@
 # Description | 內容
-Spawns multi infected bots in versus + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
+Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 
 * Video | 影片展示
 <br>None
@@ -529,15 +529,18 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 	L4D2 all modes
 	```
 
-* Translation Support | 支援翻譯
+* <details><summary>Translation Support | 支援翻譯</summary>
+
 	```
 	English
 	繁體中文
 	简体中文
 	Russian
 	```
+</details>
 
-* Related Plugin | 相關插件
+* <details><summary>Related Plugin | 相關插件</summary>
+
 	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
 		> 創造5位以上倖存者遊玩伺服器
 	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
@@ -546,6 +549,7 @@ Spawns multi infected bots in versus + allows playable special infected in coop/
 		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
