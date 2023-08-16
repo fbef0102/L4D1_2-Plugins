@@ -498,7 +498,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	4. <details><summary>Count 5+ players including dead</summary>
 
-		* Adjust special limit, tank health, zombie zommon, Tank limit according to 5+ alive and dead survivor players
+		* Adjust special limit, tank health, zombie zommon, Tank limit based on 5+ alive and dead survivor players
 			```php
 			l4d_infectedbots_calculate_including_dead_player "1"
 			```
