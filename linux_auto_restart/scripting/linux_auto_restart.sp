@@ -97,7 +97,7 @@ public void OnConfigsExecuted()
 void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(!client || IsFakeClient(client) || (IsClientConnected(client) && !IsClientInGame(client))) return; //連線中尚未進來的玩家離線
+	if(!client || IsFakeClient(client) /*|| (IsClientConnected(client) && !IsClientInGame(client))*/) return;
 	if(client && !CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
 		g_bNoOneInServer = true;
