@@ -2,7 +2,7 @@
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 
-#define PLUGIN_VERSION        "1.5-2023/7/1"
+#define PLUGIN_VERSION        "1.6-2023/8/17"
 #define PLUGIN_NAME			  "l4d_reservedslots"
 #define DEBUG 0
 
@@ -22,8 +22,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
     if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
     {
-            strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-            return APLRes_SilentFailure;
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+        return APLRes_SilentFailure;
     }
 
     bLate = late;
@@ -75,11 +75,11 @@ public void OnAllPluginsLoaded()
 {
     L4dtoolzExtension = FindConVar("sv_maxplayers");
     if(L4dtoolzExtension == null)
-            SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases");
+        SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases");
 
     sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
     if(sv_visiblemaxplayers == null)
-            SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
+        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
 
     GetOfficialCvars();
     L4dtoolzExtension.AddChangeHook(ConVarChanged_OfficialCvars);
@@ -143,7 +143,9 @@ public void OnClientConnected(int client)
     if (g_iCvarReservedSlots == 0)
         return;
 
-    CreateTimer(3.0, Timer_OnClientConnected, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+    g_bHasAcces[client] = false;
+
+    CreateTimer(GetRandomFloat(2.0, 4.0), Timer_OnClientConnected, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 Action Timer_OnClientConnected(Handle timer, int userid)
@@ -154,7 +156,7 @@ Action Timer_OnClientConnected(Handle timer, int userid)
     static char steamid[32];
     GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid));
 
-    if(HasAccess(steamid, g_sAccessAcclvl))
+    if(g_bHasAcces[client] && HasAccess(steamid, g_sAccessAcclvl))
     {
         g_bHasAcces[client] = true;
         return Plugin_Continue;
@@ -162,7 +164,7 @@ Action Timer_OnClientConnected(Handle timer, int userid)
 
     if (IsServerFull(client))
     {
-        CreateTimer(0.1, OnTimedKick, GetClientUserId(client));
+        CreateTimer(GetRandomFloat(0.1, 1.0), OnTimedKick, GetClientUserId(client));
     }
 
     return Plugin_Continue;
@@ -188,13 +190,21 @@ bool IsServerFull(int client)
     int current = 0;
     int iAccessClient = 0;
 
+    static char steamid[32];
     for (int i=1; i<=MaxClients; i++)
     {
         if (i==client) continue;
         if (!IsClientConnected(i)) continue;
         if (IsFakeClient(i)) continue;
         if (g_bHasAcces[i]) iAccessClient++;
-        
+
+        GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid));
+        if(HasAccess(steamid, g_sAccessAcclvl))
+        {
+            g_bHasAcces[i] = true;
+            iAccessClient++;
+        }
+         
         current++;
     }
     #if DEBUG
