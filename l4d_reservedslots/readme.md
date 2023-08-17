@@ -8,32 +8,6 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	* Reserved Slots for Admin (Kick Message)
 	<br/>![l4d_reservedslots_1](image/l4d_reservedslots_1.jpg)
 
-* Apply to | 適用於
-	```
-    L4D1 
-	L4D2
-	```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-	
-	* v1.5 (2023-7-1)
-        * Require lef4dhooks v1.33 or above
-		* Remake code, convert code to latest syntax
-		* Fix warnings when compiling on SourceMod 1.11.
-		* Optimize code and improve performance
-		* Translation Support
-
-	* v1.0 (2023-5-3)
-	    * [Original Plugin by fenghf](https://bbs.3dmgame.com/thread-2804070-1-1.html)
-</details>
-
 * Require
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit
 
@@ -57,6 +31,37 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	None
 </details>
 
+* Apply to | 適用於
+	```
+    L4D1 
+	L4D2
+	```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	```
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+	
+	* v1.6 (2023-8-17)
+		* Fixed server kicks all players when map change
+
+	* v1.5 (2023-7-1)
+        * Require lef4dhooks v1.33 or above
+		* Remake code, convert code to latest syntax
+		* Fix warnings when compiling on SourceMod 1.11.
+		* Optimize code and improve performance
+		* Translation Support
+
+	* v1.0 (2023-5-3)
+	    * [Original Plugin by fenghf](https://bbs.3dmgame.com/thread-2804070-1-1.html)
+</details>
+
 - - - -
 # 中文說明
 當伺服器快滿人的時候，預留通道給管理員加入 (訊息提示: 剩餘通道只能管理員加入.. )
@@ -70,9 +75,6 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 * 原理
 	* 當伺服器快滿人的時候，剩餘的位置只能讓管理員加入，其他人加入會被踢出伺服器
 	* 如果伺服器內已經有管理員則不會踢出玩家
-
-* 功能
-	* 查看下方"指令中文介紹"
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
