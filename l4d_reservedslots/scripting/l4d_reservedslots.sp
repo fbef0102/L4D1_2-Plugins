@@ -2,7 +2,7 @@
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 
-#define PLUGIN_VERSION        "1.6-2023/8/17"
+#define PLUGIN_VERSION        "1.8-2023/8/18"
 #define PLUGIN_NAME			  "l4d_reservedslots"
 #define DEBUG 0
 
@@ -15,7 +15,6 @@ public Plugin myinfo =
     url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
-bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
     EngineVersion test = GetEngineVersion();
@@ -26,7 +25,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
         return APLRes_SilentFailure;
     }
 
-    bLate = late;
     return APLRes_Success; 
 }
 
@@ -35,19 +33,27 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
 
-int g_iCvarReservedSlots, g_iMaxplayers;
-ConVar L4dtoolzExtension, sv_visiblemaxplayers, g_hCvarReservedSlots, g_hAccess, g_hHideSlots;
+ConVar L4dtoolzExtension, sv_visiblemaxplayers;
+
+ConVar g_hCvarReservedSlots, g_hAccess, g_hHideSlots;
+int g_iCvarReservedSlots;
 char g_sAccessAcclvl[16];
 bool g_bHideSlots;
-bool g_bHasAcces[MAXPLAYERS+1];
+
+bool 
+    g_bHasAcces[MAXPLAYERS+1],
+    g_bCvarHookBlocked;
+
+int 
+    g_iCfgMaxPlayers;
 
 public void OnPluginStart()
 {
     LoadTranslations(TRANSLATION_FILE);
 
-    g_hCvarReservedSlots    = CreateConVar( PLUGIN_NAME ... "_adm",         "1", "Reserved how many slots for Admin. (0=Off)", CVAR_FLAGS, true, 0.0);
+    g_hCvarReservedSlots    = CreateConVar( PLUGIN_NAME ... "_adm",         "1", "Admin reserved slots. (0=Off)", CVAR_FLAGS, true, 0.0);
     g_hAccess               = CreateConVar( PLUGIN_NAME ... "_flag",        "z", "Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
-    g_hHideSlots            = CreateConVar( PLUGIN_NAME ... "_hide",        "0", "If set to 1, reserved slots will be hidden (slot display = sv_maxplayers - l4d_reservedslots_adm)", CVAR_FLAGS, true, 0.0, true, 1.0);
+    g_hHideSlots            = CreateConVar( PLUGIN_NAME ... "_hide",        "1", "If 1, display maxplayers only on server status (reserved slots will be hidden)\nIf 0, display maxplayers + reserved slots on server status", CVAR_FLAGS, true, 0.0, true, 1.0);
     CreateConVar(                           PLUGIN_NAME ... "_version",     PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
     AutoExecConfig(true,                    PLUGIN_NAME);
 
@@ -56,19 +62,7 @@ public void OnPluginStart()
     g_hAccess.AddChangeHook(ConVarChanged_Cvars);
     g_hHideSlots.AddChangeHook(ConVarChanged_Cvars);
 
-    if (bLate && g_iCvarReservedSlots > 0)
-    {
-        char steamid[32];
-        for (int i = 1; i <= MaxClients; i++)
-        {
-            if (IsClientConnected(i) && !IsFakeClient(i))
-            {
-                if(GetClientAuthId(i, AuthId_Steam2, steamid, sizeof(steamid)) == false) continue;
-                
-                if(HasAccess(steamid, g_sAccessAcclvl)) g_bHasAcces[i] = true;
-            }
-        }
-    }
+    HookEvent("player_connect", player_connect);
 }
 
 public void OnAllPluginsLoaded()
@@ -79,28 +73,28 @@ public void OnAllPluginsLoaded()
 
     sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
     if(sv_visiblemaxplayers == null)
-        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\".");
+        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\". Go to install L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases");
 
-    GetOfficialCvars();
+    g_iCfgMaxPlayers = L4dtoolzExtension.IntValue;
     L4dtoolzExtension.AddChangeHook(ConVarChanged_OfficialCvars);
-    sv_visiblemaxplayers.AddChangeHook(ConVarChanged_OfficialCvars);
 }
 
 bool bOnPluginEnd = false;
 public void OnPluginEnd()
 {
     bOnPluginEnd = true;
-    sv_visiblemaxplayers.RestoreDefault();
+    L4dtoolzExtension.SetInt(g_iCfgMaxPlayers);
+    sv_visiblemaxplayers.SetInt(g_iCfgMaxPlayers);
 }
 
 public void OnMapStart()
 {
-    CheckHiddenSlots();
+    SetHiddenSlots();
 }
 
 public void OnConfigsExecuted()
 { 
-    CheckHiddenSlots();	
+    SetHiddenSlots();	
 }
 
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -108,15 +102,15 @@ void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newV
     if(bOnPluginEnd) return;
 
     GetCvars();
-    CheckHiddenSlots();
+    SetHiddenSlots();
 }
 
 void ConVarChanged_OfficialCvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
-    if(bOnPluginEnd) return;
+    if(bOnPluginEnd || g_bCvarHookBlocked) return;
 
-    GetOfficialCvars();
-    CheckHiddenSlots();
+    g_iCfgMaxPlayers = L4dtoolzExtension.IntValue;
+    SetHiddenSlots();
 }
 
 void GetCvars()
@@ -126,37 +120,38 @@ void GetCvars()
     g_bHideSlots = g_hHideSlots.BoolValue;
 }
 
-void GetOfficialCvars()
-{
-    g_iMaxplayers = L4dtoolzExtension.IntValue;
-}
+// 換圖會觸發
+//public void OnClientConnected(int client)
+//{
+//    g_bHasAcces[client] = false;
+//}
 
+// 換圖會觸發
 public void OnClientDisconnect_Post(int client)
 {
-    CheckHiddenSlots();
+    SetHiddenSlots();
 
     g_bHasAcces[client] = false;	
 }
 
-public void OnClientConnected(int client)
+// 換圖不觸發
+void player_connect(Event event, const char[] name, bool dontBroadcast) 
 {
-    if (g_iCvarReservedSlots == 0)
-        return;
+    int userid = event.GetInt("userid");
 
-    g_bHasAcces[client] = false;
-
-    CreateTimer(GetRandomFloat(2.0, 4.0), Timer_OnClientConnected, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(GetRandomFloat(2.0, 3.5), Timer_OnClientConnected, userid, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 Action Timer_OnClientConnected(Handle timer, int userid)
 {
     int client = GetClientOfUserId(userid);
     if (!client || !IsClientConnected(client) || IsFakeClient(client)) return Plugin_Continue;
+    //LogMessage("%N Timer_OnClientConnected", client);
 
     static char steamid[32];
     GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid));
 
-    if(g_bHasAcces[client] && HasAccess(steamid, g_sAccessAcclvl))
+    if(g_bHasAcces[client] || HasAccess(steamid, g_sAccessAcclvl))
     {
         g_bHasAcces[client] = true;
         return Plugin_Continue;
@@ -180,14 +175,14 @@ Action OnTimedKick(Handle timer, any userid)
     FormatEx(sMessage, sizeof(sMessage), "%T", "Message", client);
     KickClient(client, sMessage);
     
-    CheckHiddenSlots();
+    SetHiddenSlots();
     
     return Plugin_Handled;
 }
 
 bool IsServerFull(int client)
 {
-    int current = 0;
+    int current = 1; //client
     int iAccessClient = 0;
 
     static char steamid[32];
@@ -208,10 +203,10 @@ bool IsServerFull(int client)
         current++;
     }
     #if DEBUG
-        LogMessage("Current: %d - ReservedSlots: %d - MaxPlayer: %d, iAccessClient: %d", current, g_iCvarReservedSlots, g_iMaxplayers, iAccessClient);
+        LogMessage("Current: %d - ReservedSlots: %d - MaxPlayer: %d, iAccessClient: %d", current, g_iCvarReservedSlots, g_iCfgMaxPlayers, iAccessClient);
     #endif
-    if (iAccessClient >= g_iCvarReservedSlots) return false;
-    if (current + g_iCvarReservedSlots >= g_iMaxplayers) return true;
+    //if (iAccessClient >= g_iCvarReservedSlots) return false;
+    if (current> g_iCfgMaxPlayers) return true;
 
     return false;
 }
@@ -238,19 +233,24 @@ bool HasAccess(char[] steamid, char[] g_sAcclvl)
 	return false;
 }
 
-void CheckHiddenSlots()
+void SetHiddenSlots()
 {
-    if (g_bHideSlots)
-    {
-        if(g_iMaxplayers > 0 && g_iCvarReservedSlots > 0) sv_visiblemaxplayers.SetInt(g_iMaxplayers - g_iCvarReservedSlots);
-    }
-    else
-    {
-        ResetVisibleMax();
-    }
-}
+    g_bCvarHookBlocked = true;
 
-void ResetVisibleMax()
-{
-    sv_visiblemaxplayers.SetInt(-1);
+    if(g_iCfgMaxPlayers > 0 && g_iCvarReservedSlots > 0)
+    {
+        int iFinalSlot = (g_iCfgMaxPlayers + g_iCvarReservedSlots >= 30) ? 30 : g_iCfgMaxPlayers + g_iCvarReservedSlots;
+
+        L4dtoolzExtension.SetInt( iFinalSlot );
+        if (g_bHideSlots)
+        {
+            sv_visiblemaxplayers.SetInt( g_iCfgMaxPlayers );
+        }
+        else
+        {
+            sv_visiblemaxplayers.SetInt( iFinalSlot );
+        }
+    }
+
+    g_bCvarHookBlocked = false;
 }

@@ -8,6 +8,13 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	* Reserved Slots for Admin (Kick Message)
 	<br/>![l4d_reservedslots_1](image/l4d_reservedslots_1.jpg)
 
+* <details><summary>How does it work?</summary>
+
+	* When Server is full,
+		* adm can use reserved slots to join server
+		* normal players will be blocked on connection
+</details>
+
 * Require
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit
 
@@ -48,6 +55,9 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 
 * <details><summary>Changelog | 版本日誌</summary>
 	
+	* v1.8 (2023-8-18)
+		* Remake code
+
 	* v1.6 (2023-8-17)
 		* Fixed server kicks all players when map change
 
@@ -64,7 +74,7 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 
 - - - -
 # 中文說明
-當伺服器快滿人的時候，預留通道給管理員加入 (訊息提示: 剩餘通道只能管理員加入.. )
+當滿人的時候，管理員可以使用預留通道加入 (訊息提示: 剩餘通道只能管理員加入.. )
 
 * 圖示
 	<br/>![l4d_reservedslots_1](image/zho/l4d_reservedslots_1.jpg)
@@ -73,21 +83,31 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz): 解鎖伺服器人數上限
 
 * 原理
-	* 當伺服器快滿人的時候，剩餘的位置只能讓管理員加入，其他人加入會被踢出伺服器
-	* 如果伺服器內已經有管理員則不會踢出玩家
+	* 當伺服器滿人的時候
+		* 管理員可以使用預留通道加入
+		* 其他人加入會被踢出
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
 	* cfg/sourcemod/l4d_reservedslots.cfg
 		```php
-        // 可設置預留通道的數量. (0=關閉)
-        l4d_reservedslots_adm "1"
+		// 預留通道的數量. (0=關閉)
+		// -
+		// Default: "1"
+		// Minimum: "0.000000"
+		l4d_reservedslots_adm "1"
 
-        // 可設置哪些權限視為管理員，這些人可以進入預留通道 (空白 = 任何人都可以進入, -1: 任何人都不行)
-        l4d_reservedslots_flag "z"
+		// 哪些權限視為管理員，這些人可以進入預留通道 (空白 = 任何人都可以進入, -1: 任何人都不行)
+		// -
+		// Default: "z"
+		l4d_reservedslots_flag "z"
 
-        // 為1時，可將預留通道隱藏起來 (人數顯示 = 最大容納人數 - l4d_reservedslots_adm的數值)
-        // 譬如原本伺服器顯示人數: 11/12，變成 11/11 (隱藏一個位置)
-        l4d_reservedslots_hide "0"
+		// 為1時，伺服器資訊欄上只會顯示 "最大人數" (預留通道會被隱藏)
+		// 為0時，伺服器資訊欄上顯示 "最大人數 + 預留通道"
+		// -
+		// Default: "0"
+		// Minimum: "0.000000"
+		// Maximum: "1.000000"
+		l4d_reservedslots_hide "1"
 		```
 </details>
