@@ -159,7 +159,7 @@ If you want any modify or request, feel free to use or pay me money to do it.
 * <b>[l4d1_ban_twotank_glitch_player](/l4d1_ban_twotank_glitch_player)</b>: Ban player who uses L4D1 / Split tank glitchpick up
     * 修復L4D1遊戲的Bug: 雙重Tank生成的問題
 * <b>[l4d_reservedslots](/l4d_reservedslots)</b>: Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
-    * 當伺服器快滿人的時候，預留通道給管理員加入 (訊息提示: 剩餘通道只能管理員加入.. )
+    * 當滿人的時候，管理員可以使用預留通道加入 (訊息提示: 剩餘通道只能管理員加入.. )
 * <b>[l4d_death_soul](/l4d_death_soul)</b>: Soul of the dead survivor flies away to the afterlife
     * 人類死亡後，靈魂升天
 * <b>[l4d_graves](/l4d_graves)</b>: When a survivor die, on his body appear a grave.
