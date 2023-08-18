@@ -22,14 +22,15 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 
 	* cfg/sourcemod/l4d_reservedslots.cfg
 		```php
-        // Reserved how many slots for Admin. (0=Off)
-        l4d_reservedslots_adm "1"
+		// Admin reserved slots. (0=Off)
+		l4d_reservedslots_adm "1"
 
-        // Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)
-        l4d_reservedslots_flag "z"
+		// Players with these flags have access to use admin reserved slots. (Empty = Everyone, -1: Nobody)
+		l4d_reservedslots_flag "z"
 
-        // If set to 1, reserved slots will be hidden (slot display = sv_maxplayers - l4d_reservedslots_adm)
-        l4d_reservedslots_hide "0"
+		// If 1, display maxplayers only on server status (reserved slots will be hidden)
+		// If 0, display maxplayers + reserved slots on server status
+		l4d_reservedslots_hide "1"
 		```
 </details>
 
@@ -92,22 +93,13 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	* cfg/sourcemod/l4d_reservedslots.cfg
 		```php
 		// 預留通道的數量. (0=關閉)
-		// -
-		// Default: "1"
-		// Minimum: "0.000000"
 		l4d_reservedslots_adm "1"
 
 		// 哪些權限視為管理員，這些人可以進入預留通道 (空白 = 任何人都可以進入, -1: 任何人都不行)
-		// -
-		// Default: "z"
 		l4d_reservedslots_flag "z"
 
 		// 為1時，伺服器資訊欄上只會顯示 "最大人數" (預留通道會被隱藏)
 		// 為0時，伺服器資訊欄上顯示 "最大人數 + 預留通道"
-		// -
-		// Default: "0"
-		// Minimum: "0.000000"
-		// Maximum: "1.000000"
 		l4d_reservedslots_hide "1"
 		```
 </details>
