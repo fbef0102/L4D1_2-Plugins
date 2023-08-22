@@ -605,9 +605,6 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	* 解鎖特感隊伍的人數上限，可以加入第五位以上的特感真人玩家，達成對抗 10 VS 10 玩法
 	* **支援所有模式包括突變模式**
 
-* 功能
-	* 見下方指令中文介紹與如何設置正確的指令值
-
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
 	* cfg/sourcemod/l4dmultislots.cfg

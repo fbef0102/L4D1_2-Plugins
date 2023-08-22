@@ -62,7 +62,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.8"
+#define PLUGIN_VERSION 		"4.9"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -149,26 +149,6 @@ float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 int iClientFlags[MAXPLAYERS+1];
-
-methodmap PlayerAnimState {
-	property int m_eCurrentMainSequenceActivity {
-		public get() {
-			return LoadFromAddress(view_as<Address>(this) + view_as<Address>(276), NumberType_Int32);
-		}
-	}
-
-	public int GetMainActivity() {
-		return this.m_eCurrentMainSequenceActivity;
-	}
-}
-
-PlayerAnimState GetPlayerAnimState(int client) {
-	static int s_iOffs_m_PlayerAnimState = -1;
-	if (s_iOffs_m_PlayerAnimState == -1)
-		s_iOffs_m_PlayerAnimState = FindSendPropInfo("CTerrorPlayer", "m_flProgressBarDuration") + 8;
-	
-	return LoadFromAddress(GetEntityAddress(client) + view_as<Address>(s_iOffs_m_PlayerAnimState), NumberType_Int32);
-}
 
 int L4D1_GetMainActivity(int client) {
 	static int s_iOffs_m_eCurrentMainSequenceActivity = -1;
@@ -916,7 +896,7 @@ Action TurnClientToSurvivors(int client, int args)
 	}
 	else
 	{
-		int bot = FindBotToTakeOver(true)	;
+		int bot = FindBotToTakeOver(true);
 		if (bot==0)
 		{
 			bot = FindBotToTakeOver(false);
@@ -1658,7 +1638,7 @@ bool HasAccess(int client, char[] g_sAcclvl)
 		return false;
 
 	// check permissions
-	if ( iClientFlags[client] & ReadFlagString(g_sAcclvl) || (iClientFlags[client] & ADMFLAG_ROOT))
+	if ( (iClientFlags[client] & ReadFlagString(g_sAcclvl)) || (iClientFlags[client] & ADMFLAG_ROOT) )
 	{
 		return true;
 	}
@@ -1977,7 +1957,7 @@ bool IsGettingUpOrStumble(int client) {
 
 	if(g_bL4D2Version)
 	{
-		Activity = GetPlayerAnimState(client).GetMainActivity();
+		Activity = PlayerAnimState.FromPlayer(client).GetMainActivity();
 
 		switch (Activity) 
 		{
