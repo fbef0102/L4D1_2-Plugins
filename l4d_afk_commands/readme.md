@@ -17,60 +17,28 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		<br/>![l4d_afk_commands_3](image/l4d_afk_commands_4.jpg)
 </details>
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
+* <details><summary>How does it work?</summary>
 
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	Hungarian
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	* v4.8 (2023-5-22)
-		* Support l4d2 all mutation mode
-
-	* v4.7 (2023-5-7)
-		* Player can not change team while he is getting up or staggering.
-
-	* v4.6 (2023-5-6)
-		* Add more cvars
-			```php
-			// If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.
-			// If team is unbanlance, will fail to join team!
-			l4d_afk_commands_versus_teams_balance_enable "1"
-
-			// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
-			l4d_afk_commands_versus_teams_unbalance_limit "2"
-			```
-		* Update Translation files
-
-	* v4.5 (2022-12-28)
-		* Add 1 cvar "l4d_afk_commands_weapon_reload_block". Player can not change team when he is reloading the weapon.
-
-	* v4.4
-		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2719702&postcount=32)
-		* Remake Code
-		* Add translation support.
-		* Update L4D2 "The Last Stand" gamedata, credit to [Lux](https://forums.alliedmods.net/showthread.php?p=2714236)
-		* Add more convar and limit to prevent players from changing team abuse.
-		* Add more commands
-		* No change team abuse
-		* Player can go idle even if alone in server
-		* Allow alive survivor player suicides by using '!zs'
-		* Adm Command ```sm_swapto <player> <team>```, Adm forces player to swap team
-		* Compatible with [r2comp_unscramble](https://forums.alliedmods.net/showthread.php?t=327711)
-		* Remove gamedata
-
-	* v1.2
-		* [Original Plugin By MasterMe](https://forums.alliedmods.net/showthread.php?p=1130434)
+	* Provide lots of command for players to switch team or spectate
+	* Restrict the following actions
+		1. ESC->Take a break
+		2. Press M to choose team in versus/scavenge mode
+		3. Type ```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>``` in server console
+		4. Type ```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>``` in server console
+	* Player can not go idle or use command to switch team if the following situation, otherwise force to be spectator
+		1. Startle witch or witch attacks you.
+		2. Capped by special infected.
+		3. Dead survivor.
+		4. Player can not switch team after players have left start safe area for at least X seconds. (set time by convar)
+		5. Cold Down Time in seconds a player can not change team again after he switches team.
+		6. Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel.
+		7. Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice.
+		8. Reloading the weapon.
+		9. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
+		10. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
+		11. Team is unbalance in Versus/Scavenge Mode.
+		12. Getting up or staggering animation.
+	* Start all 'block' limits once survivor has left the saferoom or survival/scavenge begins
 </details>
 
 * Require | 必要安裝
@@ -212,38 +180,71 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 			```
 </details>
 
-* Notice
-	* The plugin will work once survivor has left the saferoom or survival/scavenge begins
-	* Player can not go idle or use command to switch team if the following situation, otherwise force to be spectator
-		1. Startle witch or witch attacks you.
-		2. Capped by special infected.
-		3. Dead survivor.
-		4. Player can not switch team after players have left start safe area for at least X seconds. (set time by convar)
-		5. Cold Down Time in seconds a player can not change team again after he switches team.
-		6. Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel.
-		7. Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice.
-		8. Reloading the weapon.
-		9. Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.
-		10. Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected.
-		11. Team is unbalance in Versus/Scavenge Mode.
-		12. Getting up or staggering animation.
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	Russian
+	Hungarian
+	```
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	* v4.9 (2023-8-23)
+		* Update left4dhooks v1.135 or above
+
+	* v4.8 (2023-5-22)
+		* Support l4d2 all mutation mode
+
+	* v4.7 (2023-5-7)
+		* Player can not change team while he is getting up or staggering.
+
+	* v4.6 (2023-5-6)
+		* Add more cvars
+			```php
+			// If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.
+			// If team is unbanlance, will fail to join team!
+			l4d_afk_commands_versus_teams_balance_enable "1"
+
+			// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
+			l4d_afk_commands_versus_teams_unbalance_limit "2"
+			```
+		* Update Translation files
+
+	* v4.5 (2022-12-28)
+		* Add 1 cvar "l4d_afk_commands_weapon_reload_block". Player can not change team when he is reloading the weapon.
+
+	* v4.4
+		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2719702&postcount=32)
+		* Remake Code
+		* Add translation support.
+		* Update L4D2 "The Last Stand" gamedata, credit to [Lux](https://forums.alliedmods.net/showthread.php?p=2714236)
+		* Add more convar and limit to prevent players from changing team abuse.
+		* Add more commands
+		* No change team abuse
+		* Player can go idle even if alone in server
+		* Allow alive survivor player suicides by using '!zs'
+		* Adm Command ```sm_swapto <player> <team>```, Adm forces player to swap team
+		* Compatible with [r2comp_unscramble](https://forums.alliedmods.net/showthread.php?t=327711)
+		* Remove gamedata
+
+	* v1.2
+		* [Original Plugin By MasterMe](https://forums.alliedmods.net/showthread.php?p=1130434)
+</details>
 
 - - - -
 # 中文說明
 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
-
-* <details><summary>圖示</summary>
-
-	* 此插件會限制玩家切換隊伍的行為包括
-		1. ESC->休息一下
-		<br/>![l4d_afk_commands_1](image/zho/l4d_afk_commands_1.jpg)
-		2. 對抗模式下按M切換隊伍
-		<br/>![l4d_afk_commands_2](image/zho/l4d_afk_commands_2.jpg)
-		3. 控制台輸入```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
-		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_3.jpg)
-		4. 控制台輸入```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
-		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_4.jpg)
-</details>
 
 * 原理
 	* 提供加入倖存者陣營、特感陣營、旁觀者陣營的命令
@@ -257,10 +258,17 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		7. 玩家頻繁換隊洗頻伺服器
 	* 在對抗/清道夫模式中，檢查雙方隊伍的真人玩家數量，如果雙方隊伍數量不平衡則切換隊伍會失敗
 
-* 功能
-	* 查看下方"指令中文介紹" 與 "命令中文介紹"
+* <details><summary>注意事項</summary>
 
-* 注意事項
+	* 此插件會限制玩家切換隊伍的行為包括
+		1. ESC->休息一下
+		<br/>![l4d_afk_commands_1](image/zho/l4d_afk_commands_1.jpg)
+		2. 對抗模式下按M切換隊伍
+		<br/>![l4d_afk_commands_2](image/zho/l4d_afk_commands_2.jpg)
+		3. 控制台輸入```jointeam 2 <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
+		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_3.jpg)
+		4. 控制台輸入```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
+		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_4.jpg)
 	* 盡量不要安裝其他也有換隊指令的插件，否則換隊衝突後果自負
 	* 遊戲開始之後所有關於切換隊伍的限制才會生效
 		* 離開安全區域
@@ -278,6 +286,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		10. 特感剛復活的時候
 		11. 對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊
 		12. 起身或硬直狀態中禁止換隊
+</details>
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
