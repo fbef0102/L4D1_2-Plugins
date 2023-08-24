@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "1.3"
+#define PLUGIN_VERSION "1.4"
 
 #include <sourcemod>
 #pragma semicolon 1
@@ -10,10 +10,10 @@
 public Plugin myinfo =
 {
 	name = "Kick Bots Fix",
-	author = "raziEiL [disawar1] & HarryPotter",
+	author = "HarryPotter",
 	description = "Fixed no Survivor bots issue or too many Survivor bots issue after map loading.",
 	version = PLUGIN_VERSION,
-	url = "http://steamcommunity.com/id/raziEiL"
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 ConVar g_hSurvivorLimit;
@@ -146,7 +146,7 @@ void SF_Fix()
 
 		SetCommandFlags(ADD_BOT, iFlag & ~FCVAR_CHEAT);
 
-		while (iSurvivorCount != g_iCvarSurvLimit){
+		while (iSurvivorCount < g_iCvarSurvLimit){
 			LogMessage("Bug detected. Trying to add a bot %d/%d", iSurvivorCount, g_iCvarSurvLimit);
 			ServerCommand(ADD_BOT);
 			iSurvivorCount++;
@@ -156,7 +156,7 @@ void SF_Fix()
 	}
 	
 	if (iSurvivorCount > g_iCvarSurvLimit){
-		while (iSurvivorCount != g_iCvarSurvLimit){
+		while (iSurvivorCount > g_iCvarSurvLimit){
 			LogMessage("Bug detected. Trying to kick a bot %d/%d", iSurvivorCount, g_iCvarSurvLimit);
 			bKickFakeClient = false;
 			for (int i = 1; i <= MaxClients; i++)
