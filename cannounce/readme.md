@@ -2,47 +2,26 @@
 # Description | 內容
 Replacement of default player connection message, allows for custom connection messages
 
+> __Note__ <br/>
+🟥Dedicated Server Only<br/>
+🟥只能安裝在Dedicated Server
+
 * Video | 影片展示
 <br/>None
 
 * Image | 圖示
-	* Display player connected and disconnected  message
-		> 當玩家連線進來或離開遊戲時顯示
-		<br/>![cannounce_1](image/cannounce_1.jpg)
+	<br/>![cannounce_1](image/cannounce_1.jpg)
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
+* <details><summary>How does it work?</summary>
 
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	Русский
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	* v2.0 (2022-12-1)
-        * Remove GeoIPCity (GeoIP2 is now included with SourceMod 1.11.6703.)
-		* Remove player custom message (No one cares about it!)
-
-	* v1.9
-        * Remake Code
-
-	* v1.8
-        * [Original Plugin by Arg!](https://forums.alliedmods.net/showthread.php?t=77306)
+	* Display player connected and disconnected message
 </details>
+
+* Notice
+	* To retrieve data from client, You must [install country and city database](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#country-and-city-database)
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
-* Similar Plugin | 相似插件
-	1. [l4d_playerjoining](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_伺服器/l4d_playerjoining): Informs other players when a client connects to the server and changes teams.while player joins the server
-    	> 當玩家更換隊伍、連線、離開伺服器之時，通知所有玩家 (簡單版的提示)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -90,9 +69,6 @@ Replacement of default player connection message, allows for custom connection m
 	None
 </details>
 
-* Notice
-	* To retrieve data from client, You must [install country and city database](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#country-and-city-database)
-
 * <details><summary>Data Example</summary>
 
 	* data\cannounce_settings.txt
@@ -128,6 +104,41 @@ Replacement of default player connection message, allows for custom connection m
 			}
 		}
 		```
+</details>
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	Русский
+	```
+</details>
+
+* <details><summary>Similar Plugin | 相似插件</summary>
+
+	1. [l4d_playerjoining](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_伺服器/l4d_playerjoining): Informs other players when a client connects to the server and changes teams.while player joins the server
+    	> 當玩家更換隊伍、連線、離開伺服器之時，通知所有玩家 (簡單版的提示)
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	* v2.0 (2022-12-1)
+        * Remove GeoIPCity (GeoIP2 is now included with SourceMod 1.11.6703.)
+		* Remove player custom message (No one cares about it!)
+
+	* v1.9
+        * Remake Code
+
+	* v1.8
+        * [Original Plugin by Arg!](https://forums.alliedmods.net/showthread.php?t=77306)
 </details>
 
 - - - -
