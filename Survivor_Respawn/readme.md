@@ -83,12 +83,14 @@ When a Survivor dies, will respawn after a period of time.
 	L4D2
 	```
 
-* Translation Support | 支援翻譯
+* <details><summary>Translation Support | 支援翻譯</summary>
+
 	```
 	English
 	繁體中文
 	简体中文
 	```
+</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

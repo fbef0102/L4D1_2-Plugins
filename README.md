@@ -1,7 +1,7 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
 > All plugins in here apply to both L4D1 or L4D2 <br/>
-> 2023/7/27 Updated
+> 2023/8/25 Updated
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, feel free to use or pay me money to do it.
 # Require
@@ -166,6 +166,8 @@ If you want any modify or request, feel free to use or pay me money to do it.
     * 戰役/寫實模式下，AI Tank一生成會直接往前進並攻擊倖存者，而非待在原地等待
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
     * 救援開始之後，所有人重力變低，可以跳很高
+* <b>[gamemode-based_configs](/gamemode-based_configs)</b>: Allows for custom settings for each gamemode and mutatuion.
+    * 根據遊戲模式或突變模式執行不同的cfg文件
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
 # Others
