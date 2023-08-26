@@ -557,6 +557,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.4 (2023-8-26)
+		* Improve Code.
+
 	* v2.8.3 (2023-7-5)
 		* Override L4D2 Vscripts to control infected limit.
 
