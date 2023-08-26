@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.8.3  (2009-2023)
+* Version	: 2.8.4  (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.8.4 (2023-8-26)
+*	   - Improve Code
+
 * Version 2.8.3 (2023-7-5)
 *	   - Override L4D2 Vscripts to control infected limit.
 
@@ -719,7 +722,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.8.3"
+#define PLUGIN_VERSION "2.8.4"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -771,6 +774,7 @@ int TanksPlaying; // Holds the amount of tanks on the playing field
 int g_iSpawnWeights[NUM_TYPES_INFECTED_MAX];
 int g_iSpawnLimits[NUM_TYPES_INFECTED_MAX];
 int g_iSpawnCounts[NUM_TYPES_INFECTED_MAX];
+Handle g_hSpawnColdDownTimer[NUM_TYPES_INFECTED_MAX];
 int g_iMaxPlayerZombies; // Holds the amount of the maximum amount of special zombies on the field
 int MaxPlayerTank; // Used for setting an additional slot for each tank that spawns
 int g_iCoordinationBotReady; // Used to determine how many bots are ready, used only for the coordination feature
@@ -2649,6 +2653,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	// If round has ended .. we ignore this
 	if (g_bHasRoundEnded || g_bInitialSpawn) return;
 
+	int SpawnTime;
 	// if victim was a bot, we setup a timer to spawn a int bot ...
 	if (L4D_HasPlayerControlledZombies())
 	{
@@ -2656,7 +2661,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		{
 			if(g_bDisableInfectedBot) return;
 			
-			int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+			SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
 			if (g_bAdjustSpawnTimes && g_iMaxPlayerZombies != HumansOnInfected())
 				SpawnTime = SpawnTime  - (TrueNumberOfAliveSurvivors() * g_iReducedSpawnTimesOnPlayer);
 
@@ -2693,7 +2698,7 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	// This spawns a bot in coop/survival regardless if the special that died was controlled by a player, MI 5
 	else
 	{
-		int SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
+		SpawnTime = GetRandomInt(g_iInfectedSpawnTimeMin, g_iInfectedSpawnTimeMax);
 		if(g_bAdjustSpawnTimes)
 		{
 			if(IsFakeClient(client))
@@ -2739,6 +2744,162 @@ public void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	if (!clientGreeted[client] && g_bAnnounce)
 	{
 		CreateTimer(3.0, TimerAnnounce, client, TIMER_FLAG_NO_MAPCHANGE);
+	}
+
+	int zClass = GetEntProp(client, Prop_Send, "m_zombieClass");
+	int iLeftAliveCounts;
+	switch(zClass)
+	{
+		case ZOMBIECLASS_SMOKER:
+		{
+			if(g_iSpawnLimits[SI_SMOKER] == 0) return;
+			else if(g_iSpawnLimits[SI_SMOKER] == 1)
+			{
+				delete g_hSpawnColdDownTimer[SI_SMOKER];
+				g_hSpawnColdDownTimer[SI_SMOKER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_SMOKER);
+			}
+			else if(g_iSpawnLimits[SI_SMOKER] > 1)
+			{
+				for (int i=1;i<=MaxClients;i++)
+				{
+					if (IsClientInGame(i) && GetClientTeam(i) == TEAM_INFECTED && IsPlayerAlive(i) && IsPlayerSmoker(i))
+					{
+						iLeftAliveCounts++;
+					}
+				}
+
+				if(iLeftAliveCounts != g_iSpawnLimits[SI_SMOKER] - 1) return;
+
+				delete g_hSpawnColdDownTimer[SI_SMOKER];
+				g_hSpawnColdDownTimer[SI_SMOKER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_SMOKER);
+			}
+		}
+		case ZOMBIECLASS_BOOMER:
+		{
+			if(g_iSpawnLimits[SI_BOOMER] == 0) return;
+			else if(g_iSpawnLimits[SI_BOOMER] == 1)
+			{
+				delete g_hSpawnColdDownTimer[SI_BOOMER];
+				g_hSpawnColdDownTimer[SI_BOOMER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_BOOMER);
+			}
+			else if(g_iSpawnLimits[SI_BOOMER] > 1)
+			{
+				for (int i=1;i<=MaxClients;i++)
+				{
+					if (IsClientInGame(i) && GetClientTeam(i) == TEAM_INFECTED && IsPlayerAlive(i) && IsPlayerBoomer(i))
+					{
+						iLeftAliveCounts++;
+					}
+				}
+
+				if(iLeftAliveCounts != g_iSpawnLimits[SI_BOOMER] - 1) return;
+
+				delete g_hSpawnColdDownTimer[SI_BOOMER];
+				g_hSpawnColdDownTimer[SI_BOOMER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_BOOMER);
+			}
+		}
+		case ZOMBIECLASS_HUNTER:
+		{
+			if(g_iSpawnLimits[SI_HUNTER] == 0) return;
+			else if(g_iSpawnLimits[SI_HUNTER] == 1)
+			{
+				delete g_hSpawnColdDownTimer[SI_HUNTER];
+				g_hSpawnColdDownTimer[SI_HUNTER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_HUNTER);
+			}
+			else if(g_iSpawnLimits[SI_HUNTER] > 1)
+			{
+				for (int i=1;i<=MaxClients;i++)
+				{
+					if (IsClientInGame(i) && GetClientTeam(i) == TEAM_INFECTED && IsPlayerAlive(i) && IsPlayerHunter(i))
+					{
+						iLeftAliveCounts++;
+					}
+				}
+
+				if(iLeftAliveCounts != g_iSpawnLimits[SI_HUNTER] - 1) return;
+
+				delete g_hSpawnColdDownTimer[SI_HUNTER];
+				g_hSpawnColdDownTimer[SI_HUNTER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_HUNTER);
+			}
+		}
+		case ZOMBIECLASS_SPITTER:
+		{
+			if(!g_bL4D2Version) return;
+
+			if(g_iSpawnLimits[SI_SPITTER] == 0) return;
+			else if(g_iSpawnLimits[SI_SPITTER] == 1)
+			{
+				delete g_hSpawnColdDownTimer[SI_SPITTER];
+				g_hSpawnColdDownTimer[SI_SPITTER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_SPITTER);
+			}
+			else if(g_iSpawnLimits[SI_SPITTER] > 1)
+			{
+				for (int i=1;i<=MaxClients;i++)
+				{
+					if (IsClientInGame(i) && GetClientTeam(i) == TEAM_INFECTED && IsPlayerAlive(i) && IsPlayerSpitter(i))
+					{
+						iLeftAliveCounts++;
+					}
+				}
+
+				if(iLeftAliveCounts != g_iSpawnLimits[SI_SPITTER] - 1) return;
+
+				delete g_hSpawnColdDownTimer[SI_SPITTER];
+				g_hSpawnColdDownTimer[SI_SPITTER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_SPITTER);
+			}
+		}
+		case ZOMBIECLASS_JOCKEY:
+		{
+			if(!g_bL4D2Version) return;
+			
+			if(g_iSpawnLimits[SI_JOCKEY] == 0) return;
+			else if(g_iSpawnLimits[SI_JOCKEY] == 1)
+			{
+				delete g_hSpawnColdDownTimer[SI_JOCKEY];
+				g_hSpawnColdDownTimer[SI_JOCKEY] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_JOCKEY);
+			}
+			else if(g_iSpawnLimits[SI_JOCKEY] > 1)
+			{
+				for (int i=1;i<=MaxClients;i++)
+				{
+					if (IsClientInGame(i) && GetClientTeam(i) == TEAM_INFECTED && IsPlayerAlive(i) && IsPlayerJockey(i))
+					{
+						iLeftAliveCounts++;
+					}
+				}
+
+				if(iLeftAliveCounts != g_iSpawnLimits[SI_JOCKEY] - 1) return;
+
+				delete g_hSpawnColdDownTimer[SI_JOCKEY];
+				g_hSpawnColdDownTimer[SI_JOCKEY] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_JOCKEY);
+			}
+		}
+		case ZOMBIECLASS_CHARGER:
+		{
+			if(!g_bL4D2Version) return;
+			
+			if(g_iSpawnLimits[SI_CHARGER] == 0) return;
+			else if(g_iSpawnLimits[SI_CHARGER] == 1)
+			{
+				delete g_hSpawnColdDownTimer[SI_CHARGER];
+				g_hSpawnColdDownTimer[SI_CHARGER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_CHARGER);
+			}
+			else if(g_iSpawnLimits[SI_CHARGER] > 1)
+			{
+				for (int i=1;i<=MaxClients;i++)
+				{
+					if (IsClientInGame(i) && GetClientTeam(i) == TEAM_INFECTED && IsPlayerAlive(i) && IsPlayerCharger(i))
+					{
+						iLeftAliveCounts++;
+					}
+				}
+
+				if(iLeftAliveCounts != g_iSpawnLimits[SI_CHARGER] - 1) return;
+
+				delete g_hSpawnColdDownTimer[SI_CHARGER];
+				g_hSpawnColdDownTimer[SI_CHARGER] = CreateTimer(float(SpawnTime)-0.1, Timer_SpawnColdDown, SI_CHARGER);
+			}
+		}
 	}
 }
 
@@ -3627,86 +3788,18 @@ int BotTypeNeeded()
 			g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
 			GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
 		{
-			#if DEBUG
-			LogMessage("Bot type returned Tank");
-			#endif
 			return 7;
 		}
 		else //spawn other S.I.
 		{
-			/*int random = GetRandomInt(1, 6);
-			int i=0;
-			while(i++<5)
+			int generate;
+			for(int i = 1; i <= 3; i++)
 			{
-				if (random == 1)
-				{
-					if (smokers < g_iSmokerLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Smoker");
-						#endif
-						return 1;
-					}
-					random++;
-				}
-				if (random == 2)
-				{
-					if (boomers < g_iBoomerLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Boomer");
-						#endif
-						return 2;
-					}
-					random++;
-				}
-				if (random == 3)
-				{
-					if (hunters < g_iHunterLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Hunter");
-						#endif
-						return 3;
-					}
-					random++;
-				}
-				if (random == 4)
-				{
-					if (spitters < g_iSpitterLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Spitter");
-						#endif
-						return 4;
-					}
-					random++;
-				}
-				if (random == 5)
-				{
-					if (jockeys < g_iJockeyLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Jockey");
-						#endif
-						return 5;
-					}
-					random++;
-				}
-				if (random == 6)
-				{
-					if (chargers < g_iChargerLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Charger");
-						#endif
-						return 6;
-					}
-					random = 1;
-				}
-			}*/
+				generate = GenerateIndex()+1;
+				if(generate > 0) break;
+			}
 
-			return GenerateIndex()+1;
+			return generate;
 		}
 	}
 	else
@@ -3715,54 +3808,18 @@ int BotTypeNeeded()
 			g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
 			GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
 		{
-			#if DEBUG
-			LogMessage("Bot type returned Tank");
-			#endif
 			return 7;
 		}
 		else
 		{
-			/*int random = GetRandomInt(1, 3);
-
-			int i=0;
-			while(i++<10)
+			int generate;
+			for(int i = 1; i <= 3; i++)
 			{
-				if (random == 1)
-				{
-					if (smokers < g_iSmokerLimit)
-					{
-						#if DEBUG
-						LogMessage("Returning Smoker");
-						#endif
-						return 1;
-					}
-					random++;
-				}
-				if (random == 2)
-				{
-					if (boomers < g_iBoomerLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Boomer");
-						#endif
-						return 2;
-					}
-					random++;
-				}
-				if (random == 3)
-				{
-					if (hunters < g_iHunterLimit)
-					{
-						#if DEBUG
-						LogMessage("Bot type returned Hunter");
-						#endif
-						return 3;
-					}
-					random=1;
-				}
+				generate = GenerateIndex()+1;
+				if(generate > 0) break;
 			}
-			*/
-			return GenerateIndex()+1;
+
+			return generate;
 		}
 	}
 }
@@ -3925,7 +3982,7 @@ public Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	else anyclient = GetRandomAliveSurvivor();
 	if(anyclient == 0)
 	{
-		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn S.I. at this moment.",ZOMBIESPAWN_Attempts);
+		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn S.I. at this moment.");
 		CreateTimer(1.0, CheckIfBotsNeededLater, g_bInitialSpawn ? 2: g_bIsCoordination? 1: 0, TIMER_FLAG_NO_MAPCHANGE);
 
 		if(InfectedBotQueue > 0) InfectedBotQueue--;
@@ -5329,6 +5386,11 @@ void ResetTimer()
 	{
 		delete SpawnInfectedBotTimer[i];
 	}
+
+	for(int i = 0; i < NUM_TYPES_INFECTED_MAX; i++)
+	{
+		delete g_hSpawnColdDownTimer[i];
+	}
 }
 
 // prevent infecetd fall damage on coop
@@ -6210,7 +6272,7 @@ int GenerateIndex()
 	float[] IntervalEnds = new float[NUM_INFECTED];
 	for(int i = 0; i < NUM_INFECTED; i++)
 	{
-		if(g_iSpawnCounts[i] < g_iSpawnLimits[i])
+		if(g_iSpawnCounts[i] < g_iSpawnLimits[i] && g_hSpawnColdDownTimer[i] == null)
 		{
 			if(g_bScaleWeights)
 				TempSpawnWeights[i] = (g_iSpawnLimits[i] - g_iSpawnCounts[i]) * g_iSpawnWeights[i];
@@ -6325,5 +6387,11 @@ public Action L4D_OnGetScriptValueFloat(const char[] sKey, float &retVal)
 		return Plugin_Handled;
 	}
 
+	return Plugin_Continue;
+}
+
+Action Timer_SpawnColdDown(Handle timer, int SI_TYPE)
+{
+	g_hSpawnColdDownTimer[SI_TYPE] = null;
 	return Plugin_Continue;
 }
