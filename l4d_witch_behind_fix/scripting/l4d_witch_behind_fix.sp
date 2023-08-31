@@ -9,8 +9,8 @@ public Plugin myinfo =
 	name = "[L4D & L4D2] witch smart attack behind",
 	author = "HarryPotter",
 	description = "The witch turns back if nearby survivor scares her behind",
-	version = "1.2",
-	url = "https://steamcommunity.com/id/TIGER_x_DRAGON/"
+	version = "1.3",
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -39,7 +39,7 @@ public void OnAllPluginsLoaded()
 	}
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -54,7 +54,7 @@ public void OnPluginStart()
 	HookEvent("witch_harasser_set", WitchHarasserSet_Event);
 }
 
-public void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
+void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
 {
 	if(witch_target_override_on_value == true) return;
 	
@@ -93,10 +93,16 @@ public void OnNextFrame(DataPack hPack)
 	fFinalwitch[2] = hPack.ReadFloat();
 
 	if( witch == INVALID_ENT_REFERENCE )
+	{
+		delete hPack;
 		return;
+	}
 
 	if(GetEntProp(witch, Prop_Data, "m_iHealth") < 1)
+	{
+		delete hPack;
 		return;
+	}
 
 	SetEntPropVector(witch, Prop_Send, "m_angRotation", fFinalwitch);
 	
