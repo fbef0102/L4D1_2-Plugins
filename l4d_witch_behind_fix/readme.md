@@ -7,18 +7,6 @@ The witch turns back if nearby survivor scares her behind
 * Image | 圖示
     <br/>None
 
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-    * v1.2
-	    * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2770549&postcount=124)
-</details>
-
 * Require | 必要安裝
 <br/>None
 
@@ -37,6 +25,21 @@ The witch turns back if nearby survivor scares her behind
 * <details><summary>Command | 命令</summary>
     
    None
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.3 (2023-9-1)
+        * Fix memory leak
+
+    * v1.2
+	    * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2770549&postcount=124)
 </details>
 
 - - - -
