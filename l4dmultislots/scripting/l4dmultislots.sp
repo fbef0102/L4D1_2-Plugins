@@ -14,7 +14,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"5.9"
+#define PLUGIN_VERSION 				"6.0"
 
 public Plugin myinfo = 
 {
@@ -81,7 +81,9 @@ float g_fSpecCheckInterval, g_fInvincibleTime;
 Handle SpecCheckTimer, PlayerLeftStartTimer, CountDownTimer;
 float clinetSpawnGodTime[ MAXPLAYERS + 1 ];
 int g_iSurvivorTransition;
-bool g_bIsObserver[ MAXPLAYERS + 1 ];
+bool 
+	g_bIsObserver[ MAXPLAYERS + 1 ],
+	g_bLimit[ MAXPLAYERS + 1 ];
 
 StringMap g_hSteamIDs;
 
@@ -429,6 +431,7 @@ public void OnClientPutInServer(int client)
 		}
 		else
 		{
+			g_bLimit[client] = false;
 			CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
@@ -720,7 +723,8 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 					}
 					else
 					{
-						PrintHintText(client, "%T", "Sorry! No survivor slots", client); 
+						PrintHintText(client, "%T", "Sorry! No survivor slots", client);
+						g_bLimit[client] = true;
 						return Plugin_Continue;
 					}
 				}
@@ -1094,6 +1098,9 @@ Action Timer_NewPlayerAutoJoinTeam_Coop(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if(!client || !IsClientInGame(client))
+		return Plugin_Stop;
+
+	if(g_bLimit[client] == true)
 		return Plugin_Stop;
 	
 	if(GetClientTeam(client) == TEAM_SURVIVORS || GetClientTeam(client) == TEAM_INFECTED)
