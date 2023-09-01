@@ -6,103 +6,16 @@ Allows additional survivor players in server when 5+ player joins the server
 <br>None
 
 * Image | 圖示
-	* 8 Survivors join server to play
+	* 8+ Survivors join server to play
 		> 生成5位以上的倖存者大亂鬥
 		<br/>![l4dmultislots_1](image/l4dmultislots_1.jpg)
 		<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	Finnish
-	Japanese
-	Russian
-	ukrainian
-	spanish
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//mi123645 @ 2009-2010
-	//HarryPotter @ 2020-2023
-	```
-	* v5.9 (2023-5-22)
-		* Support l4d2 all mutation mode, New player won't be swapped to survivor team if infected team is available in current mode.
-
-	* v5.8 (2023-5-6)
-		* Support Versus/Scavenge. Server will not always switch new player to survivor team.
-		* Add more cvars
-			```php
-			// Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.
-			// Must be greater then or equal to 'l4d_multislots_max_survivors'
-			l4d_multislots_limit_survivors "10"
-
-			// If 1, Check team balance when player tries to use 'Join Survivors' command to join survivor team in versus/scavenge.
-			// If team is unbanlance, will fail to join survivor team!
-			l4d_multislots_versus_command_balance "1"
-
-			// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
-			l4d_multislots_versus_teams_unbalance_limit "1"
-
-			// If 1, Block 'Join Survivors' commands (sm_join, sm_js)
-			l4d_multislots_join_command_block "0"
-			```
-		* Update Translation files
-
-	* v5.7 (2023-4-23)
-		* Don't spawn bot automatically when 5+ survivors join in versus/scavenge (player still can join survivor via command)
-
-	* v5.6 (2023-2-18)
-		* Observer(not idle) always stay Observer after map map_transition.
-
-	* v5.5 (2023-1-13)
-		* Support offical convar: 
-			```php
-			//0: Just a pistol, 1: Downgrade of last primary weapon, 2: Last primary weapon.
-			survivor_respawn_with_guns 1
-			```
-
-	* v5.4 (2022-12-28)
-		* Fixed spawing incorrect numbers of extra kits when in start saferoom.
-
-	* v5.3 (2022-12-25)
-		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2715546&postcount=248)
-		* Remake Code.
-		* Translation support.
-		* Give items and set custom health to new 5+ player.
-		* Delete all items form survivor bots when they got kicked by this plugin.
-		* Spawn 5+ Survivor bots when round starts.
-		* This plugin will not auto move new 5+ player to survivor team if he is already in infected team.
-		* Spawn extra Medkits for 5+ survivors on new chapter/finale start
-		* If same player reconnect the server or rejoin survivor team to try get a second free bot, he will be a dead bot.
-		* Invincible time after new 5+ Survivor spawn by this plugin.
-		* Remove gamedata
-		* Support Survival
-
-	* v1.0
-		* [Original Plugin By mi123645](https://forums.alliedmods.net/showthread.php?t=132408)
-</details>
 
 * Require
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	4. [CreateSurvivorBot](https://forums.alliedmods.net/showpost.php?p=2729883&postcount=16)
-
-* Related Plugin | 相關插件
-	1. [l4dinfectedbots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
-		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
-	2. [l4d_afk_commands](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_afk_commands): Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
-		> 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -208,13 +121,15 @@ Allows additional survivor players in server when 5+ player joins the server
 		```
 </details>
 
-* Conflicts
+* <details><summary>Conflicts</summary>
+
 	* DO NOT modify cvar ```survivor_limit``` value above 4 in your cfg, otherwise the new 5+ player could spawn in saferoom
 	* If you have one of following plugins, please delete
 		1. [bebop - additional coop players (20+ players possible)](https://forums.alliedmods.net/showthread.php?t=110210)
 		2. [SuperVersus](https://forums.alliedmods.net/showthread.php?p=830069)
 		3. [[L4D & L4D2] Bots Control In Coop Mode](https://forums.alliedmods.net/showthread.php?t=175060)
 		4. [ABM: A MultiSlots / SuperVersus Alternative](https://forums.alliedmods.net/showthread.php?t=291562)
+</details>
 
 * Q&A
 	1. <details><summary>How could I control the number of bots spawned at the start?</summary>
@@ -239,15 +154,109 @@ Allows additional survivor players in server when 5+ player joins the server
 		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
 	</details>
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	Finnish
+	Japanese
+	Russian
+	ukrainian
+	spanish
+	```
+</details>
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4dinfectedbots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns infected bots in L4D1 versus, and gives greater control of the infected bots in L4D1/L4D2 without being limited by the director.
+		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
+	2. [l4d_afk_commands](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_afk_commands): Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
+		> 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//mi123645 @ 2009-2010
+	//HarryPotter @ 2020-2023
+	```
+	* v6.0 (2023-9-1)
+		* Fix message spam when survivor limit reached
+
+	* v5.9 (2023-5-22)
+		* Support l4d2 all mutation mode, New player won't be swapped to survivor team if infected team is available in current mode.
+
+	* v5.8 (2023-5-6)
+		* Support Versus/Scavenge. Server will not always switch new player to survivor team.
+		* Add more cvars
+			```php
+			// Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.
+			// Must be greater then or equal to 'l4d_multislots_max_survivors'
+			l4d_multislots_limit_survivors "10"
+
+			// If 1, Check team balance when player tries to use 'Join Survivors' command to join survivor team in versus/scavenge.
+			// If team is unbanlance, will fail to join survivor team!
+			l4d_multislots_versus_command_balance "1"
+
+			// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
+			l4d_multislots_versus_teams_unbalance_limit "1"
+
+			// If 1, Block 'Join Survivors' commands (sm_join, sm_js)
+			l4d_multislots_join_command_block "0"
+			```
+		* Update Translation files
+
+	* v5.7 (2023-4-23)
+		* Don't spawn bot automatically when 5+ survivors join in versus/scavenge (player still can join survivor via command)
+
+	* v5.6 (2023-2-18)
+		* Observer(not idle) always stay Observer after map map_transition.
+
+	* v5.5 (2023-1-13)
+		* Support offical convar: 
+			```php
+			//0: Just a pistol, 1: Downgrade of last primary weapon, 2: Last primary weapon.
+			survivor_respawn_with_guns 1
+			```
+
+	* v5.4 (2022-12-28)
+		* Fixed spawing incorrect numbers of extra kits when in start saferoom.
+
+	* v5.3 (2022-12-25)
+		* [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2715546&postcount=248)
+		* Remake Code.
+		* Translation support.
+		* Give items and set custom health to new 5+ player.
+		* Delete all items form survivor bots when they got kicked by this plugin.
+		* Spawn 5+ Survivor bots when round starts.
+		* This plugin will not auto move new 5+ player to survivor team if he is already in infected team.
+		* Spawn extra Medkits for 5+ survivors on new chapter/finale start
+		* If same player reconnect the server or rejoin survivor team to try get a second free bot, he will be a dead bot.
+		* Invincible time after new 5+ Survivor spawn by this plugin.
+		* Remove gamedata
+		* Support Survival
+
+	* v1.0
+		* [Original Plugin By mi123645](https://forums.alliedmods.net/showthread.php?t=132408)
+</details>
+
 - - - -
 # 中文說明
 創造5位以上倖存者遊玩伺服器
 
 * 原理
 	* 當第五位玩家加入伺服器之後，此插件會創造第五個倖存者Bot並且給新來的玩家取代
-	* (v5.8 新增) 支援對抗/清道夫模式，不會自動創造第五個倖存者Bot給新來的玩家取代
+	* 支援對抗/清道夫模式，不會自動創造第五個倖存者Bot給新來的玩家取代
 		* 玩家必須手動輸入命令加入倖存者陣營
-	* (v5.8 新增) 當有人使用插件的命令嘗試加入倖存者陣營時，先檢查倖存者陣營與特感陣營是否平衡
+	* 當有人使用插件的命令嘗試加入倖存者陣營時，先檢查倖存者陣營與特感陣營是否平衡
 		* 如果隊伍不平衡，加入倖存者陣營將會失敗
 
 * 必要安裝
@@ -255,9 +264,6 @@ Allows additional survivor players in server when 5+ player joins the server
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	4. [CreateSurvivorBot](https://forums.alliedmods.net/showpost.php?p=2729883&postcount=16)
-
-* 功能
-	1. 見下方指令中文介紹與Q&A問題
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -363,13 +369,15 @@ Allows additional survivor players in server when 5+ player joins the server
 		```
 </details>
 
-* 衝突
+* <details><summary>衝突</summary>
+
 	* 請不要修改指令值 ```survivor_limit```，否則第五位以上的玩家可能會生在起始安全區域
 	* 如果有以下的插件請刪除
 		1. [bebop - additional coop players (20+ players possible)](https://forums.alliedmods.net/showthread.php?t=110210)
 		2. [SuperVersus](https://forums.alliedmods.net/showthread.php?p=830069)
 		3. [[L4D & L4D2] Bots Control In Coop Mode](https://forums.alliedmods.net/showthread.php?t=175060)
 		4. [ABM: A MultiSlots / SuperVersus Alternative](https://forums.alliedmods.net/showthread.php?t=291562)
+</details>
 
 * Q&A問題
 	1. <details><summary>請問如何一開始就有8位倖存者Bot?</summary>
