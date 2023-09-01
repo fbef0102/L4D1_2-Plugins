@@ -216,7 +216,8 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 			g_CurrentChatType = g_CurrentChatType | CHATFLAGS_SPEC;
 		}
 
-		if (StrContains(cpTranslationName, "dead", false) != -1) {
+		if (StrContains(cpTranslationName, "dead", false) != -1
+			|| (GetClientTeam(cpSender) >= 2 && !IsPlayerAlive(cpSender))) {
 			g_CurrentChatType = g_CurrentChatType | CHATFLAGS_DEAD;
 		}
 	}
@@ -518,6 +519,7 @@ public void OnGameFrame() {
 			char sTranslation[MAXLENGTH_MESSAGE];
 
 			if (pack.ReadCell()) {
+				g_CurrentChatType = pack.ReadCell();
 				int target;
 				Handle msg;
 				for(int j = 0; j < numClientsFinish; j++)
@@ -542,6 +544,7 @@ public void OnGameFrame() {
 			}
 			else {
 				//LogMessage("L4D1/2 here");
+				g_CurrentChatType = pack.ReadCell();
 				int target;
 				Handle msg;
 				for(int j = 0; j < numClientsFinish; j++)
@@ -598,8 +601,9 @@ public void OnGameFrame() {
 			for (int j = 0; j < numClientsFinish; j++) {
 				PrintToChat(clients[j], "%s", message);
 			}
+
+			g_CurrentChatType = pack.ReadCell();
 		}
-		g_CurrentChatType = pack.ReadCell();
 		Call_StartForward(g_fwdOnChatMessagePost);
 		Call_PushCell(client);
 		Call_PushCell(recipients);
