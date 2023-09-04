@@ -212,10 +212,3 @@ Tank不扔石頭而是扔出特感
         l4d_tank_throw_witch_limit "3"
 		```
 </details>
-
-* 功能
-	* 可設置想要扔的特感有哪些以及數量限制
-    * 可設置扔Witch的數量限制，Witch的存活時間與血量
-    * 可設置另一隻Tank的血量
-    * 可設置不扔自己
-    * 可設置AI Tank與真人Tank玩家扔出特感的機率
