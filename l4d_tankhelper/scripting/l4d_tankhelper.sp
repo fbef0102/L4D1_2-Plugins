@@ -13,7 +13,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw special infected instead of rock",
-	version = "1.9h",
+	version = "2.0h-2023/9/5",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -95,6 +95,8 @@ int throw_tank_health, throw_witch_health, iThrowSILimit[9];
 bool g_bSpawnWitchBride;
 float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fThrowSIChance[9], z_tank_throw_force_speed, g_fWitchKillTime;
 Handle g_hNextBotPointer, g_hGetLocomotion, g_hJump;
+
+static float g_99999Position[3] = {9999999.0, 9999999.0, 9999999.0};
 
 forward void L4D_OnTraceRockCreated(int entity); //from l4d_tracerock
 
@@ -252,8 +254,9 @@ public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3
 			int new_helper_si = CreateSI(tank, vecPos, vecAng, velocity);
 			if(new_helper_si > 0)
 			{
+				TeleportEntity(rock, g_99999Position);
 				RemoveEdict(rock);
-				if(L4D2Version) DisplayParticle(0, PARTICLE_ELECTRICAL, vecPos, NULL_VECTOR);	
+				if(L4D2Version) DisplayParticle(0, PARTICLE_ELECTRICAL, vecPos, NULL_VECTOR);    
 				if(new_helper_si <= MaxClients) L4D_WarpToValidPositionIfStuck(new_helper_si);
 			}
 		}
