@@ -148,7 +148,6 @@ float fInfectedSpawnTime[MAXPLAYERS+1] ;//特感重生復活的時間
 float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
-int iClientFlags[MAXPLAYERS+1];
 
 int L4D1_GetMainActivity(int client) {
 	static int s_iOffs_m_eCurrentMainSequenceActivity = -1;
@@ -279,7 +278,7 @@ public void OnPluginStart()
 		{
 			if( IsClientInGame(i) && !IsFakeClient(i))
 			{
-				OnClientPostAdminCheck(i);
+				OnClientPutInServer(i);
 			}
 		}
 
@@ -510,10 +509,7 @@ Action checksurvivorspawn(Handle timer, int client)
 	return Plugin_Continue;
 }
 
-public void OnClientPostAdminCheck(int client)
-{
-	if(!IsFakeClient(client)) iClientFlags[client] = GetUserFlagBits(client);
-}
+
 public void OnClientPutInServer(int client)
 {
 	Clear(client);
@@ -527,16 +523,19 @@ public void OnClientDisconnect(int client)
 
 Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
 {
-	if (!IsValidEdict(victim) || !IsValidEdict(attacker) || !IsValidEdict(inflictor) ) { return Plugin_Continue; }
-	
 	if(!IsClientAndInGame(victim) || GetClientTeam(victim) != 2) { return Plugin_Continue; }
 	
-	char sClassname[64];
-	GetEntityClassname(inflictor, sClassname, 64);
-	if(StrEqual(sClassname, "witch"))
+
+	if (attacker > 0 && IsValidEntity(attacker) && IsValidEdict(attacker))
 	{
-		AddWitchAttack(attacker, victim);
+		char sClassname[64];
+		GetEntityClassname(inflictor, sClassname, 64);
+		if(StrEqual(sClassname, "witch"))
+		{
+			AddWitchAttack(attacker, victim);
+		}
 	}
+	
 	return Plugin_Continue;
 }
 
@@ -1638,7 +1637,8 @@ bool HasAccess(int client, char[] g_sAcclvl)
 		return false;
 
 	// check permissions
-	if ( (iClientFlags[client] & ReadFlagString(g_sAcclvl)) || (iClientFlags[client] & ADMFLAG_ROOT) )
+	int flag = GetUserFlagBits(client);
+	if ( flag & ReadFlagString(g_sAcclvl) || flag & ADMFLAG_ROOT )
 	{
 		return true;
 	}
@@ -1771,6 +1771,7 @@ void CleanUpStateAndMusic(int client)
 			L4D_StopMusic(client, "Event.Zombat_A3");
 			L4D_StopMusic(client, "Event.Tank");
 			L4D_StopMusic(client, "Event.TankMidpoint");
+			L4D_StopMusic(client, "Event.TankMidpoint_Metal");
 			L4D_StopMusic(client, "Event.TankBrothers");
 			L4D_StopMusic(client, "Event.WitchAttack");
 			L4D_StopMusic(client, "Event.WitchBurning");
