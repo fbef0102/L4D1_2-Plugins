@@ -1,9 +1,9 @@
 ﻿# L4D1&2-Plugins  by Harry Potter
 Help server to record, make server more fun, and more useful plugins for adm.
 > All plugins in here apply to both L4D1 or L4D2 <br/>
-> 2023/8/25 Updated
+> If you have any modify or request, feel free to use or pay me money to do it.
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
-If you want any modify or request, feel free to use or pay me money to do it.
+
 # Require
 * [L4D1 Server Install](https://github.com/fbef0102/L4D1-Server4Dead#server-install)
 * [L4D2 Server Install](https://github.com/fbef0102/L4D2-Server4Dead#server-install)
