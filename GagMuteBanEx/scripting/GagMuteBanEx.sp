@@ -1,26 +1,3 @@
-/**
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, version 3.0, as published by the
- * Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program.  If not, see <www.gnu.org/licenses/>.
- *
- * As a special exception, AlliedModders LLC gives you permission to link the
- * code of this program (as well as its derivative works) to "Half-Life 2," the
- * "Source Engine," the "SourcePawn JIT," and any Game MODs that run on software
- * by the Valve Corporation.  You must obey the GNU General Public License in
- * all respects for all other code used.  Additionally, AlliedModders LLC grants
- * this exception to all derivative works.  AlliedModders LLC defines further
- * exceptions, found in LICENSE.txt (as of this writing, version JULY-31-2007),
- * or <www.sourcemod.net/license.php>.
- *
-*/
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
@@ -30,7 +7,6 @@
 #include <multicolors>
 #include <basecomm>
 
-#define HX_DELETE 1
 #define CVAR_FLAGS			FCVAR_NOTIFY
 char sg_fileTxt[160];
 char sg_log[160];
@@ -49,6 +25,10 @@ bool g_bCvarBanAllow, g_bCvarMuteAllow, g_bCvarGagAllow,
 
 int ig_minutes;
 char g_sImmueAcclvl[16];
+
+Handle 
+	g_hGagTimer[MAXPLAYERS+1],
+	g_hMuteTimer[MAXPLAYERS+1];
 
 static char sBan_Time[][][] =
 {
@@ -75,7 +55,7 @@ public Plugin myinfo =
 	name = "GagMuteBanEx",
 	author = "MAKS & dr lex & HarryPotter",
 	description = "gag & mute & ban",
-	version = "1.6",
+	version = "1.7-2023/9/10",
 	url = "forums.alliedmods.net/showthread.php?p=2347844"
 };
 
@@ -98,12 +78,12 @@ public void OnPluginStart()
 	if ( LibraryExists( "adminmenu" ) && ( ( hTop_Menu = GetAdminTopMenu() ) != null ) )
 		OnAdminMenuReady( hTop_Menu );
 
-	g_hCvarBanAllow = CreateConVar("GagMuteBanEx_ban_allow", "1", "0=Ban Menu off, 1=Ban Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarMuteAllow = CreateConVar("GagMuteBanEx_mute_allow", "1", "0=Mute Menu off, 1=Mute Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarGagAllow = CreateConVar("GagMuteBanEx_gag_allow", "1", "0=Gag Menu off, 1=Gag Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarServerVoice = FindConVar("sv_voiceenable");
-	g_hCvarServerChat = CreateConVar("sv_chatenable", "1", "If 0, Be Quient, No one can chat.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarServerChatImmuneAccess = CreateConVar("GagMuteBanEx_chat_immue_flag", "z", "Players with these flags can chat when 'sv_chatenable' is 0 (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
+	g_hCvarServerVoice 				= FindConVar("sv_voiceenable");
+	g_hCvarBanAllow 				= CreateConVar("GagMuteBanEx_ban_allow", 		"1", "0=Ban Menu off, 1=Ban Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarMuteAllow 				= CreateConVar("GagMuteBanEx_mute_allow", 		"1", "0=Mute Menu off, 1=Mute Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarGagAllow 				= CreateConVar("GagMuteBanEx_gag_allow", 		"1", "0=Gag Menu off, 1=Gag Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarServerChat 				= CreateConVar("sv_chatenable", 				"1", "If 0, Be Quient, No one can chat.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarServerChatImmuneAccess 	= CreateConVar("GagMuteBanEx_chat_immue_flag", 	"z", "Players with these flags can chat when 'sv_chatenable' is 0 (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
 
 	GetCvars();
 	g_hCvarBanAllow.AddChangeHook(ConVarChanged_Cvars);
@@ -113,16 +93,32 @@ public void OnPluginStart()
 	g_hCvarServerChat.AddChangeHook(ConVarChanged_CvarServerChat);
 	g_hCvarServerChatImmuneAccess.AddChangeHook(ConVarChanged_ServerChatImmuneAccess);
 
-	HookEvent("round_start", Event_RoundStart);
+	//HookEvent("round_start", Event_RoundStart);
 
 	AutoExecConfig(true, "GagMuteBanEx");
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue) {
+public void OnAdminMenuReady( Handle hTop_Menu )
+{
+	if ( hTop_Menu == hTopMenuHandle )
+		return;
+	
+	hTopMenuHandle = view_as<TopMenu>( hTop_Menu );
+	TopMenuObject Menu_Category_Respawn = hTopMenuHandle.AddCategory( "Ban/Mute/Gag Ex", Category_Handler );
+	
+	if ( Menu_Category_Respawn != INVALID_TOPMENUOBJECT )
+	{
+		hTopMenuHandle.AddItem( "sm_exbantest", AdminMenu_BanEx, Menu_Category_Respawn, "sm_exbantest", ADMFLAG_BAN );
+		hTopMenuHandle.AddItem( "sm_exmutetest", AdminMenu_MuteEx, Menu_Category_Respawn, "sm_exmutetest", ADMFLAG_BAN );
+		hTopMenuHandle.AddItem( "sm_exgagtest", AdminMenu_GagEx, Menu_Category_Respawn, "sm_exmutetest", ADMFLAG_BAN );
+	}
+}
+
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue) {
 	GetCvars();
 }
 
-public void ConVarChanged_CvarServerVoice(ConVar convar, const char[] oldValue, const char[] newValue) {
+void ConVarChanged_CvarServerVoice(ConVar convar, const char[] oldValue, const char[] newValue) {
 	GetCvars();
 	
 	if(g_bCvarServerVoice == true)
@@ -135,7 +131,7 @@ public void ConVarChanged_CvarServerVoice(ConVar convar, const char[] oldValue, 
 	}
 }
 
-public void ConVarChanged_CvarServerChat(ConVar convar, const char[] oldValue, const char[] newValue) {
+void ConVarChanged_CvarServerChat(ConVar convar, const char[] oldValue, const char[] newValue) {
 	GetCvars();
 
 	if(g_bCvarServerChat == true)
@@ -165,7 +161,7 @@ public void ConVarChanged_CvarServerChat(ConVar convar, const char[] oldValue, c
 	}
 }
 
-public void ConVarChanged_ServerChatImmuneAccess(ConVar convar, const char[] oldValue, const char[] newValue) {
+void ConVarChanged_ServerChatImmuneAccess(ConVar convar, const char[] oldValue, const char[] newValue) {
 	GetCvars();
 
 	if(g_bCvarServerChat == false)
@@ -195,13 +191,13 @@ void GetCvars()
 	g_bCvarServerVoice = g_hCvarServerVoice.BoolValue;
 	g_hCvarServerChatImmuneAccess.GetString(g_sImmueAcclvl,sizeof(g_sImmueAcclvl));
 }
-
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+/*
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	CreateTimer(5.0, _tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action _tmrStart(Handle timer) //回合開始 檢查所有人
+Action _tmrStart(Handle timer) //回合開始 檢查所有人
 {
 	for ( int i = 1 ; i <= MaxClients ; ++i ) 
 	{
@@ -210,17 +206,17 @@ public Action _tmrStart(Handle timer) //回合開始 檢查所有人
 			HxClientGagMuteBanEx(i);
 		}
 	}
-}
 
-void HxClientGagMuteBanEx(int &client)
+	return Plugin_Continue;
+}
+*/
+void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 {
 	KeyValues hGM = new KeyValues("gagmuteban");
 
 	if (hGM.ImportFromFile(sg_fileTxt))
 	{
-	#if HX_DELETE
-		int iDelete = 1;
-	#endif
+		bool bModfiy = false;
 		char sTeamID[24];
 		GetClientAuthId(client, AuthId_Steam2, sTeamID, sizeof(sTeamID)-1);
 
@@ -233,70 +229,98 @@ void HxClientGagMuteBanEx(int &client)
 			int iLeftMinute;
 			int userid = GetClientUserId(client);
 
-			if (iMute > iTime)
+			if(iMute > 0)
 			{
-				iLeftMinute = (iMute - iTime) /60;
-				ServerCommand("sm_mute #%d", userid);
-				CPrintToChat(client, "[{olive}TS{default}] 你還是被 {lightgreen}禁止MIC語音{default}，剩下 {green}%d{default} 分鐘解除", iLeftMinute );
-				#if HX_DELETE
-					iDelete = 0;
-				#endif
-			}
-			else if (iMute != 0) //時間已到
-			{
-				ServerCommand("sm_unmute #%d", userid);
-			}
-			if (iGag > iTime)
-			{
-				iLeftMinute = (iGag - iTime) /60;
-				ServerCommand("sm_gag #%d", userid);
-				CPrintToChat(client, "[{olive}TS{default}] 你還是被 {lightgreen}禁用Chat文字{default}，剩下 {green}%d{default} 分鐘解除", iLeftMinute );
-				#if HX_DELETE
-					iDelete = 0;
-				#endif
-			}
-			else if (iGag != 0) //時間已到
-			{
-				ServerCommand("sm_ungag #%d", userid);
-			}
-			if (iBan > iTime)
-			{
-				char sTime[24];
-				FormatTime(sTime, sizeof(sTime)-1, "%Y-%m-%d %H:%M:%S", iBan);
-				KickClient(client,"Banned (%s)", sTime);
-				#if HX_DELETE
-					iDelete = 0;
-				#endif
+				if (iMute > iTime)
+				{
+					iLeftMinute = (iMute - iTime) /60;
+					if(bAction) ServerCommand("sm_mute #%d", userid);
+					if(bNotify) CPrintToChat(client, "[{olive}TS{default}] 你還是被 {lightgreen}禁止MIC語音{default}，剩下 {green}%d{default} 分鐘解除", iLeftMinute );
+					
+					delete g_hMuteTimer[client];
+					g_hMuteTimer[client] = CreateTimer(float(iMute - iTime), Timer_UnMute, client);
+				}
+				else if (iMute != 0) //時間已到
+				{
+					if(BaseComm_IsClientMuted(client)) ServerCommand("sm_unmute #%d", userid);
+					hGM.SetNum("mute", 0);
+					iMute = 0;
+					bModfiy = true;
+				}
 			}
 
-			#if HX_DELETE
-				if (iDelete)
+			if(iGag > 0)
+			{
+				if (iGag > iTime)
 				{
-					hGM.DeleteThis();
-					hGM.Rewind();
-					hGM.ExportToFile(sg_fileTxt);
+					iLeftMinute = (iGag - iTime) /60;
+					if(bAction) ServerCommand("sm_gag #%d", userid);
+					if(bNotify) CPrintToChat(client, "[{olive}TS{default}] 你還是被 {lightgreen}禁用Chat文字{default}，剩下 {green}%d{default} 分鐘解除", iLeftMinute );
+					
+					delete g_hGagTimer[client];
+					g_hGagTimer[client] = CreateTimer(float(iGag - iTime), Timer_UnGag, client);
 				}
-			#endif
+				else if (iGag != 0) //時間已到
+				{
+					if(BaseComm_IsClientGagged(client)) ServerCommand("sm_ungag #%d", userid);
+					hGM.SetNum("gag", 0);
+					iGag = 0;
+					bModfiy = true;
+				}
+			}
+
+			if(iBan > 0)
+			{
+				if (iBan > iTime)
+				{
+					char sTime[24];
+					FormatTime(sTime, sizeof(sTime)-1, "%Y-%m-%d %H:%M:%S", iBan);
+					KickClient(client,"Banned (%s)", sTime);
+				}
+				else
+				{
+					hGM.SetNum("ban", 0);
+					iBan = 0;
+					bModfiy = true;
+				}
+			}
+
+			if (iMute == 0 && iGag == 0 && iBan == 0)
+			{
+				hGM.DeleteThis();
+				hGM.Rewind();
+				hGM.ExportToFile(sg_fileTxt);
+			}
+			else if (bModfiy)
+			{
+				hGM.Rewind();
+				hGM.ExportToFile(sg_fileTxt);
+			}
 		}
 	}
 	delete hGM;
 }
 
-public void OnClientPostAdminCheck(int client)
+public void OnClientPutInServer(int client)
 {
-	if (!IsFakeClient(client)) {
-		HxClientGagMuteBanEx(client);
-		if (g_bCvarServerChat == false && BaseComm_IsClientGagged(client) == false) {
-			if(HasAccess(client, g_sImmueAcclvl) == false)
-				ServerCommand("sm_gag #%d", GetClientUserId(client));
-			CPrintToChat(client, "[{olive}TS{default}] 伺服器聊天功能已關閉 (Chat off)");
-		}
+	if (IsFakeClient(client)) return;
 
-		if (g_bCvarServerVoice == false) {
-			CPrintToChat(client, "[{olive}TS{default}] 伺服器語音功能已關閉 (Mic off)");
-		}
+	HxClientGagMuteBanEx(client, true, false);
+
+	if (g_bCvarServerChat == false && BaseComm_IsClientGagged(client) == false) {
+		if(HasAccess(client, g_sImmueAcclvl) == false) ServerCommand("sm_gag #%d", GetClientUserId(client));
 	}
+
+	CreateTimer(5.0, Timer_PutInServer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
+
+public void OnClientDisconnect(int client)
+{
+	if(!IsClientInGame(client)) return;
+
+	delete g_hGagTimer[client];
+	delete g_hMuteTimer[client];
+} 
 
 int HxClientTimeBan(int &client, int iminute)
 {
@@ -324,7 +348,7 @@ int HxClientTimeBan(int &client, int iminute)
 	return 0;
 }
 
-public int MenuHandler_Ban(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_Ban(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -354,9 +378,11 @@ public int MenuHandler_Ban(Menu menu, MenuAction action, int param1, int param2)
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public Action CMD_addban(int client)
+Action CMD_addban(int client)
 {
 	if (client)
 	{
@@ -389,7 +415,7 @@ public Action CMD_addban(int client)
 	return Plugin_Handled;
 }
 
-public int AddMenuBan(Menu menu, MenuAction action, int param1, int param2)
+int AddMenuBan(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -414,9 +440,11 @@ public int AddMenuBan(Menu menu, MenuAction action, int param1, int param2)
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public Action CMD_addbanmenu(int client, int args)
+Action CMD_addbanmenu(int client, int args)
 {
 	if (g_bCvarBanAllow == false)
 	{
@@ -450,6 +478,7 @@ public Action CMD_addbanmenu(int client, int args)
 			else
 			{
 				LogToFileEx(sg_log, "[TS] Ban: Server exban %N for %d minute(s)", target, minutes);
+				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被伺服器 封鎖SteamId，長達 {green}%d{default} 分鐘", target, ig_minutes);
 			}
 			KickClient(target, "%d minute(s) ban.", minutes);
 		}
@@ -502,7 +531,7 @@ int HxClientTimeGag(int &client, int iminute)
 	return 0;
 }
 
-public int MenuHandler_Gage(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_Gage(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -522,6 +551,9 @@ public int MenuHandler_Gage(Menu menu, MenuAction action, int param1, int param2
 				{
 					LogToFileEx(sg_log, "Gag: %N(Adm) exgag %N for %d minute(s)", param1, client, ig_minutes);
 					CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁用Chat文字{default}，長達 {green}%d{default} 分鐘", client, ig_minutes);
+				
+					delete g_hGagTimer[client];
+					g_hGagTimer[client] = CreateTimer(ig_minutes*60.0, Timer_UnGag, client);
 				}
 			}
 		}
@@ -531,9 +563,11 @@ public int MenuHandler_Gage(Menu menu, MenuAction action, int param1, int param2
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public Action CMD_addgag(int client)
+Action CMD_addgag(int client)
 {
 	if (client)
 	{
@@ -566,7 +600,7 @@ public Action CMD_addgag(int client)
 	return Plugin_Handled;
 }
 
-public int AddMenuGag(Menu menu, MenuAction action, int param1, int param2)
+int AddMenuGag(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -591,9 +625,11 @@ public int AddMenuGag(Menu menu, MenuAction action, int param1, int param2)
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public Action CMD_addgagmenu(int client, int args)
+Action CMD_addgagmenu(int client, int args)
 {
 	if (g_bCvarGagAllow == false)
 	{
@@ -627,7 +663,11 @@ public Action CMD_addgagmenu(int client, int args)
 			else
 			{
 				LogToFileEx(sg_log, "[TS] Gag: Server exgag %N for %d minute(s)", target, minutes);
+				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被伺服器 {lightgreen}禁用Chat文字{default}，長達 {green}%d{default} 分鐘", target, minutes);
 			}
+
+			delete g_hGagTimer[target];
+			g_hGagTimer[target] = CreateTimer(minutes*60.0, Timer_UnGag, target);
 		}
 	}
 	else
@@ -679,7 +719,7 @@ int HxClientTimeMute(int &client, int iminute)
 	return 0;
 }
 
-public int MenuHandler_Mute(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_Mute(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -699,6 +739,9 @@ public int MenuHandler_Mute(Menu menu, MenuAction action, int param1, int param2
 				{
 					LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N for %d minute(s).", param1, client, ig_minutes);
 					CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁止MIC語音{default}，長達 {green}%d{default} 分鐘", client, ig_minutes);
+				
+					delete g_hMuteTimer[client];
+					g_hMuteTimer[client] = CreateTimer(ig_minutes*60.0, Timer_UnMute, client);
 				}
 			}
 		}
@@ -708,9 +751,11 @@ public int MenuHandler_Mute(Menu menu, MenuAction action, int param1, int param2
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public Action CMD_addmute(int client)
+Action CMD_addmute(int client)
 {
 	if (IsClientInGame(client))
 	{
@@ -740,7 +785,7 @@ public Action CMD_addmute(int client)
 	return Plugin_Handled;
 }
 
-public int AddMenuMute(Menu menu, MenuAction action, int param1, int param2)
+int AddMenuMute(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -765,9 +810,11 @@ public int AddMenuMute(Menu menu, MenuAction action, int param1, int param2)
 	{
 		delete menu;
 	}
+
+	return 0;
 }
 
-public Action CMD_addmutemenu(int client, int args)
+Action CMD_addmutemenu(int client, int args)
 {
 	if (g_bCvarMuteAllow == false)
 	{
@@ -797,11 +844,16 @@ public Action CMD_addmutemenu(int client, int args)
 			{
 				LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N for %d minute(s).", client, target, minutes);
 				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁止MIC語音{default}，長達 {green}%d{default} 分鐘", target, minutes);
+			
 			}
 			else
 			{
 				LogToFileEx(sg_log, "[TS] Mute: Server exmute %N for %d minute(s)", target, minutes);
+				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被伺服器 {lightgreen}禁止MIC語音{default}，長達 {green}%d{default} 分鐘", target, minutes);
 			}
+
+			delete g_hMuteTimer[target];
+			g_hMuteTimer[target] = CreateTimer(minutes*60.0, Timer_UnMute, target);
 		}
 	}
 	else
@@ -843,7 +895,7 @@ int HxClientTimeBanSteam(char[] steam_id, int iminute)
 	return 0;
 }
 
-public Action CMD_bansteamid(int client, int args)
+Action CMD_bansteamid(int client, int args)
 {
 	if (args < 1)
 	{
@@ -909,33 +961,19 @@ public Action CMD_bansteamid(int client, int args)
 	return Plugin_Handled;
 }
 
-public void OnAdminMenuReady( Handle hTop_Menu )
-{
-	if ( hTop_Menu == hTopMenuHandle )
-		return;
-	
-	hTopMenuHandle = view_as<TopMenu>( hTop_Menu );
-	TopMenuObject Menu_Category_Respawn = hTopMenuHandle.AddCategory( "Ban/Mute/Gag Ex", Category_Handler );
-	
-	if ( Menu_Category_Respawn != INVALID_TOPMENUOBJECT )
-	{
-		hTopMenuHandle.AddItem( "sm_exbantest", AdminMenu_BanEx, Menu_Category_Respawn, "sm_exbantest", ADMFLAG_BAN );
-		hTopMenuHandle.AddItem( "sm_exmutetest", AdminMenu_MuteEx, Menu_Category_Respawn, "sm_exmutetest", ADMFLAG_BAN );
-		hTopMenuHandle.AddItem( "sm_exgagtest", AdminMenu_GagEx, Menu_Category_Respawn, "sm_exmutetest", ADMFLAG_BAN );
-	}
-}
-
 //Admin Category Names In Main Menu.
-public int Category_Handler( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject topobj_id, int param, char[] buffer, int maxlength )
+int Category_Handler( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject topobj_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayTitle )
 		Format( buffer, maxlength, "Select an option");
 	
 	else if( hAction == TopMenuAction_DisplayOption)
 		Format( buffer, maxlength, "Ban/Mute/Gag-Ex");
+
+	return 0;
 }
 
-public void AdminMenu_BanEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
+void AdminMenu_BanEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
 		Format( buffer, maxlength, "Ban Player - Ex" );
@@ -944,7 +982,7 @@ public void AdminMenu_BanEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuOb
 		CMD_addbanmenu( param , 0);
 }
 
-public void AdminMenu_MuteEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
+void AdminMenu_MuteEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
 		Format( buffer, maxlength, "Mute Player - Ex" );
@@ -953,7 +991,7 @@ public void AdminMenu_MuteEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuO
 		CMD_addmutemenu( param , 0);
 }
 
-public void AdminMenu_GagEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
+void AdminMenu_GagEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
 		Format( buffer, maxlength, "Gag Player - Ex" );
@@ -962,7 +1000,7 @@ public void AdminMenu_GagEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuOb
 		CMD_addgagmenu( param , 0);
 }
 
-public bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] g_sAcclvl)
 {
 	// no permissions set
 	if (strlen(g_sAcclvl) == 0)
@@ -972,10 +1010,55 @@ public bool HasAccess(int client, char[] g_sAcclvl)
 		return false;
 
 	// check permissions
-	if ( GetUserFlagBits(client) & ReadFlagString(g_sAcclvl) )
+	int userFlags = GetUserFlagBits(client);
+	if ( (userFlags & ReadFlagString(g_sAcclvl)) || (userFlags & ADMFLAG_ROOT))
 	{
 		return true;
 	}
 
 	return false;
+}
+
+Action Timer_UnGag(Handle timer, int client)
+{
+	if(g_bCvarServerChat && client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientGagged(client))
+	{
+		int userid = GetClientUserId(client);
+		ServerCommand("sm_ungag #%d", userid);
+	}
+
+	g_hGagTimer[client] = null;
+	return Plugin_Continue;
+}
+
+Action Timer_UnMute(Handle timer, int client)
+{
+	if(g_bCvarServerVoice && client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientMuted(client))
+	{
+		int userid = GetClientUserId(client);
+		ServerCommand("sm_unmute #%d", userid);
+	}
+
+	g_hMuteTimer[client] = null;
+	return Plugin_Continue;
+}
+
+Action Timer_PutInServer(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+
+	if(client && IsClientInGame(client) && !IsFakeClient(client))
+	{
+		HxClientGagMuteBanEx(client, false, true);
+
+		if (g_bCvarServerChat == false && BaseComm_IsClientGagged(client) == false) {
+			if(HasAccess(client, g_sImmueAcclvl) == false) CPrintToChat(client, "[{olive}TS{default}] 伺服器聊天功能已關閉 (Chat off)");
+		}
+
+		if (g_bCvarServerVoice == false) {
+			CPrintToChat(client, "[{olive}TS{default}] 伺服器語音功能已關閉 (Mic off)");
+		}
+	}
+
+	return Plugin_Continue;
 }

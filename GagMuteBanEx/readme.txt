@@ -3,6 +3,9 @@ gag & mute & ban - Ex
 (原本的sourcemod已有 封鎖/禁音/禁字 的功能，但是換到下一關之後被禁音/禁字的人會失效、重啟伺服器之後非永久封鎖名單失效，所以才有了此插件)
 
 -ChangeLog-
+v1.7
+-Improve code
+
 v1.6
 -Remake Code
 -Add notification
