@@ -875,7 +875,7 @@ Action TurnClientToSurvivors(int client, int args)
 			if(survivorUsedSlots >= infectedUsedSlots + g_iVSUnBalanceLimit ) //特感比較少人
 			{
 				PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
-				return Plugin_Continue;
+				return Plugin_Handled;
 			}
 			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
 			{
@@ -998,7 +998,7 @@ Action TurnClientToInfected(int client, int args)
 			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
 			{
 				PrintHintText(client, "%T", "Too many infected, unbalance", client); 
-				return Plugin_Continue;
+				return Plugin_Handled;
 			}
 			else //雙方隊伍數量相等
 			{
@@ -1145,8 +1145,22 @@ Action WTF(int client, int args) //press m (jointeam)
 		ReplyToCommand(client, "Usage: jointeam <1,2,3>");
 		return Plugin_Handled;
 	}
+	else
+	{
+		if(strcmp(arg1, "Survivor", false) == 0)
+		{
+			TurnClientToSurvivors(client,0);
+			return Plugin_Handled;
+		}
+		else if(strcmp(arg1, "Infected", false) == 0)
+		{
+			TurnClientToInfected(client,0);
+			return Plugin_Handled;
+		}
 
-	return Plugin_Continue;
+		ReplyToCommand(client, "Usage: jointeam <Survivor|Infected>");
+		return Plugin_Handled;
+	}
 }
 
 Action WTF2(int client, const char[] command, int args) //esc->take a break (go_away_from_keyboard)
