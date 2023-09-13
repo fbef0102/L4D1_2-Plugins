@@ -230,6 +230,7 @@ public void OnPluginStart()
 	HookEvent("finale_radio_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 	if(g_bLeft4Dead2) HookEvent("gauntlet_finale_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre); //換圖不會觸發該事件
+	HookEvent("finale_vehicle_leaving", Event_MapTransition); //救援載具離開之時  (沒有觸發round_end)
 	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
 	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_KICK, "Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over)");
