@@ -294,7 +294,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			l4d_infectedbots_max_specials 9 
 			```
 
-		> __Note__ Max Special Limit does not count witch, but it counts tank in all gamemode.
+		> __Note__ 
+		<br/>Max Special Limit does not count witch, but it counts tank in all gamemode.
+		<br/>In Versus/Scavenge, Max Special Limit = infected team slots
 	</details>
 
 	2. <details><summary>Adjust special limit if 5+ alive players</summary>
@@ -311,6 +313,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_add_specials "0"
 			```
+
+		> __Note__ 
+		<br/>In Versus/Scavenge, Max Special Limit = infected team slots
 	</details>
 
 	3. <details><summary>Adjust tank health if 5+ alive players</summary>
@@ -361,6 +366,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* To close this feature, do not want to overrides special infected limit by this plugin, set
 			```php
 			l4d_infectedbots_adjust_spawn_times "0"
+			```
+
+		* In Versus/Scavenge, human infected spawn timer depends on official convar
+			```
+			sm_cvar z_ghost_delay_min "20"
+			sm_cvar z_ghost_delay_max "30"
 			```
 	</details>
 
@@ -423,7 +434,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	9. <details><summary>Spawn range (Coop/Realism only)</summary>
 
-		* Must be careful to adjust, these convars will also affect common zombie spawn range and human ghost infected spawn range.
+		* Must be careful to adjust, this convar will also affect common zombie spawn range and human ghost infected spawn range.
 			```php
 			l4d_infectedbots_spawn_range_min "350"
 			```
@@ -432,6 +443,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_spawn_range_min "0" 
 			```
+
+		> __Warning__ 
+		<br/>In Versus/Scavenge, this convar will also affect human infected player ghost spawn range
 	</details>
 
 	10. <details><summary>Spawn Infected together</summary>
@@ -889,7 +903,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			l4d_infectedbots_max_specials 9 
 			```
 
-		> __Note__ 請注意，最大數量限制不包含witch的數量，但會包含tank的數量
+		> __Note__ 
+		<br/>請注意，最大數量限制不包含witch的數量，但會包含tank的數量
+		<br/>在對抗／清道夫模式中，特感最大生成數量 = 特感隊伍的空位
 	</details>
 
 	2. <details><summary>如果第5位以上存活的倖存者，則調整特感最大生成數量</summary>
@@ -906,6 +922,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_add_specials "0"
 			```
+
+		> __Note__ 
+		<br/>在對抗／清道夫模式中，特感最大生成數量 = 特感隊伍的空位
 	</details>
 
 	3. <details><summary>如果第5位以上存活的倖存者，則調整Tank血量</summary>
@@ -956,6 +975,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* 如果想關閉這個功能，請設置 
 			```php
 			l4d_infectedbots_adjust_spawn_times "0"
+			```
+
+		* 在對抗／清道夫模式中，真人玩家的復活時間是根據官方指令設定
+			```
+			sm_cvar z_ghost_delay_min "20"
+			sm_cvar z_ghost_delay_max "30"
 			```
 	</details>
 
@@ -1018,7 +1043,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	9. <details><summary>特感生成距離 (僅限戰役/寫實)</summary>
 
-		* 請注意！這個數字也會影響普通殭屍的生成範圍和靈魂狀態下感染者玩家的復活範圍。
+		* 請注意！這個指令也會影響普通殭屍的生成範圍。
 			```php
 			l4d_infectedbots_spawn_range_min "350"
 			```
@@ -1027,6 +1052,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_spawn_range_min "0" 
 			```
+
+		> __Warning__ 
+		<br/>在對抗/清道夫模式中，這個指令會影響靈魂狀態下真人特感玩家的復活範圍
 	</details>
 
 	10. <details><summary>一次性生成全部特感</summary>
