@@ -254,10 +254,11 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * 原理
 	* 當第五位玩家加入伺服器之後，此插件會創造第五個倖存者Bot並且給新來的玩家取代
-	* 支援對抗/清道夫模式，不會自動創造第五個倖存者Bot給新來的玩家取代
-		* 玩家必須手動輸入命令加入倖存者陣營
-	* 當有人使用插件的命令嘗試加入倖存者陣營時，先檢查倖存者陣營與特感陣營是否平衡
-		* 如果隊伍不平衡，加入倖存者陣營將會失敗
+	* 支援對抗/清道夫模式
+		* 不會自動創造第五個倖存者Bot給新來的玩家取代
+			* 玩家必須手動輸入命令加入倖存者陣營
+		* 當有人使用插件的命令嘗試加入倖存者陣營時，先檢查倖存者陣營與特感陣營是否平衡
+			* 如果隊伍不平衡，加入倖存者陣營將會失敗
 
 * 必要安裝
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8/README.md#%E5%AE%89%E8%A3%9Dl4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩
