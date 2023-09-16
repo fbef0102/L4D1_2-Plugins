@@ -295,8 +295,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 
 		> __Note__ 
-		<br/>Max Special Limit does not count witch, but it counts tank in all gamemode.
-		<br/>In Versus/Scavenge, Max Special Limit = infected team slots
+		<br/>1. Max Special Limit does not count witch, but it counts tank in all gamemode.
+		<br/>2. In Versus/Scavenge, Max Special Limit = infected team slots
 	</details>
 
 	2. <details><summary>Adjust special limit if 5+ alive players</summary>
@@ -374,11 +374,41 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			l4d_infectedbots_adjust_spawn_times "0"
 			```
 
-		* In Versus/Scavenge, human infected spawn timer depends on official convar
-			```
-			sm_cvar z_ghost_delay_min "20"
-			sm_cvar z_ghost_delay_max "30"
-			```
+		* How to control Human Infected spawn time in versus/scavenge mode?
+			* Human infected spawn timer controlled by the official cvars
+				```php
+				sm_cvar z_ghost_delay_min "20"
+				sm_cvar z_ghost_delay_max "30"
+				```
+
+			* Also controlled by "human infected count" and "infected team slot"，here is formula
+				```php
+				// If there are more than 4 human infected players，"human infected count" = 4
+				// If infected team slot is above 4，"infected team slot" = 4
+				Minimum spawn time: z_ghost_delay_min * (human infected count ÷ infected team slot) 
+				Maximum spawn time: z_ghost_delay_max * (human infected count ÷ infected team slot)
+				```
+
+			* For example
+				```php
+				// human infected coun：3，infected team slot：4，z_ghost_delay_min: 30，z_ghost_delay_max: 40
+				Human infected player spawn time is: [Minimum: 30 * (3÷4) = 22.5s, Maximum: 40 * (3÷4) = 30s]
+
+				// human infected coun：1，infected team slot：1，z_ghost_delay_min: 3，z_ghost_delay_max: 3
+				Human infected player spawn time is: 3 * (1÷1) = 3s
+
+				// human infected coun：2，infected team slot：4，z_ghost_delay_min: 18，z_ghost_delay_max: 18
+				Human infected player spawn time is: 18 * (2÷4) = 9s
+
+				// human infected coun：3，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				Human infected player spawn time is: 20 * (3÷4) = 15s
+
+				// human infected coun：4，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				Human infected player spawn time is: 20 * (4÷4) = 20s
+
+				// human infected coun：7，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				Human infected player spawn time is: 20 * (4÷4) = 20s
+				```
 	</details>
 
 	6. <details><summary>How to spawn tank</summary>
@@ -440,7 +470,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	9. <details><summary>Spawn range (Coop/Realism only)</summary>
 
-		* Must be careful to adjust, this convar will also affect common zombie spawn range and human ghost infected spawn range.
+		* Must be careful to adjust, this cvar will also affect common zombie spawn range and human ghost infected spawn range.
 			```php
 			l4d_infectedbots_spawn_range_min "350"
 			```
@@ -451,7 +481,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 
 		> __Warning__ 
-		<br/>In Versus/Scavenge, this convar will also affect human infected player ghost spawn range
+		<br/>In Versus/Scavenge, this cvar will also affect human infected player ghost spawn range
 	</details>
 
 	10. <details><summary>Spawn Infected together</summary>
@@ -524,15 +554,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	5. <details><summary>How to control Human Infected spawn time in versus/scavenge mode?</summary>
-
-		* Modfiy Offical Convar, you can write down the following in cfg/server.cfg
-			```php
-			sm_cvar z_ghost_delay_min "20"
-			sm_cvar z_ghost_delay_max "30"
-			```
-
-	6. <details><summary>Disable infected bots spawning in versus/scavenge mode.</summary>
+	5. <details><summary>Disable infected bots spawning in versus/scavenge mode.</summary>
 
 		* Only allow real infected players to spawn on the field in versus/scavenge mode.
 			```php
@@ -569,6 +591,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
+	5. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -577,6 +601,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.5 (2023-9-17)
+		* Adjust human spawn timer when 5+ infected slots in versus/scavenge
+		* In Versus/Scavenge, human infected spawn timer controlled by the official cvars "z_ghost_delay_min" and "z_ghost_delay_max" 
+
 	* v2.8.4 (2023-8-26)
 		* Improve Code.
 
@@ -584,15 +612,15 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* Override L4D2 Vscripts to control infected limit.
 
 	* v2.8.2 (2023-5-27)
-		* Add a convar, including dead survivors or not
-		* Add a convar, disable infected bots spawning or not in versus/scavenge mode
+		* Add a cvar, including dead survivors or not
+		* Add a cvar, disable infected bots spawning or not in versus/scavenge mode
 
 	* v2.8.1 (2023-5-22)
 		* Support l4d2 all mutation mode.
 
 	* v2.8.0 (2023-5-5)
 		* Add Special Infected Weight
-		* Add and modify convars about Special Infected Weight
+		* Add and modify cvars about Special Infected Weight
 
 	* v2.7.9 (2023-4-13)
 		* Fixed Not Working in Survival Mode
@@ -608,7 +636,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* Spawn infected without being limited by the director.
 		* Join infected team in coop/survival/realism mode.
 		* Light up SI ladders in coop/realism/survival. mode for human infected players. (l4d2 only, didn't work if you host a listen server)
-		* Add convars to turn off this plugin.
+		* Add cvars to turn off this plugin.
 		* Fixed Hunter Tank Bug in l4d1 coop mode when tank is playable.
 		* If you want to fix Camera stuck in coop/versus/realism, install [this plugin by Forgetest](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
 		* Fixed Music Bugs when switching to infected team in coop/realism/survival.
@@ -910,8 +938,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 
 		> __Note__ 
-		<br/>請注意，最大數量限制不包含witch的數量，但會包含tank的數量
-		<br/>在對抗／清道夫模式中，特感最大生成數量 = 特感隊伍的空位
+		<br/>1. 請注意，最大數量限制不包含witch的數量，但會包含tank的數量
+		<br/>2. 在對抗／清道夫模式中，特感最大生成數量 = 特感隊伍的空位
 	</details>
 
 	2. <details><summary>如果第5位以上存活的倖存者，則調整特感最大生成數量</summary>
@@ -989,11 +1017,41 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			l4d_infectedbots_adjust_spawn_times "0"
 			```
 
-		* 在對抗／清道夫模式中，真人玩家的復活時間是根據官方指令設定
-			```
-			sm_cvar z_ghost_delay_min "20"
-			sm_cvar z_ghost_delay_max "30"
-			```
+		* (對抗/清道夫) 如何控制真人特感玩家的復活時間?
+			* 真人玩家的復活時間是根據官方指令設定
+				```php
+				sm_cvar z_ghost_delay_min "20"
+				sm_cvar z_ghost_delay_max "30"
+				```
+
+			* 也依照"特感玩家數量"與"特感隊伍空位"自動做出最終調整，其公式為
+				```php
+				// 如果"特感玩家數量" 大於等於4，則以4代入計算
+				// 如果"特感隊伍空位" 大於等於4，則以4代入計算
+				最短時間: z_ghost_delay_min * (特感玩家數量 ÷ 特感隊伍空位) 
+				最長時間: z_ghost_delay_max * (特感玩家數量 ÷ 特感隊伍空位)
+				```
+
+			* 以下舉例
+				```php
+				// 特感玩家：3人，特感隊伍空位：4人，z_ghost_delay_min: 30，z_ghost_delay_max: 40
+				特感玩家復活時間最終為: [最短時間: 30 * (3÷4) = 22.5秒, 最長時間: 40 * (3÷4) = 30秒]
+
+				// 特感玩家：1人，特感隊伍空位：1人，z_ghost_delay_min: 3，z_ghost_delay_max: 3
+				特感玩家復活時間最終為: 3 * (1÷1) = 3秒
+
+				// 特感玩家：2人，特感隊伍空位：4人，z_ghost_delay_min: 18，z_ghost_delay_max: 18
+				特感玩家復活時間最終為: 18 * (2÷4) = 9秒
+
+				// 特感玩家：3人，特感隊伍空位：8人，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				特感玩家復活時間最終為: 20 * (3÷4) = 15秒
+
+				// 特感玩家：4人，特感隊伍空位：8人，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				特感玩家復活時間最終為: 20 * (4÷4) = 20秒
+
+				// 特感玩家：7人，特感隊伍空位：8人，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				特感玩家復活時間最終為: 20 * (4÷4) = 20秒
+				```
 	</details>
 
 	6. <details><summary>如何生成Tank</summary>
@@ -1157,15 +1215,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	5. <details><summary>(對抗/清道夫)如何控制真人特感玩家的復活時間?</summary>
-
-		* 修改官方指令，將下列指令寫入 cfg/server.cfg
-			```php
-			sm_cvar z_ghost_delay_min "20"
-			sm_cvar z_ghost_delay_max "30"
-			```
-
-	6. <details><summary>停止特感Bots生成</summary>
+	5. <details><summary>停止特感Bots生成</summary>
 
 		* 在對抗/清道夫模式中，關閉特感bots生成，只允許真人特感玩家生成特感 (此插件會繼續生成Witch、不影響導演系統)
 			```php
