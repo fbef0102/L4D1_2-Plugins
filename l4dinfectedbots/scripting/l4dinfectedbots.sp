@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.8.4  (2009-2023)
+* Version	: 2.8.5  (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,12 +8,16 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* Version 2.8.5 (2023-9-17)
+*	   - Adjust human spawn timer when 5+ infected slots in versus/scavenge
+*	   - In Versus/Scavenge, human infected spawn timer controlled by the official cvars "z_ghost_delay_min" and "z_ghost_delay_max" 
+*
 * Version 2.8.4 (2023-8-26)
 *	   - Improve Code
-
+*
 * Version 2.8.3 (2023-7-5)
 *	   - Override L4D2 Vscripts to control infected limit.
-
+*
 * Version 2.8.2 (2023-5-27)
 *	   - Add a convar, including dead survivors or not
 *	   - Add a convar, disable infected bots spawning or not in versus/scavenge mode
@@ -722,7 +726,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.8.4"
+#define PLUGIN_VERSION "2.8.5"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -845,8 +849,9 @@ ConVar h_CoopInfectedPlayerGhostState;
 ConVar h_InfectedSpawnSameFrame, h_WhereToSpawnInfected, h_IncludingDeadPlayers, h_DisableInfectedBot;
 
 ConVar sb_all_bot_game, allow_all_bot_survivor_team, sb_all_bot_team, vs_max_team_switches, versus_tank_bonus_health, z_max_player_zombies,
-	director_no_specials, director_allow_infected_bots;
+	director_no_specials, director_allow_infected_bots, z_ghost_delay_min, z_ghost_delay_max;
 int vs_max_team_switches_default;
+float g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max;
 bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default, director_no_specials_bool;
 bool g_bFirstRecord;
 bool DisplayLock = false;
@@ -1064,10 +1069,14 @@ public void OnPluginStart()
 
 	h_common_limit_cvar = FindConVar("z_common_limit");
 	director_no_specials = FindConVar("director_no_specials");
+	z_ghost_delay_min = FindConVar("z_ghost_delay_min");
+	z_ghost_delay_max = FindConVar("z_ghost_delay_max");
 
 	GetOfficalCvars();
 	director_no_specials.AddChangeHook(ConVarChanged_OfficialCvars);
 	h_common_limit_cvar.AddChangeHook(ConVarChanged_OfficialCvars);
+	z_ghost_delay_min.AddChangeHook(ConVarChanged_OfficialCvars);
+	z_ghost_delay_max.AddChangeHook(ConVarChanged_OfficialCvars);
 
 	GetCvars();
 	g_hSpawnLimits[SI_BOOMER].AddChangeHook(ConVarChanged_Cvars);
@@ -1216,8 +1225,10 @@ void ConVarChanged_OfficialCvars(ConVar convar, const char[] oldValue, const cha
 
 void GetOfficalCvars()
 {
-	director_no_specials_bool = director_no_specials.BoolValue;
-	g_iCvar_z_common_limit = h_common_limit_cvar.IntValue;
+	director_no_specials_bool 		= director_no_specials.BoolValue;
+	g_iCvar_z_common_limit 			= h_common_limit_cvar.IntValue;
+	g_fCvar_z_ghost_delay_min 		= z_ghost_delay_min.FloatValue;
+	g_fCvar_z_ghost_delay_max 		= z_ghost_delay_max.FloatValue;
 }
 
 
@@ -3413,6 +3424,23 @@ void CountInfected()
 
 }
 
+int CountHumanInfected()
+{
+	int count = 0;
+	for (int i=1;i<=MaxClients;i++)
+	{
+		if (!IsClientInGame(i)) continue;
+
+		if (IsFakeClient(i)) continue;
+
+		if (GetClientTeam(i) != TEAM_INFECTED) continue;
+
+		count ++;
+	}
+
+	return count;
+}
+
 // Note: This function is also used for coop/survival.
 void CountInfected_Coop()
 {
@@ -5022,11 +5050,27 @@ public void evtInfectedWaitSpawn(Event event, const char[] name, bool dontBroadc
 
 	// Store this players respawn time in an array so we can present it to other clients
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (client && IsClientInGame(client))
+	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		if (L4D_HasPlayerControlledZombies() && !IsFakeClient(client))
+		if (L4D_HasPlayerControlledZombies())
 		{
-			respawnDelay[client] = event.GetInt("spawntime");
+			int spawntime = event.GetInt("spawntime");
+			int humaninfecteds = CountHumanInfected();
+			if(humaninfecteds == 0)
+			{
+				respawnDelay[client] = spawntime;
+				return;
+			}
+
+			float modifyTime = GetRandomFloat(g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max);
+			if(humaninfecteds >= 4) humaninfecteds = 4;
+			int maxinfectedslots = g_iMaxPlayerZombies;
+			if(maxinfectedslots >= 4) maxinfectedslots = 4;
+			
+			modifyTime = modifyTime * (float(humaninfecteds) / maxinfectedslots);
+			respawnDelay[client] = RoundFloat(modifyTime);
+
+			L4D_SetPlayerSpawnTime(client, float(respawnDelay[client]), true);
 		}
 	}
 }
@@ -6087,6 +6131,7 @@ void CleanUpStateAndMusic(int client)
 			L4D_StopMusic(client, "Event.Zombat_A3");
 			L4D_StopMusic(client, "Event.Tank");
 			L4D_StopMusic(client, "Event.TankMidpoint");
+			L4D_StopMusic(client, "Event.TankMidpoint_Metal");
 			L4D_StopMusic(client, "Event.TankBrothers");
 			L4D_StopMusic(client, "Event.WitchAttack");
 			L4D_StopMusic(client, "Event.WitchBurning");
@@ -6352,14 +6397,15 @@ public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 		//PrintToServer("ChargerLimit %d", retVal);
 		return Plugin_Handled;
 	}
-	else if(strcmp(sKey, "MaxSpecials", false) == 0 || strcmp(sKey, "cm_MaxSpecials", false) == 0 || strcmp(sKey, "cm_BaseSpecialLimit", false) == 0) {
+	else if(strcmp(sKey, "MaxSpecials", false) == 0 || strcmp(sKey, "cm_MaxSpecials", false) == 0 // Maximum number of Director spawned Special Infected allowed to be in play simultaneously.
+		|| strcmp(sKey, "cm_BaseSpecialLimit", false) == 0) { // Controls the default max limits of all the Special Infected. Overridden by individual special limits.
 
 		retVal = g_iMaxPlayerZombies;
 		//PrintToServer("MaxSpecials %d", retVal);
 
 		return Plugin_Handled;
 	}
-	else if(strcmp(sKey, "DominatorLimit", false) == 0 || strcmp(sKey, "cm_DominatorLimit", false) == 0) { // Maximum number of Hunters, Smokers, Jockeys and Chargers allowed to be in play simultaneously.
+	else if(strcmp(sKey, "DominatorLimit", false) == 0 || strcmp(sKey, "cm_DominatorLimit", false) == 0) { // Maximum number of dominator SI types (Hunter, Smoker, Jockey or Charger) that can freely fill up their caps.
 
 		retVal = g_iMaxPlayerZombies;
 		//PrintToServer("DominatorLimit %d", retVal);
