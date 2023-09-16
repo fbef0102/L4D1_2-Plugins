@@ -333,6 +333,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_adjust_tankhealth_enable "0"
 			```
+
+		* Tank hp is affected by gamemode and difficulty eventually. For example, set Tank health 4000hp, but
+			* In Easy: 4000 * 0.75 = 3000 
+			* In Normal: 4000 * 1.0 = 4000
+			* In Advanced/Expert: 4000 * 2.0 = 8000
+			* In Versus/Scavenge mode: 4000 * 1.5 = 6000
 	</details>
 
 	4. <details><summary>Adjust zombie zommon limit if 5+ alive players</summary>
@@ -942,6 +948,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_adjust_tankhealth_enable "0"
 			```
+
+		* Tank血量會依照遊戲模式與難度自動做出最終調整，譬如設置Tank血量為4000，則
+			* 簡單難度下Tank血量最終為 4000 * 0.75 = 3000
+			* 一般難度下Tank血量最終為 4000 * 1.0 = 4000
+			* 進階/專家難度下Tank血量最終為 4000 * 2.0 = 8000
+			* 對抗/清道夫模式下Tank血量最終為 4000 * 1.5 = 6000
 	</details>
 
 	4. <details><summary>如果第5位以上存活的倖存者，則調整普通殭屍最大數量</summary>
