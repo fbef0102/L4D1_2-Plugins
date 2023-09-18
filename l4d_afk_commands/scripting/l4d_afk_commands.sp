@@ -13,7 +13,8 @@
 * 10.特感玩家抓住了人類 (防止Jockey瞬移與Ghost Charger的爭議)
 * 11.對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊 (防止一方的玩家數量過多)
 * 12.起身或硬直狀態中禁止換隊 (防止略過硬直狀態)
-* 
+* 13.玩家發射榴彈期間禁止換隊 (防止友傷bug、防止Witch失去目標)
+*
 * Admin 功能
 * 1.管理員可以強制玩家更換隊伍 "sm_swapto <player> <team>"
 * 
@@ -62,7 +63,7 @@
 */
 
 
-#define PLUGIN_VERSION 		"4.9"
+#define PLUGIN_VERSION 		"5.0"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -101,9 +102,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
+
 	g_bLateLoad = late;
 	return APLRes_Success;
 }
+
+static const char WITCH_NAME[]		= "witch";
 
 #define STEAMID_SIZE 		32
 #define L4D_TEAM_NAME(%1) (%1 == 2 ? "Survivors" : (%1 == 3 ? "Infected" : (%1 == 1 ? "Spectators" : "Unknown")))
@@ -119,22 +123,27 @@ ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSe
 	g_hInfectedCapBlock, g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmuneAccess,
 	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
 	g_hObsCommandAccess,
-	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableCooldown, g_hInfectedSpawnCooldown,
+	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableBlock, g_hGrenadeBlock, g_hInfectedSpawnCooldown,
 	g_hVSCommandBalance, g_hVSUnBalanceLimit;
 
 //value
 char g_sImmuneAcclvl[16], g_sSpecCommandAccesslvl[16], g_sInfCommandAccesslvl[16], 
 	g_sSurCommandAccesslvl[16], g_sObsCommandAccesslvl[16];
-bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpStaggerBlock, g_bInfectedAttackBlock, 
-	g_bWitchAttackBlock, g_bInfectedCapBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance;
-float g_fBreakPropCooldown, g_fThrowableCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
+bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpStaggerBlock, g_bThrowableBlock, g_bGrenadeBlock,
+	g_bInfectedAttackBlock, g_bInfectedCapBlock,
+	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance;
+float g_fBreakPropCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
 int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies, g_iVSUnBalanceLimit;
 
 bool g_bHasLeftSafeRoom, g_bGameTeamSwitchBlock;
 
 //arraylist
-ArrayList nClientSwitchTeam;
-ArrayList nClientAttackedByWitch[MAXPLAYERS+1]; //每個玩家被多少個witch攻擊
+ArrayList 
+	g_alClientSwitchTeam,
+	g_alClientAttackedByWitch[MAXPLAYERS+1], 	//每個玩家被多少個witch攻擊
+	g_alClientThrowable[MAXPLAYERS+1], 			//每個玩家所投擲的投擲物entity
+	g_alClientGrenade[MAXPLAYERS+1]; 			//每個玩家所發射的榴彈entity
+
 //timer
 int g_iRoundStart, g_iPlayerSpawn;
 Handle PlayerLeftStartTimer, CountDownTimer;
@@ -143,7 +152,7 @@ bool InCoolDownTime[MAXPLAYERS+1] = {false};//是否還有換隊冷卻時間
 bool bClientJoinedTeam[MAXPLAYERS+1] = {false}; //在冷卻時間是否嘗試加入
 float g_iSpectatePenaltTime[MAXPLAYERS+1] ;//各自的冷卻時間
 float fBreakPropTime[MAXPLAYERS+1] ;//點燃火瓶、汽油或油桶的時間
-float fThrowableTime[MAXPLAYERS+1] ;//投擲物品的時間
+//float fThrowableTime[MAXPLAYERS+1] ;//投擲物品的時間
 float fInfectedSpawnTime[MAXPLAYERS+1] ;//特感重生復活的時間
 float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float fCoolTime;
@@ -215,12 +224,13 @@ public void OnPluginStart()
 	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", 			"30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
 	g_hWeaponReloadBlock = 		CreateConVar("l4d_afk_commands_weapon_reload_block", 			"1", 	"If 1, Player can not change team when he is reloading the weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGetUpStaggerBlock = 		CreateConVar("l4d_afk_commands_getup_stagger_block", 			"1", 	"If 1, Player can not change team while he is getting up or staggering.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedCapBlock = 		CreateConVar("l4d_afk_commands_infected_cap_block", 			"1", 	"If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hThrowableBlock = 		CreateConVar("l4d_afk_commands_throwable_block", 				"1", 	"If 1, Player can not change team after throwing molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hGrenadeBlock = 			CreateConVar("l4d_afk_commands_grenade_block", 					"1", 	"(L4D2) If 1, Player can not change team after firing the grenade launcher (0=off).", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hBreakPropCooldown = 		CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", 		"15.0", "Cold Down Time in seconds a player can not change team after ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hWPressMBlock = 			CreateConVar("l4d_afk_commands_pressM_block", 					"1", 	"If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeABreakBlock = 		CreateConVar("l4d_afk_commands_takeabreak_block", 				"0", 	"If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeControlBlock = 		CreateConVar("l4d_afk_commands_takecontrol_block", 				"1", 	"If 1, Block player from using 'sb_takecontrol' command in console.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hBreakPropCooldown = 		CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", 		"15.0", "Cold Down Time in seconds a player can not change team after he ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hThrowableCooldown = 		CreateConVar("l4d_afk_commands_throwable_cooltime_block", 		"10.0", "Cold Down Time in seconds a player can not change team after he throws molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0);
+	g_hInfectedCapBlock = 		CreateConVar("l4d_afk_commands_infected_cap_block", 			"1", 	"If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedSpawnCooldown = 	CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", 	"10.0", "Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hImmuneAccess = 			CreateConVar("l4d_afk_commands_immune_block_flag", 				"-1", 	"Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hSpecCommandAccess = 		CreateConVar("l4d_afk_commands_spec_access_flag", 				"", 	"Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
@@ -229,7 +239,8 @@ public void OnPluginStart()
 	g_hObsCommandAccess = 		CreateConVar("l4d_afk_commands_observer_access_flag", 			"z", 	"Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hVSCommandBalance = 		CreateConVar("l4d_afk_commands_versus_teams_balance_enable", 	"1", 	"If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hVSUnBalanceLimit = 		CreateConVar("l4d_afk_commands_versus_teams_unbalance_limit", 	"2", 	"Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.", FCVAR_NOTIFY, true, 1.0);
-	
+	AutoExecConfig(true, "l4d_afk_commands");
+
 	GetCvars();
 	g_hCoolTime.AddChangeHook(ConVarChanged_Cvars);
 	g_hDeadSurvivorBlock.AddChangeHook(ConVarChanged_Cvars);
@@ -244,7 +255,8 @@ public void OnPluginStart()
 	g_hTakeControlBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hTakeABreakBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hBreakPropCooldown.AddChangeHook(ConVarChanged_Cvars);
-	g_hThrowableCooldown.AddChangeHook(ConVarChanged_Cvars);
+	g_hThrowableBlock.AddChangeHook(ConVarChanged_Cvars);
+	g_hGrenadeBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedSpawnCooldown.AddChangeHook(ConVarChanged_Cvars);
 	g_hImmuneAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpecCommandAccess.AddChangeHook(ConVarChanged_Cvars);
@@ -268,9 +280,14 @@ public void OnPluginStart()
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("break_prop",	Event_BreakProp,		EventHookMode_Pre);
 
-	Clear();
+	g_alClientSwitchTeam = new ArrayList(ByteCountToCells(STEAMID_SIZE));
 
-	nClientSwitchTeam = new ArrayList(ByteCountToCells(STEAMID_SIZE));
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		g_alClientAttackedByWitch[i] = new ArrayList();
+		g_alClientThrowable[i] = new ArrayList();
+		g_alClientGrenade[i] = new ArrayList();
+	}
 
 	if( g_bLateLoad )
 	{
@@ -284,29 +301,33 @@ public void OnPluginStart()
 
 		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
-
-	AutoExecConfig(true, "l4d_afk_commands");
-	
-	// Check if we have r2comp_unscramble.smx loaded
-	g_Use_r2comp_unscramble = LibraryExists("r2comp_unscramble");
 }
 
 public void OnAllPluginsLoaded()
 {
-	if(PlayerLeftStartTimer == null) PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	g_Use_r2comp_unscramble = LibraryExists("r2comp_unscramble");
+
 }
 
 public void OnPluginEnd()
 {
-	Clear();
+	ResetClient();
 	ResetTimer();
 	ClearDefault();
 	
-	delete nClientSwitchTeam;
+	delete g_alClientSwitchTeam;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		delete nClientAttackedByWitch[i];
+		delete g_alClientAttackedByWitch[i];
+		delete g_alClientThrowable[i];
+		delete g_alClientGrenade[i];
 	}
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if(StrEqual(name, "r2comp_unscramble"))
+		g_Use_r2comp_unscramble = true;
 }
 
 public void OnLibraryRemoved(const char[] name)
@@ -315,21 +336,14 @@ public void OnLibraryRemoved(const char[] name)
 		g_Use_r2comp_unscramble = false;
 }
 
-
-public void OnLibraryAdded(const char[] name)
-{
-	if(StrEqual(name, "r2comp_unscramble"))
-		g_Use_r2comp_unscramble = true;
-}
-
 public void OnMapStart()
 {
-	nClientSwitchTeam.Clear();
+	g_alClientSwitchTeam.Clear();
 }
 
 public void OnMapEnd()
 {
-	Clear();
+	ResetClient();
 	ResetTimer();
 	ClearDefault();
 }
@@ -406,7 +420,7 @@ Action ForceSurvivorSuicide(int client, int args)
 			return Plugin_Handled;
 		}
 		
-		if( nClientAttackedByWitch[client].Length != 0 )
+		if( g_alClientAttackedByWitch[client].Length != 0 )
 		{
 			PrintHintText(client, "%T","Not on your life!",client);
 			return Plugin_Handled;
@@ -428,20 +442,22 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if(!victim || !IsClientAndInGame(victim)) return;
-	ResetAttackedByWitch(victim);
+	g_alClientAttackedByWitch[victim].Clear();
+	g_alClientThrowable[victim].Clear();
+	g_alClientGrenade[victim].Clear();
 
 	if((g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0) && IsClientInGame(victim) && !IsFakeClient(victim) && GetClientTeam(victim) == 2)
 	{
 		char steamID[STEAMID_SIZE];
 		GetClientAuthId(victim, AuthId_Steam2,steamID, STEAMID_SIZE);
-		int index = nClientSwitchTeam.FindString(steamID);
+		int index = g_alClientSwitchTeam.FindString(steamID);
 		if (index == -1) {
-			nClientSwitchTeam.PushString(steamID);
-			nClientSwitchTeam.Push(4);
+			g_alClientSwitchTeam.PushString(steamID);
+			g_alClientSwitchTeam.Push(4);
 		}
 		else
 		{
-			nClientSwitchTeam.Set(index + ARRAY_TEAM, 4);
+			g_alClientSwitchTeam.Set(index + ARRAY_TEAM, 4);
 		}			
 	}
 }
@@ -475,8 +491,8 @@ void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
 	if(!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
 
 	int entity = event.GetInt("entindex");
-	GetEdictClassname(entity, sTemp, sizeof(sTemp));
-	if( strcmp(sTemp, "prop_physics") == 0 || strcmp(sTemp, "prop_fuel_barrel") == 0)
+	GetEntityClassname(entity, sTemp, sizeof(sTemp));
+	if( strncmp(sTemp, "prop_physics", 12) == 0 || strncmp(sTemp, "prop_fuel_barrel", 16) == 0)
 	{
 		GetEntPropString(entity, Prop_Data, "m_ModelName", sTemp, sizeof(sTemp));
 		if( strcmp(sTemp, MODEL_CRATE) == 0 ||
@@ -495,48 +511,56 @@ Action checksurvivorspawn(Handle timer, int client)
 	{
 		char steamID[STEAMID_SIZE];
 		GetClientAuthId(client, AuthId_Steam2,steamID, STEAMID_SIZE);
-		int index = nClientSwitchTeam.FindString(steamID);
+		int index = g_alClientSwitchTeam.FindString(steamID);
 		if (index == -1) {
-			nClientSwitchTeam.PushString(steamID);
-			nClientSwitchTeam.Push(2);
+			g_alClientSwitchTeam.PushString(steamID);
+			g_alClientSwitchTeam.Push(2);
 		}
 		else
 		{
-			nClientSwitchTeam.Set(index + ARRAY_TEAM, 2);
+			g_alClientSwitchTeam.Set(index + ARRAY_TEAM, 2);
 		}			
 	}
 
 	return Plugin_Continue;
 }
 
-
 public void OnClientPutInServer(int client)
 {
-	Clear(client);
+	ResetClient(client);
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
 public void OnClientDisconnect(int client)
 {
-	Clear(client);
+	ResetClient(client);
 }
 
 Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
 {
 	if(!IsClientAndInGame(victim) || GetClientTeam(victim) != 2) { return Plugin_Continue; }
 	
-
-	if (attacker > 0 && IsValidEntity(attacker) && IsValidEdict(attacker))
+	if (attacker > MaxClients && IsValidEntity(attacker) && IsWitch(attacker))
 	{
-		char sClassname[64];
-		GetEntityClassname(inflictor, sClassname, 64);
-		if(StrEqual(sClassname, "witch"))
-		{
-			AddWitchAttack(attacker, victim);
-		}
+		AddWitchAttack(attacker, victim);
 	}
 	
 	return Plugin_Continue;
+}
+
+void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage, int damagetype)
+{
+	if(attacker > 0 && attacker <= MaxClients && 
+		IsClientInGame(attacker) && 
+		!IsFakeClient(attacker) &&
+		GetClientTeam(attacker) == 2 && 
+		IsPlayerAlive(attacker))
+	{
+		if( damagetype & DMG_BLAST )
+		{
+			AddWitchAttack(witch, attacker);
+		}
+	}
 }
 
 void OnWitchWokeup(Event event, const char[] name, bool dontBroadcast) 
@@ -545,20 +569,60 @@ void OnWitchWokeup(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(userid);
 	int witchid = event.GetInt("witchid");
 	
-	if(client > 0 && client <= MaxClients &&  IsClientInGame(client) && GetClientTeam(client) == 2)
+	if(client > 0 && client <= MaxClients &&  IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2)
 	{
 		AddWitchAttack(witchid, client);
 	}
-	
 }
 
 public void OnEntityDestroyed(int entity)
 {
-	if( entity > 0 && IsValidEdict(entity) )
+	if(entity <= MaxClients || !IsValidEntity(entity))
+		return;
+
+	static char strClassName[64];
+	GetEntityClassname(entity, strClassName, sizeof(strClassName));
+	int index, ref = EntIndexToEntRef(entity);
+
+	if(
+		strClassName[0] == 'm' ||
+		strClassName[0] == 'p' ||
+		strClassName[0] == 'v' ||
+		strClassName[0] == 'g'
+	)
 	{
-		char strClassName[64];
-		GetEdictClassname(entity, strClassName, sizeof(strClassName));
-		if(StrEqual(strClassName, "witch"))	
+		if(
+			strncmp(strClassName, "molotov_projectile", 18) == 0 ||
+			strncmp(strClassName, "pipe_bomb_projectile", 20) == 0 ||
+			(g_bL4D2Version && strncmp(strClassName, "vomitjar_projectile", 19) == 0)
+		)
+		{
+			for(int client = 1; client <= MaxClients; client++)
+			{
+				if( (index = g_alClientThrowable[client].FindValue(ref)) != -1)
+				{
+					g_alClientThrowable[client].Erase(index);
+	
+					break;
+				}
+			}
+		}
+		else if(g_bL4D2Version && strncmp(strClassName, "grenade_launcher_projectile", 27) == 0)
+		{
+			for(int client = 1; client <= MaxClients; client++)
+			{
+				if( (index = g_alClientGrenade[client].FindValue(ref)) != -1)
+				{
+					g_alClientGrenade[client].Erase(index);
+
+					break;
+				}
+			}
+		}
+	}
+	else if(strClassName[0] == 'w')
+	{
+		if(strcmp(strClassName, WITCH_NAME, false) == 0)
 		{
 			RemoveWitchAttack(entity);
 		}
@@ -595,7 +659,8 @@ void GetCvars()
 	g_bTakeControlBlock = g_hTakeControlBlock.BoolValue;
 	fCoolTime = g_hCoolTime.FloatValue;
 	g_fBreakPropCooldown = g_hBreakPropCooldown.FloatValue;
-	g_fThrowableCooldown = g_hThrowableCooldown.FloatValue;
+	g_bThrowableBlock = g_hThrowableBlock.BoolValue;
+	g_bGrenadeBlock = g_hGrenadeBlock.BoolValue;
 	g_fInfectedSpawnCooldown = g_hInfectedSpawnCooldown.FloatValue;
 	g_iZMaxPlayerZombies = g_hZMaxPlayerZombies.IntValue;
 	g_bVSCommandBalance = g_hVSCommandBalance.BoolValue;
@@ -610,11 +675,11 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
-	for (int i = 0; i < (nClientSwitchTeam.Length / ARRAY_COUNT); i++) {
-		nClientSwitchTeam.Set( (i * ARRAY_COUNT) + ARRAY_TEAM, 0);
+	for (int i = 0; i < (g_alClientSwitchTeam.Length / ARRAY_COUNT); i++) {
+		g_alClientSwitchTeam.Set( (i * ARRAY_COUNT) + ARRAY_TEAM, 0);
 	}
 	
-	Clear();
+	ResetClient();
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -676,7 +741,7 @@ Action Timer_CountDown(Handle timer)
 	return Plugin_Continue;
 }
 
-void Clear(int client = -1)
+void ResetClient(int client = -1)
 {
 	if(client == -1)
 	{
@@ -686,9 +751,11 @@ void Clear(int client = -1)
 			bClientJoinedTeam[i] = false;
 			clientteam[i] = 0;
 			fBreakPropTime[i] = 0.0;
-			fThrowableTime[i] = 0.0;
+			//fThrowableTime[i] = 0.0;
 			fInfectedSpawnTime[i] = 0.0;
-			ResetAttackedByWitch(i);
+			g_alClientAttackedByWitch[i].Clear();
+			g_alClientThrowable[i].Clear();
+			g_alClientGrenade[i].Clear();
 		}
 		g_bHasLeftSafeRoom = false;
 		g_bGameTeamSwitchBlock = false;
@@ -699,9 +766,11 @@ void Clear(int client = -1)
 		bClientJoinedTeam[client] = false;
 		clientteam[client] = 0;
 		fBreakPropTime[client] = 0.0;
-		fThrowableTime[client] = 0.0;
+		//fThrowableTime[client] = 0.0;
 		fInfectedSpawnTime[client] = 0.0;
-		ResetAttackedByWitch(client);
+		g_alClientAttackedByWitch[client].Clear();
+		g_alClientThrowable[client].Clear();
+		g_alClientGrenade[client].Clear();
 	}
 
 }
@@ -1207,7 +1276,7 @@ void go_away_from_keyboard_NextFrame(any iUserID)
 {
 	int client = GetClientOfUserId(iUserID);
 	
-	if(!client || !IsClientInGame(client))
+	if(!client || !IsClientInGame(client) || IsFakeClient(client))
 		return;
 
 	if(GetClientTeam(client) == 1)
@@ -1367,7 +1436,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 			return false;
 		}	
 		
-		if( g_bWitchAttackBlock == true && nClientAttackedByWitch[client].Length != 0)
+		if( g_bWitchAttackBlock == true && g_alClientAttackedByWitch[client].Length > 0)
 		{
 			PrintHintText(client, "%T","Witch Attack Block",client);
 			return false;
@@ -1379,9 +1448,15 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 			return false;
 		}
 
-		if( g_fThrowableCooldown > 0.0 && (fThrowableTime[client] - GetEngineTime() > 0.0) )
+		if( g_bThrowableBlock && g_alClientThrowable[client].Length > 0 )
 		{
 			PrintHintText(client, "%T","Can not change team after throw",client);
+			return false;	
+		}
+
+		if( g_bL4D2Version && g_bGrenadeBlock && g_alClientGrenade[client].Length > 0 )
+		{
+			PrintHintText(client, "%T","Can not change team after grenade",client);
 			return false;	
 		}
 
@@ -1465,16 +1540,16 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 		{
 			char steamID[STEAMID_SIZE];
 			GetClientAuthId(client, AuthId_Steam2, steamID, STEAMID_SIZE);
-			int index = nClientSwitchTeam.FindString(steamID);
+			int index = g_alClientSwitchTeam.FindString(steamID);
 			if (index == -1) {
-				nClientSwitchTeam.PushString(steamID);
-				nClientSwitchTeam.Push(newteam);
+				g_alClientSwitchTeam.PushString(steamID);
+				g_alClientSwitchTeam.Push(newteam);
 			}
 			else
 			{
-				int oldteam = nClientSwitchTeam.Get(index + ARRAY_TEAM);
+				int oldteam = g_alClientSwitchTeam.Get(index + ARRAY_TEAM);
 				if(!g_bHasLeftSafeRoom || oldteam == 0)
-					nClientSwitchTeam.Set(index + ARRAY_TEAM, newteam);
+					g_alClientSwitchTeam.Set(index + ARRAY_TEAM, newteam);
 				else
 				{
 					//PrintToChatAll("%N newteam: %d, oldteam: %d",client,newteam,oldteam);
@@ -1660,25 +1735,21 @@ bool HasAccess(int client, char[] g_sAcclvl)
 	return false;
 }
 
-void ResetAttackedByWitch(int client) {
-	delete nClientAttackedByWitch[client];
-	nClientAttackedByWitch[client] = new ArrayList();
-}
-
 void AddWitchAttack(int witchid, int client)
 {
-	if(nClientAttackedByWitch[client].FindValue(witchid) == -1)
+	int ref = EntIndexToEntRef(witchid);
+	if(g_alClientAttackedByWitch[client].FindValue(ref) == -1)
 	{
-		nClientAttackedByWitch[client].Push(witchid);
+		g_alClientAttackedByWitch[client].Push(ref);
 	}
 }
 
 void RemoveWitchAttack(int witchid)
 {
-	int index;
+	int index, ref = EntIndexToEntRef(witchid);
 	for (int client = 1; client <= MaxClients; client++) {
-		if ( (index = nClientAttackedByWitch[client].FindValue(witchid)) != -1 ) {
-			nClientAttackedByWitch[client].Erase(index);
+		if ( (index = g_alClientAttackedByWitch[client].FindValue(ref)) != -1 ) {
+			g_alClientAttackedByWitch[client].Erase(index);
 		}
 	}
 }
@@ -1689,52 +1760,74 @@ public void OnEntityCreated(int entity, const char[] classname)
 		classname[0] == 'm' ||
 		classname[0] == 'p' ||
 		classname[0] == 'v' ||
-		classname[0] == 'i'
+		classname[0] == 'i' ||
+		classname[0] == 'g'
 	)
 	{
 		if(
-			strncmp(classname, "molotov_projectile", 13) == 0 ||
-			strncmp(classname, "pipe_bomb_projectile", 13) == 0 ||
-			strncmp(classname, "inferno", 13) == 0 ||
-			g_bL4D2Version && strncmp(classname, "vomitjar_projectile", 13) == 0
+			strncmp(classname, "molotov_projectile", 18) == 0 ||
+			strncmp(classname, "pipe_bomb_projectile", 20) == 0 ||
+			strncmp(classname, "inferno", 7) == 0 ||
+			(g_bL4D2Version && strncmp(classname, "vomitjar_projectile", 19) == 0) ||
+			(g_bL4D2Version && strncmp(classname, "grenade_launcher_projectile", 27) == 0)
 		)
 		{
-			SDKHook(entity, SDKHook_SpawnPost, SpawnPost);
+			RequestFrame(OnNextFrame, EntIndexToEntRef(entity));
 			return;
+		}
+	}
+	else if(
+		classname[0] == 'w'
+	)
+	{
+		if(strcmp(classname, WITCH_NAME, false) == 0)
+		{
+			SDKHook(entity, SDKHook_OnTakeDamageAlivePost, OnTakeDamageWitchPost);
 		}
 	}
 }
 
-void SpawnPost(int entity)
+void OnNextFrame(int entRef)
 {
-	// 1 frame later required to get velocity
-	RequestFrame(OnNextFrame, EntIndexToEntRef(entity));
-}
+	int entity = EntRefToEntIndex(entRef);
 
-void OnNextFrame(int entity)
-{
-	// Validate entity
-	if( EntRefToEntIndex(entity) == INVALID_ENT_REFERENCE || !IsValidEntity(entity) )
+	if( entity == INVALID_ENT_REFERENCE )
 		return;
 
-	// Get Client
+	static char sClassname[64];
+	GetEntityClassname(entity, sClassname, sizeof(sClassname));
+	
 	int client;
-	bool bThrowable;
-	if(HasEntProp(entity, Prop_Send, "m_hThrower"))
+	if(
+		strncmp(sClassname, "molotov_projectile", 18) == 0 ||
+		strncmp(sClassname, "pipe_bomb_projectile", 20) == 0 ||
+		(g_bL4D2Version && strncmp(sClassname, "vomitjar_projectile", 19) == 0)
+	)
 	{
 		client = GetEntPropEnt(entity, Prop_Data, "m_hThrower");
-		bThrowable = true;
+
+		if( client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2)
+		{
+			g_alClientThrowable[client].Push(entRef);
+		}
 	}
-	else
+	else if(g_bL4D2Version && strncmp(sClassname, "grenade_launcher_projectile", 27) == 0)
+	{
+		client = GetEntPropEnt(entity, Prop_Data, "m_hThrower");
+
+		if( client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2)
+		{
+			g_alClientGrenade[client].Push(entRef);
+		}
+	}
+	else if(strncmp(sClassname, "inferno", 7) == 0) //火瓶燃燒時
 	{
 		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
-		bThrowable = false;
-	}
 
-	if( client > 0 && client <= MaxClients && IsClientInGame(client) && GetClientTeam(client) == 2)
-	{
-		if( bThrowable == true && g_fThrowableCooldown > 0.0) fThrowableTime[client] = GetEngineTime() + g_fThrowableCooldown;
-		if( bThrowable == false && g_fBreakPropCooldown> 0.0) fBreakPropTime[client] = GetEngineTime() + g_fBreakPropCooldown;
+		if( client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2)
+		{
+			if(g_fBreakPropCooldown> 0.0) fBreakPropTime[client] = GetEngineTime() + g_fBreakPropCooldown;
+		}
 	}
 }
 
@@ -2021,4 +2114,19 @@ bool IsGettingUpOrStumble(int client) {
 	}
 
 	return false;
+}
+
+public void L4D2_OnStagger_Post(int client, int source)
+{
+	if(!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
+	if(!IsWitch(source)) return;
+
+	AddWitchAttack(source, client);
+}
+
+bool IsWitch(int entity)
+{
+	static char classname[64];
+	GetEntityClassname(entity, classname, sizeof(classname));		
+	return strcmp(classname, WITCH_NAME, false) == 0;
 }

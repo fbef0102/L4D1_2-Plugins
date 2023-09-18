@@ -43,10 +43,10 @@
 	}
 	"Not on your life!"
 	{
-		"en"			"Can not suicide when you startle witch and witch is attacking you. Not on your life!"
+		"en"			"Can not suicide when you startle witch or witch is attacking you. Not on your life!"
 		"ru"			"Невозможно совершить самоубийство, когда вы напугали ведьму, а ведьма напала на вас. Не в этой жизни!"
-		"zho"			"Witch 干擾期間禁止自殺. 下輩子吧!"
-		"chi"			"被 Witch 干扰就想自杀,怎么还不删游戏啊?"
+		"zho"			"干擾 Witch 期間禁止自殺. 下輩子吧!"
+		"chi"			"干扰 Witch 就想自杀,怎么还不删游戏啊?"
 		"hu"			"Nem lehetsz öngyilkos ha megzavarod a boszorkát és az épp téged támad. Életed árán se!"
 	}
 	"Suicide"
@@ -245,10 +245,10 @@
 	}
 	"Witch Attack Block"
 	{
-		"en"			"Can not change team when you startle witch and witch is attacking you."
+		"en"			"Can not change team when you startle witch or witch is attacking you."
 		"ru"			"Невозможно сменить команду, когда вы напугали ведьму, а ведьма атакует вас."
-		"zho"			"Witch 干擾期間禁止換隊."
-		"chi"			"被 Witch 干扰了禁止换队."
+		"zho"			"干擾 Witch 期間禁止換隊."
+		"chi"			"干扰 Witch 禁止换队."
 		"hu"			"Nem tudsz csapatot váltani, ha megijeszted a boszorkányt, és az éppen rád támad."
 	}
 	"Not gonna happen!"
@@ -297,5 +297,11 @@
 		"en" 	"Can not change team while getting up or staggering!"
 		"zho" 	"起身或硬直狀態中禁止換隊!"
 		"chi" 	"起身或硬直状态中禁止换队!"
+	}
+	"Can not change team after grenade"
+	{
+		"en"			"Can not change team after firing the grenade launcher"
+		"zho"			"榴彈發射期間禁止換隊."
+		"chi"			"榴弹发射期间禁止换队."
 	}
 }
