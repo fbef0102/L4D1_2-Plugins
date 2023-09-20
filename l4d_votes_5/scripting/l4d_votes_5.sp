@@ -244,6 +244,7 @@ public void OnMapStart()
 	PrecacheSound("ui/menu_enter05.wav");
 	PrecacheSound("ui/beep_synthtone01.wav");
 	PrecacheSound("ui/beep_error01.wav");
+	PrecacheSound("buttons/blip1.wav");
 	
 	VoteMenuClose();
 }
