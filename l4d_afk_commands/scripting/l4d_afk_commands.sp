@@ -539,11 +539,9 @@ public void OnClientDisconnect(int client)
 Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
 {
 	if(!IsClientAndInGame(victim) || GetClientTeam(victim) != 2) { return Plugin_Continue; }
+	if(!IsWitch(attacker)) { return Plugin_Continue; }
 	
-	if (attacker > MaxClients && IsValidEntity(attacker) && IsWitch(attacker))
-	{
-		AddWitchAttack(attacker, victim);
-	}
+	AddWitchAttack(attacker, victim);
 	
 	return Plugin_Continue;
 }
@@ -2126,7 +2124,12 @@ public void L4D2_OnStagger_Post(int client, int source)
 
 bool IsWitch(int entity)
 {
-	static char classname[64];
-	GetEntityClassname(entity, classname, sizeof(classname));		
-	return strcmp(classname, WITCH_NAME, false) == 0;
+    if (entity > MaxClients && IsValidEntity(entity))
+    {
+        char strClassName[64];
+        GetEntityClassname(entity, strClassName, sizeof(strClassName));
+        return strcmp(strClassName, WITCH_NAME, false) == 0;
+    }
+
+    return false;
 }
