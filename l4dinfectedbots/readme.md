@@ -601,6 +601,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.6 (2023-9-22)
+		* Fixed "l4d_infectedbots_coordination" not working
+		* Fixed Bot Spawn timer
+		
 	* v2.8.5 (2023-9-17)
 		* Adjust human spawn timer when 5+ infected slots in versus/scavenge
 		* In Versus/Scavenge, human infected spawn timer controlled by the official cvars "z_ghost_delay_min" and "z_ghost_delay_max" 
