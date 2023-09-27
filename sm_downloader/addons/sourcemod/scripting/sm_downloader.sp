@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define SM_DOWNLOADER_VERSION		"1.8"
+#define SM_DOWNLOADER_VERSION		"1.9-2023/9/27"
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 
 ConVar g_enabled=null;
@@ -195,16 +195,18 @@ void ReadItem(char[] buffer){
 	else if (strcmp(buffer,"",false) != 0 && FileExists(buffer))
 	{
 		if(downloadfiles){
+			AddFileToDownloadsTable(buffer);
+			
 			if(StrContains(mediatype,"Decal",true) >= 0){
 				PrecacheDecal(buffer,true);
 			}
 			else if(StrContains(mediatype,"Sound",true) >= 0){
+				ReplaceStringEx(buffer, len, "sound/", "", -1, -1, false);
 				PrecacheSound(buffer,true);
 			}
 			else if(StrContains(mediatype,"Model",true) >= 0){
 				PrecacheModel(buffer,true);
 			}
-			AddFileToDownloadsTable(buffer);
 		}
 	}
 }
