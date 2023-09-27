@@ -43,7 +43,7 @@ SM File/Folder Downloader and Precacher
 
 * <details><summary>Data Example</summary>
 
-	* configs\sm_downloader\downloads.ini, this is normal downloader configuration
+	* ```configs\sm_downloader\downloads.ini```, this is normal downloader configuration
 		```php
 		//Don't modify or remove the Comment Lines ( // )
 		//Can not download .VPK files 
@@ -63,7 +63,7 @@ SM File/Folder Downloader and Precacher
 		models/parachute/parachute_green.mdl
 		```
 
-	* configs\sm_downloader\downloads_simple.ini, this is simple downloader configuration (Download Only No Precache)
+	* ```configs\sm_downloader\downloads_simple.ini```, this is simple downloader configuration (Download Only No Precache)
 		```php
 		path/anymap.ext
 		path/anymap2.ext
@@ -77,7 +77,7 @@ SM File/Folder Downloader and Precacher
 		models/parachute/parachute_green.mdl
 		```
 
-	> __Note__ If you don't know which file to use, just enable and use the normal downloader configuration
+	> __Note__ If you don't know which file to use, just enable and use ```configs\sm_downloader\downloads.ini```
 </details>
 
 * <details><summary>How to make the client download custom files</summary>
@@ -128,6 +128,9 @@ SM File/Folder Downloader and Precacher
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * 1.9 (2023-9-27)
+		* Fixed custom sound not Precache
 
     * 1.8 (2023-5-4)
 		* Fixed custom spray blocked and fail to download
@@ -184,7 +187,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		models/parachute/parachute_green.mdl
 		```
 
-	> __Note__ 如果你不知道這兩設定文件有捨差別又是在幹嗎, 建議你一律使用正常版的檔案下載設定文件
+	> __Note__ 如果你不知道這兩設定文件有捨差別又是在幹嗎, 建議你一律使用```configs\sm_downloader\downloads.ini```
 </details>
 
 * <details><summary>玩家如何下載檔案?</summary>
