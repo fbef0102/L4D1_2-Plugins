@@ -3,10 +3,11 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <sdkhooks>
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.2"
+#define PLUGIN_VERSION "2.3-2023/9/27"
 
 #define L4D_TEAM_SURVIVOR 2
 #define L4D_TEAM_INFECTED 3
@@ -27,8 +28,9 @@ char Temp6[] = "\x01";
 int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
 bool g_bDied[MAXPLAYERS+1]; //tank already dead
 int g_iLastHP[MAXPLAYERS+1]; //tank last hp before dead
-bool g_bIsWitch[MAXENTITIES+1];// Membership testing for fast witch checking
-bool g_bShouldAnnounceWitchDamage[MAXENTITIES+1];
+int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
+int g_iOtherDamage[MAXPLAYERS+1]; //tank other damage
+bool g_bAnnounceWitchDamage[MAXENTITIES+1];
 bool g_bTankOnly;
 int ZC_TANK;
 
@@ -41,6 +43,7 @@ public Plugin myinfo =
 	url = "http://forums.alliedmods.net/showthread.php?t=123811"
 }
 
+bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -59,6 +62,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 	
+	bLate = late;
 	return APLRes_Success; 
 }
 
@@ -70,7 +74,9 @@ public void OnPluginStart()
 	g_hCvarModesOff =	CreateConVar(	"sm_assist_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog =	CreateConVar(	"sm_assist_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
 	g_hTankOnly = 		CreateConVar(	"sm_assist_tank_only", 		"0", 			"If 1, only show Damage done to Tank.",CVAR_FLAGS, true, 0.0, true, 1.0);
-	
+	AutoExecConfig(true, "l4d2_assist");
+
+
 	g_hCvarMPGameMode 	= FindConVar("mp_gamemode");
 	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarAllow.AddChangeHook(ConVarChanged_Allow);
@@ -78,8 +84,22 @@ public void OnPluginStart()
 	g_hCvarModesOff.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
 	g_hTankOnly.AddChangeHook(ConVarChanged_Cvars);
-	
-	AutoExecConfig(true, "l4d2_assist");
+
+	if(bLate)
+	{
+		LateLoad();
+	}
+}
+
+void LateLoad()
+{
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        if (!IsClientInGame(client))
+            continue;
+
+        OnClientPutInServer(client);
+    }
 }
 
 public void OnPluginEnd()
@@ -99,6 +119,21 @@ public void OnMapEnd()
 	ResetPlugin();
 }
 
+public void OnClientPutInServer(int client)
+{
+	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+}
+
+Action OnTakeDamage(int client, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+{ 
+	if(GetClientTeam(client) == L4D_TEAM_INFECTED && IsPlayerAlive(client))
+	{
+		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
+	}
+
+	return Plugin_Continue;
+}
+
 // ====================================================================================================
 //					CVARS
 // ====================================================================================================
@@ -107,12 +142,12 @@ public void OnConfigsExecuted()
 	IsAllowed();
 }
 
-public void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	IsAllowed();
 }
 
-public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -202,7 +237,7 @@ bool IsAllowedGameMode()
 	return true;
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iCurrentMode = 1;
@@ -243,12 +278,12 @@ void UnhookEvents()
 	UnhookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
 }
 
-public void Event_PlayerIncapacitated(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerIncapacitated(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int witchid = event.GetInt("attackerentid");
-	if (!g_bIsWitch[witchid]||
-	!g_bShouldAnnounceWitchDamage[witchid]					// Prevent double print on witch incapping 2 players (rare)
+	if (!IsWitch(witchid)||
+	g_bAnnounceWitchDamage[witchid]					// Prevent double print on witch incapping 2 players (rare)
 	) return;
 
 	if(!victim || !IsClientInGame(victim)) return;
@@ -259,19 +294,20 @@ public void Event_PlayerIncapacitated(Event event, const char[] name, bool dontB
 	CPrintToChatAll("[{olive}TS{default}] %t", "Witch_Health", health);
 	CPrintToChatAll("[{olive}TS{default}] %t", "Witch_Incap", victim);
 
-	g_bShouldAnnounceWitchDamage[witchid] = false;
+	g_bAnnounceWitchDamage[witchid] = true;
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetPlugin();
 }
 
-public void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast) 
+void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast) 
 {
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int victim = GetClientOfUserId(event.GetInt("userid"));
-	int damageDone = event.GetInt("dmg_health");
+	int damageDone = g_iSIHealth[victim] - event.GetInt("health");
+	if(damageDone <= 0.0) return;
 	
 	if (0 < victim && victim <= MaxClients && IsClientInGame(victim))
 	{
@@ -293,10 +329,19 @@ public void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast
 					g_iLastHP[victim] = event.GetInt("health");
 				}
 				
-				if( 0 < attacker <= MaxClients && IsClientInGame(attacker) && !g_bDied[victim])
+				if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
 				{
 					//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iLastHP[victim], damageDone, g_bDied[victim]);
-					g_iDamage[attacker][victim] += damageDone;
+					if(!g_bDied[victim]) g_iDamage[attacker][victim] += damageDone;
+				}
+				else
+				{
+					static char weapon[64];
+					event.GetString("weapon", weapon, sizeof(weapon));
+					if( g_bDied[victim] && strlen(weapon) == 0 ) return;
+
+					//PrintToChatAll("Tank: %d - type: %d, weapon: %s", victim, event.GetInt("type"), weapon);
+					g_iOtherDamage[victim] += damageDone;
 				}
 			}
 			else
@@ -318,7 +363,7 @@ public void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast
 	}
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 { 
 	int client = GetClientOfUserId(event.GetInt("userid"));
 		
@@ -326,15 +371,12 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	{
 		g_bDied[client] = false;
 		g_iLastHP[client] = GetEntProp(client, Prop_Data, "m_iHealth");
-
-		for( int i = 1; i <= MaxClients; i++ )
-		{
-			g_iDamage[i][client] = 0;
-		}
+		for( int i = 1; i <= MaxClients; i++ ) g_iDamage[i][client] = 0;
+		g_iOtherDamage[client] = 0;
 	}
 }
 
-public void Event_Player_Death(Event event, const char[] name, bool dontBroadcast) 
+void Event_Player_Death(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -344,27 +386,29 @@ public void Event_Player_Death(Event event, const char[] name, bool dontBroadcas
 	if (attacker == 0)
 	{
 		int witchid = event.GetInt("attackerentid");
-		if (g_bIsWitch[witchid] && g_bShouldAnnounceWitchDamage[witchid])  // Prevent double print on witch incapping 2 players (rare)
+		if (IsWitch(witchid) && g_bAnnounceWitchDamage[witchid] == false && GetClientTeam(victim) == L4D_TEAM_SURVIVOR)  // Prevent double print on witch incapping 2 players (rare)
 		{
 			int health = GetEntityHealth(witchid);
 			if (health < 0) health = 0;
 
 			CPrintToChatAll("{default}[{olive}TS{default}] %t", "Witch_Health", health);
 			CPrintToChatAll("{default}[{olive}TS{default}] %t", "Witch_Kill", victim);
-			g_bShouldAnnounceWitchDamage[witchid] = false;
+			g_bAnnounceWitchDamage[witchid] = true;
 			return;
 		}
 	}
-	
-	if (attacker && IsClientInGame(attacker) && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR && GetClientTeam(victim) == L4D_TEAM_INFECTED)
-	{
 
-		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
-		{
-			//PrintToChatAll("g_iLastHP[victim]: %d", g_iLastHP[victim]);
-			g_iDamage[attacker][victim] += g_iLastHP[victim];
-		}
-		else
+	if(GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
+
+	if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
+	{
+		if(attacker && IsClientInGame(attacker)) g_iDamage[attacker][victim] += g_iLastHP[victim];
+		else g_iOtherDamage[victim] += g_iLastHP[victim];
+	}
+	
+	if (attacker && IsClientInGame(attacker) && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
+	{
+		if(GetEntProp(victim, Prop_Send, "m_zombieClass") != ZC_TANK)
 		{
 			if(g_bTankOnly == true)
 			{
@@ -404,25 +448,10 @@ public void Event_Player_Death(Event event, const char[] name, bool dontBroadcas
 	ClearDmgSI(victim);
 }
 
-public void Event_WitchSpawn(Event event, const char[] name, bool dontBroadcast) 
+void Event_WitchSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int witchid = event.GetInt("witchid");
-	g_bIsWitch[witchid] = true;
-	g_bShouldAnnounceWitchDamage[witchid] = true;
-}
-
-public void OnEntityDestroyed(int entity)
-{
-	if( entity > 0 && IsValidEdict(entity) )
-	{
-		char strClassName[64];
-		GetEdictClassname(entity, strClassName, sizeof(strClassName));
-		if(strcmp(strClassName, "witch") == 0)	
-		{
-			g_bIsWitch[entity] = false;
-			g_bShouldAnnounceWitchDamage[entity] = false;
-		}
-	}
+	g_bAnnounceWitchDamage[witchid] = false;
 }
 
 void ResetPlugin()
@@ -434,7 +463,6 @@ void ResetPlugin()
 			g_iDamage[i][j] = 0;
 		}
 	}
-	for (int i = MaxClients + 1; i < MAXENTITIES; i++) g_bIsWitch[i] = false;
 }
 
 void ClearDmgSI(int victim)
@@ -448,4 +476,16 @@ void ClearDmgSI(int victim)
 public int GetEntityHealth(int client)
 {
 	return GetEntProp(client, Prop_Data, "m_iHealth");
+}
+
+bool IsWitch(int entity)
+{
+    if (entity > MaxClients && IsValidEntity(entity))
+    {
+        char strClassName[64];
+        GetEntityClassname(entity, strClassName, sizeof(strClassName));
+        return strcmp(strClassName, "witch", false) == 0;
+    }
+	
+    return false;
 }
