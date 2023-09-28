@@ -1,7 +1,7 @@
 # Description | 內容
 Tanks throw special infected instead of rock
 
-* [Video | 影片展示](https://youtu.be/W45JutNDX0Q)
+* [Video | 影片展示](https://youtu.be/v-hHB0XzyW0?si=iUmdRvYAsSS_K3KO)
 
 * Image | 圖示
 	<br/>![l4d_tankhelper_1](image/l4d_tankhelper_1.gif)
