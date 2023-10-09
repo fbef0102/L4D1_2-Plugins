@@ -237,6 +237,8 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_join", JoinTeam, "Attempt to join Survivors");
 	RegConsoleCmd("sm_js", JoinTeam, "Attempt to join Survivors");
 
+	AddCommandListener(ServerCmd_changelevel, "changelevel");
+
 	g_hSteamIDs = new StringMap();
 	
 	if (bLate)
@@ -655,24 +657,11 @@ void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_Event_MapTransition(Handle timer)
 {
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client) && !IsFakeClient(client))
-		{
-			if(GetClientTeam(client) == 2) g_iSurvivorTransition++;
-			else if(GetClientTeam(client) == 1 && !IsClientIdle(client))
-			{
-				g_bIsObserver[client] = true;
-			}
-		}
-	}
+	SaveObservers();
 
 	return Plugin_Continue;
 }
 
-////////////////////////////////////
-// timers
-////////////////////////////////////
 Action JoinTeam_ColdDown(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
@@ -1826,4 +1815,36 @@ int GetTeamHumanCount(int team)
 	}
 	
 	return humans;
+}
+
+void SaveObservers()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && !IsFakeClient(client))
+		{
+			if(GetClientTeam(client) == 2) g_iSurvivorTransition++;
+			else if(GetClientTeam(client) == 1 && !IsClientIdle(client))
+			{
+				g_bIsObserver[client] = true;
+			}
+		}
+	}
+}
+
+/**
+ * 當控制台輸入changelevel時
+ * 投票換圖或重新章節 也會有changelevel xxxxx (xxxxx is map name)
+ * 管理員!admin->換圖 也會有changelevel xxxxx (xxxxx is map name)
+ * 插件使用 ServerCommand("changelevel %s", ..... 也會有changelevel xxxxx (xxxxx is map name)
+ * 插件使用 ForceChangeLevel("xxxxxx", ..... 也會有changelevel xxxxx (xxxxx is map name)
+ */
+Action ServerCmd_changelevel(int client, const char[] command, int argc)
+{
+	if(client == 0)
+	{
+		SaveObservers();
+	}
+
+	return Plugin_Continue;
 }

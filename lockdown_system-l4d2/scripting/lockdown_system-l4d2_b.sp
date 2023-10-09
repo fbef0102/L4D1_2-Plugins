@@ -92,7 +92,7 @@ public void OnPluginStart()
 	lsAnnounce = CreateConVar("lockdown_system-l4d2_announce", "1", "If 1, Enable saferoom door status Announcements", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsAntiFarmDuration = CreateConVar("lockdown_system-l4d2_anti-farm_duration", "50", "Duration Of Anti-Farm", FCVAR_NOTIFY, true, 0.0);
 	lsDuration = CreateConVar("lockdown_system-l4d2_duration", "100", "Duration Of Lockdown", FCVAR_NOTIFY, true, 0.0);
-	lsMobs = CreateConVar("lockdown_system-l4d2_mobs", "5", "Number Of Mobs To Spawn", FCVAR_NOTIFY, true, 0.0, true, 10.0);
+	lsMobs = CreateConVar("lockdown_system-l4d2_mobs", "5", "Number Of Mobs To Spawn", FCVAR_NOTIFY, true, 0.0, true, 15.0);
 	lsTankDemolitionBefore = CreateConVar("lockdown_system-l4d2_tank_demolition_before", "1", "If 1, Enable Tank Demolition, server will spawn tank before door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsTankDemolitionAfter = CreateConVar("lockdown_system-l4d2_tank_demolition_after", "1", "If 1, Enable Tank Demolition, server will spawn tank after door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsType = CreateConVar("lockdown_system-l4d2_type", "0", "Lockdown Type: 0=Random, 1=Improved (opening slowly), 2=Default", FCVAR_NOTIFY, true, 0.0, true, 2.0);
@@ -142,7 +142,6 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("mission_lost", Event_RoundEnd); //wipe out
 	HookEvent("map_transition", Event_RoundEnd); //mission complete
-	//HookEvent("player_use", OnPlayerUsePre, EventHookMode_Pre);
 	HookEvent("entity_killed", TC_ev_EntityKilled);
 	HookEvent("door_open",			Event_DoorOpen);
 	HookEvent("door_close",			Event_DoorClose);
@@ -518,178 +517,6 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 
 	return Plugin_Continue;
 }
-
-/*
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
-{
-	if( g_bValidMap && bLockdownInit && 
-		IsClientInGame(client) && GetClientTeam(client) == 2 && IsFakeClient(client) && bDoorBotDisable &&
-		buttons & IN_USE)
-	{
-		return Plugin_Handled;
-	}
-	
-	return Plugin_Continue;
-}
-*/
-/*
-Action OnPlayerUsePre(Event event, const char[] name, bool dontBroadcast)
-{
-	if (g_bValidMap == false || bRoundEnd || g_bSLSDisable)
-	{
-		return Plugin_Continue;
-	}
-	
-	int user = GetClientOfUserId(event.GetInt("userid"));
-	if (IsSurvivor(user))
-	{
-		if (!IsPlayerAlive(user))
-		{
-			return Plugin_Continue;
-		}
-		
-		if(bDoorBotDisable && IsFakeClient(user))
-		{
-			return Plugin_Continue;
-		}
-		
-		int used = event.GetInt("targetid");
-		if (IsValidEnt(used) && IsValidEntRef(g_iEndCheckpointDoor))
-		{
-			char sEntityClass[64];
-			GetEntityClassname(used, sEntityClass, sizeof(sEntityClass));
-			if (strcmp(sEntityClass, "prop_door_rotating_checkpoint") != 0 || used != EntRefToEntIndex(g_iEndCheckpointDoor))
-			{
-				return Plugin_Continue;
-			}
-
-			if(IsFakeClient(user) && bDoorBotDisable) return Plugin_Continue;
-
-			if(IsValidEntRef(g_iStartCheckpointDoor))
-			{
-				AcceptEntityInput(g_iStartCheckpointDoor, "Kill");
-				g_iStartCheckpointDoor = -1;
-			}
-
-			if(g_bIsSafeRoomOpen == true && iDoorOpenChance == 0)
-			{
-				PrintHintText(user, "[TS] %T", "No Chance", user);
-				return Plugin_Continue;
-			}
-			
-			if (iDoorStatus != UNLOCK)
-			{
-				if(iMinSurvivorPercent > 0 && !bSurvivorsAssembleAlready)
-				{
-					float clientOrigin[3];
-					float doorOrigin[3];
-					int iParam = 0, iReached = 0;
-					GetEntPropVector(used, Prop_Send, "m_vecOrigin", doorOrigin);
-					for (int i = 1; i <= MaxClients; i++)
-					{
-						if(IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
-						{
-							iParam ++;
-							GetClientAbsOrigin(i, clientOrigin);
-							if (GetVectorDistance(clientOrigin, doorOrigin, true) <= 750 * 750)
-							{
-								iReached++;
-							}
-						}
-					}
-
-					iParam = RoundToCeil(iMinSurvivorPercent / 100.0 * iParam);
-					if(iReached < iParam)
-					{
-						PrintHintText(user, "[TS] %T", "SurvivorReached", user, iReached, iParam);
-						return Plugin_Continue;
-					}
-
-					bSurvivorsAssembleAlready = true;
-				}
-
-				if(bTankDemolitionBefore && !bSpawnTank) 
-				{
-					if(g_bMapTwoTanks)
-						ExecuteSpawn(true , 2);
-					else
-						ExecuteSpawn(true , 1);
-
-					bSpawnTank = true;
-				}
-				
-				sb_unstick.SetBool(false);
-				
-				if (GetTankCount() > 0)
-				{
-					if (bLDFinished || bLockdownInit)
-					{
-						bAntiFarmInit = true;
-						return Plugin_Continue;
-					}
-					
-					
-					if (!bAntiFarmInit)
-					{
-						bAntiFarmInit = true;
-						iSystemTime = iAntiFarmDuration;
-						
-						PrintHintText(user, "[TS] %T", "Tank is still alive", user);
-						EmitSoundToAll("doors/latchlocked2.wav", used, SNDCHAN_AUTO);
-
-						GetClientAbsOrigin(user, fFirstUserOrigin);
-						GetClientName(user, sKeyMan, sizeof(sKeyMan));
-						
-						ExecuteSpawn(false, iMobs);
-						
-						if (hAntiFarmTime == null)
-						{
-							hAntiFarmTime = CreateTimer(float(iAntiFarmDuration) + 1.0, EndAntiFarm);
-						}
-						CreateTimer(1.0, CheckAntiFarm, EntIndexToEntRef(used), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-						SDKHook(used, SDKHook_Touch, OnTouch);
-					}
-				}
-				else
-				{
-					if (bAntiFarmInit)
-					{
-						return Plugin_Continue;
-					}
-					
-					if (!bLockdownInit)
-					{
-						bLockdownInit = true;
-						iSystemTime = iDuration;
-
-						GetClientAbsOrigin(user, fFirstUserOrigin);
-						GetClientName(user, sKeyMan, sizeof(sKeyMan));
-						
-						ExecuteSpawn(false, iMobs);
-						if (iType == 1)
-						{
-							ControlDoor(g_iEndCheckpointDoor, UNLOCK);
-						}
-						
-						if (hLockdownTime == null)
-						{
-							hLockdownTime = CreateTimer(float(iDuration) + 1.0, EndLockdown);
-						}
-
-						CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(used), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-						SDKHook(used, SDKHook_Touch, OnTouch);
-					}
-				}
-			}
-		}
-	}
-	
-	return Plugin_Continue;
-}
-*/
-
-
-
 
 Action CheckAntiFarm(Handle timer, any entity)
 {
