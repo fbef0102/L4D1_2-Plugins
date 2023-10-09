@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.8.6  (2009-2023)
+* Version	: 2.8.7  (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.8.7 (2023-10-9)
+*	   - Fixed the code to avoid calling L4D_SetPlayerSpawnTim native from L4D1. (This Native is only supported in L4D2.)
+
 * Version 2.8.6 (2023-9-22)
 *	   - Fixed "l4d_infectedbots_coordination" not working
 *	   - Fixed Bot Spawn timer
@@ -5003,15 +5007,18 @@ void evtInfectedWaitSpawn(Event event, const char[] name, bool dontBroadcast)
 				return;
 			}
 
-			float modifyTime = GetRandomFloat(g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max);
-			if(humaninfecteds >= 4) humaninfecteds = 4;
-			int maxinfectedslots = g_iMaxPlayerZombies;
-			if(maxinfectedslots >= 4) maxinfectedslots = 4;
-			
-			modifyTime = modifyTime * (float(humaninfecteds) / maxinfectedslots);
-			respawnDelay[client] = RoundFloat(modifyTime);
+			if(g_bL4D2Version)
+			{
+				float modifyTime = GetRandomFloat(g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max);
+				if(humaninfecteds >= 4) humaninfecteds = 4;
+				int maxinfectedslots = g_iMaxPlayerZombies;
+				if(maxinfectedslots >= 4) maxinfectedslots = 4;
+				
+				modifyTime = modifyTime * (float(humaninfecteds) / maxinfectedslots);
+				respawnDelay[client] = RoundFloat(modifyTime);
 
-			L4D_SetPlayerSpawnTime(client, float(respawnDelay[client]), true);
+				L4D_SetPlayerSpawnTime(client, float(respawnDelay[client]), true);
+			}
 		}
 	}
 }
