@@ -383,31 +383,37 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 			* Also controlled by "human infected count" and "infected team slot"，here is formula
 				```php
-				// If there are more than 4 human infected players，"human infected count" = 4
-				// If infected team slot is above 4，"infected team slot" = 4
-				Minimum spawn time: z_ghost_delay_min * (human infected count ÷ infected team slot) 
+				// In L4D2, if there are more than 4 human infected players，"human infected count" = 4
+				// In L4D2, if infected team slot is above 4，"infected team slot" = 4
+				Minimum spawn time: z_ghost_delay_min * (human infected count ÷ infected team slot)
 				Maximum spawn time: z_ghost_delay_max * (human infected count ÷ infected team slot)
 				```
 
 			* For example
 				```php
 				// human infected coun：3，infected team slot：4，z_ghost_delay_min: 30，z_ghost_delay_max: 40
-				Human infected player spawn time is: [Minimum: 30 * (3÷4) = 22.5s, Maximum: 40 * (3÷4) = 30s]
+				In L4D2, Human infected player spawn time is: [Minimum: 30 * (3÷4) = 22.5s, Maximum: 40 * (3÷4) = 30s]
+				In L4D1, Human infected player spawn time is: [Minimum: 30 * (3÷4) = 22.5s, Maximum: 40 * (3÷4) = 30s]
 
 				// human infected coun：1，infected team slot：1，z_ghost_delay_min: 3，z_ghost_delay_max: 3
-				Human infected player spawn time is: 3 * (1÷1) = 3s
+				In L4D2, Human infected player spawn time is: 3 * (1÷1) = 3s
+				In L4D1, Human infected player spawn time is: 3 * (1÷1) = 3s
 
 				// human infected coun：2，infected team slot：4，z_ghost_delay_min: 18，z_ghost_delay_max: 18
-				Human infected player spawn time is: 18 * (2÷4) = 9s
+				In L4D2, Human infected player spawn time is: 18 * (2÷4) = 9s
+				In L4D1, Human infected player spawn time is: 18 * (2÷4) = 9s
 
 				// human infected coun：3，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
-				Human infected player spawn time is: 20 * (3÷4) = 15s
+				In L4D2, Human infected player spawn time is: 20 * (3÷4) = 15s
+				In L4D1, Human infected player spawn time is: 20 * (2÷8) = 5s
 
 				// human infected coun：4，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
-				Human infected player spawn time is: 20 * (4÷4) = 20s
+				In L4D2, Human infected player spawn time is: 20 * (4÷4) = 20s
+				In L4D1, Human infected player spawn time is: 20 * (4÷8) = 10s
 
 				// human infected coun：7，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
-				Human infected player spawn time is: 20 * (4÷4) = 20s
+				In L4D2, Human infected player spawn time is: 20 * (4÷4) = 20s
+				In L4D1, Human infected player spawn time is: 20 * (7÷8) = 17.5s
 				```
 	</details>
 
@@ -601,6 +607,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.7 (2023-10-9)
+		* Fixed the code to avoid calling L4D_SetPlayerSpawnTim native from L4D1. (This Native is only supported in L4D2.)
+
 	* v2.8.6 (2023-9-22)
 		* Fixed "l4d_infectedbots_coordination" not working
 		* Fixed Bot Spawn timer
@@ -1030,8 +1039,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 			* 也依照"特感玩家數量"與"特感隊伍空位"自動做出最終調整，其公式為
 				```php
-				// 如果"特感玩家數量" 大於等於4，則以4代入計算
-				// 如果"特感隊伍空位" 大於等於4，則以4代入計算
+				// 在L4D2，如果"特感玩家數量" 大於等於4，則以4代入計算
+				// 在L4D2，如果"特感隊伍空位" 大於等於4，則以4代入計算
 				最短時間: z_ghost_delay_min * (特感玩家數量 ÷ 特感隊伍空位) 
 				最長時間: z_ghost_delay_max * (特感玩家數量 ÷ 特感隊伍空位)
 				```
@@ -1039,22 +1048,28 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			* 以下舉例
 				```php
 				// 特感玩家：3人，特感隊伍空位：4人，z_ghost_delay_min: 30，z_ghost_delay_max: 40
-				特感玩家復活時間最終為: [最短時間: 30 * (3÷4) = 22.5秒, 最長時間: 40 * (3÷4) = 30秒]
+				在L4D2，特感玩家復活時間最終為: [最短時間: 30 * (3÷4) = 22.5秒, 最長時間: 40 * (3÷4) = 30秒]
+				在L4D1，特感玩家復活時間最終為: [最短時間: 30 * (3÷4) = 22.5秒, 最長時間: 40 * (3÷4) = 30秒]
 
 				// 特感玩家：1人，特感隊伍空位：1人，z_ghost_delay_min: 3，z_ghost_delay_max: 3
-				特感玩家復活時間最終為: 3 * (1÷1) = 3秒
+				在L4D2，特感玩家復活時間最終為: 3 * (1÷1) = 3秒
+				在L4D1，特感玩家復活時間最終為: 3 * (1÷1) = 3秒
 
 				// 特感玩家：2人，特感隊伍空位：4人，z_ghost_delay_min: 18，z_ghost_delay_max: 18
-				特感玩家復活時間最終為: 18 * (2÷4) = 9秒
+				在L4D2，特感玩家復活時間最終為: 18 * (2÷4) = 9秒
+				在L4D1，特感玩家復活時間最終為: 18 * (2÷4) = 9秒
 
 				// 特感玩家：3人，特感隊伍空位：8人，z_ghost_delay_min: 20，z_ghost_delay_max: 20
-				特感玩家復活時間最終為: 20 * (3÷4) = 15秒
+				在L4D2，特感玩家復活時間最終為: 20 * (3÷4) = 15秒
+				在L4D1，特感玩家復活時間最終為: 20 * (2÷8) = 5秒
 
 				// 特感玩家：4人，特感隊伍空位：8人，z_ghost_delay_min: 20，z_ghost_delay_max: 20
-				特感玩家復活時間最終為: 20 * (4÷4) = 20秒
+				在L4D2，特感玩家復活時間最終為: 20 * (4÷4) = 20秒
+				在L4D1，特感玩家復活時間最終為: 20 * (4÷8) = 10秒
 
 				// 特感玩家：7人，特感隊伍空位：8人，z_ghost_delay_min: 20，z_ghost_delay_max: 20
-				特感玩家復活時間最終為: 20 * (4÷4) = 20秒
+				在L4D2，特感玩家復活時間最終為: 20 * (4÷4) = 20秒
+				在L4D1，特感玩家復活時間最終為: 20 * (7÷8) = 17.5秒
 				```
 	</details>
 
