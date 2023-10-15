@@ -906,7 +906,7 @@ int my_GetRandomClient()
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		if (IsClientInGame(i))
 		{
 			iClients[iClientCount++] = i;
 		}
@@ -962,6 +962,7 @@ stock void ExecuteSpawn(bool btank, int iCount)
 	}
 	else
 	{
+		L4D_ForcePanicEvent();
 		int anyclient = my_GetRandomClient();
 		if(anyclient > 0)
 		{
@@ -969,7 +970,7 @@ stock void ExecuteSpawn(bool btank, int iCount)
 			strcopy(sCommand, sizeof(sCommand), sSpawnCommand);
 			int iFlags = GetCommandFlags(sCommand);
 			SetCommandFlags(sCommand, iFlags & ~FCVAR_CHEAT);
-			for (int i = 0; i < iCount; i++)
+			for (int i = 0; i < iCount-1; i++)
 			{
 				if(g_bL4D2Version)
 				{
@@ -979,7 +980,6 @@ stock void ExecuteSpawn(bool btank, int iCount)
 				{
 					FakeClientCommand(anyclient, "z_spawn mob auto");
 				}
-				
 			}
 			SetCommandFlags(sCommand, iFlags);
 		}	
