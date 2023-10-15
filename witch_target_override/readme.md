@@ -7,28 +7,6 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
     <br/>![witch_target_override_1](image/witch_target_override_1.gif)
     <br/>![witch_target_override_2](image/witch_target_override_2.gif)
 
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-    * v1.8 (2022-11-14)
-        * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2732048&postcount=9)
-        * Witch is allowed to chase another target after she incapacitates a survivor. 
-        * Witch is allowed to chase another target after she kills a survivor. 
-        * Witch will not follow survivor if there is a wall between witch and survivor.
-        * Witch will not follow survivor if survivor standing on the higher place.
-        * Witch burns for a set amount of time and die. (z_witch_burn_time 15 seconds = default)
-        * Support L4D1
-
-    * v1.0
-        * Initial Release
-        * Thanks to BHaType, xZk, cravenge and silvers
-</details>
-
 * Require | 必要安裝
 <br/>None
 
@@ -71,6 +49,28 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 * <details><summary>Command | 命令</summary>
 
     None
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.8 (2022-11-14)
+        * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2732048&postcount=9)
+        * Witch is allowed to chase another target after she incapacitates a survivor. 
+        * Witch is allowed to chase another target after she kills a survivor. 
+        * Witch will not follow survivor if there is a wall between witch and survivor.
+        * Witch will not follow survivor if survivor standing on the higher place.
+        * Witch burns for a set amount of time and die. (z_witch_burn_time 15 seconds = default)
+        * Support L4D1
+
+    * v1.0
+        * Initial Release
+        * Thanks to BHaType, xZk, cravenge and silvers
 </details>
 
 - - - -

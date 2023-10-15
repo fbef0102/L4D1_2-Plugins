@@ -6,36 +6,8 @@ When a survivor die, on his body appear a grave.
 * Image | 圖示
 	<br/>![l4d_graves_1](image/l4d_graves_1.gif)
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//Dartz8901 @ 2018
-	//HarryPotter @ 2022-2023
-	```
-	* v1.0h (2023-7-27)
-        * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2771370&postcount=24)
-        * Remake Code
-        * Random Color
-        * Glow Range
-        * Safely remvoe grave when player changes team or leaves the game
-
-	* v1.1.1
-        * [Original Plugin by Dartz8901](https://forums.alliedmods.net/showthread.php?t=313063)
-</details>
-
 * Require | 必要安裝
 <br/>None
-
-* Related Plugin | 相關插件
-	1. [l4d_death_soul](/l4d_death_soul): Soul of the dead survivor flies away to the afterlife
-		> 人類死亡後，靈魂升天
-
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg\sourcemod\l4d_graves.cfg
@@ -66,6 +38,35 @@ When a survivor die, on his body appear a grave.
 * <details><summary>Command | 命令</summary>
 
 	None
+</details>
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_death_soul](/l4d_death_soul): Soul of the dead survivor flies away to the afterlife
+		> 人類死亡後，靈魂升天
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//Dartz8901 @ 2018
+	//HarryPotter @ 2022-2023
+	```
+	* v1.0h (2023-7-27)
+        * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2771370&postcount=24)
+        * Remake Code
+        * Random Color
+        * Glow Range
+        * Safely remvoe grave when player changes team or leaves the game
+
+	* v1.1.1
+        * [Original Plugin by Dartz8901](https://forums.alliedmods.net/showthread.php?t=313063)
 </details>
 
 - - - -

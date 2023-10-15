@@ -8,32 +8,8 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 <br/>None
 
 * Image | 圖示
-	* Vote Menu
-        > 投票介面
-	    <br/>![l4d_votes_5_1](image/l4d_votes_5_1.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-    * v6.2 (2023-5-1)
-        * Optimize code
-        
-	* v6.1 (2023-4-19)
-        * Optimize code
-
-	* v6.0 (2022-12-5)
-        * Remake Code
-        * Changes to fix warnings when compiling on SourceMod 1.11.
-        * Fix errors
-
-	* v1.0
-        * Initial Release
-</details>
+	* Vote Menu (投票介面)
+    <br/>![l4d_votes_5_1](image/l4d_votes_5_1.jpg)
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
@@ -95,7 +71,8 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
         ```
 </details>
 
-* Data Example
+* <details><summary>Data Example</summary>
+
 	* Add custom maps in data/VoteCustomCampaigns.txt
         ```php
         "VoteCustomCampaigns"
@@ -107,6 +84,30 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
             }
         }
         ```
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    * v6.2 (2023-5-1)
+        * Optimize code
+        
+	* v6.1 (2023-4-19)
+        * Optimize code
+
+	* v6.0 (2022-12-5)
+        * Remake Code
+        * Changes to fix warnings when compiling on SourceMod 1.11.
+        * Fix errors
+
+	* v1.0
+        * Initial Release
+</details>
 
 - - - -
 # 中文說明
@@ -126,7 +127,8 @@ L4D1/2 投票菜單 (換圖、踢人、重新回合、回血、全頻語音)
     * 可調整發起投票時伺服器內至少需要存在的玩家數量
     * 擁有特定權限的玩家不會被投票踢出遊戲
 
-* Data設定範例
+* <details><summary>Data設定範例</summary>
+
 	* data/VoteCustomCampaigns.txt　新增三方地圖
         ```php
         "VoteCustomCampaigns"
@@ -138,3 +140,4 @@ L4D1/2 投票菜單 (換圖、踢人、重新回合、回血、全頻語音)
             }
         }
         ```
+</details>

@@ -6,9 +6,8 @@ Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
 <br>None
 
 * Image | 圖示
-	* No survivor bots after map loading (This is bug).
-		> 修復換圖後沒有倖存者bot
-		<br/>![fix_botkick_1](image/fix_botkick_1.jpg)
+	* No survivor bots after map loading (This is bug). (修復換圖後沒有倖存者bot)
+	<br/>![fix_botkick_1](image/fix_botkick_1.jpg)
 
 * Require | 必要安裝
 <br>None
