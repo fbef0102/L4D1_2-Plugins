@@ -5,31 +5,8 @@ Kicks Clients that get stuck in server connecting state
 <br/>None
 
 * Image | 圖示
-	* Kick slowass connecting players
-        > 踢出loading太久的慢郎中
-	    <br/>![l4d_kickloadstuckers_1](image/l4d_kickloadstuckers_1.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//AtomicStryker @ 2009-2012
-	//HarryPotter @ 2022-2023
-	```
-	* v1.3 (2023-6-9)
-		* Remake code, convert code to latest syntax
-		* Fix warnings when compiling on SourceMod 1.11.
-		* Optimize code and improve performance
-		* Add cvars
-
-	* v1.0.8
-        * [Original Plugin by AtomicStryker](https://forums.alliedmods.net/showthread.php?t=103203)
-</details>
+	* Kick slowass connecting players (踢出loading太久的慢郎中)
+    <br/>![l4d_kickloadstuckers_1](image/l4d_kickloadstuckers_1.jpg)
 
 * Require | 必要安裝
 <br/>None
@@ -55,6 +32,28 @@ Kicks Clients that get stuck in server connecting state
 		```
 </details>
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//AtomicStryker @ 2009-2012
+	//HarryPotter @ 2022-2023
+	```
+	* v1.3 (2023-6-9)
+		* Remake code, convert code to latest syntax
+		* Fix warnings when compiling on SourceMod 1.11.
+		* Optimize code and improve performance
+		* Add cvars
+
+	* v1.0.8
+        * [Original Plugin by AtomicStryker](https://forums.alliedmods.net/showthread.php?t=103203)
+</details>
+
 - - - -
 # 中文說明
 踢出卡Loading連線中的玩家
@@ -68,6 +67,14 @@ Kicks Clients that get stuck in server connecting state
 	* 玩家換圖的時候崩潰，但是其steam帳號依然顯示在連線中
 	* 連線中的玩家會佔用伺服器的位子，把這些烏龜都踢掉
 
-* 功能
-	* 可調整計時時間
-	* 可設置免疫被踢的權限
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/l4d_kickloadstuckers.cfg
+        ```php
+		// 調整計時時間 (預設 150秒) 
+		l4d_kickloadstuckers_duration "150"
+
+		// 擁有這些權限的玩家，不會被踢出 (留白 = 任何人都能, -1: 無人)
+		l4d_kickloadstuckers_immune_access_flag "z"
+		```
+</details>

@@ -5,30 +5,8 @@ Display advertisements
 <br/>None
 
 * Image | 圖示
-	* Display advertisements in chat box
-        > 顯示公告
-        <br/>![advertisements_1](image/advertisements_1.jpg)
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//DJ Tsunami @ 2008-2021
-	//HarryPotter @ 2022-2023
-	```
-	* v2.2.1 (2023-4-22)
-		* Remake Code
-		* Remove updater
-		* Add multicolors to support l4d1, l4d2
-
-	* v2.1.0
-		* [Original Plugin by DJ Tsunami](https://forums.alliedmods.net/showthread.php?t=155705)
-</details>
+	* Display advertisements in chat box (顯示公告)
+    <br/>![advertisements_1](image/advertisements_1.jpg)
 
 * Require | 必要安裝
     1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
@@ -59,7 +37,8 @@ Display advertisements
 		```
 </details>
 
-* Example Config
+* <details><summary>Example Config</summary>
+
 	* configs\advertisements.txt
 		```php
 		// Types
@@ -90,6 +69,28 @@ Display advertisements
 			}
 		}
 		```
+</details>
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//DJ Tsunami @ 2008-2021
+	//HarryPotter @ 2022-2023
+	```
+	* v2.2.1 (2023-4-22)
+		* Remake Code
+		* Remove updater
+		* Add multicolors to support l4d1, l4d2
+
+	* v2.1.0
+		* [Original Plugin by DJ Tsunami](https://forums.alliedmods.net/showthread.php?t=155705)
+</details>
 
 - - - -
 # 中文說明

@@ -7,9 +7,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 * Image | 圖示
 	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
 	<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
-	* Join infected team and play in coop/survival/realism mode.
-		> 在戰役/寫實/生存模式下加入特感陣營
-		<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
+	* Join infected team and play in coop/survival/realism mode. (在戰役/寫實/生存模式下加入特感陣營)
+	<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)

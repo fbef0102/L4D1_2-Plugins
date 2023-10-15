@@ -6,15 +6,33 @@ Precaches Game Files To Prevent Crashes. + Prevents late precache of specific mo
 <br>None
 
 * Image | 圖示
-	* Try to prevent crash "UTIL_SetModel": not precached"
-        > 嘗試解決崩潰 "找不到模組"
-	    <br/>![l4d_game_files_precacher_1](image/l4d_game_files_precacher_1.jpg)
+	* Try to prevent crash "UTIL_SetModel": not precached" - 嘗試解決崩潰 "找不到模組"
+    <br/>![l4d_game_files_precacher_1](image/l4d_game_files_precacher_1.jpg)
+
+* Require | 必要安裝
+<br/>None
+
+* <details><summary>ConVar | 指令</summary>
+
+	None
+</details>
+
+* <details><summary>Command | 命令</summary>
+
+	None
+</details>
 
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [Late Model Precacher by Psyk0tik](https://forums.alliedmods.net/showthread.php?p=2776517): Catches unprecached models and tries to precache them to prevent crashes.
+    	* 在遊戲中途檢測缺失的模型並緩存載入
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -29,23 +47,6 @@ Precaches Game Files To Prevent Crashes. + Prevents late precache of specific mo
 
 	* v1.8
         * [Original Plugin by cravenge](https://forums.alliedmods.net/showthread.php?t=291408)
-</details>
-
-* Require | 必要安裝
-<br/>None
-
-* Related Plugin | 相關插件
-	1. [Late Model Precacher by Psyk0tik](https://forums.alliedmods.net/showthread.php?p=2776517): Catches unprecached models and tries to precache them to prevent crashes.
-    * 在遊戲中途檢測缺失的模型並緩存載入
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
 </details>
 
 - - - -

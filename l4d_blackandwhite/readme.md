@@ -5,37 +5,11 @@ Notify people when player is black and white.
 <br/>None
 
 * Image | 圖示
-	* display who is black and white
-	> 顯示哪個玩家黑白
+	* display who is black and white (顯示哪個玩家黑白)
 	<br/>![l4d_blackandwhite_1](image/l4d_blackandwhite_1.jpg)
-
-* Apply to | 適用於
-```
-L4D1
-L4D2
-```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-    ```php
-	//DarkNoghri @ 2009-2010
-	//Harry @ 2022
-    ```
-	* v1.7 (2022-11-03)
-        * Remake Code
-        * Rmove white glow when player is not black and white
-        * Add Glow cvars
-	
-    * v1.31
-        * [By DarkNoghri](https://forums.alliedmods.net/showthread.php?p=951787)
-</details>
 
 * Require | 必要安裝
 <br/>None
-
-* Similar Plugin | 相似插件
-	1. [LMC_Black_and_White_Notifier](https://github.com/fbef0102/L4D2-Plugins/tree/master/LMC_Black_and_White_Notifier): Notifies selected team(s) when someone is on final strike and add glow
-		> 顯示誰是黑白狀態，有更多的提示與支援LMC模組
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -59,7 +33,35 @@ L4D2
 </details>
 
 * <details><summary>Command | 命令</summary>
-	None
+	
+    None
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Similar Plugin | 相似插件</summary>
+
+	1. [LMC_Black_and_White_Notifier](https://github.com/fbef0102/L4D2-Plugins/tree/master/LMC_Black_and_White_Notifier): Notifies selected team(s) when someone is on final strike and add glow
+		> 顯示誰是黑白狀態，有更多的提示與支援LMC模組
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    ```php
+	//DarkNoghri @ 2009-2010
+	//Harry @ 2022
+    ```
+	* v1.7 (2022-11-03)
+        * Remake Code
+        * Rmove white glow when player is not black and white
+        * Add Glow cvars
+	
+    * v1.31
+        * [By DarkNoghri](https://forums.alliedmods.net/showthread.php?p=951787)
 </details>
 
 - - - -

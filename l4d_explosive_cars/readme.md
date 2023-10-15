@@ -4,44 +4,8 @@ Cars explode after they take some damage
 * [Video | 影片展示](https://youtu.be/B_-pOplOML4)
 
 * Image
-	* Cars Explosions
-		> 車子連環爆
-		<br/>![l4d_explosive_cars_1](image/l4d_explosive_cars_1.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//honorcode23 @ 2010-2011
-	//HarryPotter @ 2021-2023
-	```
-	* v2.3 (2023-6-7)
-		* Change back ```L4D_ForcePanicEvent()```
-		* Fixed non-car hittables would burn and explode
-		
-	* v2.2 (2023-5-28)
-		* Use ```z_spawn mob auto``` instead of ```L4D_ForcePanicEvent()```
-		
-	* v2.1 (2023-2-14)
-		* Support L4D1
-
-	* v2.0
-		* [AlliedModder post](https://forums.alliedmods.net/showpost.php?p=2751903&postcount=217)
-		* Remake code
-		* Replace left4downtown with left4dhooks
-		* Remove car entity after it explodes
-		* Fixed damage dealt to car
-		* Safely create entity and safely remove entity
-		* Safely explode cars between few secomds to prevent client from crash
-
-    * v1.0.4
-        * [Original Plugin by honorcode23](https://forums.alliedmods.net/showthread.php?p=1304463)
-</details>
+	* Cars Explosions (車子連環爆)
+	<br/>![l4d_explosive_cars_1](image/l4d_explosive_cars_1.jpg)
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -94,6 +58,41 @@ Cars explode after they take some damage
 * <details><summary>Command | 命令</summary>
 
 	None
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//honorcode23 @ 2010-2011
+	//HarryPotter @ 2021-2023
+	```
+	* v2.3 (2023-6-7)
+		* Change back ```L4D_ForcePanicEvent()```
+		* Fixed non-car hittables would burn and explode
+		
+	* v2.2 (2023-5-28)
+		* Use ```z_spawn mob auto``` instead of ```L4D_ForcePanicEvent()```
+		
+	* v2.1 (2023-2-14)
+		* Support L4D1
+
+	* v2.0
+		* [AlliedModder post](https://forums.alliedmods.net/showpost.php?p=2751903&postcount=217)
+		* Remake code
+		* Replace left4downtown with left4dhooks
+		* Remove car entity after it explodes
+		* Fixed damage dealt to car
+		* Safely create entity and safely remove entity
+		* Safely explode cars between few secomds to prevent client from crash
+
+    * v1.0.4
+        * [Original Plugin by honorcode23](https://forums.alliedmods.net/showthread.php?p=1304463)
 </details>
 
 - - - -

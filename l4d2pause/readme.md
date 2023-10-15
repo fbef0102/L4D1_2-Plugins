@@ -5,16 +5,41 @@ Allows admins to force the game to pause, only adm can unpause the game.
 <br/>None
 
 * Image | 圖示
-	* Admin force the game to pause
-		> 管理員強制暫停遊戲
-		<br/>![l4d2pause_1](image/l4d2pause_1.jpg)
-		<br/>![l4d2pause_2](image/l4d2pause_2.jpg)
+	* Admin force the game to pause (管理員強制暫停遊戲)
+	<br/>![l4d2pause_1](image/l4d2pause_1.jpg)
+	<br/>![l4d2pause_2](image/l4d2pause_2.jpg)
+
+* Require | 必要安裝
+	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+
+* <details><summary>ConVar | 指令</summary>
+
+	* cfg/sourcemod/l4d2pause.cfg
+		```php
+		// Only allow the game to be paused by the forcepause command(Admin only).
+		l4d2pause_forceonly "1"
+		```
+</details>
+
+* <details><summary>Command | 命令</summary>
+
+	* **Adm forces the game to pause/unpause (Adm required: ADMFLAG_ROOT)**
+		```php
+		sm_forcepause
+		```
+</details>
 
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [lfd_noTeamSay](/lfd_noTeamSay): Redirecting all 'say_team' messages to 'say'
+		> 沒有團隊聊天頻道只有公開聊天頻道
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -36,30 +61,6 @@ Allows admins to force the game to pause, only adm can unpause the game.
 
 	* v0.2.1
 		* [Original plugin by pvtschlag](https://forums.alliedmods.net/showthread.php?t=110029)
-</details>
-
-* Require | 必要安裝
-	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
-* Related Plugin | 相關插件
-	1. [lfd_noTeamSay](/lfd_noTeamSay): Redirecting all 'say_team' messages to 'say'
-		> 沒有團隊聊天頻道只有公開聊天頻道
-
-* <details><summary>ConVar | 指令</summary>
-
-	* cfg/sourcemod/l4d2pause.cfg
-		```php
-		// Only allow the game to be paused by the forcepause command(Admin only).
-		l4d2pause_forceonly "1"
-		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	* **Adm forces the game to pause/unpause (Adm required: ADMFLAG_ROOT)**
-		```php
-		sm_forcepause
-		```
 </details>
 
 - - - -

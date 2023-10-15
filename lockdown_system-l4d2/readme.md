@@ -4,71 +4,17 @@ Locks Saferoom Door Until Someone Opens It.
 * [Video | 影片展示](https://youtu.be/ayPZ-XUbBkc)
 
 * Image | 圖示
-    * End Saferoom Door Locked
-        > 終點安全門鎖住
-        <br/>![lockdown_system-l4d2_1](image/lockdown_system-l4d2_1.jpg)
-    * End Saferoom Door Opening
-        > 終點安全門正在打開
-        <br/>![lockdown_system-l4d2_2](image/lockdown_system-l4d2_2.jpg)
-    * Close Saferoom Door
-        > 關閉終點安全門
-        <br/>![lockdown_system-l4d2_3](image/lockdown_system-l4d2_3.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-    ```php
-    //cravenge @ 2016-2019
-    //HarryPotter @ 2020-2023
-    ```
-    * v5.5 (2023-6-20)
-        * Require lef4dhooks v1.33 or above
-        * Fixed bot unable to open and close normal door on the whole map.
-
-    * v5.2
-        * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2712869&postcount=54)
-        * Remake Code
-        * ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2! (Thanks to [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [ProdigySim](https://github.com/ProdigySim/DirectInfectedSpawn))
-        * Update L4D2 "The Last Stand" gamedata
-        * Translation support
-        * Workng in L4D2 "The Last Stand" Map
-        * Replace Left 4 Downtown 2 extension with Left 4 DHooks Direct
-        * Remove Convar "Lockdown_system-l4d(2)_menu".
-        * fixed plugin not working in versus.
-        * Percentage of the ALIVE survivors must assemble near the saferoom door before open. (prevent rushing players)
-        * display who open/close the door
-        * spawn a tank before door open
-        * spawn multi tanks after door open
-        * keep spawning a tank when door is opening (players will not feel boring)
-        * display a message showing who opened or closed the saferoom door. (everyone will know who spamming the door)
-        * after Safe room door is opened, set a timer to count down. Slay players who still are not inside the saferoom. (prevent cowards)
-        * when door is opening, if any common or infected spawns inside the saferoom, teleport them outside. (prevent being stuck inside the saferoom)
-        * stop AI survivor from opening and closing the door. (prevent stupid bots from spamming the door)
-        * Set the door glow color
-        * Seconds to lock door after opening and closing the saferoom door.
-        * after saferoom door is opened, how many chance can the survivors open the door. (stop noobs from playing the doors)
-        * Made compatible with the "Saferoom Lock: Scavenge" plugin version 1.2.2+ by Earendil.
-        
-    * v1.7
-        * [Original Post by cravenge](https://forums.alliedmods.net/showthread.php?t=281305)
-</details>
+    * End Saferoom Door Locked (終點安全門鎖住)
+    <br/>![lockdown_system-l4d2_1](image/lockdown_system-l4d2_1.jpg)
+    * End Saferoom Door Opening (終點安全門正在打開)
+    <br/>![lockdown_system-l4d2_2](image/lockdown_system-l4d2_2.jpg)
+    * Close Saferoom Door (關閉終點安全門)
+    <br/>![lockdown_system-l4d2_3](image/lockdown_system-l4d2_3.jpg)
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* Related | 相關插件
-    1. [l4d_rescue_vehicle_leave_timer](https://github.com/fbef0102/L4D2-Plugins/tree/master/l4d_rescue_vehicle_leave_timer): When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
-        > 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
-    2. [antisaferoomdooropen](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Survivor_%E4%BA%BA%E9%A1%9E/antisaferoomdooropen): Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
-        > 起始安全室的安全門將會鎖住直到時間結束 + 沒有安全門的關卡一旦離開安全區域會傳送回起始安全區域
-    3. [Saferoom Lock Scavenge by Earendil](https://forums.alliedmods.net/showthread.php?p=2750321): Players must complete a small scavenge event to unlock the saferoom
-        > 必須罐汽油桶才能解鎖安全門
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -158,6 +104,61 @@ Locks Saferoom Door Until Someone Opens It.
     ```
 </details>
 
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Related | 相關插件</summary>
+
+    1. [l4d_rescue_vehicle_leave_timer](https://github.com/fbef0102/L4D2-Plugins/tree/master/l4d_rescue_vehicle_leave_timer): When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him
+        > 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
+    2. [antisaferoomdooropen](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Survivor_%E4%BA%BA%E9%A1%9E/antisaferoomdooropen): Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
+        > 起始安全室的安全門將會鎖住直到時間結束 + 沒有安全門的關卡一旦離開安全區域會傳送回起始安全區域
+    3. [Saferoom Lock Scavenge by Earendil](https://forums.alliedmods.net/showthread.php?p=2750321): Players must complete a small scavenge event to unlock the saferoom
+        > 必須罐汽油桶才能解鎖安全門
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    ```php
+    //cravenge @ 2016-2019
+    //HarryPotter @ 2020-2023
+    ```
+    * v5.5 (2023-6-20)
+        * Require lef4dhooks v1.33 or above
+        * Fixed bot unable to open and close normal door on the whole map.
+
+    * v5.2
+        * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2712869&postcount=54)
+        * Remake Code
+        * ProdigySim's method for indirectly getting signatures added, created the whole code for indirectly getting signatures so the plugin can now withstand most updates to L4D2! (Thanks to [Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849) and [ProdigySim](https://github.com/ProdigySim/DirectInfectedSpawn))
+        * Update L4D2 "The Last Stand" gamedata
+        * Translation support
+        * Workng in L4D2 "The Last Stand" Map
+        * Replace Left 4 Downtown 2 extension with Left 4 DHooks Direct
+        * Remove Convar "Lockdown_system-l4d(2)_menu".
+        * fixed plugin not working in versus.
+        * Percentage of the ALIVE survivors must assemble near the saferoom door before open. (prevent rushing players)
+        * display who open/close the door
+        * spawn a tank before door open
+        * spawn multi tanks after door open
+        * keep spawning a tank when door is opening (players will not feel boring)
+        * display a message showing who opened or closed the saferoom door. (everyone will know who spamming the door)
+        * after Safe room door is opened, set a timer to count down. Slay players who still are not inside the saferoom. (prevent cowards)
+        * when door is opening, if any common or infected spawns inside the saferoom, teleport them outside. (prevent being stuck inside the saferoom)
+        * stop AI survivor from opening and closing the door. (prevent stupid bots from spamming the door)
+        * Set the door glow color
+        * Seconds to lock door after opening and closing the saferoom door.
+        * after saferoom door is opened, how many chance can the survivors open the door. (stop noobs from playing the doors)
+        * Made compatible with the "Saferoom Lock: Scavenge" plugin version 1.2.2+ by Earendil.
+        
+    * v1.7
+        * [Original Post by cravenge](https://forums.alliedmods.net/showthread.php?t=281305)
+</details>
+
 - - - -
 # 中文說明
 倖存者必須等待時間到並合力對抗屍潮與Tank才能打開終點安全門
@@ -167,8 +168,6 @@ Locks Saferoom Door Until Someone Opens It.
     * 大門打開期間會有屍潮與Tank來襲，倖存者們必須合力抵抗才能度過難關
     * 大門打開之後必須趕快進去安全室內並關上門，否則會被處死
 
-* 功能
-    * 查看下方指令中文介紹
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
     * cfg/sourcemod/lockdown_system-l4d2.cfg
