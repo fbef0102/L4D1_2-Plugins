@@ -10,47 +10,13 @@ Set client gravity after final rescue starts just for fun.
     <br/>![l4d_final_rescue_gravity_3](image/l4d_final_rescue_gravity_3.gif)
     <br/>![l4d_final_rescue_gravity_4](image/l4d_final_rescue_gravity_4.gif)
 
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-  
-	* v1.7 (2023-7-27)
-		* Fix warnings when compiling on SourceMod 1.11.
-
-	* v1.6 (2022-8-12)
-        * Add finale_start, finale_radio_start, gauntlet_finale_start events
-
-	* v1.5 (2022-2-1)
-        * fix spectator gravity issue
-
-	* v1.4 (2021-1-23)
-        * fix "PostSpawnActivate"
-
-	* v1.3 (2020-11-16)
-        * replace event "finale_escape_start" with  event "finale_vehicle_ready"
-
-	* v1.2 (2020-7-30)
-        * add convar "l4d_final_rescue_gravity_interval"
-
-	* v1.1 (2020-7-25)
-        * improve code
-
-	* v1.0 (2020-7-20)
-        * Initial release
-</details>
-
 * Require | 必要安裝
 <br/>None
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d_final_rescue_gravity.cfg
-		```php
+    * cfg\sourcemod\l4d_final_rescue_gravity.cfg
+        ```php
         // 0=Plugin off, 1=Plugin on.
         l4d_final_rescue_gravity_allow "1"
 
@@ -80,12 +46,45 @@ Set client gravity after final rescue starts just for fun.
 
         // Interval (in sec.) to set gravity for client
         l4d_final_rescue_gravity_interval "2"
-		```
+        ```
 </details>
 
 * <details><summary>Command | 命令</summary>
 
-	None
+    None
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.7 (2023-7-27)
+        * Fix warnings when compiling on SourceMod 1.11.
+
+    * v1.6 (2022-8-12)
+        * Add finale_start, finale_radio_start, gauntlet_finale_start events
+
+    * v1.5 (2022-2-1)
+        * fix spectator gravity issue
+
+    * v1.4 (2021-1-23)
+        * fix "PostSpawnActivate"
+
+    * v1.3 (2020-11-16)
+        * replace event "finale_escape_start" with  event "finale_vehicle_ready"
+
+    * v1.2 (2020-7-30)
+        * add convar "l4d_final_rescue_gravity_interval"
+
+    * v1.1 (2020-7-25)
+        * improve code
+
+    * v1.0 (2020-7-20)
+        * Initial release
 </details>
 
 - - - -
@@ -99,13 +98,10 @@ Set client gravity after final rescue starts just for fun.
 * 用在意哪?
     * 好玩而創造的
 
-* 功能
-    * 見下方"指令中文介紹"
-
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\l4d_final_rescue_gravity.cfg
-		```php
+    * cfg\sourcemod\l4d_final_rescue_gravity.cfg
+        ```php
         // 0=關閉插件, 1=啟動插件.
         l4d_final_rescue_gravity_allow "1"
 
@@ -135,7 +131,7 @@ Set client gravity after final rescue starts just for fun.
 
         // 每兩秒檢查玩家的重力值狀態
         l4d_final_rescue_gravity_interval "2"
-		```
+        ```
 </details>
 
 

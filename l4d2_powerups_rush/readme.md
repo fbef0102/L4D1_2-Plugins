@@ -4,48 +4,10 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
 * [Video | 影片展示](https://youtu.be/nllanhfXYjY)
 
 * Image | 圖示
-    * Reload faster, increase firing rates
-        > 裝彈快、射速快
-        <br/>![l4d2_powerups_rush_1](image/l4d2_powerups_rush_1.gif)
-    * Melee swings faster
-        > 砍速快
-        <br/>![l4d2_powerups_rush_2](image/l4d2_powerups_rush_2.gif)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-    ```php
-    //Dusty1029 @ 2010
-    //HarryPotter @ 2021-2023
-    ```
-    * v1.0h (2023-7-5)
-        * Add translation
-
-    * v2.2.1
-        * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2748223&postcount=15)
-        * Remke code
-        * Fixed error
-        * Fixed Memory leak
-        * Powerup returning to normal when player changes team or dies
-        * Adrenaline makes you react faster to knockdowns and staggers (Combine with [[L4D2]Adrenaline_Recovery by Lux](https://forums.alliedmods.net/showthread.php?p=2606439))
-        * Message display type (chat or hint box or center text)
-        * (L4D2) Set adrenaline effect time longer then default 15s
-
-    * v2.0.1
-        * [Original plugin from Dusty1029](https://forums.alliedmods.net/showthread.php?t=127513)
-</details>
+    * Reload faster, increase firing rates (裝彈快、射速快)
+     <br/>![l4d2_powerups_rush_1](image/l4d2_powerups_rush_1.gif)
+    * Melee swings faster (砍速快)
+    <br/>![l4d2_powerups_rush_2](image/l4d2_powerups_rush_2.gif)
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -115,6 +77,44 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
         ```php
         sm_giverandom
         ```
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	```
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+    ```php
+    //Dusty1029 @ 2010
+    //HarryPotter @ 2021-2023
+    ```
+    * v1.0h (2023-7-5)
+        * Add translation
+
+    * v2.2.1
+        * [AlliedModder Post](https://forums.alliedmods.net/showpost.php?p=2748223&postcount=15)
+        * Remke code
+        * Fixed error
+        * Fixed Memory leak
+        * Powerup returning to normal when player changes team or dies
+        * Adrenaline makes you react faster to knockdowns and staggers (Combine with [[L4D2]Adrenaline_Recovery by Lux](https://forums.alliedmods.net/showthread.php?p=2606439))
+        * Message display type (chat or hint box or center text)
+        * (L4D2) Set adrenaline effect time longer then default 15s
+
+    * v2.0.1
+        * [Original plugin from Dusty1029](https://forums.alliedmods.net/showthread.php?t=127513)
 </details>
 
 - - - -

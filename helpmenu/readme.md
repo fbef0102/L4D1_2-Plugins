@@ -8,46 +8,12 @@ In-game Help Menu (Support Translation)
 	* Help menu
 	<br/>![helpmenu_1](image/helpmenu_1.jpg)
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	```
-
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//chundo @ 2008
-	//Harry @ 2020 - 2022
-	```
-	* v0.8 (2022-11-29)
-		* Convert All codes to new syntax.
-		* Translation support.
-		* Add more convars
-		* Add more commands
-		* Support readyup plugin
-	* v0.3 
-		* [Original Plugin By chundo](https://forums.alliedmods.net/showthread.php?p=637467)
-</details>
-
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	2. Optional - [[INC] readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/left4dead2/scripting/include/readyup.inc)
 
-* Optional | 輔助插件
-	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready Plugin
-		> 準備插件
+* <details><summary>Data & Translation Example</summary>
 
-* Data & Translation Example
 	* configs/helpmenu.cfg
 		```php
 		"Help"
@@ -76,6 +42,7 @@ In-game Help Menu (Support Translation)
 			...
 		}
 		```
+
 	* translations/helpmenu.phrases.txt
 		```php
 		"Phrases"
@@ -102,6 +69,7 @@ In-game Help Menu (Support Translation)
 			}
 		}
 		```
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -159,6 +127,44 @@ In-game Help Menu (Support Translation)
 		```
 </details>
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	Russian
+	```
+</details>
+
+* <details><summary>Optional | 輔助插件</summary>
+
+	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready Plugin
+		> 準備插件
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//chundo @ 2008
+	//Harry @ 2020 - 2022
+	```
+	* v0.8 (2022-11-29)
+		* Convert All codes to new syntax.
+		* Translation support.
+		* Add more convars
+		* Add more commands
+		* Support readyup plugin
+	* v0.3 
+		* [Original Plugin By chundo](https://forums.alliedmods.net/showthread.php?p=637467)
+</details>
+
 - - - -
 # 中文說明
 輸入!helpmenu顯示菜單，用來幫助玩家瞭解你的伺服器內容
@@ -176,7 +182,8 @@ In-game Help Menu (Support Translation)
 	2. 顯示steam群組
 	3. 顯示可使用的指令列表
 
-* 文件設定 範例
+* <details><summary>文件設定 範例</summary>
+
 	* 菜單配置: configs/helpmenu.cfg
 		```php
 		"Help"
@@ -205,6 +212,7 @@ In-game Help Menu (Support Translation)
 			....
 		}
 		```
+
 	* 翻譯文件: translations/helpmenu.phrases.txt
 		```php
 		"Phrases"
@@ -231,3 +239,4 @@ In-game Help Menu (Support Translation)
 			}
 		}
 		```
+</details>

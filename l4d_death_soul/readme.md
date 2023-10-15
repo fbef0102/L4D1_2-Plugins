@@ -6,32 +6,8 @@ Soul of the dead survivor flies away to the afterlife
 * Image | 圖示
 	<br/>![l4d_death_soul_1](image/l4d_death_soul_1.gif)
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	```php
-	//Dragokas @ 2019-2021
-	//HarryPotter @ 2022-2023
-	```
-	* v1.0h (2023-7-27)
-        * Remove soul when player changes team.
-		* Remove CPR
-
-	* v1.6
-        * [Original Plugin by Dragokas](https://forums.alliedmods.net/showthread.php?t=319273)
-</details>
-
 * Require | 必要安裝
 <br/>None
-
-* Related Plugin | 相關插件
-	1. [l4d_graves](/l4d_graves): When a survivor die, on his body appear a grave.
-		> 為人類屍體造一個墓碑以做紀念
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -45,6 +21,32 @@ Soul of the dead survivor flies away to the afterlife
 * <details><summary>Command | 命令</summary>
 
 	None
+</details>
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_graves](/l4d_graves): When a survivor die, on his body appear a grave.
+		> 為人類屍體造一個墓碑以做紀念
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	```php
+	//Dragokas @ 2019-2021
+	//HarryPotter @ 2022-2023
+	```
+	* v1.0h (2023-7-27)
+        * Remove soul when player changes team.
+		* Remove CPR
+
+	* v1.6
+        * [Original Plugin by Dragokas](https://forums.alliedmods.net/showthread.php?t=319273)
 </details>
 
 - - - -

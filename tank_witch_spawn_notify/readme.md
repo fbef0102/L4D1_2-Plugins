@@ -5,29 +5,7 @@ When the tank and witch spawns, it announces itself in chat by making a sound
 <br/>None
 
 * Image | 圖示
-	* Announce
-		> 提示
-		<br/>![tank_witch_spawn_notify_1](image/tank_witch_spawn_notify_1.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* Translation Support | 支援翻譯
-	```
-	English
-	繁體中文
-	简体中文
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	* 1.0
-		* Request by Yabi
-		* Initial Release
-</details>
+	<br/>![tank_witch_spawn_notify_1](image/tank_witch_spawn_notify_1.jpg)
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
@@ -53,6 +31,28 @@ When the tank and witch spawns, it announces itself in chat by making a sound
 * <details><summary>Command | 命令</summary>
 
 	None
+</details>
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
+* <details><summary>Translation Support | 支援翻譯</summary>
+
+	```
+	English
+	繁體中文
+	简体中文
+	```
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	* 1.0
+		* Request by Yabi
+		* Initial Release
 </details>
 
 - - - -

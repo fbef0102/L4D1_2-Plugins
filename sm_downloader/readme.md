@@ -6,9 +6,8 @@ SM File/Folder Downloader and Precacher
 <br/>None
 
 * Image | 圖示
-	* client connecting server and downloading custom files
-		> 玩家連線伺服器時下載自製的檔案
-		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
+	* client connecting server and downloading custom files (玩家連線伺服器時下載自製的檔案)
+	<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 
 * Require | 必要安裝
 <br/>None

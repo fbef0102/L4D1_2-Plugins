@@ -6,10 +6,9 @@ Allows additional survivor players in server when 5+ player joins the server
 <br>None
 
 * Image | 圖示
-	* 8+ Survivors join server to play
-		> 生成5位以上的倖存者大亂鬥
-		<br/>![l4dmultislots_1](image/l4dmultislots_1.jpg)
-		<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
+	* 8+ Survivors join server to play (生成5位以上的倖存者大亂鬥)
+	<br/>![l4dmultislots_1](image/l4dmultislots_1.jpg)
+	<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
 
 * Require
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit

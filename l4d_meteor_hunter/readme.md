@@ -5,38 +5,13 @@ Hunter high pounces cause meteor strike
 <br/>None
 
 * Image | 圖示
-	* Meteor strike, inflict extra damage and send nearby survivors flying.
-		> 高撲的核彈衝擊波
-		<br/>![l4d_meteor_hunter_1](image/l4d_meteor_hunter_1.gif)
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	* v1.5 (2023-3-24)
-		* Remake code, convert code to latest syntax
-		* Fix warnings when compiling on SourceMod 1.11.
-		* Optimize code and improve performance
-        * Replace Gamedata with left4dhooks
-		* Add Convars
-
-	* v1.5
-		* [Original Plugin by rekcah](https://forums.alliedmods.net/showthread.php?p=2712447)
-</details>
+	* Meteor strike, inflict extra damage and send nearby survivors flying. (高撲的核彈衝擊波)
+	<br/>![l4d_meteor_hunter_1](image/l4d_meteor_hunter_1.gif)
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* Related Plugin | 相關插件
-	1. [pounceannounce](/pounceannounce): Announces hunter pounces to the entire server
-		> 顯示Hunter造成的高撲傷害與高撲距離
-	2. [l4d_hunter_destructive](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Hunter_Hunter/l4d_hunter_destructive): Allows for unique Hunter abilities to the destructive beast.
-		> 增強Hunter，賦予多種超能力成為毀滅性的野獸
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -74,6 +49,33 @@ Hunter high pounces cause meteor strike
 * <details><summary>Command | 命令</summary>
 
 	None
+</details>
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [pounceannounce](/pounceannounce): Announces hunter pounces to the entire server
+		> 顯示Hunter造成的高撲傷害與高撲距離
+	2. [l4d_hunter_destructive](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Hunter_Hunter/l4d_hunter_destructive): Allows for unique Hunter abilities to the destructive beast.
+		> 增強Hunter，賦予多種超能力成為毀滅性的野獸
+</details>
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.5 (2023-3-24)
+		* Remake code, convert code to latest syntax
+		* Fix warnings when compiling on SourceMod 1.11.
+		* Optimize code and improve performance
+        * Replace Gamedata with left4dhooks
+		* Add Convars
+
+	* v1.5
+		* [Original Plugin by rekcah](https://forums.alliedmods.net/showthread.php?p=2712447)
 </details>
 
 - - - -
