@@ -3,7 +3,7 @@ Download and play custom music in game
 
 * [Video | 影片展示](https://youtu.be/PqnBI-G-kOk)
 
-* Image | 圖示
+* Image
 	<br/>![l4d_MusicMapStart_1](image/l4d_MusicMapStart_1.jpg)
 	<br/>![l4d_MusicMapStart_2](image/l4d_MusicMapStart_2.jpg)
 
@@ -134,13 +134,15 @@ Download and play custom music in game
 	L4D2
 	```
 
-* Translation Support | 支援翻譯
+* <details><summary>Translation Support | 支援翻譯</summary>
+
 	```
 	English
 	繁體中文
 	简体中文
 	Russian
 	```
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -161,6 +163,10 @@ Download and play custom music in game
 - - - -
 # 中文說明
 回合開始播放音樂，使用!music點歌系統，可播放自製的音樂
+
+* Image | 圖示
+	<br/>![l4d_MusicMapStart_1](image/zho/l4d_MusicMapStart_1.jpg)
+	<br/>![l4d_MusicMapStart_2](image/zho/l4d_MusicMapStart_2.jpg)
 
 * 原理
     * 播放MP3歌曲，可以播放自製的音樂
