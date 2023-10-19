@@ -568,7 +568,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	</details>
 
 * Known Issue
-	* In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed. Install [l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+	1. In coop/realism mode, the infected/spectator players' screen would be stuck and frozen when they are watching survivor deathfall or final rescue mission failed
+		> Install [l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam) to fix camera stuck
+	2. In coop/realism mode, the infected player plays as second tank on final chapter, the rescue vehicle show up immediately
+		> Install [l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
 
 * Apply to | 適用於
 	```
@@ -1242,4 +1245,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	</details>
 
 * 已知問題
-	* 在戰役/寫實/生存下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候，如果要修正請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+	1. 在戰役/寫實下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候
+		> 如果要修正請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+	2. 在戰役/寫實下，特感玩家扮演第二隻救援Tank時，救援載具會直接來臨
+		> 如果要修正請安裝[l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
