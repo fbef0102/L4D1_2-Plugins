@@ -171,8 +171,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境
-* SourceMod is licensed under the GNU General Public License, version 3.
-    * 此專案內所有開源碼皆在授權條款下: GNU General Public License, version 3
+* SourceMod is licensed under the [GNU General Public License, version 3](https://svn.alliedmods.net/viewvc.cgi/trunk/public/licenses/LICENSE.txt?revision=2255&root=sourcemod).
+    * 此專案內所有開源碼皆在授權條款下: [GNU General Public License, version 3](https://svn.alliedmods.net/viewvc.cgi/trunk/public/licenses/LICENSE.txt?revision=2255&root=sourcemod)
 # Others
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>: L4D2 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
 * <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
