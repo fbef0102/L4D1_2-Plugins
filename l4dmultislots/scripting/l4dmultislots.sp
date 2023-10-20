@@ -14,7 +14,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"6.0"
+#define PLUGIN_VERSION 				"6.1-2023/10/20"
 
 public Plugin myinfo = 
 {
@@ -230,7 +230,7 @@ public void OnPluginStart()
 	HookEvent("finale_radio_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 	if(g_bLeft4Dead2) HookEvent("gauntlet_finale_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre); //換圖不會觸發該事件
-	HookEvent("finale_vehicle_leaving", Event_MapTransition); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("finale_vehicle_leaving", finale_vehicle_leaving); //救援載具離開之時  (沒有觸發round_end)
 	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
 	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_KICK, "Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over)");
@@ -657,9 +657,22 @@ void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_Event_MapTransition(Handle timer)
 {
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsClientInGame(client) && !IsFakeClient(client))
+		{
+			if(GetClientTeam(client) == 2) g_iSurvivorTransition++;
+		}
+	}
+
 	SaveObservers();
 
 	return Plugin_Continue;
+}
+
+void finale_vehicle_leaving(Event event, const char[] name, bool dontBroadcast)
+{
+	SaveObservers();
 }
 
 Action JoinTeam_ColdDown(Handle timer, int userid)
@@ -1823,8 +1836,7 @@ void SaveObservers()
 	{
 		if (IsClientInGame(client) && !IsFakeClient(client))
 		{
-			if(GetClientTeam(client) == 2) g_iSurvivorTransition++;
-			else if(GetClientTeam(client) == 1 && !IsClientIdle(client))
+			if(GetClientTeam(client) == 1 && !IsClientIdle(client))
 			{
 				g_bIsObserver[client] = true;
 			}
