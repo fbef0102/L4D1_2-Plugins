@@ -187,6 +187,9 @@ Allows additional survivor players in server when 5+ player joins the server
 	//mi123645 @ 2009-2010
 	//HarryPotter @ 2020-2023
 	```
+	* v6.1 (2023-10-20)
+		* Fix multi kits bug in coop/realism mode
+
 	* v6.0 (2023-9-1)
 		* Fix message spam when survivor limit reached
 
