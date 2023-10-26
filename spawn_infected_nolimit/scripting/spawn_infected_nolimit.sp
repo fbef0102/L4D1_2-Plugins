@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.2.4"
+#define PLUGIN_VERSION "1.0h-2023/10/27"
 #define PLUGIN_URL ""
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
@@ -102,19 +102,20 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead and Left 4 Dead 2.");
 		return APLRes_SilentFailure;
 	}
+
 	CreateNative("NoLimit_CreateInfected", Native_CreateInfected);
+	RegPluginLibrary("spawn_infected_nolimit");
 	return APLRes_Success;
 }
 
 /**
 * @brief 			   Spawn special infected without the director limits!
 *
-* @param zomb          S.I. Name: "tank", "witch", "smoker", "hunter", "boomer"," jockey", "charger", "spitter" 
+* @param zomb          S.I. Name: "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch", "witch_bride"
 * @param vecPos        Vector coordinate where the special will be spawned
 * @param vecAng         QAngle where special will be facing
 *
 * @return              client index of the spawned special infected, -1 if fail to spawn
-* native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3]);
 */
 int Native_CreateInfected(Handle plugin, int numParams)
 {
