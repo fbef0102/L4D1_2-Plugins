@@ -7,31 +7,12 @@ Spawn special infected without the director limits!
 * Image | 圖示
 <br/>None
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
-* <details><summary>Changelog | 版本日誌</summary>
-
-	* v1.2.4 (2023-5-10)
-		* Update API
-
-	* v1.2.3 (2023-3-12)
-		* Create Native API
-
-	* v1.2.2
-		* [Original Plugin by Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849)
-</details>
-
 * Require | 必要安裝
 <br/>None
 
 * Related Plugin | 相關插件
 	1. [l4d_together](https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_together): A simple anti - runner system , punish the runner by spawn SI behind her.
 		> 離隊伍太遠的玩家，特感代替月亮懲罰你
-
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -57,7 +38,7 @@ Spawn special infected without the director limits!
 	/**
 	* @brief 			   Spawn special infected without the director limits!
 	*
-	* @param zomb          S.I. Name: "tank", "witch", "smoker", "hunter", "boomer"," jockey", "charger", "spitter" 
+	* @param zomb          S.I. Name: "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch", "witch_bride"
 	* @param vecPos        Vector coordinate where the special will be spawned
 	* @param vecAng         QAngle where special will be facing
 	*
@@ -65,6 +46,27 @@ Spawn special infected without the director limits!
 	*/
 	native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3]);
 	```
+</details>
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
+* <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.0h (2023-10-27)
+		* Add inc file
+
+	* v1.2.4 (2023-5-10)
+		* Update API
+
+	* v1.2.3 (2023-3-12)
+		* Create Native API
+
+	* v1.2.2
+		* [Original Plugin by Shadowysn](https://forums.alliedmods.net/showthread.php?t=320849)
 </details>
 
 - - - -
