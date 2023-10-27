@@ -1,59 +1,15 @@
-#define PLUGIN_NAME "[L4D1/2] Weapon Drop"
-#define PLUGIN_AUTHOR "Machine, dcx2, Electr000999 /z, Senip, Shao, HarryPotter, NoroHime"
-#define PLUGIN_DESC "Allows players to drop the weapon they are holding"
-#define PLUGIN_VERSION "1.10"
-#define PLUGIN_URL "https://forums.alliedmods.net/showthread.php?t=123098"
-#define PLUGIN_NAME_SHORT "Weapon Drop"
-#define PLUGIN_NAME_TECH "drop"
+#pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 
-#pragma semicolon 1
-#pragma newdecls required
-
-#define AUTOEXEC_CFG "l4d_drop"
-
-static bool g_isSequel;
-
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
-{
-	if (GetEngineVersion() == Engine_Left4Dead)
-	{
-		g_isSequel = false;
-		return APLRes_Success;
-	}
-	else if (GetEngineVersion() == Engine_Left4Dead2)
-	{
-		g_isSequel = true;
-		return APLRes_Success;
-	}
-	strcopy(error, err_max, "Plugin only supports Left 4 Dead and Left 4 Dead 2.");
-	return APLRes_SilentFailure;
-}
-
-ConVar BlockSecondaryDrop;
-ConVar BlockM60Drop;
-ConVar BlockDropMidAction;
-bool g_bBlockSecondaryDrop;
-bool g_bBlockM60Drop;
-int g_iBlockDropMidAction;
-
-GlobalForward OnWeaponDrop;
-
-
-/**
- * @brief Called whenever weapon prepared to drop by plugin l4d_drop
- *
- * @param client		player index to be drop weapon
- * @param weapon		weapon index to be drop
- *
- * @return				Plugin_Continue to continuing dropping,
- * 						Plugin_Changed to change weapon target, otherwise to prevent weapon dropping.
- */
-
-// forward Action OnWeaponDrop(int client, int &weapon);
+#define PLUGIN_NAME "[L4D1/2] Weapon Drop"
+#define PLUGIN_AUTHOR "Machine, dcx2, Electr000999 /z, Senip, Shao, NoroHime, HarryPotter"
+#define PLUGIN_DESC "Allows players to drop the weapon they are holding"
+#define PLUGIN_VERSION "1.11-2023/10/28"
+#define PLUGIN_URL "https://steamcommunity.com/profiles/76561198026784913/"
 
 public Plugin myinfo =
 {
@@ -64,55 +20,88 @@ public Plugin myinfo =
 	url = PLUGIN_URL
 }
 
+GlobalForward OnWeaponDrop; // Called whenever weapon prepared to drop by plugin l4d_drop
+
+bool g_bL4D2Version;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	if (GetEngineVersion() == Engine_Left4Dead)
+	{
+		g_bL4D2Version = false;
+	}
+	else if (GetEngineVersion() == Engine_Left4Dead2)
+	{
+		g_bL4D2Version = true;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead and Left 4 Dead 2.");
+		return APLRes_SilentFailure;
+	}
+
+	OnWeaponDrop = CreateGlobalForward("OnWeaponDrop", ET_Event, Param_Cell, Param_CellByRef);
+	RegPluginLibrary("l4d_drop");
+	
+	return APLRes_Success;
+}
+
+ConVar BlockSecondaryDrop;
+ConVar BlockM60Drop;
+ConVar BlockDropMidAction;
+bool g_bBlockSecondaryDrop;
+bool g_bBlockM60Drop;
+int g_iBlockDropMidAction;
+
 public void OnPluginStart()
 {
-	RegConsoleCmd("sm_drop", Command_Drop);
-	RegConsoleCmd("sm_g", Command_Drop);
+	LoadTranslations("common.phrases");
 	
-	static char desc_str[64];
-	Format(desc_str, sizeof(desc_str), "%s version.", PLUGIN_NAME_SHORT);
-	static char cmd_str[64];
-	Format(cmd_str, sizeof(cmd_str), "sm_%s_version", PLUGIN_NAME_TECH);
-	ConVar version_cvar = CreateConVar(cmd_str, PLUGIN_VERSION, desc_str, FCVAR_NOTIFY|FCVAR_REPLICATED|FCVAR_DONTRECORD);
-	if (version_cvar != null)
-		SetConVarString(version_cvar, PLUGIN_VERSION);
-	
-	Format(cmd_str, sizeof(cmd_str), "sm_%s_block_secondary", PLUGIN_NAME_TECH);
-	BlockSecondaryDrop = CreateConVar(cmd_str, "0", "Prevent players from dropping their secondaries? (Fixes bugs that can come with incapped weapons or A-Posing.)", FCVAR_NONE, true, 0.0, true, 1.0);
-	Format(cmd_str, sizeof(cmd_str), "sm_%s_block_mid_action", PLUGIN_NAME_TECH);
-	BlockDropMidAction = CreateConVar(cmd_str, "1", "Prevent players from dropping objects in between actions? (Fixes throwable cloning.) 1 = All weapons. 2 = Only throwables.", FCVAR_NONE, true, 0.0, true, 2.0);
-	
+	BlockSecondaryDrop = CreateConVar("sm_drop_block_secondary", "0", "Prevent players from dropping their secondaries? (Fixes bugs that can come with incapped weapons or A-Posing.)", FCVAR_NONE, true, 0.0, true, 1.0);
+	BlockDropMidAction = CreateConVar("sm_drop_block_mid_action", "1", "Prevent players from dropping objects in between actions? (Fixes throwable cloning.) 1 = All weapons. 2 = Only throwables.", FCVAR_NONE, true, 0.0, true, 2.0);
+	if (g_bL4D2Version)
+	{
+		BlockM60Drop = CreateConVar("sm_drop_block_m60", "0", "Prevent players from dropping the M60? (Allows for better compatibility with certain plugins.)", FCVAR_NONE, true, 0.0, true, 1.0);
+	}
+	CreateConVar("sm_drop_version", PLUGIN_VERSION, "Weapon Drop version.", FCVAR_NOTIFY|FCVAR_REPLICATED|FCVAR_DONTRECORD);
+
+	GetCvars();
 	BlockSecondaryDrop.AddChangeHook(ConVarChanged_Cvars);
 	BlockDropMidAction.AddChangeHook(ConVarChanged_Cvars);
-	
-	if (g_isSequel)
+	if (g_bL4D2Version)
 	{
-		Format(cmd_str, sizeof(cmd_str), "sm_%s_block_m60", PLUGIN_NAME_TECH);
-		BlockM60Drop = CreateConVar(cmd_str, "0", "Prevent players from dropping the M60? (Allows for better compatibility with certain plugins.)", FCVAR_NONE, true, 0.0, true, 1.0);
-		
 		BlockM60Drop.AddChangeHook(ConVarChanged_Cvars);
 	}
 	
-	AutoExecConfig(true, AUTOEXEC_CFG);
+	AutoExecConfig(true, "l4d_drop");
 	GetCvars();
-	
-	LoadTranslations("common.phrases");
 
-	OnWeaponDrop = CreateGlobalForward("OnWeaponDrop", ET_Event, Param_Cell, Param_CellByRef);
+	RegConsoleCmd("sm_drop", Command_Drop);
+	RegConsoleCmd("sm_g", Command_Drop);
 }
 
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
-{ GetCvars(); }
+{ 
+	GetCvars(); 
+}
 
 void GetCvars()
 {
 	g_bBlockSecondaryDrop = BlockSecondaryDrop.BoolValue;
-	if (g_isSequel) { g_bBlockM60Drop = BlockM60Drop.BoolValue; }
 	g_iBlockDropMidAction = BlockDropMidAction.IntValue;
+	if (g_bL4D2Version) 
+	{ 
+		g_bBlockM60Drop = BlockM60Drop.BoolValue; 
+	}
 }
 
 Action Command_Drop(int client, int args)
 {
+	if (client == 0)
+	{
+		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
+	}
+
 	if (args > 2)
 	{
 		if (GetAdminFlag(GetUserAdmin(client), Admin_Root))
@@ -134,7 +123,7 @@ Action Command_Drop(int client, int args)
 			static char target_name[MAX_TARGET_LENGTH]; target_name[0] = '\0';
 			int target_list[MAXPLAYERS], target_count; 
 			bool tn_is_ml;
-	
+
 			if ((target_count = ProcessTargetString(
 				target,
 				client,
@@ -159,6 +148,7 @@ Action Command_Drop(int client, int args)
 			}
 		}
 	}
+
 	return Plugin_Handled;
 }
 
@@ -199,14 +189,15 @@ int DropBlocker(int client, int weapon)
 	
 	// Secondary check
 	if (g_bBlockSecondaryDrop && wep_Secondary == weapon) return false;
-	
-	static char classname[32];
-	GetEntityClassname(weapon, classname, sizeof(classname));
 
 	// M60 check
-	if(g_isSequel && g_bBlockM60Drop && StrEqual(classname, "weapon_rifle_m60", false))
+	if(g_bL4D2Version)
 	{
-		return false;
+		static char classname[32];
+		GetEntityClassname(weapon, classname, sizeof(classname));
+		
+		if(g_bBlockM60Drop && StrEqual(classname, "weapon_rifle_m60", false))
+			return false;
 	}
 
 	
@@ -215,11 +206,14 @@ int DropBlocker(int client, int weapon)
 
 void DropWeapon(int client, int weapon)
 {
-	if ((g_iBlockDropMidAction == 1 ||
-	(g_iBlockDropMidAction > 1 && GetPlayerWeaponSlot(client, 2) == weapon)) && 
+	if ( ( g_iBlockDropMidAction == 1 || ( g_iBlockDropMidAction == 2 && GetPlayerWeaponSlot(client, 2) == weapon ) ) && 
 	GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon && 
 	GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= GetGameTime()) return;
 	// slot 2 is throwable
+
+	int owner = GetEntPropEnt(weapon, Prop_Data, "m_hOwner");
+	//PrintToChatAll("owner: %d, client: %d", owner, client);
+	if(owner != client) return;
 
 	Action actResult = Plugin_Continue;
 	Call_StartForward(OnWeaponDrop);
@@ -227,9 +221,13 @@ void DropWeapon(int client, int weapon)
 	Call_PushCellRef(weapon);
 	Call_Finish(actResult);
 	switch (actResult) {
-		case Plugin_Continue, Plugin_Changed :
+		case Plugin_Continue :
 		{
 			//nothing
+		}
+		case Plugin_Changed:
+		{
+			if(!RealValidEntity(weapon)) return;
 		}
 		default:
 		{
@@ -277,11 +275,12 @@ void DropWeapon(int client, int weapon)
 	}
 	
 	int ammo = GetPlayerReserveAmmo(client, weapon);
+
 	SDKHooks_DropWeapon(client, weapon);
 	SetPlayerReserveAmmo(client, weapon, 0);
 	SetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo", ammo);
 	
-	if (!g_isSequel) return;
+	if (!g_bL4D2Version) return;
 	
 	if (strcmp(classname, "weapon_defibrillator") == 0)
 	{
@@ -312,7 +311,9 @@ int GetPlayerReserveAmmo(int client, int weapon)
 }
 
 bool IsSurvivor(int client)
-{ return (GetClientTeam(client) == 2 || GetClientTeam(client) == 4); }
+{ 
+	return (GetClientTeam(client) == 2 || GetClientTeam(client) == 4); 
+}
 
 bool IsValidClient(int client, bool replaycheck = true)
 {
@@ -328,7 +329,9 @@ bool IsValidClient(int client, bool replaycheck = true)
 }
 
 bool RealValidEntity(int entity)
-{ return (entity > 0 && IsValidEntity(entity)); }
+{ 
+	return (entity > MaxClients && IsValidEntity(entity)); 
+}
 
 bool IsplayerIncap(int client)
 {
@@ -342,7 +345,7 @@ int GetInfectedAttacker(int client)
 {
 	int attacker;
 
-	if(g_isSequel)
+	if(g_bL4D2Version)
 	{
 		/* Charger */
 		attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
