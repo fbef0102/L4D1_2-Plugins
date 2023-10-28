@@ -1350,6 +1350,8 @@ void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
 	hCreateTank = PrepCreateBotCallFromAddress(hInfectedFuncs, "Tank");
 	if (hCreateTank == null)
 	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateTank); return; }
+
+	delete hInfectedFuncs;
 }
 
 void PrepCreateTankBotCalls() {

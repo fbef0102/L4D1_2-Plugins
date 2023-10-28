@@ -898,6 +898,8 @@ void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
 	hCreateCharger = PrepCreateBotCallFromAddress(hInfectedFuncs, "Charger");
 	if (hCreateCharger == null)
 	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateCharger); return; }
+
+	delete hInfectedFuncs;
 }
 
 void PrepL4D2CreateBotCalls() {
