@@ -117,6 +117,7 @@ public void OnPluginStart()
 			if ( IsClientInGame(i) )
 			{
 				OnClientPutInServer(i);
+				OnClientCookiesCached(i);
 			}
 		}
 	}
@@ -179,8 +180,9 @@ public void OnMapStart()
 
 public void OnClientPutInServer(int client)
 {
-	OnClientCookiesCached(client);
-	CreateTimer(5.0, Timer_WelcomeMessage, GetClientUserId(client));
+	if(IsFakeClient(client)) return;
+
+	CreateTimer(5.0, Timer_WelcomeMessage, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_WelcomeMessage(Handle timer, int userid) {
@@ -206,10 +208,10 @@ public Action Timer_WelcomeMessage(Handle timer, int userid) {
 
 bool ParseConfigFile(const char[] file) {
 	int msize = g_helpMenus.Length;
-	if(msize > 0)
+	HelpMenu hmenu;
+	for(int i = 0; i < msize; i++)
 	{
-		HelpMenu hmenu;
-		g_helpMenus.GetArray(msize-1, hmenu);
+		g_helpMenus.GetArray(i, hmenu);
 		delete hmenu.items;
 	}
 	g_helpMenus.Clear();

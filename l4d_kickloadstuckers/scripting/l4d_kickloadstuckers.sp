@@ -77,6 +77,8 @@ void GetCvars()
 
 public void OnClientConnected(int client)
 {
+	if(IsFakeClient(client)) return;
+
 	delete LoadingTimer[client];
 	LoadingTimer[client] = CreateTimer(g_fCvarDuration, CheckClientIngame, client, TIMER_FLAG_NO_MAPCHANGE); //on successfull connect the Timer is set in motion
 }
@@ -109,7 +111,7 @@ Action CheckClientIngame(Handle timer, any client)
 {
 	LoadingTimer[client] = null;
 
-	if (!IsClientConnected(client)) return Plugin_Continue; //OnClientDisconnect() should handle this, but you never know
+	if (!IsClientConnected(client) || IsFakeClient(client)) return Plugin_Continue; //OnClientDisconnect() should handle this, but you never know
 	
 	if (!IsClientInGame(client))
 	{
@@ -119,7 +121,7 @@ Action CheckClientIngame(Handle timer, any client)
 		char file[PLATFORM_MAX_PATH];
 		BuildPath(Path_SM, file, sizeof(file), "logs/kickloadstuckers.log");
 	
-		char steamid[128];
+		char steamid[32];
 		GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid));
 
 		if (HasAccess(steamid, g_sCvarImmuneAccess) == true)

@@ -736,6 +736,8 @@ void GetGamedata()
 		PrintToServer("[SM] %s successfully generated %s.txt gamedata file!", PLUGIN_NAME, GAMEDATA);
 	}
 	PrepSDKCall();
+
+	delete hConf;
 }
 
 void LoadStringFromAdddress(Address addr, char[] buffer, int maxlength) {
@@ -817,6 +819,8 @@ void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
 	hCreateCharger = PrepCreateBotCallFromAddress(hInfectedFuncs, "Charger");
 	if (hCreateCharger == null)
 	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateCharger); return; }
+
+	delete hInfectedFuncs;
 }
 
 void PrepL4D2CreateBotCalls() {
