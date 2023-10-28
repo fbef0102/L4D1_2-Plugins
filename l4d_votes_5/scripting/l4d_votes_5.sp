@@ -1262,31 +1262,31 @@ public Action COLD_DOWN(Handle timer,any client)
 {
 	switch (g_voteType)
 	{
-		case (view_as<voteType>(hp)):
+		case (hp):
 		{
 			AnyHp();
 			//DisplayBuiltinVotePass(vote, "vote to give hp pass");
 			LogMessage("vote to give hp pass");	
 		}
-		case (view_as<voteType>(alltalk)):
+		case (alltalk):
 		{
 			ServerCommand("sv_alltalk 1");
 			//DisplayBuiltinVotePass(vote, "vote to turn on alltalk pass");
 			LogMessage("vote to turn on alltalk pass");
 		}
-		case (view_as<voteType>(alltalk2)):
+		case (alltalk2):
 		{
 			ServerCommand("sv_alltalk 0");
 			//DisplayBuiltinVotePass(vote, "vote to turn off alltalk pass");
 			LogMessage("vote to turn off alltalk pass");
 		}
-		case (view_as<voteType>(restartmap)):
+		case (restartmap):
 		{
 			ServerCommand("sm_restartmap");
 			//DisplayBuiltinVotePass(vote, "vote to restartmap pass");
 			LogMessage("vote to restartmap pass");
 		}
-		case (view_as<voteType>(map)):
+		case (map):
 		{
 			CreateTimer(5.0, Changelevel_Map);
 			CPrintToChatAll("[{olive}TS{default}] {green}5{default} sec to change map {blue}%s",votesmapsname);
@@ -1294,7 +1294,7 @@ public Action COLD_DOWN(Handle timer,any client)
 			//DisplayBuiltinVotePass(vote, "Vote to change map pass");
 			LogMessage("Vote to change map %s %s pass",votesmaps,votesmapsname);
 		}
-		case (view_as<voteType>(kick)):
+		case (kick):
 		{
 			//DisplayBuiltinVotePass(vote, "Vote to kick player pass");						
 			CPrintToChatAll("[{olive}TS{default}] %s has been kicked!", kickplayer_name);
@@ -1304,7 +1304,7 @@ public Action COLD_DOWN(Handle timer,any client)
 			if(player && IsClientInGame(player)) KickClient(player, "You have been kicked due to vote");				
 			ServerCommand("sm_addban 10 \"%s\" \"You have been kicked due to vote\" ", kickplayer_SteamId);
 		}
-		case (view_as<voteType>(forcespectate)):
+		case (forcespectate):
 		{
 			forcespectateid = GetClientOfUserId(forcespectateid);
 			if(forcespectateid && IsClientInGame(forcespectateid))
@@ -1341,7 +1341,7 @@ int GetVoteDelay()
 
 void ParseCampaigns()
 {
-	Handle g_kvCampaigns = CreateKeyValues("VoteCustomCampaigns");
+	KeyValues g_kvCampaigns = new KeyValues("VoteCustomCampaigns");
 
 	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/VoteCustomCampaigns.txt");
@@ -1349,14 +1349,14 @@ void ParseCampaigns()
 	if ( !FileToKeyValues(g_kvCampaigns, sPath) ) 
 	{
 		SetFailState("<VCC> File not found: %s", sPath);
-		CloseHandle(g_kvCampaigns);
+		delete g_kvCampaigns;
 		return;
 	}
 	
 	if (!KvGotoFirstSubKey(g_kvCampaigns))
 	{
 		SetFailState("<VCC> File can't read: you dumb noob!");
-		CloseHandle(g_kvCampaigns);
+		delete g_kvCampaigns;
 		return;
 	}
 	
@@ -1371,6 +1371,8 @@ void ParseCampaigns()
 			break;
 		}
 	}
+
+	delete g_kvCampaigns;
 }
 
 bool HasAccess(int client, char[] g_sAcclvl)
