@@ -4,9 +4,9 @@
 #include <sourcemod>
 #include <sdktools>
 #include <geoip>
-#include <string>
+#include <basecomm>
 
-#define PLUGIN_VERSION "1.9"
+#define PLUGIN_VERSION "2.0-2023/10/29"
 
 ConVar hostport;
 char sHostport[10];
@@ -41,19 +41,6 @@ public void OnPluginStart()
 	g_hCvarConsole.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_disconnect", 	event_PlayerDisconnect);
-
-	/* Say commands */
-	//RegConsoleCmd("say", Command_Say);
-	//RegConsoleCmd("say_team", Command_SayTeam);
-
-	char date[21];
-	char logFile[100];
-	/* Format date for log filename */
-	FormatTime(date, sizeof(date), "%d%m%y", -1);
-
-	/* Create name of logfile to use */
-	Format(logFile, sizeof(logFile), "/logs/chat%s.log", date);
-	BuildPath(Path_SM, chatFile, PLATFORM_MAX_PATH, logFile);
 }
 
 public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -68,8 +55,7 @@ void GetCvars()
 	hostport.GetString(sHostport, sizeof(sHostport));
 }
 
-/*
-Action Command_Say(int client, int args)
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
 {
 	if(g_bCvarEnable == false)
 		return Plugin_Continue;
@@ -77,29 +63,8 @@ Action Command_Say(int client, int args)
 	if(client < 0 || client > MaxClients)
 		return Plugin_Continue;
 
-	LogChat(client, args, false);
-	return Plugin_Continue;
-}
-
-Action Command_SayTeam(int client, int args)
-{
-	if(g_bCvarEnable == false)
-		return Plugin_Continue;
-
-	if(client < 0 || client > MaxClients)
-		return Plugin_Continue;
-
-	LogChat(client, args, true);
-	return Plugin_Continue;
-}*/
-
-public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
-{
-	if(g_bCvarEnable == false)
-		return;
-
-	if(client < 0 || client > MaxClients)
-		return;
+	if (BaseComm_IsClientGagged(client) == true) //this client has been gagged
+		return Plugin_Continue;	
 
 	if (strcmp(command, "say_team") == 0)
 	{
@@ -109,6 +74,8 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	{
 		LogChat2(client, sArgs, false);
 	}
+
+	return Plugin_Continue;
 }
 
 public Action OnClientCommand(int client, int args) 
