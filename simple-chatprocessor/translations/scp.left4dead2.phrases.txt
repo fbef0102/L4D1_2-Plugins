@@ -5,6 +5,7 @@
 //= \x04 (EOT) - Use location color from this point forward 
 //= \x05 (ENQ) - Use achievement color from this point forward
 
+
 "Phrases"
 {
 	"L4D_Chat_Infected"
@@ -21,6 +22,20 @@
 		"chi"			"(生还者) {1} :  {2}"
 		"zho"			"(倖存者) {1} :  {2}"
 	}
+	"L4D_Chat_Infected_Dead"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"			"*DEAD*(Infected) {1} :  {2}"
+		"chi"			"*死亡*(被感染者) {1} :  {2}"
+		"zho"			"*死亡*(感染者) {1} :  {2}"
+	}
+	"L4D_Chat_Survivor_Dead"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"			"*DEAD*(Survivor) {1} :  {2}"
+		"chi"			"*死亡*(生还者) {1} :  {2}"
+		"zho"			"*死亡*(倖存者) {1} :  {2}"
+	}
 	"L4D_Chat_Spec"
 	{
 		"#format"	"{1:s},{2:s}"
@@ -34,6 +49,13 @@
 		"en"			"{1} :  {2}"
 		"chi"			"{1} :  {2}"
 		"zho"			"{1} :  {2}"
+	}
+	"L4D_Chat_All_Dead"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"			"*DEAD* {1} :  {2}"
+		"chi"			"*死亡* {1} :  {2}"
+		"zho"			"*死亡* {1} :  {2}"
 	}
 	"L4D_Chat_AllSpec"
 	{
