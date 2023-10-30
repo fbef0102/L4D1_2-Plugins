@@ -528,7 +528,7 @@ public void OnGameFrame() {
 					//LogMessage("target: %d", target);
 
 					msg = StartMessageOne("SayText2", target, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
-					FormatEx(sTranslation, sizeof(sTranslation), "%T", target, sChatType, sSenderName, sMessage);
+					FormatEx(sTranslation, sizeof(sTranslation), "%T", sChatType, target, sSenderName, sMessage);
 
 					Protobuf pb = UserMessageToProtobuf(msg);
 					pb.SetInt("ent_idx", client);
