@@ -38,7 +38,7 @@ $Copyright: (c) Simple Plugins 2008-2009$
 #include <sourcemod>
 #undef REQUIRE_PLUGIN
 
-#define PLUGIN_VERSION				"1.3h-2023/7/5"
+#define PLUGIN_VERSION				"1.4h-2023/10/31"
 #define SENDER_WORLD			0
 #define MAXLENGTH_INPUT			128 	// Inclues \0 and is the size of the chat input box.
 #define MAXLENGTH_NAME			64		// This is backwords math to get compability.  Sourcemod has it set at 32, but there is room for more.
@@ -553,6 +553,7 @@ public void OnGameFrame() {
 					//LogMessage("target: %d", target);
 
 					msg = StartMessageOne("SayText2", target, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
+					if(g_CurrentChatType & CHATFLAGS_DEAD) FormatEx(sChatType, sizeof(sChatType), "%s_Dead", sChatType);
 					FormatEx(sTranslation, sizeof(sTranslation), "%T", sChatType, target, sSenderName, sMessage);
 					BfWrite buf = UserMessageToBfWrite(msg);
 					buf.WriteByte(client);
