@@ -106,7 +106,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 沒有團隊聊天頻道只有公開聊天頻道
 * <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
     * 使用指令顯示人類目前的路程
-* <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue or too many Survivor bots issue after map loading.
+* <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue after map loading.
     * 解決換圖之後沒有任何倖存者Bot的問題
 * <b>[lockdown_system-l4d2](/lockdown_system-l4d2)</b>: Locks Saferoom Door Until Someone Opens It.
     * 倖存者必須等待時間到並合力對抗屍潮與Tank才能打開終點安全門

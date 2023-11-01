@@ -1,11 +1,8 @@
-#define PLUGIN_VERSION "1.4"
-
-#include <sourcemod>
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 
-#define ADD_BOT		"sb_add"
-#define DELAY_BOT_CLIENT_Check		1.0
+#include <sourcemod>
+#define PLUGIN_VERSION "1.0h-2023/11/2"
 
 public Plugin myinfo =
 {
@@ -16,9 +13,13 @@ public Plugin myinfo =
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
+#define DELAY_BOT_CLIENT_Check		1.0
+
 ConVar g_hSurvivorLimit;
 int g_iCvarSurvLimit;
 static bool bTempBlock;
+
+int g_iPlayerSpawn, g_iRoundStart;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
@@ -45,8 +46,17 @@ public void OnPluginStart()
 	HookEvent("player_team", SF_ev_PlayerTeam);
 	HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);//每回合開始就發生的event
 	HookEvent("player_spawn",Event_PlayerSpawn,	EventHookMode_PostNoCopy);
+	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus/survival/scavenge mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
+	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
 
 	RegAdminCmd("sm_botfix", CmdBotFix, ADMFLAG_ROOT);
+}
+
+void OnCvarChange_SurvivorLimit(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	g_iCvarSurvLimit = g_hSurvivorLimit.IntValue;
 }
 
 public void OnMapStart()
@@ -56,32 +66,41 @@ public void OnMapStart()
 	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Lower, true, 1.0);
 }
 
-public Action CmdBotFix(int client, int args)
+public void OnMapEnd()
+{
+    ClearDefault();
+}
+
+Action CmdBotFix(int client, int args)
 {
 	SF_Fix();
 	ReplyToCommand(client, "Checking complete.");
 	return Plugin_Handled;
 }
 
-int g_iPlayerSpawn, g_iRoundStart;
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iPlayerSpawn = 1;
 }
 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+{
+	ClearDefault();
+}
+
 Action tmrStart(Handle timer)
 {
-	g_iPlayerSpawn = 0;
-	g_iRoundStart = 0;
+	ClearDefault();
+
 	bTempBlock = false;
 	
 	for (int i = 1; i <= MaxClients; i++)
@@ -106,17 +125,16 @@ void SF_ev_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	{
 		if (event.GetBool("disconnect") == false){
 			bTempBlock = true;
-			CreateTimer(1.0, SF_t_CheckBots);
+			CreateTimer(DELAY_BOT_CLIENT_Check, SF_t_CheckBots);
 		}
 	}
 }
-
 
 Action SF_t_CheckBots(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientConnected(i)&&IsClientInGame(i)&&!IsFakeClient(i))
+		if(IsClientInGame(i) && !IsFakeClient(i))
 		{
 			SF_Fix();
 			break;
@@ -129,11 +147,11 @@ Action SF_t_CheckBots(Handle timer)
 void SF_Fix()
 {
 	int iSurvivorCount;
-	bool bKickFakeClient; 
 
 	for (int i = 1; i <= MaxClients; i++)
 		if (IsClientInGame(i) && GetClientTeam(i) == 2)
 			iSurvivorCount++;
+
 	if(iSurvivorCount == g_iCvarSurvLimit)
 		return;
 		
@@ -142,23 +160,27 @@ void SF_Fix()
 		static int iFlag;
 
 		if (!iFlag)
-			iFlag = GetCommandFlags(ADD_BOT);
+			iFlag = GetCommandFlags("sb_add");
 
-		SetCommandFlags(ADD_BOT, iFlag & ~FCVAR_CHEAT);
+		SetCommandFlags("sb_add", iFlag & ~FCVAR_CHEAT);
 
 		while (iSurvivorCount < g_iCvarSurvLimit){
 			LogMessage("Bug detected. Trying to add a bot %d/%d", iSurvivorCount, g_iCvarSurvLimit);
-			ServerCommand(ADD_BOT);
+			ServerCommand("sb_add");
 			iSurvivorCount++;
 		}
 
-		SetCommandFlags(ADD_BOT, iFlag);
+		SetCommandFlags("sb_add", iFlag);
+
+		CreateTimer(DELAY_BOT_CLIENT_Check, SF_t_CheckBots);
+
+		return;
 	}
 	
-	if (iSurvivorCount > g_iCvarSurvLimit){
+	/*if (iSurvivorCount > g_iCvarSurvLimit){
 		while (iSurvivorCount > g_iCvarSurvLimit){
 			LogMessage("Bug detected. Trying to kick a bot %d/%d", iSurvivorCount, g_iCvarSurvLimit);
-			bKickFakeClient = false;
+			bool bKickFakeClient = false;
 			for (int i = 1; i <= MaxClients; i++)
 			{
 				if(IsClientInGame(i) && GetClientTeam(i) == 2 && IsFakeClient(i))
@@ -182,11 +204,13 @@ void SF_Fix()
 				}
 			}			
 		}
+
 		CreateTimer(DELAY_BOT_CLIENT_Check, SF_t_CheckBots);
-	}
+	}*/
 }
 
-public void OnCvarChange_SurvivorLimit(ConVar convar, const char[] oldValue, const char[] newValue)
+void ClearDefault()
 {
-	g_iCvarSurvLimit = g_hSurvivorLimit.IntValue;
+	g_iRoundStart = 0;
+	g_iPlayerSpawn = 0;
 }
