@@ -82,22 +82,51 @@ CBoomerDeath g_cBoomerDeath[MAXPLAYERS+1];
 
 float g_fTankStaggerEngineTime[MAXPLAYERS+1];
 
+#define CVAR_FLAGS                    FCVAR_NOTIFY
+#define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
+
+ConVar g_hCvarEnable;
+bool g_bCvarEnable;
+
 public void OnPluginStart()
 {
 	LoadTranslations(TRANSLATION_FILE);
+
+	g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	CreateConVar(                       PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
+	AutoExecConfig(true,                PLUGIN_NAME);
+
+	GetCvars();
+	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_spawn",           Event_PlayerSpawn);
 	HookEvent("player_death", 			Event_PlayerDeath);
 }
 
+// Cvars-------------------------------
+
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+    g_bCvarEnable = g_hCvarEnable.BoolValue;
+}
+
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 { 
+	if(!g_bCvarEnable) return;
+
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	g_cBoomerDeath[client].Clear();
 }
 
 void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
+	if(!g_bCvarEnable) return;
+
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	g_cBoomerDeath[victim].Clear();
 	if( IsWitch(event.GetInt("attackerentid")) && victim != 0 && IsClientInGame(victim) && GetClientTeam(victim) == 3 )
@@ -254,6 +283,7 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 public void L4D2_OnStagger_Post(int tank, int source)
 {
+	if(!g_bCvarEnable) return;
 	if(!PlayerIsTank(tank)) return;
 	if(g_fTankStaggerEngineTime[tank] > GetEngineTime()) return;
 
@@ -335,7 +365,6 @@ Action Timer_TankKillBoomerCheck(Handle timer, int client)
 	
 	return Plugin_Continue;
 }
-
 
 Action Timer_BoomerSuicideCheck(Handle timer, any client)
 {	
