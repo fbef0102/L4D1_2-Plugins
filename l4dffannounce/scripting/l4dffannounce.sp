@@ -6,23 +6,26 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-
-#define CVAR_FLAGS				FCVAR_NOTIFY
-#define MAXENTITIES 2048
+#define PLUGIN_VERSION			"1.8"
 
 public Plugin myinfo = 
 {
 	name = "L4D FF Announce Plugin",
 	author = "Frustian & HarryPotter",
 	description = "Display Friendly Fire Announcements",
-	version = "1.8",
+	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
-//cvar handles
-ConVar FFenabled;
-ConVar AnnounceType;
 
-//Various global variables
+#define MAXENTITIES 2048
+
+#define CVAR_FLAGS                    FCVAR_NOTIFY
+#define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
+
+ConVar g_hCvarEnable, g_hCvarAnnounceType;
+bool g_bCvarEnable;
+int g_iCvarAnnounceType;
+
 int DamageCache[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store Friendly Fire Damage between teammates
 Handle FFTimer[MAXPLAYERS+1]; //Used to be able to disable the FF timer when they do more FF
 
@@ -42,9 +45,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	LoadTranslations("l4dffannounce.phrases");
-	FFenabled = CreateConVar("l4d_ff_announce_enable", "1", "Enable Announcing Friendly Fire",CVAR_FLAGS);
-	AnnounceType = CreateConVar("l4d_ff_announce_type", "1", "Changes how ff announce displays FF damage (1:In chat; 2: In Hint Box; 3: In center text)",CVAR_FLAGS);
-	
+	g_hCvarEnable 			= CreateConVar( "l4dffannounce_enable",     "1",   	"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarAnnounceType 	= CreateConVar( "l4dffannounce_type", 		"1", 	"Changes how ff announce displays FF damage (0: Disable, 1:In chat; 2: In Hint Box; 3: In center text)",CVAR_FLAGS, true, 0.0, true, 3.0);
+	CreateConVar(                       	"l4dffannounce_version",     PLUGIN_VERSION, "l4dffannounce Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
+	AutoExecConfig(true,                	"l4dffannounce");
+
+	GetCvars();
+	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAnnounceType.AddChangeHook(ConVarChanged_Cvars);
+
 	HookEvent("player_hurt_concise", Event_HurtConcise, EventHookMode_Post);
 	HookEvent("player_incapacitated_start", Event_IncapacitatedStart);
 
@@ -53,9 +62,17 @@ public void OnPluginStart()
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
-	
-	//Autoconfig for plugin
-	AutoExecConfig(true, "l4dffannounce");
+}
+
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+    g_bCvarEnable = g_hCvarEnable.BoolValue;
+    g_iCvarAnnounceType = g_hCvarAnnounceType.IntValue;
 }
 
 public void OnMapEnd()
@@ -63,12 +80,12 @@ public void OnMapEnd()
 	ResetTimer();
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
 }
 
-public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -81,12 +98,11 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	}	
 }
 
-
-public void Event_HurtConcise(Event event, const char[] name, bool dontBroadcast) 
+void Event_HurtConcise(Event event, const char[] name, bool dontBroadcast) 
 {
 	int attacker = event.GetInt("attackerentid");
 	int victim = GetClientOfUserId(event.GetInt("userid"));
-	if (FFenabled.BoolValue == false || 
+	if (!g_bCvarEnable || 
 	attacker == victim ||
 	attacker > MaxClients || 
 	attacker < 1 || 
@@ -119,12 +135,12 @@ public void Event_HurtConcise(Event event, const char[] name, bool dontBroadcast
 	}
 }
 
-public void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast) 
+void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 
-	if (FFenabled.BoolValue == false || 
+	if (!g_bCvarEnable || 
 	attacker == victim ||
 	attacker > MaxClients || 
 	attacker < 1 || 
@@ -157,7 +173,7 @@ public void Event_IncapacitatedStart(Event event, const char[] name, bool dontBr
 	}
 }
 
-public Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker did not friendly fire recently, and announces all FF they did
+Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker did not friendly fire recently, and announces all FF they did
 {
 	char victim[128];
 	char attacker[128];
@@ -174,7 +190,7 @@ public Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker d
 			if (IsClientInGame(i))
 			{
 				GetClientName(i, victim, sizeof(victim));
-				switch(AnnounceType.IntValue)
+				switch(g_iCvarAnnounceType)
 				{
 					case 1:
 					{
@@ -197,6 +213,10 @@ public Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker d
 						if (IsClientInGame(i) && !IsFakeClient(i))
 							PrintCenterText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i]);
 					}
+					default:
+					{
+						//nothing
+					}
 				}
 			}
 			DamageCache[attackerc][i] = 0;
@@ -215,7 +235,7 @@ void ResetTimer()
 	}
 }
 
-stock float GetTempHealth(int client)
+float GetTempHealth(int client)
 {
 	static float fCvarDecayRate = -1.0;
 
