@@ -14,7 +14,11 @@ Show who is pig teammate in infected team
 
 * <details><summary>ConVar | 指令</summary>
 
-	None
+    * cfg/sourcemod/l4d_pig_infected_notify.cfg
+        ```php
+		// 0=Plugin off, 1=Plugin on.
+		l4d_pig_infected_notify_enable "1"
+        ```
 </details>
 
 * <details><summary>Command | 命令</summary>

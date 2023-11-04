@@ -15,11 +15,11 @@ Adds Friendly Fire Announcements (who kills teammates)
 
 	* cfg/sourcemod/l4dffannounce.cfg
         ```php
-        // Enable Announcing Friendly Fire
-        l4d_ff_announce_enable "1"
+		// 0=Plugin off, 1=Plugin on.
+		l4dffannounce_enable "1"
 
-        // Changes how ff announce displays FF damage (1:In chat; 2: In Hint Box; 3: In center text)
-        l4d_ff_announce_type"1"
+		// Changes how ff announce displays FF damage (0: Disable, 1:In chat; 2: In Hint Box; 3: In center text)
+		l4dffannounce_type "1"
         ```
 </details>
 
