@@ -18,7 +18,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
-* <b>[TickrateFixes](/TickrateFixes)</b>: Fixes a handful of silly Tickrate bugs including door speed.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
@@ -26,7 +25,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
-* <b>[GagMuteBanEx](/GagMuteBanEx)</b>: gag & mute & ban - Ex (封鎖/禁音/禁字-強化版)
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
@@ -168,6 +166,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 救援開始之後，所有人重力變低，可以跳很高
 * <b>[gamemode-based_configs](/gamemode-based_configs)</b>: Allows for custom settings for each gamemode and mutatuion.
     * 根據遊戲模式或突變模式執行不同的cfg文件
+* <b>[GagMuteBanEx](/GagMuteBanEx)</b>: Gag & Mute & Ban - Ex
+    * 封鎖/禁音/禁言-強化版
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境
