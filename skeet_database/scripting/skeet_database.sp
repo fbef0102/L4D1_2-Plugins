@@ -63,13 +63,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	hEnablePlugin = CreateConVar("skeet_database_enable", "1", "Enable this plugin?", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	OneShotSkeet = CreateConVar("skeet_database_announce_oneshot", "1", "Only count 'One Shot' skeet?[1: Yes, 0: No]", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvarAnnounce = CreateConVar("skeet_database_announce", "0", "Announce skeet/shots in chatbox when someone skeets.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarModesTog =	CreateConVar("skeet_database_modes_tog",		"4",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus. Add numbers together.", FCVAR_NOTIFY, true, 0.0, true, 7.0);
-	g_hCvarSurvivorRequired =	CreateConVar("top_skeet_survivors_required",		"4",			"Numbers of Survivors required at least to enable this plugin", FCVAR_NOTIFY , true, 1.0, true, 32.0);
-	g_hCvarAIHunter =	CreateConVar("skeet_database_ai_hunter_enable",		"0",			"Count AI Hunter also?[1: Yes, 0: No]", FCVAR_NOTIFY , true, 0.0, true, 1.0);
-	g_hCvar1v1Separate =	CreateConVar("skeet_database_1v1_seprate",		"1",		"Record 1v1 skeet database in 1v1 mode.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hEnablePlugin 			= CreateConVar("skeet_database_enable", 			"1", "Enable this plugin?", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	OneShotSkeet 			= CreateConVar("skeet_database_announce_oneshot", 	"1", "Only count 'One Shot' skeet? [1: Yes, 0: No]", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvarAnnounce 			= CreateConVar("skeet_database_announce", 			"0", "Announce skeet/shots in chatbox when someone skeets.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarModesTog 		= CreateConVar("skeet_database_modes_tog",			"4", "Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus. Add numbers together.", FCVAR_NOTIFY, true, 0.0, true, 7.0);
+	g_hCvarSurvivorRequired = CreateConVar("top_skeet_survivors_required",		"4", "Numbers of Survivors required at least to enable this plugin", FCVAR_NOTIFY , true, 1.0, true, 32.0);
+	g_hCvarAIHunter 		= CreateConVar("skeet_database_ai_hunter_enable",	"0", "Count AI Hunter also? [1: Yes, 0: No]", FCVAR_NOTIFY , true, 0.0, true, 1.0);
+	g_hCvar1v1Separate 		= CreateConVar("skeet_database_1v1_seprate",		"1", "Record 1v1 skeet database in 1v1 mode.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
 	GetCvars();
 	hCvarAnnounce.AddChangeHook(ConVarChange_hCvarAnnounce);
@@ -111,6 +111,7 @@ public void OnConfigsExecuted()
 		Is1v1 = false;
 	}
 
+	delete g_hData;
 	g_hData = new KeyValues("skeetdata");
 	if(g_hCvar1v1Separate.BoolValue && Is1v1)
 	{
