@@ -4,15 +4,23 @@
 #include <sdktools>
 #include <topmenus>
 #include <adminmenu>
-#include <multicolors>
 #include <basecomm>
+#include <multicolors>
+
+public Plugin myinfo =
+{
+	name = "GagMuteBanEx",
+	author = "HarryPotter",
+	description = "Gag & Mute & Ban - Ex",
+	version = "1.0h-2023/11/5",
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
+};
 
 #define CVAR_FLAGS			FCVAR_NOTIFY
 char sg_fileTxt[160];
 char sg_log[160];
 
 /* Handler Menu */
-TopMenu hTopMenu;
 TopMenu hTopMenuHandle;
 
 //Convar
@@ -23,7 +31,7 @@ ConVar g_hCvarBanAllow, g_hCvarMuteAllow, g_hCvarGagAllow,
 bool g_bCvarBanAllow, g_bCvarMuteAllow, g_bCvarGagAllow,
 	g_bCvarServerVoice, g_bCvarServerChat;
 
-int ig_minutes;
+int g_iMinutes[MAXPLAYERS+1];
 char g_sImmueAcclvl[16];
 
 Handle 
@@ -50,40 +58,20 @@ static char sBan_Time[][][] =
 	{"525600", 		"365 days"}
 };
 
-public Plugin myinfo =
-{
-	name = "GagMuteBanEx",
-	author = "MAKS & dr lex & HarryPotter",
-	description = "gag & mute & ban",
-	version = "1.7-2023/9/10",
-	url = "forums.alliedmods.net/showthread.php?p=2347844"
-};
+KeyValues g_hGM;
 
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
-
-	ig_minutes = 1;
-	RegAdminCmd("sm_exban",  CMD_addbanmenu,  ADMFLAG_BAN,  "sm_exban to Open exBan Steamid Menu or sm_exban <name> <minutes>");
-	RegAdminCmd("sm_exgag",  CMD_addgagmenu,  ADMFLAG_CHAT, "sm_exgag to Open exGag Menu or sm_exgag <name> <minutes>");
-	RegAdminCmd("sm_exmute", CMD_addmutemenu, ADMFLAG_CHAT, "sm_exmute to Open exMute Menu or sm_exmute <name> <minutes>");
-	RegAdminCmd("sm_exbanid",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes> <STEAM_ID>");
-	RegAdminCmd("sm_exbansteam",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes> <STEAM_ID>");
-	RegAdminCmd("sm_exbansteamid",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes> <STEAM_ID>");
-
-	BuildPath(Path_SM, sg_fileTxt, sizeof(sg_fileTxt)-1, "data/GagMuteBanEx.txt");
-	BuildPath(Path_SM, sg_log, sizeof(sg_log)-1, "logs/GagMuteBanEx.log");
-
-	TopMenu hTop_Menu;
-	if ( LibraryExists( "adminmenu" ) && ( ( hTop_Menu = GetAdminTopMenu() ) != null ) )
-		OnAdminMenuReady( hTop_Menu );
+	LoadTranslations("GagMuteBanEx.phrases");
 
 	g_hCvarServerVoice 				= FindConVar("sv_voiceenable");
 	g_hCvarBanAllow 				= CreateConVar("GagMuteBanEx_ban_allow", 		"1", "0=Ban Menu off, 1=Ban Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarMuteAllow 				= CreateConVar("GagMuteBanEx_mute_allow", 		"1", "0=Mute Menu off, 1=Mute Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarGagAllow 				= CreateConVar("GagMuteBanEx_gag_allow", 		"1", "0=Gag Menu off, 1=Gag Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarServerChat 				= CreateConVar("sv_chatenable", 				"1", "If 0, Be Quient, No one can chat.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarServerChatImmuneAccess 	= CreateConVar("GagMuteBanEx_chat_immue_flag", 	"z", "Players with these flags can chat when 'sv_chatenable' is 0 (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
+	g_hCvarServerChatImmuneAccess 	= CreateConVar("GagMuteBanEx_chat_immue_flag", 	"z", "Players with these flags can chat when '_chatenable' is 0 (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
+	AutoExecConfig(true, "GagMuteBanEx");
 
 	GetCvars();
 	g_hCvarBanAllow.AddChangeHook(ConVarChanged_Cvars);
@@ -91,11 +79,23 @@ public void OnPluginStart()
 	g_hCvarGagAllow.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarServerVoice.AddChangeHook(ConVarChanged_CvarServerVoice);
 	g_hCvarServerChat.AddChangeHook(ConVarChanged_CvarServerChat);
-	g_hCvarServerChatImmuneAccess.AddChangeHook(ConVarChanged_ServerChatImmuneAccess);
+	g_hCvarServerChatImmuneAccess.AddChangeHook(ConVarChanged_Cvars);
 
 	//HookEvent("round_start", Event_RoundStart);
 
-	AutoExecConfig(true, "GagMuteBanEx");
+	RegAdminCmd("sm_exban",  CMD_ExBan,  ADMFLAG_BAN,  "sm_exban to Open exBan Steamid Menu or sm_exban <#userid|name> <minutes|0>");
+	RegAdminCmd("sm_exgag",  CMD_ExGag,  ADMFLAG_CHAT, "sm_exgag to Open exGag Menu or sm_exgag <#userid|name> <minutes|0>");
+	RegAdminCmd("sm_exmute", CMD_ExMute, ADMFLAG_CHAT, "sm_exmute to Open exMute Menu or sm_exmute <#userid|name> <minutes|0>");
+	RegAdminCmd("sm_exbanid",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes|0> <STEAM_ID64>");
+	RegAdminCmd("sm_exbansteam",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes|0> <STEAM_ID64>");
+	RegAdminCmd("sm_exbansteamid",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes|0> <STEAM_ID64>");
+
+	BuildPath(Path_SM, sg_fileTxt, sizeof(sg_fileTxt), "data/GagMuteBanEx.txt");
+	BuildPath(Path_SM, sg_log, sizeof(sg_log), "logs/GagMuteBanEx.log");
+
+	TopMenu hTop_Menu;
+	if ( LibraryExists( "adminmenu" ) && ( ( hTop_Menu = GetAdminTopMenu() ) != null ) )
+		OnAdminMenuReady( hTop_Menu );
 }
 
 public void OnAdminMenuReady( Handle hTop_Menu )
@@ -123,11 +123,11 @@ void ConVarChanged_CvarServerVoice(ConVar convar, const char[] oldValue, const c
 	
 	if(g_bCvarServerVoice == true)
 	{
-		CPrintToChatAll("[{olive}TS{default}] sv_voiceenable @ {green}1{default}. 開放語音功能! We can Talk Now !");
+		CPrintToChatAll("%t", "sv_voiceenable_1");
 	}
 	else
 	{
-		CPrintToChatAll("[{olive}TS{default}] sv_voiceenable @ {green}0{default}. 伺服器禁用語音! Everyone Shut Up!");
+		CPrintToChatAll("%t", "sv_voiceenable_0");
 	}
 }
 
@@ -136,49 +136,11 @@ void ConVarChanged_CvarServerChat(ConVar convar, const char[] oldValue, const ch
 
 	if(g_bCvarServerChat == true)
 	{
-		CPrintToChatAll("[{olive}TS{default}] sv_chatenable @ {green}1{default}. 聊天功能開啟! Let's chat !");
-
-		for ( int i = 1 ; i <= MaxClients ; ++i ) 
-		{
-			if (IsClientInGame(i) && !IsFakeClient(i) && BaseComm_IsClientGagged(i))
-			{
-				ServerCommand("sm_ungag #%d", GetClientUserId(i));
-				HxClientGagMuteBanEx(i);
-			}
-		}
+		CPrintToChatAll("%t", "sv_chatenable_1");
 	}
 	else
 	{
-		CPrintToChatAll("[{olive}TS{default}] sv_chatenable @ {green}0{default}. 歲月靜好! Everyone be quient !");
-
-		for ( int i = 1 ; i <= MaxClients ; ++i ) 
-		{
-			if (IsClientInGame(i) && !IsFakeClient(i) && HasAccess(i, g_sImmueAcclvl) == false)
-			{
-				ServerCommand("sm_gag #%d", GetClientUserId(i));
-			}
-		}
-	}
-}
-
-void ConVarChanged_ServerChatImmuneAccess(ConVar convar, const char[] oldValue, const char[] newValue) {
-	GetCvars();
-
-	if(g_bCvarServerChat == false)
-	{
-		for ( int i = 1 ; i <= MaxClients ; ++i ) 
-		{
-			if (IsClientInGame(i) && !IsFakeClient(i))
-			{
-				if(BaseComm_IsClientGagged(i) && HasAccess(i, g_sImmueAcclvl) == true)
-				{
-					ServerCommand("sm_ungag #%d", GetClientUserId(i));
-					HxClientGagMuteBanEx(i);
-				}
-				if(!BaseComm_IsClientGagged(i) && HasAccess(i, g_sImmueAcclvl) == false)
-					ServerCommand("sm_gag #%d", GetClientUserId(i));
-			}
-		}
+		CPrintToChatAll("%t", "sv_chatenable_0");
 	}
 }
 
@@ -191,6 +153,17 @@ void GetCvars()
 	g_bCvarServerVoice = g_hCvarServerVoice.BoolValue;
 	g_hCvarServerChatImmuneAccess.GetString(g_sImmueAcclvl,sizeof(g_sImmueAcclvl));
 }
+
+public void OnConfigsExecuted()
+{
+	delete g_hGM;
+	g_hGM = new KeyValues("gagmuteban");
+	if(!g_hGM.ImportFromFile(sg_fileTxt))
+	{
+		g_hGM.ExportToFile(sg_fileTxt);
+	}
+}
+
 /*
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
@@ -212,93 +185,93 @@ Action _tmrStart(Handle timer) //回合開始 檢查所有人
 */
 void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 {
-	KeyValues hGM = new KeyValues("gagmuteban");
+	if(g_hGM == null) return;
+	g_hGM.Rewind();
 
-	if (hGM.ImportFromFile(sg_fileTxt))
+	bool bModfiy = false;
+	static char sTeamID[24];
+	GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+
+	if (g_hGM.JumpToKey(sTeamID))
 	{
-		bool bModfiy = false;
-		char sTeamID[24];
-		GetClientAuthId(client, AuthId_Steam2, sTeamID, sizeof(sTeamID)-1);
+		int iMute = g_hGM.GetNum("mute", 0);
+		int iGag = g_hGM.GetNum("gag", 0);
+		int iBan = g_hGM.GetNum("ban", 0);
+		int iTime = GetTime();
+		int iLeftMinute;
+		int userid = GetClientUserId(client);
 
-		if (hGM.JumpToKey(sTeamID))
+		if(iMute > 0)
 		{
-			int iMute = hGM.GetNum("mute", 0);
-			int iGag = hGM.GetNum("gag", 0);
-			int iBan = hGM.GetNum("ban", 0);
-			int iTime = GetTime();
-			int iLeftMinute;
-			int userid = GetClientUserId(client);
-
-			if(iMute > 0)
+			if (iMute > iTime)
 			{
-				if (iMute > iTime)
-				{
-					iLeftMinute = (iMute - iTime) /60;
-					if(bAction) ServerCommand("sm_mute #%d", userid);
-					if(bNotify) CPrintToChat(client, "[{olive}TS{default}] 你還是被 {lightgreen}禁止MIC語音{default}，剩下 {green}%d{default} 分鐘解除", iLeftMinute );
-					
-					delete g_hMuteTimer[client];
-					g_hMuteTimer[client] = CreateTimer(float(iMute - iTime), Timer_UnMute, client);
-				}
-				else if (iMute != 0) //時間已到
-				{
-					if(BaseComm_IsClientMuted(client)) ServerCommand("sm_unmute #%d", userid);
-					hGM.SetNum("mute", 0);
-					iMute = 0;
-					bModfiy = true;
-				}
+				iLeftMinute = (iMute - iTime) /60;
+				if(bAction) ServerCommand("sm_mute #%d", userid);
+				if(bNotify) CPrintToChat(client, "%T", "ExMute_1", client, iLeftMinute );
+				
+				delete g_hMuteTimer[client];
+				g_hMuteTimer[client] = CreateTimer(float(iMute - iTime), Timer_UnMute, client);
 			}
-
-			if(iGag > 0)
+			else if (iMute != 0) //時間已到
 			{
-				if (iGag > iTime)
-				{
-					iLeftMinute = (iGag - iTime) /60;
-					if(bAction) ServerCommand("sm_gag #%d", userid);
-					if(bNotify) CPrintToChat(client, "[{olive}TS{default}] 你還是被 {lightgreen}禁用Chat文字{default}，剩下 {green}%d{default} 分鐘解除", iLeftMinute );
-					
-					delete g_hGagTimer[client];
-					g_hGagTimer[client] = CreateTimer(float(iGag - iTime), Timer_UnGag, client);
-				}
-				else if (iGag != 0) //時間已到
-				{
-					if(BaseComm_IsClientGagged(client)) ServerCommand("sm_ungag #%d", userid);
-					hGM.SetNum("gag", 0);
-					iGag = 0;
-					bModfiy = true;
-				}
-			}
-
-			if(iBan > 0)
-			{
-				if (iBan > iTime)
-				{
-					char sTime[24];
-					FormatTime(sTime, sizeof(sTime)-1, "%Y-%m-%d %H:%M:%S", iBan);
-					KickClient(client,"Banned (%s)", sTime);
-				}
-				else
-				{
-					hGM.SetNum("ban", 0);
-					iBan = 0;
-					bModfiy = true;
-				}
-			}
-
-			if (iMute == 0 && iGag == 0 && iBan == 0)
-			{
-				hGM.DeleteThis();
-				hGM.Rewind();
-				hGM.ExportToFile(sg_fileTxt);
-			}
-			else if (bModfiy)
-			{
-				hGM.Rewind();
-				hGM.ExportToFile(sg_fileTxt);
+				if(BaseComm_IsClientMuted(client)) ServerCommand("sm_unmute #%d", userid);
+				g_hGM.SetNum("mute", 0);
+				iMute = 0;
+				bModfiy = true;
 			}
 		}
+
+		if(iGag > 0)
+		{
+			if (iGag > iTime)
+			{
+				iLeftMinute = (iGag - iTime) /60;
+				if(bAction) ServerCommand("sm_gag #%d", userid);
+				if(bNotify) CPrintToChat(client, "%T", "ExGag_1", client, iLeftMinute );
+				
+				delete g_hGagTimer[client];
+				g_hGagTimer[client] = CreateTimer(float(iGag - iTime), Timer_UnGag, client);
+			}
+			else if (iGag != 0) //時間已到
+			{
+				if(BaseComm_IsClientGagged(client)) ServerCommand("sm_ungag #%d", userid);
+				g_hGM.SetNum("gag", 0);
+				iGag = 0;
+				bModfiy = true;
+			}
+		}
+
+		if(iBan > 0)
+		{
+			if (iBan > iTime)
+			{
+				static char sTime[24], sName[64];
+				FormatTime(sTime, sizeof(sTime), "%Y-%m-%d %H:%M:%S", iBan);
+				GetClientName(client, sName, sizeof(sName));
+				KickClient(client,"exBan, unban time: %s", sTime);
+				g_hGM.SetString("Name", sName);
+				bModfiy = true;
+			}
+			else
+			{
+				g_hGM.SetNum("ban", 0);
+				iBan = 0;
+				bModfiy = true;
+			}
+		}
+
+		if (iMute == 0 && iGag == 0 && iBan == 0)
+		{
+			g_hGM.DeleteThis();
+			g_hGM.Rewind();
+			g_hGM.ExportToFile(sg_fileTxt);
+		}
+		else if (bModfiy)
+		{
+			g_hGM.Rewind();
+			g_hGM.ExportToFile(sg_fileTxt);
+		}
 	}
-	delete hGM;
 }
 
 public void OnClientPutInServer(int client)
@@ -306,10 +279,6 @@ public void OnClientPutInServer(int client)
 	if (IsFakeClient(client)) return;
 
 	HxClientGagMuteBanEx(client, true, false);
-
-	if (g_bCvarServerChat == false && BaseComm_IsClientGagged(client) == false) {
-		if(HasAccess(client, g_sImmueAcclvl) == false) ServerCommand("sm_gag #%d", GetClientUserId(client));
-	}
 
 	CreateTimer(5.0, Timer_PutInServer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -322,58 +291,60 @@ public void OnClientDisconnect(int client)
 	delete g_hMuteTimer[client];
 } 
 
-int HxClientTimeBan(int &client, int iminute)
+bool HxClientTimeBan(int &client, int iminute)
 {
+	if(g_hGM == null) return false;
+	g_hGM.Rewind();
+
 	if (IsClientInGame(client))
 	{
-		char sName[128];
-		char sTeamID[24];
+		static char sName[64], sTeamID[24];
 
-		KeyValues hGM = new KeyValues("gagmuteban");
-		hGM.ImportFromFile(sg_fileTxt);
+		GetClientName(client, sName, sizeof(sName));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
 
-		GetClientName(client, sName, sizeof(sName)-12);
-		GetClientAuthId(client, AuthId_Steam2, sTeamID, sizeof(sTeamID)-1);
-
-		hGM.JumpToKey(sTeamID, true);
+		g_hGM.JumpToKey(sTeamID, true);
 
 		int iTimeBan = GetTime() + (iminute * 60);
-		hGM.SetString("Name", sName);
-		hGM.SetNum("ban", iTimeBan);
-		hGM.Rewind();
-		hGM.ExportToFile(sg_fileTxt);
-		delete hGM;
-		return 1;
+		g_hGM.SetString("Name", sName);
+		g_hGM.SetNum("ban", iTimeBan);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
+
+		return true;
 	}
-	return 0;
+	return false;
 }
 
-int MenuHandler_Ban(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_BanPlayer(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		char sInfo[8];
-		bool found = menu.GetItem(param2, sInfo, sizeof(sInfo)-1);
-		if (found && param1)
+		static char sInfo[8], sTeamID[24];
+		menu.GetItem(param2, sInfo, sizeof(sInfo));
+		int target = StringToInt(sInfo);
+		target = GetClientOfUserId(target);
+		if (target && IsClientInGame(target))
 		{
-			int client = StringToInt(sInfo);
-			if (client > 0)
+			if (HxClientTimeBan(target, g_iMinutes[param1]))
 			{
-				if (ig_minutes < 1)
-				{
-					ig_minutes = 1;
-				}
-				
-				if (HxClientTimeBan(client, ig_minutes))
-				{
-					LogToFileEx(sg_log, "Ban: %N(Adm) -> %N -> %d minute(s)", param1, client, ig_minutes);
-					CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 封鎖SteamId，長達 {green}%d{default} 分鐘", client, ig_minutes);
-					KickClient(client, "%d minute(s) ban.", ig_minutes);
-				}
+				GetClientAuthId(target, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+				LogToFileEx(sg_log, "Ban: %N(Adm) exban %N (ID: %s) for %d minute(s)", param1, target, sTeamID, g_iMinutes[param1]);
+				CPrintToChatAll("%t", "ExBan_1", target, g_iMinutes[param1]);
+				KickClient(target, "%d minute(s) exban.", g_iMinutes[param1]);
 			}
 		}
+		else
+		{
+			CPrintToChat(param1, "%T", "InValid_Target", param1);
+			CMD_ExBan( param1, 0 );
+		}
 	}
-
+	else if ( action == MenuAction_Cancel )
+	{
+		if ( param2 == MenuCancel_ExitBack )
+			CMD_ExBan( param1, 0 );
+	}
 	if (action == MenuAction_End)
 	{
 		delete menu;
@@ -382,59 +353,47 @@ int MenuHandler_Ban(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-Action CMD_addban(int client)
+void Menu_BanPlayer(int client)
 {
 	if (client)
 	{
 		if (IsClientInGame(client))
 		{
-			char sName[128];
-			char sNumber[8];
+			static char sId[16], name[64];
 
-			Menu hMenu = new Menu(MenuHandler_Ban);
-			hMenu.SetTitle("Menu Ban SteamID (player)");
+			Menu hMenu = new Menu(MenuHandler_BanPlayer);
+			hMenu.SetTitle("%T", "Menu Ban Ex (player)", client);
 
 			for (int i=1; i <= MaxClients ; ++i)
 			{
 				if (IsClientInGame(i) && !IsFakeClient(i))
 				{
-					//if (client != i)
-					//{
-						GetClientName(i, sName, sizeof(sName)-12);
-						Format(sNumber, sizeof(sNumber)-1, "%d", i);
-						hMenu.AddItem(sNumber, sName);
-					//}
+					FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
+					GetClientName(i, name, sizeof(name));
+					hMenu.AddItem(sId, name);
 				}
 			}
 
-			hMenu.ExitButton = false;
-			hMenu.Display(client, 20);
+			hMenu.ExitBackButton = true;
+			hMenu.ExitButton = true;
+			hMenu.Display(client, MENU_TIME_FOREVER);
 		}
 	}
-
-	return Plugin_Handled;
 }
 
-int AddMenuBan(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_BanTime(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		char info[8];
-		bool found = menu.GetItem(param2, info, sizeof(info)-1);
-		if (found && param1)
-		{
-			int iTime = StringToInt(info);
-			if (iTime > 0)
-			{
-				ig_minutes = iTime;
-				CMD_addban(param1);
-			}
-		}
+		char sInfo[8];
+		menu.GetItem(param2, sInfo, sizeof(sInfo));
+		g_iMinutes[param1] = StringToInt(sInfo);
+		Menu_BanPlayer(param1);
 	}
 	else if ( action == MenuAction_Cancel )
 	{
-		if ( param2 == MenuCancel_ExitBack && hTopMenu )
-			hTopMenu.Display( param1, TopMenuPosition_LastCategory );
+		if ( param2 == MenuCancel_ExitBack && hTopMenuHandle )
+			hTopMenuHandle.Display( param1, TopMenuPosition_LastCategory );
 	}
 	else if (action == MenuAction_End)
 	{
@@ -444,7 +403,7 @@ int AddMenuBan(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-Action CMD_addbanmenu(int client, int args)
+Action CMD_ExBan(int client, int args)
 {
 	if (g_bCvarBanAllow == false)
 	{
@@ -459,28 +418,28 @@ Action CMD_addbanmenu(int client, int args)
 
 	if(args == 2)
 	{
-		char arg1[32], arg2[32];
+		static char arg1[32], arg2[32];
 		GetCmdArg(1, arg1, sizeof(arg1));
 		int target = FindTarget(client, arg1, true /*nobots*/, false /*immunity*/);
 		if(target == -1) return Plugin_Handled;	
 
 		GetCmdArg(2, arg2, sizeof(arg2));
 		int minutes = StringToInt(arg2);
-		if(minutes==0) minutes = 9999;
+		if(minutes==0) minutes = 9999999;
 
 		if (HxClientTimeBan(target, minutes))
 		{
 			if(client > 0)
 			{
 				LogToFileEx(sg_log, "[TS] Ban: %N(Adm) exban %N for %d minute(s)", client, target, minutes);
-				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 封鎖SteamId，長達 {green}%d{default} 分鐘", target, ig_minutes);
+				CPrintToChatAll("%T", "ExBan_1", target, minutes);
 			}
 			else
 			{
 				LogToFileEx(sg_log, "[TS] Ban: Server exban %N for %d minute(s)", target, minutes);
-				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被伺服器 封鎖SteamId，長達 {green}%d{default} 分鐘", target, ig_minutes);
+				CPrintToChatAll("%T", "ExBan_2", target, minutes);
 			}
-			KickClient(target, "%d minute(s) ban.", minutes);
+			KickClient(target, "%d minute(s) exban.", minutes);
 		}
 	}
 	else
@@ -491,12 +450,13 @@ Action CMD_addbanmenu(int client, int args)
 			return Plugin_Handled;
 		}
 
-		Menu menu = new Menu(AddMenuBan);
+		Menu menu = new Menu(MenuHandler_BanTime);
 		for(int i = 0; i < sizeof(sBan_Time); i++)
 		{
 			menu.AddItem(sBan_Time[i][0], sBan_Time[i][1]);
 		}
-		menu.SetTitle("Menu Ban SteamID (Time)", client);
+		menu.SetTitle("%T", "Menu Ban Ex (Time)", client);
+		menu.ExitBackButton = true;
 		menu.ExitButton = true;
 		menu.Display(client, MENU_TIME_FOREVER);
 	}
@@ -504,61 +464,63 @@ Action CMD_addbanmenu(int client, int args)
 	return Plugin_Handled;
 }
 
-int HxClientTimeGag(int &client, int iminute)
+bool HxClientTimeGag(int &client, int iminute)
 {
+	if(g_hGM == null) return false;
+	g_hGM.Rewind();
+
 	if (IsClientInGame(client))
 	{
-		char sName[128];
-		char sTeamID[24];
+		static char sName[128], sTeamID[24];
 
-		KeyValues hGM = new KeyValues("gagmuteban");
-		hGM.ImportFromFile(sg_fileTxt);
+		GetClientName(client, sName, sizeof(sName));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
 
-		GetClientName(client, sName, sizeof(sName)-12);
-		GetClientAuthId(client, AuthId_Steam2, sTeamID, sizeof(sTeamID)-1);
-
-		hGM.JumpToKey(sTeamID, true);
+		g_hGM.JumpToKey(sTeamID, true);
 
 		int iTimeGag = GetTime() + (iminute * 60);
-		hGM.SetString("Name", sName);
-		hGM.SetNum("gag", iTimeGag);
-		hGM.Rewind();
-		hGM.ExportToFile(sg_fileTxt);
-		delete hGM;
+		g_hGM.SetString("Name", sName);
+		g_hGM.SetNum("gag", iTimeGag);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
 		ServerCommand("sm_gag #%d", GetClientUserId(client));
-		return 1;
+		return true;
 	}
-	return 0;
+
+	return false;
 }
 
-int MenuHandler_Gage(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_GagPlayer(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		char sInfo[8];
-		bool found = menu.GetItem(param2, sInfo, sizeof(sInfo)-1);
-		if (found && param1)
+		static char sInfo[8], sTeamID[24];
+		menu.GetItem(param2, sInfo, sizeof(sInfo));
+		int target = StringToInt(sInfo);
+		target = GetClientOfUserId(target);
+		if (target && IsClientInGame(target))
 		{
-			int client = StringToInt(sInfo);
-			if (client > 0)
+			if (HxClientTimeGag(target, g_iMinutes[param1]))
 			{
-				if (ig_minutes < 1)
-				{
-					ig_minutes = 1;
-				}
-				
-				if (HxClientTimeGag(client, ig_minutes))
-				{
-					LogToFileEx(sg_log, "Gag: %N(Adm) exgag %N for %d minute(s)", param1, client, ig_minutes);
-					CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁用Chat文字{default}，長達 {green}%d{default} 分鐘", client, ig_minutes);
-				
-					delete g_hGagTimer[client];
-					g_hGagTimer[client] = CreateTimer(ig_minutes*60.0, Timer_UnGag, client);
-				}
+				GetClientAuthId(target, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+				LogToFileEx(sg_log, "Gag: %N(Adm) exgag (ID: %s) for %d minute(s)", param1, target, sTeamID, g_iMinutes[param1]);
+				CPrintToChatAll("%t", "ExGag_2", target, g_iMinutes[param1]);
+			
+				delete g_hGagTimer[target];
+				g_hGagTimer[target] = CreateTimer(g_iMinutes[param1]*60.0, Timer_UnGag, target);
 			}
 		}
+		else
+		{
+			CPrintToChat(param1, "%T", "InValid_Target", param1);
+			CMD_ExGag( param1, 0 );
+		}
 	}
-
+	else if ( action == MenuAction_Cancel )
+	{
+		if ( param2 == MenuCancel_ExitBack)
+			CMD_ExGag( param1, 0 );
+	}
 	if (action == MenuAction_End)
 	{
 		delete menu;
@@ -567,59 +529,47 @@ int MenuHandler_Gage(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-Action CMD_addgag(int client)
+void Menu_GagPlayer(int client)
 {
 	if (client)
 	{
 		if (IsClientInGame(client))
 		{
-			char sName[128];
-			char sNumber[8];
+			static char sId[16], name[64];
 
-			Menu hMenu = new Menu(MenuHandler_Gage);
-			hMenu.SetTitle("Menu Block Chat (Player)");
+			Menu hMenu = new Menu(MenuHandler_GagPlayer);
+			hMenu.SetTitle("%T", "Menu Block Chat Ex (Player)", client);
 
 			for (int i=1; i <= MaxClients ; ++i)
 			{
 				if (IsClientInGame(i) && !IsFakeClient(i))
 				{
-					//if (client != i)
-					//{
-						GetClientName(i, sName, sizeof(sName)-12);
-						Format(sNumber, sizeof(sNumber)-1, "%d", i);
-						hMenu.AddItem(sNumber, sName);
-					//}
+					FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
+					GetClientName(i, name, sizeof(name));
+					hMenu.AddItem(sId, name);
 				}
 			}
 
-			hMenu.ExitButton = false;
-			hMenu.Display(client, 20);
+			hMenu.ExitBackButton = true;
+			hMenu.ExitButton = true;
+			hMenu.Display(client, MENU_TIME_FOREVER);
 		}
 	}
-
-	return Plugin_Handled;
 }
 
-int AddMenuGag(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_GagTime(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		char info[8];
-		bool found = menu.GetItem(param2, info, sizeof(info)-1);
-		if (found && param1)
-		{
-			int iTime = StringToInt(info);
-			if (iTime > 0)
-			{
-				ig_minutes = iTime;
-				CMD_addgag(param1);
-			}
-		}
+		char sInfo[8];
+		menu.GetItem(param2, sInfo, sizeof(sInfo));
+		g_iMinutes[param1] = StringToInt(sInfo);
+		Menu_GagPlayer(param1);
 	}
 	else if ( action == MenuAction_Cancel )
 	{
-		if ( param2 == MenuCancel_ExitBack && hTopMenu )
-			hTopMenu.Display( param1, TopMenuPosition_LastCategory );
+		if ( param2 == MenuCancel_ExitBack && hTopMenuHandle )
+			hTopMenuHandle.Display( param1, TopMenuPosition_LastCategory );
 	}
 	else if (action == MenuAction_End)
 	{
@@ -629,7 +579,7 @@ int AddMenuGag(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-Action CMD_addgagmenu(int client, int args)
+Action CMD_ExGag(int client, int args)
 {
 	if (g_bCvarGagAllow == false)
 	{
@@ -644,26 +594,26 @@ Action CMD_addgagmenu(int client, int args)
 
 	if(args == 2)
 	{
-		char arg1[32], arg2[32];
+		static char arg1[32], arg2[32];
 		GetCmdArg(1, arg1, sizeof(arg1));
 		int target = FindTarget(client, arg1, true /*nobots*/, false /*immunity*/);
 		if(target == -1) return Plugin_Handled;	
 
 		GetCmdArg(2, arg2, sizeof(arg2));
 		int minutes = StringToInt(arg2);
-		if(minutes==0) minutes = 9999;
+		if(minutes==0) minutes = 9999999;
 
 		if (HxClientTimeGag(target, minutes))
 		{
 			if(client > 0)
 			{
 				LogToFileEx(sg_log, "Gag: %N(Adm) exgag %N for %d minute(s)", client, target, minutes);
-				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁用Chat文字{default}，長達 {green}%d{default} 分鐘", target, minutes);
+				CPrintToChatAll("%t", "ExGag_2", target, minutes);
 			}
 			else
 			{
 				LogToFileEx(sg_log, "[TS] Gag: Server exgag %N for %d minute(s)", target, minutes);
-				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被伺服器 {lightgreen}禁用Chat文字{default}，長達 {green}%d{default} 分鐘", target, minutes);
+				CPrintToChatAll("%t", "ExGag_3", target, minutes);
 			}
 
 			delete g_hGagTimer[target];
@@ -678,12 +628,13 @@ Action CMD_addgagmenu(int client, int args)
 			return Plugin_Handled;
 		}
 
-		Menu menu = new Menu(AddMenuGag);
+		Menu menu = new Menu(MenuHandler_GagTime);
 		for(int i = 0; i < sizeof(sBan_Time); i++)
 		{
 			menu.AddItem(sBan_Time[i][0], sBan_Time[i][1]);
 		}
-		menu.SetTitle("Menu Block Chat (Time)", client);
+		menu.SetTitle("%T", "Menu Block Chat Ex (Time)", client);
+		menu.ExitBackButton = true;
 		menu.ExitButton = true;
 		menu.Display(client, MENU_TIME_FOREVER);
 	}
@@ -691,62 +642,64 @@ Action CMD_addgagmenu(int client, int args)
 	return Plugin_Handled;
 }
 
-int HxClientTimeMute(int &client, int iminute)
+bool HxClientTimeMute(int &client, int iminute)
 {
+	if(g_hGM == null) return false;
+	g_hGM.Rewind();
+
 	if (IsClientInGame(client))
 	{
-		char sName[128];
-		char sTeamID[24];
+		static char sName[128], sTeamID[24];
 
-		KeyValues hGM = new KeyValues("gagmuteban");
-		hGM.ImportFromFile(sg_fileTxt);
+		GetClientName(client, sName, sizeof(sName));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
 
-		GetClientName(client, sName, sizeof(sName)-12);
-		GetClientAuthId(client, AuthId_Steam2, sTeamID, sizeof(sTeamID)-1);
-
-		hGM.JumpToKey(sTeamID, true);
+		g_hGM.JumpToKey(sTeamID, true);
 
 		int iTimeMute = GetTime() + (iminute * 60);
-		hGM.SetString("Name", sName);
-		hGM.SetNum("mute", iTimeMute);
-		hGM.Rewind();
-		hGM.ExportToFile(sg_fileTxt);
-		delete hGM;
+		g_hGM.SetString("Name", sName);
+		g_hGM.SetNum("mute", iTimeMute);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
 
 		ServerCommand("sm_mute #%d", GetClientUserId(client));
-		return 1;
+		return true;
 	}
-	return 0;
+
+	return false;
 }
 
-int MenuHandler_Mute(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MutePlayer(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		char sInfo[8];
-		bool found = menu.GetItem(param2, sInfo, sizeof(sInfo)-1);
-		if (found && param1)
+		static char sInfo[8], sTeamID[24];
+		menu.GetItem(param2, sInfo, sizeof(sInfo));
+		int target = StringToInt(sInfo);
+		target = GetClientOfUserId(target);
+		if (target && IsClientInGame(target))
 		{
-			int client = StringToInt(sInfo);
-			if (client > 0)
+			if (HxClientTimeMute(target, g_iMinutes[param1]))
 			{
-				if (ig_minutes < 1)
-				{
-					ig_minutes = 1;
-				}
-				
-				if (HxClientTimeMute(client, ig_minutes))
-				{
-					LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N for %d minute(s).", param1, client, ig_minutes);
-					CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁止MIC語音{default}，長達 {green}%d{default} 分鐘", client, ig_minutes);
-				
-					delete g_hMuteTimer[client];
-					g_hMuteTimer[client] = CreateTimer(ig_minutes*60.0, Timer_UnMute, client);
-				}
+				GetClientAuthId(target, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+				LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N (ID: %s) for %d minute(s).", param1, target, sTeamID, g_iMinutes[param1]);
+				CPrintToChatAll("%t", "ExMute_2", target, g_iMinutes[param1]);
+			
+				delete g_hMuteTimer[target];
+				g_hMuteTimer[target] = CreateTimer(g_iMinutes[param1]*60.0, Timer_UnMute, target);
 			}
 		}
+		else
+		{
+			CPrintToChat(param1, "%T", "InValid_Target", param1);
+			CMD_ExMute( param1, 0 );
+		}
 	}
-
+	else if ( action == MenuAction_Cancel )
+	{
+		if ( param2 == MenuCancel_ExitBack )
+			CMD_ExMute( param1, 0 );
+	}
 	if (action == MenuAction_End)
 	{
 		delete menu;
@@ -755,56 +708,44 @@ int MenuHandler_Mute(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-Action CMD_addmute(int client)
+void Menu_MutePlayer(int client)
 {
 	if (IsClientInGame(client))
 	{
-		char sName[128];
-		char sNumber[8];
+		static char sId[16], name[64];
 
-		Menu hMenu = new Menu(MenuHandler_Mute);
-		hMenu.SetTitle("Menu Block Microphone (Player)");
+		Menu hMenu = new Menu(MenuHandler_MutePlayer);
+		hMenu.SetTitle("%T", "Menu Block Microphone Ex (Player)", client);
 
 		for (int i=1; i <= MaxClients ; ++i)
 		{
 			if (IsClientInGame(i) && !IsFakeClient(i))
 			{
-				//if (client != i)
-				//{
-					GetClientName(i, sName, sizeof(sName)-12);
-					Format(sNumber, sizeof(sNumber)-1, "%d", i);
-					hMenu.AddItem(sNumber, sName);
-				//}
+				FormatEx(sId, sizeof sId, "%i", GetClientUserId(i));
+				GetClientName(i, name, sizeof(name));
+				hMenu.AddItem(sId, name);
 			}
 		}
 
-		hMenu.ExitButton = false;
-		hMenu.Display(client, 20);
+		hMenu.ExitBackButton = true;
+		hMenu.ExitButton = true;
+		hMenu.Display(client, MENU_TIME_FOREVER);
 	}
-
-	return Plugin_Handled;
 }
 
-int AddMenuMute(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MuteTime(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		char info[8];
-		bool found = menu.GetItem(param2, info, sizeof(info)-1);
-		if (found && param1)
-		{
-			int iTime = StringToInt(info);
-			if (iTime > 0)
-			{
-				ig_minutes = iTime;
-				CMD_addmute(param1);
-			}
-		}
+		char sInfo[8];
+		menu.GetItem(param2, sInfo, sizeof(sInfo));
+		g_iMinutes[param1] = StringToInt(sInfo);
+		Menu_MutePlayer(param1);
 	}
 	else if ( action == MenuAction_Cancel )
 	{
-		if ( param2 == MenuCancel_ExitBack && hTopMenu )
-			hTopMenu.Display( param1, TopMenuPosition_LastCategory );
+		if ( param2 == MenuCancel_ExitBack && hTopMenuHandle )
+			hTopMenuHandle.Display( param1, TopMenuPosition_LastCategory );
 	}
 	else if (action == MenuAction_End)
 	{
@@ -814,7 +755,7 @@ int AddMenuMute(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-Action CMD_addmutemenu(int client, int args)
+Action CMD_ExMute(int client, int args)
 {
 	if (g_bCvarMuteAllow == false)
 	{
@@ -829,27 +770,26 @@ Action CMD_addmutemenu(int client, int args)
 
 	if(args == 2)
 	{
-		char arg1[32], arg2[32];
+		static char arg1[32], arg2[32];
 		GetCmdArg(1, arg1, sizeof(arg1));
 		int target = FindTarget(client, arg1, true /*nobots*/, false /*immunity*/);
 		if(target == -1) return Plugin_Handled;	
 
 		GetCmdArg(2, arg2, sizeof(arg2));
 		int minutes = StringToInt(arg2);
-		if(minutes==0) minutes = 9999;
+		if(minutes==0) minutes = 9999999;
 
 		if (HxClientTimeMute(target, minutes))
 		{
 			if(client > 0)
 			{
 				LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N for %d minute(s).", client, target, minutes);
-				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被管理員 {lightgreen}禁止MIC語音{default}，長達 {green}%d{default} 分鐘", target, minutes);
-			
+				CPrintToChatAll("%t", "ExMute_2", target, minutes);
 			}
 			else
 			{
 				LogToFileEx(sg_log, "[TS] Mute: Server exmute %N for %d minute(s)", target, minutes);
-				CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} 被伺服器 {lightgreen}禁止MIC語音{default}，長達 {green}%d{default} 分鐘", target, minutes);
+				CPrintToChatAll("%t", "ExMute_3", target, minutes);
 			}
 
 			delete g_hMuteTimer[target];
@@ -864,12 +804,13 @@ Action CMD_addmutemenu(int client, int args)
 			return Plugin_Handled;
 		}
 
-		Menu menu = new Menu(AddMenuMute);
+		Menu menu = new Menu(MenuHandler_MuteTime);
 		for(int i = 0; i < sizeof(sBan_Time); i++)
 		{
 			menu.AddItem(sBan_Time[i][0], sBan_Time[i][1]);
 		}
-		menu.SetTitle("Menu Block Microphone (Time)", client);
+		menu.SetTitle("%T", "Menu Block Microphone Ex (Time)", client);
+		menu.ExitBackButton = true;
 		menu.ExitButton = true;
 		menu.Display(client, MENU_TIME_FOREVER);
 	}
@@ -877,35 +818,29 @@ Action CMD_addmutemenu(int client, int args)
 	return Plugin_Handled;
 }
 
-int HxClientTimeBanSteam(char[] steam_id, int iminute)
+bool HxClientTimeBanSteam(char[] steam_id, int iminute)
 {
-	KeyValues hGM = new KeyValues("gagmuteban");
-	hGM.ImportFromFile(sg_fileTxt);
+	if(g_hGM == null) return false;
+	g_hGM.Rewind();
 
-	if (!hGM.JumpToKey(steam_id))
-	{
-		hGM.JumpToKey(steam_id, true);
-	}
-
+	g_hGM.JumpToKey(steam_id, true);
 	int iTimeBan = GetTime() + (iminute * 60);
-	hGM.SetNum("ban", iTimeBan);
-	hGM.Rewind();
-	hGM.ExportToFile(sg_fileTxt);
-	delete hGM;
-	return 0;
+	g_hGM.SetNum("ban", iTimeBan);
+	g_hGM.Rewind();
+	g_hGM.ExportToFile(sg_fileTxt);
+
+	return true;
 }
 
 Action CMD_bansteamid(int client, int args)
 {
 	if (args < 1)
 	{
-		ReplyToCommand(client, "Usage: sm_exbansteam <minutes> <STEAM_ID>");
+		ReplyToCommand(client, "Usage: sm_exbansteam <minutes> <STEAM_ID64>");
 		return Plugin_Handled;
 	}
 	
-	char arg_string[256];
-	char minute[50];
-	char authid[50];
+	static char arg_string[256], minute[50], authid[32];
 
 	GetCmdArgString(arg_string, sizeof(arg_string));
 
@@ -914,7 +849,7 @@ Action CMD_bansteamid(int client, int args)
 	/* Get minute */
 	if ((len = BreakString(arg_string, minute, sizeof(minute))) == -1)
 	{
-		ReplyToCommand(client, "Usage: sm_bansteam <minutes> <steamid>");
+		ReplyToCommand(client, "Usage: sm_exbansteam <minutes> <steamid64>");
 		return Plugin_Handled;
 	}	
 	total_len += len;
@@ -931,17 +866,18 @@ Action CMD_bansteamid(int client, int args)
 	}
 	
 	/* Verify steamid */
-	bool idValid = false;
-	if (!strncmp(authid, "STEAM_", 6) && authid[7] == ':')
-		idValid = true;
+	bool idValid = true;
+	if (strncmp(authid, "STEAM_", 6, false) == 0 || strncmp(authid, "U:", 2, false) == 0)
+		idValid = false;
 	
 	if (!idValid)
 	{
-		ReplyToCommand(client, "Invalid SteamID specified (Must be STEAM_ )");
+		ReplyToCommand(client, "Invalid SteamID specified (Must be Steam64 ID )");
 		return Plugin_Handled;
 	}
 	
 	int minutes = StringToInt(minute);
+	if(minutes==0) minutes = 9999999;
 	
 	HxClientTimeBanSteam(authid, minutes);
 	for ( int i = 1 ; i <= MaxClients ; ++i ) 
@@ -954,10 +890,28 @@ Action CMD_bansteamid(int client, int args)
 	if(client != 0)
 	{
 		LogToFileEx(sg_log, "%N(Adm) added steamid %s in GagMuteBanEx list, %d minute(s) ban.", client, authid, minutes);
-		CPrintToChat(client, "[{olive}TS{default}] 你已新增 {lightgreen}%s(SteamID){default} 於GagMuteBanEx.txt檔案中，封鎖長達 {green}%d{default} 分鐘.", authid, minutes);
+		CPrintToChat(client, "%t", "ExBan_File", authid, minutes);
 	}
 	else
 		LogToFileEx(sg_log, "Server Console added steamid %s in GagMuteBanEx list, %d minute(s) ban.", authid, minutes);
+
+	return Plugin_Handled;
+}
+
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
+{
+	if (client < 0 || client > MaxClients)
+		return Plugin_Continue;
+
+	if (g_bCvarServerChat)
+		return Plugin_Continue;
+
+	if (BaseComm_IsClientGagged(client) == true) //this client has been gagged
+		return Plugin_Continue;	
+
+	if (HasAccess(client, g_sImmueAcclvl) == true)
+		return Plugin_Continue;	
+
 	return Plugin_Handled;
 }
 
@@ -965,10 +919,10 @@ Action CMD_bansteamid(int client, int args)
 int Category_Handler( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject topobj_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayTitle )
-		Format( buffer, maxlength, "Select an option");
+		Format( buffer, maxlength, Translate(param, "%t", "Select an option"));
 	
 	else if( hAction == TopMenuAction_DisplayOption)
-		Format( buffer, maxlength, "Ban/Mute/Gag-Ex");
+		Format( buffer, maxlength, Translate(param, "%t", "Ban/Mute/Gag-Ex"));
 
 	return 0;
 }
@@ -976,28 +930,28 @@ int Category_Handler( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject to
 void AdminMenu_BanEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
-		Format( buffer, maxlength, "Ban Player - Ex" );
+		Format( buffer, maxlength, Translate(param, "%t", "Ban Player - Ex"));
 	
 	else if ( hAction == TopMenuAction_SelectOption )
-		CMD_addbanmenu( param , 0);
+		CMD_ExBan( param , 0);
 }
 
 void AdminMenu_MuteEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
-		Format( buffer, maxlength, "Mute Player - Ex" );
+		Format( buffer, maxlength, Translate(param, "%t", "Mute Player - Ex"));
 	
 	else if ( hAction == TopMenuAction_SelectOption )
-		CMD_addmutemenu( param , 0);
+		CMD_ExMute( param , 0);
 }
 
 void AdminMenu_GagEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject object_id, int param, char[] buffer, int maxlength )
 {
 	if ( hAction == TopMenuAction_DisplayOption )
-		Format( buffer, maxlength, "Gag Player - Ex" );
+		Format( buffer, maxlength, Translate(param, "%t", "Gag Player - Ex"));
 	
 	else if ( hAction == TopMenuAction_SelectOption )
-		CMD_addgagmenu( param , 0);
+		CMD_ExGag( param , 0);
 }
 
 bool HasAccess(int client, char[] g_sAcclvl)
@@ -1021,7 +975,7 @@ bool HasAccess(int client, char[] g_sAcclvl)
 
 Action Timer_UnGag(Handle timer, int client)
 {
-	if(g_bCvarServerChat && client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientGagged(client))
+	if(client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientGagged(client))
 	{
 		int userid = GetClientUserId(client);
 		ServerCommand("sm_ungag #%d", userid);
@@ -1033,7 +987,7 @@ Action Timer_UnGag(Handle timer, int client)
 
 Action Timer_UnMute(Handle timer, int client)
 {
-	if(g_bCvarServerVoice && client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientMuted(client))
+	if(client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientMuted(client))
 	{
 		int userid = GetClientUserId(client);
 		ServerCommand("sm_unmute #%d", userid);
@@ -1051,14 +1005,23 @@ Action Timer_PutInServer(Handle timer, int userid)
 	{
 		HxClientGagMuteBanEx(client, false, true);
 
-		if (g_bCvarServerChat == false && BaseComm_IsClientGagged(client) == false) {
-			if(HasAccess(client, g_sImmueAcclvl) == false) CPrintToChat(client, "[{olive}TS{default}] 伺服器聊天功能已關閉 (Chat off)");
+		if (g_bCvarServerVoice == false) {
+			CPrintToChat(client, "%T", "sv_voiceenable_off", client);
 		}
 
-		if (g_bCvarServerVoice == false) {
-			CPrintToChat(client, "[{olive}TS{default}] 伺服器語音功能已關閉 (Mic off)");
+		if (g_bCvarServerChat == false) {
+			CPrintToChat(client, "%T", "sv_chatenable_off", client);
 		}
 	}
 
 	return Plugin_Continue;
+}
+
+// Replace original text with translated text (Zakikun)
+char[] Translate(int client, const char[] format, any ...)
+{
+	char buffer[192];
+	SetGlobalTransTarget(client);
+	VFormat(buffer, sizeof(buffer), format, 3);
+	return buffer;
 }

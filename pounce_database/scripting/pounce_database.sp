@@ -112,6 +112,7 @@ public void OnConfigsExecuted()
 {
 	IsAllowed();
 
+	delete g_hData;
 	g_hData = new KeyValues("pouncedata");
 	if (!g_hData.ImportFromFile(datafilepath))
 	{
