@@ -1497,7 +1497,7 @@ void TweakSettings()
 				SetConVarInt(FindConVar("survival_max_jockeys"), g_iSpawnLimits[SI_JOCKEY]);
 				SetConVarInt(FindConVar("survival_max_chargers"), g_iSpawnLimits[SI_CHARGER]);
 				SetConVarInt(FindConVar("survival_max_specials"), g_iMaxPlayerZombies);
-				SetConVarInt(FindConVar("survival_tank_stage_interval"), 9999999);
+				//SetConVarInt(FindConVar("survival_tank_stage_interval"), 9999999);
 				SetConVarInt(FindConVar("survival_special_limit_increase"), 0);
 				SetConVarInt(FindConVar("survival_special_spawn_interval"), 9999999);
 				SetConVarInt(FindConVar("survival_special_stage_interval"), 9999999);
@@ -1515,7 +1515,7 @@ void TweakSettings()
 				SetConVarInt(FindConVar("holdout_max_boomers"), g_iSpawnLimits[SI_BOOMER]);
 				SetConVarInt(FindConVar("holdout_max_hunters"), g_iSpawnLimits[SI_HUNTER]);
 				SetConVarInt(FindConVar("holdout_max_specials"), g_iMaxPlayerZombies);
-				SetConVarInt(FindConVar("holdout_tank_stage_interval"), 9999999);
+				//SetConVarInt(FindConVar("holdout_tank_stage_interval"), 9999999);
 				SetConVarInt(FindConVar("holdout_special_spawn_interval"), 9999999);
 				SetConVarInt(FindConVar("holdout_special_stage_interval"), 9999999);
 
@@ -1557,7 +1557,7 @@ void ResetCvars()
 			ResetConVar(FindConVar("survival_max_jockeys"), true, true);
 			ResetConVar(FindConVar("survival_max_chargers"), true, true);
 			ResetConVar(FindConVar("survival_max_specials"), true, true);
-			ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
+			//ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
 			ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
@@ -1568,7 +1568,7 @@ void ResetCvars()
 			ResetConVar(FindConVar("holdout_max_boomers"), true, true);
 			ResetConVar(FindConVar("holdout_max_hunters"), true, true);
 			ResetConVar(FindConVar("holdout_max_specials"), true, true);
-			ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
+			//ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
 		}
@@ -1584,7 +1584,7 @@ void ResetCvars()
 			ResetConVar(FindConVar("survival_max_jockeys"), true, true);
 			ResetConVar(FindConVar("survival_max_chargers"), true, true);
 			ResetConVar(FindConVar("survival_max_specials"), true, true);
-			ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
+			//ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
 			ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
@@ -1595,7 +1595,7 @@ void ResetCvars()
 			ResetConVar(FindConVar("holdout_max_boomers"), true, true);
 			ResetConVar(FindConVar("holdout_max_hunters"), true, true);
 			ResetConVar(FindConVar("holdout_max_specials"), true, true);
-			ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
+			//ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
 		}
@@ -4392,7 +4392,7 @@ public void OnPluginEnd()
 		ResetConVar(FindConVar("survival_max_jockeys"), true, true);
 		ResetConVar(FindConVar("survival_max_chargers"), true, true);
 		ResetConVar(FindConVar("survival_max_specials"), true, true);
-		ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
+		//ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
 		ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
 		ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
 		ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
@@ -4410,7 +4410,7 @@ public void OnPluginEnd()
 		ResetConVar(FindConVar("holdout_max_boomers"), true, true);
 		ResetConVar(FindConVar("holdout_max_hunters"), true, true);
 		ResetConVar(FindConVar("holdout_max_specials"), true, true);
-		ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
+		//ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
 		ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
 		ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
 
@@ -5262,13 +5262,13 @@ Action SpawnWitchAuto(Handle timer)
 	int witch;
 	if(anyclient == 0)
 	{
-		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn witch at this moment.",ZOMBIESPAWN_Attempts);
+		PrintToServer("[TS] Couldn't find a valid alive survivor to spawn witch at this moment.");
 	}
 	else if (witches < g_iWitchLimit)
 	{
 		if(L4D_GetRandomPZSpawnPosition(anyclient,7,ZOMBIESPAWN_Attempts,vecPos) == true)
 		{
-			if( g_bSpawnWitchBride )
+			if( g_bL4D2Version && g_bSpawnWitchBride )
 			{
 				witch = L4D2_SpawnWitchBride(vecPos,NULL_VECTOR);
 				if(witch > 0) CreateTimer(g_fWitchKillTime,KickWitch_Timer,EntIndexToEntRef(witch),TIMER_FLAG_NO_MAPCHANGE);
