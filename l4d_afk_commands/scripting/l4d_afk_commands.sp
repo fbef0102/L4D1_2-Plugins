@@ -62,6 +62,10 @@
 	"sm_swapto", "sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)"
 */
 
+/* Idiot - SilentBr (https://forums.alliedmods.net/member.php?u=46991)
+Finish the plugin request and then disappear, kept saying I'm busy and did not pay money
+spit this guy
+*/
 
 #define PLUGIN_VERSION 		"5.0"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
