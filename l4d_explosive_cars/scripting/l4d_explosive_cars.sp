@@ -312,7 +312,7 @@ public void OnNextFrame(int entityRef)
 	if(strncmp(classname, "prop_physics", 12) == 0)
 	{
 		GetEntPropString(entity, Prop_Data, "m_ModelName", model, sizeof(model));
-		if(StrContains(model, "vehicle", false) != -1)
+		if(StrContains(model, "vehicle", false) != -1 && IsTankProp(entity))
 		{
 			SDKHook(entity, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 			g_bHooked[entity] = true;
@@ -488,7 +488,7 @@ void LaunchCar(int car)
 	}
 }
 
-public Action timerNormalVelocity(Handle timer, any entityRef)
+Action timerNormalVelocity(Handle timer, any entityRef)
 {
 	if(g_bDisabled) return Plugin_Continue;
 
@@ -545,7 +545,7 @@ void CreateExplosion(float carPos[3])
 	int exEntity = CreateEntityByName("env_explosion");
 
 	//Set up the particle explosion
-	if( CheckIfEntityMax(exParticle) )
+	if( CheckIfEntitySafe(exParticle) )
 	{
 		DispatchKeyValue(exParticle, "effect_name", EXPLOSION_PARTICLE);
 		DispatchSpawn(exParticle);
@@ -558,7 +558,7 @@ void CreateExplosion(float carPos[3])
 	if(g_bL4D2Version)
 	{
 		int exParticle2 = CreateEntityByName("info_particle_system");
-		if( CheckIfEntityMax(exParticle2) )
+		if( CheckIfEntitySafe(exParticle2) )
 		{
 			DispatchKeyValue(exParticle2, "effect_name", EXPLOSION_PARTICLE2);
 			DispatchSpawn(exParticle2);
@@ -569,7 +569,7 @@ void CreateExplosion(float carPos[3])
 		}
 	}
 
-	if( CheckIfEntityMax(exParticle3) )
+	if( CheckIfEntitySafe(exParticle3) )
 	{
 		DispatchKeyValue(exParticle3, "effect_name", EXPLOSION_PARTICLE3);
 		DispatchSpawn(exParticle3);
@@ -579,7 +579,7 @@ void CreateExplosion(float carPos[3])
 		CreateTimer(g_cvarTrace.FloatValue + 1.5, timerDeleteParticles, EntIndexToEntRef(exParticle3), TIMER_FLAG_NO_MAPCHANGE);
 	}
 
-	if( CheckIfEntityMax(exTrace) )
+	if( CheckIfEntitySafe(exTrace) )
 	{
 		DispatchKeyValue(exTrace, "effect_name", FIRE_PARTICLE);
 		DispatchSpawn(exTrace);
@@ -590,7 +590,7 @@ void CreateExplosion(float carPos[3])
 	}
 
 	//Set up explosion entity
-	if( CheckIfEntityMax(exEntity) )
+	if( CheckIfEntitySafe(exEntity) )
 	{
 		DispatchKeyValue(exEntity, "fireballsprite", "sprites/muzzleflash4.vmt");
 		DispatchKeyValue(exEntity, "iMagnitude", sDamage);
@@ -603,7 +603,7 @@ void CreateExplosion(float carPos[3])
 	}
 
 	//Set up physics movement explosion
-	if( CheckIfEntityMax(exPhys) )
+	if( CheckIfEntitySafe(exPhys) )
 	{
 		DispatchKeyValue(exPhys, "radius", sRadius);
 		DispatchKeyValue(exPhys, "magnitude", sPower);
@@ -613,7 +613,7 @@ void CreateExplosion(float carPos[3])
 		CreateTimer(g_cvarTrace.FloatValue + 1.5, timerDeleteParticles, EntIndexToEntRef(exPhys), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	//Set up hurt point
-	if( CheckIfEntityMax(exHurt) )
+	if( CheckIfEntitySafe(exHurt) )
 	{
 		DispatchKeyValue(exHurt, "DamageRadius", sRadius);
 		DispatchKeyValue(exHurt, "DamageDelay", sInterval);
@@ -764,7 +764,7 @@ void AttachParticle(int car, const char[] Particle_Name)
 		AcceptEntityInput(entity, "Kill");
 		g_iParticle[car] = -1;
 	}
-	if( CheckIfEntityMax(Particle) )
+	if( CheckIfEntitySafe(Particle) )
 	{
 		g_iParticle[car] = EntIndexToEntRef(Particle);
 		GetEntPropVector(car, Prop_Data, "m_vecOrigin", carPos);
@@ -798,7 +798,7 @@ bool IsValidEntityIndex(int entity)
     return (MaxClients+1 <= entity <= GetMaxEntities());
 }
 
-bool CheckIfEntityMax(int entity)
+bool CheckIfEntitySafe(int entity)
 {
 	if(entity == -1) return false;
 
@@ -821,4 +821,23 @@ void ResetPlugin()
 {
 	g_iRoundStart = 0;
 	g_iPlayerSpawn = 0;
+}
+
+bool IsTankProp(int iEntity)
+{
+	if (!IsValidEdict(iEntity)) {
+		return false;
+	}
+
+	// CPhysicsProp only
+	if (!HasEntProp(iEntity, Prop_Send, "m_hasTankGlow")) {
+		return false;
+	}
+
+	bool bHasTankGlow = (GetEntProp(iEntity, Prop_Send, "m_hasTankGlow", 1) == 1);
+	if (!bHasTankGlow) {
+		return false;
+	}
+
+	return true;
 }
