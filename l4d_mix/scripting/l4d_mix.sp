@@ -1,31 +1,4 @@
-
-/*=======================================================================================
-	Change Log:
-
-1.1 (26-03-2019)
-	- Initial release.
-	- Cleared old code, converted to new syntax and methodmaps.	
-
-1.2 (13-04-2019)
-	- fix error, optimize codes, and handle exception
-	
-1.3 (15-04-2020)
-	- 給那些沒有換隊!survivor與!infected指令的傻B對抗插件強制換隊
-
-1.4 (11-10-2020)
-	- 強制新語法
-
-1.5 (15-5-2021)
-	- Add A-BB-A-B-A
-
-1.6 (17-5-2021)
-	- Hide ReadyUp Hud if Ready Up plugin is available
-
-1.7 (8-3-2022)
-	- fix client not in game error
-
-1.8 (21-10-2022)
-	- Compiled .smx plugin is now compiled with SourceMod version 1.11.
+/*
 ========================================================================================
 	Credits:
 
@@ -34,8 +7,8 @@
 	JOSHE GATITO SPARTANSKII >>> (Ex Aya Supay) - for writing  plugin again and add new commands. 
 	Harry - fix error, optimize codes, new sourcemod syntax, and handle exception
 
-========================================================================================*/
-#define PLUGIN_VERSION		"1.8"
+========================================================================================
+*/
 
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
@@ -43,6 +16,30 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <multicolors>
+
+#define PLUGIN_VERSION		"1.0h-2023/11/15"
+
+public Plugin myinfo = 
+{
+	name = "Left 4 Dead 1/2 Mix",
+	author = "HarryPotter",
+	description = "L4D1/2 Mix",
+	version = PLUGIN_VERSION,
+	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_mix"
+};
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test != Engine_Left4Dead2 && test != Engine_Left4Dead )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+	
+	return APLRes_Success; 
+}
 
 #define TEAM_SPECTATOR 1
 #define TEAM_SURVIVOR 2
@@ -70,27 +67,7 @@ int g_iSelectedPlayers[66];
 char teamName[64] ;
 char oppositeTeamName[64] ;
 
-public Plugin myinfo = 
-{
-	name = "Left 4 Dead 1/2 Mix",
-	author = "Joshe Gatito & ZenServer & HarryPotter",
-	description = "L4D1/2 Mix",
-	version = PLUGIN_VERSION,
-	url = "https://steamcommunity.com/id/joshegatito/"
-};
-
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
-{
-	EngineVersion test = GetEngineVersion();
-	
-	if( test != Engine_Left4Dead2 && test != Engine_Left4Dead )
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-		return APLRes_SilentFailure;
-	}
-	
-	return APLRes_Success; 
-}
+Menu SurvivorCaptainMenu, InfectedCaptainMenu;
 
 public void OnPluginStart()
 {
@@ -98,10 +75,10 @@ public void OnPluginStart()
 	g_CvarSurvLimit = FindConVar("survivor_limit");
 	g_CvarMaxPlayerZombies = FindConVar("z_max_player_zombies");
 
-	g_CvarMixStatus = CreateConVar(		"l4d_mix_status", "0", "The status of the mix. DO NOT MANUALLY ALTER THIS CVAR U SON OF A FUCK", FCVAR_DONTRECORD|FCVAR_SPONLY);	
-	g_hPlayerSelectOrder = CreateConVar("l4d_mix_select_order", "1", "0 = ABABAB | 1 = ABBAAB | 2 = ABBABA", FCVAR_NOTIFY, true, 0.0, true, 2.0);
-	CreateConVar(                      	"l4d_mix_version",       PLUGIN_VERSION, "l4d_trade_player Plugin Version", FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY);
-	AutoExecConfig(true,               	"l4d_mix_player");
+	g_CvarMixStatus = CreateConVar(			"l4d_mix_status", 			"0", "The status of the mix. DO NOT MODIFY THIS CVAR U SON OF A FUCK", FCVAR_DONTRECORD|FCVAR_SPONLY);	
+	g_hPlayerSelectOrder = CreateConVar(	"l4d_mix_select_order", 	"1", "0 = ABABAB | 1 = ABBAAB | 2 = ABBABA", FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	CreateConVar(                      		"l4d_mix_version",       	PLUGIN_VERSION, "l4d_trade_player Plugin Version", FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY);
+	AutoExecConfig(true,               		"l4d_mix_player");
 
 	CaptainVote_OnPluginStart();
 	g_iPlayerSelectOrder = g_hPlayerSelectOrder.IntValue;
@@ -195,6 +172,9 @@ public void CaptainVote_ConVarChange_MixStatus(Handle convar, char[] oldValue, c
 		ResetHasVoted();
 		g_bTeamRequested[2] = false;
 		g_bTeamRequested[3] = false;
+
+		delete SurvivorCaptainMenu;
+		delete InfectedCaptainMenu;
 	}
 	if (g_CvarMixStatus.IntValue == 3)
 	{
@@ -331,7 +311,7 @@ public Action Command_Captainvote(int client, int args)
 	CPrintToChatAll("{default}[{olive}Mix{default}] The %s have requested to start a mix.", teamName);
 	CPrintToChatAll("{default}The %s must agree by typing {green}!mix.", oppositeTeamName);
 	g_lock = true;
-	CreateTimer(10.0, Timer_LoadMix, view_as<any>(2), 0);
+	CreateTimer(10.0, Timer_LoadMix);
 	return Plugin_Handled;
 }
 
@@ -407,7 +387,8 @@ void DisplayVoteMenuCaptainSurvivor()
 	if (g_CvarMixStatus.IntValue)
 	{
 		g_CvarMixStatus.SetInt(2, false, false);
-		Menu SurvivorCaptainMenu = new Menu(Handler_SurvivorCaptainCallback, MENU_ACTIONS_DEFAULT);
+		delete SurvivorCaptainMenu;
+		SurvivorCaptainMenu = new Menu(Handler_SurvivorCaptainCallback, MENU_ACTIONS_DEFAULT);
 		SurvivorCaptainMenu.SetTitle("選隊長#1(Choose Survivor Captain):");
 		int players;
 		g_bHasOneVoted = false;
@@ -429,7 +410,7 @@ void DisplayVoteMenuCaptainSurvivor()
 			if (IsClientInGame(i)&&!IsFakeClient(i))
 				SurvivorCaptainMenu.Display(i, 10);
 
-		CreateTimer(10.1, TimerCheckSurvivorCaptainVote, view_as<any>(2), 0);
+		CreateTimer(10.1, TimerCheckSurvivorCaptainVote);
 	}
 }
 
@@ -522,7 +503,7 @@ void DisplayVoteMenuPlayerSelect()
 				PlayerSelectMenu.Display(g_iInfectedCaptain, 1);
 			}
 		}
-		CreateTimer(1.1, Timer_PlayerSelection, view_as<any>(1), 0);
+		CreateTimer(1.1, Timer_PlayerSelection);
 	}
 }
 
@@ -577,10 +558,7 @@ public int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int par
 		}
 		case MenuAction_End:
 		{
-			if (menu)
-			{
-				delete menu;
-			}
+			delete menu;
 		}
 	}
 
@@ -596,7 +574,7 @@ public Action Timer_PlayerSelection(Handle timer)
 		if (g_iSelectedPlayers[g_iSurvivorCaptain] >= SurvivorLimit -1 && g_iSelectedPlayers[g_iInfectedCaptain] >= InfectedLimit -1)
 		{
 			g_CvarMixStatus.SetInt(4, false, false);
-			return Plugin_Stop;//4
+			return Plugin_Stop;
 		}
 		
 		int freeslots =  SurvivorLimit + InfectedLimit;
@@ -616,7 +594,8 @@ public Action Timer_PlayerSelection(Handle timer)
 
 void DisplayVoteMenuCaptainInfected()
 {
-	Menu InfectedCaptainMenu = new Menu(Handler_InfectedCaptainCallback, MENU_ACTIONS_DEFAULT);
+	delete InfectedCaptainMenu;
+	InfectedCaptainMenu = new Menu(Handler_InfectedCaptainCallback, MENU_ACTIONS_DEFAULT);
 	InfectedCaptainMenu.SetTitle("選隊長#2(Choose Infected Captain):");
 	int players;
 	g_bHasOneVoted = false;
@@ -638,7 +617,7 @@ void DisplayVoteMenuCaptainInfected()
 		if (IsClientInGame(i) && !IsFakeClient(i) && g_iSurvivorCaptain != i)
 			InfectedCaptainMenu.Display(i, 10);
 			
-	CreateTimer(10.1, TimerCheckInfectedCaptainVote, view_as<any>(2), 0);
+	CreateTimer(10.1, TimerCheckInfectedCaptainVote);
 }
 
 public Action TimerCheckInfectedCaptainVote(Handle timer)
@@ -801,11 +780,11 @@ void SwapPlayersToDesignatedTeams()
 		{
 			if (g_iDesignatedTeam[i] == TEAM_SURVIVOR)
 			{
-				CreateTimer(G_flTickInterval, MoveToSurvivor, i, 2);
+				CreateTimer(G_flTickInterval, MoveToSurvivor, i, TIMER_FLAG_NO_MAPCHANGE);
 			}
 			if (g_iDesignatedTeam[i] == TEAM_INFECTED)
 			{
-				CreateTimer(G_flTickInterval, MoveToInfected, i, 2);
+				CreateTimer(G_flTickInterval, MoveToInfected, i, TIMER_FLAG_NO_MAPCHANGE);
 			}
 		}
 	}
