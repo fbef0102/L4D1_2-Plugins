@@ -23,7 +23,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
-* <b>[l4d_Modo_mix_mm](/l4d_Modo_mix_mm)</b>: Left 4 Dead 1/2 Mix
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
@@ -168,11 +167,15 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 根據遊戲模式或突變模式執行不同的cfg文件
 * <b>[GagMuteBanEx](/GagMuteBanEx)</b>: Gag & Mute & Ban - Ex
     * 封鎖/禁音/禁言-強化版
+* <b>[l4d_mix](/l4d_mix)</b>: L4D1/2 Mix
+    * 對抗模式中，投票選雙方隊長，雙方隊長再選隊員
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境
 * SourceMod is licensed under the [GNU General Public License, version 3](https://svn.alliedmods.net/viewvc.cgi/trunk/public/licenses/LICENSE.txt?revision=2255&root=sourcemod).
     * 此專案內所有開源碼皆在授權條款下: [GNU General Public License, version 3](https://svn.alliedmods.net/viewvc.cgi/trunk/public/licenses/LICENSE.txt?revision=2255&root=sourcemod)
+
 # Others
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>: L4D2 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
 * <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
