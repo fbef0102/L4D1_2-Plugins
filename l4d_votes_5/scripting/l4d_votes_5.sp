@@ -97,7 +97,7 @@ public Plugin myinfo =
 	name = "L4D2 Vote Menu",
 	author = "HarryPotter",
 	description = "Votes Commands",
-	version = "6.1",
+	version = "6.2",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -114,8 +114,6 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_callvote", Command_Votes, "open vote meun");
 	RegConsoleCmd("sm_callvotes", Command_Votes, "open vote meun");
 	RegConsoleCmd("votesforcespectate", Command_Votesforcespectate);
-	RegAdminCmd("sm_restartmap", CommandRestartMap, ADMFLAG_CHANGEMAP, "sm_restartmap - changelevels to the current map");
-	RegAdminCmd("sm_rs", CommandRestartMap, ADMFLAG_CHANGEMAP, "sm_restartmap - changelevels to the current map");
 
 	g_Cvar_Limits = CreateConVar("sm_votes_s", "0.60", "pass vote percentage.", 0, true, 0.05, true, 1.0);
 	VotensHpED = CreateConVar("l4d_VotenshpED", "1", "If 1, Enable Give HP Vote.", FCVAR_NOTIFY);
@@ -169,15 +167,6 @@ void GetCvars()
 	g_bEnable = VotensED.BoolValue;
 	g_hKickImmueAccess.GetString(g_sKickImmueAccesslvl,sizeof(g_sKickImmueAccesslvl));
 }
-public Action CommandRestartMap(int client, int args)
-{	
-	if(!isMapRestartPending)
-	{
-		CPrintToChatAll("[{olive}TS{default}] Map restart in {green}%d{default} seconds.", READY_RESTART_MAP_DELAY+1);
-		RestartMapDelayed();
-	}
-	return Plugin_Handled;
-}
 
 void RestartMapDelayed()
 {
@@ -190,7 +179,7 @@ void RestartMapDelayed()
 	}
 }
 
-public Action timerRestartMap(Handle timer)
+Action timerRestartMap(Handle timer)
 {
 	if (MapRestartDelay == 0)
 	{
@@ -356,96 +345,96 @@ public int Votes_Menu(Menu menu, MenuAction action, int client, int itemNum)
 			{
 				if (VotensHpE_D == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用回血");
 				}
 				else if (VotensHpE_D == true)
 				{
-					FakeClientCommand(client,"voteshp");
+					Command_VoteHp(client, 0);
 				}
 			}
 			case 2: 
 			{
 				if (VotensAlltalkE_D == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用全語音");
 				}
 				else if (VotensAlltalkE_D == true)
 				{
-					FakeClientCommand(client,"votesalltalk");
+					Command_VoteAlltalk(client, 0);
 				}
 			}
 			case 3: 
 			{
 				if (VotensAlltalk2E_D == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用關閉全語音");
 				}
 				else if (VotensAlltalk2E_D == true)
 				{
-					FakeClientCommand(client,"votesalltalk2");
+					Command_VoteAlltalk2(client, 0);
 				}
 			}
 			case 4: 
 			{
 				if (VotensRestartmapE_D == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用重新目前地圖");
 				}
 				else if (VotensRestartmapE_D == true)
 				{
-					FakeClientCommand(client,"votesrestartmap");
+					Command_VoteRestartmap(client, 0);
 				}
 			}
 			case 5: 
 			{
 				if (VotensMapE_D == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用換圖");
 				}
 				else if (VotensMapE_D == true)
 				{
-					FakeClientCommand(client,"votesmapsmenu");
+					Command_VotemapsMenu(client, 0);
 				}
 			}
 			case 6: 
 			{
 				if (VotensMap2E_D == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用換第三方圖");
 				}
 				else if (VotensMap2E_D == true)
 				{
-					FakeClientCommand(client,"votesmaps2menu");
+					Command_Votemaps2Menu(client, 0);
 				}
 			}
 			case 7: 
 			{
 				if (g_bVotensKickED == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用踢人");
 				}
 				else if (g_bVotensKickED == true)
 				{
-					FakeClientCommand(client,"voteskick");
+					Command_VotesKick(client, 0);
 				}
 			}
 			case 8: 
 			{
 				if (g_bVotensForceSpectateED == false)
 				{
-					FakeClientCommand(client,"sm_votes");
+					Command_Votes(client, 0);
 					CPrintToChat(client, "[{olive}TS{default}] 禁用強制旁觀玩家");
 				}
 				else if (g_bVotensForceSpectateED == true)
 				{
-					FakeClientCommand(client,"votesforcespectate");
+					Command_Votesforcespectate(client, 0);
 				}
 			}
 		}
@@ -708,8 +697,9 @@ public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 	}
 	else if ( action == MenuAction_Cancel)
 	{
-		if (param2 == MenuCancel_ExitBack) {
-			FakeClientCommand(param1,"votes");
+		if (param2 == MenuCancel_ExitBack) 
+		{
+			Command_Votes(param1, 0);
 		}
 		else
 			ClientVoteMenu[param1] = false;
@@ -847,8 +837,9 @@ public int MapMenuHandler(Menu menu, MenuAction action, int client, int itemNum)
 	}
 	else if ( action == MenuAction_Cancel)
 	{
-		if (itemNum == MenuCancel_ExitBack) {
-			FakeClientCommand(client,"votes");
+		if (itemNum == MenuCancel_ExitBack) 
+		{
+			Command_Votes(client, 0);
 		}
 		else
 			ClientVoteMenu[client] = false;
@@ -944,8 +935,9 @@ public int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int
 	}
 	else if ( action == MenuAction_Cancel)
 	{
-		if (param2 == MenuCancel_ExitBack) {
-			FakeClientCommand(param1,"votes");
+		if (param2 == MenuCancel_ExitBack) 
+		{
+			Command_Votes(param1, 0);
 		}
 		else
 			ClientVoteMenu[param1] = false;
@@ -1265,38 +1257,34 @@ public Action COLD_DOWN(Handle timer,any client)
 		case (hp):
 		{
 			AnyHp();
-			//DisplayBuiltinVotePass(vote, "vote to give hp pass");
 			LogMessage("vote to give hp pass");	
 		}
 		case (alltalk):
 		{
 			ServerCommand("sv_alltalk 1");
-			//DisplayBuiltinVotePass(vote, "vote to turn on alltalk pass");
 			LogMessage("vote to turn on alltalk pass");
 		}
 		case (alltalk2):
 		{
 			ServerCommand("sv_alltalk 0");
-			//DisplayBuiltinVotePass(vote, "vote to turn off alltalk pass");
 			LogMessage("vote to turn off alltalk pass");
 		}
 		case (restartmap):
 		{
-			ServerCommand("sm_restartmap");
-			//DisplayBuiltinVotePass(vote, "vote to restartmap pass");
-			LogMessage("vote to restartmap pass");
+			if(!isMapRestartPending)
+			{
+				RestartMapDelayed();
+				LogMessage("vote to restartmap pass");
+			}
 		}
 		case (map):
 		{
 			CreateTimer(5.0, Changelevel_Map);
 			CPrintToChatAll("[{olive}TS{default}] {green}5{default} sec to change map {blue}%s",votesmapsname);
-			//CPrintToChatAll("{blue}%s",votesmaps);
-			//DisplayBuiltinVotePass(vote, "Vote to change map pass");
 			LogMessage("Vote to change map %s %s pass",votesmaps,votesmapsname);
 		}
 		case (kick):
-		{
-			//DisplayBuiltinVotePass(vote, "Vote to kick player pass");						
+		{				
 			CPrintToChatAll("[{olive}TS{default}] %s has been kicked!", kickplayer_name);
 			LogMessage("Vote to kick %s pass", kickplayer_name);
 
