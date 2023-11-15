@@ -108,6 +108,9 @@ Tanks throw special infected instead of rock
 	//Pan Xiaohai @ 2010-2011
 	//Harry @ 2022-2023
 	```
+	* v2.1h (2023-11-16)
+        * Fixed crash: "no free edicts"
+
 	* v2.0h (2023-9-5)
         * Teleport Rock before removed
 

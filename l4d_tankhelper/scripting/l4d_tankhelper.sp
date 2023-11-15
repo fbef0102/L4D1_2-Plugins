@@ -1,5 +1,3 @@
-//Pan Xiaohai & Dragokas & HarryPotter @ 2010-2022
-
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
@@ -13,7 +11,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw special infected instead of rock",
-	version = "2.0h-2023/9/5",
+	version = "2.1h-2023/11/16",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -44,6 +42,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	
 	return APLRes_Success; 
 }
+
+#define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
 #define PARTICLE_ELECTRICAL	"electrical_arc_01_system"
 
@@ -190,7 +191,7 @@ public void OnMapStart()
 		g_bSpawnWitchBride = true;
 }
 
-public void ConVarChange(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChange(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetConVar();
 
@@ -674,9 +675,8 @@ void CheatCommand(int client, char[] command, char[] arguments = "")
 int DisplayParticle(int target, const char[] sParticle, const float vPos[3], const float vAng[3], float refire = 0.0)
 {
 	int entity = CreateEntityByName("info_particle_system");
-	if( entity == -1)
+	if( CheckIfEntitySafe(entity) == false)
 	{
-		LogError("Failed to create 'info_particle_system'");
 		return 0;
 	}
 
@@ -712,10 +712,12 @@ int DisplayParticle(int target, const char[] sParticle, const float vPos[3], con
 		AcceptEntityInput(entity, "AddOutput");
 	}
 
+	CreateTimer(3.0, DeleteParticles, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
+
 	return entity;
 }
 
-public Action DeleteParticles(Handle timer, any particle)
+Action DeleteParticles(Handle timer, any particle)
 {
 	particle = EntRefToEntIndex(particle);
 	if (particle != INVALID_ENT_REFERENCE)
@@ -727,7 +729,7 @@ public Action DeleteParticles(Handle timer, any particle)
 	return Plugin_Continue;
 }
 
-public bool TraceRayDontHitSelf(int entity, int mask, any data)
+bool TraceRayDontHitSelf(int entity, int mask, any data)
 {
 	if(entity == data) 
 	{
@@ -1039,7 +1041,7 @@ int L4D_GetSurvivorVictim(int client)
 	return -1;
 }
 
-public Action OnNormalSoundPlay(int Clients[64], int &NumClients, char StrSample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level,
+Action OnNormalSoundPlay(int Clients[64], int &NumClients, char StrSample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level,
 	int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
 	if (StrEqual(StrSample, SOUND_THROWN_MISSILE, false)) {
@@ -1050,7 +1052,7 @@ public Action OnNormalSoundPlay(int Clients[64], int &NumClients, char StrSample
 	return Plugin_Continue;
 }
 
-public Action KickWitch_Timer(Handle timer, int ref)
+Action KickWitch_Timer(Handle timer, int ref)
 {
 	if(IsValidEntRef(ref))
 	{
@@ -1260,4 +1262,16 @@ public Action OnUpdate( BehaviorAction action, int actor, float interval, Action
 	}
 
 	return Plugin_Handled;
+}
+
+bool CheckIfEntitySafe(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
 }
