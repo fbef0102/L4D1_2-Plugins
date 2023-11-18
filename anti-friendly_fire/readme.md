@@ -15,23 +15,26 @@ shoot your teammate = shoot yourself
 
     * cfg/sourcemod/anti-friendly_fire.cfg
         ```php
-        // Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)
-        anti_friendly_fire_damage_multi "1.5"
-
-        // Disable friendly fire damage if damage is below this value (0=Off).
-        anti_friendly_fire_damage_sheild "0"
-
         // Enable anti-friendly_fire plugin [0-Disable,1-Enable]
         anti_friendly_fire_enable "1"
-
-        // If 1, Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire.
-        anti_friendly_fire_immue_explode "0"
 
         // If 1, Disable Fire friendly fire.
         anti_friendly_fire_immue_fire "1"
 
+        // If 1, Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire.
+        anti_friendly_fire_immue_explode "0"
+
+        // (L4D2) If 1, Disable Grenade Launcher friendly fire.
+        anti_friendly_fire_immue_GL "1"
+
+        // Disable friendly fire damage if damage is below this value (0=Off).
+        anti_friendly_fire_damage_sheild "0"
+
         // If 1, Disable friendly fire if damage is about to incapacitate victim.
         anti_friendly_fire_incap_protect "1"
+
+        // Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)
+        anti_friendly_fire_damage_multi "1.5"
         ```
 </details>
 
@@ -63,6 +66,9 @@ shoot your teammate = shoot yourself
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.6 (2023-11-18)
+		* Add grenade launcher damage
+
     * v1.5 (2022-12-6)
         * Disable Pipe Bomb Explosive friendly fire
         * Disable Fire friendly fire.
@@ -76,32 +82,30 @@ shoot your teammate = shoot yourself
 * 原理
     * 隊友開槍打你，你不會受傷，是開槍者會受到傷害
 
-* 功能
-    * 可設置火焰不造成友傷
-    * 可設置土製炸彈、瓦斯罐、氧氣罐不造成友傷
-    * 可設置友傷數值加倍反彈
-
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
     * cfg/sourcemod/anti-friendly_fire.cfg
         ```php
-        // 友傷 x 數值，然後再反彈 (1.0 = 反彈一樣的傷害)
-        anti_friendly_fire_damage_multi "1.5"
-
-        // 友傷低於此數值時，不造成友傷 (0=關閉).
-        anti_friendly_fire_damage_sheild "0"
-
         // 啟用 anti-friendly_fire 插件 [0-關閉,1-開啟]
         anti_friendly_fire_enable "1"
-
-        // 為 1, 土製炸彈、瓦斯罐、氧氣罐不造成友傷
-        anti_friendly_fire_immue_explode "0"
 
         // 為 1, 火焰不造成友傷
         anti_friendly_fire_immue_fire "1"
 
-        // 為 1, 如果友傷會造成對方倒地，不造成友傷
+        // 為 1, 土製炸彈、瓦斯罐、氧氣罐不造成友傷
+        anti_friendly_fire_immue_explode "0"
+
+        // (L4D2) 為 1, 榴彈發射器不造成友傷
+        anti_friendly_fire_immue_GL "1"
+
+        // 友傷低於此數值時，不造成友傷 (0=關閉).
+        anti_friendly_fire_damage_sheild "0"
+
+        // 為 1, 如果友傷會造成對方倒地，則不造成友傷
         anti_friendly_fire_incap_protect "1"
+
+        // 友傷 x 數值，然後再反彈 (1.0 = 反彈一樣的傷害)
+        anti_friendly_fire_damage_multi "1.5"
         ```
 </details>
 
