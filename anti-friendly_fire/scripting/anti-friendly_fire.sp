@@ -7,8 +7,8 @@
 
 #define CLASSNAME_LENGTH 64
 
-ConVar g_hGod, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hDamageShield, g_hIncapProtect, g_hDamageMulti;
-bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bIncapProtect;
+ConVar g_hGod, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hGLDisable, g_hDamageShield, g_hIncapProtect, g_hDamageMulti;
+bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bGLDisable, g_bIncapProtect;
 int g_iDamageShield;
 float g_fDamageMulti;
 
@@ -17,16 +17,24 @@ public Plugin myinfo =
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.5",
+	version = "1.6-2023/11/18",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
-bool g_bLate;
+bool g_bLate, g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 	
-	if( test != Engine_Left4Dead2 && test != Engine_Left4Dead) 
+	if( test == Engine_Left4Dead )
+	{
+		g_bL4D2Version = false;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_bL4D2Version = true;
+	}
+	else
 	{
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
@@ -52,6 +60,13 @@ public void OnPluginStart()
 								"If 1, Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire.",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
+	if(g_bL4D2Version)
+	{
+		g_hGLDisable = CreateConVar( "anti_friendly_fire_immue_GL", "0",
+								"(L4D2) If 1, Disable Grenade Launcher friendly fire.",
+								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
+	}
+
 	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "0",
 								"Disable friendly fire damage if damage is below this value (0=Off).",
 								FCVAR_NOTIFY, true, 0.0);
@@ -69,6 +84,7 @@ public void OnPluginStart()
 	g_hEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_hFireDisable.AddChangeHook(ConVarChanged_Cvars);
 	g_hPipeBombDisable.AddChangeHook(ConVarChanged_Cvars);
+	if(g_bL4D2Version) g_hGLDisable.AddChangeHook(ConVarChanged_Cvars);
 	g_hDamageShield.AddChangeHook(ConVarChanged_Cvars);
 	g_hIncapProtect.AddChangeHook(ConVarChanged_Cvars);
 	g_hDamageMulti.AddChangeHook(ConVarChanged_Cvars);
@@ -92,7 +108,7 @@ public void OnClientPutInServer(int client)
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -103,12 +119,13 @@ void GetCvars()
 	g_bEnable = g_hEnable.BoolValue;
 	g_bFireDisable = g_hFireDisable.BoolValue;
 	g_bPipeBombDisable = g_hPipeBombDisable.BoolValue;
+	if(g_bL4D2Version) g_bGLDisable = g_hGLDisable.BoolValue;
 	g_bIncapProtect = g_hIncapProtect.BoolValue;
 	g_iDamageShield = g_hDamageShield.IntValue;
 	g_fDamageMulti = g_hDamageMulti.FloatValue;
 }
 
-public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
 	if(damage <= 0.0 || g_bEnable == false || g_bGod == true) return Plugin_Continue;
 
@@ -131,7 +148,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	return Plugin_Continue;
 }
 
-public void Event_Hurt(Event event, const char[] name, bool dontBroadcast) 
+void Event_Hurt(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(g_bGod) return;
 
@@ -157,6 +174,11 @@ public void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 		bIsSpecialWeapon = true;
 		if(g_bPipeBombDisable == false) return;
 	}
+	else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
+	{
+		bIsSpecialWeapon = true;
+		if(g_bGLDisable == false) return;
+	}
 	else if(IsFire(WeaponName) || IsFireworkcrate(WeaponName))
 	{
 		bIsSpecialWeapon = true;
@@ -174,7 +196,7 @@ public void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast) 
+void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(g_bGod) return;
 
@@ -216,7 +238,7 @@ void HurtEntity(int victim, int client, float damage)
 	SDKHooks_TakeDamage(victim, client, client, damage * g_fDamageMulti, DMG_SLASH);
 }
 
-stock bool IsClientAndInGame(int client)
+bool IsClientAndInGame(int client)
 {
 	if (0 < client && client <= MaxClients)
 	{	
@@ -225,22 +247,27 @@ stock bool IsClientAndInGame(int client)
 	return false;
 }
 
-stock bool IsFire(char[] classname)
+bool IsFire(char[] classname)
 {
 	return strcmp(classname, "inferno") == 0 || strcmp(classname, "entityflame") == 0;
 } 
 
-stock bool IsPipeBombExplode(char[] classname)
+bool IsPipeBombExplode(char[] classname)
 {
 	return StrEqual(classname, "pipe_bomb");
 } 
 
-stock bool IsFireworkcrate(char[] classname)
+bool IsGLExplode(char[] classname)
+{
+	return StrEqual(classname, "grenade_launcher_projectile");
+} 
+
+bool IsFireworkcrate(char[] classname)
 {
 	return StrEqual(classname, "fire_cracker_blast");
 } 
 
-stock float GetTempHealth(int client)
+float GetTempHealth(int client)
 {
 	static float fCvarDecayRate = -1.0;
 
@@ -250,12 +277,6 @@ stock float GetTempHealth(int client)
 	float fTempHealth = GetEntPropFloat(client, Prop_Send, "m_healthBuffer");
 	fTempHealth -= (GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * fCvarDecayRate;
 	return fTempHealth < 0.0 ? 0.0 : fTempHealth;
-}
-
-stock void SetTempHealth(int client, float health)
-{
-	SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime());
-	SetEntPropFloat(client, Prop_Send, "m_healthBuffer", health);
 }
 
 bool IsClientInGodFrame( int client )
