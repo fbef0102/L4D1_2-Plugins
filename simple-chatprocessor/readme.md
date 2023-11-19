@@ -84,6 +84,9 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.5h (2023-11-19)
+		* Fixed Crash "Unable to execute a new message, there is already one in progress"
+
 	* v1.4h (2023-10-31)
 		* Add *Dead* Player status when chat
 
