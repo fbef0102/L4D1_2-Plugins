@@ -38,7 +38,7 @@ $Copyright: (c) Simple Plugins 2008-2009$
 #include <sourcemod>
 #undef REQUIRE_PLUGIN
 
-#define PLUGIN_VERSION				"1.4h-2023/10/31"
+#define PLUGIN_VERSION				"1.5h-2023/11/19"
 #define SENDER_WORLD			0
 #define MAXLENGTH_INPUT			128 	// Inclues \0 and is the size of the chat input box.
 #define MAXLENGTH_NAME			64		// This is backwords math to get compability.  Sourcemod has it set at 32, but there is room for more.
@@ -81,7 +81,7 @@ public Plugin myinfo = {
 	author = "Simple Plugins, Mini, HarryPotter",
 	description = "Process chat and allows other plugins to manipulate chat.",
 	version = PLUGIN_VERSION,
-	url = "https://github.com/fbef0102/SM-Custom-ChatColors-Menu"
+	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/simple-chatprocessor"
 };
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -493,7 +493,10 @@ public void OnGameFrame() {
 		DataPack pack = g_hDPArray.Get(i);
 		pack.Reset();
 
-		char sSenderName[MAXLENGTH_NAME], sMessage[MAXLENGTH_INPUT];
+		static char sSenderName[MAXLENGTH_NAME], 
+			sMessage[MAXLENGTH_INPUT],
+			sTranslation[MAXLENGTH_MESSAGE],
+			sTemp[MAXLENGTH_MESSAGE];
 		int client;
 		ArrayList recipients = new ArrayList();
 		if (g_bSayText2) {
@@ -511,12 +514,10 @@ public void OnGameFrame() {
 			}
 
 			bool bChat = view_as<bool>(pack.ReadCell());
-			char sChatType[32];
+			static char sChatType[32];
 			pack.ReadString(sChatType, sizeof(sChatType));
 			pack.ReadString(sSenderName, sizeof(sSenderName));
 			pack.ReadString(sMessage, sizeof(sMessage));
-
-			char sTranslation[MAXLENGTH_MESSAGE];
 
 			if (pack.ReadCell()) {
 				g_CurrentChatType = pack.ReadCell();
@@ -551,10 +552,17 @@ public void OnGameFrame() {
 				{
 					target = clients[j];
 					//LogMessage("target: %d", target);
+					if(g_CurrentChatType & CHATFLAGS_DEAD)
+					{
+						FormatEx(sTemp, sizeof(sTemp), "%s_Dead", sChatType);
+						if(TranslationPhraseExists(sTemp))
+						{
+							FormatEx(sChatType, sizeof(sChatType), "%s_Dead", sChatType);
+						}
+					}
+					FormatEx(sTranslation, sizeof(sTranslation), "%T", sChatType, target, sSenderName, sMessage);
 
 					msg = StartMessageOne("SayText2", target, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
-					if(g_CurrentChatType & CHATFLAGS_DEAD) FormatEx(sChatType, sizeof(sChatType), "%s_Dead", sChatType);
-					FormatEx(sTranslation, sizeof(sTranslation), "%T", sChatType, target, sSenderName, sMessage);
 					BfWrite buf = UserMessageToBfWrite(msg);
 					buf.WriteByte(client);
 					buf.WriteByte(bChat);
