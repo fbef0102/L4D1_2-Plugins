@@ -108,7 +108,7 @@ Gag & Mute & Ban - Ex
 * <details><summary>FAQ</summary>
     
     * What is the differece between sourcemod original sm_ban, sm_gag, sm_mute ?
-        * The original sm_ban only works when ban time is permanent, player will be auto automatically unbanned when server restart
+        * The original sm_ban only works when ban time is permanent, player will be automatically unbanned when server restart
         * The original sm_gag, sm_mute does not work if player rejoins server again or map change
     
     * How do I unban, ungag, unmute player ?
@@ -253,8 +253,8 @@ Gag & Mute & Ban - Ex
 * <details><summary>FAQ 問題區 (點我展開)</summary>
     
     * 與Sourcemod自帶的 sm_ban, sm_gag, sm_mute 有何差別 ?
-        * 只要不是永久封鎖, 任何封鎖名單在下次重啟伺服器之後都會失效
-        * 禁音/禁言名單, 在切換關卡之後會失效
+        * (sm_ban) 只要不是永久封鎖, 任何封鎖的名單在下次重啟伺服器之後都會失效
+        * (sm_gag/sm_mute) 禁音/禁言名單, 在切換關卡之後會失效
         * 被禁音/禁言的人, 只要離開再重新加入伺服器, 禁音/禁言會失效
     
     * 我要如何解除封鎖、解除禁音、解除禁言玩家 ?
