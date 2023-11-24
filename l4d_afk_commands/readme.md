@@ -57,22 +57,22 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// If 1, Dead Survivor player can not switch team.
 		l4d_afk_commands_deadplayer_block "1"
 		
-		// Player can not switch team after players have left stat safe area for at least x seconds (0=off)."
+		// Player can not switch team after players have left stat safe area for at least x seconds (0=off).
 		l4d_afk_commands_during_game_seconds_block "0"
 
-		// If 1, Player can not change team when he is capped by secial infected."
+		// If 1, Player can not change team when he is capped by secial infected.
 		l4d_afk_commands_infected_attack_block "1"
 
-		// If 1, Player can not change team when he startle witch r being attacked by witch."
+		// If 1, Player can not change team when he startle witch r being attacked by witch.
 		l4d_afk_commands_witch_attack_block "1"
 
-		// Allow alive survivor player suicide by using '!zs' afte joining survivor team for at least X seconds. (0=off)"
+		// Allow alive survivor player suicide by using '!zs' afte joining survivor team for at least X seconds. (0=off)
 		l4d_afk_commands_suicide_allow_second "30.0"
 
-		// If 1, Player can not change team when he is reloading te weapon."
+		// If 1, Player can not change team when he is reloading te weapon.
 		l4d_afk_commands_weapon_reload_block "1"
 
-		// If 1, Player can not change team while he is getting upor staggering."
+		// If 1, Player can not change team while he is getting upor staggering.
 		l4d_afk_commands_getup_stagger_block "1"
 
 		// If 1, Player can not change team after throwing molotov, pipe bomb or boomer juice. (0=off).
@@ -84,40 +84,40 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// Cold Down Time in seconds a player can not change team after ignites molotov, gas can, firework crate or barrel fuel. (0=off).
 		l4d_afk_commands_igniteprop_cooltime_block "15.0"
 
-		// If 1, Block player from using 'jointeam' command in consoe. (This also blocks player from switching team by choosing team menu)"
+		// If 1, Block player from using 'jointeam' command in consoe. (This also blocks player from switching team by choosing team menu)
 		l4d_afk_commands_pressM_block "1"
 
-		// If 1, Block player from using 'go_away_from_keyboard' comand in console. (This also blocks player from going idle with 'esc->take a break')"
+		// If 1, Block player from using 'go_away_from_keyboard' comand in console. (This also blocks player from going idle with 'esc->take a break')
 		l4d_afk_commands_takeabreak_block "0"
 
 		// If 1, Block player from using 'sb_takecontrol' command in console.
 		l4d_afk_commands_takecontrol_block "1"
 
-		// If 1, Infected player can not change team when he has pouced/ridden/charged/smoked a survivor."
+		// If 1, Infected player can not change team when he has pouced/ridden/charged/smoked a survivor.
 		l4d_afk_commands_infected_cap_block "1"
 
-		// Cold Down Time in seconds an infected player can not chage team after he is spawned as a special infected. (0=off)."
+		// Cold Down Time in seconds an infected player can not chage team after he is spawned as a special infected. (0=off).
 		l4d_afk_commands_infected_spawn_cooltime_block "10.0"
 		
-		// Players with these flags have immune to all 'block' limit(Empty = Everyone, -1: Nobody)"
+		// Players with these flags have immune to all 'block' limit(Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_immune_block_flag "-1"
 		
-		// Players with these flags have access to use command to spctator team. (Empty = Everyone, -1: Nobody)"
+		// Players with these flags have access to use command to spctator team. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_spec_access_flag ""
 		
-		// Players with these flags have access to use command to inected team. (Empty = Everyone, -1: Nobody)"
+		// Players with these flags have access to use command to inected team. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_infected_access_flag ""
 		
-		// Players with these flags have access to use command to suvivor team. (Empty = Everyone, -1: Nobody)"
+		// Players with these flags have access to use command to suvivor team. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_survivor_access_flag ""
 		
-		// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)"
+		// Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)
 		l4d_afk_commands_observer_access_flag "z"
 		
-		// If 1, Check team balance when player tries to use commandto join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!"
+		// If 1, Check team balance when player tries to use commandto join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!
 		l4d_afk_commands_versus_teams_balance_enable "1"
 		
-		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge."
+		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
 		l4d_afk_commands_versus_teams_unbalance_limit "2"
 		```
 </details>
