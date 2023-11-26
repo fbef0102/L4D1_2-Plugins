@@ -203,6 +203,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.1 (2023-11-25)
+		* Fixed go_away_from_keyboard (esc -> take a break) not working
+
 	* v5.0 (2023-9-19)
 		* Block team switch when firing the grenade launcher
 		* Can not switch team if player have stumbled witch or witch have touched player
