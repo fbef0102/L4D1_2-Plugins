@@ -67,7 +67,7 @@ Finish the plugin request and then disappear, kept saying I'm busy and did not p
 spit this guy
 */
 
-#define PLUGIN_VERSION 		"5.0"
+#define PLUGIN_VERSION 		"5.1-2023/11/25"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -159,7 +159,7 @@ float fBreakPropTime[MAXPLAYERS+1] ;//點燃火瓶、汽油或油桶的時間
 //float fThrowableTime[MAXPLAYERS+1] ;//投擲物品的時間
 float fInfectedSpawnTime[MAXPLAYERS+1] ;//特感重生復活的時間
 float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
-float fCoolTime;
+float g_fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 
 int L4D1_GetMainActivity(int client) {
@@ -659,7 +659,7 @@ void GetCvars()
 	g_bPressMBlock = g_hWPressMBlock.BoolValue;
 	g_bTakeABreakBlock = g_hTakeABreakBlock.BoolValue;
 	g_bTakeControlBlock = g_hTakeControlBlock.BoolValue;
-	fCoolTime = g_hCoolTime.FloatValue;
+	g_fCoolTime = g_hCoolTime.FloatValue;
 	g_fBreakPropCooldown = g_hBreakPropCooldown.FloatValue;
 	g_bThrowableBlock = g_hThrowableBlock.BoolValue;
 	g_bGrenadeBlock = g_hGrenadeBlock.BoolValue;
@@ -1270,16 +1270,16 @@ Action WTF2(int client, const char[] command, int args) //esc->take a break (go_
 	if(g_bHasLeftSafeRoom == false) return Plugin_Continue;
 	if(CanClientChangeTeam(client, 1, bHaveAccess) == false) return Plugin_Handled;
 	
-	RequestFrame(go_away_from_keyboard_NextFrame, GetClientUserId(client));
+	CreateTimer(0.1, Time_go_away_from_keyboard, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	return Plugin_Continue;
 }
 
-void go_away_from_keyboard_NextFrame(any iUserID)
+Action Time_go_away_from_keyboard(Handle timer, any iUserID)
 {
 	int client = GetClientOfUserId(iUserID);
 	
 	if(!client || !IsClientInGame(client) || IsFakeClient(client))
-		return;
+		return Plugin_Continue;
 
 	if(GetClientTeam(client) == 1)
 	{
@@ -1294,6 +1294,8 @@ void go_away_from_keyboard_NextFrame(any iUserID)
 			StartChangeTeamCoolDown(client);
 		}
 	}	
+
+	return Plugin_Continue;
 }
 
 Action WTF3(int client, int args) //sb_takecontrol
@@ -1507,10 +1509,10 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 void StartChangeTeamCoolDown(int client)
 {
 	if( InCoolDownTime[client] || g_bHasLeftSafeRoom == false || HasAccess(client, g_sImmuneAcclvl)) return;
-	if(fCoolTime > 0.0)
+	if(g_fCoolTime > 0.0)
 	{
 		InCoolDownTime[client] = true;
-		g_iSpectatePenaltTime[client] = fCoolTime;
+		g_iSpectatePenaltTime[client] = g_fCoolTime;
 		CreateTimer(0.25, Timer_CanJoin, client, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
@@ -1623,7 +1625,7 @@ Action Timer_CanJoin(Handle timer, int client)
 		}
 		InCoolDownTime[client] = false;
 		bClientJoinedTeam[client] = false;
-		g_iSpectatePenaltTime[client] = fCoolTime;
+		g_iSpectatePenaltTime[client] = g_fCoolTime;
 		return Plugin_Stop;
 	}
 	
