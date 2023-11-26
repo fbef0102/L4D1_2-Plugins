@@ -164,11 +164,11 @@
 	"Please wait"
 	{
 		"#format"		"{1:.0f}"
-		"en"			"Please wait {1} second(s) to change team again!!"
-		"ru"			"Пожалуйста, подождите {1} сек. для повторной смены команды!!"
-		"zho"			"無法快速換隊! 請等待 {green}{1} {default}秒."
-		"chi"			"无法快速换队! 请等待 {green}{1} {default}秒."
-		"hu"			"Kérlek várj {1} másodpercet mielőtt csapatott váltasz!!"
+		"en"			"Please wait {green}{1}{default} second(s) to change team again!!"
+		"ru"			"Пожалуйста, подождите {green}{1}{default} сек. для повторной смены команды!!"
+		"zho"			"無法快速換隊! 請等待 {green}{1}{default} 秒."
+		"chi"			"无法快速换队! 请等待 {green}{1}{default} 秒."
+		"hu"			"Kérlek várj {green}{1}{default} másodpercet mielőtt csapatott váltasz!!"
 	}
 	"Can not change team as dead survivor"
 	{
