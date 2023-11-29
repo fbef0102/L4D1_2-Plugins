@@ -340,9 +340,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			* In Versus/Scavenge mode: 4000 * 1.5 = 6000
 	</details>
 
-	4. <details><summary>Adjust zombie zommon limit if 5+ alive players</summary>
+	4. <details><summary>Adjust zombie common limit if 5+ alive players</summary>
 
-		* This means that if server has 5+ alive survivors, each 1 players join, zommon limit increase 2.
+		* This means that if server has 5+ alive survivors, each 1 players join, common limit increase 2.
 		<br/>So if there are 10 **ALIVE** survivors, common limit: 30+2+2+2+2+2+2 = 42
 			```php
 			l4d_infectedbots_adjust_commonlimit_enable "1"
@@ -553,7 +553,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	4. <details><summary>Count 5+ players including dead</summary>
 
-		* Adjust special limit, tank health, zombie zommon, Tank limit based on 5+ alive and dead survivor players
+		* Adjust special limit, tank health, zombie common, Tank limit based on 5+ alive and dead survivor players
 			```php
 			l4d_infectedbots_calculate_including_dead_player "1"
 			```
@@ -599,7 +599,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-	5. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+	5. [l4d2_auto_add_zombie](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d2_auto_add_zombie): Adjust common infecteds/hordes/mobs depends on 5+ survivors in server
+		> 隨著玩家人數越多，殭屍/屍潮 數量越來越多
+	6. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
 		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
