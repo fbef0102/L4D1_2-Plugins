@@ -63,8 +63,9 @@
 */
 
 /* Idiot - SilentBr (https://forums.alliedmods.net/member.php?u=46991)
-Finish the plugin request and then disappear, kept saying I'm busy and did not pay money
-spit this guy
+* Finish the plugin request and then disappear, kept saying I'm busy and did not pay money
+* spit this guy
+* evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
 #define PLUGIN_VERSION 		"5.1-2023/11/25"
