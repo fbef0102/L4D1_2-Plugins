@@ -397,7 +397,7 @@ public void eventplayer_death(Event event, const char[] name, bool dontBroadcast
 
 void CreateEffects(int client, bool event)
 {
-	if( client && IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) == 2 )
+	if( client && IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) != 1 )
 	{
 		// Thirdperson view
 		if( g_fCvarThird != 0.0 )
@@ -687,15 +687,17 @@ public Action Hook_SetTransmitHatGlow(int entity, int client)
 
 public Action Timer_RemoveHat(Handle timer, int client)
 {
-    int entityHat = g_iBoomerHat[client];
-    int entityHatGlow = g_iBoomerHatGlow[client];
-    g_iBoomerHat[client] = 0;
-    g_iBoomerHatGlow[client] = 0;
+	int entityHat = g_iBoomerHat[client];
+	int entityHatGlow = g_iBoomerHatGlow[client];
+	g_iBoomerHat[client] = 0;
+	g_iBoomerHatGlow[client] = 0;
 
-    if(IsValidEntity(entityHat))
-        AcceptEntityInput(entityHat, "kill");
-    if(IsValidEntity(entityHatGlow))
-        AcceptEntityInput(entityHatGlow, "kill");
+	if(IsValidEntity(entityHat))
+		AcceptEntityInput(entityHat, "kill");
+	if(IsValidEntity(entityHatGlow))
+		AcceptEntityInput(entityHatGlow, "kill");
+
+	return Plugin_Continue;
 }
 
 public Action CmdTrophy(int client, int args)
