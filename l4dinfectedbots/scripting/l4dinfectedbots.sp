@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.8.7  (2009-2023)
+* Version	: 2.8.8  (2009-2023)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,9 +9,12 @@
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
 *
+* Version 2.8.8 (2023-12-2)
+*	   - Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
+*
 * Version 2.8.7 (2023-10-9)
 *	   - Fixed the code to avoid calling L4D_SetPlayerSpawnTim native from L4D1. (This Native is only supported in L4D2.)
-
+*
 * Version 2.8.6 (2023-9-22)
 *	   - Fixed "l4d_infectedbots_coordination" not working
 *	   - Fixed Bot Spawn timer
@@ -734,7 +737,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.8.5"
+#define PLUGIN_VERSION "2.8.8"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -781,6 +784,8 @@ int InfectedRealCount; // Holds the amount of real alive infected players
 int InfectedRealQueue; // Holds the amount of real infected players that are going to spawn
 int InfectedBotCount; // Holds the amount of infected bots in any gamemode
 int InfectedBotQueue; // Holds the amount of bots that are going to spawn (including human infected player in coop/realism/survival)
+//int SurvivorCount, SpectatorCount;
+int AllPlayerCount;
 int g_iCurrentMode = 0; // Holds the g_iCurrentMode, 1 for coop and realism, 2 for versus, teamversus, scavenge and teamscavenge, 3 for survival
 int TanksPlaying; // Holds the amount of tanks on the playing field
 int g_iSpawnWeights[NUM_TYPES_INFECTED_MAX];
@@ -2183,7 +2188,7 @@ Action CheckQueue(int client, int args)
 
 	if (client)
 	{
-		CountInfected();
+		CountPlayersInServer();
 
 		CPrintToChat(client, "[TS] InfectedBotQueue = {green}%i{default}, InfectedBotCount = {green}%i{default}, InfectedRealCount = {green}%i{default}, InfectedRealQueue = {green}%i{default}", InfectedBotQueue, InfectedBotCount, InfectedRealCount, InfectedRealQueue);
 	}
@@ -2296,7 +2301,15 @@ Action Console_ZLimit(int client, int args)
 		}
 		else if(newlimit!=g_iMaxPlayerZombies)
 		{
+			int survivors = GetSurvivorsInServer();
+			if(L4D_MAXPLAYERS - survivors - 1 < newlimit)
+			{
+				CPrintToChat(client, "[{olive}TS{default}] %T", "Infected Over Limit", client, newlimit, survivors);
+				newlimit = L4D_MAXPLAYERS - survivors - 1;
+			}
+
 			g_iMaxPlayerZombies = newlimit;
+			
 			CreateTimer(0.1, MaxSpecialsSet);
 			C_PrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t", client, "Special Infected Limit has been changed",newlimit);
 			
@@ -2991,7 +3004,16 @@ Action Timer_CountSurvivor(Handle timer)
 
 		if(h_PlayerAddZombies.IntValue > 0)
 		{
-			g_iMaxPlayerZombies = h_MaxPlayerZombies.IntValue + (h_PlayerAddZombies.IntValue * (addition/h_PlayerAddZombiesScale.IntValue));
+			int newlimit = h_MaxPlayerZombies.IntValue + (h_PlayerAddZombies.IntValue * (addition/h_PlayerAddZombiesScale.IntValue));
+			int survivors = GetSurvivorsInServer();
+			if(L4D_MAXPLAYERS - survivors -1 < newlimit)
+			{
+				CPrintToChatAll("[{olive}TS{default}] %t", "Infected Over Limit", newlimit, survivors);
+				newlimit = L4D_MAXPLAYERS - survivors -1;
+			}
+
+			g_iMaxPlayerZombies = newlimit;
+
 			CreateTimer(0.1, MaxSpecialsSet);
 
 			CheckIfBotsNeeded2();
@@ -3158,7 +3180,7 @@ void CheckIfBotsNeeded(int spawn_type)
 		LogMessage("[TS] Checking bots");
 	#endif
 
-	CountInfected();
+	CountPlayersInServer();
 	if (L4D_HasPlayerControlledZombies())
 	{
 		// PrintToChatAll("InfectedRealCount: %d, InfectedRealQueue: %d, InfectedBotCount: %d, InfectedBotQueue: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedRealQueue, InfectedBotCount, InfectedBotQueue, g_iMaxPlayerZombies);
@@ -3261,7 +3283,7 @@ void CheckIfBotsNeeded2()
 {
 	if(!g_bHasRoundEnded && !g_bInitialSpawn && SpawnInfectedBotTimer[0] == null)
 	{
-		CountInfected();
+		CountPlayersInServer();
 		if (L4D_HasPlayerControlledZombies())
 		{
 			if ( (InfectedRealCount + InfectedRealQueue + InfectedBotCount + InfectedBotQueue) < g_iMaxPlayerZombies)
@@ -3292,12 +3314,15 @@ void CheckIfBotsNeeded2()
 	}
 }
 
-void CountInfected()
+void CountPlayersInServer()
 {
 	// reset counters
 	InfectedBotCount = 0;
 	InfectedRealCount = 0;
 	InfectedRealQueue = 0;
+	//SurvivorCount = GetSurvivorsInServer();
+	//SpectatorCount = GetSpectatorsAndConnectInServer();
+	AllPlayerCount = GetAllPlayersInServer();
 
 	// First we count the ammount of infected real players and bots
 	for (int i=1;i<=MaxClients;i++)
@@ -3725,16 +3750,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 	if (g_bCoordination && !g_bInitialSpawn && g_bIsCoordination == false)
 	{
-		/*for (int i=1;i<=MaxClients;i++)
-		{
-			if(respawnDelay[i] > 0)
-			{
-				if(InfectedBotQueue > 0) InfectedBotQueue--;
-
-				SpawnInfectedBotTimer[index] = null;
-				return Plugin_Continue;
-			}
-		}*/
 		for(int i = 1; i <= L4D_MAXPLAYERS; i++)
 		{
 			if(i != index && SpawnInfectedBotTimer[i] != null)
@@ -3760,10 +3775,11 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			return Plugin_Continue;
 		}
 
-		CountInfected();
+		CountPlayersInServer();
 
 		// PrintToChatAll("InfectedRealCount: %d, InfectedRealQueue: %d, InfectedBotCount: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedRealQueue, InfectedBotCount, g_iMaxPlayerZombies);
-		if ((InfectedRealCount + InfectedRealQueue + InfectedBotCount) >= g_iMaxPlayerZombies)
+		if ( InfectedRealCount + InfectedRealQueue + InfectedBotCount >= g_iMaxPlayerZombies ||
+			AllPlayerCount >= L4D_MAXPLAYERS)
 		{
 			#if DEBUG
 				LogMessage("versus team is already full, don't spawn a bot");
@@ -3777,10 +3793,11 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	}
 	else
 	{
-		CountInfected();
+		CountPlayersInServer();
 
 		//PrintToChatAll("InfectedRealCount: %d, InfectedBotCount: %d, g_iMaxPlayerZombies: %d", InfectedRealCount, InfectedBotCount, g_iMaxPlayerZombies);
-		if ((InfectedRealCount + InfectedBotCount) >= g_iMaxPlayerZombies)
+		if ( InfectedRealCount + InfectedBotCount >= g_iMaxPlayerZombies ||
+			AllPlayerCount >= L4D_MAXPLAYERS )
 		{
 			#if DEBUG
 				LogMessage("coop team is already full, don't spawn a bot");
@@ -3795,7 +3812,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 	// If there is a tank on the field and l4d_infectedbots_spawns_disable_tank is set to 1, the plugin will check for
 	// any tanks on the field
-
 	if (g_bDisableSpawnsTank)
 	{
 		for (int i=1;i<=MaxClients;i++)
@@ -3884,9 +3900,9 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		return Plugin_Continue;
 	}
 
+	bool bSpawnSuccessful = false;
 	// Determine the bot class needed ...
 	int bot_type = BotTypeNeeded();
-
 	if (binfectedfreeplayer)
 	{
 		// We spawn the bot ...
@@ -3977,12 +3993,11 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		}
 		else
 		{
-			CreateTimer(0.1, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(1.0, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	else
 	{
-		bool bSpawnSuccessful = false;
 		float vecPos[3];
 		// We spawn the bot ...
 		int bot;
@@ -3990,6 +4005,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		{
 			case 0: // Nothing
 			{
+				bSpawnSuccessful = false;
 			}
 			case 1: // Smoker
 			{
@@ -4148,8 +4164,15 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 	if(g_bIsCoordination)
 	{
-		if(g_bInfectedSpawnSameFrame) Timer_Spawn_InfectedBot(null, 0);
-		else CreateTimer(0.1, Timer_Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+		if(bSpawnSuccessful == false)
+		{
+			CreateTimer(5.0, Timer_Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+		}	
+		else
+		{
+			if(g_bInfectedSpawnSameFrame) Timer_Spawn_InfectedBot(null, 0);
+			else CreateTimer(0.1, Timer_Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
 
 	return Plugin_Continue;
@@ -5871,7 +5894,7 @@ bool IsTooClose(int client, float distance)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && GetClientTeam(i)==2 && IsPlayerAlive(i))
+		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsPlayerAlive(i))
 		{
 			GetClientAbsOrigin(i, fSurvLocation);
 			MakeVectorFromPoints(fInfLocation, fSurvLocation, fVector);
@@ -6391,4 +6414,46 @@ Action Timer_SpawnColdDown(Handle timer, int SI_TYPE)
 {
 	g_hSpawnColdDownTimer[SI_TYPE] = null;
 	return Plugin_Continue;
+}
+
+int GetSurvivorsInServer()
+{
+	int count = 0;
+	for(int i = 1; i < MaxClients + 1; i++)
+	{
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
+stock int GetSpectatorsAndConnectInServer()
+{
+	int count = 0;
+	for(int i = 1; i < MaxClients + 1; i++)
+	{
+		if(IsClientConnected(i) && GetClientTeam(i) <=1)
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
+int GetAllPlayersInServer()
+{
+	int count = 0;
+	for(int i = 1; i < MaxClients + 1; i++)
+	{
+		if(IsClientConnected(i))
+		{
+			count++;
+		}
+	}
+
+	return count;
 }
