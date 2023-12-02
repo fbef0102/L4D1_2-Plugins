@@ -220,4 +220,11 @@
 		"zho"			"你沒有權限加入特感陣營!"
 		"chi"			"你没有权限加入特感阵营!"
 	}
+	"Infected Over Limit"
+	{
+		"#format"		"{1:d},{2:d}"
+		"en"			"{red}Warning!!!{default} Numbers of survivor({green}{2}{default}) + Infected limit({green}{1}{default}) are over {red}31 slots, unable to increase S.I."
+		"zho"			"{red}警告!!!{default} 倖存者數量({green}{2}{default}) + 特感數量({green}{1}{default}) 已超過 {red}31{default} 個位子，{red}無法增加特感"
+		"chi"			"{red}警告!!!{default} 幸存者数量({green}{2}{default}) + 特感数量({green}{1}{default}) 已超过 {red}31{default} 位子，{red}无法增加特感"
+	}
 }

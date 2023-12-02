@@ -296,6 +296,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> __Note__ 
 		<br/>1. Max Special Limit does not count witch, but it counts tank in all gamemode.
 		<br/>2. In Versus/Scavenge, Max Special Limit = infected team slots
+
+		> __Warning__ 
+		<br/>🟥Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
 	</details>
 
 	2. <details><summary>Adjust special limit if 5+ alive players</summary>
@@ -547,6 +550,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
 		* Reason: It means that the game can not find a position to spawn special infected, usually happen when director stops spawning special infected (C1m4 before evelator) or NAV problem (can't find any valid nav area to spawn infected near survivors)
 
+		* 🟥Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn S.I.
 		* I can't do anything about the nav pathfinding, only Valve or map authors can handle nav problem.
 		* Recommand to install [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)
 	</details>
@@ -611,6 +615,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2023
 	```
+	* v2.8.8 (2023-12-2)
+		* Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
+
 	* v2.8.7 (2023-10-9)
 		* Fixed the code to avoid calling L4D_SetPlayerSpawnTim native from L4D1. (This Native is only supported in L4D2.)
 
@@ -957,6 +964,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> __Note__ 
 		<br/>1. 請注意，最大數量限制不包含witch的數量，但會包含tank的數量
 		<br/>2. 在對抗／清道夫模式中，特感最大生成數量 = 特感隊伍的空位
+		
+		> __Warning__ 
+		<br/>🟥警告!!! 特感數量 + 倖存者數量 + 旁觀者數量不得超過32，否則伺服器會變得很卡且無法生成特感 (因為此遊戲只能容納32個)
 	</details>
 
 	2. <details><summary>如果第5位以上存活的倖存者，則調整特感最大生成數量</summary>
@@ -1228,6 +1238,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			* 解決方式法四：請倖存者隊伍移動位置，讓特感可以生成
 		4. 原因四：有設置指令值```director_no_specials 1```，這會關閉遊戲導演系統
 			* 解決方式：```sm_cvar director_no_specials 0```
+		5. 🟥 特感數量 + 倖存者數量 + 旁觀者數量 超過了32個位子，伺服器會變得很卡且無法生成特感
+			* 解決方式：無法解決，因為此遊戲最多只能容納32個真人玩家+AI玩家
 	</details>
 
 	4. <details><summary>計算第5位以上死亡的倖存者</summary>
