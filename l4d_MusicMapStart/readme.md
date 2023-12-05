@@ -125,7 +125,10 @@ Download and play custom music in game
     		* If you are L4D2, ```Left 4 Dead 2\left4dead2\sound\```
 
 	5. Start the server and test
-		* Join Server and type !music in chatbox.
+		* Launch your game, Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All
+		<br/>![l4d_MusicMapStart_0](image/l4d_MusicMapStart_0.jpg)
+		* Connect to server. 
+		* Type !music in chatbox.
 </details>
 
 * Apply to | 適用於
@@ -289,7 +292,10 @@ Download and play custom music in game
     		* 如果你是 L4D2，```Left 4 Dead 2\left4dead2\sound\```
 
 	5. 啟動服務器並測試
-		* 加入服務器並在聊天視窗輸入!music
+		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許
+		<br/>![zho/l4d_MusicMapStart_0](image/zho/l4d_MusicMapStart_0.jpg)
+		* 連線到伺服器
+		* 在聊天視窗輸入!music
 </details>
 
 > __Warning__ 切勿使用版權音樂以免觸法，請尊重智慧財產權，一切後果自負
