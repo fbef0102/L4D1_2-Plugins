@@ -113,7 +113,9 @@ SM File/Folder Downloader and Precacher
     		* If you are L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2```
 
 	4. Start the server and test
-		* Launch your game and connect server. 
+		* Launch your game, Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All
+		<br/>![sm_downloader_0](image/sm_downloader_0.jpg)
+		* Connect to server. 
 		* Open console to see if the game is downloading files from server
 		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 		* Browse your game folder, check files are already there.
@@ -128,6 +130,9 @@ SM File/Folder Downloader and Precacher
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * 2.0 (2023-12-6)
+		* Fixed not downloading custom files on the first map after server startup 
+		
     * 1.9 (2023-9-27)
 		* Fixed custom sound not Precache
 
@@ -149,6 +154,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 * 原理
 	* 將你自己的自製檔案(貼圖、音樂、模組等等)準備好
 	* 請自備網空，玩家連線的時候會從網空伺服器上下載自製的檔案
+	* [下載自訂伺服器內容](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Game#%E4%B8%8B%E8%BC%89%E8%87%AA%E8%A8%82%E4%BC%BA%E6%9C%8D%E5%99%A8%E5%85%A7%E5%AE%B9)
 
 * <details><summary>Data設定範例</summary>
 
@@ -226,7 +232,9 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
     		* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server\left4dead2```
 		
 	4. 啟動伺服器並測試
-		* 打開你的遊戲並連線到伺服器
+		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許
+		<br/>![zho/sm_downloader_0](image/zho/sm_downloader_0.jpg)
+		* 連線到伺服器
 		* 打開控制台查看是否下載自製的檔案 (此處圖片顯示正在下載音樂)
 		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 		* 再去你的遊戲資料夾查看檔案是否已經下載 

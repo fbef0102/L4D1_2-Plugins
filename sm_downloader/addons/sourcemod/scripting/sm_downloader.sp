@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define SM_DOWNLOADER_VERSION		"1.9-2023/9/27"
+#define SM_DOWNLOADER_VERSION		"2.0-2023/12/6"
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 
 ConVar g_enabled=null;
@@ -56,12 +56,20 @@ void OnCvarFileSimpleChange_control(ConVar convar, const char[] oldValue, const 
 	}
 }
 
-public void OnConfigsExecuted(){	
+public void OnMapStart() 
+{
 	if(g_enabled.BoolValue){
 		if(g_normal.BoolValue) ReadDownloads();
 		if(g_simple.BoolValue) ReadDownloadsSimple();
 	}
 }
+/*
+public void OnConfigsExecuted(){	
+	if(g_enabled.BoolValue){
+		if(g_normal.BoolValue) ReadDownloads();
+		if(g_simple.BoolValue) ReadDownloadsSimple();
+	}
+}*/
 
 void ReadFileFolder(char[] path){
 	Handle dirh = null;
