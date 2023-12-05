@@ -21,7 +21,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
-* <b>[l4d2_assist](/l4d2_assist)</b>: Show damage done to S.I. by survivors
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
