@@ -121,6 +121,9 @@ Allows admins to place any decals into the map that are defined in the the confi
     		* If you are L4D2, ```Left 4 Dead 2\left4dead2\materials\```
 
 	5. Start the server and test
+		* Launch your game, Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All
+		<br/>![map-decals_0](image/map-decals_0.jpg)
+		* Connect to server.
 		* Aim at a wall and use !paintdecal <decalname> the name you just type in decal.cfg
 		* say !savedecal to save a Decal to the config whilst aiming at it, "!savedecal all" saves all Decals (on current Map), "!savedecal [id]" saves a Decal by id, "!savedecal [last]" saves last painted Decal, "!savedecal [name]" saves all Decals by decalname (on current Map)
 		* The decals will be saved to configs\map-decals\maps\XXXXXX.cfg (XXXXXX is map name)
@@ -133,7 +136,8 @@ Allows admins to place any decals into the map that are defined in the the confi
 	L4D2
 	```
 
-* Translation Support | 支援翻譯
+* <details><summary>Translation Support | 支援翻譯</summary>
+
 	```
 	English
 	繁體中文
@@ -141,6 +145,7 @@ Allows admins to place any decals into the map that are defined in the the confi
 	Russian
 	German
 	```
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -273,6 +278,9 @@ Allows admins to place any decals into the map that are defined in the the confi
     		* 如果你是 L4D2，```Left 4 Dead 2\left4dead2\materials\```
 
 	5. 啟動伺服器並測試
+		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許
+		<br/>![zho/map-decals_0](image/zho/map-decals_0.jpg)
+		* 連線到伺服器
 		* 瞄準牆壁並使用 !paintdecal <decalname> 打上你剛才在decal.cfg文件裡取的命名
 		* 現在您可以使用 !savedecal 將瞄準的現存塗鴉保存到配置中
 		* 保存配置位於 configs\map-decals\maps\XXXXXX.cfg (XXXXXX 是地圖名)
