@@ -42,7 +42,7 @@ Restart server when the last player disconnects from the server.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v2.6 (2023-5-5)
+	* v2.7 (2023-12-6)
 		* Optimize Code
 
 	* v2.4 (2023-3-29)
