@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "L4D auto restart",
 	author = "Harry Potter",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
-	version = "2.6",
+	version = "2.7",
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -38,7 +38,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar g_hConVarHibernate;
 Handle COLD_DOWN_Timer;
 
-bool g_bNoOneInServer;
+bool g_bNoOneInServer, g_bFirstMap, g_bCmdMap;
 
 public void OnPluginStart()
 {
@@ -46,6 +46,10 @@ public void OnPluginStart()
 	g_hConVarHibernate.AddChangeHook(ConVarChanged_Hibernate);
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);	
+
+	g_bFirstMap = true;
+	g_bCmdMap = false;
+	AddCommandListener(ServerCmd_map, "map");
 }
 
 public void OnPluginEnd()
@@ -60,17 +64,15 @@ void ConVarChanged_Hibernate(ConVar hCvar, const char[] sOldVal, const char[] sN
 
 public void OnMapStart()
 {	
-	if(g_bNoOneInServer)
+	if(g_bNoOneInServer || (!g_bFirstMap && g_bCmdMap))
 	{
-		g_bNoOneInServer = false;
-		if(CheckPlayerInGame(0) == false) //沒有玩家在伺服器中
-		{
-			g_bNoOneInServer = true;
-
-			delete COLD_DOWN_Timer;
-			COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
-		}
+		g_hConVarHibernate.SetBool(false);
+		delete COLD_DOWN_Timer;
+		COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
 	}
+
+	g_bFirstMap = false;
+	g_bCmdMap = false;
 }
 
 public void OnMapEnd()
@@ -83,11 +85,8 @@ public void OnConfigsExecuted()
 	g_hConVarHibernate.SetBool(false);
 	if(g_bNoOneInServer)
 	{
-		g_bNoOneInServer = false;
 		if(CheckPlayerInGame(0) == false) //沒有玩家在伺服器中
 		{
-			g_bNoOneInServer = true;
-
 			delete COLD_DOWN_Timer;
 			COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
 		}
@@ -98,7 +97,7 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if(!client || IsFakeClient(client) /*|| (IsClientConnected(client) && !IsClientInGame(client))*/) return;
-	if(client && !CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
+	if(!CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
 		g_bNoOneInServer = true;
 
@@ -193,4 +192,12 @@ bool CheckPlayerConnectingSV()
 			return true;
 
 	return false;
+}
+
+//從大廳匹配觸發map
+Action ServerCmd_map(int client, const char[] command, int argc)
+{
+	g_bCmdMap = true;
+
+	return Plugin_Continue;
 }

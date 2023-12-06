@@ -12,20 +12,11 @@ public Plugin myinfo =
 	url 		= "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
-bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     EngineVersion test = GetEngineVersion();
 
-    if( test == Engine_Left4Dead )
-    {
-        g_bL4D2Version = false;
-    }
-    else if( test == Engine_Left4Dead2 )
-    {
-        g_bL4D2Version = true;
-    }
-    else
+    if( test != Engine_Left4Dead2 && test != Engine_Left4Dead)
     {
         strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
         return APLRes_SilentFailure;
@@ -40,8 +31,7 @@ int serverLoaderCounter = 0;
 public void OnPluginStart()
 {	
 	cvarLoaderCfg = CreateConVar("server_loader", "server_startup.cfg", "Config that gets executed on server start. (Empty=Disable)");
-	if(g_bL4D2Version) FindConVar("sb_all_bot_game").SetInt(1);
-	else FindConVar("sb_all_bot_team").SetInt(1);
+	FindConVar("sv_hibernate_when_empty").SetInt(false);
 	
 	CreateTimer(5.0, execConfig, TIMER_FLAG_NO_MAPCHANGE);
 }
