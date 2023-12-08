@@ -168,6 +168,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 封鎖/禁音/禁言-強化版
 * <b>[l4d_mix](/l4d_mix)</b>: L4D1/2 Mix
     * 對抗模式中，投票選雙方隊長，雙方隊長再選隊員
+* <b>[l4d_flying_tank](/l4d_flying_tank)</b>: Provides the ability to fly to Tanks and special effects.
+    * Tank化身鋼鐵人，可以自由飛行
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
