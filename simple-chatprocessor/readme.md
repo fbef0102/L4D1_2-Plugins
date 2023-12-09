@@ -12,7 +12,14 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>ConVar | 指令</summary>
 
-	None
+	* cfg/sourcemod/simple-chatprocessor.cfg
+		```php
+		// If 1, Display Survivor *DEAD* in chatbox
+		simple-chatprocessor_survivor_dead "1"
+
+		// If 1, Display Infected *DEAD* in chatbox
+		simple-chatprocessor_infected_dead "0"
+		```
 </details>
 
 * <details><summary>Command | 命令</summary>
@@ -84,6 +91,9 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.6h (2023-12-10)
+		* Add Cvars to turn on/off *DEAD*(Infected), *DEAD*(Survivor) message
+
 	* v1.5h (2023-11-19)
 		* Fixed Crash "Unable to execute a new message, there is already one in progress"
 
@@ -122,4 +132,16 @@ Process chat and allows other plugins to manipulate chat.
 
 * 功能
 	* 改變聊天中的名子、文字、顏色、接收對象
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/simple-chatprocessor.cfg
+		```php
+		// 為1時，死亡的倖存者玩家說話時顯示*DEAD*
+		simple-chatprocessor_survivor_dead "1"
+
+		// 為1時，死亡的特感玩家說話時顯示*DEAD*
+		simple-chatprocessor_infected_dead "0"
+		```
+</details>
 
