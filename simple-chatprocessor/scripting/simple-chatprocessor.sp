@@ -36,9 +36,35 @@ $Copyright: (c) Simple Plugins 2008-2009$
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
-#undef REQUIRE_PLUGIN
+#define PLUGIN_VERSION			"1.6h-2023/12/10"
+#define PLUGIN_NAME			    "simple-chatprocessor"
+#define DEBUG 0
 
-#define PLUGIN_VERSION				"1.5h-2023/11/19"
+public Plugin myinfo = {
+	name = "Simple Chat Processor (Redux)",
+	author = "Simple Plugins, Mini, HarryPotter",
+	description = "Process chat and allows other plugins to manipulate chat.",
+	version = PLUGIN_VERSION,
+	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/simple-chatprocessor"
+};
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+
+	if(test != Engine_Left4Dead && test != Engine_Left4Dead2)
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+
+	MarkNativeAsOptional("GetUserMessageType");
+	CreateNative("GetMessageFlags", Native_GetMessageFlags);
+	RegPluginLibrary("scp");
+
+	return APLRes_Success;
+}
+
 #define SENDER_WORLD			0
 #define MAXLENGTH_INPUT			128 	// Inclues \0 and is the size of the chat input box.
 #define MAXLENGTH_NAME			64		// This is backwords math to get compability.  Sourcemod has it set at 32, but there is room for more.
@@ -52,6 +78,12 @@ $Copyright: (c) Simple Plugins 2008-2009$
 
 #define ADDSTRING(%1) g_hChatFormats.SetValue(%1, 1)
 
+#define CVAR_FLAGS                    FCVAR_NOTIFY
+#define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
+
+ConVar g_hCvarDeathSurvivor, g_hCvarDeathInfected;
+bool g_bCvarDeathSurvivor, g_bCvarDeathInfected;
+
 enum eMods {
 	GameType_Unknown,
 	GameType_L4D,
@@ -60,12 +92,6 @@ enum eMods {
 
 ArrayList g_hDPArray = null;
 
-/*eMods g_CurrentMod;
-char g_sGameName[eMods][32] = {
-	"Unknown",
-	"Left 4 Dead",
-	"Left 4 Dead 2",
-};*/
 StringMap
 	  g_hChatFormats;
 GlobalForward
@@ -76,23 +102,16 @@ bool
 int
 	  g_CurrentChatType = CHATFLAGS_INVALID;
 
-public Plugin myinfo = {
-	name = "Simple Chat Processor (Redux)",
-	author = "Simple Plugins, Mini, HarryPotter",
-	description = "Process chat and allows other plugins to manipulate chat.",
-	version = PLUGIN_VERSION,
-	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/simple-chatprocessor"
-};
+public void OnPluginStart() 
+{
+	g_hCvarDeathSurvivor = CreateConVar( 	PLUGIN_NAME ... "_survivor_dead",  "1",   "If 1, Display Survivor *DEAD* in chatbox", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarDeathInfected = CreateConVar( 	PLUGIN_NAME ... "_infected_dead",  "0",   "If 1, Display Infected *DEAD* in chatbox", CVAR_FLAGS, true, 0.0, true, 1.0);
+	CreateConVar(                       	PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
+	AutoExecConfig(true,                	PLUGIN_NAME);
 
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
-	MarkNativeAsOptional("GetUserMessageType");
-	CreateNative("GetMessageFlags", Native_GetMessageFlags);
-	RegPluginLibrary("scp");
-	return APLRes_Success;
-}
-
-public void OnPluginStart() {
-	CreateConVar("scp_version", PLUGIN_VERSION, "Plugin Version", FCVAR_DONTRECORD|FCVAR_NOTIFY|FCVAR_CHEAT);
+	GetCvars();
+	g_hCvarDeathSurvivor.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarDeathInfected.AddChangeHook(ConVarChanged_Cvars);
 
 	//g_CurrentMod = GetCurrentMod();
 	g_hChatFormats = new StringMap();
@@ -152,6 +171,19 @@ public void OnPluginStart() {
 	g_fwdOnChatMessagePost = new GlobalForward("OnChatMessage_Post", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String);
 
 	g_hDPArray = new ArrayList();
+}
+
+//Cvars-------------------------------
+
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+	g_bCvarDeathSurvivor = g_hCvarDeathSurvivor.BoolValue;
+	g_bCvarDeathInfected = g_hCvarDeathInfected.BoolValue;
 }
 
 public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init) {
@@ -217,7 +249,8 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 		}
 
 		if (StrContains(cpTranslationName, "dead", false) != -1
-			|| (GetClientTeam(cpSender) >= 2 && !IsPlayerAlive(cpSender))) {
+			|| (g_bCvarDeathSurvivor && GetClientTeam(cpSender) == 2 && !IsPlayerAlive(cpSender))
+			|| (g_bCvarDeathInfected && GetClientTeam(cpSender) == 3 && !IsPlayerAlive(cpSender))) {
 			g_CurrentChatType = g_CurrentChatType | CHATFLAGS_DEAD;
 		}
 	}
