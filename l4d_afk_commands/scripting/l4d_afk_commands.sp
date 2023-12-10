@@ -68,7 +68,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.1-2023/11/25"
+#define PLUGIN_VERSION 		"5.1-2023/12/10"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -403,7 +403,7 @@ Action Command_SwapTo(int client, int args)
 		else if (team == 3)
 			ChangeClientTeam(player_id,3);
 			
-		if(client != player_id) C_PrintToChatAll("[{olive}TS{default}] %t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
+		if(client != player_id) CPrintToChatAll("[{olive}TS{default}] %t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
 	}
 	
 	return Plugin_Handled;
@@ -437,7 +437,7 @@ Action ForceSurvivorSuicide(int client, int args)
 			return Plugin_Handled;
 		}
 
-		C_PrintToChatAll("[{olive}TS{default}] %T","Suicide",client,client);
+		CPrintToChatAll("[{olive}TS{default}] %t","Suicide",client);
 		ForcePlayerSuicide(client);
 	}
 	return Plugin_Handled;
