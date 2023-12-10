@@ -147,7 +147,7 @@
 		"chi"      		"无法传送复活的玩家"
 		"pt"			"Não foi possível teletransportar o jogador após o respawn"
 		"pt_p"			"Não foi possível teletransportar o jogador após o respawn"
-		"en"			"リスポーン後のプレイヤーをテレポートすることが出来ませんでした"
+		"jp"			"リスポーン後のプレイヤーをテレポートすることが出来ませんでした"
 	}
 	"Couldn't spawn at this moment."
 	{
@@ -155,7 +155,7 @@
 		"ru" "В данный момент возрождение невозможно."
 		"zho" "此時此刻無法復活!!"
 		"chi" "此时此刻无法复活!!"	
-		"en" "今はリスポーン出来ません。"
+		"jp" "今はリスポーン出来ません。"
 	}
 	"Couldn't respawn after the saferoom door is open."
 	{
