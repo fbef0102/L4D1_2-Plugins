@@ -10,6 +10,7 @@
 		"chi"			"你已达到复活次数限制并且不能再自动复活了"
 		"pt"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
 		"pt_p"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
+		"jp"			"リスポーン回数の制限に達したため、リスポーンを行えません!"
 	}
 	"Seconds To Respawn"
 	{
@@ -22,6 +23,7 @@
 		"chi"			"你将于 {1} 秒后自动复活!"
 		"pt"			"Você irá respawnar automaticamente em {1} segundos!"
 		"pt_p"			"Você irá respawnar automaticamente em {1} segundos!"
+		"jp"			"あと {1} 秒でリスポーンします!"
 	}
 	"Respawned"
 	{
@@ -34,6 +36,7 @@
 		"chi"			"{lightgreen}{1} {default}已被自動復活"
 		"pt"			"{lightgreen}{1} {default}respawnou"
 		"pt_p"			"{lightgreen}{1} {default}respawnou"
+		"jp"			"{lightgreen}{1} {default}がリスポーンしました"
 	}
 	"CMD Respawn"
 	{
@@ -45,6 +48,7 @@
 		"chi"			"[SM] 使用方式: sm_respawn <#UserID|Name>"
 		"pt"			"[SM] Uso: sm_respawn <#UserID|Nome>"
 		"pt_p"			"[SM] Uso: sm_respawn <#UserID|Nome>"
+		"jp"			"[SM] 使用方法: sm_respawn <#UserID|Name>"
 	}
 	"No Need To Respawn"
 	{
@@ -57,6 +61,7 @@
 		"chi"			"{lightgreen}{1} {default}不需要被复活!"
 		"pt"			"{lightgreen}{1} {default}não precisa de respawn!"
 		"pt_p"			"{lightgreen}{1} {default}não precisa de respawn!"
+		"jp"			"{lightgreen}{1} {default}はリスポーンを必要としていません!"
 	}
 	"No Need To Respawn Menu"
 	{
@@ -69,6 +74,7 @@
 		"chi"			"{lightgreen}{1} {default}不需要被复活!"
 		"pt"			"{lightgreen}{1} {default}não precisa de respawn!"
 		"pt_p"			"{lightgreen}{1} {default}não precisa de respawn!"
+		"jp"			"{lightgreen}{1} {default}はリスポーンを必要としていません!"
 	}
 	"Not Needed To Respawn"
 	{
@@ -81,6 +87,7 @@
 		"chi"			"{1} 不需要被复活!"
 		"pt"			"{lightgreen}{1} {default}não precisa de respawn!"
 		"pt_p"			"{lightgreen}{1} {default}não precisa de respawn!"
+		"jp"			"{lightgreen}{1} {default}はリスポーンする必要がありません!"
 	}
 	"Select Options"
 	{
@@ -92,6 +99,7 @@
 		"chi"			"选择一个选项"
 		"pt"			"Selecione uma opção"
 		"pt"			"Selecione uma opção"
+		"jp"			"オプションを選択"
 	}
 	"Main Menu Name"
 	{
@@ -103,6 +111,7 @@
 		"chi"			"玩家 重新复活"
 		"pt"			"Respawnar jogadores"
 		"pt"			"Respawnar jogadores"
+		"jp"			"プレイヤー リスポーン"
 	}
 	"Players List"
 	{
@@ -114,6 +123,7 @@
 		"chi"			"玩家列表"
 		"pt"			"Lista de jogadores"
 		"pt"			"Lista de jogadores"
+		"jp"			"プレイヤーリスト"
 	}
 	"Respawn Menu"
 	{
@@ -125,6 +135,7 @@
 		"chi"			"复活介面"
 		"pt"			"Menu de respawn"
 		"pt"			"Menu de respawn"
+		"jp"			"リスポーン メニュー"
 	}
 	"Couldn't Teleport"
 	{
@@ -136,6 +147,7 @@
 		"chi"      		"无法传送复活的玩家"
 		"pt"			"Não foi possível teletransportar o jogador após o respawn"
 		"pt_p"			"Não foi possível teletransportar o jogador após o respawn"
+		"en"			"リスポーン後のプレイヤーをテレポートすることが出来ませんでした。"
 	}
 	"Couldn't spawn at this moment."
 	{
@@ -143,6 +155,7 @@
 		"ru" "В данный момент возрождение невозможно."
 		"zho" "此時此刻無法復活!!"
 		"chi" "此时此刻无法复活!!"	
+		"en" "今はリスポーン出来ません。"
 	}
 	"Couldn't respawn after the saferoom door is open."
 	{
@@ -150,6 +163,7 @@
 		"ru" "Невозможно возродиться после открытия двери убежища."
 		"zho" "安全大門開啟後不得復活!!"
 		"chi" "安全大门开启后不得复活!!"	
+		"jp" "セーフルームの扉が開いているためリスポーン出来ません。"
 	}
 	"Couldn't respawn when final vehicle is coming."
 	{
@@ -157,6 +171,7 @@
 		"ru" "Невозможно возродиться, когда наступает финальное спасение."
 		"zho" "最後救援開始後不得復活!!"
 		"chi" "最后救援开始后不得复活!!"	
+		"jp" "救助が来ているためリスポーン出来ません。"
 	}
 	"You will be respawned again."
 	{
@@ -164,11 +179,13 @@
 		"ru" "Вы будете возрождены снова."
 		"zho" "你稍後會再次復活!!"
 		"chi" "稍后还能再次复活!!"
+		"jp" "再度リスポーンします。"
 	}
 	"No Any Dead Survivor"
 	{
 		"en"		"[SM] There Are No Any {green}Dead Survivor"
 		"zho"       "[SM] 沒有 {green}死掉的玩家"
 		"chi"       "[SM] 没有 {green}死掉的玩家"
+		"jp"		"[SM] {green}死亡した生存者{default}は居ません"
 	}
 }
