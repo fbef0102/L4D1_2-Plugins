@@ -24,11 +24,11 @@
 	}
 	"Type in chat !join To join the survivors"
 	{
-		"jp" "生存者チームに参加するにはチャットに{olive}!join{default}を入力してください!"
+		"jp" "生存者チームに参加するにはチャットに{olive}!join{default}と入力してください!"
 	}
 	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
-		"jp" "すでにマップが開始されています。\n蘇生もしくは救助されるまでお待ち下さい。"
+		"jp" "すでにマップが開始されています。蘇生もしくは救助されるまでお待ち下さい。"
 	}
 	"No Bots for replacement."
 	{
