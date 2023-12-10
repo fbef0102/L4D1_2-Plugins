@@ -10,7 +10,7 @@
 		"chi"			"你已达到复活次数限制并且不能再自动复活了"
 		"pt"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
 		"pt_p"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
-		"jp"			"リスポーン回数の制限に達したため、リスポーンを行えません!"
+		"jp"			"リスポーン回数の制限に達したためリスポーンを行えません"
 	}
 	"Seconds To Respawn"
 	{
@@ -147,7 +147,7 @@
 		"chi"      		"无法传送复活的玩家"
 		"pt"			"Não foi possível teletransportar o jogador após o respawn"
 		"pt_p"			"Não foi possível teletransportar o jogador após o respawn"
-		"en"			"リスポーン後のプレイヤーをテレポートすることが出来ませんでした。"
+		"en"			"リスポーン後のプレイヤーをテレポートすることが出来ませんでした"
 	}
 	"Couldn't spawn at this moment."
 	{
