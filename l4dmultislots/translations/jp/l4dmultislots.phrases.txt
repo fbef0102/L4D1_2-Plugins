@@ -1,37 +1,49 @@
-//日本語 by HekuT
+//日本語 by HekuT, faketuna
 
 "Phrases"
 {
 	"A surviving Bot was added."
 	{
-		"jp" "サバイバルボット追加."
+		"jp" "生存者botがチームに追加されました!"
 	}
 	"Impossible to generate a bot at the moment."
 	{
-		"jp" "現時点でボット生成不可能."
+		"jp" "生存者botは現在スポーン出来ません。"
 	}
 	"Please wait to be revived or rescued"
 	{
-		"jp" "蘇生されるまでしばらく待ってください."
+		"jp" "蘇生もしくは救助されるまでお待ち下さい。"
 	}
 	"You are idle. press the left mouse button to join the survivors!"
 	{
-		"jp" "非活動であります。マウス左ボタンでサバイバーたちと組みます."
+		"jp" "現在休憩中です。左クリックで生存者としてゲームに参加できます!"
 	}
 	"You are already on the team of survivors."
 	{
-		"jp" "サバイバーチームにもう加入しています."
+		"jp" "すでに生存者チームに参加しています!"
 	}
 	"Type in chat !join To join the survivors"
 	{
-		"jp" "サバイバーチームに加入するにチャットで {olive}!join{default} と入力."
+		"jp" "生存者チームに参加するにはチャットに{olive}!join{default}と入力してください!"
 	}
 	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
-		"jp" "バーチームはゲームの始まりに踏み込みwます。蘇生までにしばらく待ってください"
+		"jp" "すでにマップが開始されています。蘇生もしくは救助されるまでお待ち下さい。"
 	}
 	"No Bots for replacement."
 	{
-		"jp" "入れ替えのボットはありません."
+		"jp" "現在入れ替われるbotが存在しません。"
+	}
+	"No Second Chance"
+	{
+		"jp" "このラウンドで既に{blue}生存者チーム{default}として参加していたため、{green}死亡{default}した状態でスポーンします。"
+	}
+	"Sorry! No survivor slots"
+	{
+		"jp" "ごめんなさい! 生存者の人数が制限に達しました!"
+	}
+	"Too many survivors, unbalance"
+	{
+		"jp" "ごめんなさい! 生存者チームの人数が多すぎるためバランスを取る必要があります!"
 	}
 }
