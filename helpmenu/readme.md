@@ -10,7 +10,7 @@ In-game Help Menu (Support Translation)
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	2. Optional - [[INC] readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/left4dead2/scripting/include/readyup.inc)
+	2. Optional - [[INC] readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Plugin_插件/Server_伺服器/readyup/scripting/include/readyup.inc)
 
 * <details><summary>Data & Translation Example</summary>
 
