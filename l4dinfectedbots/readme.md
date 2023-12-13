@@ -393,27 +393,27 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 			* For example
 				```php
-				// human infected coun：3，infected team slot：4，z_ghost_delay_min: 30，z_ghost_delay_max: 40
+				// human infected count：3，infected team slot：4，z_ghost_delay_min: 30，z_ghost_delay_max: 40
 				In L4D2, Human infected player spawn time is: [Minimum: 30 * (3÷4) = 22.5s, Maximum: 40 * (3÷4) = 30s]
 				In L4D1, Human infected player spawn time is: [Minimum: 30 * (3÷4) = 22.5s, Maximum: 40 * (3÷4) = 30s]
 
-				// human infected coun：1，infected team slot：1，z_ghost_delay_min: 3，z_ghost_delay_max: 3
+				// human infected count：1，infected team slot：1，z_ghost_delay_min: 3，z_ghost_delay_max: 3
 				In L4D2, Human infected player spawn time is: 3 * (1÷1) = 3s
 				In L4D1, Human infected player spawn time is: 3 * (1÷1) = 3s
 
-				// human infected coun：2，infected team slot：4，z_ghost_delay_min: 18，z_ghost_delay_max: 18
+				// human infected count：2，infected team slot：4，z_ghost_delay_min: 18，z_ghost_delay_max: 18
 				In L4D2, Human infected player spawn time is: 18 * (2÷4) = 9s
 				In L4D1, Human infected player spawn time is: 18 * (2÷4) = 9s
 
-				// human infected coun：3，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				// human infected count：3，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
 				In L4D2, Human infected player spawn time is: 20 * (3÷4) = 15s
 				In L4D1, Human infected player spawn time is: 20 * (2÷8) = 5s
 
-				// human infected coun：4，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				// human infected count：4，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
 				In L4D2, Human infected player spawn time is: 20 * (4÷4) = 20s
 				In L4D1, Human infected player spawn time is: 20 * (4÷8) = 10s
 
-				// human infected coun：7，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
+				// human infected count：7，infected team slot：8，z_ghost_delay_min: 20，z_ghost_delay_max: 20
 				In L4D2, Human infected player spawn time is: 20 * (4÷4) = 20s
 				In L4D1, Human infected player spawn time is: 20 * (7÷8) = 17.5s
 				```
