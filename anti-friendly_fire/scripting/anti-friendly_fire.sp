@@ -5,19 +5,12 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define CLASSNAME_LENGTH 64
-
-ConVar g_hGod, g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hGLDisable, g_hDamageShield, g_hIncapProtect, g_hDamageMulti;
-bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bGLDisable, g_bIncapProtect;
-int g_iDamageShield;
-float g_fDamageMulti;
-
 public Plugin myinfo = 
 {
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.6-2023/11/18",
+	version = "1.7-2023/12/14",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -44,36 +37,43 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
+#define CLASSNAME_LENGTH 64
+
+ConVar g_hGod,
+	g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hGLDisable, g_hDamageShield, g_hDamageMulti;
+bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bGLDisable;
+int g_iDamageShield;
+float g_fDamageMulti;
+
+int g_iMainHealth[MAXPLAYERS+1];
+float g_fTempHealth[MAXPLAYERS+1];
+
 public void OnPluginStart()
 {
 	g_hGod = FindConVar("god");
 
 	g_hEnable = CreateConVar(	"anti_friendly_fire_enable", "1",
-								"Enable anti-friendly_fire plugin [0-Disable,1-Enable]",
+								"Enable Plugin [0-Disable,1-Enable]",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
 	g_hFireDisable = CreateConVar(	"anti_friendly_fire_immue_fire", "1",
-								"If 1, Disable Fire friendly fire.",
+								"1=Disable Molotov, Gascan and Firework Crate friendly fire damage and don't reflect damage\n0=Enable friendly fire damage",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
 	g_hPipeBombDisable = CreateConVar( "anti_friendly_fire_immue_explode", "0",
-								"If 1, Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire.",
+								"1= Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire and don't reflect damage\n0=Enable friendly fire damage",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
 	if(g_bL4D2Version)
 	{
 		g_hGLDisable = CreateConVar( "anti_friendly_fire_immue_GL", "0",
-								"(L4D2) If 1, Disable Grenade Launcher friendly fire.",
+								"(L4D2) If 1, Disable Grenade Launcher friendly fire and don't reflect damage\n0=Enable friendly fire damage",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	}
 
 	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "0",
-								"Disable friendly fire damage if damage is below this value (0=Off).",
+								"Disable friendly fire damage and don't reflect damage if damage is below this value. (0=Off)",
 								FCVAR_NOTIFY, true, 0.0);
-
-	g_hIncapProtect = CreateConVar( "anti_friendly_fire_incap_protect", "1",
-								"If 1, Disable friendly fire if damage is about to incapacitate victim.",
-								FCVAR_NOTIFY, true, 0.0, true, 1.0 );	
 
 	g_hDamageMulti = CreateConVar( "anti_friendly_fire_damage_multi", "1.5",
 								"Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)",
@@ -86,7 +86,6 @@ public void OnPluginStart()
 	g_hPipeBombDisable.AddChangeHook(ConVarChanged_Cvars);
 	if(g_bL4D2Version) g_hGLDisable.AddChangeHook(ConVarChanged_Cvars);
 	g_hDamageShield.AddChangeHook(ConVarChanged_Cvars);
-	g_hIncapProtect.AddChangeHook(ConVarChanged_Cvars);
 	g_hDamageMulti.AddChangeHook(ConVarChanged_Cvars);
 
 	AutoExecConfig(true, "anti-friendly_fire");
@@ -103,11 +102,6 @@ public void OnPluginStart()
 	}
 }
 
-public void OnClientPutInServer(int client)
-{
-	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-}
-
 void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
@@ -120,9 +114,13 @@ void GetCvars()
 	g_bFireDisable = g_hFireDisable.BoolValue;
 	g_bPipeBombDisable = g_hPipeBombDisable.BoolValue;
 	if(g_bL4D2Version) g_bGLDisable = g_hGLDisable.BoolValue;
-	g_bIncapProtect = g_hIncapProtect.BoolValue;
 	g_iDamageShield = g_hDamageShield.IntValue;
 	g_fDamageMulti = g_hDamageMulti.FloatValue;
+}
+
+public void OnClientPutInServer(int client)
+{
+	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
 Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
@@ -132,18 +130,52 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 	if(attacker == victim ||
 		!IsClientAndInGame(attacker)  || 
 		!IsClientAndInGame(victim) || 
-		GetClientTeam(attacker) != L4D_TEAM_SURVIVOR || 
+		!IsValidEntity(inflictor) ||
 		GetClientTeam(victim) != L4D_TEAM_SURVIVOR) return Plugin_Continue;
 
 	if(IsClientInGodFrame(victim)) return Plugin_Continue;
+	g_iMainHealth[victim] = GetClientHealth(victim);
+	g_fTempHealth[victim] = L4D_GetTempHealth(victim);
 
-	int iHealth = GetClientHealth(victim);
-	float fHealth = GetTempHealth(victim);
 	int iDamage = RoundToFloor(damage);
-	//PrintToChatAll("%N attack %N, fHealth: %.2f, iHealth: %d, damage: %.2f", attacker, victim, fHealth, iHealth, damage);
-	
-	if(g_bIncapProtect == true && fHealth + iHealth <= iDamage) return Plugin_Handled;
 	if(iDamage <= g_iDamageShield) return Plugin_Handled;
+
+	int health = GetClientHealth(victim) + L4D_GetPlayerTempHealth(victim);
+	//PrintToChatAll("%N attack %N, temp Health: %d, main Health: %d, damage: %d", attacker, victim, L4D_GetPlayerTempHealth(victim), GetClientHealth(victim), iDamage);
+	if(health <= iDamage + 1) //倒地或死亡
+	{
+		static char WeaponName[CLASSNAME_LENGTH];
+		GetEntityClassname(inflictor, WeaponName, sizeof(WeaponName));
+		//PrintToChatAll("WeaponName: %s", WeaponName);	
+		
+		bool bIsSpecialWeapon = false;
+		if(IsPipeBombExplode_OnTakeDamage(WeaponName)) 
+		{
+			bIsSpecialWeapon = true;
+			if(g_bPipeBombDisable == false) return Plugin_Continue;
+		}
+		else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
+		{
+			bIsSpecialWeapon = true;
+			if(g_bGLDisable == false) return Plugin_Continue;
+		}
+		else if(IsFire(WeaponName) || IsFireworkcrate(WeaponName))
+		{
+			bIsSpecialWeapon = true;
+			if(g_bFireDisable== false) return Plugin_Continue;
+		}
+		
+		if(bIsSpecialWeapon)
+		{
+			return Plugin_Handled;
+		}
+
+		if(!bIsSpecialWeapon && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
+		{
+			HurtEntity(attacker, attacker, damage);
+			return Plugin_Handled;
+		}
+	}
 
 	return Plugin_Continue;
 }
@@ -160,13 +192,14 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	!IsClientAndInGame(attacker) || 
 	!IsClientAndInGame(victim) || 
 	GetClientTeam(victim) != L4D_TEAM_SURVIVOR || 
+	!IsPlayerAlive(victim) || 
 	damage <= 0 ||
 	damage <= g_iDamageShield) { return; }
 	
 	
 	static char WeaponName[CLASSNAME_LENGTH];
 	event.GetString("weapon", WeaponName, sizeof(WeaponName));
-	//PrintToChatAll("victim: %N, attacker:%N ,WeaponName is %s, damage is %d",victim,attacker,WeaponName,damage);	
+	//PrintToChatAll("victim: %N, attacker:%N , WeaponName: %s, damage: %d", victim, attacker, WeaponName, damage);
 	
 	bool bIsSpecialWeapon = false;
 	if(IsPipeBombExplode(WeaponName)) 
@@ -187,11 +220,11 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	
 	if(bIsSpecialWeapon)
 	{
-		if(!IsIncapacitated(victim)) SetEntityHealth(victim, event.GetInt("health") + damage);
+		if(!IsIncapacitated(victim)) RestoreHp(victim);
 	}
 	else if(!bIsSpecialWeapon && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
 	{
-		if(!IsIncapacitated(victim)) SetEntityHealth(victim, event.GetInt("health") + damage);
+		if(!IsIncapacitated(victim)) RestoreHp(victim);
 		HurtEntity(attacker, attacker, float(damage));
 	}
 }
@@ -208,11 +241,11 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 	!IsClientAndInGame(victim) || 
 	GetClientTeam(victim) != L4D_TEAM_SURVIVOR) { return; }
 	
-	int damage = GetClientHealth(victim) + RoundToFloor(GetTempHealth(victim));
+	int health = GetClientHealth(victim) + L4D_GetPlayerTempHealth(victim);
 
 	static char WeaponName[CLASSNAME_LENGTH];
 	event.GetString("weapon", WeaponName, sizeof(WeaponName));
-	//PrintToChatAll("Event_IncapacitatedStart victim: %d, attacker:%d , damage: %d, WeaponName is %s",victim,attacker, damage, WeaponName);	
+	//PrintToChatAll("Event_IncapacitatedStart victim: %d, attacker:%d , health: %d, WeaponName is %s",victim,attacker, health, WeaponName);	
 	
 	bool bIsSpecialWeapon = false;
 	if(IsPipeBombExplode(WeaponName)) 
@@ -228,10 +261,9 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 
 	if(!bIsSpecialWeapon && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
 	{
-		HurtEntity(attacker, attacker, float(damage));
+		HurtEntity(attacker, attacker, float(health));
 	}
 }
-
 
 void HurtEntity(int victim, int client, float damage)
 {
@@ -257,6 +289,11 @@ bool IsPipeBombExplode(char[] classname)
 	return StrEqual(classname, "pipe_bomb");
 } 
 
+bool IsPipeBombExplode_OnTakeDamage(char[] classname)
+{
+	return StrEqual(classname, "pipe_bomb_projectile");
+} 
+
 bool IsGLExplode(char[] classname)
 {
 	return StrEqual(classname, "grenade_launcher_projectile");
@@ -266,18 +303,6 @@ bool IsFireworkcrate(char[] classname)
 {
 	return StrEqual(classname, "fire_cracker_blast");
 } 
-
-float GetTempHealth(int client)
-{
-	static float fCvarDecayRate = -1.0;
-
-	if (fCvarDecayRate == -1.0)
-		fCvarDecayRate = FindConVar("pain_pills_decay_rate").FloatValue;
-
-	float fTempHealth = GetEntPropFloat(client, Prop_Send, "m_healthBuffer");
-	fTempHealth -= (GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * fCvarDecayRate;
-	return fTempHealth < 0.0 ? 0.0 : fTempHealth;
-}
 
 bool IsClientInGodFrame( int client )
 {
@@ -290,4 +315,10 @@ bool IsClientInGodFrame( int client )
 bool IsIncapacitated(int client)
 {
 	return view_as<bool>(GetEntProp(client, Prop_Send, "m_isIncapacitated"));
+}
+
+void RestoreHp(int client)
+{
+	SetEntityHealth(client, g_iMainHealth[client]);
+	L4D_SetTempHealth(client, g_fTempHealth[client]);
 }
