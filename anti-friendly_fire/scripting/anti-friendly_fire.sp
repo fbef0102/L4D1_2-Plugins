@@ -10,7 +10,7 @@ public Plugin myinfo =
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.7-2023/12/14",
+	version = "1.7-2023/12/17",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -61,13 +61,13 @@ public void OnPluginStart()
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
 	g_hPipeBombDisable = CreateConVar( "anti_friendly_fire_immue_explode", "0",
-								"1= Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire and don't reflect damage\n0=Enable friendly fire damage",
+								"1=Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire and don't reflect damage\n0=Enable friendly fire damage",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 
 	if(g_bL4D2Version)
 	{
 		g_hGLDisable = CreateConVar( "anti_friendly_fire_immue_GL", "0",
-								"(L4D2) If 1, Disable Grenade Launcher friendly fire and don't reflect damage\n0=Enable friendly fire damage",
+								"(L4D2) 1=Disable Grenade Launcher friendly fire and reflect damage\n0=Enable friendly fire damage",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	}
 
@@ -154,15 +154,15 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 			bIsSpecialWeapon = true;
 			if(g_bPipeBombDisable == false) return Plugin_Continue;
 		}
-		else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
-		{
-			bIsSpecialWeapon = true;
-			if(g_bGLDisable == false) return Plugin_Continue;
-		}
 		else if(IsFire(WeaponName) || IsFireworkcrate(WeaponName))
 		{
 			bIsSpecialWeapon = true;
 			if(g_bFireDisable== false) return Plugin_Continue;
+		}
+		else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
+		{
+			//bIsSpecialWeapon = true;
+			if(g_bGLDisable == false) return Plugin_Continue;
 		}
 		
 		if(bIsSpecialWeapon)
@@ -207,15 +207,15 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 		bIsSpecialWeapon = true;
 		if(g_bPipeBombDisable == false) return;
 	}
-	else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
-	{
-		bIsSpecialWeapon = true;
-		if(g_bGLDisable == false) return;
-	}
 	else if(IsFire(WeaponName) || IsFireworkcrate(WeaponName))
 	{
 		bIsSpecialWeapon = true;
 		if(g_bFireDisable== false) return;
+	}
+	else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
+	{
+		//bIsSpecialWeapon = true;
+		if(g_bGLDisable == false) return;
 	}
 	
 	if(bIsSpecialWeapon)
