@@ -3693,45 +3693,22 @@ int BotTypeNeeded()
 		}
 	}
 
-	if  (g_bL4D2Version)
+	if ( ( (g_bFinaleStarted && g_bTankSpawnFinal == true) || !g_bFinaleStarted ) &&
+		g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
+		GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
 	{
-		if ( ( (g_bFinaleStarted && g_bTankSpawnFinal == true) || !g_bFinaleStarted ) &&
-			g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
-			GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
-		{
-			return 7;
-		}
-		else //spawn other S.I.
-		{
-			int generate;
-			for(int i = 1; i <= 3; i++)
-			{
-				generate = GenerateIndex()+1;
-				if(generate > 0) break;
-			}
-
-			return generate;
-		}
+		return 7;
 	}
-	else
+	else //spawn other S.I.
 	{
-		if ( ( (g_bFinaleStarted && g_bTankSpawnFinal == true) || !g_bFinaleStarted ) &&
-			g_iSpawnCounts[SI_TANK] < g_iTankLimit &&
-			GetRandomInt(1, 100) <= g_iSpawnTankProbability) 
+		int generate;
+		for(int i = 1; i <= 3; i++)
 		{
-			return 7;
+			generate = GenerateIndex()+1;
+			if(generate > 0) break;
 		}
-		else
-		{
-			int generate;
-			for(int i = 1; i <= 3; i++)
-			{
-				generate = GenerateIndex()+1;
-				if(generate > 0) break;
-			}
 
-			return generate;
-		}
+		return generate;
 	}
 }
 

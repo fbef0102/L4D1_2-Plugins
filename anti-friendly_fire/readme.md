@@ -22,11 +22,11 @@ shoot your teammate = shoot yourself
         // 0=Enable friendly fire damage
         anti_friendly_fire_immue_fire "1"
 
-        // 1= Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire and don't reflect damage
+        // 1=Disable Pipe Bomb, Propane Tank, and Oxygen Tank Explosive friendly fire and don't reflect damage
         // 0=Enable friendly fire damage
         anti_friendly_fire_immue_explode "0"
 
-        // (L4D2) If 1, Disable Grenade Launcher friendly fire and don't reflect damage
+        // (L4D2) 1=Disable Grenade Launcher friendly fire and reflect damage
         // 0=Enable friendly fire damage
         anti_friendly_fire_immue_GL "1"
 
@@ -66,7 +66,7 @@ shoot your teammate = shoot yourself
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.7 (2023-12-14)
+	* v1.7 (2023-12-17)
 		* Optimize code and improve performance
 
 	* v1.6 (2023-11-18)
@@ -100,7 +100,7 @@ shoot your teammate = shoot yourself
         // 0=啟動友傷
         anti_friendly_fire_immue_explode "0"
 
-        // (L4D2) 1=榴彈發射器不造成友傷也不反彈友傷
+        // (L4D2) 1=榴彈發射器不造成友傷並反彈友傷
         // 0=啟動友傷
         anti_friendly_fire_immue_GL "1"
 
