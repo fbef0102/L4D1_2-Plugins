@@ -131,6 +131,7 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 		!IsClientAndInGame(attacker)  || 
 		!IsClientAndInGame(victim) || 
 		!IsValidEntity(inflictor) ||
+		GetClientTeam(attacker) == L4D_TEAM_INFECTED ||
 		GetClientTeam(victim) != L4D_TEAM_SURVIVOR) return Plugin_Continue;
 
 	if(IsClientInGodFrame(victim)) return Plugin_Continue;
@@ -192,6 +193,7 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	!IsClientAndInGame(attacker) || 
 	!IsClientAndInGame(victim) || 
 	GetClientTeam(victim) != L4D_TEAM_SURVIVOR || 
+	GetClientTeam(attacker) == L4D_TEAM_INFECTED ||
 	!IsPlayerAlive(victim) || 
 	damage <= 0 ||
 	damage <= g_iDamageShield) { return; }
@@ -239,6 +241,7 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 	attacker == victim ||
 	!IsClientAndInGame(attacker)  || 
 	!IsClientAndInGame(victim) || 
+	GetClientTeam(attacker) == L4D_TEAM_INFECTED ||
 	GetClientTeam(victim) != L4D_TEAM_SURVIVOR) { return; }
 	
 	int health = GetClientHealth(victim) + L4D_GetPlayerTempHealth(victim);
