@@ -12,69 +12,74 @@ public Plugin myinfo =
 	name = "Autoresponder",
 	description = "Displays chat advertisements when specified text is said in player chat.",
 	author = "Russianeer, HarryPotter",
-	version = "1.1",
+	version = "1.1-2023/12/21",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 }
 
+
+StringMap g_sChatResponse;
 public void OnPluginStart()
 {
-    AddCommandListener(Command_Say, "say");
-    AddCommandListener(Command_Say, "say_team");
+    g_sChatResponse = new StringMap();
 }
 
-public Action Command_Say(int client, const char[] command, int argc)
+public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
 {
-    if(client == 0) return Plugin_Continue;
-
-    if(BaseComm_IsClientGagged(client) == true) //this client has been gagged
-        return Plugin_Continue;	
+    if (!(client > 0 && client <= MaxClients && IsClientInGame(client)))
+        return;
         
-    char text[256];
-    char buffers[3][64] = {
+    char buffers[2][64] = {
         " ",
-        "{DEFAULT}",
-        "File was not found: %s"
+        " ",
     };
     int startidx;
-    GetCmdArg(1, text, sizeof(text));
 
-    //PrintToChatAll("%s", text);
-
-    // if (text[0] == '!' || text[0] == '/')
-    // {
-    //     return Plugin_Continue;
-    // }
-
-    ExplodeString(text[startidx], " ", buffers, 3, 64, false);
+    ExplodeString(sArgs[startidx], " ", buffers, 2, 64, false);
     char output[256];
-    if (LoadAds(text[startidx], output, 256))
+    StringToLowerCase(buffers[0]);
+    if (g_sChatResponse.GetString(buffers[0], output, sizeof(output)) == true)
     {
         CPrintToChatAll("%s", output);
     }
-
-    return Plugin_Continue;
 }
 
-bool LoadAds(char []command, char []output, int maxlength)
+public void OnConfigsExecuted()
 {
-    KeyValues kv = CreateKeyValues("ChatResponses");
+    LoadConfig();
+}
+
+void LoadConfig()
+{
+    KeyValues hFile = CreateKeyValues("ChatResponses");
     char path[256];
     BuildPath(Path_SM, path, 256, "configs/%s", DATA_FILE);
 
-    if (!FileToKeyValues(kv, path)) {
+    if (!FileToKeyValues(hFile, path)) {
         LogError("[MI] Couldn't load %s config!", DATA_FILE);
-        CloseHandle(kv);
-        kv = null;
+        delete hFile;
     }
 
-
-    if (!KvJumpToKey(kv, command, false))
+    char sCommandName[64];
+    char sTextName[64];
+    if( hFile.GotoFirstSubKey() )
     {
-        return false;
-    }
+        do
+        {
+            hFile.GetSectionName(sCommandName, sizeof(sCommandName));
+            hFile.GetString("text", sTextName, sizeof(sTextName), "No Text");
+            
+            StringToLowerCase(sCommandName);
+            g_sChatResponse.SetString(sCommandName, sTextName);
+        } while(hFile.GotoNextKey());
+    } 
 
-    KvGetString(kv, "text", output, maxlength, "");
-    CloseHandle(kv);
-    kv = null;
-    return true;
+    delete hFile;
+}
+
+void StringToLowerCase(char[] input)
+{
+    for (int i = 0; i < strlen(input); i++)
+    {
+        input[i] = CharToLower(input[i]);
+    }
 }

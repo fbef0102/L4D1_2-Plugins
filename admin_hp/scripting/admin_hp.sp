@@ -14,7 +14,7 @@ public Plugin myinfo =
 {
 	name = "Adm Give full health",
 	author = "Harry Potter",
-	description = "Adm type !givehp to set survivor team full health",
+	description = "Adm type !hp to set survivor team full health",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
