@@ -17,7 +17,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
-* <b>[admin_hp](/admin_hp)</b>: Adm type !givehp to set survivor team full health.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
@@ -27,7 +26,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
-* <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
 * <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
@@ -170,6 +168,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 對抗模式中，投票選雙方隊長，雙方隊長再選隊員
 * <b>[l4d_flying_tank](/l4d_flying_tank)</b>: Provides the ability to fly to Tanks and special effects.
     * Tank化身鋼鐵人，可以自由飛行
+* <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
+    * 玩家在聊天框輸入特地文字，伺服器會顯示廣告或提示
+* <b>[admin_hp](/admin_hp)</b>: Adm type !hp to set survivor team full health.
+    * 管理員輸入!hp 可以回滿所有倖存者的血量
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
