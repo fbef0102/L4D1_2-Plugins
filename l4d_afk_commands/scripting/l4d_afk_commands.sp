@@ -976,7 +976,7 @@ Action TurnClientToSurvivors(int client, int args)
 		
 		if(L4D_HasPlayerControlledZombies() == false) //coop/survival
 		{
-			if(GetClientTeam(client) == 3) ChangeClientTeam(client,1);
+			if(team == 3) ChangeClientTeam(client,1);
 
 			if(IsPlayerAlive(bot))
 			{
@@ -993,6 +993,8 @@ Action TurnClientToSurvivors(int client, int args)
 		}
 		else //versus
 		{
+			if(team == 3) ChangeClientTeam(client,1);
+
 			L4D_SetHumanSpec(bot, client);
 			L4D_TakeOverBot(client);	
 			clientteam[client] = 2;	
@@ -1084,6 +1086,8 @@ Action TurnClientToInfected(int client, int args)
 		PrintHintText(client, "%T","Infected team is full now.",client);
 		return Plugin_Handled;
 	}
+
+	if(team == 2) ChangeClientTeam(client, 1);
 
 	ChangeClientTeam(client, 3);
 	clientteam[client] = 3;
