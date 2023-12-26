@@ -1564,7 +1564,7 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 					//PrintToChatAll("%N newteam: %d, oldteam: %d",client,newteam,oldteam);
 					if(newteam != oldteam)
 					{
-						if(oldteam == 4 && !(newteam == 2 && !IsPlayerAlive(client)) ) //player survivor death
+						if(g_bDeadSurvivorBlock && oldteam == 4 && !(newteam == 2 && !IsPlayerAlive(client)) ) //player survivor death
 						{
 							ChangeClientTeam(client,1);
 							CPrintToChat(client,"[{olive}TS{default}] %T","You are a dead survivor",client);
