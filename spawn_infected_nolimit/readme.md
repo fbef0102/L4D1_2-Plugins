@@ -7,6 +7,13 @@ Spawn special infected without the director limits!
 * Image | 圖示
 <br/>None
 
+* <details><summary>How does it work?</summary>
+
+	* 🟥 This plugin does not unlock your server special infected limit automatically. Don't install this plugin until other plugins require this plugin
+	* Provide API for other plugins to help spawn special infected without the director limits.
+	* Admin can type ```!sm_mdzs``` to open menu to spawn special infected without the director limits.
+</details>
+
 * Require | 必要安裝
 <br/>None
 
@@ -23,7 +30,7 @@ Spawn special infected without the director limits!
 
 	* **Spawn a special infected, bypassing the limit enforced by the game. (ADM required: ADMFLAG_CHEATS)**
 		```php
-		sm_dzspawn <zombie> <mode> <number>
+		sm_dzspawn <witch|witch_bride|smoker|boomer|hunter|spitter|jockey|charger|tank|infected> <number> <0:Crosshair, 1:Self Position>
 		```
 
 	* **Open a menu to spawn a special infected, bypassing the limit enforced by the game. (ADM required: ADMFLAG_CHEATS)**
@@ -74,9 +81,19 @@ Spawn special infected without the director limits!
 不受數量與遊戲限制生成特感
 
 * 原理
-	* 這插件只是一個輔助插件，等其他插件需要的時候再安裝
+	* 🟥 這插件只是一個輔助插件，不是自動幫你的伺服器解鎖數量與限制，等其他插件需要的時候再安裝此插件
+	* 提供API給其他插件生成特感
 
-* 功能
-	* 可以打命令!sm_mdzs出現介面選單，手動生成特感
-	* 不會受到導演系統限制
+* <details><summary>命令中文介紹 (點我展開)</summary>
+
+	* **生成特感, 不會受到導演系統限制 (權限: ADMFLAG_CHEATS)**
+		```php
+		sm_dzspawn <witch|witch_bride|smoker|boomer|hunter|spitter|jockey|charger|tank|infected> <數量> <0:準心指向, 1:自己身上>
+		```
+
+	* **打開菜單生成特感, 不會受到導演系統限制 (權限: ADMFLAG_CHEATS)**
+		```php
+		sm_mdzs
+		```
+</details>
 
