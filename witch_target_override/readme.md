@@ -57,6 +57,12 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
     L4D2
     ```
 
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_witch_target_forever](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_target_forever): If the witch incap/kill players that aren't her initial target, then make the witch proceed to chase her initial target.
+		> Witch因為被擋路或改變目標抓傷任何玩家之後，強制繼續追擊原始目標
+</details>
+
 * <details><summary>Changelog | 版本日誌</summary>
 
     * v1.8 (2022-11-14)
@@ -80,9 +86,6 @@ Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 * 原理
     * 出現在Witch看得到的視野之內，她將會自動走向你
     * 嚇到Witch之後，將目標玩家倒地或殺死之後，自動把目標轉向剩餘的倖存者繼續發難
-
-* 功能
-    1. 詳見下方"指令中文介紹"
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
