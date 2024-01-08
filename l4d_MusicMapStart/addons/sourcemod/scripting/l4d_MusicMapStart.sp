@@ -1,13 +1,7 @@
-#define PLUGIN_VERSION		"1.4h"
-
-/*
-	Credit to:
-	 - Dragokasm - Original Plugin
-	 - Lux - for some suggestions on sound channel
-*/
-
 #pragma semicolon 1
 #pragma newdecls required
+
+#define PLUGIN_VERSION		"1.5h-2024/1/8"
 
 #include <sourcemod>
 #include <sdktools>
@@ -24,27 +18,40 @@ public Plugin myinfo =
 
 #define CVAR_FLAGS		FCVAR_NOTIFY
 
-ConVar g_hCvarEnable, g_hCvarPlay, g_hCvarDelay, g_hCvarShowMenu, g_hCvarPlay2,
-	g_hCvarDelay2, g_hCvarShowMenu2, g_hCvarDownloadMusicNumber,
+ConVar g_hCvarEnable, g_hCvarRoundStartPlay, g_hCvarRoundStartDelay, g_hCvarJRoundStartMenu, g_hCvarJoinServerPlay,
+	g_hCvarJoinServerDelay, g_hCvarJoinServerMenu, g_hCvarDownloadMusicNumber,
 	g_hCvarPlayMusicCoolDown, g_hCvarPlayMusicAccess;
 int g_iRoundStart, g_iPlayerSpawn, g_iDownloadMusicNumber;
-bool g_bEnabled, g_bPlay, g_bShowMenu, g_bPlay2, g_bShowMenu2;
-float g_fDelay, g_fDelay2, g_fCvarPlayMusicCoolDown;
+bool g_bEnabled, g_bCvarRoundStartPlay, g_bCvarJRoundStartMenu, g_bCvarJoinServerPlay, g_bCvarJoinServerMenu;
+float g_fCvarRoundStartDelay, g_fCvarJoinServerDelay, g_fCvarPlayMusicCoolDown;
 char g_sAccesslvl[16];
 
-ArrayList g_aFileSoundPath;
-ArrayList g_aSoundPath;
-ArrayList g_aFileNameTag;
-ArrayList g_aNameTag;
+ArrayList 
+	g_aFileSoundPath, 
+	g_aSoundPath, 
+	g_aFileNameTag, 
+	g_aNameTag;
 
-int g_iGlobalPlayMusicIndex = -1;
-char g_sListPath[PLATFORM_MAX_PATH];
-static bool IsClientMuteMp3[MAXPLAYERS+1];
-int g_iMenuPosition[MAXPLAYERS+1] = {0};
-int g_iClientIdx[MAXPLAYERS+1] = {0};
-float g_fSoundVolume[MAXPLAYERS+1];
-float g_fPlayMusicTime;
+char 
+	g_sListPath[PLATFORM_MAX_PATH];
 
+int 
+	g_iGlobalPlayMusicIndex = -1;
+
+bool 
+	g_bClientMuteMp3[MAXPLAYERS+1];
+
+int 
+	g_iMenuPosition[MAXPLAYERS+1] = {0},
+	g_iClientIdx[MAXPLAYERS+1] = {0};
+
+float 
+	g_fSoundVolume[MAXPLAYERS+1],
+	g_fPlayMusicTime;
+
+Handle 
+	g_hJoinServerTimer[MAXPLAYERS+1],
+	PlayMusicRoundStartTimer;
 
 public void OnPluginStart()
 {
@@ -52,12 +59,12 @@ public void OnPluginStart()
 	
 	CreateConVar(								"l4d_music_mapstart_version",				PLUGIN_VERSION,	"Plugin version", FCVAR_DONTRECORD);
 	g_hCvarEnable = CreateConVar(				"l4d_music_mapstart_enable",				"1",			"Enable plugin. (1 - On / 0 - Off)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarPlay = CreateConVar(					"l4d_music_mapstart_play_roundstart",		"1",			"Play the music to everyone on round starts. (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarDelay = CreateConVar(				"l4d_music_mapstart_delay_roundstart",		"1.0",			"Delay (in sec.) playing the music on round starts.", CVAR_FLAGS, true, 0.0);
-	g_hCvarShowMenu = CreateConVar(				"l4d_music_mapstart_showmenu_roundstart",	"1",			"Show !music menu on round start? (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarPlay2 = CreateConVar(				"l4d_music_mapstart_play_joinserver",		"1",			"Play the music to client after player joins server? (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarDelay2 = CreateConVar(				"l4d_music_mapstart_delay_joinserver",		"3.0",			"Delay (in sec.) playing the music to client after player joins server.", CVAR_FLAGS, true, 0.0);
-	g_hCvarShowMenu2 = CreateConVar(			"l4d_music_mapstart_showmenu_joinserver",	"0",			"Show !music menu after player joins server? (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarRoundStartPlay = CreateConVar(		"l4d_music_mapstart_play_roundstart",		"1",			"Play the music to everyone on round starts. (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarRoundStartDelay = CreateConVar(		"l4d_music_mapstart_delay_roundstart",		"1.0",			"Delay (in sec.) playing the music on round starts.", CVAR_FLAGS, true, 0.0);
+	g_hCvarJRoundStartMenu = CreateConVar(		"l4d_music_mapstart_showmenu_roundstart",	"1",			"Show !music menu on round start? (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarJoinServerPlay = CreateConVar(		"l4d_music_mapstart_play_joinserver",		"1",			"Play the music to client after player joins server? (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarJoinServerDelay = CreateConVar(		"l4d_music_mapstart_delay_joinserver",		"3.0",			"Delay (in sec.) playing the music to client after player joins server.", CVAR_FLAGS, true, 0.0);
+	g_hCvarJoinServerMenu = CreateConVar(		"l4d_music_mapstart_showmenu_joinserver",	"0",			"Show !music menu after player joins server? (1 - Yes, 0 - No)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarDownloadMusicNumber = CreateConVar(	"l4d_music_mapstart_download_number",		"3",			"How many random music files to download from 'data/music_mapstart.txt' each map. [0 - all at once]", CVAR_FLAGS, true, 0.0);
 	g_hCvarPlayMusicCoolDown = CreateConVar(	"l4d_music_mapstart_playmusic_cooldown",	"3.0",			"Time in seconds all players can not play music everyone can hear agagin from !music menu. (0=off)", CVAR_FLAGS, true, 0.0);
 	g_hCvarPlayMusicAccess = CreateConVar(		"l4d_music_mapstart_playmusic_access_flag", "", 			"Players with these flags have access to play music that everyone can hear. (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
@@ -66,12 +73,12 @@ public void OnPluginStart()
 
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged);
-	g_hCvarPlay.AddChangeHook(ConVarChanged);
-	g_hCvarDelay.AddChangeHook(ConVarChanged);
-	g_hCvarShowMenu.AddChangeHook(ConVarChanged);
-	g_hCvarPlay2.AddChangeHook(ConVarChanged);
-	g_hCvarDelay2.AddChangeHook(ConVarChanged);
-	g_hCvarShowMenu2.AddChangeHook(ConVarChanged);
+	g_hCvarRoundStartPlay.AddChangeHook(ConVarChanged);
+	g_hCvarRoundStartDelay.AddChangeHook(ConVarChanged);
+	g_hCvarJRoundStartMenu.AddChangeHook(ConVarChanged);
+	g_hCvarJoinServerPlay.AddChangeHook(ConVarChanged);
+	g_hCvarJoinServerDelay.AddChangeHook(ConVarChanged);
+	g_hCvarJoinServerMenu.AddChangeHook(ConVarChanged);
 	g_hCvarDownloadMusicNumber.AddChangeHook(ConVarChanged);
 	g_hCvarPlayMusicCoolDown.AddChangeHook(ConVarChanged);
 	g_hCvarPlayMusicAccess.AddChangeHook(ConVarChanged);
@@ -88,9 +95,6 @@ public void OnPluginStart()
 	g_aNameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 	
 	BuildPath(Path_SM, g_sListPath, sizeof(g_sListPath), "data/music_mapstart.txt");
-	
-	if (!FileExists(g_sListPath))
-		SetFailState("Cannot open config file \"%s\"!", g_sListPath);
 
 	HookEvent("round_start", 			Event_RoundStart,	EventHookMode_PostNoCopy);
 	HookEvent("player_spawn", Event_PlayerSpawn,	EventHookMode_PostNoCopy);
@@ -102,12 +106,10 @@ public void OnPluginStart()
 	for (int j = 1; j <= MaxClients; j++)
 	{
 		g_fSoundVolume[j] = 1.0;
-		IsClientMuteMp3[j] = false;
+		g_bClientMuteMp3[j] = false;
 	}
 		
 	SetRandomSeed(GetTime());
-
-	//OnMapStart();
 }
 
 public void OnPluginEnd()
@@ -117,6 +119,14 @@ public void OnPluginEnd()
 	delete g_aSoundPath;
 	delete g_aFileNameTag;
 	delete g_aNameTag;
+}
+
+public void OnMapEnd()
+{
+	ResetPlugin();
+	ResetTimer();
+
+	delete PlayMusicRoundStartTimer;
 }
 
 public void OnConfigsExecuted()
@@ -192,19 +202,20 @@ public void OnConfigsExecuted()
 
 public void OnClientPutInServer(int client)
 {
-	if(!IsClientInGame(client) || IsFakeClient (client) || !g_bEnabled || !g_bPlay2) return;
+	if( IsFakeClient (client) || !g_bEnabled || !g_bCvarJoinServerPlay || PlayMusicRoundStartTimer != null) return;
 
 	g_fPlayMusicTime = 0.0;
-	CreateTimer(g_fDelay2, Timer_PlayMusicNewPlayer, client, TIMER_FLAG_NO_MAPCHANGE);
+
+	delete g_hJoinServerTimer[client];
+	g_hJoinServerTimer[client] = CreateTimer(g_fCvarJoinServerDelay, Timer_PlayMusicNewPlayer, client);
 }
 
-
-public void OnMapEnd()
+public void OnClientDisconnect(int client)
 {
-	ResetPlugin();
-}
+    delete g_hJoinServerTimer[client];
+} 
 
-public void ConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -212,50 +223,80 @@ public void ConVarChanged(ConVar convar, const char[] oldValue, const char[] new
 void GetCvars()
 {
 	g_bEnabled = g_hCvarEnable.BoolValue;
-	g_bPlay = g_hCvarPlay.BoolValue;
-	g_fDelay = g_hCvarDelay.FloatValue;
-	g_bShowMenu = g_hCvarShowMenu.BoolValue;
-	g_bPlay2 = g_hCvarPlay2.BoolValue;
-	g_fDelay2 = g_hCvarDelay2.FloatValue;
-	g_bShowMenu2 = g_hCvarShowMenu2.BoolValue;
+	g_bCvarRoundStartPlay = g_hCvarRoundStartPlay.BoolValue;
+	g_fCvarRoundStartDelay = g_hCvarRoundStartDelay.FloatValue;
+	g_bCvarJRoundStartMenu = g_hCvarJRoundStartMenu.BoolValue;
+	g_bCvarJoinServerPlay = g_hCvarJoinServerPlay.BoolValue;
+	g_fCvarJoinServerDelay = g_hCvarJoinServerDelay.FloatValue;
+	g_bCvarJoinServerMenu = g_hCvarJoinServerMenu.BoolValue;
 	g_iDownloadMusicNumber = g_hCvarDownloadMusicNumber.IntValue;
 	g_fCvarPlayMusicCoolDown = g_hCvarPlayMusicCoolDown.FloatValue;
 	g_hCvarPlayMusicAccess.GetString(g_sAccesslvl,sizeof(g_sAccesslvl));
 }
 
-public Action Cmd_MusicOff(int client, int args)
+Action Cmd_MusicOff(int client, int args)
 {
-	IsClientMuteMp3[client] = true;
+	if (client == 0)
+	{
+		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
+	}
+
+	g_bClientMuteMp3[client] = true;
 	PrintToChat(client, "%T", "UnMute", client);
 	return Plugin_Handled;
 }
 
-public Action Cmd_MusicOn(int client, int args)
+Action Cmd_MusicOn(int client, int args)
 {
-	IsClientMuteMp3[client] = false;
+	if (client == 0)
+	{
+		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
+	}
+
+	g_bClientMuteMp3[client] = false;
 	PrintToChat(client, "%T", "Mute", client);
 	return Plugin_Handled;
 }
 
-public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
+Action Cmd_MusicUpdate(int client, int args)
+{
+	UpdateList(client);
+	return Plugin_Handled;
+}
+
+Action Cmd_Music(int client, int args)
+{
+	if (client == 0)
+	{
+		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
+	}
+
+	if(g_bEnabled)
+	{
+		ShowMusicMenu(client);
+	}
+	return Plugin_Handled;
+}
+
+void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	g_fSoundVolume[client] = 1.0; // restore defaults.
 	g_iClientIdx[client] = 0;
 	g_iMenuPosition[client] = 0;
-	return Plugin_Continue;
-}
-
-public Action Cmd_MusicUpdate(int client, int args)
-{
-	UpdateList(client);
-	return Plugin_Handled;
 }
 
 bool UpdateList(int client = 0)
 {
 	char sSoundPath[PLATFORM_MAX_PATH];
 	char buffer[PLATFORM_MAX_PATH];
+
+	if (!FileExists(g_sListPath))
+		SetFailState("Cannot open config file \"%s\"!", g_sListPath);
+
 	File hFile = OpenFile(g_sListPath, "r");
 	if( hFile == null )
 	{
@@ -297,16 +338,7 @@ bool UpdateList(int client = 0)
 	return true;
 }
 
-public Action Cmd_Music(int client, int args)
-{
-	if(g_bEnabled)
-	{
-		ShowMusicMenu(client);
-	}
-	return Plugin_Handled;
-}
-
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_fPlayMusicTime = 0.0;
 
@@ -315,30 +347,36 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_iRoundStart = 1;
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iPlayerSpawn = 1;
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
+	ResetTimer();
+
+	delete PlayMusicRoundStartTimer;
 }
 
-public Action tmrStart(Handle timer)
+Action tmrStart(Handle timer)
 {
-	if(g_bEnabled && g_bPlay)
-	{
-		CreateTimer(g_fDelay, Timer_PlayMusicRoundStart, TIMER_FLAG_NO_MAPCHANGE);	
-	}
 	ResetPlugin();
+	ResetTimer();
+
+	if(g_bEnabled && g_bCvarRoundStartPlay)
+	{
+		delete PlayMusicRoundStartTimer;
+		PlayMusicRoundStartTimer = CreateTimer(g_fCvarRoundStartDelay, Timer_PlayMusicRoundStart);	
+	}
 
 	return Plugin_Continue;
 }
 
-public Action Timer_PlayMusicRoundStart(Handle timer)
+Action Timer_PlayMusicRoundStart(Handle timer)
 {
 	char sPath[PLATFORM_MAX_PATH];
 
@@ -352,20 +390,21 @@ public Action Timer_PlayMusicRoundStart(Handle timer)
 		{
 			StopSoundCustom(j);
 			
-			if(!IsClientMuteMp3[j])
+			if(!g_bClientMuteMp3[j])
 			{
 				EmitSoundCustom(j, sPath);
 				PrintToChat(j, "%T", "Mute", j);
-				if (g_bShowMenu)
+				if (g_bCvarJRoundStartMenu)
 					ShowMusicMenu(j, false);
 			}
 		}
 	}
 
+	PlayMusicRoundStartTimer = null;
 	return Plugin_Continue;
 }
 
-public Action Timer_PlayMusicNewPlayer(Handle timer, int client)
+Action Timer_PlayMusicNewPlayer(Handle timer, int client)
 {
 	if (IsClientInGame(client) && !IsFakeClient(client))
 	{
@@ -377,15 +416,16 @@ public Action Timer_PlayMusicNewPlayer(Handle timer, int client)
 
 		StopSoundCustom(client);
 		
-		if(!IsClientMuteMp3[client])
+		if(!g_bClientMuteMp3[client])
 		{
 			
 			EmitSoundCustom(client, sPath);
-			if (g_bShowMenu2)
+			if (g_bCvarJoinServerMenu)
 				ShowMusicMenu(client, false);
 		}
 	}
 
+	g_hJoinServerTimer[client] = null;
 	return Plugin_Continue;
 }
 
@@ -407,7 +447,7 @@ void ShowMusicMenu(int client, bool forever = true)
 	else menu.Display(client, 20);
 }
 
-public int MenuHandler_MenuMusic(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MenuMusic(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
@@ -468,7 +508,7 @@ void ShowVolumeMenu(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_MenuVolume(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MenuVolume(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
@@ -529,7 +569,7 @@ void ShowAllMenu(int client, bool music_type)
 	menu.DisplayAt(client, g_iMenuPosition[client], MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
@@ -560,7 +600,7 @@ public int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, i
 
 					StopSoundCustom(j);
 					StopSound(j, SNDCHAN_AUTO, sPath);
-					if(!IsClientMuteMp3[j])
+					if(!g_bClientMuteMp3[j])
 					{
 						EmitSoundCustom(j, sPath);
 					}
@@ -585,7 +625,7 @@ public int MenuHandler_MenuPlayMusic(Menu menu, MenuAction action, int param1, i
 }
 
 
-public int MenuHandler_MenuChooseMusic(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MenuChooseMusic(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
@@ -621,8 +661,7 @@ public int MenuHandler_MenuChooseMusic(Menu menu, MenuAction action, int param1,
 	return 0;
 }
 
-
-stock char[] Translate(int client, const char[] format, any ...)
+char[] Translate(int client, const char[] format, any ...)
 {
 	char buffer[192];
 	SetGlobalTransTarget(client);
@@ -655,7 +694,15 @@ void ResetPlugin()
 	g_iPlayerSpawn = 0;
 }
 
-public bool HasAccess(int client, char[] g_sAcclvl)
+void ResetTimer()
+{
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		delete g_hJoinServerTimer[i];
+	}
+}
+
+bool HasAccess(int client, char[] g_sAcclvl)
 {
 	// no permissions set
 	if (strlen(g_sAcclvl) == 0)
