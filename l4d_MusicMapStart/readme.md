@@ -149,6 +149,9 @@ Download and play custom music in game
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * 1.5h (2024-1-8)
+		* Improve Code
+
     * 1.4h (2022-11-16)
 	    * Add new convars.
 	    * say !mp3off to turn off round start music
