@@ -8,7 +8,7 @@
 #define PLUGIN_NAME "[L4D1/2] Weapon Drop"
 #define PLUGIN_AUTHOR "Machine, dcx2, Electr000999 /z, Senip, Shao, NoroHime, HarryPotter"
 #define PLUGIN_DESC "Allows players to drop the weapon they are holding"
-#define PLUGIN_VERSION "1.11-2023/10/28"
+#define PLUGIN_VERSION "1.12-2024/1/7"
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198026784913/"
 
 public Plugin myinfo =
@@ -48,19 +48,28 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar BlockSecondaryDrop;
 ConVar BlockM60Drop;
 ConVar BlockDropMidAction;
+ConVar g_hCvarDropSoundFile;
 bool g_bBlockSecondaryDrop;
 bool g_bBlockM60Drop;
 int g_iBlockDropMidAction;
+char g_sCvarDropSoundFile[PLATFORM_MAX_PATH];
+
+bool g_bValidMap;
 
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
 	
-	BlockSecondaryDrop = CreateConVar("sm_drop_block_secondary", "0", "Prevent players from dropping their secondaries? (Fixes bugs that can come with incapped weapons or A-Posing.)", FCVAR_NONE, true, 0.0, true, 1.0);
-	BlockDropMidAction = CreateConVar("sm_drop_block_mid_action", "1", "Prevent players from dropping objects in between actions? (Fixes throwable cloning.) 1 = All weapons. 2 = Only throwables.", FCVAR_NONE, true, 0.0, true, 2.0);
+	BlockSecondaryDrop = CreateConVar("sm_drop_block_secondary", "0", "Prevent players from dropping their secondaries? (Fixes bugs that can come with incapped weapons or A-Posing.)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	BlockDropMidAction = CreateConVar("sm_drop_block_mid_action", "1", "Prevent players from dropping objects in between actions? (Fixes throwable cloning.) 1 = All weapons. 2 = Only throwables.", FCVAR_NOTIFY, true, 0.0, true, 2.0);
 	if (g_bL4D2Version)
 	{
-		BlockM60Drop = CreateConVar("sm_drop_block_m60", "0", "Prevent players from dropping the M60? (Allows for better compatibility with certain plugins.)", FCVAR_NONE, true, 0.0, true, 1.0);
+		BlockM60Drop = CreateConVar("sm_drop_block_m60", "0", "Prevent players from dropping the M60? (Allows for better compatibility with certain plugins.)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		g_hCvarDropSoundFile  = 	    CreateConVar(  "sm_drop_soundfile", 	"ui/gift_pickup.wav", 			"Drop - sound file (relative to to sound/, empty=disable)", FCVAR_NOTIFY);
+	}
+	else
+	{
+		g_hCvarDropSoundFile  = 	    CreateConVar(  "sm_drop_soundfile", 	"items/itempickup.wav", 		"Drop - sound file (relative to to sound/, empty=disable)", FCVAR_NOTIFY);
 	}
 	CreateConVar("sm_drop_version", PLUGIN_VERSION, "Weapon Drop version.", FCVAR_NOTIFY|FCVAR_REPLICATED|FCVAR_DONTRECORD);
 
@@ -71,6 +80,7 @@ public void OnPluginStart()
 	{
 		BlockM60Drop.AddChangeHook(ConVarChanged_Cvars);
 	}
+	g_hCvarDropSoundFile.AddChangeHook(ConVarChanged_Cvars);
 	
 	AutoExecConfig(true, "l4d_drop");
 	GetCvars();
@@ -92,6 +102,27 @@ void GetCvars()
 	{ 
 		g_bBlockM60Drop = BlockM60Drop.BoolValue; 
 	}
+
+	g_hCvarDropSoundFile.GetString(g_sCvarDropSoundFile, sizeof(g_sCvarDropSoundFile));
+	if (g_bValidMap) 
+	{
+		if(strlen(g_sCvarDropSoundFile) > 0) PrecacheSound(g_sCvarDropSoundFile);
+	}
+}
+
+public void OnMapStart()
+{
+    g_bValidMap = true;
+}
+
+public void OnMapEnd()
+{
+    g_bValidMap = false;
+}
+
+public void OnConfigsExecuted()
+{
+    GetCvars();
 }
 
 Action Command_Drop(int client, int args)
@@ -279,9 +310,14 @@ void DropWeapon(int client, int weapon)
 	SDKHooks_DropWeapon(client, weapon);
 	SetPlayerReserveAmmo(client, weapon, 0);
 	SetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo", ammo);
-	
+
+	if (strlen(g_sCvarDropSoundFile) > 0)
+	{
+		PlaySoundAroundClient(client, g_sCvarDropSoundFile);
+	}
+
 	if (!g_bL4D2Version) return;
-	
+
 	if (strcmp(classname, "weapon_defibrillator") == 0)
 	{
 		int modelindex = GetEntProp(weapon, Prop_Data, "m_nModelIndex");
@@ -382,4 +418,9 @@ int GetInfectedAttacker(int client)
 	}
 
 	return -1;
+}
+
+void PlaySoundAroundClient(int client, char[] sSoundName)
+{
+	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_AIRCRAFT, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 }
