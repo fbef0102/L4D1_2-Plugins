@@ -130,7 +130,7 @@ public void OnConfigsExecuted()
     g_bConfigLoaded = true;
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -150,7 +150,8 @@ void GetCvars()
 	witch_burn_time = z_witch_burn_time.FloatValue;
 }
 
-public Action sm_insult ( int client, int args )
+#if DEBUG
+Action sm_insult ( int client, int args )
 {
     if(client == 0 || g_bCvarAllow == false) return Plugin_Handled;
 
@@ -167,8 +168,9 @@ public Action sm_insult ( int client, int args )
 
     return Plugin_Handled;
 }
+#endif
 
-public void Player_Incapacitated(Event event, const char[] event_name, bool dontBroadcast)
+void Player_Incapacitated(Event event, const char[] event_name, bool dontBroadcast)
 {
     if(g_bCvarAllow == false || g_bCvarIncapOverride == false) return;
 
@@ -183,7 +185,7 @@ public void Player_Incapacitated(Event event, const char[] event_name, bool dont
     }
 }
 
-public void Player_Death(Event event, const char[] event_name, bool dontBroadcast)
+void Player_Death(Event event, const char[] event_name, bool dontBroadcast)
 {
     if(g_bCvarAllow == false || g_bCvarKillOverride == false ) return;
 
@@ -212,7 +214,6 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 
 	if(GetEntityFlags(witch) & FL_ONFIRE )
 	{
-		
 		ExtinguishEntity(witch);
 		int flame = GetEntPropEnt(witch, Prop_Send, "m_hEffectEntity");
 		if( flame != -1 )
@@ -232,7 +233,7 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 	}
 }
 
-public void PostThink(int witch)
+void PostThink(int witch)
 {
 	SDKUnhook(witch, SDKHook_ThinkPost, PostThink);
 
@@ -306,14 +307,14 @@ bool IsPlayerIncapOrHanging(int client)
 }
 
 
-public void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
+void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
 {
 	int witchid = event.GetInt("witchid");
 	bWitchScared[witchid] = true;
 }
 
 //witch follows survivor
-public void witch_spawn(Event event, const char[] event_name, bool dontBroadcast)
+void witch_spawn(Event event, const char[] event_name, bool dontBroadcast)
 {
 	if(g_bCvarAllow == false || GetRandomInt(0, 100) > g_iWitchChanceFollowsurvivor ) return;
 
@@ -330,7 +331,7 @@ public void witch_spawn(Event event, const char[] event_name, bool dontBroadcast
 	}
 }
 
-public Action DelayHookWitch(Handle timer, int ref)
+Action DelayHookWitch(Handle timer, int ref)
 {
 	int witch;
 	if(g_bCvarAllow && ref && (witch = EntRefToEntIndex(ref)) != INVALID_ENT_REFERENCE)
@@ -383,7 +384,7 @@ public void OnEntityDestroyed(int entity)
 	ge_bInvalidTrace[entity] = false;
 }
 
-public void StartHookWitch(int witch)
+void StartHookWitch(int witch)
 {
 	StopHookWitch(witch);
 
@@ -409,13 +410,13 @@ public void StartHookWitch(int witch)
 	}
 }
 
-public void StopHookWitch(int witch)
+void StopHookWitch(int witch)
 {
     SDKUnhook(witch, SDKHook_ThinkPost, ThinkWitch);		
     DeleteWitch(witch);
 }
 
-public void DeleteWitch(int witch)
+void DeleteWitch(int witch)
 {
     Enemy[witch] = 0;
     EnemyTime[witch] = 0.0;
@@ -428,7 +429,7 @@ public void DeleteWitch(int witch)
     LastSetPos[witch][0] = LastSetPos[witch][1] = LastSetPos[witch][2] = 0.0;
 }
 
-public Action ThinkWitch(int witch)
+Action ThinkWitch(int witch)
 {
 	if(bWitchScared[witch])
 	{
@@ -698,7 +699,7 @@ void RotateVector(float direction[3], float vec[3], float alfa, float result[3])
     AddVectors(result, uuv, result);
 }
 
-public void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage, int damagetype)
+void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage, int damagetype)
 {
 	if(EnemyTime[witch] > 0.0 && attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) == 2)
 	{
@@ -707,19 +708,30 @@ public void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float 
 
 	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null && g_bCvarReCalculateBurnOverride == false)
 	{
+		delete BurnWitchTimer[witch];
+
+		DataPack hPack = new DataPack();
+		hPack.WriteCell(witch);
+		hPack.WriteCell(EntIndexToEntRef(witch));
 		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, EntIndexToEntRef(witch));
 	}
 }
 
-public Action BurnWitchDead_Timer(Handle timer, int witch)
+Action BurnWitchDead_Timer(Handle timer, DataPack hPack)
 {
-	if ( witch && ( witch = EntRefToEntIndex(witch) ) != INVALID_ENT_REFERENCE )
+	hPack.Reset();
+	int index = hPack.ReadCell();
+	int witch = EntRefToEntIndex(hPack.ReadCell());
+	delete hPack;
+	
+	if ( witch != INVALID_ENT_REFERENCE )
 	{
+		SetEntProp(witch, Prop_Data, "m_iHealth", 1);
 		ForceDamageEntity(-1, 99999, witch);
-		BurnWitchTimer[witch] = null;
 	}
 
-	return Plugin_Continue;	
+	BurnWitchTimer[index] = null;
+	return Plugin_Continue;
 }
 
 void ForceDamageEntity(int causer, int damage, int victim)
@@ -737,12 +749,11 @@ void ForceDamageEntity(int causer, int damage, int victim)
 	DispatchSpawn(entity);
 	TeleportEntity(entity, victim_origin, NULL_VECTOR, NULL_VECTOR);
 	AcceptEntityInput(entity, "Hurt", (causer > 0 && causer <= MaxClients) ? causer : -1);
-	DispatchKeyValue(entity, "classname", "point_hurt");
 	DispatchKeyValue(victim, "targetname", "null");
 	AcceptEntityInput(entity, "Kill");
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
 }
@@ -800,7 +811,7 @@ bool IsVisibleTo(float fWitchPos[3], float fPlayerPos[3], int player)
     return isVisible;
 }
 
-public bool TraceFilter(int entity, int contentsMask, int client)
+bool TraceFilter(int entity, int contentsMask, int client)
 {
     if (entity == client)
         return true;
