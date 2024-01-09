@@ -293,6 +293,7 @@ void DropWeapon(int client, int weapon)
 		DispatchSpawn(single_pistol);
 		EquipPlayerWeapon(client, single_pistol);
 		SDKHooks_DropWeapon(client, single_pistol);
+		if (strlen(g_sCvarDropSoundFile) > 0) PlaySoundAroundClient(client, g_sCvarDropSoundFile);
 		SetEntProp(single_pistol, Prop_Send, "m_iClip1", clip);
 
 		single_pistol = CreateEntityByName("weapon_pistol");
@@ -308,13 +309,9 @@ void DropWeapon(int client, int weapon)
 	int ammo = GetPlayerReserveAmmo(client, weapon);
 
 	SDKHooks_DropWeapon(client, weapon);
+	if (strlen(g_sCvarDropSoundFile) > 0) PlaySoundAroundClient(client, g_sCvarDropSoundFile);
 	SetPlayerReserveAmmo(client, weapon, 0);
 	SetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo", ammo);
-
-	if (strlen(g_sCvarDropSoundFile) > 0)
-	{
-		PlaySoundAroundClient(client, g_sCvarDropSoundFile);
-	}
 
 	if (!g_bL4D2Version) return;
 
