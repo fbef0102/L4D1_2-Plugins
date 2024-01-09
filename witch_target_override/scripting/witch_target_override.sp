@@ -2,17 +2,12 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "1.8"
+#define PLUGIN_VERSION "1.9-2024/1/9"
 #define DEBUG 0
 
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#define L4D_TEAM_SPECTATOR		1
-#define L4D_TEAM_SURVIVORS 		2
-#define L4D_TEAM_INFECTED 		3
-#define Pai 3.14159265358979323846 
-#define MAXENTITY 2048
 
 public Plugin myinfo = 
 {
@@ -50,14 +45,22 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-ConVar g_hCvarAllow, g_hCvarIncapOverride, g_hCvarKillOverride,
-    g_hCvarIncapOverrideHealth, g_hCvarKillOverrideHealth, g_hRequiredRange, g_hCvarReCalculateBurnOverride,
-    g_hWitchChanceFollowsurvivor, g_hWitchFollowRange, g_hWitchFollowSpeed;
+#define L4D_TEAM_SPECTATOR		1
+#define L4D_TEAM_SURVIVORS 		2
+#define L4D_TEAM_INFECTED 		3
+#define Pai 3.14159265358979323846 
+#define MAXENTITY 2048
+
 ConVar z_witch_burn_time;
-int g_iCvarIncapOverrideHealth, g_iCvarKillOverrideHealth, g_iWitchChanceFollowsurvivor;
-bool g_bCvarAllow, g_bCvarIncapOverride, g_bCvarKillOverride, g_bCvarReCalculateBurnOverride;
-float g_fRequiredRange, g_fWitchFollowRange, g_fWitchFollowSpeed;
 float witch_burn_time;
+
+ConVar g_hCvarAllow, g_hCvarIncapOverride, g_hCvarKillOverride,
+    g_hCvarIncapOverrideHealth, g_hCvarKillOverrideHealth, g_hRequiredRange,
+    g_hWitchChanceFollowsurvivor, g_hWitchFollowRange, g_hWitchFollowSpeed,
+	g_hWitchAngryRange;
+int g_iCvarIncapOverrideHealth, g_iCvarKillOverrideHealth, g_iWitchChanceFollowsurvivor;
+bool g_bCvarAllow, g_bCvarIncapOverride, g_bCvarKillOverride;
+float g_fRequiredRange, g_fWitchFollowRange, g_fWitchFollowSpeed, g_fWitchAngryRange;
 
 int Enemy[MAXENTITY+1];
 float ActionTime[MAXENTITY+1], EnemyTime[MAXENTITY+1], StuckTime[MAXENTITY+1], PauseTime[MAXENTITY+1], LastTime[MAXENTITY+1], 
@@ -67,35 +70,36 @@ Handle BurnWitchTimer[MAXENTITY+1] = {null};
 bool ge_bInvalidTrace[MAXENTITY+1];
 float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
 float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
-static bool   g_bConfigLoaded;
+bool   g_bConfigLoaded;
 
 public void OnPluginStart()
 {
-	g_hCvarAllow = CreateConVar("witch_target_override_on", "1", "1=Plugin On. 0=Plugin Off", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarIncapOverride = CreateConVar("witch_target_override_incap", "1", "If 1, allow witch to chase another target after she incapacitates a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarKillOverride = CreateConVar("witch_target_override_kill", "1", "If 1, allow witch to chase another target after she kills a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarIncapOverrideHealth = CreateConVar("witch_target_override_incap_health_add", "100", "Add witch health if she is allowed to chase another target after she incapacitates a survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0, true, 9999.0);
-	g_hCvarKillOverrideHealth = CreateConVar("witch_target_override_kill_health_add", "400", "Add witch health if she is allowed to chase another target after she kills a survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0, true, 9999.0);
-	g_hRequiredRange = CreateConVar("witch_target_override_range", "9999", "This controls the range for witch to reacquire another target. [1.0, 9999.0] (If no targets within range, witch default behavior)", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
-	g_hCvarReCalculateBurnOverride = CreateConVar("witch_target_override_recalculate_burn_time", "0", "If 1, the burning witch restarts and recalculates burning time if she is allowed to chase another target. (0=after witch burns for a set amount of time z_witch_burn_time, she dies from the fire)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hWitchChanceFollowsurvivor = CreateConVar("witch_target_override_chance_followsurvivor", "100", "Chance of following survivors [0, 100]", FCVAR_NOTIFY, true, 0.0, true, 100.0);
-	g_hWitchFollowRange = CreateConVar("witch_target_override_followsurvivor_range", "500.0", "Witch's vision range , witch will follow you if in range. [100.0, 9999.0] ", FCVAR_NOTIFY, true, 100.0, true, 9999.0);
-	g_hWitchFollowSpeed = CreateConVar("witch_target_override_followsurvivor_speed", "45.0", "Witch's following speed.", FCVAR_NOTIFY, true, 1.0);
-
 	z_witch_burn_time = FindConVar("z_witch_burn_time");
 
+	g_hCvarAllow 					= CreateConVar("witch_target_override_on", 						"1", 		"1=Plugin On. 0=Plugin Off", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarIncapOverride 			= CreateConVar("witch_target_override_incap_chase", 			"1", 		"If 1, allow witch to chase another target after she incapacitates a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarKillOverride 			= CreateConVar("witch_target_override_kill_chase", 				"1", 		"If 1, allow witch to chase another target after she kills a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarIncapOverrideHealth 		= CreateConVar("witch_target_override_incap_health_add", 		"100", 		"Add witch health if she is allowed to chase another target after she incapacitates a survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0, true, 9999.0);
+	g_hCvarKillOverrideHealth 		= CreateConVar("witch_target_override_kill_health_add", 		"400", 		"Add witch health if she is allowed to chase another target after she kills a survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0, true, 9999.0);
+	g_hRequiredRange 				= CreateConVar("witch_target_override_chase_range", 			"9999", 	"This controls the range for witch to reacquire another target. [1.0, 9999.0] (If no targets within range, witch default behavior)", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
+	g_hWitchChanceFollowsurvivor 	= CreateConVar("witch_target_override_chance_followsurvivor", 	"100", 		"Chance of following survivors [0, 100]", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	g_hWitchFollowRange 			= CreateConVar("witch_target_override_followsurvivor_range", 	"500.0", 	"Witch's vision range, witch will follow survivor if in range. [100.0, 9999.0] ", FCVAR_NOTIFY, true, 100.0, true, 9999.0);
+	g_hWitchFollowSpeed 			= CreateConVar("witch_target_override_followsurvivor_speed", 	"45.0", 	"Witch's following speed.", FCVAR_NOTIFY, true, 1.0);
+	g_hWitchAngryRange 				= CreateConVar("witch_target_override_followsurvivor_rage", 	"0.5", 		"Witch stops following when her rage over this value. [0.0, 1.0] (Witch will follow again when her rage below this value)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	AutoExecConfig(true, "witch_target_override");
+
 	GetCvars();
+	z_witch_burn_time.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarAllow.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarIncapOverride.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarKillOverride.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarIncapOverrideHealth.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarKillOverrideHealth.AddChangeHook(ConVarChanged_Cvars);
 	g_hRequiredRange.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarReCalculateBurnOverride.AddChangeHook(ConVarChanged_Cvars);
 	g_hWitchChanceFollowsurvivor.AddChangeHook(ConVarChanged_Cvars);
 	g_hWitchFollowRange.AddChangeHook(ConVarChanged_Cvars);
 	g_hWitchFollowSpeed.AddChangeHook(ConVarChanged_Cvars);
-	z_witch_burn_time.AddChangeHook(ConVarChanged_Cvars);
+	g_hWitchAngryRange.AddChangeHook(ConVarChanged_Cvars);
 
 	#if DEBUG
 		RegConsoleCmd("sm_test", sm_insult);
@@ -109,9 +113,6 @@ public void OnPluginStart()
 	HookEvent("map_transition", Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役模式下過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役模式下滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,	EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
-
-	//Autoconfig for plugin
-	AutoExecConfig(true, "witch_target_override");
 }
 
 public void OnPluginEnd()
@@ -137,17 +138,18 @@ void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newV
 
 void GetCvars()
 {
+	witch_burn_time = z_witch_burn_time.FloatValue;
+
 	g_bCvarAllow = g_hCvarAllow.BoolValue;
 	g_bCvarIncapOverride = g_hCvarIncapOverride.BoolValue;
 	g_bCvarKillOverride = g_hCvarKillOverride.BoolValue;
 	g_iCvarIncapOverrideHealth = g_hCvarIncapOverrideHealth.IntValue;
 	g_iCvarKillOverrideHealth = g_hCvarKillOverrideHealth.IntValue;
 	g_fRequiredRange = g_hRequiredRange.FloatValue;
-	g_bCvarReCalculateBurnOverride = g_hCvarReCalculateBurnOverride.BoolValue;
 	g_iWitchChanceFollowsurvivor = g_hWitchChanceFollowsurvivor.IntValue;
 	g_fWitchFollowRange = g_hWitchFollowRange.FloatValue;
 	g_fWitchFollowSpeed = g_hWitchFollowSpeed.FloatValue;
-	witch_burn_time = z_witch_burn_time.FloatValue;
+	g_fWitchAngryRange = g_hWitchAngryRange.FloatValue;
 }
 
 #if DEBUG
@@ -325,10 +327,7 @@ void witch_spawn(Event event, const char[] event_name, bool dontBroadcast)
 
 	SDKHook(witchid, SDKHook_OnTakeDamageAlivePost, OnTakeDamageWitchPost);	
 
-	if(g_bCvarReCalculateBurnOverride == false)
-	{
-		delete BurnWitchTimer[witchid];
-	}
+	delete BurnWitchTimer[witchid];
 }
 
 Action DelayHookWitch(Handle timer, int ref)
@@ -488,7 +487,7 @@ Action ThinkWitch(int witch)
 	#if DEBUG
 		PrintToChatAll("rage: %.2f, m_rage: %.2f, m_wanderrage: %.2f ", rage, m_rage, m_wanderrage );
 	#endif
-	if(rage > 0.5 || m_rage == 1.0)
+	if(rage > g_fWitchAngryRange || m_rage == 1.0)
 	{
 		StuckTime[witch] = 0.0;
 		return Plugin_Continue;
@@ -706,14 +705,14 @@ void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage,
 		StopHookWitch(witch);
 	}
 
-	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null && g_bCvarReCalculateBurnOverride == false)
+	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null)
 	{
 		delete BurnWitchTimer[witch];
 
 		DataPack hPack = new DataPack();
 		hPack.WriteCell(witch);
 		hPack.WriteCell(EntIndexToEntRef(witch));
-		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, EntIndexToEntRef(witch));
+		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, hPack);
 	}
 }
 
