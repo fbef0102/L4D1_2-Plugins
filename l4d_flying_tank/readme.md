@@ -1,7 +1,7 @@
 # Description | 內容
 Provides the ability to fly to Tanks and special effects.
 
-* [Video | 影片展示](https://youtu.be/c1bY8Zgvd4s)
+* [Video | 影片展示](https://youtube.com/shorts/O_60Gggphnk)
 
 * Image | 圖示
 	<br/>![l4d_flying_tank_1](image/l4d_flying_tank_1.gif)
