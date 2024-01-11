@@ -41,7 +41,8 @@ models/props_vehicles/generatortrailer01.mdl TAG- 發電機拖車
 models/props_vehicles/c130.mdl TAG- c130飛機 (穿透)
 models/lighthouse/b_airplane01.mdl TAG- 飛機 (穿透)
 models/props_vehicles/chopper_generic.mdl TAG- 標準直升機
-models/props_vehicles/helicopter_news_downed.mdl TAG- 已墜毀的直升機
+models/hybridphysx/news_helicoptor_hoveranim.mdl TAG- 直升機 NEWS 5 (C8M5)
+models/props_vehicles/helicopter_news_downed.mdl TAG- 已墜毀的直升機 NEWS 5 (C9M1)
 models/props_vehicles/helicopter_rescue.mdl TAG- 救援直升機 - c5m5 (穿透)
 models/props_vehicles/helicopter_rescue_smashed.mdl TAG- 已墜毀的救援直升機 - c5 (穿透)
 models/props_vehicles/hmmwv.mdl TAG- 180軍用汽車
