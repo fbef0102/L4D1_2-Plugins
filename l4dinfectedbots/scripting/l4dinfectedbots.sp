@@ -3759,7 +3759,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			AllPlayerCount >= L4D_MAXPLAYERS)
 		{
 			#if DEBUG
-				LogMessage("versus team is already full, don't spawn a bot");
+				LogMessage("team is already full, don't spawn a bot");
 			#endif
 			InfectedBotQueue = 0;
 			g_bIsCoordination = false;
@@ -3777,7 +3777,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			AllPlayerCount >= L4D_MAXPLAYERS )
 		{
 			#if DEBUG
-				LogMessage("coop team is already full, don't spawn a bot");
+				LogMessage("team is already full, don't spawn a bot");
 			#endif
 			InfectedBotQueue = 0;
 			g_bIsCoordination = false;
@@ -6308,6 +6308,54 @@ int GenerateIndex()
 	return -1; //no selection because all weights were negative or 0
 }
 
+Action Timer_SpawnColdDown(Handle timer, int SI_TYPE)
+{
+	g_hSpawnColdDownTimer[SI_TYPE] = null;
+	return Plugin_Continue;
+}
+
+int GetSurvivorsInServer()
+{
+	int count = 0;
+	for(int i = 1; i < MaxClients + 1; i++)
+	{
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
+stock int GetSpectatorsAndConnectInServer()
+{
+	int count = 0;
+	for(int i = 1; i < MaxClients + 1; i++)
+	{
+		if(IsClientConnected(i) && GetClientTeam(i) <=1)
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
+int GetAllPlayersInServer()
+{
+	int count = 0;
+	for(int i = 1; i < MaxClients + 1; i++)
+	{
+		if(IsClientConnected(i))
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
@@ -6363,8 +6411,8 @@ public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 
 		return Plugin_Handled;
 	}
-	else if(strcmp(sKey, "CommonLimit", false) == 0 || strcmp(sKey, "cm_CommonLimit", false) == 0) {
-
+	else if(g_bCommonLimitAdjust && (strcmp(sKey, "CommonLimit", false) == 0 || strcmp(sKey, "cm_CommonLimit", false) == 0) ) {
+		
 		retVal = g_iCvar_z_common_limit;
 		//PrintToServer("CommonLimit %d", retVal);
 
@@ -6385,52 +6433,4 @@ public Action L4D_OnGetScriptValueFloat(const char[] sKey, float &retVal)
 	}
 
 	return Plugin_Continue;
-}
-
-Action Timer_SpawnColdDown(Handle timer, int SI_TYPE)
-{
-	g_hSpawnColdDownTimer[SI_TYPE] = null;
-	return Plugin_Continue;
-}
-
-int GetSurvivorsInServer()
-{
-	int count = 0;
-	for(int i = 1; i < MaxClients + 1; i++)
-	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
-		{
-			count++;
-		}
-	}
-
-	return count;
-}
-
-stock int GetSpectatorsAndConnectInServer()
-{
-	int count = 0;
-	for(int i = 1; i < MaxClients + 1; i++)
-	{
-		if(IsClientConnected(i) && GetClientTeam(i) <=1)
-		{
-			count++;
-		}
-	}
-
-	return count;
-}
-
-int GetAllPlayersInServer()
-{
-	int count = 0;
-	for(int i = 1; i < MaxClients + 1; i++)
-	{
-		if(IsClientConnected(i))
-		{
-			count++;
-		}
-	}
-
-	return count;
 }
