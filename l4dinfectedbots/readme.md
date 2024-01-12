@@ -76,7 +76,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		l4d_infectedbots_charger_weight "100"
 
 		// If 1, players can join the infected team in coop/survival/realism (!ji in chat to join infected, !js to join survivors)
-		l4d_infectedbots_coop_versus "1"
+		// Enable this also allow game to continue with survivor bots
+		l4d_infectedbots_coop_versus "0"
 
 		// If 1, clients will be announced to on how to join the infected team
 		l4d_infectedbots_coop_versus_announce "1"
@@ -194,6 +195,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		l4d_infectedbots_tank_spawn_probability "5"
 
 		// If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge
+		// Enable this also allow game to continue with survivor bots
 		l4d_infectedbots_versus_coop "0"
 
 		// Amount of seconds before a witch is kicked. (only remove witches spawned by this plugin)
@@ -454,6 +456,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	8. <details><summary>Play infected team in coop/survival/realism</summary>
 
 		* Only players with "z" access can join the infected team, and there are only 2 infected team slots for real player
+		* Also allow game to continue with survivor bots
 			```php
 			l4d_infectedbots_coop_versus "1"
 			l4d_infectedbots_coop_versus_join_access "z"
@@ -742,7 +745,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		l4d_infectedbots_charger_weight "100"
 
 		// 如果爲1，則玩家可以在戰役/寫實/生存模式中加入感染者(!ji加入感染者 !js加入倖存者)"
-		l4d_infectedbots_coop_versus "1"
+		// 開啟此指令，即使都是倖存者Bot，會強制遊戲繼續進行
+		l4d_infectedbots_coop_versus "0"
 
 		// 如果爲1，則通知玩家如何加入到倖存者和感染者
 		l4d_infectedbots_coop_versus_announce "1"
@@ -862,6 +866,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		l4d_infectedbots_tank_spawn_probability "5"
 
 		// 如果爲1，則在對抗/清道夫模式中，強迫所有玩家加入到感染者
+		// 開啟此指令，即使都是倖存者Bot，會強制遊戲繼續進行
 		l4d_infectedbots_versus_coop "0"
 
 		// witch生成多少秒才會踢出（不影響劇情生成的witch）
@@ -1122,6 +1127,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	8. <details><summary>在戰役/倖存者/寫實模式下成為感染者</summary>
 
 		* 例如：只有擁有 "z "權限的玩家才能加入感染者陣營，且感染者只能有2個名額。
+		* 即使都是倖存者Bot，會強制遊戲繼續進行
 			```php
 			l4d_infectedbots_coop_versus "1"
 			l4d_infectedbots_coop_versus_join_access "z"
