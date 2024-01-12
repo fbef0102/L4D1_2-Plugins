@@ -1034,7 +1034,7 @@ public void OnPluginStart()
 	h_InfectedSpawnTimeMax = 			CreateConVar("l4d_infectedbots_spawn_time_max", 						"60", 		"Sets the max spawn time for special infected spawned by the plugin in seconds.", FCVAR_NOTIFY, true, 1.0);
 	h_InfectedSpawnTimeMin = 			CreateConVar("l4d_infectedbots_spawn_time_min", 						"40", 		"Sets the minimum spawn time for special infected spawned by the plugin in seconds.", FCVAR_NOTIFY, true, 1.0);
 	h_CoopPlayableTank = 				CreateConVar("l4d_infectedbots_coop_versus_tank_playable", 				"0", 		"If 1, tank will always be controlled by human player in coop/survival/realism.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	h_JoinableTeams = 					CreateConVar("l4d_infectedbots_coop_versus", 							"1", 		"If 1, players can join the infected team in coop/survival/realism (!ji in chat to join infected, !js to join survivors)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	h_JoinableTeams = 					CreateConVar("l4d_infectedbots_coop_versus", 							"0", 		"If 1, players can join the infected team in coop/survival/realism (!ji in chat to join infected, !js to join survivors)\nEnable this also allow game to continue with survivor bots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	if (!g_bL4D2Version)
 	{
 		h_StatsBoard = 					CreateConVar("l4d_infectedbots_stats_board", 							"0", 		"If 1, the stats board will show up after an infected player dies (L4D1 ONLY)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -1048,7 +1048,7 @@ public void OnPluginStart()
 	h_HumanCoopLimit = 					CreateConVar("l4d_infectedbots_coop_versus_human_limit", 				"2", 		"Sets the limit for the amount of humans that can join the infected team in coop/survival/realism.", FCVAR_NOTIFY, true, 0.0);
 	h_JoinInfectedAccess = 				CreateConVar("l4d_infectedbots_coop_versus_join_access", 				"z", 		"Players with these flags have access to join infected team in coop/survival/realism. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	h_DisableSpawnsTank = 				CreateConVar("l4d_infectedbots_spawns_disabled_tank", 					"0", 		"If 1, Plugin will disable spawning infected bot when a tank is on the field.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	h_VersusCoop = 						CreateConVar("l4d_infectedbots_versus_coop", 							"0", 		"If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	h_VersusCoop = 						CreateConVar("l4d_infectedbots_versus_coop", 							"0", 		"If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge.\nEnable this also allow game to continue with survivor bots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_AdjustSpawnTimes = 				CreateConVar("l4d_infectedbots_adjust_spawn_times", 					"1", 		"If 1, The plugin will adjust spawn timers depending on the gamemode and human players on infected team", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_ReducedSpawnTimesOnPlayer = 		CreateConVar("l4d_infectedbots_adjust_reduced_spawn_times_on_player", 	"1", 		"Reduce certain value to maximum spawn timer based per alive player", FCVAR_NOTIFY, true, 0.0);
 	h_SafeSpawn = 						CreateConVar("l4d_infectedbots_safe_spawn", 							"0", 		"If 1, spawn special infected before survivors leave starting safe room area.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
