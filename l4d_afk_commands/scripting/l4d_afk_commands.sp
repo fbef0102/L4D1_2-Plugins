@@ -163,14 +163,6 @@ float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float g_fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 
-int L4D1_GetMainActivity(int client) {
-	static int s_iOffs_m_eCurrentMainSequenceActivity = -1;
-	if (s_iOffs_m_eCurrentMainSequenceActivity == -1)
-		s_iOffs_m_eCurrentMainSequenceActivity = FindSendPropInfo("CTerrorPlayer", "m_iProgressBarDuration") + 476;
-	
-	return LoadFromAddress(GetEntityAddress(client) + view_as<Address>(s_iOffs_m_eCurrentMainSequenceActivity), NumberType_Int32);
-}
-
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
