@@ -2,13 +2,15 @@
 #pragma newdecls required
 #include <sourcemod>
 #include <regex>
+#define PLUGIN_VERSION			"2.8"
+#define DEBUG 0
 
 public Plugin myinfo =
 {
 	name = "L4D auto restart",
-	author = "Harry Potter, HatsuneImagine",
+	author = "Harry Potter, HatsuneImagin",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
-	version = "2.7d",
+	version = PLUGIN_VERSION,
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -16,15 +18,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 {
 	EngineVersion test = GetEngineVersion();
 
-	if( test == Engine_Left4Dead )
-	{
-		
-	}
-	else if( test == Engine_Left4Dead2 )
-	{
-		
-	}
-	else
+	if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
 	{
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
@@ -33,16 +27,25 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
-#define CVAR_FLAGS FCVAR_NOTIFY
+#define CVAR_FLAGS			FCVAR_NOTIFY
 
+ConVar g_hConVarHibernate;
 Handle COLD_DOWN_Timer;
-bool g_bFirstMap, g_bCmdMap;
+
+bool 
+	g_bNoOneInServer, 
+	g_bFirstMap, 
+	g_bCmdMap,
+	g_bAnyoneConnectedBefore;
 
 public void OnPluginStart()
 {
-	RegAdminCmd("sm_crash", Cmd_RestartServer, ADMFLAG_ROOT, "sm_crash - manually force the server to crash");
+	g_hConVarHibernate = FindConVar("sv_hibernate_when_empty");
+	g_hConVarHibernate.AddChangeHook(ConVarChanged_Hibernate);
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);	
+
+	RegAdminCmd("sm_crash", Cmd_RestartServer, ADMFLAG_ROOT, "sm_crash - manually force the server to crash");
 
 	g_bFirstMap = true;
 	g_bCmdMap = false;
@@ -54,17 +57,18 @@ public void OnPluginEnd()
 	delete COLD_DOWN_Timer;
 }
 
-public void OnMapStart()
+void ConVarChanged_Hibernate(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
-	if(g_bCmdMap || (!CheckPlayerInGame(0) && !g_bFirstMap))
-	{
-		SetConVarInt(FindConVar("sb_all_bot_game"), 1);
-		delete COLD_DOWN_Timer;
-		COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
-	}
+	g_hConVarHibernate.SetBool(false);
+}
 
-	g_bFirstMap = false;
-	g_bCmdMap = false;
+public void OnMapStart()
+{	
+    #if DEBUG
+		LogMessage("OnMapStart()");
+    #endif 
+
+	g_hConVarHibernate.SetBool(false);
 }
 
 public void OnMapEnd()
@@ -72,13 +76,68 @@ public void OnMapEnd()
 	delete COLD_DOWN_Timer;
 }
 
+public void OnConfigsExecuted()
+{
+	#if DEBUG
+		LogMessage("OnConfigsExecuted");
+	#endif 
+
+	if(g_bNoOneInServer || ( !g_bFirstMap &&  (g_bCmdMap || g_bAnyoneConnectedBefore) ))
+	{
+		if(CheckPlayerInGame(0) == false) //沒有玩家在伺服器中
+		{
+			delete COLD_DOWN_Timer;
+			COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
+		}
+	}
+
+	g_bFirstMap = false;
+	g_bCmdMap = false;
+}
+
+public void OnClientConnected(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	#if DEBUG
+		LogMessage("OnClientConnected: %N", client);
+	#endif 
+
+	g_bAnyoneConnectedBefore = true;
+}
+
+Action Cmd_RestartServer(int client, int args)
+{
+	if(client > 0 && !IsFakeClient(client))
+	{
+		static char steamid[32];
+		GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true);
+
+		LogMessage("Manually restarting server... by %N [%s]", client, steamid);
+		PrintToServer("Manually restarting server in 5 seconds later... by %N", client);
+		PrintToChatAll("Manually restarting server in 5 seconds later... by %N", client);
+	}
+	else
+	{
+		LogMessage("Manually restarting server...");
+		PrintToServer("Manually restarting server in 5 seconds later...");
+		PrintToChatAll("Manually restarting server in 5 seconds later...");
+	}
+
+	CreateTimer(5.0, Timer_Cmd_RestartServer);
+
+	return Plugin_Continue;
+}
+
 void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if(!client || IsFakeClient(client) /*|| (IsClientConnected(client) && !IsClientInGame(client))*/) return;
+
 	if(!CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
-		SetConVarInt(FindConVar("sb_all_bot_game"), 1);
+		g_bNoOneInServer = true;
+
 		delete COLD_DOWN_Timer;
 		COLD_DOWN_Timer = CreateTimer(15.0, COLD_DOWN);
 	}
@@ -88,6 +147,7 @@ Action COLD_DOWN(Handle timer, any client)
 {
 	if(CheckPlayerInGame(0)) //有玩家在伺服器中
 	{
+		g_bNoOneInServer = false;
 		COLD_DOWN_Timer = null;
 		return Plugin_Continue;
 	}
@@ -103,7 +163,7 @@ Action COLD_DOWN(Handle timer, any client)
 
 	UnloadAccelerator();
 
-	CreateTimer(5.0, Timer_RestartServer);
+	CreateTimer(0.1, Timer_RestartServer);
 
 	COLD_DOWN_Timer = null;
 	return Plugin_Continue;
@@ -120,16 +180,10 @@ Action Timer_RestartServer(Handle timer)
 	return Plugin_Continue;
 }
 
-Action Cmd_RestartServer(int client, int args)
+Action Timer_Cmd_RestartServer(Handle timer)
 {
-	SetConVarInt(FindConVar("sb_all_bot_game"), 1);
-
-	LogMessage("Manually restarting server...");
-	PrintToServer("Manually restarting server...");
-	PrintToChatAll("Manually restarting server...");
-
 	UnloadAccelerator();
-	CreateTimer(5.0, Timer_RestartServer);
+	CreateTimer(0.1, Timer_RestartServer);
 
 	return Plugin_Continue;
 }
@@ -189,5 +243,6 @@ bool CheckPlayerConnectingSV()
 Action ServerCmd_map(int client, const char[] command, int argc)
 {
 	g_bCmdMap = true;
+
 	return Plugin_Continue;
 }
