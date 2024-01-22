@@ -189,8 +189,11 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	```php
 	//mi123645 @ 2009-2010
-	//HarryPotter @ 2020-2023
+	//HarryPotter @ 2020-2024
 	```
+	* v6.2 (2024-1-23)
+		* Update Cvars
+
 	* v6.1 (2023-10-20)
 		* Fix multi kits bug in coop/realism mode
 
