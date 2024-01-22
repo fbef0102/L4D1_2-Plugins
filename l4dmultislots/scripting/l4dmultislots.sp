@@ -14,7 +14,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"6.1-2023/10/20"
+#define PLUGIN_VERSION 				"6.2-2024/1/23"
 
 public Plugin myinfo = 
 {
@@ -159,8 +159,8 @@ public void OnPluginStart()
 	hStripBotWeapons = CreateConVar(			"l4d_multislots_bot_items_delete", 				"1", 	"Delete all items form survivor bots when they got kicked by this plugin. (0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hDeadBotTime = CreateConVar(				"l4d_multislots_alive_bot_time", 				"0", 	"When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
 	hSpecCheckInterval = CreateConVar(			"l4d_multislots_spec_message_interval", 		"25", 	"Setup time interval the instruction message to spectator.(0=off)", CVAR_FLAGS, true, 0.0);
-	hRespawnHP 		= CreateConVar(				"l4d_multislots_respawnhp", 					"80", 	"Amount of HP a new 5+ Survivor will spawn with (Def 80)", CVAR_FLAGS, true, 0.0, true, 100.0);
-	hRespawnBuffHP 	= CreateConVar(				"l4d_multislots_respawnbuffhp", 				"20", 	"Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)", CVAR_FLAGS, true, 0.0, true, 100.0);
+	hRespawnHP 		= CreateConVar(				"l4d_multislots_respawnhp", 					"80", 	"Amount of HP a new 5+ Survivor will spawn with (Def 80)", CVAR_FLAGS, true, 0.0);
+	hRespawnBuffHP 	= CreateConVar(				"l4d_multislots_respawnbuffhp", 				"20", 	"Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)", CVAR_FLAGS, true, 0.0);
 	hSpawnSurvivorsAtStart = CreateConVar(		"l4d_multislots_spawn_survivors_roundstart", 	"0", 	"If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	
 	if ( g_bLeft4Dead2 ) {

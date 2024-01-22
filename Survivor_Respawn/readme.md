@@ -104,8 +104,11 @@ When a Survivor dies, will respawn after a period of time.
 
 	```php
 	//Ernecio @ 2020
-	//HarryPotter @ 2021-2023
+	//HarryPotter @ 2021-2024
 	```
+	* v3.8 (2024-1-23)
+		* Update Cvars
+
 	* v3.7 (2023-4-14)
 		* More hints and translation
 
