@@ -10,6 +10,10 @@ Download and play custom music in game
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
+* Notice
+	* 🟥 Prepare your content-server for FastDL, othersie this plugin will not work
+	* If you don't know what "FastDL" is, please google it
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/l4d_MusicMapStart.cfg
@@ -177,7 +181,7 @@ Download and play custom music in game
 * 原理
     * 播放MP3歌曲，可以播放自製的音樂
 	* 也可以輸入!music使用點歌系統，全體玩家能聽到
-	* 請自備網空上傳音樂檔案，客戶端才能下載音樂檔案
+	* 🟥 需自備網空且支援FastDL，客戶端才能下載音樂檔案 (不知道什麼是FastDL請自行Google)
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
