@@ -139,8 +139,11 @@ public void OnConfigsExecuted()
 	char sSoundPath[PLATFORM_MAX_PATH], sNameTag[PLATFORM_MAX_PATH];
 	char sDLPath[PLATFORM_MAX_PATH];
 	
-	g_aSoundPath.Clear();
-	g_aNameTag.Clear();
+	delete g_aSoundPath;
+	g_aSoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	delete g_aNameTag;
+	g_aNameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+
 	int iChosenIndex, temp, iRand = -1, iTotalMusicsInFile = g_aFileSoundPath.Length;
 	
 	bool bDownloadAll;
@@ -307,8 +310,12 @@ bool UpdateList(int client = 0)
 		return false;
 	}
 
-	g_aFileSoundPath.Clear();
-	g_aFileNameTag.Clear();
+	delete g_aFileSoundPath;
+	g_aFileSoundPath = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	
+	delete g_aFileNameTag;
+	g_aFileNameTag = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+
 	while( !hFile.EndOfFile() && hFile.ReadLine(buffer, sizeof(buffer)) )
 	{
 		int len = strlen(buffer);

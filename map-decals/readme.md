@@ -11,6 +11,10 @@ Allows admins to place any decals into the map that are defined in the the confi
 * Require | 必要安裝
 <br/>None
 
+* Notice
+	* 🟥 Prepare your content-server for FastDL, othersie this plugin will not work
+	* If you don't know what "FastDL" is, please google it
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/map-decals.cfg
@@ -164,7 +168,7 @@ Allows admins to place any decals into the map that are defined in the the confi
 
 * 原理
     * 在地圖的牆壁上放置海報並儲存，所有玩家都能看到
-	* 請自備網空上傳vmt/vtf文件，客戶端才能下載檔案
+	* 🟥 需自備網空且支援FastDL，上傳vmt/vtf文件，客戶端才能下載檔案 (不知道什麼是FastDL請自行Google)
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

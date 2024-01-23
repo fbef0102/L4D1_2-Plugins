@@ -214,7 +214,8 @@ bool ParseConfigFile(const char[] file) {
 		g_helpMenus.GetArray(i, hmenu);
 		delete hmenu.items;
 	}
-	g_helpMenus.Clear();
+	delete g_helpMenus;
+	g_helpMenus = new ArrayList(sizeof(HelpMenu));
 
 	SMCParser parser = new SMCParser();
 	parser.OnEnterSection = Config_NewSection;
