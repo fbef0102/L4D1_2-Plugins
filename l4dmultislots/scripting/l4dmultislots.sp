@@ -260,7 +260,7 @@ public void OnAllPluginsLoaded()
 
 public void OnPluginEnd()
 {
-	g_hSteamIDs.Clear(); delete g_hSteamIDs;
+	delete g_hSteamIDs;
 	ClearDefault();
 	ResetTimer();
 	ResetConVar(FindConVar("z_spawn_flow_limit"), true, true);
@@ -332,7 +332,8 @@ public void OnMapStart()
 
 public void OnMapEnd()
 {
-	g_hSteamIDs.Clear();
+	delete g_hSteamIDs;
+	g_hSteamIDs = new StringMap();
 	ClearDefault();
 	ResetTimer();
 }
@@ -582,7 +583,8 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
-	g_hSteamIDs.Clear();
+	delete g_hSteamIDs;
+	g_hSteamIDs = new StringMap();
 	g_bEnableKick = false;
 	ClearDefault();
 	ResetTimer();

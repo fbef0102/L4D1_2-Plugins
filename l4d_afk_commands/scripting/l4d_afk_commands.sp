@@ -335,7 +335,8 @@ public void OnLibraryRemoved(const char[] name)
 
 public void OnMapStart()
 {
-	g_alClientSwitchTeam.Clear();
+	delete g_alClientSwitchTeam;
+	g_alClientSwitchTeam = new ArrayList(ByteCountToCells(STEAMID_SIZE));
 }
 
 public void OnMapEnd()
@@ -439,9 +440,14 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if(!victim || !IsClientAndInGame(victim)) return;
-	g_alClientAttackedByWitch[victim].Clear();
-	g_alClientThrowable[victim].Clear();
-	g_alClientGrenade[victim].Clear();
+
+	delete g_alClientAttackedByWitch[victim];
+	delete g_alClientThrowable[victim];
+	delete g_alClientGrenade[victim];
+
+	g_alClientAttackedByWitch[victim] = new ArrayList();
+	g_alClientThrowable[victim] = new ArrayList();
+	g_alClientGrenade[victim] = new ArrayList();
 
 	if((g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0) && IsClientInGame(victim) && !IsFakeClient(victim) && GetClientTeam(victim) == 2)
 	{
@@ -748,9 +754,14 @@ void ResetClient(int client = -1)
 			fBreakPropTime[i] = 0.0;
 			//fThrowableTime[i] = 0.0;
 			fInfectedSpawnTime[i] = 0.0;
-			g_alClientAttackedByWitch[i].Clear();
-			g_alClientThrowable[i].Clear();
-			g_alClientGrenade[i].Clear();
+
+			delete g_alClientAttackedByWitch[i];
+			delete g_alClientThrowable[i];
+			delete g_alClientGrenade[i];
+
+			g_alClientAttackedByWitch[i] = new ArrayList();
+			g_alClientThrowable[i] = new ArrayList();
+			g_alClientGrenade[i] = new ArrayList();
 		}
 		g_bHasLeftSafeRoom = false;
 		g_bGameTeamSwitchBlock = false;
@@ -763,9 +774,14 @@ void ResetClient(int client = -1)
 		fBreakPropTime[client] = 0.0;
 		//fThrowableTime[client] = 0.0;
 		fInfectedSpawnTime[client] = 0.0;
-		g_alClientAttackedByWitch[client].Clear();
-		g_alClientThrowable[client].Clear();
-		g_alClientGrenade[client].Clear();
+
+		delete g_alClientAttackedByWitch[client];
+		delete g_alClientThrowable[client];
+		delete g_alClientGrenade[client];
+
+		g_alClientAttackedByWitch[client] = new ArrayList();
+		g_alClientThrowable[client] = new ArrayList();
+		g_alClientGrenade[client] = new ArrayList();
 	}
 
 }
