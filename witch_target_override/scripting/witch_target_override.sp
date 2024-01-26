@@ -2,12 +2,13 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "1.9-2024/1/9"
+#define PLUGIN_VERSION "2.0-2024/1/26"
 #define DEBUG 0
 
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <actions>
 
 public Plugin myinfo = 
 {
@@ -72,6 +73,8 @@ float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
 float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
 bool   g_bConfigLoaded;
 
+int g_iWitchLastTarget[MAXENTITY+1];
+
 public void OnPluginStart()
 {
 	z_witch_burn_time = FindConVar("z_witch_burn_time");
@@ -113,6 +116,7 @@ public void OnPluginStart()
 	HookEvent("map_transition", Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役模式下過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役模式下滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,	EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("player_hurt", Event_PlayerHurt);
 }
 
 public void OnPluginEnd()
@@ -177,13 +181,13 @@ void Player_Incapacitated(Event event, const char[] event_name, bool dontBroadca
     if(g_bCvarAllow == false || g_bCvarIncapOverride == false) return;
 
     int victim = GetClientOfUserId(event.GetInt("userid"));
-    int entity = event.GetInt("attackerentid");
-    if (IsWitch(entity) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
+    int witch = event.GetInt("attackerentid");
+    if (IsWitch(witch) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
     {
-        int target = GetNearestSurvivorDist(entity);
+        int target = GetNearestSurvivorDist(witch);
         if(target == 0) return;
 
-        WitchAttackTarget(entity, target, g_iCvarIncapOverrideHealth);
+        WitchAttackTarget(witch, target, g_iCvarIncapOverrideHealth);
     }
 }
 
@@ -192,14 +196,25 @@ void Player_Death(Event event, const char[] event_name, bool dontBroadcast)
     if(g_bCvarAllow == false || g_bCvarKillOverride == false ) return;
 
     int victim = GetClientOfUserId(event.GetInt("userid"));
-    int entity = event.GetInt("attackerentid");
-    if (IsWitch(entity) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
+    int witch = event.GetInt("attackerentid");
+    if (IsWitch(witch) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
     {
-        int target = GetNearestSurvivorDist(entity);
+        int target = GetNearestSurvivorDist(witch);
         if(target == 0) return;
 
-        WitchAttackTarget(entity, target, g_iCvarKillOverrideHealth);
+        WitchAttackTarget(witch, target, g_iCvarKillOverrideHealth);
     }
+}
+
+void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
+{
+	int userid = event.GetInt("userid");
+	int victim = GetClientOfUserId(userid);
+	int attackerentid = event.GetInt("attackerentid");
+	if (IsWitch(attackerentid) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
+	{
+		g_iWitchLastTarget[attackerentid] = userid;
+	}
 }
 
 void WitchAttackTarget(int witch, int target, int addHealth)
@@ -313,6 +328,7 @@ void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
 {
 	int witchid = event.GetInt("witchid");
 	bWitchScared[witchid] = true;
+	g_iWitchLastTarget[witchid] = event.GetInt("userid");
 }
 
 //witch follows survivor
@@ -827,4 +843,42 @@ bool TraceFilter(int entity, int contentsMask, int client)
 bool IsValidClientIndex(int client)
 {
     return (1 <= client <= MaxClients);
+}
+
+bool WitchLastTargetIsDead(int witch)
+{
+	int target = GetClientOfUserId(g_iWitchLastTarget[witch]);
+	if(target && IsClientInGame(target) && GetClientTeam(target) == 2 && !IsPlayerAlive(target))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// Action ----------
+
+public void OnActionCreated(BehaviorAction action, int actor, const char[] name)
+{
+	if (g_bCvarAllow && g_bCvarKillOverride &&
+	 name[0] == 'W' && strcmp(name, "WitchRetreat") == 0) //準備撤退
+	{
+		RequestFrame(OnNextFrame, EntIndexToEntRef(actor));
+	}
+}
+
+void OnNextFrame(int entRef)
+{
+	int witch = EntRefToEntIndex(entRef);
+
+	if( witch == INVALID_ENT_REFERENCE )
+		return;
+
+	if(WitchLastTargetIsDead(witch))
+	{
+		int target = GetNearestSurvivorDist(witch);
+		if(target == 0) return;
+
+		WitchAttackTarget(witch, target, g_iCvarKillOverrideHealth);
+	}
 }

@@ -8,7 +8,7 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
     <br/>![witch_target_override_2](image/witch_target_override_2.gif)
 
 * Require | 必要安裝
-<br/>None
+    1. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -64,6 +64,9 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.0 (2024-1-26)
+        * Require actions
 
     * v1.9 (2024-1-9)
         * Update Cvars
