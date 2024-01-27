@@ -112,8 +112,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 最後一位玩家離開伺服器之後自動關閉Server並重啟
 * <b>[l4d_sm_respawn](/l4d_sm_respawn)</b>: Allows players to be respawned by admin.
     * 管理員能夠復活死去的玩家
-* <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw special infected instead of rock
-    * Tank不扔石頭而是扔出特感
+* <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw Tank/S.I./Witch/Hittable instead of rock
+    * Tank不扔石頭而是扔出特感/Tank/Witch/車子
 * <b>[l4d_pig_infected_notify](/l4d_pig_infected_notify)</b>: Show who is pig teammate in infected team
     * 顯示誰是豬隊友 (譬如推Tank拍死隊友、Boomer炸到Tank、Hunter跳樓自殺、Charger著火死亡等等)
 * <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, will respawn after a period of time.

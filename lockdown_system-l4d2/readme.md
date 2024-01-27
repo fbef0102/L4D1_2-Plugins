@@ -14,7 +14,7 @@ Locks Saferoom Door Until Someone Opens It.
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
+    3. [spawn_infected_nolimit](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -127,6 +127,10 @@ Locks Saferoom Door Until Someone Opens It.
     //cravenge @ 2016-2019
     //HarryPotter @ 2020-2023
     ```
+    * v5.6 (2024-1-27)
+        * Delete Gamedata
+        * Require <spawn_infected_nolimit>
+
     * v5.5 (2023-6-20)
         * Require lef4dhooks v1.33 or above
         * Fixed bot unable to open and close normal door on the whole map.
