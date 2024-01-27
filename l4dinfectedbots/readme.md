@@ -616,8 +616,11 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	```php
 	//mi123645 @ 2009-2011
-	//HarryPotter @ 2019-2023
+	//HarryPotter @ 2019-2024
 	```
+	* v2.8.9 (2024-1-27)
+		* Updated L4D1 Gamedata 
+
 	* v2.8.8 (2023-12-2)
 		* Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
 
