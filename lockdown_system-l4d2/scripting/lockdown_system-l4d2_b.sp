@@ -5,7 +5,8 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION "5.5-2023/6/20"
+#include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
+#define PLUGIN_VERSION "5.6-2024/1/27"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -17,9 +18,6 @@
 #define MODEL_START_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_01.mdl"
 #define MODEL_START_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-01.mdl"
 #define MODEL_START_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse01.mdl"
-
-#define MODEL_TANK "models/infected/hulk.mdl"
-#define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
 
 ConVar lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefore, lsTankDemolitionAfter,
 	lsType, lsMinSurvivorPercent, lsHint, lsGetInLimit, lsDoorOpeningTeleport, lsDoorOpeningTankInterval,
@@ -37,7 +35,6 @@ bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport,
 bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord;
 char sKeyMan[128];
 Handle hAntiFarmTime = null, hLockdownTime = null;
-static Handle hCreateTank = null;
 
 ConVar lsMapTwoTanks, sb_unstick;
 bool g_bMapTwoTanks;
@@ -146,8 +143,6 @@ public void OnPluginStart()
 	HookEvent("door_open",			Event_DoorOpen);
 	HookEvent("door_close",			Event_DoorClose);
 
-	GetGameData();
-
 	AutoExecConfig(true, "lockdown_system-l4d2");
 }
 
@@ -235,11 +230,6 @@ public void OnConfigsExecuted()
 		PrecacheSound("doors/door_squeek1.wav", true);	
 		PrecacheSound("ambient/alarms/klaxon1.wav", true);
 		PrecacheSound("level/highscore.wav", true);
-
-		if (!IsModelPrecached(MODEL_TANK))
-		{
-			PrecacheModel(MODEL_TANK, true);
-		}
 	}
 }
 
@@ -999,22 +989,9 @@ void CreateTankBot()
 	int anyclient = my_GetRandomClient();
 	if(anyclient > 0 && L4D_GetRandomPZSpawnPosition(anyclient,8,5,vecPos) == true)
 	{
-		int newtankbot = SDKCall(hCreateTank, "Lock Down Tank Bot"); //召喚坦克
-		if (newtankbot > 0 && IsValidClient(newtankbot))
+		int newtankbot = NoLimit_CreateInfected("tank", vecPos, NULL_VECTOR);//召喚坦克
+		if (newtankbot > 0)
 		{
-			SetEntityModel(newtankbot, MODEL_TANK);
-			ChangeClientTeam(newtankbot, 3);
-			SetEntProp(newtankbot, Prop_Send, "m_usSolidFlags", 16);
-			SetEntProp(newtankbot, Prop_Send, "movetype", 2);
-			SetEntProp(newtankbot, Prop_Send, "deadflag", 0);
-			SetEntProp(newtankbot, Prop_Send, "m_lifeState", 0);
-			SetEntProp(newtankbot, Prop_Send, "m_iObserverMode", 0);
-			SetEntProp(newtankbot, Prop_Send, "m_iPlayerState", 0);
-			SetEntProp(newtankbot, Prop_Send, "m_zombieState", 0);
-			DispatchSpawn(newtankbot);
-			ActivateEntity(newtankbot);
-			TeleportEntity(newtankbot, vecPos, NULL_VECTOR, NULL_VECTOR); //移動到相同位置
-
 			CreateTimer(3.0, AttackOnTank, GetClientUserId(newtankbot), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
@@ -1259,110 +1236,10 @@ void DealDamage(int victim, int damage, int attacker = 0, int dmg_type = DMG_GEN
 			}
 			DispatchSpawn(pointHurt);
 			AcceptEntityInput(pointHurt,"Hurt",(attacker>0)?attacker:-1);
-			DispatchKeyValue(pointHurt,"classname","point_hurt");
 			DispatchKeyValue(victim,"targetname","war3_donthurtme");
 			RemoveEdict(pointHurt);
 		}
 	}
-}
-
-Handle hGameConf;
-void GetGameData()
-{
-	hGameConf = LoadGameConfigFile("lockdown_system-l4d2");
-	if( hGameConf != null )
-	{
-		PrepSDKCall();
-	}
-	else
-	{
-		SetFailState("Unable to find lockdown_system-l4d2.txt gamedata file.");
-	}
-	delete hGameConf;
-}
-
-void PrepSDKCall()
-{
-	//find create bot signature
-	Address replaceWithBot = GameConfGetAddress(hGameConf, "NextBotCreatePlayerBot.jumptable");
-	if (replaceWithBot != Address_Null && LoadFromAddress(replaceWithBot, NumberType_Int8) == 0x68) {
-		// We're on L4D2 and linux
-		PrepWindowsCreateBotCalls(replaceWithBot);
-	}
-	else
-	{
-		PrepCreateTankBotCalls();
-	}
-}
-
-void LoadStringFromAdddress(Address addr, char[] buffer, int maxlength) {
-	int i = 0;
-	while(i < maxlength) {
-		char val = LoadFromAddress(addr + view_as<Address>(i), NumberType_Int8);
-		if(val == 0) {
-			buffer[i] = 0;
-			break;
-		}
-		buffer[i] = val;
-		i++;
-	}
-	buffer[maxlength - 1] = 0;
-}
-
-Handle PrepCreateBotCallFromAddress(Handle hSiFuncTrie, const char[] siName) {
-	Address addr;
-	StartPrepSDKCall(SDKCall_Static);
-	if (!GetTrieValue(hSiFuncTrie, siName, addr) || !PrepSDKCall_SetAddress(addr))
-	{
-		SetFailState("Unable to find NextBotCreatePlayer<%s> address in memory.", siName);
-		return null;
-	}
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	return EndPrepSDKCall();	
-}
-
-void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
-	Handle hInfectedFuncs = CreateTrie();
-	// We have the address of the jump table, starting at the first PUSH instruction of the
-	// PUSH mem32 (5 bytes)
-	// CALL rel32 (5 bytes)
-	// JUMP rel8 (2 bytes)
-	// repeated pattern.
-	
-	// Each push is pushing the address of a string onto the stack. Let's grab these strings to identify each case.
-	// "Hunter" / "Smoker" / etc.
-	for(int i = 0; i < 7; i++) {
-		// 12 bytes in PUSH32, CALL32, JMP8.
-		Address caseBase = jumpTableAddr + view_as<Address>(i * 12);
-		Address siStringAddr = view_as<Address>(LoadFromAddress(caseBase + view_as<Address>(1), NumberType_Int32));
-		static char siName[32];
-		LoadStringFromAdddress(siStringAddr, siName, sizeof(siName));
-
-		Address funcRefAddr = caseBase + view_as<Address>(6); // 2nd byte of call, 5+1 byte offset.
-		int funcRelOffset = LoadFromAddress(funcRefAddr, NumberType_Int32);
-		Address callOffsetBase = caseBase + view_as<Address>(10); // first byte of next instruction after the CALL instruction
-		Address nextBotCreatePlayerBotTAddr = callOffsetBase + view_as<Address>(funcRelOffset);
-		//PrintToServer("Found NextBotCreatePlayerBot<%s>() @ %08x", siName, nextBotCreatePlayerBotTAddr);
-		SetTrieValue(hInfectedFuncs, siName, nextBotCreatePlayerBotTAddr);
-	}
-
-	hCreateTank = PrepCreateBotCallFromAddress(hInfectedFuncs, "Tank");
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateTank); return; }
-
-	delete hInfectedFuncs;
-}
-
-void PrepCreateTankBotCalls() {
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateTank))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateTank = EndPrepSDKCall();
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
 }
 
 bool IsValidEntRef(int entity)

@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.0h-2023/10/27"
+#define PLUGIN_VERSION "1.1h-2024/1/27"
 #define PLUGIN_URL ""
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
@@ -35,16 +35,19 @@ TopMenu hTopMenu;
 #define DIRECTOR_ENT "plugin_director_ent_do_not_use"
 #define BRIDE_WITCH_TARGETNAME "plugin_dzs_bride"
 
-Handle hConf = null;
+GameData hConf = null;
 
 static Handle hCreateSmoker = null;
 #define NAME_CreateSmoker "NextBotCreatePlayerBot<Smoker>"
+#define NAME_CreateSmoker_L4D1 "reloffs_NextBotCreatePlayerBot<Smoker>"
 #define SIG_CreateSmoker_LINUX "@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
 static Handle hCreateBoomer = null;
 #define NAME_CreateBoomer "NextBotCreatePlayerBot<Boomer>"
+#define NAME_CreateBoomer_L4D1 "reloffs_NextBotCreatePlayerBot<Boomer>"
 #define SIG_CreateBoomer_LINUX "@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
 static Handle hCreateHunter = null;
 #define NAME_CreateHunter "NextBotCreatePlayerBot<Hunter>"
+#define NAME_CreateHunter_L4D1 "reloffs_NextBotCreatePlayerBot<Hunter>"
 #define SIG_CreateHunter_LINUX "@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
 static Handle hCreateSpitter = null;
 #define NAME_CreateSpitter "NextBotCreatePlayerBot<Spitter>"
@@ -57,6 +60,7 @@ static Handle hCreateCharger = null;
 #define SIG_CreateCharger_LINUX "@_Z22NextBotCreatePlayerBotI7ChargerEPT_PKc"
 static Handle hCreateTank = null;
 #define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
+#define NAME_CreateTank_L4D1 "reloffs_NextBotCreatePlayerBot<Tank>"
 #define SIG_CreateTank_LINUX "@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
 
 #define ADDRESS_NAME "NextBotCreatePlayerBot.jumptable"
@@ -79,11 +83,6 @@ static Handle hInfectedAttackSurvivorTeam = null;
 #define SIG_L4D1InfectedAttackSurvivorTeam_WINDOWS "\\x80\\xB9\\x99"
 
 ConVar version_cvar;
-
-#define cmd_1 "sm_dzspawn"
-static char cmd_1_desc[128];
-#define cmd_2 "sm_mdzs"
-static char cmd_2_desc[128];
 
 static bool g_isSequel = false;
 
@@ -151,10 +150,8 @@ public void OnPluginStart()
 	
 	GetGamedata();
 	
-	Format(cmd_1_desc, sizeof(cmd_1_desc), "%s <zombie> <number> <mode> - Spawn a special infected, bypassing the limit enforced by the game.", cmd_1);
-	Format(cmd_2_desc, sizeof(cmd_2_desc), "%s - Open a menu to spawn a special infected, bypassing the limit enforced by the game.", cmd_2);
-	RegAdminCmd(cmd_1, Command_Spawn, ADMFLAG_CHEATS, cmd_1_desc);
-	RegAdminCmd(cmd_2, Command_SpawnMenu, ADMFLAG_CHEATS, cmd_2_desc);
+	RegAdminCmd("sm_dzspawn", Command_Spawn, ADMFLAG_CHEATS, "sm_dzspawn <zombie> <number> <mode> - Spawn a special infected, bypassing the limit enforced by the game.");
+	RegAdminCmd("sm_mdzs", Command_SpawnMenu, ADMFLAG_CHEATS, "Open a menu to spawn a special infected, bypassing the limit enforced by the game.");
 	
 	HookEvent("witch_harasser_set", witch_harasser_set, EventHookMode_Post);
 	HookEvent("witch_killed", witch_killed, EventHookMode_Post);
@@ -300,7 +297,7 @@ Action Command_Spawn(int client, any args)
 	}
 	if (args > 4)
 	{
-		ReplyToCommand(client, "[SM] Usage: %s", cmd_1_desc);
+		ReplyToCommand(client, "sm_dzspawn <zombie> <number> <mode> - Spawn a special infected, bypassing the limit enforced by the game.");
 		return Plugin_Handled;
 	}
 	
@@ -599,142 +596,9 @@ void GetGamedata()
 	}
 	else
 	{
-		PrintToServer("[SM] %s unable to get %s.txt gamedata file. Generating...", PLUGIN_NAME, GAMEDATA);
-		
-		Handle fileHandle = OpenFile(filePath, "w");
-		if (fileHandle == null)
-		{ SetFailState("[SM] Couldn't generate gamedata file!"); }
-		
-		WriteFileLine(fileHandle, "\"Games\"");
-		WriteFileLine(fileHandle, "{");
-		WriteFileLine(fileHandle, "	\"left4dead\"");
-		WriteFileLine(fileHandle, "	{");
-		WriteFileLine(fileHandle, "		\"Signatures\"");
-		WriteFileLine(fileHandle, "		{");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_InfectedAttackSurvivorTeam);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_InfectedAttackSurvivorTeam_LINUX);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", SIG_L4D1InfectedAttackSurvivorTeam_WINDOWS);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_InfectedAttackSurvivorTeam_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateSmoker);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateSmoker_LINUX);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", SIG_L4D1CreateSmoker_WINDOWS);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateSmoker_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateBoomer);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateBoomer_LINUX);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", SIG_L4D1CreateBoomer_WINDOWS);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateBoomer_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateHunter);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateHunter_LINUX);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", SIG_L4D1CreateHunter_WINDOWS);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateHunter_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateTank);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateTank_LINUX);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", SIG_L4D1CreateTank_WINDOWS);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateTank_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "		}");
-		WriteFileLine(fileHandle, "	}");
-		WriteFileLine(fileHandle, "	\"left4dead2\"");
-		WriteFileLine(fileHandle, "	{");
-		WriteFileLine(fileHandle, "		\"Addresses\"");
-		WriteFileLine(fileHandle, "		{");
-		WriteFileLine(fileHandle, "			\"%s\"", ADDRESS_NAME);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"windows\"");
-		WriteFileLine(fileHandle, "				{");
-		WriteFileLine(fileHandle, "					\"signature\"	\"%s\"", ADDRESS_SIG_NAME);
-		WriteFileLine(fileHandle, "					\"offset\"	\"%i\"", ADDRESS_OFFSET);
-		WriteFileLine(fileHandle, "				}");
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "		}");
-		WriteFileLine(fileHandle, "		\"Signatures\"");
-		WriteFileLine(fileHandle, "		{");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_InfectedAttackSurvivorTeam);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_InfectedAttackSurvivorTeam_LINUX);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", SIG_InfectedAttackSurvivorTeam_WINDOWS);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_InfectedAttackSurvivorTeam_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", ADDRESS_SIG_NAME);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				// Switch jump with a bunch of cases matching...");
-		WriteFileLine(fileHandle, "				// PUSH rel32");
-		WriteFileLine(fileHandle, "				// CALL rel32");
-		WriteFileLine(fileHandle, "				// JUMP rel8");
-		WriteFileLine(fileHandle, "				// There are acutally 2 matches of this in the windows binary, ");
-		WriteFileLine(fileHandle, "				// but they appear to be the same functionality--so it doesn't matter which we get.");
-		WriteFileLine(fileHandle, "				/* %s */", ADDRESS_SIG_RAW);
-		WriteFileLine(fileHandle, "				\"windows\"	\"%s\"", ADDRESS_SIG);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateSmoker);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateSmoker_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateSmoker_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateBoomer);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateBoomer_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateBoomer_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateHunter);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateHunter_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateHunter_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateSpitter);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateSpitter_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateSpitter_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateJockey);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateJockey_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateJockey_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateCharger);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateCharger_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateCharger_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "			\"%s\"", NAME_CreateTank);
-		WriteFileLine(fileHandle, "			{");
-		WriteFileLine(fileHandle, "				\"library\"	\"server\"");
-		WriteFileLine(fileHandle, "				\"linux\"	\"%s\"", SIG_CreateTank_LINUX);
-		WriteFileLine(fileHandle, "				\"mac\"		\"%s\"", SIG_CreateTank_LINUX);
-		WriteFileLine(fileHandle, "			}");
-		WriteFileLine(fileHandle, "		}");
-		WriteFileLine(fileHandle, "	}");
-		WriteFileLine(fileHandle, "}");
-		
-		CloseHandle(fileHandle);
-		hConf = LoadGameConfigFile(GAMEDATA);
-		if (hConf == null)
-		{ SetFailState("[SM] Failed to load auto-generated gamedata file!"); }
-		
-		PrintToServer("[SM] %s successfully generated %s.txt gamedata file!", PLUGIN_NAME, GAMEDATA);
+		SetFailState("[SM] Unable to get %s.txt gamedata file", GAMEDATA);
 	}
+
 	PrepSDKCall();
 
 	delete hConf;
@@ -852,42 +716,97 @@ void PrepL4D2CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateCharger); return; }
 }
 
-void PrepL4D1CreateBotCalls() {
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateSmoker))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateSmoker = EndPrepSDKCall();
-	if (hCreateSmoker == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateBoomer))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateBoomer = EndPrepSDKCall();
-	if (hCreateBoomer == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateHunter))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateHunter = EndPrepSDKCall();
-	if (hCreateHunter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateTank))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateTank = EndPrepSDKCall();
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
+void PrepL4D1CreateBotCalls() 
+{
+	bool bLinuxOS = hConf.GetOffset("OS") != 0;
+	if(bLinuxOS)
+	{
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateSmoker))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateSmoker = EndPrepSDKCall();
+		if (hCreateSmoker == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
+
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateBoomer))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateBoomer = EndPrepSDKCall();
+		if (hCreateBoomer == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
+
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateHunter))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateHunter = EndPrepSDKCall();
+		if (hCreateHunter == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
+
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hConf, SDKConf_Signature, NAME_CreateTank))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateTank = EndPrepSDKCall();
+		if (hCreateTank == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
+	}
+	else
+	{
+		Address addr;
+
+		addr = RelativeJumpDestination(hConf.GetAddress(NAME_CreateSmoker_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateSmoker = EndPrepSDKCall();
+		if(hCreateSmoker == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker_L4D1); return; }
+
+		addr = RelativeJumpDestination(hConf.GetAddress(NAME_CreateBoomer_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateBoomer = EndPrepSDKCall();
+		if(hCreateSmoker == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer_L4D1); return; }
+
+		addr = RelativeJumpDestination(hConf.GetAddress(NAME_CreateHunter_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateHunter = EndPrepSDKCall();
+		if(hCreateHunter == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter_L4D1); return; }
+
+		addr = RelativeJumpDestination(hConf.GetAddress(NAME_CreateTank_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateTank = EndPrepSDKCall();
+		if(hCreateTank == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank_L4D1); return; }
+	}
+}
+
+Address RelativeJumpDestination(Address p)
+{
+	int offset = LoadFromAddress(p, NumberType_Int32);
+	return p + view_as<Address>(offset + 4);
 }
 
 void PrepSDKCall()

@@ -63,6 +63,9 @@ Spawn special infected without the director limits!
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.1h (2024-1-27)
+		* Updated L4D1 Gamedata 
+
 	* v1.0h (2023-10-27)
 		* Add inc file
 

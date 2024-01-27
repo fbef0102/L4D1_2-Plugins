@@ -11,33 +11,130 @@
 				"windows"	"\x80\xB9\x99"
 				"mac"		"@_ZN8Infected18AttackSurvivorTeamEv"
 			}
+
 			"NextBotCreatePlayerBot<Smoker>"
 			{
 				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
-				"windows"	"\x83\x2A\x2A\x56\x57\x68\x20\xED"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
+				"linux"		"@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
 			}
+			
 			"NextBotCreatePlayerBot<Boomer>"
 			{
 				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
-				"windows"	"\x83\x2A\x2A\x56\x57\x68\x10"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
+				"linux"		"@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
 			}
+			
 			"NextBotCreatePlayerBot<Hunter>"
 			{
 				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
-				"windows"	"\x83\x2A\x2A\x56\x57\x68\x20\x35"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
+				"linux"		"@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
 			}
+			
 			"NextBotCreatePlayerBot<Tank>"
 			{
 				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
-				"windows"	"\x83\x2A\x2A\x56\x57\x68\x80"
-				"mac"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
+				"linux"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
+			}
+
+			/*
+			 * ZombieManager::SpawnHunter(Vector const&, QAngle const&)
+			 *
+			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
+			 */
+			"ZombieManager::SpawnHunter"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13ZombieManager11SpawnHunterERK6VectorRK6QAngle"
+				"windows"	"\x56\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x03"
+				/* 56 68 ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 03 */
+			}
+
+			/*
+			 * ZombieManager::SpawnBoomer(Vector const&, QAngle const&)
+			 *
+			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
+			 */
+			"ZombieManager::SpawnBoomer"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13ZombieManager11SpawnBoomerERK6VectorRK6QAngle"
+				"windows"	"\x56\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x02"
+				/* 56 68 ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 02 */
+			}
+
+			/*
+			 * ZombieManager::SpawnSmoker(Vector const&, QAngle const&)
+			 *
+			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
+			 */
+			"ZombieManager::SpawnSmoker"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13ZombieManager11SpawnSmokerERK6VectorRK6QAngle"
+				"windows"	"\x56\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x01"
+				/* 56 68 ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 01 */
+			}
+
+			/*
+			 * ZombieManager::SpawnTank(Vector const&, QAngle const&)
+			 *
+			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
+			 * SpawnTank will be called after string "tank"
+			 */
+			"ZombieManager::SpawnTank"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13ZombieManager9SpawnTankERK6VectorRK6QAngle"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x05"
+				/* ? ? ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 05 */
+			}
+		}
+
+		"Addresses"
+		{
+			"reloffs_NextBotCreatePlayerBot<Smoker>"
+			{
+				"signature"		"ZombieManager::SpawnSmoker"
+				"windows"
+				{
+					"offset"	"7"
+				}
+			}
+
+			"reloffs_NextBotCreatePlayerBot<Boomer>"
+			{
+				"signature"		"ZombieManager::SpawnBoomer"
+				"windows"
+				{
+					"offset"	"7"
+				}
+			}
+
+			"reloffs_NextBotCreatePlayerBot<Hunter>"
+			{
+				"signature"		"ZombieManager::SpawnHunter"
+				"windows"
+				{
+					"offset"	"7"
+				}
+			}
+
+			"reloffs_NextBotCreatePlayerBot<Tank>"
+			{
+				"signature"		"ZombieManager::SpawnTank"
+				"windows"
+				{
+					"offset"	"7"
+				}
+			}
+		}
+
+		"Offsets"
+		{
+			"OS"
+			{
+				"windows"	"0"
+				"linux"		"1"
 			}
 		}
 	}

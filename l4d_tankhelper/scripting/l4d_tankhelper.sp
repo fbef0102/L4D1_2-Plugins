@@ -5,13 +5,14 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <actions> // https://forums.alliedmods.net/showthread.php?t=336374
+#include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
 
 public Plugin myinfo = 
 {
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
-	description = "Tanks throw special infected instead of rock",
-	version = "2.1h-2023/11/16",
+	description = "Tanks throw Tank/S.I./Witch/Hittable instead of rock",
+	version = "2.2h-2024/1/27",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -48,31 +49,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define PARTICLE_ELECTRICAL	"electrical_arc_01_system"
 
-#define MODEL_SMOKER "models/infected/smoker.mdl"
-#define MODEL_BOOMER "models/infected/boomer.mdl"
-#define MODEL_HUNTER "models/infected/hunter.mdl"
-#define MODEL_SPITTER "models/infected/spitter.mdl"
-#define MODEL_JOCKEY "models/infected/jockey.mdl"
-#define MODEL_CHARGER "models/infected/charger.mdl"
-#define MODEL_TANK "models/infected/hulk.mdl"
-static Handle hCreateSmoker = null;
-#define NAME_CreateSmoker "NextBotCreatePlayerBot<Smoker>"
-static Handle hCreateBoomer = null;
-#define NAME_CreateBoomer "NextBotCreatePlayerBot<Boomer>"
-static Handle hCreateHunter = null;
-#define NAME_CreateHunter "NextBotCreatePlayerBot<Hunter>"
-static Handle hCreateSpitter = null;
-#define NAME_CreateSpitter "NextBotCreatePlayerBot<Spitter>"
-static Handle hCreateJockey = null;
-#define NAME_CreateJockey "NextBotCreatePlayerBot<Jockey>"
-static Handle hCreateCharger = null;
-#define NAME_CreateCharger "NextBotCreatePlayerBot<Charger>"
-static Handle hCreateTank = null;
-#define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
-
 #define SOUND_THROWN_MISSILE 		"player/tank/attack/thrown_missile_loop_1.wav"
 
 #define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
 #define ZC_SMOKER	1
 #define ZC_BOOMER	2
@@ -82,19 +62,44 @@ static Handle hCreateTank = null;
 #define ZC_CHARGER	6
 #define ZC_WITCH 	7
 
+#define EXPLOSION_SOUND		"animation/bombing_run_01.wav"
+
+#define MODEL_fallen			"models/props_foliage/tree_trunk_fallen.mdl"
+#define MODEL_rock				"models/props/cs_militia/militiarock01.mdl"
+#define MODEL_cart2				"models/props_vehicles/airport_baggage_cart2.mdl"
+#define MODEL_cara_95sedan		"models/props_vehicles/cara_95sedan.mdl"
+#define MODEL_atlas_break_ball	"models/props_unique/airport/atlas_break_ball.mdl"
+#define MODEL_forklift			"models/props/cs_assault/forklift_brokenlift.mdl"
+#define MODEL_dumpster_2		"models/props_junk/dumpster_2.mdl"
+
 ConVar l4d_tank_throw_si_ai, l4d_tank_throw_si_real, l4d_tank_throw_hunter, l4d_tank_throw_smoker, l4d_tank_throw_boomer,
 	l4d_tank_throw_charger, l4d_tank_throw_spitter, l4d_tank_throw_jockey, l4d_tank_throw_tank, l4d_tank_throw_self,
-	l4d_tank_throw_tank_health, l4d_tank_throw_witch, l4d_tank_throw_witch_health,
+	l4d_tank_throw_tank_health, l4d_tank_throw_witch, l4d_tank_throw_witch_health, l4d_tank_throw_car, l4d_tank_car_time,
 	g_hWitchKillTime,
 	l4d_tank_throw_hunter_limit, l4d_tank_throw_smoker_limit, l4d_tank_throw_boomer_limit,l4d_tank_throw_charger_limit, l4d_tank_throw_spitter_limit,
 	l4d_tank_throw_jockey_limit,l4d_tank_throw_tank_limit,l4d_tank_throw_witch_limit;
 
 ConVar z_tank_throw_force;
 
+enum eChance
+{
+	eChance_Hunter,
+	eChance_Smoker,
+	eChance_Boomer,
+	eChance_Tank,
+	eChance_Witch,
+	eChance_self,
+	eChance_Charger,
+	eChance_Spitter,
+	eChance_Jockey,
+	eChance_Car,
+	eChance_Max,
+}
+
 bool g_bIsTraceRock[MAXENTITIES +1];
 int throw_tank_health, throw_witch_health, iThrowSILimit[9];
 bool g_bSpawnWitchBride;
-float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fThrowSIChance[9], z_tank_throw_force_speed, g_fWitchKillTime;
+float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fThrowSIChance[eChance_Max], z_tank_throw_force_speed, g_fWitchKillTime, g_fCarKillTime;
 Handle g_hNextBotPointer, g_hGetLocomotion, g_hJump;
 
 static float g_99999Position[3] = {9999999.0, 9999999.0, 9999999.0};
@@ -106,35 +111,37 @@ public void OnPluginStart()
 	GetGameData();
 
 	z_tank_throw_force = FindConVar("z_tank_throw_force");
-	l4d_tank_throw_si_ai = CreateConVar("l4d_tank_throw_si_ai", "100.0", 		"AI Tank throws helper special infected chance [0.0, 100.0]", FCVAR_NOTIFY, true, 0.0,true, 100.0); 
-	l4d_tank_throw_si_real = CreateConVar("l4d_tank_throw_si_player", "70.0", 	"Real Tank Player throws helper special infected chance [0.0, 100.0]", FCVAR_NOTIFY, true, 0.0,true, 100.0); 
-	l4d_tank_throw_hunter 	= CreateConVar("l4d_tank_throw_hunter", "5.0", 		"Weight of helper Hunter[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-	l4d_tank_throw_smoker 	= CreateConVar("l4d_tank_throw_smoker", "5.0", 		"Weight of helper Smoker[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-	l4d_tank_throw_boomer 	= CreateConVar("l4d_tank_throw_boomer", "5.0", 		"Weight of helper Boomer[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_throw_si_ai = CreateConVar("l4d_tank_throw_si_ai", 						"100.0", 	"AI Tank throws helper special infected or car chance [0.0, 100.0]", FCVAR_NOTIFY, true, 0.0,true, 100.0); 
+	l4d_tank_throw_si_real = CreateConVar("l4d_tank_throw_si_player", 					"70.0", 	"Real Tank Player throws helper special infected or car chance [0.0, 100.0]", FCVAR_NOTIFY, true, 0.0,true, 100.0); 
+	l4d_tank_throw_hunter 	= CreateConVar("l4d_tank_throw_hunter", 					"5.0", 		"Weight of helper Hunter[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_throw_smoker 	= CreateConVar("l4d_tank_throw_smoker", 					"5.0", 		"Weight of helper Smoker[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_throw_boomer 	= CreateConVar("l4d_tank_throw_boomer", 					"5.0", 		"Weight of helper Boomer[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
 	if(L4D2Version)
 	{
-		l4d_tank_throw_charger 	= CreateConVar("l4d_tank_throw_charger", "5.0", 	"Weight of helper Charger [0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-		l4d_tank_throw_spitter	= CreateConVar("l4d_tank_throw_spitter", "5.0", 	"Weight of helper Spitter [0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-		l4d_tank_throw_jockey	= CreateConVar("l4d_tank_throw_jockey", "5.0",  	"Weight of helper Jockey [0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+		l4d_tank_throw_charger 	= CreateConVar("l4d_tank_throw_charger", 				"5.0", 		"Weight of helper Charger [0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+		l4d_tank_throw_spitter	= CreateConVar("l4d_tank_throw_spitter", 				"5.0", 		"Weight of helper Spitter [0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+		l4d_tank_throw_jockey	= CreateConVar("l4d_tank_throw_jockey", 				"5.0",  	"Weight of helper Jockey [0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
 	}
-	l4d_tank_throw_tank	=	  CreateConVar("l4d_tank_throw_tank", "2.0",  		"Weight of helper Tank[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-	l4d_tank_throw_self	= 	  CreateConVar("l4d_tank_throw_self", "10.0",  		"Weight of throwing Tank self[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-	l4d_tank_throw_tank_health=CreateConVar("l4d_tank_throw_tank_health", "750",  "Helper Tank bot health", FCVAR_NOTIFY, true, 1.0); 		
-	l4d_tank_throw_witch	= CreateConVar("l4d_tank_throw_witch", "2.0",  			"Weight of helper Witch[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
-	l4d_tank_throw_witch_health=CreateConVar("l4d_tank_throw_witch_health", "250",  "Helper Witch health", FCVAR_NOTIFY, true, 1.0); 	
-	g_hWitchKillTime = CreateConVar("l4d_tank_throw_witch_lifespan", "30", 			"Amount of seconds before a helper witch is kicked. (only remove witches spawned by this plugin)", FCVAR_NOTIFY, true, 1.0);
-	l4d_tank_throw_hunter_limit 	= CreateConVar("l4d_tank_throw_hunter_limit", "2", 	"Hunter Limit on the field[1 ~ 5] (if limit reached, throw Hunter teammate, if all hunters busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 5.0); 
-	l4d_tank_throw_smoker_limit 	= CreateConVar("l4d_tank_throw_smoker_limit", "2", 	"Smoker Limit on the field[1 ~ 5] (if limit reached, throw Smoker teammate, if all smokers busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 5.0); 
-	l4d_tank_throw_boomer_limit 	= CreateConVar("l4d_tank_throw_boomer_limit", "2", 	"Boomer Limit on the field[1 ~ 5] (if limit reached, throw Boomer teammate)", FCVAR_NOTIFY, true, 1.0, true, 5.0); 
+	l4d_tank_throw_tank	=	  CreateConVar("l4d_tank_throw_tank", 						"2.0",  	"Weight of helper Tank[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_throw_self	= 	  CreateConVar("l4d_tank_throw_self", 						"10.0",  	"Weight of throwing Tank self[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_throw_tank_health=CreateConVar("l4d_tank_throw_tank_health", 				"750",  	"Helper Tank bot health", FCVAR_NOTIFY, true, 1.0); 		
+	l4d_tank_throw_witch	= CreateConVar("l4d_tank_throw_witch", 						"2.0",  	"Weight of helper Witch[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_throw_witch_health=CreateConVar("l4d_tank_throw_witch_health", 			"250",  	"Helper Witch health", FCVAR_NOTIFY, true, 1.0); 	
+	g_hWitchKillTime = CreateConVar("l4d_tank_throw_witch_lifespan", 					"30", 		"Amount of seconds before a helper witch is kicked. (only remove witches spawned by this plugin)", FCVAR_NOTIFY, true, 1.0);
+	l4d_tank_throw_hunter_limit 	= CreateConVar("l4d_tank_throw_hunter_limit", 		"2", 		"Hunter Limit on the field[1 ~ 10] (if limit reached, throw Hunter teammate, if all hunters busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
+	l4d_tank_throw_smoker_limit 	= CreateConVar("l4d_tank_throw_smoker_limit", 		"2", 		"Smoker Limit on the field[1 ~ 10] (if limit reached, throw Smoker teammate, if all smokers busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true,105.0); 
+	l4d_tank_throw_boomer_limit 	= CreateConVar("l4d_tank_throw_boomer_limit", 		"2", 		"Boomer Limit on the field[1 ~ 10] (if limit reached, throw Boomer teammate)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
 	if(L4D2Version)
 	{
-		l4d_tank_throw_charger_limit 	= CreateConVar("l4d_tank_throw_charger_limit", "2", "Charger Limit on the field[1 ~ 5] (if limit reached, throw Charger teammate, if all chargers busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 5.0); 
-		l4d_tank_throw_spitter_limit	= CreateConVar("l4d_tank_throw_spitter_limit", "1", "Spitter Limit on the field[1 ~ 5] (if limit reached, throw Spitter teammate)", FCVAR_NOTIFY, true, 1.0, true, 5.0); 
-		l4d_tank_throw_jockey_limit		= CreateConVar("l4d_tank_throw_jockey_limit", "2",  "Jockey Limit on the field[1 ~ 5] (if limit reached, throw Jockey teammate, if all jockeys busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 5.0); 
+		l4d_tank_throw_charger_limit 	= CreateConVar("l4d_tank_throw_charger_limit", 	"2", 		"Charger Limit on the field[1 ~ 10] (if limit reached, throw Charger teammate, if all chargers busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
+		l4d_tank_throw_spitter_limit	= CreateConVar("l4d_tank_throw_spitter_limit", 	"1", 		"Spitter Limit on the field[1 ~ 10] (if limit reached, throw Spitter teammate)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
+		l4d_tank_throw_jockey_limit		= CreateConVar("l4d_tank_throw_jockey_limit", 	"2",  		"Jockey Limit on the field[1 ~ 10] (if limit reached, throw Jockey teammate, if all jockeys busy, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
 	}
-	l4d_tank_throw_tank_limit		= CreateConVar("l4d_tank_throw_tank_limit", "3",  	"Tank Limit on the field[1 ~ 10] (if limit reached, throw Tank teammate or yourself)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 	
-	l4d_tank_throw_witch_limit		= CreateConVar("l4d_tank_throw_witch_limit", "3",  	"Witch Limit on the field[1 ~ 10] (if limit reached, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
-	
+	l4d_tank_throw_tank_limit		= CreateConVar("l4d_tank_throw_tank_limit", 		"3",  		"Tank Limit on the field[1 ~ 10] (if limit reached, throw Tank teammate or yourself)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 	
+	l4d_tank_throw_witch_limit		= CreateConVar("l4d_tank_throw_witch_limit", 		"3",  		"Witch Limit on the field[1 ~ 10] (if limit reached, throw Tank self)", FCVAR_NOTIFY, true, 1.0, true, 10.0); 
+	l4d_tank_throw_car				= CreateConVar("l4d_tank_throw_car", 				"5.0",  	"Weight of Hittable Car[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
+	l4d_tank_car_time				= CreateConVar("l4d_tank_throw_car_lifespan", 		"30.0",  	"Amount of seconds before a Hittable Car is removed (only remove hittable cars spawned by this plugin)", FCVAR_NOTIFY, true, 1.0); 
+
 	AutoExecConfig(true, "l4d_tankhelper");
  
 	GetConVar();
@@ -167,19 +174,14 @@ public void OnPluginStart()
 	}
 	l4d_tank_throw_tank_limit.AddChangeHook(ConVarChange);
 	l4d_tank_throw_witch_limit.AddChangeHook(ConVarChange);
+	l4d_tank_throw_car.AddChangeHook(ConVarChange);
+	l4d_tank_car_time.AddChangeHook(ConVarChange);
 
 	AddNormalSoundHook(OnNormalSoundPlay);
 }
 
 public void OnMapStart()
 { 
-	PrecacheModel(MODEL_SMOKER, true);
-	PrecacheModel(MODEL_BOOMER, true);
-	PrecacheModel(MODEL_HUNTER, true);
-	PrecacheModel(MODEL_SPITTER, true);
-	PrecacheModel(MODEL_JOCKEY, true);
-	PrecacheModel(MODEL_CHARGER, true);
-	PrecacheModel(MODEL_TANK, true);
 	if(L4D2Version)
 	{ 
 		PrecacheParticle(PARTICLE_ELECTRICAL);
@@ -189,6 +191,16 @@ public void OnMapStart()
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
 		g_bSpawnWitchBride = true;
+
+	PrecacheSound(EXPLOSION_SOUND, true);
+
+	PrecacheModel(MODEL_fallen, true);
+	PrecacheModel(MODEL_rock, true);
+	PrecacheModel(MODEL_cart2, true);
+	PrecacheModel(MODEL_cara_95sedan, true);
+	PrecacheModel(MODEL_atlas_break_ball, true);
+	PrecacheModel(MODEL_forklift, true);
+	PrecacheModel(MODEL_dumpster_2, true);
 }
 
 void ConVarChange(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -200,17 +212,17 @@ void GetConVar()
 {
 	fl4d_tank_throw_si_ai = l4d_tank_throw_si_ai.FloatValue;
 	fl4d_tank_throw_si_real = l4d_tank_throw_si_real.FloatValue;
-	fThrowSIChance[0]=l4d_tank_throw_hunter.FloatValue;
-	fThrowSIChance[1]=fThrowSIChance[0]+l4d_tank_throw_smoker.FloatValue;
-	fThrowSIChance[2]=fThrowSIChance[1]+l4d_tank_throw_boomer.FloatValue;
-	fThrowSIChance[3]=fThrowSIChance[2]+l4d_tank_throw_tank.FloatValue;	
-	fThrowSIChance[4]=fThrowSIChance[3]+l4d_tank_throw_witch.FloatValue;
-	fThrowSIChance[5]=fThrowSIChance[4]+l4d_tank_throw_self.FloatValue;
+	fThrowSIChance[eChance_Hunter]=l4d_tank_throw_hunter.FloatValue;
+	fThrowSIChance[eChance_Smoker]=fThrowSIChance[eChance_Hunter]+l4d_tank_throw_smoker.FloatValue;
+	fThrowSIChance[eChance_Boomer]=fThrowSIChance[eChance_Smoker]+l4d_tank_throw_boomer.FloatValue;
+	fThrowSIChance[eChance_Tank]=fThrowSIChance[eChance_Boomer]+l4d_tank_throw_tank.FloatValue;	
+	fThrowSIChance[eChance_Witch]=fThrowSIChance[eChance_Tank]+l4d_tank_throw_witch.FloatValue;
+	fThrowSIChance[eChance_self]=fThrowSIChance[eChance_Witch]+l4d_tank_throw_self.FloatValue;
 	if(L4D2Version)
 	{
-		fThrowSIChance[6]=fThrowSIChance[5]+l4d_tank_throw_charger.FloatValue;
-		fThrowSIChance[7]=fThrowSIChance[6]+l4d_tank_throw_spitter.FloatValue;
-		fThrowSIChance[8]=fThrowSIChance[7]+l4d_tank_throw_jockey.FloatValue;
+		fThrowSIChance[eChance_Charger]=fThrowSIChance[eChance_self]+l4d_tank_throw_charger.FloatValue;
+		fThrowSIChance[eChance_Spitter]=fThrowSIChance[eChance_Charger]+l4d_tank_throw_spitter.FloatValue;
+		fThrowSIChance[eChance_Jockey]=fThrowSIChance[eChance_Spitter]+l4d_tank_throw_jockey.FloatValue;
 	}
 	iThrowSILimit[0]=l4d_tank_throw_hunter_limit.IntValue;
 	iThrowSILimit[1]=l4d_tank_throw_smoker_limit.IntValue;
@@ -229,6 +241,10 @@ void GetConVar()
 	z_tank_throw_force_speed = z_tank_throw_force.FloatValue;
 	throw_witch_health = l4d_tank_throw_witch_health.IntValue;
 	g_fWitchKillTime = g_hWitchKillTime.FloatValue;
+
+	fThrowSIChance[eChance_Car]=fThrowSIChance[eChance_Jockey]+l4d_tank_throw_car.FloatValue;
+
+	g_fCarKillTime = l4d_tank_car_time.FloatValue;
 }
 
 //-------------------------------Left4Dhooks API Forward-------------------------------
@@ -252,13 +268,13 @@ public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3
 			
 			NormalizeVector(velocity, velocity);
 			ScaleVector(velocity, z_tank_throw_force_speed * 1.4);
-			int new_helper_si = CreateSI(tank, vecPos, vecAng, velocity);
-			if(new_helper_si > 0)
+			int new_helper = CreateSI(tank, vecPos, vecAng, velocity);
+			if(new_helper > 0)
 			{
 				TeleportEntity(rock, g_99999Position);
 				RemoveEdict(rock);
 				if(L4D2Version) DisplayParticle(0, PARTICLE_ELECTRICAL, vecPos, NULL_VECTOR);    
-				if(new_helper_si <= MaxClients) L4D_WarpToValidPositionIfStuck(new_helper_si);
+				if(new_helper <= MaxClients) L4D_WarpToValidPositionIfStuck(new_helper);
 			}
 		}
 	}
@@ -301,8 +317,8 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 {
 	int selected=0;
 	int chooseclass=0;
-	float random = GetRandomFloat(1.0, fThrowSIChance[5]);
-	if(L4D2Version) random = GetRandomFloat(1.0, fThrowSIChance[8]);
+	float random = GetRandomFloat(1.0, fThrowSIChance[eChance_self]);
+	if(L4D2Version) random = GetRandomFloat(1.0, fThrowSIChance[eChance_Car]);
 	
 	// current count ...
 	int boomers=0;
@@ -383,7 +399,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	}
 
 	bool bSpawnSuccessful = false;
-	if(random<=fThrowSIChance[0] && fThrowSIChance[0] > 0.0)
+	if(random<=fThrowSIChance[eChance_Hunter] && l4d_tank_throw_hunter.FloatValue > 0.0)
 	{
 		if(hunters < iThrowSILimit[0])
 		{
@@ -398,18 +414,14 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else 
 			{
-				selected = SDKCall(hCreateHunter, "Helper Hunter Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_HUNTER);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("hunter", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 		
 		chooseclass = ZC_HUNTER;
 	}
-	else if(random<=fThrowSIChance[1] && fThrowSIChance[1] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Smoker] && l4d_tank_throw_smoker.FloatValue > 0.0)
 	{
 		if(smokers < iThrowSILimit[1])
 		{
@@ -424,18 +436,14 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else 
 			{
-				selected = SDKCall(hCreateSmoker, "Helper Smoker Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_SMOKER);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("smoker", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 
 		chooseclass = ZC_SMOKER;
 	}
-	else if(random<=fThrowSIChance[2] && fThrowSIChance[2] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Boomer] && l4d_tank_throw_boomer.FloatValue > 0.0)
 	{
 		if(boomers < iThrowSILimit[2])
 		{
@@ -450,18 +458,14 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else 
 			{
-				selected = SDKCall(hCreateBoomer, "Helper Boomer Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_BOOMER);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("boomer", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 
 		chooseclass = ZC_BOOMER;
 	}
-	else if(random<=fThrowSIChance[3] && fThrowSIChance[3] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Tank] && l4d_tank_throw_tank.FloatValue > 0.0)
 	{
 		if(tanks < iThrowSILimit[3])
 		{
@@ -476,18 +480,14 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else
 			{
-				selected = SDKCall(hCreateTank, "Helper Tank Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_TANK);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("tank", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 
 		chooseclass = ZC_TANK; 
 	}
-	else if(random<=fThrowSIChance[4] && fThrowSIChance[4] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Witch] && l4d_tank_throw_witch.FloatValue > 0.0)
 	{
 		if(witches < iThrowSILimit[4])
 		{
@@ -515,11 +515,11 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 
 		chooseclass = ZC_WITCH;
 	}
-	else if(random<=fThrowSIChance[5] && fThrowSIChance[5] > 0.0)
+	else if(random<=fThrowSIChance[eChance_self] && l4d_tank_throw_charger.FloatValue > 0.0)
 	{
 		selected=thetank;
 	}
-	else if(random<=fThrowSIChance[6] && fThrowSIChance[6] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Charger] && l4d_tank_throw_spitter.FloatValue > 0.0)
 	{
 		if(chargers < iThrowSILimit[6])
 		{
@@ -534,18 +534,14 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else
 			{
-				selected = SDKCall(hCreateCharger, "Helper Charger Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_CHARGER);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("charger", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 
 		chooseclass = ZC_CHARGER;
 	}
-	else if(random<=fThrowSIChance[7] && fThrowSIChance[7] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Spitter] && l4d_tank_throw_spitter.FloatValue > 0.0)
 	{
 		if(spitters < iThrowSILimit[7])
 		{
@@ -560,18 +556,14 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else
 			{
-				selected = SDKCall(hCreateSpitter, "Helper Spitter Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_SPITTER);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("spitter", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 
 		chooseclass = ZC_SPITTER;
 	}
-	else if(random<=fThrowSIChance[8] && fThrowSIChance[8] > 0.0)
+	else if(random<=fThrowSIChance[eChance_Jockey] && l4d_tank_throw_jockey.FloatValue > 0.0)
 	{
 		if(jockeys < iThrowSILimit[8])
 		{
@@ -586,16 +578,41 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			}
 			else
 			{
-				selected = SDKCall(hCreateJockey, "Helper Jockey Bot");
-				if (IsValidClient(selected))
-				{
-					SetEntityModel(selected, MODEL_JOCKEY);
-					bSpawnSuccessful = true;
-				}
+				selected = NoLimit_CreateInfected("jockey", pos, NULL_VECTOR);
+				if(selected > 0) bSpawnSuccessful = true;
 			}
 		}
 
 		chooseclass = ZC_JOCKEY;
+	}
+	else if(random<=fThrowSIChance[eChance_Car] && l4d_tank_throw_car.FloatValue > 0.0)
+	{
+		int physics = CreateEntityByName("prop_physics_multiplayer");
+		if (CheckIfEntityMax( physics ) == false)
+			return -1;
+
+		switch(GetRandomInt(0, 6))
+		{
+			case 0: SetEntityModel(physics, MODEL_fallen);
+			case 1: SetEntityModel(physics, MODEL_rock);
+			case 2: SetEntityModel(physics, MODEL_cart2);
+			case 3: SetEntityModel(physics, MODEL_cara_95sedan);
+			case 4: SetEntityModel(physics, MODEL_atlas_break_ball);
+			case 5: SetEntityModel(physics, MODEL_forklift);
+			case 6: SetEntityModel(physics, MODEL_dumpster_2);
+		}
+
+		DispatchSpawn(physics);
+		TeleportEntity(physics, pos, NULL_VECTOR, velocity);
+
+		SetEntPropEnt(physics, Prop_Data, "m_hPhysicsAttacker", thetank);
+		SetEntPropFloat(physics, Prop_Data, "m_flLastPhysicsInfluenceTime", GetEngineTime());
+		CreateTimer(g_fCarKillTime, Timer_KillCar, EntIndexToEntRef(physics), TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(2.0, Timer_NormalVelocity, EntIndexToEntRef(physics), TIMER_FLAG_NO_MAPCHANGE);
+
+		EmitSoundToAll(EXPLOSION_SOUND, physics);
+
+		return physics;
 	}
 	else
 	{
@@ -615,20 +632,6 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 
 	if (bSpawnSuccessful && selected > 0 && selected <= MaxClients) // SpawnSuccessful (AI/Real Player)
 	{
-		if(IsFakeClient(selected))
-		{
-			ChangeClientTeam(selected, 3);
-			SetEntProp(selected, Prop_Send, "m_usSolidFlags", 16);
-			SetEntProp(selected, Prop_Send, "movetype", 2);
-			SetEntProp(selected, Prop_Send, "deadflag", 0);
-			SetEntProp(selected, Prop_Send, "m_lifeState", 0);
-			SetEntProp(selected, Prop_Send, "m_iObserverMode", 0);
-			SetEntProp(selected, Prop_Send, "m_iPlayerState", 0);
-			SetEntProp(selected, Prop_Send, "m_zombieState", 0);
-			DispatchSpawn(selected);
-			ActivateEntity(selected);
-		}
-
 		if(chooseclass == ZC_TANK) SetEntityHealth(selected, throw_tank_health);
 	}
 	else if (selected == 0) //throw teammate
@@ -711,7 +714,7 @@ int DisplayParticle(int target, const char[] sParticle, const float vPos[3], con
 		SetVariantString("OnUser2 !self:FireUser1::0:-1");
 		AcceptEntityInput(entity, "AddOutput");
 	}
-
+	
 	CreateTimer(3.0, DeleteParticles, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 
 	return entity;
@@ -764,8 +767,6 @@ void GetGameData()
 	hGameConf = LoadGameConfigFile("l4d_tank_helper");
 	if( hGameConf != null )
 	{
-		PrepSDKCall();
-
 		int offset = GameConfGetOffset(hGameConf, "NextBotPointer");
 		if(offset == -1) {SetFailState("Unable to find NextBotPointer offset.");return;}
 		StartPrepSDKCall(SDKCall_Entity);
@@ -794,193 +795,6 @@ void GetGameData()
 		SetFailState("Unable to find l4d_tank_helper.txt gamedata file.");
 	}
 	delete hGameConf;
-}
-
-void PrepSDKCall()
-{
-	//find create bot signature
-	Address replaceWithBot = GameConfGetAddress(hGameConf, "NextBotCreatePlayerBot.jumptable");
-	if (replaceWithBot != Address_Null && LoadFromAddress(replaceWithBot, NumberType_Int8) == 0x68) {
-		// We're on L4D2 and linux
-		PrepWindowsCreateBotCalls(replaceWithBot);
-	}
-	else
-	{
-		if (L4D2Version)
-		{
-			PrepL4D2CreateBotCalls();
-		}
-		else
-		{ 
-			delete hCreateSpitter; 
-			delete hCreateJockey; 
-			delete hCreateCharger; 
-		}
-	
-		PrepL4D1CreateBotCalls();
-	}
-}
-
-void LoadStringFromAdddress(Address addr, char[] buffer, int maxlength) {
-	int i = 0;
-	while(i < maxlength) {
-		char val = LoadFromAddress(addr + view_as<Address>(i), NumberType_Int8);
-		if(val == 0) {
-			buffer[i] = 0;
-			break;
-		}
-		buffer[i] = val;
-		i++;
-	}
-	buffer[maxlength - 1] = 0;
-}
-
-Handle PrepCreateBotCallFromAddress(Handle hSiFuncTrie, const char[] siName) {
-	Address addr;
-	StartPrepSDKCall(SDKCall_Static);
-	if (!GetTrieValue(hSiFuncTrie, siName, addr) || !PrepSDKCall_SetAddress(addr))
-	{
-		SetFailState("Unable to find NextBotCreatePlayer<%s> address in memory.", siName);
-		return null;
-	}
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	return EndPrepSDKCall();	
-}
-
-void PrepWindowsCreateBotCalls(Address jumpTableAddr) {
-	Handle hInfectedFuncs = CreateTrie();
-	// We have the address of the jump table, starting at the first PUSH instruction of the
-	// PUSH mem32 (5 bytes)
-	// CALL rel32 (5 bytes)
-	// JUMP rel8 (2 bytes)
-	// repeated pattern.
-	
-	// Each push is pushing the address of a string onto the stack. Let's grab these strings to identify each case.
-	// "Hunter" / "Smoker" / etc.
-	for(int i = 0; i < 7; i++) {
-		// 12 bytes in PUSH32, CALL32, JMP8.
-		Address caseBase = jumpTableAddr + view_as<Address>(i * 12);
-		Address siStringAddr = view_as<Address>(LoadFromAddress(caseBase + view_as<Address>(1), NumberType_Int32));
-		static char siName[32];
-		LoadStringFromAdddress(siStringAddr, siName, sizeof(siName));
-
-		Address funcRefAddr = caseBase + view_as<Address>(6); // 2nd byte of call, 5+1 byte offset.
-		int funcRelOffset = LoadFromAddress(funcRefAddr, NumberType_Int32);
-		Address callOffsetBase = caseBase + view_as<Address>(10); // first byte of next instruction after the CALL instruction
-		Address nextBotCreatePlayerBotTAddr = callOffsetBase + view_as<Address>(funcRelOffset);
-		//PrintToServer("Found NextBotCreatePlayerBot<%s>() @ %08x", siName, nextBotCreatePlayerBotTAddr);
-		SetTrieValue(hInfectedFuncs, siName, nextBotCreatePlayerBotTAddr);
-	}
-
-	hCreateSmoker = PrepCreateBotCallFromAddress(hInfectedFuncs, "Smoker");
-	if (hCreateSmoker == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateSmoker); return; }
-
-	hCreateBoomer = PrepCreateBotCallFromAddress(hInfectedFuncs, "Boomer");
-	if (hCreateBoomer == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateBoomer); return; }
-
-	hCreateHunter = PrepCreateBotCallFromAddress(hInfectedFuncs, "Hunter");
-	if (hCreateHunter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateHunter); return; }
-
-	hCreateTank = PrepCreateBotCallFromAddress(hInfectedFuncs, "Tank");
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateTank); return; }
-	
-	hCreateSpitter = PrepCreateBotCallFromAddress(hInfectedFuncs, "Spitter");
-	if (hCreateSpitter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateSpitter); return; }
-	
-	hCreateJockey = PrepCreateBotCallFromAddress(hInfectedFuncs, "Jockey");
-	if (hCreateJockey == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateJockey); return; }
-
-	hCreateCharger = PrepCreateBotCallFromAddress(hInfectedFuncs, "Charger");
-	if (hCreateCharger == null)
-	{ SetFailState("Cannot initialize %s SDKCall, address lookup failed.", NAME_CreateCharger); return; }
-
-	delete hInfectedFuncs;
-}
-
-void PrepL4D2CreateBotCalls() {
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateSpitter))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSpitter); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateSpitter = EndPrepSDKCall();
-	if (hCreateSpitter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSpitter); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateJockey))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateJockey); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateJockey = EndPrepSDKCall();
-	if (hCreateJockey == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateJockey); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateCharger))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateCharger); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateCharger = EndPrepSDKCall();
-	if (hCreateCharger == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateCharger); return; }
-}
-
-void PrepL4D1CreateBotCalls() {
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateSmoker))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateSmoker = EndPrepSDKCall();
-	if (hCreateSmoker == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateBoomer))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateBoomer = EndPrepSDKCall();
-	if (hCreateBoomer == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateHunter))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateHunter = EndPrepSDKCall();
-	if (hCreateHunter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
-	
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, NAME_CreateTank))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateTank = EndPrepSDKCall();
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
-}
-
-bool IsValidClient(int client, bool replaycheck = true)
-{
-	if (client <= 0 || client > MaxClients) return false;
-	if (!IsClientInGame(client)) return false;
-	//if (GetEntProp(client, Prop_Send, "m_bIsCoaching")) return false;
-	if (replaycheck)
-	{
-		if (IsClientSourceTV(client) || IsClientReplay(client)) return false;
-	}
-	return true;
 }
 
 stock int FindRandomTank(int exclude) 
@@ -1166,6 +980,42 @@ void SetLifeState (int client, bool ready)
 		SetEntProp(client, Prop_Send,  "m_lifeState", 1, 1);
 	else
 		SetEntProp(client, Prop_Send, "m_lifeState", 0, 1);
+}
+
+bool CheckIfEntityMax(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
+}
+
+Action Timer_KillCar(Handle timer, int ref)
+{
+	int entity = EntRefToEntIndex(ref);
+	if(entity != INVALID_ENT_REFERENCE)
+	{
+		RemoveEntity(entity);
+	}
+
+	return Plugin_Continue;
+}
+
+Action Timer_NormalVelocity(Handle timer, int ref)
+{
+	int entity = EntRefToEntIndex(ref);
+	if(entity != INVALID_ENT_REFERENCE)
+	{
+		float vel[3];
+		SetEntPropVector(entity, Prop_Data, "m_vecVelocity", vel);
+		TeleportEntity(entity, NULL_VECTOR, NULL_VECTOR, vel);
+	}
+
+	return Plugin_Continue;
 }
 
 // by BHaType: https://forums.alliedmods.net/showpost.php?p=2771305&postcount=2

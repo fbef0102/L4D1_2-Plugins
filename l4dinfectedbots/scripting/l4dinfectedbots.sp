@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.8.8  (2009-2023)
+* Version	: 2.8.9  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.8.9 (2024-1-27)
+*	   - Updated L4D1 Gamedata 
 *
 * Version 2.8.8 (2023-12-2)
 *	   - Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
@@ -737,7 +740,7 @@
 #include <multicolors>
 #undef REQUIRE_PLUGIN
 #include <left4dhooks>
-#define PLUGIN_VERSION "2.8.8"
+#define PLUGIN_VERSION "2.8.9"
 #define DEBUG 0
 
 #define TEAM_SPECTATOR		1
@@ -885,10 +888,13 @@ Handle SpawnInfectedBotTimer[L4D_MAXPLAYERS+1] = {null};
 static Handle hFlashLightTurnOn = null;
 static Handle hCreateSmoker = null;
 #define NAME_CreateSmoker "NextBotCreatePlayerBot<Smoker>"
+#define NAME_CreateSmoker_L4D1 "reloffs_NextBotCreatePlayerBot<Smoker>"
 static Handle hCreateBoomer = null;
 #define NAME_CreateBoomer "NextBotCreatePlayerBot<Boomer>"
+#define NAME_CreateBoomer_L4D1 "reloffs_NextBotCreatePlayerBot<Boomer>"
 static Handle hCreateHunter = null;
 #define NAME_CreateHunter "NextBotCreatePlayerBot<Hunter>"
+#define NAME_CreateHunter_L4D1 "reloffs_NextBotCreatePlayerBot<Hunter>"
 static Handle hCreateSpitter = null;
 #define NAME_CreateSpitter "NextBotCreatePlayerBot<Spitter>"
 static Handle hCreateJockey = null;
@@ -897,6 +903,7 @@ static Handle hCreateCharger = null;
 #define NAME_CreateCharger "NextBotCreatePlayerBot<Charger>"
 static Handle hCreateTank = null;
 #define NAME_CreateTank "NextBotCreatePlayerBot<Tank>"
+#define NAME_CreateTank_L4D1 "reloffs_NextBotCreatePlayerBot<Tank>"
 
 // Stuff related to Durzel's HUD (Panel was redone)
 int respawnDelay[MAXPLAYERS+1]; 			// Used to store individual player respawn delays after death
@@ -5826,42 +5833,97 @@ void PrepL4D2CreateBotCalls() {
 	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateCharger); return; }
 }
 
-void PrepL4D1CreateBotCalls() {
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateSmoker))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateSmoker = EndPrepSDKCall();
-	if (hCreateSmoker == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
+void PrepL4D1CreateBotCalls() 
+{
+	bool bLinuxOS = hGameData.GetOffset("OS") != 0;
+	if(bLinuxOS)
+	{
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateSmoker))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateSmoker = EndPrepSDKCall();
+		if (hCreateSmoker == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker); return; }
 
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateBoomer))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateBoomer = EndPrepSDKCall();
-	if (hCreateBoomer == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateBoomer))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateBoomer = EndPrepSDKCall();
+		if (hCreateBoomer == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer); return; }
 
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateHunter))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateHunter = EndPrepSDKCall();
-	if (hCreateHunter == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateHunter))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateHunter = EndPrepSDKCall();
+		if (hCreateHunter == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter); return; }
 
-	StartPrepSDKCall(SDKCall_Static);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateTank))
-	{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
-	hCreateTank = EndPrepSDKCall();
-	if (hCreateTank == null)
-	{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, NAME_CreateTank))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateTank = EndPrepSDKCall();
+		if (hCreateTank == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank); return; }
+	}
+	else
+	{
+		Address addr;
+
+		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateSmoker_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateSmoker_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateSmoker = EndPrepSDKCall();
+		if(hCreateSmoker == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateSmoker_L4D1); return; }
+
+		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateBoomer_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateBoomer_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateBoomer = EndPrepSDKCall();
+		if(hCreateSmoker == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateBoomer_L4D1); return; }
+
+		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateHunter_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateHunter_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateHunter = EndPrepSDKCall();
+		if(hCreateHunter == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateHunter_L4D1); return; }
+
+		addr = RelativeJumpDestination(hGameData.GetAddress(NAME_CreateTank_L4D1));
+		StartPrepSDKCall(SDKCall_Static);
+		if (!PrepSDKCall_SetAddress(addr))
+		{ SetFailState("Unable to find %s signature in gamedata file.", NAME_CreateTank_L4D1); return; }
+		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		PrepSDKCall_SetReturnInfo(SDKType_CBasePlayer, SDKPass_Pointer);
+		hCreateTank = EndPrepSDKCall();
+		if(hCreateTank == null)
+		{ SetFailState("Cannot initialize %s SDKCall, signature is broken.", NAME_CreateTank_L4D1); return; }
+	}
+}
+
+Address RelativeJumpDestination(Address p)
+{
+	int offset = LoadFromAddress(p, NumberType_Int32);
+	return p + view_as<Address>(offset + 4);
 }
 
 bool IsTooClose(int client, float distance)
