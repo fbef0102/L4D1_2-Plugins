@@ -172,6 +172,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 玩家在聊天框輸入特地文字，伺服器會顯示廣告或提示
 * <b>[admin_hp](/admin_hp)</b>: Adm type !hp to set survivor team full health.
     * 管理員輸入!hp 可以回滿所有倖存者的血量
+* <b>[l4d2_vote_manager3](/l4d2_vote_manager3)</b>: Unable to call valve vote if player does not have access
+    * 沒有權限的玩家不能隨意發起官方投票
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
