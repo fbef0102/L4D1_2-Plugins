@@ -5,6 +5,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 <br>None
 
 * Image | 圖示
+	* Spawn infected bots without limit 
 	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
 	<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
 	* Join infected team and play in coop/survival/realism mode. (在戰役/寫實/生存模式下加入特感陣營)
@@ -572,6 +573,13 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_disable_infected_bots "1"
 			```
+	</details>
+
+	6. <details><summary>Only 18 infected bots can spawn in server?</summary>
+
+		* By default, l4d server max player slots is 18. Go install [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz) and set Max. players=32 (Can't increase more)
+		<br/>![l4dinfectedbots_4](image/l4dinfectedbots_4.jpg)
+
 	</details>
 
 * Known Issue
@@ -1265,6 +1273,13 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```php
 			l4d_infectedbots_disable_infected_bots "1"
 			```
+	</details>
+
+	6. <details><summary>伺服器好像只能生成18個特感bots?</summary>
+
+		* 因為此遊戲預設人數上限為18. 請去安裝 [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz) ，務必將"玩家上限"改成32 (最高只能到32)
+		<br/>![zho/l4dinfectedbots_4](image/zho/l4dinfectedbots_4.jpg)
+
 	</details>
 
 * 已知問題
