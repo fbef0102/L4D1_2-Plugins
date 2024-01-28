@@ -142,7 +142,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	g_hGravesEnabled 	= CreateConVar("l4d_graves_enable", "1", "Enable or disable this plugin.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hGraveNotSolid 	= CreateConVar("l4d_graves_not_solid", "0", "Enables or disables the solidity of the grave.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hGraveNotSolid 	= CreateConVar("l4d_graves_not_solid", "1", "1=Disables the solidity of the grave, 0=Enable solidity", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGraveDelay 		= CreateConVar("l4d_graves_delay", "5.0", "How long will it take for the grave to spawn.", FCVAR_NOTIFY, true, 1.0);
 	g_hGraveGlow 		= CreateConVar("l4d_graves_glow", "1", "Turn glow On or Off.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGraveGlowColor 	= CreateConVar("l4d_graves_glow_color", "-1 -1 -1", "L4D2 Only, RGB Color - Change the render color of the glow. Values between 0-255. [-1 -1 -1: Random]", FCVAR_NOTIFY);
@@ -176,7 +176,7 @@ public void OnPluginEnd()
 		RemoveGrave(i);
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -281,7 +281,7 @@ public Action Timer_SpawnGrave(Handle timer, DataPack corpse)
 	if ( !L4D2Version )
 	{
 		grave = CreateEntityByName("prop_glowing_object");
-		if (CheckIfEntityMax( grave ) == false) 
+		if (CheckIfEntitySafe( grave ) == false) 
 		{
 			SpawnGrave_Timer[client] = null;
 			return Plugin_Continue;
@@ -299,7 +299,7 @@ public Action Timer_SpawnGrave(Handle timer, DataPack corpse)
 	else
 	{
 		grave = CreateEntityByName("prop_dynamic_override");
-		if (CheckIfEntityMax( grave ) == false) 
+		if (CheckIfEntitySafe( grave ) == false) 
 		{
 			SpawnGrave_Timer[client] = null;
 			return Plugin_Continue;
@@ -334,9 +334,10 @@ public Action Timer_SpawnGrave(Handle timer, DataPack corpse)
 			FormatEx(sTemp, sizeof(sTemp), "%s", g_sGraveGlowColor);
 
 		DispatchKeyValue(grave, "glowcolor", sTemp);
-		DispatchKeyValue(grave, "solid", (g_bGraveNotSolid == false) ? "2":"0");
+		DispatchKeyValue(grave, "solid", (g_bGraveNotSolid == false) ? "6":"0");
 		SetEntityModel(grave, g_aGraveModels[GetRandomInt(0, 5)]);
 		DispatchSpawn(grave);
+
 		SetEntProp(grave, Prop_Send, "m_nGlowRange", g_iGraveGlowRange);
 		TeleportEntity(grave, origin, NULL_VECTOR, NULL_VECTOR);
 		if ( g_bGraveGlow != false ) AcceptEntityInput(grave, "StartGlowing");
@@ -348,7 +349,7 @@ public Action Timer_SpawnGrave(Handle timer, DataPack corpse)
 	return Plugin_Continue;
 }
 
-bool CheckIfEntityMax(int entity)
+bool CheckIfEntitySafe(int entity)
 {
 	if(entity == -1) return false;
 
