@@ -218,7 +218,7 @@ public void OnPluginStart()
 	g_hGameTimeBlock = 			CreateConVar("l4d_afk_commands_during_game_seconds_block", 		"0", 	"Player can not switch team after players have left start safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedAttackBlock = 	CreateConVar("l4d_afk_commands_infected_attack_block", 			"1", 	"If 1, Player can not change team when he is capped by special infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hWitchAttackBlock = 		CreateConVar("l4d_afk_commands_witch_attack_block", 			"1", 	"If 1, Player can not change team when he startle witch or being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", 			"30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", 			"30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds.\n0=Disable !zs", FCVAR_NOTIFY, true, 0.0);
 	g_hWeaponReloadBlock = 		CreateConVar("l4d_afk_commands_weapon_reload_block", 			"1", 	"If 1, Player can not change team when he is reloading the weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGetUpStaggerBlock = 		CreateConVar("l4d_afk_commands_getup_stagger_block", 			"1", 	"If 1, Player can not change team while he is getting up or staggering.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hThrowableBlock = 		CreateConVar("l4d_afk_commands_throwable_block", 				"1", 	"If 1, Player can not change team after throwing molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0, true, 1.0);

@@ -66,7 +66,8 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// If 1, Player can not change team when he startle witch r being attacked by witch.
 		l4d_afk_commands_witch_attack_block "1"
 
-		// Allow alive survivor player suicide by using '!zs' afte joining survivor team for at least X seconds. (0=off)
+		// Allow alive survivor player suicide by using '!zs' afte joining survivor team for at least X seconds. 
+		// 0=Disable !zs
 		l4d_afk_commands_suicide_allow_second "30.0"
 
 		// If 1, Player can not change team when he is reloading te weapon.
@@ -318,7 +319,8 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// 為1時，倖存者驚嚇Witch或被Witch攻擊期間不可切換隊伍
 		l4d_afk_commands_witch_attack_block "1"
 
-		// 加入倖存者30秒之後才能使用指令!zs自殺 (0=禁止使用指令!zs自殺)
+		// 加入倖存者30秒之後才能使用指令!zs自殺
+		// 0=禁止使用指令!zs自殺
 		l4d_afk_commands_suicide_allow_second "30.0"
 
 		// 為1時，倖存者裝彈期間不可切換隊伍
