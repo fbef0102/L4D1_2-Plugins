@@ -12,8 +12,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 > __Note__  
 > **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**<br/>
 > **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**
-* <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
-* <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
+* <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.＝
 * <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
@@ -174,6 +173,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 管理員輸入!hp 可以回滿所有倖存者的血量
 * <b>[l4d2_vote_manager3](/l4d2_vote_manager3)</b>: Unable to call valve vote if player does not have access
     * 沒有權限的玩家不能隨意發起官方投票
+* <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
+    * 旁觀者的名字前，加上前缀符號
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
