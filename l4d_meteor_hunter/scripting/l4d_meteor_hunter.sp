@@ -240,12 +240,12 @@ void CreateHit(int client)
 
 	CreateParticles(pos);
 	
-	Handle hbPack = CreateDataPack();
+	DataPack hbPack;
+	CreateDataTimer(0.5, CreateRing, hbPack,TIMER_FLAG_NO_MAPCHANGE);
 	WritePackFloat(hbPack, 120.0);
 	WritePackFloat(hbPack, pos[0]);
 	WritePackFloat(hbPack, pos[1]);
 	WritePackFloat(hbPack, pos[2]);
-	CreateTimer(0.5, CreateRing, hbPack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 }
 
 void CreateParticles(float pos[3])

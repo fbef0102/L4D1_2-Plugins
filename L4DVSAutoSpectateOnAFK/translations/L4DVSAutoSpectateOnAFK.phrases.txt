@@ -14,44 +14,44 @@
 	"[AFK] Inactivity detected! 1"
 	{
 		"#format"		"{1:d}"
-		"en"	"Inactivity detected! You'll be moved to spectator in {1} seconds!"
-		"zho"	"偵測閒置! 你將於 {1} 秒後強制旁觀."
-		"chi"	"检测到闲置! 你将在 {1} 秒后强制旁观."
-		"hu"	"Inaktivitás észlelve! {1} másodperc múlva átkerülsz a nézők közé!"
+		"en"	"[AFK] Inactivity detected! You'll be moved to spectators in {1} seconds!"
+		"zho"	"[AFK] 偵測閒置! 你將於 {1} 秒後強制旁觀."
+		"chi"	"[AFK] 检测到闲置! 你将在 {1} 秒后强制旁观."
+		"hu"	"[AFK] Inaktivitás észlelve! {1} másodperc múlva átkerülsz a nézők közé!"
 	}
 	"[AFK] Inactivity detected! 2"
 	{
-		"en"	"Inactivity detected! You'll be moved to spectator once survivors leave the safe area."
-		"zho"	"偵測閒置! 一旦有人離開安全區域你將強制旁觀."
-		"chi"	"检测到闲置! 一旦有人离开安全区域你将强制旁观."
-		"hu"	"Inaktivitás észlelve! Amint csapattársaid elhagyják a biztonságos területet, a nézők közé kerülsz."
+		"en"	"[AFK] Inactivity detected! You'll be moved to spectators as soon as your teammates leave the safe area."
+		"zho"	"[AFK] 偵測閒置! 一旦有人離開安全區域你將強制旁觀."
+		"chi"	"[AFK] 检测到闲置! 一旦有人离开安全区域你将强制旁观."
+		"hu"	"[AFK] Inaktivitás észlelve! Amint csapattársaid elhagyják a biztonságos területet, a nézők közé kerülsz."
 	}
 	"[AFK] Inactivity detected! 3"
 	{
 		"#format"		"{1:d}"
-		"en"	"Inactivity detected! Join any team to play.\n Otherwise you'll be kicked in {1} seconds."
-		"zho"	"偵測旁觀閒置! 輸入!join加入遊戲\n 否則你將於 {1} 秒後踢出伺服器."
-		"chi"	"探测旁观闲置! 输入!join加入游戏\n 否则你将于 {1} 秒后踢出伺服器."
-		"hu"	"Inaktivitás észlelve! Csatlakozz bármelyik csapathoz.\n (!join) Ellenkező esetben {1} másodperc múlva kirúgunk a szerverről."
+		"en"	"[AFK] Inactivity detected! Join any team to play.\n Otherwise you'll be kicked from server in {1} seconds."
+		"zho"	"[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n 否則你將於 {1} 秒後踢出伺服器."
+		"chi"	"[AFK] 探测旁观闲置! 输入!join加入游戏\n 否则你将于 {1} 秒后踢出伺服器."
+		"hu"	"[AFK] Inaktivitás észlelve! Csatlakozz bármelyik csapathoz.\n (!join) Ellenkező esetben {1} másodperc múlva kirúgunk a szerverről."
 	}
 	"[AFK] Inactivity detected! 4"
 	{
-		"en"	"Inactivity detected! Join any team to play.\n Otherwise you'll be kicked."
-		"zho"	"偵測旁觀閒置! 輸入!join加入遊戲\n 一旦有人離開安全區域你將踢出伺服器."
-		"chi"	"检测到旁观闲置! 输入!join加入游戏\n 一旦有人离开安全区域你将踢出服务器."
-		"hu"	"Inaktivitás észlelve! Csatlakozz bármelyik csapathoz, hogy játszhass.\n (!join) Ellenkező esetben kirúgunk a szerverről."
+		"en"	"[AFK] Inactivity detected! Join any team to play.\n Otherwise you'll be kicked from server."
+		"zho"	"[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n 一旦有人離開安全區域你將踢出伺服器."
+		"chi"	"[AFK] 检测到旁观闲置! 输入!join加入游戏\n 一旦有人离开安全区域你将踢出服务器."
+		"hu"	"[AFK] Inaktivitás észlelve! Csatlakozz bármelyik csapathoz, hogy játszhass.\n (!join) Ellenkező esetben kirúgunk a szerverről."
 	}
 	"have been kicked from server due to inactivity"
 	{
-		"#format"		"{1:s}"
-		"en"	"[{olive}TS{default}] {lightgreen}{1} have been kicked due to inactivity."
+		"#format"		"{1:N}"
+		"en"	"[{olive}TS{default}] {lightgreen}{1} have been kicked from server due to inactivity."
 		"zho"	"[{olive}TS{default}] {lightgreen}{1} 旁觀閒置太久被踢出伺服器."
 		"chi"	"[{olive}TS{default}] {lightgreen}{1} 因旁观闲置太久而被踢出服务器."
 		"hu"	"[{olive}TS{default}] {lightgreen}{1} Inaktivitás miatt kirúgtak a szerverről."
 	}	
 	"afkForceSpectate"
 	{
-		"en"	"[{olive}TS{default}] You has been switched to {lightgreen}Spectator"
+		"en"	"[{olive}TS{default}] You has been switched to {lightgreen}Spectators"
 		"zho"	"[{olive}TS{default}] 你已被轉換到 {lightgreen}旁觀者"
 		"chi"	"[{olive}TS{default}] 你已被转换到 {lightgreen}旁观者"
 	}	
