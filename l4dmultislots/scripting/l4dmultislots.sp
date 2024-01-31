@@ -748,13 +748,12 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 					float teleportOrigin[3];
 					GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
 
-					DataPack hPack = new DataPack();
+					DataPack hPack;
+					CreateDataTimer(0.1, Timer_TeleportPlayer, hPack);
 					hPack.WriteCell(userid);
 					hPack.WriteFloat(teleportOrigin[0]);
 					hPack.WriteFloat(teleportOrigin[1]);
 					hPack.WriteFloat(teleportOrigin[2]);
-
-					CreateTimer(0.1, Timer_TeleportPlayer, hPack);
 				}
 				else if(g_iCvar_JoinSurvivrMethod == 0)
 				{
@@ -1375,7 +1374,7 @@ bool SpawnFakeClient(bool bAdmBot = false)
 		int fakeuserid = GetClientUserId(fakeclient);
 		float teleportOrigin[3];
 		GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
-		DataPack hPack = new DataPack();
+		DataPack hPack;
 		hPack.WriteCell(fakeuserid);
 		hPack.WriteFloat(teleportOrigin[0]);
 		hPack.WriteFloat(teleportOrigin[1]);
@@ -1712,7 +1711,6 @@ Action Timer_TeleportPlayer(Handle timer, DataPack hPack)
 	nPos[0] = hPack.ReadFloat();
 	nPos[1] = hPack.ReadFloat();
 	nPos[2] = hPack.ReadFloat();
-	delete hPack;
 
 	if (!client || !IsClientInGame(client)) return Plugin_Continue;
 
