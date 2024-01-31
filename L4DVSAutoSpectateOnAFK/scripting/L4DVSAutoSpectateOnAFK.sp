@@ -513,27 +513,10 @@ void afkKickClient (int client)
 	if (IsFakeClient(client))
 		return;
 	
-	// If player was on infected ....
-	if (GetClientTeam(client) == 3)
-	{
-		// ... and he wasn't a tank ...
-		char iClass[100];
-		GetClientModel(client, iClass, sizeof(iClass));
-		if (StrContains(iClass, "hulk", false) == -1)
-			ForcePlayerSuicide(client);	// we kill him
-	}
-	
-	// We force him to spectate
-	ChangeClientTeam(client, 1);
-	
-	// Then we kick him
 	KickClient(client, "[AFK] You've been kicked due to inactivity.");
 	
 	// Print forced info
-	char PlayerName[200];
-	GetClientName(client, PlayerName, sizeof(PlayerName));
-	
-	CPrintToChatAll("%t", "have been kicked from server due to inactivity", PlayerName);
+	CPrintToChatAll("%t", "have been kicked from server due to inactivity", client);
 }
 
 Action PlayerLeftStart(Handle Timer)

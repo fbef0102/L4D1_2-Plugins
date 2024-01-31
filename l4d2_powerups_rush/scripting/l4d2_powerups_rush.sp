@@ -626,27 +626,27 @@ void AdrenReload (int client)
 		else if (StrContains(stClass,"autoshotgun",false) != -1)
 		{
 			//create a pack to send clientid and gunid through to the timer
-			Handle hPack = CreateDataPack();
+			DataPack hPack;
+			CreateDataTimer(0.1,Timer_AutoshotgunStart, hPack);
 			WritePackCell(hPack, client);
 			WritePackCell(hPack, iEntid);
-			CreateTimer(0.1,Timer_AutoshotgunStart,hPack);
 			return;
 		}
 		else if (StrContains(stClass,"shotgun_spas",false) != -1)
 		{
 			//similar to the autoshotgun, create a pack to send
-			Handle hPack = CreateDataPack();
+			DataPack hPack;
+			CreateDataTimer(0.1,Timer_SpasShotgunStart,hPack);
 			WritePackCell(hPack, client);
 			WritePackCell(hPack, iEntid);
-			CreateTimer(0.1,Timer_SpasShotgunStart,hPack);
 			return;
 		}
 		else if (StrContains(stClass,"pumpshotgun",false) != -1 || StrContains(stClass,"shotgun_chrome",false) != -1)
 		{
-			Handle hPack = CreateDataPack();
+			DataPack hPack;
+			CreateDataTimer(0.1,Timer_PumpshotgunStart,hPack);
 			WritePackCell(hPack, client);
 			WritePackCell(hPack, iEntid);
-			CreateTimer(0.1,Timer_PumpshotgunStart,hPack);
 			return;
 		}
 	}
@@ -678,14 +678,14 @@ void MagStart (int iEntid, int client)
 	//create a timer to reset the playrate after time equal to the modified attack interval
 	CreateTimer( flNextTime_calc, Timer_MagEnd, iEntid);
 	//experiment to remove double-playback bug
-	Handle hPack = CreateDataPack();
+	DataPack hPack = new DataPack();
 	WritePackCell(hPack, client);
 	//this calculates the equivalent time for the reload to end
 	float flStartTime_calc = flGameTime - ( flNextTime_ret - flGameTime ) * ( 1 - g_fl_reload_rate ) ;
 	WritePackFloat(hPack, flStartTime_calc);
 	//now we create the timer that will prevent the annoying double playback
 	if ( (flNextTime_calc - 0.4) > 0 )
-		CreateTimer( flNextTime_calc - 0.4 , Timer_MagEnd2, hPack);
+		CreateTimer( flNextTime_calc - 0.4 , Timer_MagEnd2, hPack, TIMER_DATA_HNDL_CLOSE);
 	//and finally we set the end reload time into the gun so the player can actually shoot with it at the end
 	flNextTime_calc += flGameTime;
 	SetEntDataFloat(iEntid, g_iTimeIdleO, flNextTime_calc, true);
@@ -704,19 +704,18 @@ void MagStart (int iEntid, int client)
 }
 
 //called for autoshotguns
-public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
+public Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 {
-	KillTimer(timer);
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
 	int iEntid = ReadPackCell(hPack);
-	delete hPack;
+
 	if (IsServerProcessing() == false)
 	{
 		return Plugin_Stop;
 	}
 
-	Handle hPack2 = CreateDataPack();
+	DataPack hPack2 = new DataPack();
 	WritePackCell(hPack2, iCid);
 	WritePackCell(hPack2, iEntid);
 
@@ -725,7 +724,10 @@ public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
 		|| IsValidEntity(iCid) == false
 		|| IsValidEntity(iEntid) == false
 		|| IsClientInGame(iCid) == false)
+	{
+		delete hPack2;
 		return Plugin_Stop;
+	}
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-autoshotgun detected, iEntid {default}%i{lightgreen}, startO {default}%i{lightgreen}, insertO {default}%i{lightgreen}, endO {default}%i",
@@ -752,13 +754,13 @@ public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
 	//but first check the reload state; if it's 2, then it needs a pump/cock before it can shoot again, and thus needs more time
 	if (g_i_L4D_12 == 2)
-		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT);
+		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
 	else if (g_i_L4D_12 == 1)
 	{
 		if (GetEntData(iEntid,g_iShotRelStateO)==2)
-			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT);
+			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
 		else
-			CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT);
+			CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
 	}
 
 	#if DEBUG
@@ -772,28 +774,29 @@ public Action Timer_AutoshotgunStart (Handle timer, Handle hPack)
 	return Plugin_Stop;
 }
 
-public Action Timer_SpasShotgunStart (Handle timer, Handle hPack)
+public Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
 {
-	KillTimer(timer);
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
 	int iEntid = ReadPackCell(hPack);
-	delete hPack;
 	if (IsServerProcessing() == false)
 	{
 		return Plugin_Stop;
 	}
 
-	hPack = CreateDataPack();
-	WritePackCell(hPack, iCid);
-	WritePackCell(hPack, iEntid);
+	DataPack hPack2 = new DataPack();
+	WritePackCell(hPack2, iCid);
+	WritePackCell(hPack2, iEntid);
 
 	if (iCid <= 0
 		|| iEntid <= 0
 		|| IsValidEntity(iCid) == false
 		|| IsValidEntity(iEntid) == false
-		|| IsClientInGame(iCid) == false)
+		|| IsClientInGame(iCid) == false)	
+	{
+		delete hPack2;
 		return Plugin_Stop;
+	}
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-autoshotgun detected, iEntid {default}%i{lightgreen}, startO {default}%i{lightgreen}, insertO {default}%i{lightgreen}, endO {default}%i",
@@ -819,7 +822,7 @@ public Action Timer_SpasShotgunStart (Handle timer, Handle hPack)
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
 	//but first check the reload state; if it's 2, then it needs a pump/cock before it can shoot again, and thus needs more time
-	CreateTimer(0.3, Timer_ShotgunEnd, hPack, TIMER_REPEAT);
+	CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
@@ -833,28 +836,30 @@ public Action Timer_SpasShotgunStart (Handle timer, Handle hPack)
 }
 
 //called for pump/chrome shotguns
-public Action Timer_PumpshotgunStart (Handle timer, Handle hPack)
+public Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 {
-	KillTimer(timer);
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
 	int iEntid = ReadPackCell(hPack);
-	delete hPack;
+
 	if (IsServerProcessing() == false)
 	{
 		return Plugin_Stop;
 	}
 
-	hPack = CreateDataPack();
-	WritePackCell(hPack, iCid);
-	WritePackCell(hPack, iEntid);
+	DataPack hPack2 = new DataPack();
+	WritePackCell(hPack2, iCid);
+	WritePackCell(hPack2, iEntid);
 
 	if (iCid <= 0
 		|| iEntid <= 0
 		|| IsValidEntity(iCid) == false
 		|| IsValidEntity(iEntid) == false
 		|| IsClientInGame(iCid) == false)
+	{
+		delete hPack2;
 		return Plugin_Stop;
+	}
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-pumpshotgun detected, iEntid {default}%i{lightgreen}, startO {default}%i{lightgreen}, insertO {default}%i{lightgreen}, endO {default}%i",
@@ -880,13 +885,13 @@ public Action Timer_PumpshotgunStart (Handle timer, Handle hPack)
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
 	if (g_i_L4D_12 == 2)
-		CreateTimer(0.3,Timer_ShotgunEnd,hPack,TIMER_REPEAT);
+		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
 	else if (g_i_L4D_12 == 1)
 	{
 		if (GetEntData(iEntid,g_iShotRelStateO) == 2)
-			CreateTimer(0.3, Timer_ShotgunEndCock, hPack, TIMER_REPEAT);
+			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
 		else
-			CreateTimer(0.3, Timer_ShotgunEnd, hPack, TIMER_REPEAT);
+			CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
 	}
 
 	#if DEBUG
@@ -903,7 +908,6 @@ public Action Timer_PumpshotgunStart (Handle timer, Handle hPack)
 //this resets the playback rate on non-shotguns
 public Action Timer_MagEnd (Handle timer, any iEntid)
 {
-	KillTimer(timer);
 	if (IsServerProcessing() == false)
 		return Plugin_Stop;
 
@@ -920,13 +924,12 @@ public Action Timer_MagEnd (Handle timer, any iEntid)
 	return Plugin_Stop;
 }
 
-public Action Timer_MagEnd2 (Handle timer, Handle hPack)
+public Action Timer_MagEnd2 (Handle timer, DataPack hPack)
 {
-	KillTimer(timer);
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
 	float flStartTime_calc = ReadPackFloat(hPack);
-	delete hPack;
+
 	if (IsServerProcessing() == false)
 	{
 		return Plugin_Stop;
@@ -952,7 +955,7 @@ public Action Timer_MagEnd2 (Handle timer, Handle hPack)
 	return Plugin_Stop;
 }
 
-public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
+public Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
 {
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-autoshotgun tick");
@@ -969,8 +972,6 @@ public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
 		|| IsValidEntity(iEntid) == false
 		|| IsClientInGame(iCid) == false)
 	{
-		KillTimer(timer);
-		delete hPack;
 		return Plugin_Stop;
 	}
 
@@ -988,8 +989,6 @@ public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
 		SetEntDataFloat(iEntid,	g_iTimeIdleO,	flTime,	true);
 		SetEntDataFloat(iEntid,	g_iNextPAttO,	flTime,	true);
 
-		KillTimer(timer);
-		delete hPack;
 		return Plugin_Stop;
 	}
 	return Plugin_Continue;
@@ -997,7 +996,7 @@ public Action Timer_ShotgunEnd (Handle timer, Handle hPack)
 // ////////////////////////////////////////////////////////////////////////////
 //since cocking requires more time, this function does
 //exactly as the above, except it adds slightly more time
-public Action Timer_ShotgunEndCock (Handle timer, Handle hPack)
+public Action Timer_ShotgunEndCock (Handle timer, DataPack hPack)
 {
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-autoshotgun tick");
@@ -1014,8 +1013,6 @@ public Action Timer_ShotgunEndCock (Handle timer, Handle hPack)
 		|| IsValidEntity(iEntid) == false
 		|| IsClientInGame(iCid) == false)
 	{
-		KillTimer(timer);
-		delete hPack;
 		return Plugin_Stop;
 	}
 
@@ -1033,8 +1030,6 @@ public Action Timer_ShotgunEndCock (Handle timer, Handle hPack)
 		SetEntDataFloat(iEntid,	g_iTimeIdleO,	flTime,	true);
 		SetEntDataFloat(iEntid,	g_iNextPAttO,	flTime,	true);
 
-		KillTimer(timer);
-		delete hPack;
 		return Plugin_Stop;
 	}
 
