@@ -725,10 +725,10 @@ void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage,
 	{
 		delete BurnWitchTimer[witch];
 
-		DataPack hPack = new DataPack();
+		DataPack hPack;
+		BurnWitchTimer[witch] = CreateDataTimer(witch_burn_time, BurnWitchDead_Timer, hPack);
 		hPack.WriteCell(witch);
 		hPack.WriteCell(EntIndexToEntRef(witch));
-		BurnWitchTimer[witch] = CreateTimer(witch_burn_time, BurnWitchDead_Timer, hPack);
 	}
 }
 
@@ -737,7 +737,6 @@ Action BurnWitchDead_Timer(Handle timer, DataPack hPack)
 	hPack.Reset();
 	int index = hPack.ReadCell();
 	int witch = EntRefToEntIndex(hPack.ReadCell());
-	delete hPack;
 	
 	if ( witch != INVALID_ENT_REFERENCE )
 	{

@@ -2861,10 +2861,10 @@ void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	// We get the client id and time
 	if(client) DeleteLight(client);
 
-	DataPack pack = new DataPack();
+	DataPack pack;
+	CreateDataTimer(0.5, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
 	pack.WriteCell(userid);
 	pack.WriteCell(oldteam);
-	CreateTimer(0.5, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE | TIMER_DATA_HNDL_CLOSE);//延遲一秒檢查
 }
 
 Action PlayerChangeTeamCheck(Handle timer, int userid)
@@ -5217,7 +5217,7 @@ void GetSpawnDisConvars()
 	if(g_iCurrentMode != 1) return;
 
 	/*
-	if(g_bMapStarted && L4D_IsMissionFinalMap())
+	if(g_bMapStarted && L4D_IsMissionFinalMap(true))
 	{
 		if(g_bL4D2Version)
 		{
