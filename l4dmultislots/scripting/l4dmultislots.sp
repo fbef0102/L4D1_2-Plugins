@@ -1374,7 +1374,7 @@ bool SpawnFakeClient(bool bAdmBot = false)
 		int fakeuserid = GetClientUserId(fakeclient);
 		float teleportOrigin[3];
 		GetClientAbsOrigin(iAliveSurvivor, teleportOrigin)	;
-		DataPack hPack;
+		DataPack hPack = new DataPack();
 		hPack.WriteCell(fakeuserid);
 		hPack.WriteFloat(teleportOrigin[0]);
 		hPack.WriteFloat(teleportOrigin[1]);
