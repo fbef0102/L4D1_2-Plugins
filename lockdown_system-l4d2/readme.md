@@ -41,7 +41,7 @@ Locks Saferoom Door Until Someone Opens It.
         // Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).
         lockdown_system-l4d2_map_off "c10m3_ranchhouse,l4d_reverse_hos03_sewers,l4d2_stadium4_city2,l4d_fairview10_church,l4d2_wanli01,l4d_smalltown03_ranchhouse,l4d_vs_smalltown03_ranchhouse"
 
-        // Number Of Mobs To Spawn
+        // Number Of Mobs To Spawn (-1=infinite horde, 0=Off)
         lockdown_system-l4d2_mobs "5"
 
         // After saferoom door is opened, how many chance can the survivors open the door. (0=Can't open door after close, -1=No limit)
@@ -127,6 +127,9 @@ Locks Saferoom Door Until Someone Opens It.
     //cravenge @ 2016-2019
     //HarryPotter @ 2020-2023
     ```
+    * v5.7 (2024-2-4)
+        * Update Cvars
+
     * v5.6 (2024-1-27)
         * Delete Gamedata
         * Require <spawn_infected_nolimit>
@@ -200,7 +203,7 @@ Locks Saferoom Door Until Someone Opens It.
         // 在這些地圖上關閉插件，逗號區隔，不能有空白. (0=全部地圖, 留白=沒有).
         lockdown_system-l4d2_map_off "c10m3_ranchhouse,l4d_reverse_hos03_sewers,l4d2_stadium4_city2,l4d_fairview10_church,l4d2_wanli01,l4d_smalltown03_ranchhouse,l4d_vs_smalltown03_ranchhouse"
 
-        // 大門開啟期間屍潮生成的數量
+        // 大門開啟期間屍潮生成的數量 (-1=無限屍潮, 0=不要生成屍潮)
         lockdown_system-l4d2_mobs "5"
 
         // 大門開啟之後，倖存者只有兩次機會能再度打開大門. (0=關閉之後不能再打開, -1=無限制) <= 不給傻B機會
