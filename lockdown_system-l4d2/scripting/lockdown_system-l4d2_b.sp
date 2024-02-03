@@ -6,7 +6,7 @@
 #include <multicolors>
 #include <left4dhooks>
 #include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
-#define PLUGIN_VERSION "5.6-2024/1/27"
+#define PLUGIN_VERSION "5.7-2024/2/4"
 
 #define UNLOCK 0
 #define LOCK 1
@@ -34,7 +34,7 @@ bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport,
 	blsHint, bDoorBotDisable;
 bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord;
 char sKeyMan[128];
-Handle hAntiFarmTime = null, hLockdownTime = null;
+Handle hAntiFarmTimer, hLockdownTimer, hSpawnMobTimer;
 
 ConVar lsMapTwoTanks, sb_unstick;
 bool g_bMapTwoTanks;
@@ -89,7 +89,7 @@ public void OnPluginStart()
 	lsAnnounce = CreateConVar("lockdown_system-l4d2_announce", "1", "If 1, Enable saferoom door status Announcements", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsAntiFarmDuration = CreateConVar("lockdown_system-l4d2_anti-farm_duration", "50", "Duration Of Anti-Farm", FCVAR_NOTIFY, true, 0.0);
 	lsDuration = CreateConVar("lockdown_system-l4d2_duration", "100", "Duration Of Lockdown", FCVAR_NOTIFY, true, 0.0);
-	lsMobs = CreateConVar("lockdown_system-l4d2_mobs", "5", "Number Of Mobs To Spawn", FCVAR_NOTIFY, true, 0.0, true, 15.0);
+	lsMobs = CreateConVar("lockdown_system-l4d2_mobs", "5", "Number Of Mobs To Spawn (-1=Infinite horde, 0=Off)", FCVAR_NOTIFY, true, -1.0, true, 15.0);
 	lsTankDemolitionBefore = CreateConVar("lockdown_system-l4d2_tank_demolition_before", "1", "If 1, Enable Tank Demolition, server will spawn tank before door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsTankDemolitionAfter = CreateConVar("lockdown_system-l4d2_tank_demolition_after", "1", "If 1, Enable Tank Demolition, server will spawn tank after door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsType = CreateConVar("lockdown_system-l4d2_type", "0", "Lockdown Type: 0=Random, 1=Improved (opening slowly), 2=Default", FCVAR_NOTIFY, true, 0.0, true, 2.0);
@@ -165,6 +165,10 @@ public void OnMapEnd()
 	bAntiFarmInit = false;
 	bLockdownInit = false;
 	bLDFinished = false;
+	
+	delete hSpawnMobTimer;
+	delete hAntiFarmTimer;
+	delete hLockdownTimer;
 	
 	SetCheckpointDoor_Default();
 
@@ -334,10 +338,12 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 		return;
 	}
 	
-	if (hAntiFarmTime != null)
+	delete hSpawnMobTimer;
+	
+	if (hAntiFarmTimer != null)
 	{
 		bLockdownInit = true;
-		delete hAntiFarmTime;
+		delete hAntiFarmTimer;
 		
 		CreateTimer(1.75, ForceEndLockdown,_, TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -355,7 +361,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 Action ForceEndLockdown(Handle timer)
 {
-	delete hLockdownTime;
+	delete hLockdownTimer;
 	bLDFinished = true;
 	
 	return Plugin_Continue;
@@ -464,9 +470,10 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 					
 					ExecuteSpawn(false, iMobs);
 					
-					if (hAntiFarmTime == null)
+					if (hAntiFarmTimer == null)
 					{
-						hAntiFarmTime = CreateTimer(float(iAntiFarmDuration) + 1.0, EndAntiFarm);
+						delete hAntiFarmTimer;
+						hAntiFarmTimer = CreateTimer(float(iAntiFarmDuration) + 1.0, EndAntiFarm);
 					}
 					CreateTimer(1.0, CheckAntiFarm, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 					SDKHook(door, SDKHook_Touch, OnTouch);
@@ -493,9 +500,10 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 						ControlDoor(g_iEndCheckpointDoor, UNLOCK);
 					}
 					
-					if (hLockdownTime == null)
+					if (hLockdownTimer == null)
 					{
-						hLockdownTime = CreateTimer(float(iDuration) + 1.0, EndLockdown);
+						delete hLockdownTimer;
+						hLockdownTimer = CreateTimer(float(iDuration) + 1.0, EndLockdown);
 					}
 
 					CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -512,13 +520,13 @@ Action CheckAntiFarm(Handle timer, any entity)
 {
 	if (!entity || (entity = EntRefToEntIndex(entity)) == INVALID_ENT_REFERENCE || !IsValidEntRef(g_iEndCheckpointDoor))
 	{
-		delete hAntiFarmTime;
+		delete hAntiFarmTimer;
 		return Plugin_Stop;
 	}
 
-	if (GetTankCount() < 1 || hAntiFarmTime == null)
+	if (GetTankCount() < 1 || hAntiFarmTimer == null)
 	{
-		delete hAntiFarmTime;
+		delete hAntiFarmTimer;
 		
 		if (!bLockdownInit)
 		{
@@ -530,9 +538,10 @@ Action CheckAntiFarm(Handle timer, any entity)
 				ControlDoor(g_iEndCheckpointDoor, UNLOCK);
 			}
 			
-			if (hLockdownTime == null)
+			if (hLockdownTimer == null)
 			{
-				hLockdownTime = CreateTimer(float(iDuration) + 1.0, EndLockdown);
+				delete hLockdownTimer;
+				hLockdownTimer = CreateTimer(float(iDuration) + 1.0, EndLockdown);
 			}
 			iSystemTime = iDuration;
 			CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -561,7 +570,7 @@ Action CheckAntiFarm(Handle timer, any entity)
 
 Action EndAntiFarm(Handle timer)
 {
-	hAntiFarmTime = null;
+	hAntiFarmTimer = null;
 	
 	return Plugin_Continue;
 }
@@ -573,7 +582,7 @@ Action LockdownOpening(Handle timer, any entity)
 		return Plugin_Stop;
 	}
 
-	if (hLockdownTime == null)
+	if (hLockdownTimer == null)
 	{
 		if (!bLDFinished)
 		{
@@ -652,13 +661,7 @@ Action LockdownOpening(Handle timer, any entity)
 
 Action EndLockdown(Handle timer)
 {
-	if (hLockdownTime == null)
-	{
-		return Plugin_Stop;
-	}
-	
-	KillTimer(hLockdownTime);
-	hLockdownTime = null;
+	hLockdownTimer = null;
 	
 	return Plugin_Stop;
 }
@@ -738,6 +741,32 @@ Action _AntiPussy(Handle timer)
 			}
 		}
 	}
+	return Plugin_Continue;
+}
+
+Action Timer_SpawnMob(Handle timer)
+{
+	int anyclient = my_GetRandomClient();
+	if(anyclient > 0)
+	{
+		static char sCommand[16];
+		strcopy(sCommand, sizeof(sCommand), sSpawnCommand);
+		int iFlags = GetCommandFlags(sCommand);
+		SetCommandFlags(sCommand, iFlags & ~FCVAR_CHEAT);
+		for (int i = 1; i < 5; i++)
+		{
+			if(g_bL4D2Version)
+			{
+				FakeClientCommand(anyclient, "z_spawn_old mob auto");
+			}
+			else
+			{
+				FakeClientCommand(anyclient, "z_spawn mob auto");
+			}
+		}
+		SetCommandFlags(sCommand, iFlags);
+	}	
+
 	return Plugin_Continue;
 }
 
@@ -952,27 +981,37 @@ stock void ExecuteSpawn(bool btank, int iCount)
 	}
 	else
 	{
-		L4D_ForcePanicEvent();
-		int anyclient = my_GetRandomClient();
-		if(anyclient > 0)
+		if(iCount == 0) return;
+		else if(iCount == -1)
 		{
-			char sCommand[16];
-			strcopy(sCommand, sizeof(sCommand), sSpawnCommand);
-			int iFlags = GetCommandFlags(sCommand);
-			SetCommandFlags(sCommand, iFlags & ~FCVAR_CHEAT);
-			for (int i = 0; i < iCount-1; i++)
+			L4D_ForcePanicEvent();
+			delete hSpawnMobTimer;
+			hSpawnMobTimer = CreateTimer(20.0, Timer_SpawnMob, _, TIMER_REPEAT);
+		}
+		else
+		{
+			L4D_ForcePanicEvent();
+			int anyclient = my_GetRandomClient();
+			if(anyclient > 0)
 			{
-				if(g_bL4D2Version)
+				static char sCommand[16];
+				strcopy(sCommand, sizeof(sCommand), sSpawnCommand);
+				int iFlags = GetCommandFlags(sCommand);
+				SetCommandFlags(sCommand, iFlags & ~FCVAR_CHEAT);
+				for (int i = 1; i <= iCount; i++)
 				{
-					FakeClientCommand(anyclient, "z_spawn_old mob auto");
+					if(g_bL4D2Version)
+					{
+						FakeClientCommand(anyclient, "z_spawn_old mob auto");
+					}
+					else
+					{
+						FakeClientCommand(anyclient, "z_spawn mob auto");
+					}
 				}
-				else
-				{
-					FakeClientCommand(anyclient, "z_spawn mob auto");
-				}
-			}
-			SetCommandFlags(sCommand, iFlags);
-		}	
+				SetCommandFlags(sCommand, iFlags);
+			}	
+		}
 	}
 }
 
