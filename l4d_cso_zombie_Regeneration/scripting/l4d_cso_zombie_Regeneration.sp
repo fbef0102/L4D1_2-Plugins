@@ -1,33 +1,11 @@
-#include <sourcemod>
-#include <sdktools>
-
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.3"
+#include <sourcemod>
+#include <sdktools>
+
+#define PLUGIN_VERSION "1.4-2024/2/6"
 #define DEBUG 0
-
-#define TEAM_INFECTED 		3
-
-#define ZC_SMOKER	1
-#define ZC_BOOMER	2
-#define ZC_HUNTER	3
-#define ZC_SPITTER	4
-#define ZC_JOCKEY	5
-#define ZC_CHARGER	6
-#define CVAR_FLAGS			FCVAR_NOTIFY
-
-ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarMapOff, g_hCvarMPGameMode, g_hDifficulty,
-		g_hCvarWaitTime, g_hCvarSmokerHeal, g_hCvarBoomerHeal, g_hCvarHunterHeal, g_hCvarSpitterHeal,
-		g_hCvarJockeyHeal, g_hCvarChargerHeal, g_hCvarTankHeal, g_hCvarZombieHP[7], g_hSoundFile;
-ConVar versus_tank_bonus_health;
-
-bool g_bCvarAllow;
-float g_fClientStandStill[MAXPLAYERS+1], g_fCvarWaitTime;
-int g_iRoundStart, g_iPlayerSpawn, zombieHP[7], g_iCvarSmokerHeal, g_iCvarHunterHeal, g_iCvarBoomerHeal, g_iCvarSpitterHeal,
-		g_iCvarJockeyHeal, g_iCvarChargerHeal, g_iCvarTankHeal, g_iCurrentMode, g_iMaxHealth[MAXPLAYERS + 1], g_iAddHP[MAXPLAYERS + 1];
-Handle hClientHealTimer[MAXPLAYERS+1];
-char g_sCvarSoundFile[PLATFORM_MAX_PATH];
 
 public Plugin myinfo = 
 {
@@ -58,22 +36,34 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
+#define TEAM_INFECTED 		3
+
+#define ZC_SMOKER	1
+#define ZC_BOOMER	2
+#define ZC_HUNTER	3
+#define ZC_SPITTER	4
+#define ZC_JOCKEY	5
+#define ZC_CHARGER	6
+
+#define ZC_TANK_L4D2 8
+#define ZC_TANK_L4D1 5
+
+#define CVAR_FLAGS			FCVAR_NOTIFY
+
+ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarMapOff, g_hCvarMPGameMode,
+		g_hCvarWaitTime, g_hCvarSmokerHeal, g_hCvarBoomerHeal, g_hCvarHunterHeal, g_hCvarSpitterHeal,
+		g_hCvarJockeyHeal, g_hCvarChargerHeal, g_hCvarTankHeal, g_hSoundFile;
+
+bool g_bCvarAllow;
+float g_fClientStandStill[MAXPLAYERS+1], g_fCvarWaitTime;
+int g_iRoundStart, g_iPlayerSpawn, g_iCvarSmokerHeal, g_iCvarHunterHeal, g_iCvarBoomerHeal, g_iCvarSpitterHeal,
+		g_iCvarJockeyHeal, g_iCvarChargerHeal, g_iCvarTankHeal, g_iCurrentMode, g_iAddHP[MAXPLAYERS + 1];
+Handle hClientHealTimer[MAXPLAYERS+1];
+char g_sCvarSoundFile[PLATFORM_MAX_PATH];
+
 
 public void OnPluginStart()
 {
-	g_hDifficulty = FindConVar("z_difficulty");
-	if(!L4D2Version) versus_tank_bonus_health = FindConVar("versus_tank_bonus_health");
-	g_hCvarZombieHP[0] = FindConVar("z_gas_health");
-	g_hCvarZombieHP[1] = FindConVar("z_hunter_health");
-	g_hCvarZombieHP[2] = FindConVar("z_exploding_health");
-	if (L4D2Version)
-	{
-		g_hCvarZombieHP[3] = FindConVar("z_spitter_health");
-		g_hCvarZombieHP[4] = FindConVar("z_jockey_health");
-		g_hCvarZombieHP[5] = FindConVar("z_charger_health");
-	}
-	g_hCvarZombieHP[6] = FindConVar("z_tank_health");
-	
 	g_hCvarAllow =			CreateConVar( "l4d_cso_zombie_regeneration_allow", "1", "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarModes =			CreateConVar( "l4d_cso_zombie_regeneration_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =		CreateConVar( "l4d_cso_zombie_regeneration_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
@@ -109,20 +99,6 @@ public void OnPluginStart()
 		g_hCvarTankHeal.AddChangeHook(ConVarChanged_Cvars);
 	}
 	g_hSoundFile.AddChangeHook(ConVarChanged_Cvars);
-
-	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_ZombieCvars);
-	if(!L4D2Version) versus_tank_bonus_health.AddChangeHook(ConVarChanged_ZombieCvars);
-	g_hDifficulty.AddChangeHook(ConVarChanged_ZombieCvars);
-	g_hCvarZombieHP[0].AddChangeHook(ConVarChanged_ZombieCvars);
-	g_hCvarZombieHP[1].AddChangeHook(ConVarChanged_ZombieCvars);
-	g_hCvarZombieHP[2].AddChangeHook(ConVarChanged_ZombieCvars);
-	if (L4D2Version)
-	{
-		g_hCvarZombieHP[3].AddChangeHook(ConVarChanged_ZombieCvars);
-		g_hCvarZombieHP[4].AddChangeHook(ConVarChanged_ZombieCvars);
-		g_hCvarZombieHP[5].AddChangeHook(ConVarChanged_ZombieCvars);
-	}
-	g_hCvarZombieHP[6].AddChangeHook(ConVarChanged_ZombieCvars);
 }
 
 public void OnPluginEnd()
@@ -176,19 +152,14 @@ public void OnConfigsExecuted()
 	IsAllowed();
 }
 
-public void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	IsAllowed();
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
-}
-
-public void ConVarChanged_ZombieCvars(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	HealthCheck();
 }
 
 void GetCvars()
@@ -214,49 +185,11 @@ void GetCvars()
 	}
 }
 
-void HealthCheck()
-{
-	static char difficulty[32];
-	g_hDifficulty.GetString(difficulty, sizeof(difficulty));
-	
-	zombieHP[0] = g_hCvarZombieHP[0].IntValue; 
-	zombieHP[1] = g_hCvarZombieHP[1].IntValue; 
-	zombieHP[2] = g_hCvarZombieHP[2].IntValue;
-	
-	if(L4D2Version)
-	{
-		zombieHP[3] = g_hCvarZombieHP[3].IntValue;
-		zombieHP[4] = g_hCvarZombieHP[4].IntValue;
-		zombieHP[5] = g_hCvarZombieHP[5].IntValue;
-	}
-	
-	if (g_iCurrentMode == 4)
-	{
-		if(L4D2Version)
-			zombieHP[6] = RoundToFloor(zombieHP[6] * 1.5);	// Tank health is multiplied by 1.5x in VS	
-		else
-			zombieHP[6] = RoundToFloor(zombieHP[6] * versus_tank_bonus_health.FloatValue);	// Tank health is multiplied by 1.5x in VS
-	}
-	else if (StrContains(difficulty, "Easy", false) != -1)  
-	{
-		zombieHP[6] = RoundToFloor(g_hCvarZombieHP[6].IntValue * 0.75);
-	}
-	else if (StrContains(difficulty, "Normal", false) != -1)
-	{
-		zombieHP[6] = g_hCvarZombieHP[6].IntValue;
-	}
-	else if (StrContains(difficulty, "Hard", false) != -1 || StrContains(difficulty, "Impossible", false) != -1)
-	{
-		zombieHP[6] = RoundToFloor(g_hCvarZombieHP[6].IntValue * 2.0);
-	}	
-}
-
 void IsAllowed()
 {
 	bool bCvarAllow = g_hCvarAllow.BoolValue;
 	bool bAllowMode = IsAllowedGameMode();
 	GetCvars();
-	HealthCheck();
 
 	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true && g_bValidMap == true )
 	{
@@ -330,7 +263,7 @@ bool IsAllowedGameMode()
 	return true;
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iCurrentMode = 1;
@@ -368,14 +301,14 @@ void UnhookEvents()
 	UnhookEvent("ability_use", Event_AbilityUse);
 }
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -389,31 +322,31 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 		{
 			switch(zombeclass)
 			{
-				case ZC_SMOKER: 	{g_iMaxHealth[client] = zombieHP[0]; g_iAddHP[client] = g_iCvarSmokerHeal;}
-				case ZC_HUNTER: 	{g_iMaxHealth[client] = zombieHP[1]; g_iAddHP[client] = g_iCvarHunterHeal;}
-				case ZC_BOOMER: 	{g_iMaxHealth[client] = zombieHP[2]; g_iAddHP[client] = g_iCvarBoomerHeal;}
-				case ZC_SPITTER: 	{g_iMaxHealth[client] = zombieHP[3]; g_iAddHP[client] = g_iCvarSpitterHeal;}
-				case ZC_JOCKEY: 	{g_iMaxHealth[client] = zombieHP[4]; g_iAddHP[client] = g_iCvarJockeyHeal;}
-				case ZC_CHARGER: 	{g_iMaxHealth[client] = zombieHP[5]; g_iAddHP[client] = g_iCvarChargerHeal;}
-				case 8: 	{g_iMaxHealth[client] = zombieHP[6]; g_iAddHP[client] = g_iCvarTankHeal;}
-				default: {g_iMaxHealth[client] = g_iAddHP[client] = 0;}
+				case ZC_SMOKER: 	{g_iAddHP[client] = g_iCvarSmokerHeal;}
+				case ZC_HUNTER: 	{g_iAddHP[client] = g_iCvarHunterHeal;}
+				case ZC_BOOMER: 	{g_iAddHP[client] = g_iCvarBoomerHeal;}
+				case ZC_SPITTER: 	{g_iAddHP[client] = g_iCvarSpitterHeal;}
+				case ZC_JOCKEY: 	{g_iAddHP[client] = g_iCvarJockeyHeal;}
+				case ZC_CHARGER: 	{g_iAddHP[client] = g_iCvarChargerHeal;}
+				case ZC_TANK_L4D2: 	{g_iAddHP[client] = g_iCvarTankHeal;}
+				default: {g_iAddHP[client] = 0;}
 			}
 		}
 		else
 		{
 			switch(zombeclass)
 			{
-				case ZC_SMOKER: 	{g_iMaxHealth[client] = zombieHP[0]; g_iAddHP[client] = g_iCvarSmokerHeal;}
-				case ZC_HUNTER: 	{g_iMaxHealth[client] = zombieHP[1]; g_iAddHP[client] = g_iCvarHunterHeal;}
-				case ZC_BOOMER: 	{g_iMaxHealth[client] = zombieHP[2]; g_iAddHP[client] = g_iCvarBoomerHeal;}
-				case 5: 	{g_iMaxHealth[client] = zombieHP[6]; g_iAddHP[client] = g_iCvarTankHeal;}
-				default: {g_iMaxHealth[client] = g_iAddHP[client] = 0;}
+				case ZC_SMOKER: 	{g_iAddHP[client] = g_iCvarSmokerHeal;}
+				case ZC_HUNTER: 	{g_iAddHP[client] = g_iCvarHunterHeal;}
+				case ZC_BOOMER: 	{g_iAddHP[client] = g_iCvarBoomerHeal;}
+				case ZC_TANK_L4D1: 	{g_iAddHP[client] = g_iCvarTankHeal;}
+				default: {g_iAddHP[client] = 0;}
 			}	
 		}
 	}
 }
 
-public Action tmrStart(Handle timer)
+Action tmrStart(Handle timer)
 {
 	ResetPlugin();
 	g_bIsLoading = false;
@@ -421,19 +354,19 @@ public Action tmrStart(Handle timer)
 	return Plugin_Continue;
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
 }
 
-public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
 	StopRegeneration(client);
 }
 
-public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED)
@@ -447,7 +380,7 @@ public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast)
+void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED)
@@ -496,18 +429,20 @@ public void OnGameFrame()
 	}
 }
 
-public Action Timer_Regeneration(Handle timer, int client)
+Action Timer_Regeneration(Handle timer, int client)
 {
 	if(!IsClientInGame(client) 
 	|| GetClientTeam(client) != TEAM_INFECTED 
 	|| !IsPlayerAlive(client) 
-	|| IsPlayerGhost(client) 
-	|| CSO_ZOMBIE_Regeneration(client) == false)
+	|| IsPlayerGhost(client))
 	{
 		g_fClientStandStill[client] = 0.0;
 		hClientHealTimer[client] = null;
 		return Plugin_Stop;
 	}
+
+	CSO_ZOMBIE_Regeneration(client);
+
 	return Plugin_Continue;
 }
 
@@ -520,15 +455,17 @@ void StopRegeneration(int client)
 bool CSO_ZOMBIE_Regeneration(int client)
 {
 	int CurrentHealth = GetClientHealth(client);
+	int CurrentMaxHP = GetEntProp(client, Prop_Data, "m_iMaxHealth");
 	bool bHealAgain = false;
 	#if DEBUG
-		PrintToChatAll("%N: health: %d, max health: %d, addhp: %d",client, CurrentHealth, g_iMaxHealth[client], g_iAddHP[client]);
+		PrintToChatAll("%N: health: %d, max health: %d, addhp: %d",client, CurrentHealth, CurrentMaxHP, g_iAddHP[client]);
 	#endif
-	if(CurrentHealth < g_iMaxHealth[client] && g_iAddHP[client] > 0)
+
+	if(CurrentHealth < CurrentMaxHP && g_iAddHP[client] > 0)
 	{
-		if(CurrentHealth + g_iAddHP[client] > g_iMaxHealth[client]) 
+		if(CurrentHealth + g_iAddHP[client] > CurrentMaxHP) 
 		{
-			SetEntityHealth(client, g_iMaxHealth[client]);
+			SetEntityHealth(client, CurrentMaxHP);
 		}
 		else
 		{
@@ -542,6 +479,7 @@ bool CSO_ZOMBIE_Regeneration(int client)
 
 		if (strlen(g_sCvarSoundFile) > 0) EmitSoundToClient(client, g_sCvarSoundFile, _, SNDCHAN_AUTO, SNDLEVEL_CONVO, _, SNDVOL_NORMAL, _, _, _, _, _, _ );
 	}
+
 	return bHealAgain;
 }
 
