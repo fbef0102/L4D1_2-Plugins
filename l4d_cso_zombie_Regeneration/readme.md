@@ -7,6 +7,7 @@ The zombies have grown stronger, now they are able to heal their injuries by sta
 * Image | 圖示
     * Idea comes from [Counter Strike Online Zombie Regeneration](https://cso.fandom.com/wiki/Zombie_2:_Mutation#Regeneration)
     <br/>![l4d_cso_zombie_Regeneration_1](image/l4d_cso_zombie_Regeneration_1.jpg)
+    <br/>![l4d_cso_zombie_Regeneration_2](image/l4d_cso_zombie_Regeneration_2.gif)
 
 * Require | 必要安裝
 <br/>None
@@ -73,13 +74,19 @@ The zombies have grown stronger, now they are able to heal their injuries by sta
 * <details><summary>Related Plugin | 相關插件</summary>
 
     1. [l4d2_supply_woodbox](https://github.com/fbef0102/L4D2-Plugins/tree/master/l4d2_supply_woodbox): Supply boxes are dropped randomly in the map every certain seconds to provide support for the fight against the zombies.
-        > 地圖上隨機出現補給箱，提供人類強力支援 (仿CSO惡靈降世 補給箱)
+        * 地圖上隨機出現補給箱，提供人類強力支援 (仿CSO惡靈降世 補給箱)
 
     2. [weapon_csgo_reload](https://github.com/fbef0102/L4D2-Plugins/tree/master/l4d2_weapon_csgo_reload): Weapon Quickswitch Reloading in L4D1+2
-        > 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+        * 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+
+    3. [l4d2_cso_knockback](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d2_cso_knockback): Weapons and Melees now have knockback power like CSO
+        * 槍械與近戰武器現在有擊退力 (仿CSO惡靈降世)
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.4 (2024-2-6)
+        * Optimize Code
 
     * v1.3 (2022-7-17)
         * Game mode check
