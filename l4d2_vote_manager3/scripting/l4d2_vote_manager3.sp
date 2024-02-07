@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <multicolors>
 #include <builtinvotes>
-#define PLUGIN_VERSION          "1.0h-2024/1/28"
+#define PLUGIN_VERSION          "1.1h-2024/2/7"
 #define PLUGIN_NAME			    "l4d2_vote_manager3"
 
 public Plugin myinfo =
@@ -539,7 +539,7 @@ Action ClientCanKick(int client, const char[] userid)
         }
     }
 
-    if(CheckCommandAccess(target, "kick_immunity", 0, true) && !CheckCommandAccess(client, "kick_immunity", 0, true))
+    if(HasAccess(target, g_sCvarKickImmunityFlag))
     {
         LogVoteManager("%T", "Kick Immunity", LANG_SERVER, client, target);
         VoteManagerNotify(client, "%s %t", MSGTAG, "Kick Immunity", client, target);
@@ -702,14 +702,14 @@ void VoteLogAction(int client, int target, const char[] message, any ...)
     LogAction(client, target, buffer);
 }
 
-stock void VoteManagerNotify(int client, const char[] message, any ...)
+void VoteManagerNotify(int client, const char[] message, any ...)
 {
     static char buffer[256];
     for(int i = 1; i <= MaxClients; i++)
     {
         if(IsClientInGame(i) && !IsFakeClient(i))
         {
-            if(CheckCommandAccess(i, "notify", 0, true))
+            if(HasAccess(client, g_sCvarNotifyFlag))
             {
                 SetGlobalTransTarget(i);
                 VFormat(buffer, sizeof(buffer), message, 3);

@@ -118,6 +118,9 @@ Unable to call valve vote if player does not have access
     //cravenge @ 2011
     //HarryPotter @ 2024
     ```
+    * v1.1h (2024-2-7)
+        * Fixed kick immunity not working
+
     * v1.0h (2024-1-28)
         * Update Cvars
         * Require builtinvotes
