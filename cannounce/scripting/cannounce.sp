@@ -135,7 +135,7 @@ public void OnClientAuthorized(client, const String:auth[])
 {
 	if( g_CvarConnectDisplayType.IntValue == 0 )
 	{
-		if( !IsFakeClient(client) && GetClientCount(true) < MaxClients )
+		if( !IsFakeClient(client) && GetClientCount(true) <= MaxClients )
 		{
 			OnPostAdminCheck_CountryShow(client);
 		
@@ -152,7 +152,7 @@ public void OnClientPostAdminCheck(client)
 	{
 		GetClientAuthId( client, AuthId_Steam2, auth, sizeof(auth) );
 		
-		if( !IsFakeClient(client) && GetClientCount(true) < MaxClients )
+		if( !IsFakeClient(client) && GetClientCount(true) <= MaxClients )
 		{
 			OnPostAdminCheck_CountryShow(client);
 		

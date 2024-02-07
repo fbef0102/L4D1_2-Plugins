@@ -284,7 +284,7 @@ void afkPlayerAction (Event event, const char[] name, bool dontBroadcast)
 		client = GetClientOfUserId(event.GetInt("userid"));
 	
 	// resets his timers
-	if (client > 0 && client < MaxClients && IsClientInGame(client) && !IsFakeClient(client))
+	if (client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client))
 		afkResetTimers(client);
 }
 
