@@ -1690,7 +1690,7 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 
 	static char sClassname[64];
 	GetEntityClassname(inflictor, sClassname, 64);
-	if(victim > 0 && victim < MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == TEAM_SURVIVORS && clinetSpawnGodTime[victim] > GetEngineTime() )
+	if(victim > 0 && victim <= MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == TEAM_SURVIVORS && clinetSpawnGodTime[victim] > GetEngineTime() )
 	{
 		if( (attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) != TEAM_SPECTATORS) ||
 			strcmp(sClassname, "infected") == 0 || 
