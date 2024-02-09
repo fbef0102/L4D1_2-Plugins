@@ -20,10 +20,16 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	* cfg/sourcemod/l4dmultislots.cfg
 		```php
-		// How to join the game for new player.
-		// 0: Old method. Spawn an alive bot first -> new player takes over.
-		// 1: Switch new player to survivor team (dead state) -> player respawns.
-		l4d_multislots_join_survior_method "0"
+		// Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.
+		// Must be greater then or equal to 'l4d_multislots_min_survivors'
+		l4d_multislots_max_survivors "10"
+
+		// Set minimum # of survivors in game.(Override official cvar 'survivor_limit')
+		// Kick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)
+		l4d_multislots_min_survivors "4"
+
+		// Delete all items form survivor bots when they got kicked by this plugin. (0=off)
+		l4d_multislots_bot_items_delete "1"
 
 		// When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)
 		l4d_multislots_alive_bot_time "0"
@@ -31,24 +37,14 @@ Allows additional survivor players in server when 5+ player joins the server
 		// Setup time interval the instruction message to spectator.(0=off)
 		l4d_multislots_spec_message_interval "25"
 
-		// Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)
-		l4d_multislots_max_survivors "4"
-
-		// Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.
-		// Must be greater then or equal to 'l4d_multislots_max_survivors'
-		l4d_multislots_limit_survivors "10"
-
-		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)
-		l4d_multislots_spawn_survivors_roundstart "0"
-
-		// If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)
-		l4d_multislots_no_second_free_spawn "0"
-
 		// Amount of HP a new 5+ Survivor will spawn with (Def 80)
 		l4d_multislots_respawnhp "80"
 
 		// Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)
 		l4d_multislots_respawnbuffhp "20"
+
+		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_min_survivors)
+		l4d_multislots_spawn_survivors_roundstart "0"
 
 		// (L4D2) First slot weapon for new 5+ Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)
 		// GL = Grenade Launcher
@@ -82,17 +78,22 @@ Allows additional survivor players in server when 5+ player joins the server
 		// (L4D1) Fifth slot weapon for new 5+ Survivor (1 - Pills, 0=off)
 		l4d_multislots_fifthweapon "0"
 
-		// If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)
-		l4d_multislots_finale_extra_first_aid "1"
-
 		// If 1, allow extra first aid kits for 5+ players when in start saferoom, One extra kit per player above four. (0=No extra kits)
 		l4d_multislots_saferoom_extra_first_aid "1"
 
-		// Delete all items form survivor bots when they got kicked by this plugin. (0=off)
-		l4d_multislots_bot_items_delete "1"
+		// If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)
+		l4d_multislots_finale_extra_first_aid "1"
+
+		// If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)
+		l4d_multislots_no_second_free_spawn "0"
 
 		// Invincible time after new 5+ Survivor spawn by this plugin. (0=off)
 		l4d_multislots_respawn_invincibletime "3.0"
+
+		// How to join the game for new player.
+		// 0: Old method. Spawn an alive bot first -> new player takes over.
+		// 1: Switch new player to survivor team (dead state) -> player respawns.
+		l4d_multislots_join_survior_method "0"
 
 		// If 1, Block 'Join Survivors' commands (sm_join, sm_js)
 		l4d_multislots_join_command_block "0"
@@ -133,12 +134,13 @@ Allows additional survivor players in server when 5+ player joins the server
 * Q&A
 	1. <details><summary>How could I control the number of bots spawned at the start?</summary>
 
-		set ```l4d_multislots_max_survivors``` whatever value you like in cfg/sourcemod/l4dmultislots.cfg
+		Set  whatever value you like in cfg/sourcemod/l4dmultislots.cfg
 		```php
-		// Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)
-		l4d_multislots_max_survivors "8"
+		// Set minimum # of survivors in game.(Override official cvar 'survivor_limit')
+		// Kick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)
+		l4d_multislots_min_survivors "8"
 
-		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)
+		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_min_survivors)
 		l4d_multislots_spawn_survivors_roundstart "1" 
 		```
 	</details>
@@ -191,6 +193,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	//mi123645 @ 2009-2010
 	//HarryPotter @ 2020-2024
 	```
+	* v6.3 (2024-2-10)
 	* v6.2 (2024-1-23)
 		* Update Cvars
 
@@ -206,21 +209,6 @@ Allows additional survivor players in server when 5+ player joins the server
 	* v5.8 (2023-5-6)
 		* Support Versus/Scavenge. Server will not always switch new player to survivor team.
 		* Add more cvars
-			```php
-			// Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.
-			// Must be greater then or equal to 'l4d_multislots_max_survivors'
-			l4d_multislots_limit_survivors "10"
-
-			// If 1, Check team balance when player tries to use 'Join Survivors' command to join survivor team in versus/scavenge.
-			// If team is unbanlance, will fail to join survivor team!
-			l4d_multislots_versus_command_balance "1"
-
-			// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
-			l4d_multislots_versus_teams_unbalance_limit "1"
-
-			// If 1, Block 'Join Survivors' commands (sm_join, sm_js)
-			l4d_multislots_join_command_block "0"
-			```
 		* Update Translation files
 
 	* v5.7 (2023-4-23)
@@ -279,10 +267,16 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	* cfg/sourcemod/l4dmultislots.cfg
 		```php
-		// 如何為新玩家生成倖存者Bot?
-		// 0: 先產生一個倖存者Bot -> 再給新玩家取代
-		// 1: 把新玩家轉換到倖存者死亡狀態 -> 再復活新玩家
-		l4d_multislots_join_survior_method "1"
+		// 伺服器能允許的倖存者數量. 如果倖存者超過數量限制，則伺服器不會產生新的倖存者Bots
+		// 這個數值必須大於或等於 'l4d_multislots_min_survivors'
+		l4d_multislots_max_survivors "10"
+
+		// 設置遊戲最少的倖存者數量. (覆蓋官方指令 'survivor_limit')
+		// 當倖存者Bot超過4位以上時踢出遊戲. (不會踢出真人玩家, 最小值是 1)
+		l4d_multislots_min_survivors "4"
+
+		// 當倖存者Bot被此插件踢出遊戲時刪除身上的所有武器與物資. (0=關閉)
+		l4d_multislots_bot_items_delete "1"
 
 		// 當第五位玩家加入伺服器之時, 如果倖存者已離開安全區域一段時間或生存模式計時已開始一段時間，則給新玩家死亡的倖存者Bot. (0=永遠都生成活著的倖存者Bot)
 		l4d_multislots_alive_bot_time "0"
@@ -290,24 +284,14 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 每隔25秒提示加入遊戲訊息給旁觀者.(0=off)
 		l4d_multislots_spec_message_interval "25"
 
-		// 當倖存者Bot超過4位以上時踢出遊戲. (不會踢出真人玩家, 最小值是 4)
-		l4d_multislots_max_survivors "4"
-
-		// 伺服器能允許的倖存者數量. 如果倖存者超過數量限制，則伺服器不會產生新的倖存者Bots
-		// 這個數值必須大於或等於 'l4d_multislots_max_survivors'
-		l4d_multislots_limit_survivors "10"
-
-		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 l4d_multislots_max_survivors)
-		l4d_multislots_spawn_survivors_roundstart "0"
-
-		// 為1時，當玩家重新連線伺服器或嘗試重新加入倖存者時，則給新玩家死亡的倖存者Bot. (0=永遠都生成活著的倖存者Bot)
-		l4d_multislots_no_second_free_spawn "0"
-
 		// 新生成的倖存者Bot實血值 (預設 80)
 		l4d_multislots_respawnhp "80"
 
 		// 新生成的倖存者Bot虛血值 (預設 20)
 		l4d_multislots_respawnbuffhp "20"
+
+		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 l4d_multislots_min_survivors)
+		l4d_multislots_spawn_survivors_roundstart "0"
 
 		// (L4D2) 給予新生成的倖存者Bot主武器 (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=隨機T1武器, 19=隨機T2武器, 20=隨機T3武器, 0=關閉)
 		// GL = 榴彈發射器
@@ -342,16 +326,21 @@ Allows additional survivor players in server when 5+ player joins the server
 		l4d_multislots_fifthweapon "0"
 
 		// 為1時，最後一關救援開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
-		l4d_multislots_finale_extra_first_aid "1"
-
-		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
 		l4d_multislots_saferoom_extra_first_aid "1"
 
-		// 當倖存者Bot被此插件踢出遊戲時刪除身上的所有武器與物資. (0=關閉)
-		l4d_multislots_bot_items_delete "1"
+		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
+		l4d_multislots_finale_extra_first_aid "1"
+
+		// 為1時，當倖存者Bot被此插件踢出遊戲時刪除身上的所有武器與物資. (0=關閉)
+		l4d_multislots_no_second_free_spawn "0"
 
 		// 當此插件產生一個倖存者Bot時，有3.0秒的無敵時間不會受到任何傷害. (0=關閉)
 		l4d_multislots_respawn_invincibletime "3.0"
+
+		// 如何為新玩家生成倖存者Bot?
+		// 0: 先產生一個倖存者Bot -> 再給新玩家取代
+		// 1: 把新玩家轉換到倖存者死亡狀態 -> 再復活新玩家
+		l4d_multislots_join_survior_method "0"
 
 		// 為1時，禁止所有人使用插件的命令嘗試加入倖存者陣營. (sm_join, sm_js)
 		l4d_multislots_join_command_block "0"
@@ -392,12 +381,13 @@ Allows additional survivor players in server when 5+ player joins the server
 * Q&A問題
 	1. <details><summary>請問如何一開始就有8位倖存者Bot?</summary>
 
-		在cfg/sourcemod/l4dmultislots.cfg文件當中設置指令值 ```l4d_multislots_max_survivors```，可以修改，數量你高興就好
+		在cfg/sourcemod/l4dmultislots.cfg文件當中設置指令值，可以修改，數量你高興就好
 		```php
-		// 當倖存者Bot超過4位以上時踢出遊戲. (不會踢出真人玩家, 最小值是 4)
-		l4d_multislots_max_survivors "8"
+		// 設置遊戲最少的倖存者數量. (覆蓋官方指令 'survivor_limit')
+		// 當倖存者Bot超過4位以上時踢出遊戲. (不會踢出真人玩家, 最小值是 1)
+		l4d_multislots_min_survivors "8"
 
-		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 l4d_multislots_max_survivors)
+		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 l4d_multislots_min_survivors)
 		l4d_multislots_spawn_survivors_roundstart "1" 
 		```
 	</details>

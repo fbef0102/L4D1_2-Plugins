@@ -276,7 +276,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	3. <details><summary>Adjust Tank limit</summary>
 
 		```php
-		// Sets the tank limit
+		//  // Sets the tank limit (Does not affect director tank)
+		//  // 設置Tank上限	(不影響導演系統生成tank)
 		"tank_limit"        "1"
 
 		// When each time spawn S.I., how much percent of chance to spawn tank [0-100%]

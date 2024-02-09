@@ -6130,6 +6130,10 @@ void LoadData()
 
 			hData.GoBack();
 		}
+		else
+		{
+			ePluginData[i] = ePluginData[0];
+		}
 	}
 
 	delete hData;
