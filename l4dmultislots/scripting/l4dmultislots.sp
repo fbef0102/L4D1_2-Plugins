@@ -1,10 +1,6 @@
 /************************************************
-* Plugin name:		[L4D(2)] MultiSlots 2010~2023
+* Plugin name:		[L4D(2)] MultiSlots 2010~2024
 * Plugin author:	SwiftReal, MI 5, ururu, KhMaIBQ, HarryPotter
-* 
-* Based upon:
-* - (L4D) Zombie Havoc by Bigbuck
-* - (L4D2) Bebop by frool
 ************************************************/
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
@@ -14,7 +10,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"6.2-2024/1/23"
+#define PLUGIN_VERSION 				"6.3-2024/2/10"
 
 public Plugin myinfo = 
 {
@@ -61,7 +57,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar survivor_limit, z_max_player_zombies, survivor_respawn_with_guns;
 int g_iInfectedLimit, iOffiicalCvar_survivor_respawn_with_guns;
 
-ConVar g_hSurvivorsLimit, g_hMaxSurvivors, hDeadBotTime, hSpecCheckInterval, 
+ConVar g_hSurvivorsLimit, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval, 
 	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons, hSpawnSurvivorsAtStart,
 	g_hGiveKitSafeRoom, g_hGiveKitFinalStart, g_hNoSecondChane, g_hCvar_InvincibleTime,
@@ -70,7 +66,7 @@ ConVar g_hSurvivorsLimit, g_hMaxSurvivors, hDeadBotTime, hSpecCheckInterval,
 
 //ConVar g_hCvar_VSAutoBalance;
 
-int g_iSurvivorsLimit, g_iMaxSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
+int g_iSurvivorsLimit, g_iMinSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
 	iRespawnHP, iRespawnBuffHP, g_iCvar_JoinSurvivrMethod, g_iCvar_VSUnBalanceLimit;
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
 bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
@@ -145,23 +141,21 @@ public void OnPluginStart()
 	{
 		SetFailState("Do not modify \"survivor_limit\" valve above 4, unload l4dmultislots.smx now!");
 	}
+	survivor_limit.Flags = survivor_limit.Flags & ~FCVAR_NOTIFY;
+
 	survivor_respawn_with_guns = FindConVar("survivor_respawn_with_guns");
 	z_max_player_zombies = FindConVar("z_max_player_zombies");
 
-	survivor_limit.AddChangeHook(ConVarChanged_SurvivorCvars);
-	survivor_respawn_with_guns.AddChangeHook(ConVarChanged_Cvars);
-	z_max_player_zombies.AddChangeHook(ConVarChanged_Cvars);
-
 	BufferHP = FindSendPropInfo( "CTerrorPlayer", "m_healthBuffer" );
 	
-	g_hSurvivorsLimit	= CreateConVar(			"l4d_multislots_limit_survivors", 				"10", 	"Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.\nMust be greater then or equal to 'l4d_multislots_max_survivors'", CVAR_FLAGS, true, 4.0, true, 32.0);
-	g_hMaxSurvivors	= CreateConVar(				"l4d_multislots_max_survivors", 				"4", 	"Kick AI Survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 4)", CVAR_FLAGS, true, 4.0, true, 32.0);
+	g_hSurvivorsLimit	= CreateConVar(			"l4d_multislots_limit_survivors", 				"10", 	"Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.\nMust be greater then or equal to 'l4d_multislots_min_survivors'", CVAR_FLAGS, true, 4.0, true, 32.0);
+	g_hMinSurvivors	= CreateConVar(				"l4d_multislots_min_survivors", 				"4", 	"Set minimum # of survivors in game.(Override official cvar 'survivor_limit')\nKick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)", CVAR_FLAGS, true, 1.0, true, 32.0);
 	hStripBotWeapons = CreateConVar(			"l4d_multislots_bot_items_delete", 				"1", 	"Delete all items form survivor bots when they got kicked by this plugin. (0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hDeadBotTime = CreateConVar(				"l4d_multislots_alive_bot_time", 				"0", 	"When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
 	hSpecCheckInterval = CreateConVar(			"l4d_multislots_spec_message_interval", 		"25", 	"Setup time interval the instruction message to spectator.(0=off)", CVAR_FLAGS, true, 0.0);
 	hRespawnHP 		= CreateConVar(				"l4d_multislots_respawnhp", 					"80", 	"Amount of HP a new 5+ Survivor will spawn with (Def 80)", CVAR_FLAGS, true, 0.0);
 	hRespawnBuffHP 	= CreateConVar(				"l4d_multislots_respawnbuffhp", 				"20", 	"Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)", CVAR_FLAGS, true, 0.0);
-	hSpawnSurvivorsAtStart = CreateConVar(		"l4d_multislots_spawn_survivors_roundstart", 	"0", 	"If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_max_survivors)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	hSpawnSurvivorsAtStart = CreateConVar(		"l4d_multislots_spawn_survivors_roundstart", 	"0", 	"If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_min_survivors)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	
 	if ( g_bLeft4Dead2 ) {
 		hFirstWeapon 			= CreateConVar(	"l4d_multislots_firstweapon", 					"19", 	"First slot weapon for new 5+ Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)", CVAR_FLAGS, true, 0.0, true, 20.0);
@@ -189,8 +183,14 @@ public void OnPluginStart()
 	AutoExecConfig(true, 						"l4dmultislots");
 
 	GetCvars();
+	SetOfficialSurvivorLimit();
+
+	survivor_limit.AddChangeHook(ConVarChanged_SurvivorCvars);
+	survivor_respawn_with_guns.AddChangeHook(ConVarChanged_Cvars);
+	z_max_player_zombies.AddChangeHook(ConVarChanged_Cvars);
+
 	g_hSurvivorsLimit.AddChangeHook(ConVarChanged_Cvars);
-	g_hMaxSurvivors.AddChangeHook(ConVarChanged_Cvars);
+	g_hMinSurvivors.AddChangeHook(ConVarChanged_SurvivorCvars);
 	hStripBotWeapons.AddChangeHook(ConVarChanged_Cvars);
 	hDeadBotTime.AddChangeHook(ConVarChanged_Cvars);
 	hSpecCheckInterval.AddChangeHook(ConVarChanged_Cvars);
@@ -258,18 +258,20 @@ public void OnAllPluginsLoaded()
 
 }
 
+bool g_bPluginEnd;
 public void OnPluginEnd()
 {
+	g_bPluginEnd = true;
+
 	delete g_hSteamIDs;
 	ClearDefault();
 	ResetTimer();
-	ResetConVar(FindConVar("z_spawn_flow_limit"), true, true);
+
+	survivor_limit.RestoreDefault();
 }
 
 public void OnMapStart()
 {
-	TweakSettings();
-
 	int max = 0;
 	if( g_bLeft4Dead2 )
 	{
@@ -340,10 +342,11 @@ public void OnMapEnd()
 
 void ConVarChanged_SurvivorCvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
-	if(survivor_limit.IntValue > 4)
-	{
-		SetFailState("Do not modify \"survivor_limit\" valve above 4, unload l4dmultislots.smx now!");
-	}	
+	if(g_bPluginEnd) return;
+
+	GetCvars();
+	SetOfficialSurvivorLimit();
+
 }
 
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -354,8 +357,8 @@ void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newV
 void GetCvars()
 {
 	g_iSurvivorsLimit = g_hSurvivorsLimit.IntValue;
-	g_iMaxSurvivors = g_hMaxSurvivors.IntValue;
-	if(g_iSurvivorsLimit < g_iMaxSurvivors) g_iSurvivorsLimit = g_iMaxSurvivors;
+	g_iMinSurvivors = g_hMinSurvivors.IntValue;
+	if(g_iSurvivorsLimit < g_iMinSurvivors) g_iSurvivorsLimit = g_iMinSurvivors;
 	g_bStripBotWeapons = hStripBotWeapons.BoolValue;
 	iDeadBotTime = hDeadBotTime.IntValue;
 	g_fSpecCheckInterval = hSpecCheckInterval.FloatValue;
@@ -381,6 +384,12 @@ void GetCvars()
 
 	iOffiicalCvar_survivor_respawn_with_guns = survivor_respawn_with_guns.IntValue;
 	g_iInfectedLimit = z_max_player_zombies.IntValue;
+}
+
+void SetOfficialSurvivorLimit()
+{
+	if(g_iMinSurvivors < 4) survivor_limit.SetInt(g_iMinSurvivors);
+	else survivor_limit.SetInt(4);
 }
 
 ////////////////////////////////////
@@ -1194,7 +1203,7 @@ Action Timer_KickNoNeededBot(Handle timer, int botid)
 {
 	int botclient = GetClientOfUserId(botid);
 
-	if((TotalSurvivors() <= g_iMaxSurvivors))
+	if((TotalSurvivors() <= g_iMinSurvivors))
 		return Plugin_Continue;
 	
 	if(botclient && IsClientInGame(botclient) && IsFakeClient(botclient) && GetClientTeam(botclient) == TEAM_SURVIVORS)
@@ -1210,7 +1219,7 @@ Action Timer_KickNoNeededBot(Handle timer, int botid)
 
 Action Timer_KickNoNeededBot2(Handle timer)
 {
-	if((TotalSurvivors() <= g_iMaxSurvivors))
+	if((TotalSurvivors() <= g_iMinSurvivors))
 		return Plugin_Continue;
 
 	for (int i = 1; i <= MaxClients; i++)
@@ -1231,8 +1240,8 @@ Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer, int client)
 	int team_count = TotalAliveSurvivors();
 	if(team_count < 4) return Plugin_Continue;
 
-	//LogMessage("Spawn Timer_SpawnSurvivorWhenRoundStarts: %d, %d", team_count, g_iMaxSurvivors);
-	if(team_count < g_iMaxSurvivors)
+	//LogMessage("Spawn Timer_SpawnSurvivorWhenRoundStarts: %d, %d", team_count, g_iMinSurvivors);
+	if(team_count < g_iMinSurvivors)
 	{
 		SpawnFakeClient();
 		return Plugin_Continue;
@@ -1247,12 +1256,6 @@ void ClearDefault()
 {
 	g_iRoundStart = 0;
 	g_iPlayerSpawn = 0;
-}
-
-
-void TweakSettings()
-{
-	SetConVarInt(FindConVar("z_spawn_flow_limit"), 50000) ;// allow spawning bots at any time
 }
 
 void TakeOverBotIfAny(int client)
