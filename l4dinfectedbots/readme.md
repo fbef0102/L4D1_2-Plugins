@@ -464,8 +464,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * Apply to | 適用於
 	```
-	L4D1 coop/versus/realism/survival/scavenge + all mutation modes
-	L4D2 all modes
+	L4D1 coop/versus/survival
+	L4D2 coop/versus/realism/survival/scavenge + all mutation modes
 	```
 
 * <details><summary>Translation Support | 支援翻譯</summary>
