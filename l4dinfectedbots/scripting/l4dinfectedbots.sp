@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.0  (2009-2024)
+* Version	: 2.9.1  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,11 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.9.1 (2024-2-14)
+*	   - Prevent players from joining infected team and occupy slots forever in coop/survival/realism
+*	   - Update Data
+*	   - Update Translation
 *
 * Version 2.9.0 (2024-2-9)
 *	   - Change another method to spawn human infected in coop/realism/survival instead of FakeClientCommand
@@ -744,11 +749,10 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-#undef REQUIRE_PLUGIN
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.0"
+#define PLUGIN_VERSION 			"2.9.1"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -931,11 +935,18 @@ enum struct EPluginData
 	char m_sCoopVersusJoinAccess[16];
 	bool m_bCoopVersusHumanLight;
 	bool m_bCoopVersusHumanGhost;
+	float m_fCoopVersusHumanCoolDown;
 }
 
 EPluginData 
 	ePluginData[L4D_MAXPLAYERS+1], 
 	g_ePluginSettings;
+
+StringMap 
+	g_smPlayedInfected;
+
+ArrayList
+	g_aPlayedInfected;
 
 public Plugin myinfo =
 {
@@ -1055,6 +1066,9 @@ public void OnPluginStart()
 	vs_max_team_switches = FindConVar("vs_max_team_switches");
 
 	director_allow_infected_bots = FindConVar("director_allow_infected_bots");
+
+	g_smPlayedInfected = new StringMap();
+	g_aPlayedInfected = new ArrayList();
 
 	//Autoconfig for plugin
 	AutoExecConfig(true, PLUGIN_NAME);
@@ -1394,12 +1408,17 @@ void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_bLeftSaveRoom = false;
 	g_bSurvivalStart = false;
 
+	delete g_smPlayedInfected;
+	g_smPlayedInfected = new StringMap();
+
 	if(!b_HasRoundStarted && g_iPlayerSpawn == 1)
 	{
 		CreateTimer(0.1, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	b_HasRoundStarted = true;
+
+
 }
 
 void Event_SurvivalRoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -1422,6 +1441,32 @@ Action Timer_PluginStart(Handle timer)
 		respawnDelay[i] = 0;
 		PlayerLifeState[i] = false;
 	}
+
+	float now = GetEngineTime();
+	if(g_ePluginSettings.m_fCoopVersusHumanCoolDown > 0.0 && L4D_HasPlayerControlledZombies() == false)
+	{
+		static char sSteamId[64];
+		int length = g_aPlayedInfected.Length;
+		for(int i = 0; i < length; i++)
+		{
+			g_aPlayedInfected.GetString(i, sSteamId, sizeof(sSteamId));
+			g_smPlayedInfected.SetValue(sSteamId, now + g_ePluginSettings.m_fCoopVersusHumanCoolDown, true);
+		}
+		
+		for(int i = 1; i <= MaxClients; i++)
+		{
+			if(!IsClientInGame(i)) continue;
+			if(IsFakeClient(i)) continue;
+			if(GetClientTeam(i) != 3) continue;
+
+			CPrintToChat(i, "%T", "You were playing infected last round (C)", i, RoundFloat(g_ePluginSettings.m_fCoopVersusHumanCoolDown));
+			PrintHintText(i, "%T", "You were playing infected last round", i, RoundFloat(g_ePluginSettings.m_fCoopVersusHumanCoolDown));
+			ChangeClientTeam(i, TEAM_SPECTATOR);
+		}
+	}
+
+	delete g_aPlayedInfected;
+	g_aPlayedInfected = new ArrayList(ByteCountToCells(64));
 
 	//reset some variables
 	InfectedBotQueue = 0;
@@ -1917,8 +1962,18 @@ Action JoinInfectedInCoop(int client, int args)
 	if ( g_bCvarAllow == false) return Plugin_Continue;
 	if ( g_ePluginSettings.m_bCoopVersusEnable == false ) return Plugin_Continue;
 
-	if (client && L4D_HasPlayerControlledZombies() == false)
+	if (client && !IsFakeClient(client) && L4D_HasPlayerControlledZombies() == false)
 	{
+		static char sSteamId[64];
+		GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
+		float fLockTime, now = GetEngineTime();
+		if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
+		{
+			CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
+			PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
+			return Plugin_Continue;
+		}
+
 		if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
 		{
 			if (HumansOnInfected() < g_ePluginSettings.m_iCommonLimit)
@@ -2028,7 +2083,7 @@ Action Console_ZLimit(int client, int args)
 			g_ePluginSettings.m_iMaxSpecials = newlimit;
 			CreateTimer(0.1, MaxSpecialsSet);
 
-			C_PrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t", client, "Special Infected Limit has been changed",newlimit);
+			CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t", client, "Special Infected Limit has been changed",newlimit);
 			
 			CheckIfBotsNeeded2();
 		}
@@ -2088,7 +2143,7 @@ Action Console_Timer(int client, int args)
 				g_ePluginSettings.m_fSpawnTimeMax = float(DD);
 				g_ePluginSettings.m_fCoopVersSpawnTimeMin = float(DD);
 				g_ePluginSettings.m_fCoopVersSpawnTimeMax = float(DD);
-				C_PrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t",client,"Bot Spawn Timer has been changed",DD,DD);
+				CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t",client,"Bot Spawn Timer has been changed",DD,DD);
 			}
 			return Plugin_Handled;
 		}
@@ -2125,7 +2180,7 @@ Action Console_Timer(int client, int args)
 				g_ePluginSettings.m_fSpawnTimeMax = float(Max);
 				g_ePluginSettings.m_fCoopVersSpawnTimeMin = float(Min);
 				g_ePluginSettings.m_fCoopVersSpawnTimeMax = float(Max);
-				C_PrintToChatAll("[{olive}TS{green}] {lightgreen}%N{default}: %t",client,"Bot Spawn Timer has been changed",Min,Max);
+				CPrintToChatAll("[{olive}TS{green}] {lightgreen}%N{default}: %t",client,"Bot Spawn Timer has been changed",Min,Max);
 			}
 			return Plugin_Handled;
 		}
@@ -2143,8 +2198,8 @@ Action AnnounceJoinInfected(Handle timer, int client)
 	{
 		if (g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce && L4D_HasPlayerControlledZombies() == false)
 		{
-			C_PrintToChat(client,"[{olive}TS{default}] %T","Join infected team in coop/survival/realism",client);
-			C_PrintToChat(client,"%T","Join survivor team",client);
+			CPrintToChat(client,"[{olive}TS{default}] %T","Join infected team in coop/survival/realism",client);
+			CPrintToChat(client,"%T","Join survivor team",client);
 		}
 	}
 	return Plugin_Continue;
@@ -2520,7 +2575,7 @@ void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
 
-	CreateTimer(0.5, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
+	CreateTimer(0.4, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
 
 	// We get some data needed ...
 	int oldteam = event.GetInt("oldteam");
@@ -2529,7 +2584,7 @@ void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	if(client) DeleteLight(client);
 
 	DataPack pack;
-	CreateDataTimer(0.5, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
+	CreateDataTimer(0.6, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
 	pack.WriteCell(userid);
 	pack.WriteCell(oldteam);
 }
@@ -2550,12 +2605,24 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 				if(iPlayerTeam[client] != TEAM_INFECTED)
 				{
 					ChangeClientTeam(client,TEAM_SPECTATOR);
-					FakeClientCommand(client,"sm_js");
+					//FakeClientCommand(client,"sm_js");
 					return Plugin_Continue;
 				}
 
 				if(g_ePluginSettings.m_bCoopVersusEnable)
 				{
+					static char sSteamId[64];
+					GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
+					float fLockTime, now = GetEngineTime();
+					if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
+					{
+						ChangeClientTeam(client, TEAM_SPECTATOR);
+						PrintToChatAll("here");
+						CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
+						PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
+						return Plugin_Continue;
+					}
+
 					if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
 					{
 						if (HumansOnInfected() <= g_ePluginSettings.m_iCoopVersusHumanLimit)
@@ -2575,15 +2642,12 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 							return Plugin_Continue;
 						}
 					}
-					else
-					{
-						ChangeClientTeam(client,TEAM_SPECTATOR);
-					}
 				}
 				else
 				{
 					PrintHintText(client, "%T", "Can't Join The Infected Team.", client);
 				}
+
 				ChangeClientTeam(client,TEAM_SPECTATOR);
 			}
 			else
@@ -2656,6 +2720,16 @@ Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 			{
 				CheckIfBotsNeeded2(false);
 			}
+
+			if(newteam == 3)
+			{
+				static char sSteamId[64];
+				GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
+				if(g_aPlayedInfected.FindString(sSteamId) == -1)
+				{
+					g_aPlayedInfected.PushString(sSteamId);
+				}
+			}
 		}
 	}
 
@@ -2690,11 +2764,11 @@ Action Timer_CountSurvivor(Handle timer)
 			if(g_ePluginSettings.m_bCommonLimitAdjust)
 			{
 				h_common_limit_cvar.SetInt(g_ePluginSettings.m_iCommonLimit);
-				if(g_ePluginSettings.m_bAnnounceEnable) C_PrintToChatAll("[{olive}TS{default}] %t","Current status1",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth, g_ePluginSettings.m_iCommonLimit);
+				if(g_ePluginSettings.m_bAnnounceEnable) CPrintToChatAll("[{olive}TS{default}] %t","Current status1",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth, g_ePluginSettings.m_iCommonLimit);
 			}
 			else
 			{
-				if(g_ePluginSettings.m_bAnnounceEnable) C_PrintToChatAll("[{olive}TS{default}] %t","Current status3",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
+				if(g_ePluginSettings.m_bAnnounceEnable) CPrintToChatAll("[{olive}TS{default}] %t","Current status3",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
 			}
 		}
 		else
@@ -2702,11 +2776,11 @@ Action Timer_CountSurvivor(Handle timer)
 			if(g_ePluginSettings.m_bCommonLimitAdjust)
 			{
 				h_common_limit_cvar.SetInt(g_ePluginSettings.m_iCommonLimit);
-				if(g_ePluginSettings.m_bAnnounceEnable) C_PrintToChatAll("[{olive}TS{default}] %t","Current status2",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iCommonLimit);
+				if(g_ePluginSettings.m_bAnnounceEnable) CPrintToChatAll("[{olive}TS{default}] %t","Current status2",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iCommonLimit);
 			}
 			else
 			{
-				if(g_ePluginSettings.m_bAnnounceEnable) C_PrintToChatAll("[{olive}TS{default}] %t","Current status4",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials);
+				if(g_ePluginSettings.m_bAnnounceEnable) CPrintToChatAll("[{olive}TS{default}] %t","Current status4",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials);
 			}
 		}
 		g_iPlayersInSurvivorTeam = iAliveSurplayers;
@@ -4097,7 +4171,7 @@ Action TimerAnnounce2(Handle timer, int client)
 	{
 		if (GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsPlayerGhost(client))
 		{
-			C_PrintToChat(client, "[{olive}TS{default}] %T","sm_zs",client);
+			CPrintToChat(client, "[{olive}TS{default}] %T","sm_zs",client);
 		}
 	}
 
@@ -4502,6 +4576,7 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 
 			if(IsPlayerTank(client))
 			{
+				// 0.2秒後設置Tank血量
 				CreateTimer(0.2, Timer_SetTankHealth, userid, TIMER_FLAG_NO_MAPCHANGE);
 
 				if(IsFakeClient(client))
@@ -6062,6 +6137,7 @@ void LoadData()
 		hData.GetString("coop_versus_join_access", ePluginData[0].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), "z");
 		ePluginData[0].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", 1));
 		ePluginData[0].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", 1));
+		ePluginData[0].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", 60.0);
 
 		hData.GoBack();
 	}
@@ -6127,6 +6203,7 @@ void LoadData()
 			hData.GetString("coop_versus_join_access", ePluginData[i].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), ePluginData[0].m_sCoopVersusJoinAccess);
 			ePluginData[i].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", ePluginData[0].m_bCoopVersusHumanLight));
 			ePluginData[i].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", ePluginData[0].m_bCoopVersusHumanGhost));
+			ePluginData[i].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", ePluginData[0].m_fCoopVersusHumanCoolDown);
 
 			hData.GoBack();
 		}
