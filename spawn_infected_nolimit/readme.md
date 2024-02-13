@@ -63,6 +63,9 @@ Spawn special infected without the director limits!
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2h (2024-2-14)
+		* Safetly create entity if server too many entities 
+
 	* v1.1h (2024-1-27)
 		* Updated L4D1 Gamedata 
 

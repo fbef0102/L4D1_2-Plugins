@@ -153,6 +153,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"coop_versus_join_access"       "z"
 				"coop_versus_human_light"       "1"
 				"coop_versus_human_ghost"       "1"
+				"coop_versus_cool_down"       	"60.0"
 			}
 		}
 
@@ -276,8 +277,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	3. <details><summary>Adjust Tank limit</summary>
 
 		```php
-		//  // Sets the tank limit (Does not affect director tank)
-		//  // 設置Tank上限	(不影響導演系統生成tank)
+		// Sets the tank limit (Does not affect director tank)
 		"tank_limit"        "1"
 
 		// When each time spawn S.I., how much percent of chance to spawn tank [0-100%]
@@ -500,6 +500,11 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2024
 	```
+	* v2.9.1 (2024-2-14)
+		* Prevent players from joining infected team and occupy slots forever in coop/survival/realism
+		* Update Data
+		* Update Translation
+		
 	* v2.9.0 (2024-2-9)
 		* Change another method to spawn human infected in coop/realism/survival instead of FakeClientCommand
 		* Add Data config to control spawn timers, spawn limit, tank limit, witch limit, common infected limit.....
@@ -711,6 +716,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"coop_versus_join_access"       "z"
 				"coop_versus_human_light"       "1"
 				"coop_versus_human_ghost"       "1"
+				"coop_versus_cool_down"       	"60.0"
 			}
 		}
 
@@ -834,7 +840,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	3. <details><summary>調整Tank生成數量上限</summary>
 
 		```php
-		// 設置Tank上限
+		// 設置Tank上限 (不影響導演系統生成tank)
 		"tank_limit"        "1"
 
 		// 每次生成一個特感的時候多少概率會變成tank [0-100%]
@@ -952,7 +958,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		// witch生成多少秒才會踢出（不影響導演生成的witch）
 		"witch_life"        "200.0"
 
-		// 1 = 最後一關救援開始後插件生成witch
+		// 1 = 最後一關救援開始後插件持續生成witch
 		"witch_spawn_final"    "0"
 		```
 	</details>
