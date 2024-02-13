@@ -1,9 +1,11 @@
-//  = 0x01 (SOH) - Use normal color from this point forward
-//  = 0x02 (STX) - Use team color up to the end of the player name
-//  = 0x03 (ETX) - Use team color from this point forward
-//  = 0x04 (EOT) - Use location color from this point forward 
-//  = 0x05 (ENQ) - Use achievement color from this point forward
-// Also Use smlib colors
+// -------Following named colors are supported-------
+// {default}-Default White
+// {green}-olive
+// lightgreen}-Lightgreen
+// {red}-Red 			- There must be at least one player or bot in infected team，or red will turn into Green color
+// {blue}-Blue   		- There must be at least one player or bot in survivor team，or blue will turn into Green color
+// {olive}-green
+// Warning:  2 of (blue, red, lightgreen) colors can not be used together
 
 "Phrases"
 {
@@ -39,10 +41,10 @@
 	"Bot Spawn Timer has been changed"
 	{
 		"#format"		"{1:d},{2:d}"
-		"en"			"Bot Spawn Timer has been changed to {1} - {2}"
-		"ru"			"Таймер возрождения ботов был изменён на {1} - {2}"
-		"zho"			"特感復活時間已改成 {1} - {2}"
-		"chi"			"特感复活时间已改成 {1} - {2}"
+		"en"			"Bot Spawn Timer has been changed to {green}{1}{default} - {green}{2}{default}"
+		"ru"			"Таймер возрождения ботов был изменён на {green}{1}{default} - {green}{2}{default}"
+		"zho"			"特感復活時間已改成 {green}{1}{default} - {green}{2}{default}"
+		"chi"			"特感复活时间已改成 {green}{1}{default} - {green}{2}{default}"
 	}
 	"Usage: sm_zlimit"
 	{
@@ -77,42 +79,42 @@
 	"Special Infected Limit has been changed"
 	{
 		"#format"		"{1:d}"
-		"en"			"Special Infected Limit has been changed to {1}"
-		"ru"			"Лимит особых заражённых был изменён на {1}"
-		"zho"			"特感數量上限已改成 {1}"
-		"chi"			"特感数量上限已改成 {1}"
+		"en"			"Special Infected Limit has been changed to {green}{1}{default}"
+		"ru"			"Лимит особых заражённых был изменён на {green}{1}{default}"
+		"zho"			"特感數量上限已改成 {green}{1}{default}"
+		"chi"			"特感数量上限已改成 {green}{1}{default}"
 	}
 	"Current status1"
 	{
 		"#format"		"{1:d},{2:d},{3:d},{4:d}"
-		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}, Tank Health: {3}, Common Limit: {4}"
-		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}, здоровье танка: {3}, лимит обычных: {4}"
-		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}, Tank血量: {3}, 殭屍數量: {4}"
-		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}, Tank血量: {3}, 僵尸数量: {4}"
+		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}, Tank Health: {green}{3}{default}, Common Limit: {green}{4}{default}"
+		"ru"			"Живых выживших: {green}{1}{default}, лимит особых заражённых: {green}{2}{default}, здоровье танка: {green}{3}{default}, лимит обычных: {green}{4}{default}"
+		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}, 殭屍數量: {green}{4}{default}"
+		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}, 僵尸数量: {green}{4}{default}"
 	}
 	"Current status2"
 	{
 		"#format"		"{1:d},{2:d},{3:d}"
-		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}, Common Limit: {3}"
-		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}, лимит обычных заражённых: {3}"
-		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}, 殭屍數量: {3}"
-		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}, 僵尸数量: {3}"
+		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}, Common Limit: {green}{3}{default}"
+		"ru"			"Живых выживших: {green}{1}{default}, лимит особых заражённых: {green}{2}{default}, лимит обычных заражённых: {green}{3}{default}"
+		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}, 殭屍數量: {green}{3}{default}"
+		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}, 僵尸数量: {green}{3}{default}"
 	}
 	"Current status3"
 	{
 		"#format"		"{1:d},{2:d},{3:d}"
-		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}, Tank Health: {3}"
-		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}, здоровье танка: {3}"
-		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}, Tank血量: {3}"
-		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}, Tank血量: {3}"
+		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}, Tank Health: {green}{3}{default}"
+		"ru"			"Живых выживших: {green}{1}{default}, лимит особых заражённых: {green}{2}{default}, здоровье танка: {green}{3}{default}"
+		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}"
+		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}"
 	}
 	"Current status4"
 	{
 		"#format"		"{1:d},{2:d}"
-		"en"			"Numbers of Alive Survivor: {1}, Infected Limit: {2}"
-		"ru"			"Живых выживших: {1}, лимит особых заражённых: {2}"
-		"zho"			"目前倖存者存活人數: {1}, 特感上限: {2}"
-		"chi"			"目前生还者存活人数: {1}, 特感上限: {2}"
+		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}"
+		"ru"			"Живых выживших: {green}{1}{default}, лимит особых заражённых: {green}{2}{default}"
+		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}"
+		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}"
 	}
 	"Can't Join The Infected Team."
 	{
@@ -123,10 +125,10 @@
 	}
 	"sm_zs"
 	{
-		"en"			"Attention! You can type !zs to suicide if get stuck or too far from survivors."
-		"ru"			"Внимание! Вы можете ввести !zs для самоубийства, если застрянете или окажетесь слишком далеко от выживших."
-		"zho"			"注意!卡住、無法通過障礙物可於聊天視窗輸入!zs自殺."
-		"chi"			"注意!卡住或者无法通过障碍物时可于聊天窗输入!zs自杀."
+		"en"			"Attention! You can type {green}!zs{default} to suicide if get stuck or too far from survivors."
+		"ru"			"Внимание! Вы можете ввести {green}!zs{default} для самоубийства, если застрянете или окажетесь слишком далеко от выживших."
+		"zho"			"注意!卡住、無法通過障礙物可於聊天視窗輸入{green}!zs{default}自殺."
+		"chi"			"注意!卡住或者无法通过障碍物时可于聊天窗输入{green}!zs{default}自杀."
 	}
 	"Hud INFO"
 	{
@@ -138,17 +140,17 @@
 	}
 	"Hud Disable"
 	{
-		"en"			"Infected HUD DISABLED - say !infhud to re-enable."
-		"ru"			"Интерфейс заражённого ОТКЛЮЧЁН - введите в чат !infhud для включения."
-		"zho"			"特感介面關閉 - 請輸入 !infhud 重新開啟"
-		"chi"			"特感界面关闭 - 请输入 !infhud 重新开启"
+		"en"			"Infected HUD DISABLED - say {green}!infhud{default} to re-enable."
+		"ru"			"Интерфейс заражённого ОТКЛЮЧЁН - введите в чат {green}!infhud{default} для включения."
+		"zho"			"特感介面關閉 - 請輸入 {green}!infhud{default} 重新開啟"
+		"chi"			"特感界面关闭 - 请输入 {green}!infhud{default} 重新开启"
 	}
 	"Hud Enable"
 	{
-		"en"			"Infected HUD ENABLED - say !infhud to disable."
-		"ru"			"Интерфейс заражённого ВКЛЮЧЁН - введите в чат !infhud для отключения."
-		"zho"			"特感介面開啟 - 請輸入 !infhud 關閉"
-		"chi"			"特感界面开启 - 请输入 !infhud 关闭"
+		"en"			"Infected HUD ENABLED - say {green}!infhud{default} to disable."
+		"ru"			"Интерфейс заражённого ВКЛЮЧЁН - введите в чат {green}!infhud{default} для отключения."
+		"zho"			"特感介面開啟 - 請輸入 {green}!infhud{default} 關閉"
+		"chi"			"特感界面开启 - 请输入 {green}!infhud{default} 关闭"
 	}
 	"Infected HUD is currently DISABLED"
 	{
@@ -187,24 +189,24 @@
 	}
 	"Join infected team in coop/survival/realism(adm only)"
 	{
-		"en"			"Type !ji to join infected team. (Adm only)"
-		"ru"			"Введите !ji, чтобы присоединиться к команде заражённых. (Админ)"
-		"zho"			"聊天視窗輸入 !ji 加入感染者(只限管理員)"
-		"chi"			"聊天窗输入 !ji 加入感染者(只限管理员)"
+		"en"			"Type {green}!ji{default} to join infected team. (Adm only)"
+		"ru"			"Введите {green}!ji{default}, чтобы присоединиться к команде заражённых. (Админ)"
+		"zho"			"聊天視窗輸入 {green}!ji{default} 加入感染者(只限管理員)"
+		"chi"			"聊天窗输入 {green}!ji{default} 加入感染者(只限管理员)"
 	}
 	"Join infected team in coop/survival/realism"
 	{
-		"en"			"Type !ji to join infected team."
-		"ru"			"Введите !ji, чтобы присоединиться к команде заражённых."
-		"zho"			"聊天視窗輸入 !ji 加入感染者"
-		"chi"			"聊天窗输入 !ji 加入感染者"
+		"en"			"Type {green}!ji{default} to join infected team."
+		"ru"			"Введите {green}!ji{default}, чтобы присоединиться к команде заражённых."
+		"zho"			"聊天視窗輸入 {green}!ji{default} 加入感染者"
+		"chi"			"聊天窗输入 {green}!ji{default} 加入感染者"
 	}
 	"Join survivor team"
 	{
-		"en"			"Type !js to join survivor team."
-		"ru"			"Введите !js, чтобы присоединиться к команде выживших."
-		"zho"			"輸入 !js 加入倖存者!"
-		"chi"			"输入 !js 加入生还者!"
+		"en"			"Type {olive}!js{default} to join survivor team."
+		"ru"			"Введите {olive}!js{default}, чтобы присоединиться к команде выживших."
+		"zho"			"輸入 {olive}!js{default} 加入倖存者!"
+		"chi"			"输入 {olive}!js{default} 加入生还者!"
 	}
 	"You don't attack survivors"
 	{
@@ -226,5 +228,26 @@
 		"en"			"{red}Warning!!!{default} Numbers of survivor({green}{2}{default}) + Infected limit({green}{1}{default}) are over {red}31 slots, unable to increase S.I."
 		"zho"			"{red}警告!!!{default} 倖存者數量({green}{2}{default}) + 特感數量({green}{1}{default}) 已超過 {red}31{default} 個位子，{red}無法增加特感"
 		"chi"			"{red}警告!!!{default} 幸存者数量({green}{2}{default}) + 特感数量({green}{1}{default}) 已超过 {red}31{default} 位子，{red}无法增加特感"
+	}
+	"Infected Over Limit"
+	{
+		"#format"		"{1:d},{2:d}"
+		"en"			"{red}Warning!!!{default} Numbers of survivor({green}{2}{default}) + Infected limit({green}{1}{default}) are over {red}31 slots, unable to increase S.I."
+		"zho"			"{red}警告!!!{default} 倖存者數量({green}{2}{default}) + 特感數量({green}{1}{default}) 已超過 {red}31{default} 個位子，{red}無法增加特感"
+		"chi"			"{red}警告!!!{default} 幸存者数量({green}{2}{default}) + 特感数量({green}{1}{default}) 已超过 {red}31{default} 位子，{red}无法增加特感"
+	}
+	"You were playing infected last round (C)"
+	{
+		"#format"		"{1:d}"
+		"en"			"You were playing infected last round, pleas wait {green}{1}{default}s"
+		"zho"			"你在上回合扮演了感染者，請等待 {green}{1}{default} 秒冷卻時間"
+		"chi"			"你在上回合扮演了感染者，请等待 {green}{1}{default} 秒冷却时间"
+	}
+	"You were playing infected last round"
+	{
+		"#format"		"{1:d}"
+		"en"			"You were playing infected last round, pleas wait {1}s"
+		"zho"			"你在上回合扮演了感染者，請等待 {1} 秒冷卻時間"
+		"chi"			"你在上回合扮演了感染者，请等待 {1} 秒冷却时间"
 	}
 }

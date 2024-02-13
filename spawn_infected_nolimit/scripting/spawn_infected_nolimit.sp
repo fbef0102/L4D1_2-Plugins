@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.1h-2024/1/27"
+#define PLUGIN_VERSION "1.2h-2024/2/14"
 #define PLUGIN_URL ""
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
@@ -85,6 +85,9 @@ static Handle hInfectedAttackSurvivorTeam = null;
 ConVar version_cvar;
 
 static bool g_isSequel = false;
+
+#define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -223,6 +226,8 @@ int CheckForDirectorEnt()
 	if (!RealValidEntity(result))
 	{
 		result = CreateEntityByName(DIRECTOR_CLASS);
+		if(CheckIfEntitySafe(result) == false) return -1;
+		
 		DispatchSpawn(result);
 		ActivateEntity(result);
 	}
@@ -394,6 +399,8 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 	if (strncmp(zomb, "witch", 5, false) == 0 || (g_isSequel && strncmp(zomb, "witch_bride", 11, false) == 0))
 	{
 		int witch = CreateEntityByName("witch");
+		if(CheckIfEntitySafe(witch) == false) return -1;
+		
 		TeleportEntity(witch, pos, ang, NULL_VECTOR);
 		DispatchSpawn(witch);
 		ActivateEntity(witch);
@@ -403,6 +410,7 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 			//AssignPanicToWitch(witch);
 			DispatchKeyValue(witch, "targetname", BRIDE_WITCH_TARGETNAME);
 		}
+
 		return witch;
 	}
 	else if (strncmp(zomb, "smoker", 6, false) == 0)
@@ -443,6 +451,8 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 	else
 	{
 		int infected = CreateEntityByName("infected");
+		if(CheckIfEntitySafe(infected) == false) return -1;
+
 		TeleportEntity(infected, pos, ang, NULL_VECTOR);
 		DispatchSpawn(infected);
 		ActivateEntity(infected);
@@ -472,6 +482,10 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 		data.WriteFloat(ang[1]);
 		data.WriteCell(bot);
 		RequestFrame(RequestFrame_SetPos, data);
+	}
+	else
+	{
+		return -1;
 	}
 	
 	return bot;
@@ -859,3 +873,15 @@ bool IsValidClient(int client, bool replaycheck = true)
 
 bool RealValidEntity(int entity)
 { return (entity > 0 && IsValidEntity(entity)); }
+
+bool CheckIfEntitySafe(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
+}
