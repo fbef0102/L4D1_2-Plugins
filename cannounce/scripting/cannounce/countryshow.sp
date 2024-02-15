@@ -164,8 +164,8 @@ void SetupDefaultMessages()
 	if(!KvJumpToKey(hKVCountryShow, "messages"))
 	{				
 		KvJumpToKey(hKVCountryShow, "messages", true);
-		KvSetString(hKVCountryShow, "playerjoin", "{PLAYERTYPE} {GREEN}{PLAYERNAME} {DEFAULT}<{LIGHTGREEN}{STEAMID}{DEFAULT}> connected from country {GREEN}{PLAYERCOUNTRY} {DEFAULT}({LIGHTGREEN}{PLAYERCOUNTRYSHORT}{DEFAULT}), IP {GREEN}{PLAYERIP}");
-		KvSetString(hKVCountryShow, "playerdisc", "{PLAYERTYPE} {GREEN}{PLAYERNAME} {DEFAULT}<{LIGHTGREEN}{STEAMID}{DEFAULT}> from country {GREEN}{PLAYERCOUNTRY} {DEFAULT}({LIGHTGREEN}{PLAYERCOUNTRYSHORT}{DEFAULT}) disconnected from IP {GREEN}{PLAYERIP}{GREEN}reason: {DEFAULT}{DISC_REASON}");
+		KvSetString(hKVCountryShow, "playerjoin", "{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default})");
+		KvSetString(hKVCountryShow, "playerdisc", "{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default})");
 
 		KvRewind(hKVCountryShow);			
 		KeyValuesToFile(hKVCountryShow, g_filesettings);		
@@ -176,8 +176,8 @@ void SetupDefaultMessages()
 	if(!KvJumpToKey(hKVCountryShow, "messages_admin"))
 	{				
 		KvJumpToKey(hKVCountryShow, "messages_admin", true);
-		KvSetString(hKVCountryShow, "playerjoin", "{PLAYERTYPE} {GREEN}{PLAYERNAME} {DEFAULT}<{LIGHTGREEN}{STEAMID}{DEFAULT}> connected from country {GREEN}{PLAYERCOUNTRY} {DEFAULT}({LIGHTGREEN}{PLAYERCOUNTRYSHORT}{DEFAULT}), IP {GREEN}{PLAYERIP}");
-		KvSetString(hKVCountryShow, "playerdisc", "{PLAYERTYPE} {GREEN}{PLAYERNAME} {DEFAULT}<{LIGHTGREEN}{STEAMID}{DEFAULT}> from country {GREEN}{PLAYERCOUNTRY} {DEFAULT}({LIGHTGREEN}{PLAYERCOUNTRYSHORT}{DEFAULT}) disconnected from IP {GREEN}{PLAYERIP}{GREEN}reason: {DEFAULT}{DISC_REASON}");
+		KvSetString(hKVCountryShow, "playerjoin", "{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}, {PLAYERREGION}, {PLAYERCITY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>");
+		KvSetString(hKVCountryShow, "playerdisc", "{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>");
 
 		KvRewind(hKVCountryShow);			
 		KeyValuesToFile(hKVCountryShow, g_filesettings);		
