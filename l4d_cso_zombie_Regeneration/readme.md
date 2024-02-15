@@ -79,7 +79,7 @@ The zombies have grown stronger, now they are able to heal their injuries by sta
     2. [weapon_csgo_reload](https://github.com/fbef0102/L4D2-Plugins/tree/master/l4d2_weapon_csgo_reload): Weapon Quickswitch Reloading in L4D1+2
         * 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
 
-    3. [l4d2_cso_knockback](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d2_cso_knockback): Weapons and Melees now have knockback power like CSO
+    3. [l4d2_cso_knockback](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Nothing_Impossible_無理改造版/l4d2_cso_knockback): Weapons and Melees now have knockback power like CSO
         * 槍械與近戰武器現在有擊退力 (仿CSO惡靈降世)
 </details>
 
