@@ -875,8 +875,13 @@ bool g_bCvarAllow, g_bMapStarted, g_bVersusCoop,
 int g_iZSDisableGamemode;
 int g_iPlayerSpawn, g_bSpawnWitchBride;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
-bool g_bAngry[MAXPLAYERS+1]; //tank is angry in coop/realism
-char g_sCvarMPGameMode[32];
+
+bool 
+	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
+	g_bAdjustTankHealth[MAXPLAYERS+1]; //true if tank adjust health already
+
+char 
+	g_sCvarMPGameMode[32];
 
 #define FUNCTION_PATCH "Tank::GetIntentionInterface::Intention"
 #define FUNCTION_PATCH2 "Action<Tank>::FirstContainedResponder"
@@ -1747,7 +1752,8 @@ void IsAllowed()
 		HookEvent("player_now_it", Event_GotVomit);
 		HookEvent("revive_success", Event_revive_success);//救起倒地的or 懸掛的
 		HookEvent("player_ledge_release", Event_ledge_release);//懸掛的玩家放開了
-		HookEvent("player_bot_replace", evtBotReplacedPlayer);
+		HookEvent("player_bot_replace", Event_BotReplacePlayer);
+		HookEvent("bot_player_replace", Event_PlayerReplaceBot);
 		HookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
 
 		// Hook a sound
@@ -1916,6 +1922,7 @@ public void OnClientPutInServer(int client)
 	if(g_bCvarAllow == false) return;
 
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+	g_bAdjustTankHealth[client] = false;
 
 	// If is a bot, skip this function
 	if (IsFakeClient(client))
@@ -1976,7 +1983,7 @@ Action JoinInfectedInCoop(int client, int args)
 
 		if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
 		{
-			if (HumansOnInfected() < g_ePluginSettings.m_iCommonLimit)
+			if (HumansOnInfected() < g_ePluginSettings.m_iCoopVersusHumanLimit)
 			{
 				CleanUpStateAndMusic(client);
 				ChangeClientTeam(client, TEAM_INFECTED);
@@ -2312,6 +2319,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
 
+	g_bAdjustTankHealth[client] = false;
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
 
@@ -2572,6 +2580,7 @@ void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
+
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
 
@@ -2594,6 +2603,8 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
+		g_bAdjustTankHealth[client] = false;
+
 		delete DisplayTimer;
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
 
@@ -2617,7 +2628,6 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 					if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
 					{
 						ChangeClientTeam(client, TEAM_SPECTATOR);
-						PrintToChatAll("here");
 						CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
 						PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
 						return Plugin_Continue;
@@ -3280,16 +3290,19 @@ Action TankSpawner(Handle timer, int tank)
 	return Plugin_Continue;
 }
 
-void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
+void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast) 
 {
-	if(L4D_HasPlayerControlledZombies() == false) //not versus
-	{
-		int bot = GetClientOfUserId(event.GetInt("bot"));
-		int playerid = event.GetInt("player");
-		int player = GetClientOfUserId(playerid);
+	int bot = GetClientOfUserId(event.GetInt("bot"));
+	int playerid = event.GetInt("player");
+	int player = GetClientOfUserId(playerid);
 
-		if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
-			player > 0 && player <= MaxClients && IsClientInGame(player)) 
+	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
+		player > 0 && player <= MaxClients && IsClientInGame(player)) 
+	{
+		g_bAdjustTankHealth[bot] = g_bAdjustTankHealth[player];
+		g_bAdjustTankHealth[player] = false;
+
+		if(L4D_HasPlayerControlledZombies() == false) //not versus
 		{
 			if(IsPlayerTank(bot) && IsFakeClient(bot) && !IsFakeClient(player) && playerid == lastHumanTankId)
 			{
@@ -3300,6 +3313,27 @@ void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadcast)
 			}
 		}
 	}
+}
+
+void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
+{
+	int bot = GetClientOfUserId(GetEventInt(event, "bot"));
+	int player = GetClientOfUserId(GetEventInt(event, "player"));
+	
+	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) 
+		&& player > 0 && player <= MaxClients && IsClientInGame(player)) 
+	{
+		g_bAdjustTankHealth[player] = g_bAdjustTankHealth[bot];
+		g_bAdjustTankHealth[bot] = false;
+	}
+}
+
+public void L4D_OnReplaceTank(int tank, int newtank)
+{
+	if(tank == newtank) return;
+
+	g_bAdjustTankHealth[newtank] = g_bAdjustTankHealth[tank];
+	g_bAdjustTankHealth[tank] = false;
 }
 
 void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
@@ -3935,39 +3969,6 @@ bool IsPlayerTank (int client)
 	return false;
 }
 
-stock bool RealPlayersOnSurvivors ()
-{
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if (IsClientInGame(i) && !IsFakeClient(i))
-			if (GetClientTeam(i) == TEAM_SURVIVORS)
-				return true;
-		}
-	return false;
-}
-
-int TrueNumberOfSurvivors ()
-{
-	int TotalSurvivors;
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
-				TotalSurvivors++;
-	}
-	return TotalSurvivors;
-}
-
-stock int TrueNumberOfAliveSurvivors ()
-{
-	int TotalSurvivors;
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
-				TotalSurvivors++;
-	}
-	return TotalSurvivors;
-}
-
 int HumansOnInfected ()
 {
 	int TotalHumans;
@@ -3977,34 +3978,6 @@ int HumansOnInfected ()
 			TotalHumans++;
 	}
 	return TotalHumans;
-}
-
-stock bool AllSurvivorsDeadOrIncapacitated ()
-{
-	int PlayerIncap;
-	int PlayerDead;
-
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if (IsClientInGame(i) && IsFakeClient(i))
-			if (GetClientTeam(i) == TEAM_SURVIVORS)
-		{
-			if (GetEntProp(i, Prop_Send, "m_isIncapacitated"))
-			{
-				PlayerIncap++;
-			}
-			else if (!IsPlayerAlive(i))
-			{
-				PlayerDead++;
-			}
-		}
-	}
-
-	if (PlayerIncap + PlayerDead == TrueNumberOfSurvivors())
-	{
-		return true;
-	}
-	return false;
 }
 
 bool RealPlayersOnInfected ()
@@ -4031,17 +4004,6 @@ bool AreTherePlayersWhoAreNotTanks ()
 			}
 		}
 	}
-	return false;
-}
-
-stock bool BotsAlive ()
-{
-	for (int i=1;i<=MaxClients;i++)
-	{
-		if (IsClientInGame(i) && IsFakeClient(i))
-			if (GetClientTeam(i) == TEAM_INFECTED)
-				return true;
-		}
 	return false;
 }
 
@@ -4452,7 +4414,7 @@ void ShowInfectedHUD()
 					}
 					else
 					{
-						if(IsPlayerTank(i) && !IsFakeClient(i)) Format(iStatus, sizeof(iStatus), "%i%% - %d%%", iHP,100-GetFrustration(i));
+						if(IsPlayerTank(i) && !IsFakeClient(i)) Format(iStatus, sizeof(iStatus), "%i - %d%%", iHP,100-GetFrustration(i));
 						else Format(iStatus, sizeof(iStatus), "%i", iHP);
 					}
 				}
@@ -4597,8 +4559,16 @@ Action Timer_SetTankHealth(Handle timer, any client)
 	client = GetClientOfUserId(client);
 	if(client && IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client) && IsPlayerTank(client))
 	{	
-		SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
-		SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
+		if(g_bAdjustTankHealth[client] == false)
+		{
+			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
+			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
+			g_bAdjustTankHealth[client] = true;
+		}
+		else
+		{
+			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
+		}
 	}
 
 	return Plugin_Continue;
@@ -4867,16 +4837,6 @@ bool CheckRealPlayers_InSV(int client = 0)
 	return false;
 }
 
-stock bool IsWitch(int entity)
-{
-    if (entity > 0 && IsValidEntity(entity) && IsValidEdict(entity))
-    {
-        char strClassName[64];
-        GetEdictClassname(entity, strClassName, sizeof(strClassName));
-        return strcmp(strClassName, "witch", false) == 0;
-    }
-    return false;
-}
 // ====================================================================================================
 //					SDKHOOKS TRANSMIT
 // ====================================================================================================
@@ -5173,7 +5133,7 @@ int GetFrustration(int tank_index)
 	return GetEntProp(tank_index, Prop_Send, "m_frustration");
 }
 
-stock void SetTankFrustration(int client, int iFrustration)
+void SetTankFrustration(int client, int iFrustration)
 {
 	SetEntProp(client, Prop_Send, "m_frustration", 100 - iFrustration);
 }
@@ -5614,49 +5574,6 @@ bool IsTooClose(int client, float distance)
 	return false;
 }
 
-stock int GetInfectedAttacker(int client)
-{
-	int attacker;
-
-	if(g_bL4D2Version)
-	{
-		/* Charger */
-		attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
-		if (attacker > 0)
-		{
-			return attacker;
-		}
-
-		attacker = GetEntPropEnt(client, Prop_Send, "m_carryAttacker");
-		if (attacker > 0)
-		{
-			return attacker;
-		}
-		/* Jockey */
-		attacker = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
-		if (attacker > 0)
-		{
-			return attacker;
-		}
-	}
-
-	/* Hunter */
-	attacker = GetEntPropEnt(client, Prop_Send, "m_pounceAttacker");
-	if (attacker > 0)
-	{
-		return attacker;
-	}
-
-	/* Smoker */
-	attacker = GetEntPropEnt(client, Prop_Send, "m_tongueOwner");
-	if (attacker > 0)
-	{
-		return attacker;
-	}
-
-	return -1;
-}
-
 bool HasAccess(int client, char[] g_sAcclvl)
 {
 	// no permissions set
@@ -6027,20 +5944,6 @@ int GetSurvivorsInServer()
 	for(int i = 1; i <= MaxClients; i++)
 	{
 		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
-		{
-			count++;
-		}
-	}
-
-	return count;
-}
-
-stock int GetSpectatorsAndConnectInServer()
-{
-	int count = 0;
-	for(int i = 1; i <= MaxClients; i++)
-	{
-		if(IsClientConnected(i) && GetClientTeam(i) <=1)
 		{
 			count++;
 		}

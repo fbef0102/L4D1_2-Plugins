@@ -632,7 +632,11 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 
 	if (bSpawnSuccessful && selected > 0 && selected <= MaxClients) // SpawnSuccessful (AI/Real Player)
 	{
-		if(chooseclass == ZC_TANK) SetEntityHealth(selected, throw_tank_health);
+		if(chooseclass == ZC_TANK)
+		{
+			// 0.5秒後設置Tank血量
+			CreateTimer(0.5, Timer_SetTankHealth, GetClientUserId(selected), TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
 	else if (selected == 0) //throw teammate
 	{
@@ -861,6 +865,18 @@ Action OnNormalSoundPlay(int Clients[64], int &NumClients, char StrSample[PLATFO
 	if (StrEqual(StrSample, SOUND_THROWN_MISSILE, false)) {
 		NumClients = 0;
 		return Plugin_Changed;
+	}
+
+	return Plugin_Continue;
+}
+
+Action Timer_SetTankHealth(Handle timer, any client)
+{
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client) && IsPlayerTank(client))
+	{	
+		SetEntProp(client, Prop_Data, "m_iHealth", throw_tank_health);
+		SetEntProp(client, Prop_Data, "m_iMaxHealth", throw_tank_health); 
 	}
 
 	return Plugin_Continue;
