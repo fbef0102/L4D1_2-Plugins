@@ -21,7 +21,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
-* <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
@@ -175,6 +174,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 沒有權限的玩家不能隨意發起官方投票
 * <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
     * 旁觀者的名字前，加上前缀符號
+* <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
+    * 子彈堆只能拿一次子彈，當每個人都拿過一遍之後移除子彈堆
+* <b>[l4d_weapon_editor_fix](/l4d_weapon_editor_fix)</b>: Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
+    * 修復一些武器的 weapon_*.txt 參數沒有作用
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
