@@ -1289,8 +1289,14 @@ public Action COLD_DOWN(Handle timer,any client)
 			LogMessage("Vote to kick %s pass", kickplayer_name);
 
 			int player = GetClientOfUserId(kickplayer_userid);
-			if(player && IsClientInGame(player)) KickClient(player, "You have been kicked due to vote");				
-			ServerCommand("sm_addban 10 \"%s\" \"You have been kicked due to vote\" ", kickplayer_SteamId);
+			if(player && IsClientInGame(player)) KickClient(player, "You have been kicked due to vote. ban 10 mins");				
+			
+			BanIdentity(kickplayer_SteamId, 
+						10, 
+						BANFLAG_AUTHID, 
+						"You have been kicked due to vote", 
+						"sm_addban", 
+						0);
 		}
 		case (forcespectate):
 		{

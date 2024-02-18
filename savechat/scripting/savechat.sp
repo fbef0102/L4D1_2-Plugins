@@ -16,6 +16,9 @@ Handle fileHandle       = null;
 ConVar g_hCvarEnable, g_hCvarConsole;
 bool g_bCvarEnable, g_bCvarConsole;
 
+StringMap
+	g_smIgnoreList;
+
 public Plugin myinfo = 
 {
 	name = "SaveChat",
@@ -41,9 +44,26 @@ public void OnPluginStart()
 	g_hCvarConsole.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_disconnect", 	event_PlayerDisconnect);
+
+	g_smIgnoreList = new StringMap();
+	g_smIgnoreList.SetValue("spec_prev", true);
+	g_smIgnoreList.SetValue("spec_next", true);
+	g_smIgnoreList.SetValue("spec_mode", true);
+	g_smIgnoreList.SetValue("SkipOuttro", true);
+	g_smIgnoreList.SetValue("vocalize", true);
+	g_smIgnoreList.SetValue("VModEnable", true); // join server check
+	g_smIgnoreList.SetValue("vban", true); // join server check
+	g_smIgnoreList.SetValue("choose_closedoor", true);
+	g_smIgnoreList.SetValue("choose_opendoor", true);
+	g_smIgnoreList.SetValue("Vote", true); // Vote Yes / Vote No
+	g_smIgnoreList.SetValue("joingame", true);
+	g_smIgnoreList.SetValue("demorestart", true);
+	g_smIgnoreList.SetValue("menuselect", true); // menuselect 1~9
+	g_smIgnoreList.SetValue("SkipOuttro", true);
+
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -78,6 +98,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 	return Plugin_Continue;
 }
 
+// 不會檢測到客戶端能執行的指令
 public Action OnClientCommand(int client, int args) 
 {
 	if(g_bCvarEnable == false || g_bCvarConsole == false)
@@ -161,72 +182,33 @@ void event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	{
 		static char msg[2048];
 		static char time[21];
-		static char country[3];
-		static char steamID[128];
+		//static char country[3];
+		static char steamID[64];
 		static char playerIP[50];
+		static char reason[128];
+		event.GetString("reason", reason, sizeof(reason));
 		
 		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 		
 		if(GetClientIP(client, playerIP, sizeof(playerIP), true) == false) {
 			//country   = "  "
 		} else {
-			if(GeoipCode2(playerIP, country) == false) {
-				//country = "  ";
-			}
+			//if(GeoipCode2(playerIP, country) == false) {
+			//	//country = "  ";
+			//}
 		}
 		
 		FormatTime(time, sizeof(time), "%H:%M:%S", -1);
-		FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) %-25N has left.",
+		FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) %-25N has left (%s).",
 			time,
 			steamID,
 			playerIP,
-			client);
+			client,
+			reason);
 
 		SaveMessage(msg);
 	}
 }
-/*
-void LogChat(int client, int args, bool teamchat)
-{
-	static char msg[2048];
-	static char time[21];
-	static char text[1024];
-	static char country[3];
-	static char playerIP[50];
-	static char teamName[20];
-	static char steamID[128];
-
-	GetCmdArgString(text, sizeof(text));
-	StripQuotes(text);
-	
-	if (client == 0 || !IsClientInGame(client)) {
-		//FormatEx(country, sizeof(country), "  ");
-		FormatEx(teamName, sizeof(teamName), "");
-	} else {
-		if(GetClientIP(client, playerIP, sizeof(playerIP), true) == false) {
-			//country   = "  ";
-		} else {
-			if(GeoipCode2(playerIP, country) == false) {
-				//country = "  ";
-			}
-		}
-		my_GetTeamName(GetClientTeam(client), teamName, sizeof(teamName));
-		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
-	}
-	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
-
-	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : %s%s",
-		time,
-		steamID,
-		playerIP,
-		teamName,
-		client,
-		teamchat == true ? "(TEAM) " : "",
-		text);
-
-	SaveMessage(msg);
-}
-*/
 
 void LogChat2(int client, const char[] sArgs, bool teamchat)
 {
@@ -265,26 +247,18 @@ void LogChat2(int client, const char[] sArgs, bool teamchat)
 	SaveMessage(msg);
 }
 
-
 stock void LogCommand(int client, int args)
 {
 	static char cmd[64];
 	static char text[1024];
 
 	GetCmdArg(0, cmd, sizeof(cmd));
-	if( strncmp(cmd, "spec_", 5, false) == 0 || // spec_prev / spec_next
-		strncmp(cmd, "vocalize", 8, false) == 0 || // vocalize
-		strncmp(cmd, "VModEnable", 10, false) == 0 || // join server check
-		strncmp(cmd, "vban", 4, false) == 0 || // join server check
-		strncmp(cmd, "choose_", 7, false) == 0 || // choose_opendoor / choose_closedoor
-		strncmp(cmd, "Vote", 4, false) == 0 || // Vote Yes / Vote No
-		strncmp(cmd, "achievement_", 12, false) == 0 || // achievement_earned x x
-		strncmp(cmd, "joingame", 8, false) == 0 || // joingame
-		strncmp(cmd, "demo", 4, false) == 0 || // demorestart
-		strncmp(cmd, "menuselect", 10, false) == 0 ) //menuselect 1~9
+	bool bTemp;
+	if( g_smIgnoreList.GetValue(cmd, bTemp) == true )
 	{
 		return;
 	}
+
 	GetCmdArgString(text, sizeof(text));
 	StripQuotes(text);
 
@@ -330,7 +304,7 @@ void SaveMessage(const char[] message)
 	fileHandle = OpenFile(chatFile, "a");  /* Append */
 	if(fileHandle == null)
 	{
-		CreateDirectory("/addons/sourcemod/logs/chat", 755);
+		CreateDirectory("/addons/sourcemod/logs/chat", 777);
 		fileHandle = OpenFile(chatFile, "a"); //open again
 		if(fileHandle == null)
 		{
