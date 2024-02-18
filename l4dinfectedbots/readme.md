@@ -500,6 +500,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2024
 	```
+	* v2.9.2 (2024-2-18)
+		* Update Translation
+		* Update Commands
+
 	* v2.9.1 (2024-2-14)
 		* Prevent players from joining infected team and occupy slots forever in coop/survival/realism
 		* Update Data
@@ -991,11 +995,11 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		* 原因一：地圖故意作者為之，為了怕人類滅團所以停止特感生成一段時間，常發生在三方圖開啟地圖機關的時候或者開啟最終章救援無線電之前
 			* 解決方式法一：去跟地圖作者抱怨
-  			* 解決方式法二：自己修改地圖vscript
+			* 解決方式法二：自己修改地圖vscript
 			* 解決方式法三：推薦安裝[Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)，修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 		2. 原因二：地圖問題，找不到附近的地形特感，常發生在NAV沒有做好的爛圖或是人類已經抵達地圖終點，譬如死亡都心第一關人類抵達終點安全室的附近
 			* 解決方式法一：去跟地圖作者抱怨
-  			* 解決方式法二：自己修改地圖的NAV
+			* 解決方式法二：自己修改地圖的NAV
 		3. 原因三：所有能生成特感的地方都被倖存者看見，導致特感找不到位置無法復活，常發生在地圖太寬闊的地形，沒有任何障礙物掩護。
 			* 解決方式法一：去跟地圖作者抱怨
 			* 解決方式法二：自己修改地圖的NAV
