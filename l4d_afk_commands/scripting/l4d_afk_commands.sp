@@ -29,7 +29,6 @@
 	"sm_joinspectators"
 	"sm_joinspectator"
 	"sm_jointeam1"
-	"sm_js"
 	
 **Change team to Survivor
 	"sm_join"
@@ -794,13 +793,10 @@ Action TurnClientToSpectate(int client, int argCount)
 		return Plugin_Handled;
 	}
 	
-	if (GetClientTeam(client) == 1)
+	int iTeam = GetClientTeam(client);
+	if (iTeam == 1 && IsClientIdle(client))
 	{
-		if(IsClientIdle(client))
-		{
-			PrintHintText(client, "%T","Idle",client);
-		}
-
+		PrintHintText(client, "%T","Idle",client);
 		return Plugin_Handled;
 	}
 	
@@ -812,7 +808,6 @@ Action TurnClientToSpectate(int client, int argCount)
 		return Plugin_Handled;
 	}
 
-	int iTeam = GetClientTeam(client);
 	if(iTeam != 1)
 	{
 		if(CanClientChangeTeam(client,1) == false) return Plugin_Handled;
@@ -838,8 +833,11 @@ Action TurnClientToSpectate(int client, int argCount)
 	}
 	else
 	{
-		ChangeClientTeam(client, 3);
-		CreateTimer(0.1, Timer_Respectate, client, TIMER_FLAG_NO_MAPCHANGE);
+		if(L4D_HasPlayerControlledZombies())
+		{
+			ChangeClientTeam(client, 3);
+			CreateTimer(0.1, Timer_Respectate, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
 
 	return Plugin_Handled;
@@ -877,7 +875,7 @@ Action TurnClientToObserver(int client, int args)
 		}
 		
 		ChangeClientTeam(client, 3);
-		CreateTimer(0.1, Timer_Respectate, client, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Timer_Respectate, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	return Plugin_Handled;
@@ -885,7 +883,9 @@ Action TurnClientToObserver(int client, int args)
 
 Action Timer_Respectate(Handle timer, int client)
 {
-	ChangeClientTeam(client, 1);
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client))
+		ChangeClientTeam(client, 1);
 
 	return Plugin_Continue;
 }

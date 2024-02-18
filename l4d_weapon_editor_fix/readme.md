@@ -26,7 +26,7 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		* Swing Rate (Standing)
 			* All Melee weapons including custom melee obey "refire_delay" keyvalue in melee\*.txt
 		* Swing Rate (Incap) 
-			* Modify melee swinging rate multi when incapacitateAll
+			* Modify melee swinging rate multi when incapacitate
 
 	* [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586): Modify weapons.txt values by config
 	* [Incapped Weapons Patch](https://forums.alliedmods.net/showthread.php?t=322859): allow using melee while Incapped

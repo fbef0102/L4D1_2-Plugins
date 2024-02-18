@@ -123,12 +123,12 @@
 		"zho"			"無法加入感染者."
 		"chi"			"无法加入感染者."
 	}
-	"sm_zs"
+	"sm_zss"
 	{
-		"en"			"Attention! You can type {green}!zs{default} to suicide if get stuck or too far from survivors."
-		"ru"			"Внимание! Вы можете ввести {green}!zs{default} для самоубийства, если застрянете или окажетесь слишком далеко от выживших."
-		"zho"			"注意!卡住、無法通過障礙物可於聊天視窗輸入{green}!zs{default}自殺."
-		"chi"			"注意!卡住或者无法通过障碍物时可于聊天窗输入{green}!zs{default}自杀."
+		"en"			"Attention! You can type {green}!zss{default} to suicide if get stuck or too far from survivors."
+		"ru"			"Внимание! Вы можете ввести {green}!zss{default} для самоубийства, если застрянете или окажетесь слишком далеко от выживших."
+		"zho"			"注意!卡住、無法通過障礙物可於聊天視窗輸入{green}!zss{default}自殺."
+		"chi"			"注意!卡住或者无法通过障碍物时可于聊天窗输入{green}!zss{default}自杀."
 	}
 	"Hud INFO"
 	{

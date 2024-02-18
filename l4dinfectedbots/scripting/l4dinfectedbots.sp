@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.1  (2009-2024)
+* Version	: 2.9.2  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -8,6 +8,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* 
+* Version 2.9.2 (2024-2-18)
+*	   - Update Translation
+*	   - Update Commands
 *
 * Version 2.9.1 (2024-2-14)
 *	   - Prevent players from joining infected team and occupy slots forever in coop/survival/realism
@@ -752,7 +756,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.1"
+#define PLUGIN_VERSION 			"2.9.2"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -2019,9 +2023,9 @@ Action ForceInfectedSuicide(int client, int args)
 
 	if (client && GetClientTeam(client) == 3 && !IsFakeClient(client) && IsPlayerAlive(client) && !IsPlayerGhost(client))
 	{
-		int bGameMode = g_iCurrentMode;
-		if(bGameMode == 3) bGameMode = 4;
-		if(bGameMode & g_iZSDisableGamemode)
+		int iGameMode = g_iCurrentMode;
+		if(iGameMode == 3) iGameMode = 4;
+		if(iGameMode & g_iZSDisableGamemode)
 		{
 			PrintHintText(client,"[TS] %T","Not allowed to suicide during current mode",client);
 			return Plugin_Handled;
@@ -4129,11 +4133,18 @@ Action TimerAnnounce(Handle timer, int client)
 
 Action TimerAnnounce2(Handle timer, int client)
 {
-	if (IsClientInGame(client))
+	int iGameMode = g_iCurrentMode;
+	if(iGameMode == 3) iGameMode = 4;
+	if(iGameMode & g_iZSDisableGamemode)
 	{
-		if (GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsPlayerGhost(client))
+		return Plugin_Continue;
+	}
+
+	client = GetClientOfUserId(client);
+	if (IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsPlayerGhost(client))
+	{
 		{
-			CPrintToChat(client, "[{olive}TS{default}] %T","sm_zs",client);
+			CPrintToChat(client, "[{olive}TS{default}] %T","sm_zss",client);
 		}
 	}
 
@@ -4532,7 +4543,7 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 			}
 			if(!IsFakeClient(client) && IsPlayerAlive(client))
 			{
-				CreateTimer(1.0, TimerAnnounce2, client, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(1.0, TimerAnnounce2, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 				fPlayerSpawnEngineTime[client] = GetEngineTime();
 			}
 
