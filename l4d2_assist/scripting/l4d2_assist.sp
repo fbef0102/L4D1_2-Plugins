@@ -69,6 +69,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	LoadTranslations("l4d2_assist.phrases");
+	
 	g_hCvarAllow = 		CreateConVar(	"sm_assist_enable", 		"1", 			"If 1, Enables this plugin.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarModes =		CreateConVar(	"sm_assist_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =	CreateConVar(	"sm_assist_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
@@ -121,10 +122,10 @@ public void OnMapEnd()
 
 public void OnClientPutInServer(int client)
 {
-	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
-Action OnTakeDamage(int client, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+Action OnTakeDamageAlive(int client, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 { 
 	if(GetClientTeam(client) == L4D_TEAM_INFECTED && IsPlayerAlive(client))
 	{

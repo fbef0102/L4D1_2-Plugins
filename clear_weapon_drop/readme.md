@@ -74,7 +74,7 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 * <details><summary>API | 串接</summary>
 
-	```c++
+	```c
 	/**
 	* @brief Remove weapon if no one picks up after a short time. (time depending on the convar you set)
 	*

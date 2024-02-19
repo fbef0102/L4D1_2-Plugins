@@ -29,7 +29,7 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>API | 串接</summary>
 
-	```c++
+	```c
 	/**********************************************************************
 	* Gets the current flags for the chat message
 	* Should only be called within OnChatMessage2() or OnChatMessage_Post()

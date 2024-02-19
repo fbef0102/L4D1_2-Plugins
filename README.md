@@ -178,6 +178,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 子彈堆只能拿一次子彈，當每個人都拿過一遍之後移除子彈堆
 * <b>[l4d_weapon_editor_fix](/l4d_weapon_editor_fix)</b>: Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
     * 修復一些武器的 weapon_*.txt 參數沒有作用
+* <b>[l4d2_spec_stays_spec](/l4d2_spec_stays_spec)</b>: Spectator will stay as spectators on mapchange/new round.
+    * 上一回合是旁觀者的玩家, 下一回合開始時繼續待在旁觀者 (避免被自動切換到人類/特感隊伍)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
