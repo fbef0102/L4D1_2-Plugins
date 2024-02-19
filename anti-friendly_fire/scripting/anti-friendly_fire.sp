@@ -121,8 +121,10 @@ void GetCvars()
 public void OnClientPutInServer(int client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
+// 不可偵測到SDKHooks_TakeDamage，此時玩家未扣血
 Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
 	if(damage <= 0.0 || g_bEnable == false || g_bGod == true) return Plugin_Continue;
@@ -135,15 +137,14 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 		GetClientTeam(victim) != L4D_TEAM_SURVIVOR) return Plugin_Continue;
 
 	if(IsClientInGodFrame(victim)) return Plugin_Continue;
-	g_iMainHealth[victim] = GetClientHealth(victim);
-	g_fTempHealth[victim] = L4D_GetTempHealth(victim);
 
+	// 最後實際傷害為"浮點數的傷害數值的整數", 小數點後無條件捨去
+	// 但是如果浮點數的傷害大於等於生命值, 依然倒地或死亡
 	int iDamage = RoundToFloor(damage);
-	if(iDamage <= g_iDamageShield) return Plugin_Handled;
+	if(iDamage <= g_iDamageShield) return Plugin_Handled; 
 
-	int health = GetClientHealth(victim) + L4D_GetPlayerTempHealth(victim);
 	//PrintToChatAll("%N attack %N, temp Health: %d, main Health: %d, damage: %d", attacker, victim, L4D_GetPlayerTempHealth(victim), GetClientHealth(victim), iDamage);
-	if(health <= iDamage + 1) //倒地或死亡
+	if( GetClientHealth(victim) + L4D_GetPlayerTempHealth(victim) <= iDamage + 1) //倒地或死亡
 	{
 		static char WeaponName[CLASSNAME_LENGTH];
 		GetEntityClassname(inflictor, WeaponName, sizeof(WeaponName));
@@ -178,6 +179,25 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 		}
 	}
 
+	return Plugin_Continue;
+}
+
+// 如果傷害造成玩家即將倒地，不會觸發此涵式
+// 可偵測到SDKHooks_TakeDamage，此時玩家未扣血
+Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+{
+	if(damage <= 0.0 || g_bEnable == false || g_bGod == true) return Plugin_Continue;
+
+	if(attacker == victim ||
+		!IsClientAndInGame(attacker)  || 
+		!IsClientAndInGame(victim) || 
+		!IsValidEntity(inflictor) ||
+		GetClientTeam(attacker) == L4D_TEAM_INFECTED ||
+		GetClientTeam(victim) != L4D_TEAM_SURVIVOR) return Plugin_Continue;
+
+	g_iMainHealth[victim] = GetClientHealth(victim);
+	g_fTempHealth[victim] = L4D_GetTempHealth(victim);
+	
 	return Plugin_Continue;
 }
 
@@ -322,6 +342,7 @@ bool IsIncapacitated(int client)
 
 void RestoreHp(int client)
 {
+	//PrintToChatAll("%d %.2f", g_iMainHealth[client], g_fTempHealth[client]);
 	SetEntityHealth(client, g_iMainHealth[client]);
 	L4D_SetTempHealth(client, g_fTempHealth[client]);
 }

@@ -41,7 +41,7 @@ Spawn special infected without the director limits!
 
 * <details><summary>API | 串接</summary>
 
-	```c++
+	```c
 	/**
 	* @brief 			   Spawn special infected without the director limits!
 	*
