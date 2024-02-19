@@ -50,16 +50,16 @@ public void OnPluginStart()
 	g_smIgnoreList.SetValue("spec_next", true);
 	g_smIgnoreList.SetValue("spec_mode", true);
 	g_smIgnoreList.SetValue("SkipOuttro", true);
-	g_smIgnoreList.SetValue("vocalize", true);
+	g_smIgnoreList.SetValue("vocalize", true); // character vocalize
 	g_smIgnoreList.SetValue("VModEnable", true); // join server check
+	g_smIgnoreList.SetValue("achievement_earned", true); // achievement_earned x x
 	g_smIgnoreList.SetValue("vban", true); // join server check
-	g_smIgnoreList.SetValue("choose_closedoor", true);
-	g_smIgnoreList.SetValue("choose_opendoor", true);
+	g_smIgnoreList.SetValue("choose_closedoor", true); // close door
+	g_smIgnoreList.SetValue("choose_opendoor", true); // open door
 	g_smIgnoreList.SetValue("Vote", true); // Vote Yes / Vote No
 	g_smIgnoreList.SetValue("joingame", true);
 	g_smIgnoreList.SetValue("demorestart", true);
 	g_smIgnoreList.SetValue("menuselect", true); // menuselect 1~9
-	g_smIgnoreList.SetValue("SkipOuttro", true);
 
 }
 

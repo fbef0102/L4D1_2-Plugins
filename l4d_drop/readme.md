@@ -40,7 +40,7 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>API | 串接</summary>
 
-	```c++
+	```c
 	/**
 	* @brief Called whenever weapon prepared to drop by plugin l4d_drop
 	*

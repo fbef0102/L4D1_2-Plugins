@@ -951,14 +951,9 @@ stock bool IsSurvivor(int client)
 	return (client > 0 && client <= MaxClients && IsClientInGame(client) && GetClientTeam(client) == 2);
 }
 
-stock bool IsValidEnt(int entity)
-{
-	return (entity > 0 && IsValidEntity(entity) && IsValidEdict(entity));
-}
-
 stock bool IsCommonInfected(int entity)
 {
-	if (IsValidEnt(entity))
+	if (entity > 0 && IsValidEntity(entity))
 	{
 		char sEntityClass[64];
 		GetEntityClassname(entity, sEntityClass, sizeof(sEntityClass));
@@ -1171,16 +1166,16 @@ void OnTouch(int door, int other)
 		return;
 	}
 
-	if (IsWitch(other))
-	{
-		TeleportEntity(other, fFirstUserOrigin, NULL_VECTOR, NULL_VECTOR);
-		return;
-	}
+	//if (IsWitch(other)) // can't teleport witch
+	//{
+	//	TeleportEntity(other, fFirstUserOrigin, NULL_VECTOR, NULL_VECTOR);
+	//	return;
+	//}
 }
 
-bool IsWitch(int entity)
+stock bool IsWitch(int entity)
 {
-    if (entity > 0 && IsValidEntity(entity) && IsValidEdict(entity))
+    if (entity > 0 && IsValidEntity(entity))
     {
         char strClassName[64];
         GetEntityClassname(entity, strClassName, sizeof(strClassName));
