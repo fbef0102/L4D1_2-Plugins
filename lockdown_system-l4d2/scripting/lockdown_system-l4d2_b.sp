@@ -6,41 +6,17 @@
 #include <multicolors>
 #include <left4dhooks>
 #include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
-#define PLUGIN_VERSION "5.7-2024/2/4"
-
-#define UNLOCK 0
-#define LOCK 1
-
-#define MODEL_END_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_02.mdl"
-#define MODEL_END_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-02.mdl"
-#define MODEL_END_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse02.mdl"
-
-#define MODEL_START_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_01.mdl"
-#define MODEL_START_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-01.mdl"
-#define MODEL_START_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse01.mdl"
-
-ConVar lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefore, lsTankDemolitionAfter,
-	lsType, lsMinSurvivorPercent, lsHint, lsGetInLimit, lsDoorOpeningTeleport, lsDoorOpeningTankInterval,
-	lsDoorBotDisable, lsMapOff, lsPreventDoorSpamDuration, lsDoorLockColor, lsDoorUnlockColor, lsDoorGlowRange, lsDoorOpenChance,
-	lsCountDownHintType;
-
-int iAntiFarmDuration, iDuration, iMobs, iType, g_iEndCheckpointDoor, g_iStartCheckpointDoor, iSystemTime, iGetInLimit, 
-	iDoorOpeningTankInterval, iDoorGlowRange, g_iDoorOpenChance, iDoorOpenChance, iCountDownHintType;
-int _iDoorOpeningTankInterval, g_iRoundStart, g_iPlayerSpawn, g_iDoorLockColors[3], g_iDoorUnlockColors[3],
-	iMinSurvivorPercent;
-float fDoorSpeed, fFirstUserOrigin[3], fPreventDoorSpamDuration;
-bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport, 
-	bTankDemolitionBefore, bTankDemolitionAfter, bSurvivorsAssembleAlready,
-	blsHint, bDoorBotDisable;
-bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord;
-char sKeyMan[128];
-Handle hAntiFarmTimer, hLockdownTimer, hSpawnMobTimer;
-
-ConVar lsMapTwoTanks, sb_unstick;
-bool g_bMapTwoTanks;
-bool sb_unstick_default;
+#define PLUGIN_VERSION "5.8-2024/2/20"
 
 GlobalForward g_hForwardOpenSafeRoomFinish;
+/**
+* @brief Called when saferoom door is completely opened
+*
+* @param sKeyMan    client name who opened the saferoom door.
+*
+* @noreturn
+* forward void L4D2_OnLockDownOpenDoorFinish(const char[] sKeyMan);
+*/
 
 bool g_bL4D2Version;
 static char sSpawnCommand[32];
@@ -80,6 +56,40 @@ public Plugin myinfo =
 	url = "https://forums.alliedmods.net/forumdisplay.php?f=108"
 };
 
+#define UNLOCK 0
+#define LOCK 1
+
+#define MODEL_END_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_02.mdl"
+#define MODEL_END_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-02.mdl"
+#define MODEL_END_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse02.mdl"
+
+#define MODEL_START_SAFEROOM_DOOR_1 "models/props_doors/checkpoint_door_01.mdl"
+#define MODEL_START_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-01.mdl"
+#define MODEL_START_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse01.mdl"
+
+ConVar lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefore, lsTankDemolitionAfter,
+	lsType, lsMinSurvivorPercent, lsHint, lsGetInLimit, lsDoorOpeningTeleport, lsDoorOpeningTankInterval,
+	lsDoorBotDisable, lsPreventDoorSpamDuration, lsDoorLockColor, lsDoorUnlockColor, lsDoorGlowRange, lsDoorOpenChance,
+	lsCountDownHintType;
+
+int iAntiFarmDuration, iDuration, iMobs, iType, g_iEndCheckpointDoor, g_iStartCheckpointDoor, iSystemTime, iGetInLimit, 
+	iDoorOpeningTankInterval, iDoorGlowRange, g_iDoorOpenChance, iDoorOpenChance, iCountDownHintType;
+int _iDoorOpeningTankInterval, g_iRoundStart, g_iPlayerSpawn, g_iDoorLockColors[3], g_iDoorUnlockColors[3],
+	iMinSurvivorPercent;
+float fDoorSpeed, fFirstUserOrigin[3], fPreventDoorSpamDuration;
+bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport, 
+	bTankDemolitionBefore, bTankDemolitionAfter, bSurvivorsAssembleAlready,
+	blsHint, bDoorBotDisable;
+bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord;
+char sKeyMan[128];
+Handle hAntiFarmTimer, hLockdownTimer, hSpawnMobTimer;
+
+ConVar sb_unstick;
+bool sb_unstick_default;
+
+static KeyValues 
+	g_hMapInfoData = null;
+
 public void OnPluginStart()
 {
 	LoadTranslations("lockdown_system-l4d2_b.phrases");
@@ -96,10 +106,9 @@ public void OnPluginStart()
 	lsMinSurvivorPercent = CreateConVar("lockdown_system-l4d2_percentage_survivors_near_saferoom", "50", "What percentage of the ALIVE survivors must assemble near the saferoom door before open. (0=off)", FCVAR_NOTIFY, true, 0.0, true, 100.0);
 	lsHint = CreateConVar(	"lockdown_system-l4d2_spam_hint", "1", "0=Off. 1=Display a message showing who opened or closed the saferoom door.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsGetInLimit = CreateConVar( "lockdown_system-l4d2_outside_slay_duration", "60", "After saferoom door is opened, slay players who are not inside saferoom in seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	lsDoorOpeningTeleport = CreateConVar( "lockdown_system-l4d2_teleport", "1", "0=Off. 1=Teleport common, special infected, and witch if they touch the door inside saferoom when door is opening. (prevent spawning and be stuck inside the saferoom, only works if Lockdown Type is 2)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsDoorOpeningTeleport = CreateConVar( "lockdown_system-l4d2_teleport", "1", "0=Off. 1=Teleport common, special infected if they touch the door inside saferoom when door is opening. (prevent spawning and be stuck inside the saferoom, only works if Lockdown Type is 2)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsDoorOpeningTankInterval = CreateConVar( "lockdown_system-l4d2_opening_tank_interval", "50", "Time Interval to spawn a tank when door is opening (0=off)", FCVAR_NOTIFY, true, 0.0);
 	lsDoorBotDisable = CreateConVar( "lockdown_system-l4d2_spam_bot_disable", "1", "If 1, prevent AI survivor from opening and closing the door.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsMapOff = CreateConVar("lockdown_system-l4d2_map_off",	"c10m3_ranchhouse,l4d_reverse_hos03_sewers,l4d2_stadium4_city2,l4d_fairview10_church,l4d2_wanli01,l4d_smalltown03_ranchhouse,l4d_vs_smalltown03_ranchhouse",	"Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).", FCVAR_NOTIFY );
 	lsPreventDoorSpamDuration = CreateConVar("lockdown_system-l4d2_prevent_spam_duration", "3.0", "How many seconds to lock after opening and closing the saferoom door.", FCVAR_NOTIFY, true, 0.0);
 	if(g_bL4D2Version)
 	{
@@ -109,8 +118,7 @@ public void OnPluginStart()
 	}
 	lsDoorOpenChance = CreateConVar("lockdown_system-l4d2_open_chance",	"2",	"After saferoom door is opened, how many chance can the survivors open the door. (0=Can't open door after close, -1=No limit)", FCVAR_NOTIFY );
 	lsCountDownHintType = CreateConVar("lockdown_system-l4d2_count_hint_type", "2", "Change how Count Down Timer Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	lsMapTwoTanks = CreateConVar("lockdown_system-l4d2_map_two_Tank",	"c1m3_mall",	"Two tanks during opening door in these maps, separate by commas (no spaces). (0=All maps, Empty = none).", FCVAR_NOTIFY );
-	
+
 	GetCvars();
 	lsAnnounce.AddChangeHook(OnLSCVarsChanged);
 	lsAntiFarmDuration.AddChangeHook(OnLSCVarsChanged);
@@ -154,10 +162,54 @@ public void OnPluginEnd()
 	sb_unstick.SetBool(sb_unstick_default);
 }
 
-bool g_bValidMap, g_bSLSDisable;
+bool g_bMapOff, g_bSLSDisable;
+int g_iMapOpeningTanks;
 public void OnMapStart()
 {
-	g_bValidMap = true;
+	if(L4D_IsMissionFinalMap(true))
+	{
+		g_bMapOff = true;
+		return;
+	}
+
+	char sCurrentMap[64];
+	GetCurrentMap(sCurrentMap, sizeof(sCurrentMap));
+
+	static char g_sMapInfoFilePath[256] = "";
+	if(g_sMapInfoFilePath[0] == '\0')
+	{
+		BuildPath(Path_SM, g_sMapInfoFilePath, sizeof(g_sMapInfoFilePath), "data/mapinfo.txt");
+	}
+	
+	delete g_hMapInfoData;
+	g_hMapInfoData = new KeyValues("MapInfo");
+	if (!g_hMapInfoData.ImportFromFile(g_sMapInfoFilePath)) {
+		SetFailState("[TS] Couldn't load MapInfo data!");
+		delete g_hMapInfoData;
+	}
+
+	g_bMapOff = false;
+	g_iMapOpeningTanks = 1;
+
+	if (g_hMapInfoData.JumpToKey(sCurrentMap)) 
+	{
+		if (g_hMapInfoData.GetNum("lockdown_system-l4d2_off", 0) == 1)
+		{
+			g_bMapOff = true;
+		}
+
+		g_iMapOpeningTanks = g_hMapInfoData.GetNum("lockdown_system-l4d2_opening_tank", 1);
+	}
+
+	if (!g_bMapOff)
+	{
+		PrecacheSound("doors/latchlocked2.wav", true);
+		PrecacheSound("doors/door_squeek1.wav", true);	
+		PrecacheSound("ambient/alarms/klaxon1.wav", true);
+		PrecacheSound("level/highscore.wav", true);
+	}
+
+	delete g_hMapInfoData;
 }
 
 public void OnMapEnd()
@@ -183,57 +235,6 @@ public void OnConfigsExecuted()
 	{
 		sb_unstick_default = sb_unstick.BoolValue;
 		g_bFirstRecord = true;
-	}
-
-	char sCvar[1024];
-	lsMapOff.GetString(sCvar, sizeof(sCvar));
-
-	char sMap[64];
-	GetCurrentMap(sMap, sizeof(sMap));
-	if( sCvar[0] != '\0' )
-	{
-		if( strcmp(sCvar, "0") == 0 )
-		{
-			g_bValidMap = false;
-		} else {
-			Format(sMap, sizeof(sMap), ",%s,", sMap);
-			Format(sCvar, sizeof(sCvar), ",%s,", sCvar);
-
-			if( StrContains(sCvar, sMap, false) != -1 )
-			{
-				g_bValidMap = false;
-			}
-		}
-	}
-
-	g_bMapTwoTanks = false;
-	lsMapTwoTanks.GetString(sCvar, sizeof(sCvar));
-	if( sCvar[0] != '\0' )
-	{
-		if( strcmp(sCvar, "0") == 0 )
-		{
-			g_bMapTwoTanks = true;
-		} else {
-			Format(sCvar, sizeof(sCvar), ",%s,", sCvar);
-
-			if( StrContains(sCvar, sMap, false) != -1 )
-			{
-				g_bMapTwoTanks = true;
-			}
-		}
-	}
-
-	if(L4D_IsMissionFinalMap(true))
-	{
-		g_bValidMap = false;
-	}
-
-	if (g_bValidMap)
-	{
-		PrecacheSound("doors/latchlocked2.wav", true);
-		PrecacheSound("doors/door_squeek1.wav", true);	
-		PrecacheSound("ambient/alarms/klaxon1.wav", true);
-		PrecacheSound("level/highscore.wav", true);
 	}
 }
 
@@ -277,7 +278,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 
 Action tmrStart(Handle timer)
 {
-	if (g_bValidMap == false)
+	if (g_bMapOff)
 	{
 		return Plugin_Continue;
 	}
@@ -306,7 +307,7 @@ Action tmrStart(Handle timer)
 
 void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcast) 
 {
-	if (g_bValidMap == false || !bTankDemolitionAfter || !bLDFinished)
+	if (g_bMapOff || !bTankDemolitionAfter || !bLDFinished)
 	{
 		return;
 	}
@@ -319,10 +320,7 @@ void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_SpawnTank(Handle timer)
 {
-	if(RealFreePlayersOnInfected())
-		CheatCommand(my_GetRandomClient(), sSpawnCommand, "tank auto");
-	else
-		ExecuteSpawn(true, 1);
+	ExecuteSpawn(true, 1);
 	
 	return Plugin_Continue;
 }
@@ -333,7 +331,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 	bRoundEnd = true;
 
-	if (g_bValidMap == false)
+	if (g_bMapOff)
 	{
 		return;
 	}
@@ -375,7 +373,7 @@ Action OrderShutDown(Handle timer)
 
 Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, float value)
 {
-	if (g_bValidMap == false || bRoundEnd || g_bSLSDisable)
+	if (g_bMapOff || bRoundEnd || g_bSLSDisable)
 	{
 		return Plugin_Continue;
 	}
@@ -438,10 +436,8 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 
 			if(bTankDemolitionBefore && !bSpawnTank) 
 			{
-				if(g_bMapTwoTanks)
-					ExecuteSpawn(true , 2);
-				else
-					ExecuteSpawn(true , 1);
+				if(g_iMapOpeningTanks > 0)
+					ExecuteSpawn(true , g_iMapOpeningTanks);
 
 				bSpawnTank = true;
 			}
@@ -645,12 +641,8 @@ Action LockdownOpening(Handle timer, any entity)
 
 	if(iDoorOpeningTankInterval > 0 && _iDoorOpeningTankInterval >= iDoorOpeningTankInterval)
 	{
-		CreateTimer(0.1, Timer_SpawnTank, _,TIMER_FLAG_NO_MAPCHANGE);
-
-		if(g_bMapTwoTanks)
-		{
-			CreateTimer(0.2, Timer_SpawnTank, _,TIMER_FLAG_NO_MAPCHANGE);
-		}
+		if(g_iMapOpeningTanks > 0)
+			ExecuteSpawn(true , g_iMapOpeningTanks);
 		
 		_iDoorOpeningTankInterval = 0;
 	}
@@ -673,7 +665,7 @@ Action LaunchTankDemolition(Handle timer)
 		return Plugin_Continue;
 	}
 	
-	ExecuteSpawn(true, 4);
+	ExecuteSpawn(true, 5);
 	if (bAnnounce)
 	{
 		CPrintToChatAll("{default}[{olive}TS{default}] %t","Tanks are coming");
@@ -946,12 +938,12 @@ int GetTankCount()
 	return iCount;
 }
 
-stock bool IsSurvivor(int client)
+bool IsSurvivor(int client)
 {
 	return (client > 0 && client <= MaxClients && IsClientInGame(client) && GetClientTeam(client) == 2);
 }
 
-stock bool IsCommonInfected(int entity)
+bool IsCommonInfected(int entity)
 {
 	if (entity > 0 && IsValidEntity(entity))
 	{
@@ -963,7 +955,7 @@ stock bool IsCommonInfected(int entity)
 	return false;
 }
 
-stock void ExecuteSpawn(bool btank, int iCount)
+void ExecuteSpawn(bool btank, int iCount)
 {
 	if (btank)
 	{
@@ -971,7 +963,7 @@ stock void ExecuteSpawn(bool btank, int iCount)
 		iCount--;
 		for (int i = 1; i <= iCount; i++)
 		{
-			CreateTimer(0.5 * i, Timer_CreateTank, _, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.25 * i, Timer_CreateTank, _, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	else
@@ -1019,14 +1011,21 @@ Action Timer_CreateTank(Handle timer)
 
 void CreateTankBot()
 {
-	float vecPos[3];
-	int anyclient = my_GetRandomClient();
-	if(anyclient > 0 && L4D_GetRandomPZSpawnPosition(anyclient,8,5,vecPos) == true)
+	if(RealFreePlayersOnInfected())
 	{
-		int newtankbot = NoLimit_CreateInfected("tank", vecPos, NULL_VECTOR);//召喚坦克
-		if (newtankbot > 0)
+		CheatCommand(my_GetRandomClient(), sSpawnCommand, "tank auto");
+	}
+	else
+	{
+		float vecPos[3];
+		int anyclient = my_GetRandomClient();
+		if(anyclient > 0 && L4D_GetRandomPZSpawnPosition(anyclient,8,5,vecPos) == true)
 		{
-			CreateTimer(3.0, AttackOnTank, GetClientUserId(newtankbot), TIMER_FLAG_NO_MAPCHANGE);
+			int newtankbot = NoLimit_CreateInfected("tank", vecPos, NULL_VECTOR);//召喚坦克
+			if (newtankbot > 0)
+			{
+				CreateTimer(3.0, AttackOnTank, GetClientUserId(newtankbot), TIMER_FLAG_NO_MAPCHANGE);
+			}
 		}
 	}
 }
@@ -1044,41 +1043,32 @@ Action AttackOnTank(Handle timer, int tank)
 	return Plugin_Continue;
 }
 
-stock bool IsPlayerGhost(int client)
-{
-	if (GetEntProp(client, Prop_Send, "m_isGhost", 1)) return true;
-	return false;
-}
-
-bool IsValidClient(int client, bool replaycheck = true)
+bool IsValidClient(int client)
 {
 	if (client <= 0 || client > MaxClients) return false;
 	if (!IsClientInGame(client)) return false;
-	//if (GetEntProp(client, Prop_Send, "m_bIsCoaching")) return false;
-	if (replaycheck)
-	{
-		if (IsClientSourceTV(client) || IsClientReplay(client)) return false;
-	}
+
 	return true;
 }
 
-stock void CheatCommand(int client,  char[] command, char[] arguments = "")
+void CheatCommand(int client,  char[] command, char[] arguments = "")
 {
 	if(client == 0) return;
+
 	int userFlags = GetUserFlagBits(client);
 	SetUserFlagBits(client, ADMFLAG_ROOT);
 	int flags = GetCommandFlags(command);
 	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
 	FakeClientCommand(client, "%s %s", command, arguments);
 	SetCommandFlags(command, flags);
-	SetUserFlagBits(client, userFlags);
+	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
 }
 
 bool RealFreePlayersOnInfected ()
 {
 	for (int i=1;i<=MaxClients;i++)
 	{
-		if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 3 && (IsPlayerGhost(i) || !IsPlayerAlive(i)))
+		if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 3 && !IsPlayerAlive(i))
 			return true;
 	}
 	return false;
@@ -1173,7 +1163,7 @@ void OnTouch(int door, int other)
 	//}
 }
 
-stock bool IsWitch(int entity)
+/*bool IsWitch(int entity)
 {
     if (entity > 0 && IsValidEntity(entity))
     {
@@ -1182,7 +1172,7 @@ stock bool IsWitch(int entity)
         return strcmp(strClassName, "witch") == 0;
     }
     return false;
-}
+}*/
 
 void ResetPlugin()
 {

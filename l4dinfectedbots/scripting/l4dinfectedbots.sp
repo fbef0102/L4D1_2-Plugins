@@ -836,7 +836,7 @@ Handle PlayerLeftStartTimer = null; //Detect player has left safe area or not
 Handle infHUDTimer 		= null;	// The main HUD refresh timer
 Handle g_hCheckSpawnTimer 		= null;	// The main HUD refresh timer
 Panel pInfHUD = null;
-Handle usrHUDPref 		= null;	// Stores the client HUD preferences persistently
+StringMap usrHUDPref 		= null;	// Stores the client HUD preferences persistently
 Handle FightOrDieTimer[MAXPLAYERS+1] = {null}; // kill idle bots
 Handle hSpawnWitchTimer = null;
 Handle RestoreColorTimer[MAXPLAYERS+1] = {null};
@@ -867,7 +867,7 @@ static Handle hCreateTank = null;
 #define NAME_CreateTank_L4D1 "reloffs_NextBotCreatePlayerBot<Tank>"
 
 int respawnDelay[MAXPLAYERS+1]; 			// Used to store individual player respawn delays after death
-int hudDisabled[MAXPLAYERS+1];				// Stores the client preference for whether HUD is shown
+bool hudDisabled[MAXPLAYERS+1];				// Stores the client preference for whether HUD is shown
 int clientGreeted[MAXPLAYERS+1]; 			// Stores whether or not client has been shown the mod commands/announce
 bool roundInProgress 		= false;		// Flag that marks whether or not a round is currently in progress
 float fPlayerSpawnEngineTime[MAXPLAYERS+1] = {0.0}; //time when real infected player spawns
@@ -1010,7 +1010,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_checkqueue", CheckQueue);
 
 	// Hook "say" so clients can toggle HUD on/off for themselves
-	RegConsoleCmd("sm_infhud", Command_Say, "(Infected only) Toggle HUD on/off for themselves");
+	RegConsoleCmd("sm_infhud", Command_infhud, "(Infected only) Toggle HUD on/off for themselves");
 
 	// We register the version cvar
 	CreateConVar("l4d_infectedbots_version", PLUGIN_VERSION, "Version of L4D Infected Bots", FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -1722,7 +1722,8 @@ void IsAllowed()
 		g_bCvarAllow = true;
 
 		// Create persistent storage for client HUD preferences
-		usrHUDPref = CreateTrie();
+		delete usrHUDPref;
+		usrHUDPref = new StringMap();
 
 		SetSpawnDis();
 
@@ -1928,30 +1929,18 @@ public void OnClientPutInServer(int client)
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	g_bAdjustTankHealth[client] = false;
 
-	// If is a bot, skip this function
 	if (IsFakeClient(client))
 		return;
 
 	iPlayerTeam[client] = 1;
 
-	// Durzel's code ***********************************************************************************
 	char clientSteamID[32];
-	int doHideHUD;
 
-//	GetClientAuthString(client, clientSteamID, 32);
+	GetClientAuthId(client, AuthId_SteamID64, clientSteamID, sizeof(clientSteamID));
 
 	// Try and find their HUD visibility preference
-	int foundKey = GetTrieValue(usrHUDPref, clientSteamID, doHideHUD);
-	if (foundKey)
-	{
-		if (doHideHUD)
-		{
-			// This user chose not to view the HUD at some point in the game
-			hudDisabled[client] = 1;
-		}
-	}
-	//else hudDisabled[client] = 1;
-	// End Durzel's code **********************************************************************************
+	hudDisabled[client] = false;
+	usrHUDPref.GetValue(clientSteamID, hudDisabled[client]);
 }
 
 Action CheckQueue(int client, int args)
@@ -1971,35 +1960,34 @@ Action CheckQueue(int client, int args)
 Action JoinInfectedInCoop(int client, int args)
 {
 	if ( g_bCvarAllow == false) return Plugin_Continue;
+	if (L4D_HasPlayerControlledZombies()) return Plugin_Continue;
+	if (client == 0 || IsFakeClient(client)) return Plugin_Continue;
 	if ( g_ePluginSettings.m_bCoopVersusEnable == false ) return Plugin_Continue;
 
-	if (client && !IsFakeClient(client) && L4D_HasPlayerControlledZombies() == false)
+	static char sSteamId[64];
+	GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
+	float fLockTime, now = GetEngineTime();
+	if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
 	{
-		static char sSteamId[64];
-		GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
-		float fLockTime, now = GetEngineTime();
-		if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
-		{
-			CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
-			PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
-			return Plugin_Continue;
-		}
+		CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
+		PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
+		return Plugin_Continue;
+	}
 
-		if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
+	if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
+	{
+		if (HumansOnInfected() < g_ePluginSettings.m_iCoopVersusHumanLimit)
 		{
-			if (HumansOnInfected() < g_ePluginSettings.m_iCoopVersusHumanLimit)
-			{
-				CleanUpStateAndMusic(client);
-				ChangeClientTeam(client, TEAM_INFECTED);
-				iPlayerTeam[client] = TEAM_INFECTED;
-			}
-			else
-				PrintHintText(client, "[TS] The Infected Team is full.");
+			CleanUpStateAndMusic(client);
+			ChangeClientTeam(client, TEAM_INFECTED);
+			iPlayerTeam[client] = TEAM_INFECTED;
 		}
 		else
-		{
-			PrintHintText(client, "[TS] %T", "Access", client);
-		}
+			PrintHintText(client, "[TS] The Infected Team is full.");
+	}
+	else
+	{
+		PrintHintText(client, "[TS] %T", "Access", client);
 	}
 
 	return Plugin_Continue;
@@ -2811,7 +2799,6 @@ public void OnClientDisconnect(int client)
 	iPlayerTeam[client] = 1;
 	// When a client disconnects we need to restore their HUD preferences to default for when
 	// a int client joins and fill the space.
-	hudDisabled[client] = 0;
 	clientGreeted[client] = 0;
 
 	// Reset all other arrays
@@ -4266,26 +4253,27 @@ Action Timer_CheckSpawn(Handle timer)
 	return Plugin_Continue;
 }
 
-Action Command_Say(int client, int args)
+Action Command_infhud(int client, int args)
 {
 	if( g_bCvarAllow == false) return Plugin_Handled;
+	if( client == 0 || IsFakeClient(client)) return Plugin_Handled;
 
 	char clientSteamID[32];
-	//GetClientAuthString(client, clientSteamID, 32);
+	GetClientAuthId(client, AuthId_SteamID64, clientSteamID, sizeof(clientSteamID));
 
 	if (g_bInfHUD)
 	{
 		if (!hudDisabled[client])
 		{
 			PrintToChat(client, "\x01\x04[infhud]\x01 %T","Hud Disable",client);
-			SetTrieValue(usrHUDPref, clientSteamID, 1);
-			hudDisabled[client] = 1;
+			usrHUDPref.SetValue(clientSteamID, true);
+			hudDisabled[client] = true;
 		}
 		else
 		{
 			PrintToChat(client, "\x01\x04[infhud]\x01 %T","Hud Enable",client);
-			RemoveFromTrie(usrHUDPref, clientSteamID);
-			hudDisabled[client] = 0;
+			usrHUDPref.Remove(clientSteamID);
+			hudDisabled[client] = false;
 		}
 	}
 	else
@@ -4293,6 +4281,7 @@ Action Command_Say(int client, int args)
 		// Server admin has disabled Infected HUD server-wide
 		PrintToChat(client, "\x01\x04[infhud]\x01 %T","Infected HUD is currently DISABLED",client);
 	}
+
 	return Plugin_Handled;
 }
 
@@ -4492,7 +4481,7 @@ void ShowInfectedHUD()
 		{
 			if ( GetClientTeam(i) == TEAM_INFECTED /*|| GetClientTeam(i) == TEAM_SPECTATOR*/ )
 			{
-				if( hudDisabled[i] == 0 && (GetClientMenu(i) == MenuSource_RawPanel || GetClientMenu(i) == MenuSource_None))
+				if( hudDisabled[i] == false && (GetClientMenu(i) == MenuSource_RawPanel || GetClientMenu(i) == MenuSource_None))
 				{
 					pInfHUD.Send(i, Menu_InfHUDPanel, 3);
 				}
