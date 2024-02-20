@@ -38,9 +38,6 @@ Locks Saferoom Door Until Someone Opens It.
         // (L4D2) The default glow color for saferoom door when lock. Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.
         lockdown_system-l4d2_lock_glow_color "255 0 0"
 
-        // Turn off the plugin in these maps, separate by commas (no spaces). (0=All maps, Empty = none).
-        lockdown_system-l4d2_map_off "c10m3_ranchhouse,l4d_reverse_hos03_sewers,l4d2_stadium4_city2,l4d_fairview10_church,l4d2_wanli01,l4d_smalltown03_ranchhouse,l4d_vs_smalltown03_ranchhouse"
-
         // Number Of Mobs To Spawn (-1=infinite horde, 0=Off)
         lockdown_system-l4d2_mobs "5"
 
@@ -49,9 +46,6 @@ Locks Saferoom Door Until Someone Opens It.
 
         // Time Interval to spawn a tank when door is opening (0=off)
         lockdown_system-l4d2_opening_tank_interval "50"
-
-        // Two tanks during opening door in these maps, separate by commas (no spaces). (0=All maps, Empty = none).
-        lockdown_system-l4d2_map_two_Tank "c1m3_mall"
 
         // After saferoom door is opened, slay players who are not inside saferoom in seconds. (0=off)
         lockdown_system-l4d2_outside_slay_duration "60"
@@ -74,7 +68,7 @@ Locks Saferoom Door Until Someone Opens It.
         // If 1, Enable Tank Demolition, server will spawn tank before door open 
         lockdown_system-l4d2_tank_demolition_before "1"
 
-        // 0=Off. 1=Teleport common, special infected, and witch if they touch the door inside saferoom when door is opening. (prevent spawning and be stuck inside the saferoom, only works if Lockdown Type is 2)
+        // 0=Off. 1=Teleport common, special infected if they touch the door inside saferoom when door is opening. (prevent spawning and be stuck inside the saferoom, only works if Lockdown Type is 2)
         lockdown_system-l4d2_teleport "1"
 
         // Lockdown Type: 0=Random, 1=Improved (opening slowly), 2=Default
@@ -90,20 +84,40 @@ Locks Saferoom Door Until Someone Opens It.
     None
 </details>
 
+* <details><summary>Data Config</summary>
+  
+	* data/mapinfo.txt
+		```php
+		"MapInfo"
+		{
+            "c1m3_mall" // map name
+            {	
+                "lockdown_system-l4d2_opening_tank" "2" //Numbers of tanks to spawn during opening door in this maps
+            }
+            
+            "c10m3_ranchhouse"
+            {
+                "lockdown_system-l4d2_off" "1" // disable plugin in this map
+            }
+
+			...
+		}
+		```
+</details>
+
 * <details><summary>API | 串接</summary>
 
     ```c
     /**
     * @brief Called when saferoom door is completely opened
     *
-    * @param sKeyMan    who opened the saferoom door.
+    * @param sKeyMan    client name who opened the saferoom door.
     *
     * @noreturn
     */
     forward void L4D2_OnLockDownOpenDoorFinish(const char[] sKeyMan);
     ```
 </details>
-
 
 * Apply to | 適用於
     ```
@@ -127,8 +141,12 @@ Locks Saferoom Door Until Someone Opens It.
 
     ```php
     //cravenge @ 2016-2019
-    //HarryPotter @ 2020-2023
+    //HarryPotter @ 2020-2024
     ```
+    * v5.8 (2024-2-20)
+        * Update Cvars
+        * Add Data config to disable plugin in which maps
+
     * v5.7 (2024-2-4)
         * Update Cvars
 
@@ -202,9 +220,6 @@ Locks Saferoom Door Until Someone Opens It.
         // (L4D2) 大門解鎖狀態的光圈顏色
         lockdown_system-l4d2_unlock_glow_color "200 200 200"
 
-        // 在這些地圖上關閉插件，逗號區隔，不能有空白. (0=全部地圖, 留白=沒有).
-        lockdown_system-l4d2_map_off "c10m3_ranchhouse,l4d_reverse_hos03_sewers,l4d2_stadium4_city2,l4d_fairview10_church,l4d2_wanli01,l4d_smalltown03_ranchhouse,l4d_vs_smalltown03_ranchhouse"
-
         // 大門開啟期間屍潮生成的數量 (-1=無限屍潮, 0=不要生成屍潮)
         lockdown_system-l4d2_mobs "5"
 
@@ -213,9 +228,6 @@ Locks Saferoom Door Until Someone Opens It.
 
         // 大門開啟期間，每50秒生成一隻Tank (0=不生成)
         lockdown_system-l4d2_opening_tank_interval "50"
-
-        // 在這些地圖上大門開啟期間，生成兩隻Tank，逗號區隔，不能有空白. (0=全部地圖, 留白=沒有).
-        lockdown_system-l4d2_map_two_Tank "c1m3_mall"
 
         // 大門開啟之後經過60秒，如果還有倖存者逗留在門外，將處死 (0=關閉) <= 避免傻B在外面逗留
         lockdown_system-l4d2_outside_slay_duration "60"
@@ -238,10 +250,31 @@ Locks Saferoom Door Until Someone Opens It.
         // 為1時, 大門開啟之前，生成一隻Tank
         lockdown_system-l4d2_tank_demolition_before "1"
 
-        // 0=關閉. 1=大門開啟期間，傳送安全室內的普通感染者與特感以及Witch到門外 (避免他們都生在室內卡住, 只有lockdown_system-l4d2_type指令是2才會運作)
+        // 0=關閉. 1=大門開啟期間，安全室內的普通感染者與特感碰到門會傳送到門外 (避免他們都生在室內卡住, 只有lockdown_system-l4d2_type指令是2才會運作)
         lockdown_system-l4d2_teleport "1"
 
         // 大門開啟方式: 0=隨機, 1=緩慢地打開, 2=預設
         lockdown_system-l4d2_type "0"
         ```
+</details>
+
+* <details><summary>文件設定範例</summary>
+  
+	* data/mapinfo.txt
+		```php
+		"MapInfo"
+		{
+            "c1m3_mall" // 地圖名
+            {	
+                "lockdown_system-l4d2_opening_tank" "2" // 大門開啟期間，生成Tank的數量 (沒有寫則預設是1)
+            }
+            
+            "c10m3_ranchhouse"
+            {
+                "lockdown_system-l4d2_off" "1" // 1=在這張地圖關閉此插件 (沒有寫則自動開啟)
+            }
+
+			...
+		}
+		```
 </details>

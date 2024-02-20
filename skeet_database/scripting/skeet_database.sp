@@ -459,20 +459,23 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 		}
 		g_bIsPouncing[victim] = false;
 		g_bHasLandedPounce[attacker] = false;
-		Handle pack;
+		DataPack pack;
 		CreateDataTimer(0.2, Timer_DeadstopCheck, pack, TIMER_FLAG_NO_MAPCHANGE);
-		WritePackCell(pack, attacker);
-		WritePackCell(pack, victim);
+		WritePackCell(pack, GetClientUserId(attacker));
+		WritePackCell(pack, GetClientUserId(victim));
 	}
 }
 
-Action Timer_DeadstopCheck(Handle timer, Handle pack)
+Action Timer_DeadstopCheck(Handle timer, DataPack pack)
 {
-	ResetPack(pack, false);
-	int attacker = ReadPackCell(pack);
+	pack.Reset();
+	int attacker = GetClientOfUserId(pack.ReadCell());
+	int victim = GetClientOfUserId(pack.ReadCell());
+	if (!attacker || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2) return Plugin_Continue;
+	if (!victim || !IsClientInGame(victim) || GetClientTeam(victim) != 3) return Plugin_Continue;
+
 	if (!g_bHasLandedPounce[attacker])
 	{
-		int victim = ReadPackCell(pack);
 		if (!IsFakeClient(victim) || (IsFakeClient(victim) && g_hCvarAIHunter.BoolValue) )
 		{
 			if (IsClientInGame(victim) && IsClientInGame(attacker))
@@ -495,6 +498,7 @@ Action Timer_DeadstopCheck(Handle timer, Handle pack)
 			}
 		}
 	}
+	
 	return Plugin_Continue;
 }
 
