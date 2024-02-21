@@ -1,3 +1,4 @@
+//此插件0.2秒後設置Tank血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
 * Version	: 2.9.2  (2009-2024)
@@ -762,8 +763,9 @@
 #define GAMEDATA_FILE           PLUGIN_NAME
 
 #define TEAM_SPECTATOR		1
-#define TEAM_SURVIVORS 		2
-#define TEAM_INFECTED 		3
+#define TEAM_SURVIVOR		2
+#define TEAM_INFECTED		3
+#define TEAM_HOLD_OUT		4
 
 #define ZOMBIECLASS_SMOKER	1
 #define ZOMBIECLASS_BOOMER	2
@@ -1494,7 +1496,7 @@ Action Timer_PluginStart(Handle timer)
 			// We check if player is in game
 			if (!IsClientInGame(i)) continue;
 			// Check if client is survivor ...
-			if (GetClientTeam(i)==TEAM_SURVIVORS)
+			if (GetClientTeam(i)==TEAM_SURVIVOR)
 			{
 				// If player is a real player ...
 				if (!IsFakeClient(i))
@@ -2219,7 +2221,7 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	g_iPlayerSpawn = 1;
 
-	if(GetClientTeam(client) == TEAM_SURVIVORS)
+	if(GetClientTeam(client) == TEAM_SURVIVOR)
 	{
 		RemoveSurvivorModelGlow(client);
 		CreateTimer(0.3, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
@@ -2304,7 +2306,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(client) DeleteLight(client); // Delete attached flashlight
 
-	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS)
+	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVOR)
 	{
 		RemoveSurvivorModelGlow(client);
 		delete DisplayTimer;
@@ -2827,7 +2829,7 @@ public void OnClientDisconnect(int client)
 
 	if(roundInProgress == false) { respawnDelay[client] = 0; return;}
 
-	if(GetClientTeam(client) == TEAM_SURVIVORS)
+	if(GetClientTeam(client) == TEAM_SURVIVOR)
 	{
 		delete DisplayTimer;
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
@@ -3120,7 +3122,7 @@ int CountHumanInfected()
 void Event_Incap(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVORS) return;
+	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVOR) return;
 
 	int entity = g_iModelIndex[client];
 	if( IsValidEntRef(entity) )
@@ -3132,7 +3134,7 @@ void Event_Incap(Event event, const char[] name, bool dontBroadcast)
 void Event_revive_success(Event event, const char[] name, bool dontBroadcast)
 {
 	int subject = GetClientOfUserId(event.GetInt("subject"));//被救的那位
-	if(!subject && !IsClientInGame(subject) && GetClientTeam(subject) != TEAM_SURVIVORS) return;
+	if(!subject && !IsClientInGame(subject) && GetClientTeam(subject) != TEAM_SURVIVOR) return;
 
 	int entity = g_iModelIndex[subject];
 	if( IsValidEntRef(entity) )
@@ -3144,7 +3146,7 @@ void Event_revive_success(Event event, const char[] name, bool dontBroadcast)
 void Event_ledge_release(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVORS) return;
+	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVOR) return;
 
 	int entity = g_iModelIndex[client];
 	if( IsValidEntRef(entity) )
@@ -3156,7 +3158,7 @@ void Event_ledge_release(Event event, const char[] name, bool dontBroadcast)
 void Event_GotVomit(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVORS) return;
+	if(!client && !IsClientInGame(client) && GetClientTeam(client) != TEAM_SURVIVOR) return;
 
 	int entity = g_iModelIndex[client];
 	if( IsValidEntRef(entity) )
@@ -3193,7 +3195,7 @@ Action KickWitch_Timer(Handle timer, int ref)
 		GetEntPropVector(entity, Prop_Send, "m_vecOrigin", witchOrigin);
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
+			if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i))
 			{
 				GetClientAbsOrigin(i, clientOrigin);
 				if (GetVectorDistance(clientOrigin, witchOrigin, true) < Pow(1500.0, 2.0))
@@ -3205,7 +3207,7 @@ Action KickWitch_Timer(Handle timer, int ref)
 		}
 
 		if(bKill) AcceptEntityInput(ref, "kill"); //remove witch
-		else CreateTimer(g_ePluginSettings.m_fWitchLife, KickWitch_Timer,EntIndexToEntRef(entity),TIMER_FLAG_NO_MAPCHANGE);
+		else CreateTimer(g_ePluginSettings.m_fWitchLife, KickWitch_Timer, ref,TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	return Plugin_Continue;
@@ -4007,7 +4009,7 @@ int  FindBotToTakeOver()
 		if (!IsClientInGame(i)) continue;
 
 		// Check if client is survivor ...
-		if (GetClientTeam(i) == TEAM_SURVIVORS)
+		if (GetClientTeam(i) == TEAM_SURVIVOR)
 		{
 			// If player is a bot and is alive...
 			if (IsFakeClient(i) && IsPlayerAlive(i))
@@ -4414,7 +4416,24 @@ void ShowInfectedHUD()
 					}
 					else
 					{
-						if(IsPlayerTank(i) && !IsFakeClient(i)) Format(iStatus, sizeof(iStatus), "%i - %d%%", iHP,100-GetFrustration(i));
+						if(IsPlayerTank(i)) 
+						{
+							if(L4D_IsPlayerIncapacitated(i))
+							{
+								Format(iStatus, sizeof(iStatus), "DEAD");
+							}
+							else
+							{
+								if(!IsFakeClient(i))
+								{
+									Format(iStatus, sizeof(iStatus), "%i - %d%%", iHP,100-GetFrustration(i));
+								}
+								else
+								{
+									Format(iStatus, sizeof(iStatus), "%i", iHP);
+								}
+							}
+						}
 						else Format(iStatus, sizeof(iStatus), "%i", iHP);
 					}
 				}
@@ -4819,7 +4838,7 @@ int CheckAliveSurvivorPlayers_InSV()
 	int iPlayersInAliveSurvivors=0;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
+		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR)
 		{
 			if(IsPlayerAlive(i)) iPlayersInAliveSurvivors++;
 			else if(g_bIncludingDead && !IsPlayerAlive(i)) iPlayersInAliveSurvivors++;
@@ -5047,7 +5066,7 @@ void CreateSurvivorModelGlow(int client)
 	if (!g_bL4D2Version ||
 	!client ||
 	!IsClientInGame(client) ||
-	GetClientTeam(client) != TEAM_SURVIVORS ||
+	GetClientTeam(client) != TEAM_SURVIVOR ||
 	!IsPlayerAlive(client) ||
 	IsValidEntRef(g_iModelIndex[client]) == true ||
 	L4D_HasPlayerControlledZombies() ||
@@ -5169,7 +5188,7 @@ int GetRandomAliveSurvivor()
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && IsPlayerAlive(i))
+		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i))
 		{
 			iClients[iClientCount++] = i;
 		}
@@ -5261,7 +5280,7 @@ bool CanBeSeenBySurvivors(int infected)
 bool IsAliveSurvivor(int client)
 {
     return IsClientInGame(client)
-        && GetClientTeam(client) == TEAM_SURVIVORS
+        && GetClientTeam(client) == TEAM_SURVIVOR
         && IsPlayerAlive(client);
 }
 
@@ -5564,7 +5583,7 @@ bool IsTooClose(int client, float distance)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVORS && IsPlayerAlive(i))
+		if(IsClientInGame(i) && GetClientTeam(i)==TEAM_SURVIVOR && IsPlayerAlive(i))
 		{
 			GetClientAbsOrigin(i, fSurvLocation);
 			MakeVectorFromPoints(fInfLocation, fSurvLocation, fVector);
@@ -5943,7 +5962,7 @@ int GetSurvivorsInServer()
 	int count = 0;
 	for(int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR)
 		{
 			count++;
 		}

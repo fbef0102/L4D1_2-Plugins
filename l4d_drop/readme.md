@@ -40,6 +40,9 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>API | 串接</summary>
 
+	```php
+	Registers a library name: l4d_drop
+	```
 	```c
 	/**
 	* @brief Called whenever weapon prepared to drop by plugin l4d_drop

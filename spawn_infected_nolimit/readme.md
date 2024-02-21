@@ -41,18 +41,10 @@ Spawn special infected without the director limits!
 
 * <details><summary>API | 串接</summary>
 
-	```c
-	/**
-	* @brief 			   Spawn special infected without the director limits!
-	*
-	* @param zomb          S.I. Name: "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch", "witch_bride"
-	* @param vecPos        Vector coordinate where the special will be spawned
-	* @param vecAng         QAngle where special will be facing
-	*
-	* @return              client index of the spawned special infected, -1 if fail to spawn
-	*/
-	native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3]);
-	```
+	* ```scripting\include\spawn_infected_nolimit.inc```
+		```php
+		Registers a library name: spawn_infected_nolimit
+		```
 </details>
 
 * Apply to | 適用於

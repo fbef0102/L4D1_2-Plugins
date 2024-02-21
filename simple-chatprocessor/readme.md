@@ -29,6 +29,9 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>API | 串接</summary>
 
+	```php
+	Registers a library name: simple-chatcolors
+	```
 	```c
 	/**********************************************************************
 	* Gets the current flags for the chat message
