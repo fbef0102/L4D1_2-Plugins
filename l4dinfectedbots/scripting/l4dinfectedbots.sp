@@ -1,7 +1,7 @@
 //此插件0.2秒後設置Tank血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.2  (2009-2024)
+* Version	: 2.9.3  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,7 +9,13 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
-* 
+*
+* Version 2.9.3 (2024-2-23)
+*	   - You can choose to load different data config instead of xxxx.cfg (xxxx = gamemode or mutation name) in data\l4dinfectedbots folder
+*	   - Update Data Config
+*	   - Update Translation
+*	   - Update Cvars
+*
 * Version 2.9.2 (2024-2-18)
 *	   - Update Translation
 *	   - Update Commands
@@ -757,7 +763,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.2"
+#define PLUGIN_VERSION 			"2.9.3"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -832,7 +838,9 @@ bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_te
 bool g_bFirstRecord, g_bConfigsExecuted;
 
 ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
-ConVar h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead;
+ConVar h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead,
+	g_hCvarReloadSettings;
+char g_sCvarReloadSettings[64];
 
 Handle PlayerLeftStartTimer = null; //Detect player has left safe area or not
 Handle infHUDTimer 		= null;	// The main HUD refresh timer
@@ -933,7 +941,7 @@ enum struct EPluginData
 	bool m_bSpawnSafeZone;
 	int m_iSpawnWhereMethod;
 	float m_fSpawnRangeMin;
-	bool m_bVersusSpawnDisableBots;
+	bool m_bSpawnDisableBots;
 	bool m_bTankDisableSpawn;
 	bool m_bCoordination;
 
@@ -1028,6 +1036,7 @@ public void OnPluginStart()
 	h_VersusCoop = 						CreateConVar("l4d_infectedbots_versus_coop", 							"0", 		"If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge.\nEnable this also allow game to continue with survivor bots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_ZSDisableGamemode = 				CreateConVar("l4d_infectedbots_sm_zss_disable_gamemode", 				"6", 		"Disable sm_zss command in these gamemode (0: None, 1: coop/realism, 2: versus/scavenge, 4: survival, add numbers together)", FCVAR_NOTIFY, true, 0.0, true, 7.0);
 	h_IncludingDead = 					CreateConVar("l4d_infectedbots_calculate_including_dead", 				"0", 		"If 1, including dead players when count the number of survivors.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarReloadSettings = 			CreateConVar("l4d_infectedbots_read_data", 								"", 		"Which xxxx.cfg file should this plugin read for settings in data/l4dinfectedbots folder (Ex: \"custom_tanks\" = reads 'data/l4dinfectedbots/custom_tanks.cfg')\nEmpty=By default, reads data/l4dinfectedbots/xxxx.cfg (xxxx = gamemode or mutation name).", FCVAR_NOTIFY);
 
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
 	g_hCvarMPGameMode.GetString(g_sCvarMPGameMode, sizeof(g_sCvarMPGameMode));
@@ -1053,6 +1062,7 @@ public void OnPluginStart()
 	h_Announce.AddChangeHook(ConVarChanged_Cvars);
 	h_ZSDisableGamemode.AddChangeHook(ConVarChanged_Cvars);
 	h_IncludingDead.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarReloadSettings.AddChangeHook(ConVarChanged_ReloadSettings);
 
 	g_bVersusCoop = h_VersusCoop.BoolValue;
 	h_VersusCoop.AddChangeHook(ConVarVersusCoop);
@@ -1104,12 +1114,27 @@ void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newV
 	GetCvars();
 }
 
+void ConVarChanged_ReloadSettings(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	GetCvars();
+
+	if(g_bConfigsExecuted)
+	{
+		LoadData();
+
+		g_iPlayersInSurvivorTeam = -1;
+		delete DisplayTimer;
+		DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
+	}
+}
+
 void GetCvars()
 {
 	g_bInfHUD = h_InfHUD.BoolValue;
 	g_bAnnounce = h_Announce.BoolValue;
 	g_iZSDisableGamemode = h_ZSDisableGamemode.IntValue;
 	g_bIncludingDead = h_IncludingDead.BoolValue;
+	g_hCvarReloadSettings.GetString(g_sCvarReloadSettings, sizeof(g_sCvarReloadSettings));
 }
 void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 {
@@ -1685,7 +1710,6 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-	g_bConfigsExecuted = true;
 	g_hCvarMPGameMode.GetString(g_sCvarMPGameMode, sizeof(g_sCvarMPGameMode));
 	LoadData();
 
@@ -1705,6 +1729,8 @@ public void OnConfigsExecuted()
 	}
 
 	IsAllowed();
+
+	g_bConfigsExecuted = true;
 }
 
 void ConVarChanged_Allow(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -1964,7 +1990,13 @@ Action JoinInfectedInCoop(int client, int args)
 	if ( g_bCvarAllow == false) return Plugin_Continue;
 	if (L4D_HasPlayerControlledZombies()) return Plugin_Continue;
 	if (client == 0 || IsFakeClient(client)) return Plugin_Continue;
-	if ( g_ePluginSettings.m_bCoopVersusEnable == false ) return Plugin_Continue;
+	if ( g_ePluginSettings.m_bCoopVersusEnable == false || g_ePluginSettings.m_iCoopVersusHumanLimit == 0 )
+	{
+		CPrintToChat(client, "%T", "Not available to join infected (C)", client);
+		PrintHintText(client, "%T", "Not available to join infected", client);
+
+		return Plugin_Continue;
+	}
 
 	static char sSteamId[64];
 	GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
@@ -1983,9 +2015,15 @@ Action JoinInfectedInCoop(int client, int args)
 			CleanUpStateAndMusic(client);
 			ChangeClientTeam(client, TEAM_INFECTED);
 			iPlayerTeam[client] = TEAM_INFECTED;
+			if(g_aPlayedInfected.FindString(sSteamId) == -1)
+			{
+				g_aPlayedInfected.PushString(sSteamId);
+			}
 		}
 		else
+		{
 			PrintHintText(client, "[TS] The Infected Team is full.");
+		}
 	}
 	else
 	{
@@ -2334,7 +2372,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	{
 		if (IsFakeClient(client))
 		{
-			if(g_ePluginSettings.m_bVersusSpawnDisableBots) return;
+			if(g_ePluginSettings.m_bSpawnDisableBots) return;
 
 			SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
 			if(SpawnTime < 0.0) SpawnTime = 1.0;
@@ -2369,6 +2407,8 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	{
 		if(IsFakeClient(client))
 		{
+			if(g_ePluginSettings.m_bSpawnDisableBots) return;
+
 			SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
 
 			if(g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected > 0.0)
@@ -2698,8 +2738,8 @@ Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 		if (L4D_HasPlayerControlledZombies())
 		{
 			if(g_bHasRoundEnded || !g_bLeftSaveRoom) return Plugin_Continue;
-			if(g_ePluginSettings.m_bVersusSpawnDisableBots) return Plugin_Continue;
-			
+			if(g_ePluginSettings.m_bSpawnDisableBots) return Plugin_Continue;
+
 			if (oldteam == 3)
 			{
 				CheckIfBotsNeeded(-1);
@@ -2844,7 +2884,7 @@ public void OnClientDisconnect(int client)
 			{
 				if (IsFakeClient(client))
 				{
-					if(g_ePluginSettings.m_bVersusSpawnDisableBots) return;
+					if(g_ePluginSettings.m_bSpawnDisableBots) return;
 
 					SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
 
@@ -2859,6 +2899,8 @@ public void OnClientDisconnect(int client)
 			{
 				if(IsFakeClient(client))
 				{
+					if(g_ePluginSettings.m_bSpawnDisableBots) return;
+
 					SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
 
 					if(g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected > 0.0)
@@ -3523,7 +3565,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	// First we get the infected count
 	if (L4D_HasPlayerControlledZombies())
 	{
-		if(g_ePluginSettings.m_bVersusSpawnDisableBots)
+		if(g_ePluginSettings.m_bSpawnDisableBots)
 		{
 			if(InfectedBotQueue > 0) InfectedBotQueue--;
 
@@ -3632,6 +3674,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 				}
 			}
 		}
+	}
+
+	if(g_ePluginSettings.m_bSpawnDisableBots && L4D_HasPlayerControlledZombies() == false && human == 0)
+	{
+		if(InfectedBotQueue > 0) InfectedBotQueue--;
+
+		SpawnInfectedBotTimer[index] = null;
+		return Plugin_Continue;
 	}
 
 	int anyclient;
@@ -5988,7 +6038,15 @@ int GetAllPlayersInServer()
 void LoadData()
 {
 	char sPath[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, sPath, sizeof(sPath), "data/" ... PLUGIN_NAME ... "/%s.cfg", g_sCvarMPGameMode);
+	if(strlen(g_sCvarReloadSettings) == 0)
+	{
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/" ... PLUGIN_NAME ... "/%s.cfg", g_sCvarMPGameMode);
+	}
+	else
+	{
+		BuildPath(Path_SM, sPath, sizeof(sPath), "data/" ... PLUGIN_NAME ... "/%s.cfg", g_sCvarReloadSettings);
+	}
+	
 	if( !FileExists(sPath) )
 	{
 		SetFailState("File Not Found: %s", sPath);
@@ -6046,7 +6104,7 @@ void LoadData()
 		ePluginData[0].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", 0));
 		ePluginData[0].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", 0);
 		ePluginData[0].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", 350.0);
-		ePluginData[0].m_bVersusSpawnDisableBots = view_as<bool>(hData.GetNum("versus_spawn_disable_bots", 0));
+		ePluginData[0].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", 0));
 		ePluginData[0].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", 0));
 		ePluginData[0].m_bCoordination = view_as<bool>(hData.GetNum("coordination", 0));
 
@@ -6112,7 +6170,7 @@ void LoadData()
 			ePluginData[i].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", ePluginData[0].m_bSpawnSafeZone));
 			ePluginData[i].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", ePluginData[0].m_iSpawnWhereMethod);
 			ePluginData[i].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", ePluginData[0].m_fSpawnRangeMin);
-			ePluginData[i].m_bVersusSpawnDisableBots = view_as<bool>(hData.GetNum("versus_spawn_disable_bots", ePluginData[0].m_bVersusSpawnDisableBots));
+			ePluginData[i].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", ePluginData[0].m_bSpawnDisableBots));
 			ePluginData[i].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", ePluginData[0].m_bTankDisableSpawn));
 			ePluginData[i].m_bCoordination = view_as<bool>(hData.GetNum("coordination", ePluginData[0].m_bCoordination));
 

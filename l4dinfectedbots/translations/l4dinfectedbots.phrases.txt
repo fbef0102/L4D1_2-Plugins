@@ -250,4 +250,16 @@
 		"zho"			"你在上回合扮演了感染者，請等待 {1} 秒冷卻時間"
 		"chi"			"你在上回合扮演了感染者，请等待 {1} 秒冷却时间"
 	}
+	"Not available to join infected (C)"
+	{
+		"en"			"{green}Not available{default} to join infected right now"
+		"zho"			"目前{green}不開放{default}加入特感隊伍"
+		"chi"			"目前{green}不开放{default}加入特感队伍"
+	}
+	"Not available to join infected"
+	{
+		"en"			"Not available to join infected right now"
+		"zho"			"目前不開放加入特感隊伍"
+		"chi"			"目前不开放加入特感队伍"
+	}
 }
