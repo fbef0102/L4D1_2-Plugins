@@ -46,6 +46,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		// If 1, including dead players when count the number of survivors.
 		l4d_infectedbots_calculate_including_dead "0"
+
+		// Which xxxx.cfg file should this plugin read for settings in data/l4dinfectedbots folder (Ex: "custom_tanks" = reads 'data/l4dinfectedbots/custom_tanks.cfg')
+		// Empty=By default, reads data/l4dinfectedbots/xxxx.cfg (xxxx = gamemode or mutation name).
+		l4d_infectedbots_read_data ""
 		```
 </details>
 
@@ -84,7 +88,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Data Config</summary>
 
-	* All settins are in ```data\l4dinfectedbots``` folder
+	* All settings are in ```data\l4dinfectedbots``` folder
 		* Run coop mode => plugin reads ```coop.cfg```
 		* Run versus mode => plugin reads```versus.cfg```
 		* Run survival  mode => plugin reads```survival .cfg```
@@ -140,7 +144,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"spawn_safe_zone"                        "0"
 				"spawn_where_method"                     "0"
 				"spawn_range_min"                        "350"
-				"versus_spawn_disable_bots"              "0"
+				"spawn_disable_bots"              		 "0"
 				"tank_disable_spawn"                     "0"
 				"coordination"                           "0"
 
@@ -439,11 +443,11 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	5. <details><summary>Disable infected bots spawning in versus/scavenge mode.</summary>
+	5. <details><summary>Disable infected bots spawning on the field.</summary>
 
 		```php
-		// 1 = Disable infected bots spawning in versus/scavenge mode. (does not disable witch spawn and not affect director spawn)
-		"versus_spawn_disable_bots"  "1"
+		// 1 = Disable infected bots spawning. Only allow humam infected players to spawn (does not disable witch spawn and not affect director spawn)
+		"spawn_disable_bots"  "1"
 	</details>
 
 	6. <details><summary>Only 18 infected bots can spawn in server?</summary>
@@ -500,6 +504,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2024
 	```
+	* v2.9.3 (2024-2-23)
+		* You can choose to load different data config instead of xxxx.cfg (xxxx = gamemode or mutation name) in data\l4dinfectedbots folder
+		* pdate Data Config
+		* Update Translation
+		* Update Cvars
+
 	* v2.9.2 (2024-2-18)
 		* Update Translation
 		* Update Commands
@@ -613,6 +623,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		// 為1，計算倖存者數量時也包含死亡的倖存者
 		l4d_infectedbots_calculate_including_dead "0"
+
+		// 自訂此插件位於data/l4dinfectedbots資料夾想要讀取的文件名稱 (譬如: "custom_tanks"，此插件讀取 'data/l4dinfectedbots/custom_tanks.cfg')
+		// 留白=插件預設讀取data/l4dinfectedbots/xxxx.cfg (xxxx = 遊戲模式名稱或突變模式名稱).
+		l4d_infectedbots_read_data ""
 		```
 </details>
 
@@ -707,7 +721,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"spawn_safe_zone"                        "0"
 				"spawn_where_method"                     "0"
 				"spawn_range_min"                        "350"
-				"versus_spawn_disable_bots"              "0"
+				"spawn_disable_bots"              		 "0"
 				"tank_disable_spawn"                     "0"
 				"coordination"                           "0"
 
@@ -1029,8 +1043,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		* 在對抗/清道夫模式中，關閉特感bots生成，只允許真人特感玩家生成特感 (此插件會繼續生成Witch、不影響導演系統)
 			```php
-			// 1 = 對抗/清道夫模式下關閉特感bots生成，只允許真人特感玩家生成 (此插件會繼續生成Witch、不影響導演系統)
-			"versus_spawn_disable_bots"  "1"
+			// 1 = 關閉特感bots生成，只允許真人特感玩家生成 (此插件會繼續生成Witch、不影響導演系統)
+			"spawn_disable_bots"  "1"
 			```
 	</details>
 
