@@ -15,51 +15,70 @@ When a Survivor dies, will respawn after a period of time.
 
 	* cfg/sourcemod/Survivor_Respawn.cfg
 		```php
-		// Respawn bots if is dead in case of using Take Over.
-		l4d_survivorrespawn_botreplaced "1"
-
-		// Amount of times a Survivor can respawn before permanently dying
-		l4d_survivorrespawn_deathlimit "3"
-
-		// If 1, disable respawning while the final escape starts (rescue vehicle ready)
-		l4d_survivorrespawn_disable_rescue_escape "1"
-
-		// If 1, Allows Bots to respawn automatically when killed
-		l4d_survivorrespawn_enablebot "1"
+		// 0=Plugin off, 1=Plugin on.
+		l4d2_final_rescue_arrive_time_enable "0"
 
 		// If 1, Enables Human Survivors to respawn automatically when killed
-		l4d_survivorrespawn_enablehuman "1"
+		l4d_survivorrespawn_human "1"
 
-		// Which is first slot weapon will be given to the Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - AK47 Assault Rifle, 5 - SCAR-L Desert Rifle,
-		// 6 - M60 Assault Rifle, 7 - Military Sniper Rifle, 8 - SPAS Shotgun, 9 - Chrome Shotgun, 10 - Smg, 0 - 
-		l4d_survivorrespawn_firstweapon "9"
-
-		// Invincible time after survivor respawn.
-		l4d_survivorrespawn_invincibletime "10.0"
+		// If 1, Allows Bots to respawn automatically when killed
+		l4d_survivorrespawn_bot "1"
 
 		// If 1, Enables the respawn limit for Survivors
 		l4d_survivorrespawn_limitenable "1"
 
-		// Which prime health unit will be given to the Survivor (1 - Medkit, 2 - Defib, 0 - None)
-		l4d_survivorrespawn_primehealth "1"
+		// Amount of times a Survivor can respawn before permanently dying
+		l4d_survivorrespawn_deathlimit "3"
 
-		// Amount of buffer HP a Survivor will respawn with
-		l4d_survivorrespawn_respawnbuffhp "30"
+		// How many seconds until the Survivor respawns
+		l4d_survivorrespawn_respawntimeout "30"
 
 		// Amount of HP a Survivor will respawn with
 		l4d_survivorrespawn_respawnhp "70"
 
-		// How many seconds till the Survivor respawns
-		l4d_survivorrespawn_respawntimeout "30"
+		// Amount of buffer HP a Survivor will respawn with
+		l4d_survivorrespawn_respawnbuffhp "30"
 
-		// Which secondary health unit will be given to the Survivor (1 - Pills, 2 - Adrenaline, 0 - None)
-		l4d_survivorrespawn_secondaryhealth "2"
+		// Respawn bots if is dead in case of using Take Over.
+		l4d_survivorrespawn_botreplaced "1"
 
-		// Which is second slot weapon will be given to the Survivor (1 - Dual Pistol, 2 - Bat, 3 - Magnum, 0 - Only Pistol)
+		// Invincible time after survivor respawn.
+		l4d_survivorrespawn_invincibletime "10.0"
+
+		// If 1, disable respawning while the final escape starts (rescue vehicle ready)
+		l4d_survivorrespawn_disable_rescue_escape "1"
+
+		// (L4D2) First slot weapon for repawn Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)
+		// GL = Grenade Launcher
+		// Rand T3 = M60 or Grenade Launcher
+		l4d_survivorrespawn_firstweapon "1"
+
+		// (L4D2) Second slot weapon for repawn Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=Random, 0=Only Pistol)
+		l4d_survivorrespawn_secondweapon "12"
+
+		// (L4D2) Third slot weapon for repawn Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 4=Random, 0=off)
+		l4d_survivorrespawn_thirdweapon "4"
+
+		// (L4D2) Fourth slot weapon for repawn Survivor (1 - Medkit, 2 - Defib, 3 - Incendiary Pack, 4 - Explosive Pack, 5=Random, 0=off)
+		l4d_survivorrespawn_forthweapon "1"
+
+		// (L4D2) Fifth slot weapon for repawn Survivor (1 - Pills, 2 - Adrenaline, 3=Random, 0=off)
+		l4d_survivorrespawn_fifthweapon "2"
+
+		// (L4D1) First slot weapon for new 5+ Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - smg, 5 - shotgun, 6=Random T1, 7=Random T2, 0=off)
+		l4d_survivorrespawn_firstweapon "6"
+
+		// (L4D1) Second slot weapon for new 5+ Survivor (1 - Dual Pistol, 0=Only Pistol)
 		l4d_survivorrespawn_secondweapon "1"
 
-		// Which is thrown weapon will be given to the Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 0 - None)
-		l4d_survivorrespawn_thrownweapon "3"
+		// (L4D1) Third slot weapon for new 5+ Survivor (1 - Moltov, 2 - Pipe Bomb, 3=Random, 0=off)
+		l4d_survivorrespawn_thirdweapon "3"
+
+		// (L4D1) Fourth slot weapon for new 5+ Survivor (1 - Medkit, 0=off)
+		l4d_survivorrespawn_forthweapon "0"
+
+		// (L4D1) Fifth slot weapon for new 5+ Survivor (1 - Pills, 0=off)
+		l4d_survivorrespawn_fifthweapon "0"
 		```
 </details>
 
@@ -106,6 +125,9 @@ When a Survivor dies, will respawn after a period of time.
 	//Ernecio @ 2020
 	//HarryPotter @ 2021-2024
 	```
+	* v3.9 (2024-2-26)
+		* Update Cvars
+
 	* v3.8 (2024-1-23)
 		* Update Cvars
 
@@ -139,8 +161,74 @@ When a Survivor dies, will respawn after a period of time.
 * 用意在哪?
     * 適合多人戰役伺服器，讓玩家能持續遊玩不乾等
 
-* 功能
-	* 可設置每回合復活次數的上限
-	* 可設置復活時間
-	* 可設置復活後的裝備與血量
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/Survivor_Respawn.cfg
+		```php
+		// 0=關閉插件, 1=啟動插件
+		l4d2_final_rescue_arrive_time_enable "0"
+
+		// 為1時，倖存者玩家死亡之後，過一段時間自動復活
+		l4d_survivorrespawn_human "1"
+
+		// 為1時，倖存者bot死亡之後，過一段時間自動復活
+		l4d_survivorrespawn_bot "1"
+
+		// 為1時，倖存者死亡會有次數限制
+		l4d_survivorrespawn_limitenable "1"
+
+		// 每回合復活次數的上限
+		l4d_survivorrespawn_deathlimit "3"
+
+		// 復活時間
+		l4d_survivorrespawn_respawntimeout "30"
+
+		// 復活的實血值 (預設 80)
+		l4d_survivorrespawn_respawnhp "70"
+
+		// 復活的虛血值 (預設 20)
+		l4d_survivorrespawn_respawnbuffhp "30"
+
+		// 為1時，如果bot取代的是死亡的玩家則也會復活
+		l4d_survivorrespawn_botreplaced "1"
+
+		// 復活後的無敵時間
+		l4d_survivorrespawn_invincibletime "10.0"
+
+		// 為1時，救援載具來臨之後不能再復活
+		l4d_survivorrespawn_disable_rescue_escape "1"
+
+		// (L4D2) 復活後給予的主武器 (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=隨機T1武器, 19=隨機T2武器, 20=隨機T3武器, 0=關閉)
+		// GL = 榴彈發射器
+		// 隨機T3武器 = M60機槍 或 榴彈發射器
+		l4d_survivorrespawn_firstweapon "1"
+
+		// (L4D2) 復活後給予的副武器 (1- 雙手槍, 2-沙漠之鷹, 3-電鋸, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=隨機, 0=只有一把手槍)
+		l4d_survivorrespawn_secondweapon "12"
+
+		// (L4D2) 復活後給予的投擲物品 (1 - 火瓶, 2 - 土製炸彈, 3 - 膽汁, 4=隨機, 0=關閉)
+		l4d_survivorrespawn_thirdweapon "4"
+
+		// (L4D2) 復活後給予的醫療物品 (1 - 治療包, 2 - 電擊器, 3 - 火焰包, 4 - 高爆彈, 5=隨機, 0=關閉)
+		l4d_survivorrespawn_forthweapon "1"
+
+		// (L4D2) 復活後給予的副醫療物品 (1 - 藥丸, 2 - 腎上腺素, 3=隨機, 0=關閉)
+		l4d_survivorrespawn_fifthweapon "2"
+
+		// (L4D1) 復活後給予的主武器 (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - smg, 5 - shotgun, 6=隨機T1武器, 7=隨機T2武器, 0=關閉)
+		l4d_survivorrespawn_firstweapon "6"
+
+		// (L4D1) 復活後給予的副武器 (1 - 雙手槍, 0=只有一把手槍)
+		l4d_survivorrespawn_secondweapon "1"
+
+		// (L4D1) 復活後給予的投擲物品 (1 - 火瓶, 2 - 土製炸彈, 3=隨機, 0=關閉)
+		l4d_survivorrespawn_thirdweapon "3"
+
+		// (L4D1) 復活後給予的醫療物品 (1 - 治療包, 0=關閉)
+		l4d_survivorrespawn_forthweapon "0"
+
+		// (L4D1) 復活後給予的副醫療物品 (1 - 藥丸, 0=關閉)
+		l4d_survivorrespawn_fifthweapon "0"
+		```
+</details>
 
