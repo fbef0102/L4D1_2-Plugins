@@ -8,48 +8,54 @@
 
 #pragma semicolon 1
 #pragma newdecls required
+#define PLUGIN_VERSION 			"3.9-2024/2/26"
 
-/* Definition Strings */
-#define PLUGIN_VERSION 			"3.8-2023/1/23"
-#define TRANSLATION_FILENAME 	"Survivor_Respawn.phrases"
+public Plugin myinfo = 
+{
+    name 		= "[L4D1 AND L4D2] Survivor Respawn",
+    author 		= "Mortiegama And Ernecio (Satanael) & HarryPotter",
+    description = "When a Survivor dies, will respawn after a period of time.",
+    version 	= PLUGIN_VERSION,
+    url 		= "https://steamcommunity.com/profiles/76561198026784913"
+}
 
-/* Definition Integers */
+bool bLate, g_bLeft4Dead2;
+public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_max )
+{	
+	EngineVersion engine = GetEngineVersion();
+	if ( engine != Engine_Left4Dead && engine != Engine_Left4Dead2 )
+	{
+		strcopy( error, err_max, "This plugin \"Survivor Respawn\" only runs in the \"Left 4 Dead 1/2\" Games!" );
+		return APLRes_SilentFailure;
+	}
+	
+	g_bLeft4Dead2 = ( engine == Engine_Left4Dead2 );
+	
+	bLate = late;
+	return APLRes_Success;
+}
+
+
 #define TEAM_SPECTATOR 	1
 #define TEAM_SURVIVOR 	2
 
-bool g_bEnableHuman = false;
-bool g_bEnableBots = false;
-bool g_bEnablesRespawnLimit = false;
-bool bRescuable[ MAXPLAYERS + 1 ] = {false};
-bool bFinaleEscapeStarted = false;
-bool g_bRoundEnd = false;
-static bool bL4D2;
+ConVar g_hCvarEnable, hCvar_EnableHuman, hCvar_EnableBots, hCvar_RespawnRespect, 
+	hCvar_RespawnLimit, hCvar_RespawnTimeout, hCvar_RespawnHP, hCvar_RespawnBuffHP, hCvar_BotReplaced, 
+	hCvar_InvincibleTime, hCvar_EscapeDisable, 
+	FirstWeapon, SecondWeapon, ThirdWeapon, FourthWeapon, FifthWeapon;
 
-ConVar hCvar_EnableHuman;
-ConVar hCvar_EnableBots;
-ConVar hCvar_RespawnRespect;
-ConVar hCvar_RespawnLimit;
-ConVar hCvar_RespawnTimeout;
-ConVar hCvar_RespawnHP;
-ConVar hCvar_RespawnBuffHP;
-ConVar hCvar_BotReplaced;
-ConVar hCvar_InvincibleTime;
-ConVar hCvar_EscapeDisable;
-
-ConVar FirstWeapon;
-ConVar SecondWeapon;
-ConVar ThrownWeapon;
-ConVar PrimeHealth;
-ConVar SecondaryHealth;
-
-int g_iRespawnLimit, g_iRespawnTimeout;
+bool g_bCvarEnable, g_bEnableHuman, g_bEnableBots, g_bEnablesRespawnLimit;
+int g_iRespawnLimit, g_iRespawnTimeout,
+	g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon;
 bool g_bEscapeDisable;
 float g_fInvincibleTime, g_fRespawnTimeout;
 
-/* Handler Menu */
+bool bRescuable[ MAXPLAYERS + 1 ] = {false};
+bool bFinaleEscapeStarted = false;
+bool g_bRoundEnd = false;
+
 TopMenu hTopMenu;
 
-/* Timer Handles With Arrays */
 Handle RespawnTimer[ MAXPLAYERS + 1 ];
 Handle CountTimer[ MAXPLAYERS + 1 ];
 Handle HangingTimer[ MAXPLAYERS + 1 ];
@@ -137,69 +143,40 @@ bool g_bIsOpenSafeRoom;
 
 #define SOUND_RESPAWN "ui/helpful_event_1.wav"
 
-public Plugin myinfo = 
-{
-    name 		= "[L4D1 AND L4D2] Survivor Respawn",
-    author 		= "Mortiegama And Ernecio (Satanael) & HarryPotter",
-    description = "When a Survivor dies, will respawn after a period of time.",
-    version 	= PLUGIN_VERSION,
-    url 		= "https://steamcommunity.com/profiles/76561198026784913"
-}
-
-
-bool bLate;
-public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_max )
-{	
-	EngineVersion engine = GetEngineVersion();
-	if ( engine != Engine_Left4Dead && engine != Engine_Left4Dead2 )
-	{
-		strcopy( error, err_max, "This plugin \"Survivor Respawn\" only runs in the \"Left 4 Dead 1/2\" Games!" );
-		return APLRes_SilentFailure;
-	}
-	
-	bL4D2 = ( engine == Engine_Left4Dead2 );
-	
-	bLate = late;
-	return APLRes_Success;
-}
-
-void Load_Translations()
-{
-	LoadTranslations( "common.phrases" ); // SourceMod Native (Add native SourceMod translations to the menu).
-	LoadTranslations( TRANSLATION_FILENAME);
-}
-
 public void OnPluginStart()
 {
-	Load_Translations();
+	LoadTranslations( "common.phrases" ); // SourceMod Native (Add native SourceMod translations to the menu).
+	LoadTranslations( "Survivor_Respawn.phrases");
 	
-	CreateConVar( 						   "l4d_survivorrespawn_version", 	PLUGIN_VERSION, "Survivor Respawning Version", FCVAR_SPONLY|FCVAR_DONTRECORD|FCVAR_NOTIFY);
-	hCvar_EnableHuman 		= CreateConVar("l4d_survivorrespawn_enablehuman", 		"1", 	"If 1, Enables Human Survivors to respawn automatically when killed", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_EnableBots 		= CreateConVar("l4d_survivorrespawn_enablebot", 		"1", 	"If 1, Allows Bots to respawn automatically when killed", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_RespawnRespect 	= CreateConVar("l4d_survivorrespawn_limitenable", 		"1", 	"If 1, Enables the respawn limit for Survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_RespawnLimit 		= CreateConVar("l4d_survivorrespawn_deathlimit", 		"3", 	"Amount of times a Survivor can respawn before permanently dying", FCVAR_NOTIFY, true, 0.0);
-	hCvar_RespawnTimeout 	= CreateConVar("l4d_survivorrespawn_respawntimeout", 	"30", 	"How many seconds till the Survivor respawns", FCVAR_NOTIFY, true, 0.0);
-	hCvar_RespawnHP 		= CreateConVar("l4d_survivorrespawn_respawnhp", 		"70", 	"Amount of HP a Survivor will respawn with", FCVAR_NOTIFY, true, 0.0);
-	hCvar_RespawnBuffHP 	= CreateConVar("l4d_survivorrespawn_respawnbuffhp", 	"30", 	"Amount of buffer HP a Survivor will respawn with", FCVAR_NOTIFY, true, 0.0);
-	hCvar_BotReplaced 		= CreateConVar("l4d_survivorrespawn_botreplaced", 		"1", 	"Respawn bots if is dead in case of using Take Over.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 	"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
-	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", "If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	CreateConVar( 						   "l4d_survivorrespawn_version", 				PLUGIN_VERSION, "Survivor Respawning Version", FCVAR_SPONLY|FCVAR_DONTRECORD|FCVAR_NOTIFY);
+	g_hCvarEnable 			= CreateConVar("l4d_survivorrespawn_enable", 				"1", 	"0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_EnableHuman 		= CreateConVar("l4d_survivorrespawn_human", 				"1", 	"If 1, Enables Human Survivors to respawn automatically when killed", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_EnableBots 		= CreateConVar("l4d_survivorrespawn_bot", 					"1", 	"If 1, Allows Bots to respawn automatically when killed", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_RespawnRespect 	= CreateConVar("l4d_survivorrespawn_limitenable", 			"1", 	"If 1, Enables the respawn limit for Survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_RespawnLimit 		= CreateConVar("l4d_survivorrespawn_deathlimit", 			"3", 	"Amount of times a Survivor can respawn before permanently dying", FCVAR_NOTIFY, true, 0.0);
+	hCvar_RespawnTimeout 	= CreateConVar("l4d_survivorrespawn_respawntimeout", 		"30", 	"How many seconds until the Survivor respawns", FCVAR_NOTIFY, true, 0.0);
+	hCvar_RespawnHP 		= CreateConVar("l4d_survivorrespawn_respawnhp", 			"70", 	"Amount of HP a Survivor will respawn with", FCVAR_NOTIFY, true, 0.0);
+	hCvar_RespawnBuffHP 	= CreateConVar("l4d_survivorrespawn_respawnbuffhp", 		"30", 	"Amount of buffer HP a Survivor will respawn with", FCVAR_NOTIFY, true, 0.0);
+	hCvar_BotReplaced 		= CreateConVar("l4d_survivorrespawn_botreplaced", 			"1", 	"Respawn bots if is dead in case of using Take Over.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 		"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
+	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", 	"If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
-	if ( bL4D2 ) {
-		FirstWeapon 		= CreateConVar("l4d_survivorrespawn_firstweapon", 		"9", 	"Which is first slot weapon will be given to the Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - AK47 Assault Rifle, 5 - SCAR-L Desert Rifle,\n6 - M60 Assault Rifle, 7 - Military Sniper Rifle, 8 - SPAS Shotgun, 9 - Chrome Shotgun, 10 - Smg, 0 - None.)", FCVAR_NOTIFY, true, 0.0, true, 10.0);
-		SecondWeapon 		= CreateConVar("l4d_survivorrespawn_secondweapon", 		"1", 	"Which is second slot weapon will be given to the Survivor (1 - Dual Pistol, 2 - Bat, 3 - Magnum, 0 - Only Pistol)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-		ThrownWeapon 		= CreateConVar("l4d_survivorrespawn_thrownweapon", 		"3", 	"Which is thrown weapon will be given to the Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 0 - None)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-		PrimeHealth 		= CreateConVar("l4d_survivorrespawn_primehealth", 		"1", 	"Which prime health unit will be given to the Survivor (1 - Medkit, 2 - Defib, 0 - None)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
-		SecondaryHealth 	= CreateConVar("l4d_survivorrespawn_secondaryhealth", 	"2", 	"Which secondary health unit will be given to the Survivor (1 - Pills, 2 - Adrenaline, 0 - None)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	if ( g_bLeft4Dead2 ) {
+		FirstWeapon 		= CreateConVar("l4d_survivorrespawn_firstweapon", 		"1", 	"First slot weapon for repawn Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 20.0);
+		SecondWeapon 		= CreateConVar("l4d_survivorrespawn_secondweapon", 		"12", 	"Second slot weapon for repawn Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=Random, 0=Only Pistol)", FCVAR_NOTIFY, true, 0.0, true, 16.0);
+		ThirdWeapon 		= CreateConVar("l4d_survivorrespawn_thirdweapon", 		"4", 	"Third slot weapon for repawn Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 4=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 4.0);
+		FourthWeapon 		= CreateConVar("l4d_survivorrespawn_forthweapon", 		"1", 	"Fourth slot weapon for repawn Survivor (1 - Medkit, 2 - Defib, 3 - Incendiary Pack, 4 - Explosive Pack, 5=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 5.0);
+		FifthWeapon 		= CreateConVar("l4d_survivorrespawn_fifthweapon", 		"2", 	"Fifth slot weapon for repawn Survivor (1 - Pills, 2 - Adrenaline, 3=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	} else {
-		FirstWeapon 		= CreateConVar("l4d_survivorrespawn_firstweapon", 		"5", 	"Which is first slot weapon will be given to the Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - Smg, 5 - Pumpshotgun, 0 - None.)", FCVAR_NOTIFY, true, 0.0, true, 5.0);
-		SecondWeapon 		= CreateConVar("l4d_survivorrespawn_secondweapon", 		"1", 	"Which is second slot weapon will be given to the Survivor (1 - Dual Pistol, 0 - Only Pistol)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-		ThrownWeapon 		= CreateConVar("l4d_survivorrespawn_thrownweapon", 		"2", 	"Which is thrown weapon will be given to the Survivor (1 - Moltov, 2 - Pipe Bomb, 0 - None)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
-		PrimeHealth 		= CreateConVar("l4d_survivorrespawn_primehealth", 		"1", 	"Which prime health unit will be given to the Survivor (1 - Medkit, 0 - None)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-		SecondaryHealth 	= CreateConVar("l4d_survivorrespawn_secondaryhealth", 	"1", 	"Which secondary health unit will be given to the Survivor (1 - Pills, 0 - None)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		FirstWeapon 		= CreateConVar("l4d_survivorrespawn_firstweapon", 		"7", 	"First slot weapon for repawn Survivor (1 - Autoshotgun, 2 - M16, 3 - Hunting Rifle, 4 - smg, 5 - shotgun, 6=Random T1, 7=Random T2, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 7.0);
+		SecondWeapon 		= CreateConVar("l4d_survivorrespawn_secondweapon", 		"1", 	"Second slot weapon for repawn Survivor (1 - Dual Pistol, 0=Only Pistol)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		ThirdWeapon 		= CreateConVar("l4d_survivorrespawn_thirdweapon", 		"3", 	"Third slot weapon for repawn Survivor (1 - Moltov, 2 - Pipe Bomb, 3=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+		FourthWeapon 		= CreateConVar("l4d_survivorrespawn_forthweapon", 		"1", 	"Fourth slot weapon for repawn Survivor (1 - Medkit, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		FifthWeapon 		= CreateConVar("l4d_survivorrespawn_fifthweapon", 		"1", 	"Fifth slot weapon for repawn Survivor (1 - Pills, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	}
 	
 	GetCvars();
+	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EnableHuman.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EnableBots.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnRespect.AddChangeHook(ConVarChanged_Cvars);
@@ -207,6 +184,11 @@ public void OnPluginStart()
 	hCvar_RespawnTimeout.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_InvincibleTime.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EscapeDisable.AddChangeHook(ConVarChanged_Cvars);
+	FirstWeapon.AddChangeHook(ConVarChanged_Cvars);
+	SecondWeapon.AddChangeHook(ConVarChanged_Cvars);
+	ThirdWeapon.AddChangeHook(ConVarChanged_Cvars);
+	FourthWeapon.AddChangeHook(ConVarChanged_Cvars);
+	FifthWeapon.AddChangeHook(ConVarChanged_Cvars);
 	
 	AutoExecConfig( true, "Survivor_Respawn" );
 	
@@ -282,6 +264,7 @@ void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newV
 
 void GetCvars()
 {
+	g_bCvarEnable = g_hCvarEnable.BoolValue;
 	g_bEnableHuman = hCvar_EnableHuman.BoolValue;
 	g_bEnableBots = hCvar_EnableBots.BoolValue;
 	g_bEnablesRespawnLimit = hCvar_RespawnRespect.BoolValue;
@@ -290,6 +273,12 @@ void GetCvars()
 	g_fRespawnTimeout = hCvar_RespawnTimeout.FloatValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
 	g_bEscapeDisable = hCvar_EscapeDisable.BoolValue;
+
+	g_iFirstWeapon = FirstWeapon.IntValue;
+	g_iSecondWeapon = SecondWeapon.IntValue;
+	g_iThirdWeapon = ThirdWeapon.IntValue;
+	g_iFourthWeapon = FourthWeapon.IntValue;
+	g_iFifthWeapon = FifthWeapon.IntValue;
 }
 
 void Event_RoundStart( Event hEvent, const char[] sName, bool bDontBroadcast )
@@ -356,6 +345,8 @@ void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 
 void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
+	if(!g_bCvarEnable) return;
+
 	int client = GetClientOfUserId( hEvent.GetInt( "userid" ) );
 
 	if(!IsValidClient(client)) return;
@@ -386,9 +377,12 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 		delete RespawnTimer[client];
 		RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client ); 
 		
-		Seconds[client] = g_iRespawnTimeout;
-		delete CountTimer[client];
-		CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT);
+		if(!IsFakeClient(client))
+		{
+			Seconds[client] = g_iRespawnTimeout;
+			delete CountTimer[client];
+			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT);
+		}
 		
 		SaveStats( client );
 		
@@ -400,8 +394,12 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 		{
 			delete RespawnTimer[client];
 			RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
-			delete CountTimer[client];
-			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+
+			if(!IsFakeClient(client))
+			{
+				delete CountTimer[client];
+				CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+			}
 			
 			SaveStats( client );
 			
@@ -418,9 +416,11 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 
 void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
+	if(!g_bCvarEnable) return;
+
 	int bot = GetClientOfUserId( hEvent.GetInt( "bot" ) );
 	
-	if ( !IsValidClient( bot ) || IsPlayerAlive(bot) || !hCvar_BotReplaced.BoolValue || g_bIsOpenSafeRoom || (bFinaleEscapeStarted && g_bEscapeDisable) || g_bRoundEnd ) return;
+	if (!IsValidClient( bot ) || IsPlayerAlive(bot) || !hCvar_BotReplaced.BoolValue || g_bIsOpenSafeRoom || (bFinaleEscapeStarted && g_bEscapeDisable) || g_bRoundEnd ) return;
 
 	if ( !g_bEnablesRespawnLimit)
 	{
@@ -444,6 +444,8 @@ void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 // bot死亡，其有閒置的玩家取代bot時不會觸發此事件，只觸發player_spawn與player_team
 void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
+	if(!g_bCvarEnable) return;
+
 	int client = GetClientOfUserId( hEvent.GetInt( "player" ) );
 	int bot = GetClientOfUserId( hEvent.GetInt( "bot" ) );
 	if( !client || !IsClientInGame(client)) return;
@@ -459,8 +461,11 @@ void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast 
 				delete RespawnTimer[client];
 				RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
 				
-				delete CountTimer[client];
-				CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+				if(!IsFakeClient(client))
+				{
+					delete CountTimer[client];
+					CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+				}
 				
 				Seconds[client] = g_iRespawnTimeout;
 				bRescuable[client] = false;
@@ -476,8 +481,11 @@ void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast 
 			delete RespawnTimer[client];
 			RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
 			
-			delete CountTimer[client];
-			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+			if(!IsFakeClient(client))
+			{
+				delete CountTimer[client];
+				CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT); 
+			}
 			
 			Seconds[client] = g_iRespawnTimeout;
 			bRescuable[client] = false;
@@ -489,6 +497,8 @@ void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast 
 
 void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
 {	
+	if(!g_bCvarEnable) return;
+
 	int UserID = hEvent.GetInt( "userid" );
 	int client = GetClientOfUserId(UserID);
 	
@@ -500,10 +510,13 @@ void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
 	{
 		delete RespawnTimer[client];
 		RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client ); 
-		
-		Seconds[client] = g_iRespawnTimeout;
-		delete CountTimer[client];
-		CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT);
+	
+		if(!IsFakeClient(client))
+		{
+			Seconds[client] = g_iRespawnTimeout;
+			delete CountTimer[client];
+			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT);
+		}
 		
 		SaveStats( client );
 		
@@ -515,8 +528,12 @@ void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
 		{
 			delete RespawnTimer[client];
 			RespawnTimer[client] = CreateTimer( g_fRespawnTimeout, Timer_Respawn, client); 
-			delete CountTimer[client];
-			CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT ); 
+
+			if(!IsFakeClient(client))
+			{
+				delete CountTimer[client];
+				CountTimer[client] = CreateTimer( 1.0, TimerCount, client, TIMER_REPEAT ); 
+			}
 			
 			SaveStats( client );
 			
@@ -544,6 +561,12 @@ Action CMD_Respawn( int client, int args )
 	if (client == 0)
 	{
 		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
+	}
+
+	if (g_bCvarEnable == false)
+	{
+		ReplyToCommand(client, "This command is disable.");
 		return Plugin_Handled;
 	}
 
@@ -584,10 +607,18 @@ Action CMD_DisplayMenu( int client, int args )
 		return Plugin_Handled;
 	}
 
+	if (g_bCvarEnable == false)
+	{
+		ReplyToCommand(client, "This command is disable.");
+		return Plugin_Handled;
+	}
+
 	DisplayRespawnMenu( client );
 	return Plugin_Handled;
 }
+
 /***********************************************************************************************************/
+
 void DisplayRespawnMenu( int client )
 {
 	Menu hMenu = new Menu( MenuHandler_Respawn );
@@ -656,6 +687,11 @@ int MenuHandler_Respawn( Menu hMenu, MenuAction hAction, int Param1, int Param2 
 Action Timer_Respawn( Handle hTimer, any client )
 {
 	RespawnTimer[client] = null;
+	if(!g_bCvarEnable)
+	{
+		return Plugin_Continue;
+	}
+
 	if(g_bIsOpenSafeRoom || g_bRoundEnd) 
 	{
 		return Plugin_Continue;
@@ -679,6 +715,13 @@ Action Timer_Respawn( Handle hTimer, any client )
 /***********************************************************/
 Action TimerCount( Handle hTimer, int client )
 {
+	if(!g_bCvarEnable)
+	{
+		delete RespawnTimer[client];
+		CountTimer[client] = null;
+		return Plugin_Stop;
+	}
+	
 	if( g_bRoundEnd || RespawnTimer[client] == null || Seconds[client]  <= 0 || !IsClientInGame( client ) || GetClientTeam(client) != TEAM_SURVIVOR || IsPlayerAlive( client ) || IsClientIdle( client )) 
 	{
 		delete RespawnTimer[client];
@@ -729,7 +772,7 @@ void RespawnTarget_Crosshair( int client, int target )
 	if(g_fInvincibleTime > 0.0)
 	{
 		clinetReSpawnTime[target] = GetEngineTime() + g_fInvincibleTime;
-		if(bL4D2) L4D2_UseAdrenaline(target, g_fInvincibleTime, false);
+		if(g_bLeft4Dead2) L4D2_UseAdrenaline(target, g_fInvincibleTime, false);
 	}
 	
 	if ( bCanTeleport )
@@ -755,11 +798,10 @@ void RespawnTarget( int client )
 		return;
 	}
 	L4D_RespawnPlayer(client);
-	
+	Teleport( client, anyclient);
 	SetHealth( client );
 	StripWeapons( client );
 	GiveItems( client);
-	Teleport( client, anyclient);
 	L4D_WarpToValidPositionIfStuck(client);
 	RespawnLimit[client] += 1;
 	
@@ -772,7 +814,7 @@ void RespawnTarget( int client )
 	if(g_fInvincibleTime > 0.0)
 	{
 		clinetReSpawnTime[client] = GetEngineTime() + g_fInvincibleTime;
-		if(bL4D2) L4D2_UseAdrenaline(client, g_fInvincibleTime, false);
+		if(g_bLeft4Dead2) L4D2_UseAdrenaline(client, g_fInvincibleTime, false);
 	}
 
 	EmitSoundToAll(SOUND_RESPAWN, client, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);		
@@ -780,6 +822,8 @@ void RespawnTarget( int client )
 
 Action Timer_LoadStatDelayed( Handle hTimer, int UserId )
 {
+	if(!g_bCvarEnable) return Plugin_Continue;
+
 	int client = GetClientOfUserId( UserId );
 	if( client > 0 && IsClientInGame( client ) )
 		if ( IsPlayerAlive( client ) ) 			// Not died in 1.0 sec after spawn?
@@ -787,7 +831,9 @@ Action Timer_LoadStatDelayed( Handle hTimer, int UserId )
 			
 	return Plugin_Continue;
 }
+
 /***********************************************************/
+
 void SetHealth( int client )
 {
 	float Buff = GetEntDataFloat( client, BufferHP );
@@ -798,69 +844,121 @@ void SetHealth( int client )
 	SetEntDataFloat( client, BufferHP, Buff + BuffHP, true );
 }
 
-void GiveItems( int client )
+void GiveItems(int client) // give client weapon
 {
-	int Flags = GetCommandFlags( "give" );
-	SetCommandFlags( "give", Flags & ~FCVAR_CHEAT );
+	int flags = GetCommandFlags("give");
+	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
 	
-	switch ( SecondWeapon.IntValue )
+	int iRandom = g_iSecondWeapon;
+	if(g_bLeft4Dead2 && iRandom == 16) iRandom = GetRandomInt(1,15);
+		
+	switch ( iRandom )
 	{
-		case 0: FakeClientCommand( client, "give pistol" );
 		case 1:
 		{
-				FakeClientCommand( client, "give pistol" );
-				FakeClientCommand( client, "give pistol" );
+			FakeClientCommand( client, "give pistol" );
+			FakeClientCommand( client, "give pistol" );
 		}
-		case 2: FakeClientCommand( client, "give baseball_bat" );
-		case 3: FakeClientCommand( client, "give pistol_magnum" );
+		case 2: FakeClientCommand(client, "give pistol_magnum");
+		case 3: FakeClientCommand(client, "give chainsaw");
+		case 4: FakeClientCommand(client, "give frying_pan");
+		case 5: FakeClientCommand(client, "give katana");
+		case 6: FakeClientCommand(client, "give shovel");
+		case 7: FakeClientCommand(client, "give golfclub");
+		case 8: FakeClientCommand(client, "give machete");
+		case 9: FakeClientCommand(client, "give cricket_bat");
+		case 10: FakeClientCommand(client, "give fireaxe");
+		case 11: FakeClientCommand(client, "give knife");
+		case 12: FakeClientCommand(client, "give baseball_bat");
+		case 13: FakeClientCommand(client, "give crowbar");
+		case 14: FakeClientCommand(client, "give pitchfork");
+		case 15: FakeClientCommand(client, "give electric_guitar");
+		default: {
+			FakeClientCommand( client, "give pistol" );
+		}
 	}
 
-	if(bL4D2)
+	iRandom = g_iFirstWeapon;
+	if(g_bLeft4Dead2)
 	{
-		switch ( FirstWeapon.IntValue )
+		if(g_iFirstWeapon == 18) iRandom = GetRandomInt(13,17);
+		else if(g_iFirstWeapon == 19) iRandom = GetRandomInt(1,10);
+		else if(g_iFirstWeapon == 20) iRandom = GetRandomInt(11,12);
+		
+		switch ( iRandom )
 		{
-			case 1: FakeClientCommand( client, "give autoshotgun" );
-			case 2: FakeClientCommand( client, "give rifle" );
-			case 3: FakeClientCommand( client, "give hunting_rifle" );
-			case 4: FakeClientCommand( client, "give rifle_ak47" );
-			case 5: FakeClientCommand( client, "give rifle_desert" );
-			case 6: FakeClientCommand( client, "give rifle_m60" );
-			case 7: FakeClientCommand( client, "give sniper_military" );
-			case 8: FakeClientCommand( client, "give shotgun_spas" );
-			case 9: FakeClientCommand( client, "give shotgun_chrome" );
-			case 10: FakeClientCommand( client, "give smg" );
+			case 1: FakeClientCommand(client, "give autoshotgun");
+			case 2: FakeClientCommand(client, "give shotgun_spas");
+			case 3: FakeClientCommand(client, "give rifle");
+			case 4: FakeClientCommand(client, "give rifle_desert");
+			case 5: FakeClientCommand(client, "give rifle_ak47");
+			case 6: FakeClientCommand(client, "give rifle_sg552");
+			case 7: FakeClientCommand(client, "give sniper_military");
+			case 8: FakeClientCommand(client, "give sniper_awp");
+			case 9: FakeClientCommand(client, "give sniper_scout");
+			case 10: FakeClientCommand(client, "give hunting_rifle");
+			case 11: FakeClientCommand(client, "give rifle_m60");
+			case 12: FakeClientCommand(client, "give grenade_launcher");
+			case 13: FakeClientCommand(client, "give smg");
+			case 14: FakeClientCommand(client, "give smg_silenced");
+			case 15: FakeClientCommand(client, "give smg_mp5");
+			case 16: FakeClientCommand(client, "give pumpshotgun");
+			case 17: FakeClientCommand(client, "give shotgun_chrome");
+			default: {}//nothing
 		}
 	}
 	else
 	{
-		switch ( FirstWeapon.IntValue )
+		if(g_iFirstWeapon == 6) iRandom = GetRandomInt(4,5);
+		else if(g_iFirstWeapon == 7) iRandom = GetRandomInt(1,3);
+		
+		switch ( iRandom )
 		{
 			case 1: FakeClientCommand( client, "give autoshotgun" );
 			case 2: FakeClientCommand( client, "give rifle" );
 			case 3: FakeClientCommand( client, "give hunting_rifle" );
 			case 4: FakeClientCommand( client, "give smg" );
 			case 5: FakeClientCommand( client, "give pumpshotgun" );
+			default: {}//nothing
 		}
 	}
-
-	switch ( ThrownWeapon.IntValue )
+	
+	iRandom = g_iThirdWeapon;
+	if (g_bLeft4Dead2 && iRandom == 4) iRandom = GetRandomInt(1,3);
+	if (!g_bLeft4Dead2 && iRandom == 3) iRandom = GetRandomInt(1,2);
+	
+	switch ( iRandom )
 	{
 		case 1: FakeClientCommand( client, "give molotov" );
 		case 2: FakeClientCommand( client, "give pipe_bomb" );
 		case 3: FakeClientCommand( client, "give vomitjar" );
+		default: {}//nothing
 	}
-	switch ( PrimeHealth.IntValue )
+	
+	
+	iRandom = g_iFourthWeapon;
+	if(g_bLeft4Dead2 && iRandom == 5) iRandom = GetRandomInt(1,4);
+	
+	switch ( iRandom )
 	{
 		case 1: FakeClientCommand( client, "give first_aid_kit" );
 		case 2: FakeClientCommand( client, "give defibrillator" );
+		case 3: FakeClientCommand( client, "give weapon_upgradepack_incendiary" );
+		case 4: FakeClientCommand( client, "give weapon_upgradepack_explosive" );
+		default: {}//nothing
 	}
-	switch ( SecondaryHealth.IntValue )
+	
+	iRandom = g_iFifthWeapon;
+	if(g_bLeft4Dead2 && iRandom == 3) iRandom = GetRandomInt(1,2);
+	
+	switch ( iRandom )
 	{
 		case 1: FakeClientCommand( client, "give pain_pills" );
 		case 2: FakeClientCommand( client, "give adrenaline" );
+		default: {}//nothing
 	}
 	
-	SetCommandFlags( "give", Flags|FCVAR_CHEAT );
+	SetCommandFlags( "give", flags);
 }
 
 void Teleport( int client, int telcient) // Get the position coordinates of any active living player
@@ -956,11 +1054,6 @@ void vPerformTeleport( int client, int target, float vCoordinates[3] )
 	LogAction( client, target, "\"%L\" Teleported \"%L\" After Respawning Him/Her" , client, target );
 //	PrintToChatAll( "\x03\"%L\" \x01Teleported \x04\"%L\" \x01After Respawning Him/Her" , client, target ); // Test.
 }
-/******************************************************************************************************/
-
-/**************************************/
-/* 				STOCKs 				  */
-/**************************************/
 
 bool IsValidClient( int client )
 {
@@ -982,7 +1075,7 @@ void SaveStats( int client )
 	for( int i = 0; i < sizeof( iPlayerData[] ); i++ )
 		iPlayerData[client][i] = GetEntProp( client, Prop_Send, sPlayerSave[i] );
 	
-	if ( bL4D2 )
+	if ( g_bLeft4Dead2 )
 		for( int i = 0; i < sizeof( iPlayerData_L4D2[] ); i++ )
 			iPlayerData_L4D2[client][i] = GetEntProp( client, Prop_Send, sPlayerSave_L4D2[i] );
 }
@@ -995,20 +1088,11 @@ void LoadStats( int client )
 	for( int i = 0; i < sizeof(iPlayerData[] ); i++ )
 		SetEntProp( client, Prop_Send, sPlayerSave[i], iPlayerData[client][i] );
 	
-	if ( bL4D2 )
+	if ( g_bLeft4Dead2 )
 		for( int i = 0; i < sizeof( iPlayerData_L4D2[] ); i++ )
 			SetEntProp( client, Prop_Send, sPlayerSave_L4D2[i], iPlayerData_L4D2[client][i] );
 }
 
-/**
- * @note Adds targets to an admin menu.
- *
- * Each client is displayed as: name (userid)
- * Each item contains the userid as a string for its info.
- *
- * @param menu 			Menu Handle.
- * @return 				Returns the number of players depending on whether it is valid or not.
- */
 int Custom_AddTargetsToMenu( Menu hMenu )
 {
 	char sUser_ID[12];
@@ -1074,7 +1158,7 @@ public void OnClientDisconnect(int client)
 
 Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
 {
-	if(!IsValidEntity(inflictor) || damage <= 0.0) return Plugin_Continue;
+	if(!g_bCvarEnable || !IsValidEntity(inflictor) || damage <= 0.0) return Plugin_Continue;
 
 	static char sClassname[64];
 	GetEntityClassname(inflictor, sClassname, 64);
@@ -1105,6 +1189,8 @@ int my_GetRandomClient()
 
 Action RespawnAgain( Handle hTimer, int UserID )
 {
+	if(!g_bCvarEnable) return Plugin_Continue;
+
 	int client = GetClientOfUserId( UserID );
 	if( client == 0 || IsPlayerAlive( client ) || !IsClientInGame( client ) || IsClientIdle( client ) || GetClientTeam(client) != TEAM_SURVIVOR) 
 		return Plugin_Continue;
