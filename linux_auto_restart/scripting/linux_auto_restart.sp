@@ -2,7 +2,7 @@
 #pragma newdecls required
 #include <sourcemod>
 #include <regex>
-#define PLUGIN_VERSION			"2.8"
+#define PLUGIN_VERSION			"2.9-2024/2/27"
 #define DEBUG 0
 
 public Plugin myinfo =
@@ -66,9 +66,7 @@ public void OnMapStart()
 {	
     #if DEBUG
 		LogMessage("OnMapStart()");
-    #endif 
-
-	g_hConVarHibernate.SetBool(false);
+    #endif
 }
 
 public void OnMapEnd()
@@ -102,6 +100,11 @@ public void OnClientConnected(int client)
 	#if DEBUG
 		LogMessage("OnClientConnected: %N", client);
 	#endif 
+
+	if(!g_bAnyoneConnectedBefore)
+	{
+		g_hConVarHibernate.SetBool(false);
+	}
 
 	g_bAnyoneConnectedBefore = true;
 }
@@ -223,7 +226,7 @@ void UnloadAccelerator()
 
 bool CheckPlayerInGame(int client)
 {
-	for (int i = 1; i < MaxClients+1; i++)
+	for (int i = 1; i <= MaxClients; i++)
 		if(IsClientInGame(i) && !IsFakeClient(i) && i!=client)
 			return true;
 
@@ -232,7 +235,7 @@ bool CheckPlayerInGame(int client)
 
 bool CheckPlayerConnectingSV()
 {
-	for (int i = 1; i < MaxClients+1; i++)
+	for (int i = 1; i <= MaxClients; i++)
 		if(IsClientConnected(i) && !IsClientInGame(i) && !IsFakeClient(i))
 			return true;
 
