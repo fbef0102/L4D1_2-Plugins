@@ -59,7 +59,7 @@ public void OnPluginStart()
 	// Trick
 	g_hCvarEnable = 				CreateConVar("l4d_expertrealism_enable",        	"1",    "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	sv_glowenable = 				CreateConVar("sv_glowenable", 						"1", 	"Turns on and off the terror glow highlight effects (Hidden Value Cvar)", FCVAR_REPLICATED, true, 0.0, true,1.0);
-	hGlow = 						CreateConVar("l4d_survivor_glowenable", 			"0", 	"If 1, Enable Server Glows for survivor team. (0=Hide Glow)", FCVAR_NOTIFY,true,0.0,true,1.0);
+	hGlow = 						CreateConVar("l4d_survivor_glowenable", 			"0", 	"If 1, Enable Server Glows for survivor team. (0=Hide Glow)\nDoes not work in realism mode", FCVAR_NOTIFY,true,0.0,true,1.0);
 	hHideHud = 						CreateConVar("l4d_survivor_hidehud", 				"64", 	"HUD hidden flag for survivor team. (1=weapon selection, 2=flashlight, 4=all, 8=health, 16=player dead, 32=needssuit, 64=misc, 128=chat, 256=crosshair, 512=vehicle crosshair, 1024=in vehicle)", FCVAR_NOTIFY,true,0.0);
 	hHardCoreHUDMODE = 				CreateConVar("l4d_survivor_hardcore_enable", 		"1", 	"If 1, Enable HardCore Mode, enable HUD and Glow if survivors hold hardcore_buttons.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hHardCoreHUDButton = 			CreateConVar("l4d_survivor_hardcore_buttons", 		"4", 	"For HardCore Mode, HUD and Glow will show while survivors 1: stay still, 2: Walk(Shift), 4: Crouch(DUCK), 8: Crouch(DUCK) and stay still, add numbers together (0: None).", FCVAR_NOTIFY, true, 0.0);

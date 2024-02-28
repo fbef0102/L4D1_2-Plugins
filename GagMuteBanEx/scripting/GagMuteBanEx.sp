@@ -7,14 +7,50 @@
 #include <basecomm>
 #include <multicolors>
 
+#undef REQUIRE_PLUGIN
+#tryinclude <sourcecomms>
+
+#if !defined _sourcecomms_included
+	/* Punishments types */
+	enum bType {
+		bNot = 0,  // Player chat or voice is not blocked
+		bSess,  // ... blocked for player session (until reconnect)
+		bTime,  // ... blocked for some time
+		bPerm // ... permanently blocked
+	}
+
+	native bType SourceComms_GetClientMuteType(int client);
+	native bType SourceComms_GetClientGagType(int client);
+	native bool SourceComms_SetClientMute(int client, bool muteState, int muteLength = -1, bool saveToDB = false, const char[] reason = "Muted through natives");
+	native bool SourceComms_SetClientGag(int client, bool gagState, int gagLength = -1, bool saveToDB = false, const char[] reason = "Gagged through natives");
+#endif
+
 public Plugin myinfo =
 {
 	name = "GagMuteBanEx",
 	author = "HarryPotter",
 	description = "Gag & Mute & Ban - Ex",
-	version = "1.0h-2023/11/5",
+	version = "1.1h-2024/2/28",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	EngineVersion test = GetEngineVersion();
+
+	if( test != Engine_Left4Dead2 )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		return APLRes_SilentFailure;
+	}
+
+	MarkNativeAsOptional("SourceComms_SetClientMute");
+	MarkNativeAsOptional("SourceComms_SetClientGag");
+	MarkNativeAsOptional("SourceComms_GetClientMuteType");
+	MarkNativeAsOptional("SourceComms_GetClientGagType");
+
+	return APLRes_Success;
+}
 
 #define CVAR_FLAGS			FCVAR_NOTIFY
 char sg_fileTxt[160];
@@ -40,6 +76,7 @@ Handle
 
 static char sBan_Time[][][] =
 {
+	{"1",			"1 min"},
 	{"5",			"5 mins"},
 	{"30",			"30 mins"},
 	{"60",			"60 mins"},
@@ -69,7 +106,7 @@ public void OnPluginStart()
 	g_hCvarBanAllow 				= CreateConVar("GagMuteBanEx_ban_allow", 		"1", "0=Ban Menu off, 1=Ban Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarMuteAllow 				= CreateConVar("GagMuteBanEx_mute_allow", 		"1", "0=Mute Menu off, 1=Mute Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarGagAllow 				= CreateConVar("GagMuteBanEx_gag_allow", 		"1", "0=Gag Menu off, 1=Gag Menu on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarServerChat 				= CreateConVar("sv_chatenable", 				"1", "If 0, Be Quient, No one can chat.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarServerChat 				= CreateConVar("sv_chatenable", 				"1", "If 0, Be Quient, No one can chat.", CVAR_FLAGS|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	g_hCvarServerChatImmuneAccess 	= CreateConVar("GagMuteBanEx_chat_immue_flag", 	"z", "Players with these flags can chat when '_chatenable' is 0 (Empty = Everyone, -1: Nobody)", CVAR_FLAGS);
 	AutoExecConfig(true, "GagMuteBanEx");
 
@@ -81,14 +118,14 @@ public void OnPluginStart()
 	g_hCvarServerChat.AddChangeHook(ConVarChanged_CvarServerChat);
 	g_hCvarServerChatImmuneAccess.AddChangeHook(ConVarChanged_Cvars);
 
-	//HookEvent("round_start", Event_RoundStart);
-
-	RegAdminCmd("sm_exban",  CMD_ExBan,  ADMFLAG_BAN,  "sm_exban to Open exBan Steamid Menu or sm_exban <#userid|name> <minutes|0>");
-	RegAdminCmd("sm_exgag",  CMD_ExGag,  ADMFLAG_CHAT, "sm_exgag to Open exGag Menu or sm_exgag <#userid|name> <minutes|0>");
-	RegAdminCmd("sm_exmute", CMD_ExMute, ADMFLAG_CHAT, "sm_exmute to Open exMute Menu or sm_exmute <#userid|name> <minutes|0>");
+	RegAdminCmd("sm_exban",  CMD_ExBan,  ADMFLAG_BAN,  "sm_exban to Open ExBan Steamid Menu or sm_exban <#userid|name> <minutes|0>");
+	RegAdminCmd("sm_exgag",  CMD_ExGag,  ADMFLAG_CHAT, "sm_exgag to Open ExGag Menu or sm_exgag <#userid|name> <minutes|0>");
+	RegAdminCmd("sm_exmute", CMD_ExMute, ADMFLAG_CHAT, "sm_exmute to Open ExMute Menu or sm_exmute <#userid|name> <minutes|0>");
 	RegAdminCmd("sm_exbanid",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes|0> <STEAM_ID64>");
 	RegAdminCmd("sm_exbansteam",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes|0> <STEAM_ID64>");
 	RegAdminCmd("sm_exbansteamid",  CMD_bansteamid,  ADMFLAG_BAN,  "sm_exbansteam <minutes|0> <STEAM_ID64>");
+
+	AddCommandListener(CommandListener_removeid, "removeid");
 
 	BuildPath(Path_SM, sg_fileTxt, sizeof(sg_fileTxt), "data/GagMuteBanEx.txt");
 	BuildPath(Path_SM, sg_log, sizeof(sg_log), "logs/GagMuteBanEx.log");
@@ -96,6 +133,22 @@ public void OnPluginStart()
 	TopMenu hTop_Menu;
 	if ( LibraryExists( "adminmenu" ) && ( ( hTop_Menu = GetAdminTopMenu() ) != null ) )
 		OnAdminMenuReady( hTop_Menu );
+}
+
+bool g_bSourcecommsAvailable;
+public void OnAllPluginsLoaded()
+{
+	g_bSourcecommsAvailable = LibraryExists("sourcecomms++");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (strcmp(name, "sourcecomms++") == 0) g_bSourcecommsAvailable = false;
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "sourcecomms++")) g_bSourcecommsAvailable = true;
 }
 
 public void OnAdminMenuReady( Handle hTop_Menu )
@@ -164,35 +217,18 @@ public void OnConfigsExecuted()
 	}
 }
 
-/*
-void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
-{
-	CreateTimer(5.0, _tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
-}
-
-Action _tmrStart(Handle timer) //回合開始 檢查所有人
-{
-	for ( int i = 1 ; i <= MaxClients ; ++i ) 
-	{
-		if (IsClientInGame(i) && !IsFakeClient(i))
-		{
-			HxClientGagMuteBanEx(i);
-		}
-	}
-
-	return Plugin_Continue;
-}
-*/
-void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
+void HxClientGagMuteBanEx(int client, bool bAction = true, bool bNotify = true, bool bAllowSourcecomms = false)
 {
 	if(g_hGM == null) return;
 	g_hGM.Rewind();
 
 	bool bModfiy = false;
-	static char sTeamID[24];
-	GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+	static char sTeamID64[32], sTeamID2[32], sName[64];
+	GetClientAuthId(client, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+	GetClientAuthId(client, AuthId_Steam2, sTeamID2, sizeof(sTeamID2));
+	GetClientName(client, sName, sizeof(sName));
 
-	if (g_hGM.JumpToKey(sTeamID))
+	if (g_hGM.JumpToKey(sTeamID64))
 	{
 		int iMute = g_hGM.GetNum("mute", 0);
 		int iGag = g_hGM.GetNum("gag", 0);
@@ -206,7 +242,22 @@ void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 			if (iMute > iTime)
 			{
 				iLeftMinute = (iMute - iTime) /60;
-				if(bAction) ServerCommand("sm_mute #%d", userid);
+				if(bAction)
+				{
+					if(g_bSourcecommsAvailable && bAllowSourcecomms)
+					{
+						if(BaseComm_IsClientMuted(client) == false)
+						{
+							if(iLeftMinute > 0) SourceComms_SetClientMute(client, true, iLeftMinute, true, "ExMute");
+							else SourceComms_SetClientMute(client, true, 1, true, "ExMute");
+						}
+					}
+					else
+					{
+						//BaseComm_SetClientMute(client, true);
+						ServerCommand("sm_mute #%d", userid);
+					}
+				}
 				if(bNotify) CPrintToChat(client, "%T", "ExMute_1", client, iLeftMinute );
 				
 				delete g_hMuteTimer[client];
@@ -214,7 +265,7 @@ void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 			}
 			else if (iMute != 0) //時間已到
 			{
-				if(BaseComm_IsClientMuted(client)) ServerCommand("sm_unmute #%d", userid);
+				ServerCommand("sm_unmute #%d", userid);
 				g_hGM.SetNum("mute", 0);
 				iMute = 0;
 				bModfiy = true;
@@ -226,7 +277,22 @@ void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 			if (iGag > iTime)
 			{
 				iLeftMinute = (iGag - iTime) /60;
-				if(bAction) ServerCommand("sm_gag #%d", userid);
+				if(bAction)
+				{
+					if(g_bSourcecommsAvailable && bAllowSourcecomms)
+					{
+						if(BaseComm_IsClientGagged(client) == false)
+						{
+							if(iLeftMinute > 0) SourceComms_SetClientGag(client, true, iLeftMinute, true, "ExGag");
+							else SourceComms_SetClientGag(client, true, 1, true, "ExGag");
+						}
+					}
+					else
+					{
+						BaseComm_SetClientGag(client, true);
+						//ServerCommand("sm_gag #%d", userid);
+					}
+				}
 				if(bNotify) CPrintToChat(client, "%T", "ExGag_1", client, iLeftMinute );
 				
 				delete g_hGagTimer[client];
@@ -234,7 +300,7 @@ void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 			}
 			else if (iGag != 0) //時間已到
 			{
-				if(BaseComm_IsClientGagged(client)) ServerCommand("sm_ungag #%d", userid);
+				ServerCommand("sm_ungag #%d", userid);
 				g_hGM.SetNum("gag", 0);
 				iGag = 0;
 				bModfiy = true;
@@ -245,42 +311,75 @@ void HxClientGagMuteBanEx(int &client, bool bAction = true, bool bNotify = true)
 		{
 			if (iBan > iTime)
 			{
-				static char sTime[24], sName[64];
+				static char sTime[24], sReason[64];
+				
 				FormatTime(sTime, sizeof(sTime), "%Y-%m-%d %H:%M:%S", iBan);
-				GetClientName(client, sName, sizeof(sName));
-				KickClient(client,"exBan, unban time: %s", sTime);
-				g_hGM.SetString("Name", sName);
-				bModfiy = true;
+				FormatEx(sReason, sizeof(sReason), "ExBan, unban time: %s", sTime);
+
+				iLeftMinute = (iBan-iTime)/60;
+				if(iLeftMinute == 0)
+				{
+					KickClient(client, sReason);
+				}
+				else
+				{
+					//有使用sourceban++會記錄 (有名子顯示)
+					//使用sm_ban 會立即踢人
+					ServerCommand("sm_ban #%d %d \"%s\"", userid, iLeftMinute, sReason);
+				}
 			}
 			else
 			{
 				g_hGM.SetNum("ban", 0);
 				iBan = 0;
-				bModfiy = true;
 			}
+
+			bModfiy = true;
 		}
 
 		if (iMute == 0 && iGag == 0 && iBan == 0)
 		{
 			g_hGM.DeleteThis();
 			g_hGM.Rewind();
+			if (g_hGM.JumpToKey("Steam_Id_Convert", true))
+			{
+				if(g_hGM.JumpToKey(sTeamID2))
+				{
+					g_hGM.DeleteThis();
+				}
+			}
+			g_hGM.Rewind();
 			g_hGM.ExportToFile(sg_fileTxt);
 		}
 		else if (bModfiy)
 		{
+			g_hGM.SetString("Name", sName);
 			g_hGM.Rewind();
-			g_hGM.ExportToFile(sg_fileTxt);
+			if (g_hGM.JumpToKey("Steam_Id_Convert", true))
+			{
+				g_hGM.JumpToKey(sTeamID2, true);
+				g_hGM.SetString("steam_id_64", sTeamID64);
+				g_hGM.Rewind();
+				g_hGM.ExportToFile(sg_fileTxt);
+			}
 		}
 	}
 }
 
-public void OnClientPutInServer(int client)
+public void OnClientPostAdminCheck(int client)
 {
 	if (IsFakeClient(client)) return;
 
-	HxClientGagMuteBanEx(client, true, false);
-
-	CreateTimer(5.0, Timer_PutInServer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	if(g_bSourcecommsAvailable)
+	{
+		CreateTimer(5.0, Timer_PutInServer_Sourcecomms, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
+	else
+	{
+		HxClientGagMuteBanEx(client, true, false, false);
+		CreateTimer(5.0, Timer_PutInServer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
+	
 }
 
 public void OnClientDisconnect(int client)
@@ -298,17 +397,24 @@ bool HxClientTimeBan(int &client, int iminute)
 
 	if (IsClientInGame(client))
 	{
-		static char sName[64], sTeamID[24];
+		static char sName[64], sTeamID64[32], sTeamID2[32];
 
 		GetClientName(client, sName, sizeof(sName));
-		GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+		GetClientAuthId(client, AuthId_Steam2, sTeamID2, sizeof(sTeamID2));
 
-		g_hGM.JumpToKey(sTeamID, true);
+		g_hGM.JumpToKey(sTeamID64, true);
 
 		int iTimeBan = GetTime() + (iminute * 60);
 		g_hGM.SetString("Name", sName);
 		g_hGM.SetNum("ban", iTimeBan);
 		g_hGM.Rewind();
+		if (g_hGM.JumpToKey("Steam_Id_Convert", true))
+		{
+			g_hGM.JumpToKey(sTeamID2, true);
+			g_hGM.SetString("steam_id_64", sTeamID64);
+			g_hGM.Rewind();
+		}
 		g_hGM.ExportToFile(sg_fileTxt);
 
 		return true;
@@ -320,7 +426,7 @@ int MenuHandler_BanPlayer(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		static char sInfo[8], sTeamID[24];
+		static char sInfo[8], sTeamID64[32], sTeamID2[32], sReason[64];
 		menu.GetItem(param2, sInfo, sizeof(sInfo));
 		int target = StringToInt(sInfo);
 		target = GetClientOfUserId(target);
@@ -328,10 +434,32 @@ int MenuHandler_BanPlayer(Menu menu, MenuAction action, int param1, int param2)
 		{
 			if (HxClientTimeBan(target, g_iMinutes[param1]))
 			{
-				GetClientAuthId(target, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
-				LogToFileEx(sg_log, "Ban: %N(Adm) exban %N (ID: %s) for %d minute(s)", param1, target, sTeamID, g_iMinutes[param1]);
+				GetClientAuthId(target, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+				GetClientAuthId(target, AuthId_Steam2, sTeamID2, sizeof(sTeamID2));
+				LogToFileEx(sg_log, "Ban: %N(Adm) ExBan %N (ID: %s) for %d minute(s)", param1, target, sTeamID64, g_iMinutes[param1]);
 				CPrintToChatAll("%t", "ExBan_1", target, g_iMinutes[param1]);
-				KickClient(target, "%d minute(s) exban.", g_iMinutes[param1]);
+
+				FormatEx(sReason, sizeof(sReason),"%d minute(s) Exban.", g_iMinutes[param1]);
+				//KickClient(target, sReason);
+
+				//有使用sourceban++會記錄 (有名子顯示)
+				//使用sm_ban 會立即踢人
+				ServerCommand("sm_ban #%d %d \"%s\"", GetClientUserId(target), g_iMinutes[param1], sReason);
+
+				//有使用sourceban++會記錄 (沒名子顯示)
+				//使用sm_addban不會立即踢人
+				//ServerCommand("sm_addban %d \"%s\" \"%s\"", g_iMinutes[param1], sTeamID2, sReason);
+				
+				/*
+				//有使用sourceban++不會記錄
+				//使用BanIdentity不會立即踢人
+				BanIdentity(sTeamID2, 
+							g_iMinutes[param1], 
+							BANFLAG_AUTHID, 
+							sReason, 
+							"sm_addban", 
+							0);
+				*/
 			}
 		}
 		else
@@ -407,13 +535,13 @@ Action CMD_ExBan(int client, int args)
 {
 	if (g_bCvarBanAllow == false)
 	{
-		ReplyToCommand(client, "[TS] exBan Menu is disabled now.");
+		ReplyToCommand(client, "[TS] ExBan Menu is disabled now.");
 		return Plugin_Handled;
 	}
 
 	if (args != 2 && args != 0)
 	{
-		ReplyToCommand(client, "[TS] sm_exban <name> <minutes> or sm_exban to open exBan menu");
+		ReplyToCommand(client, "[TS] sm_exban <name> <minutes> or sm_exban to open ExBan menu");
 	}
 
 	if(args == 2)
@@ -429,17 +557,41 @@ Action CMD_ExBan(int client, int args)
 
 		if (HxClientTimeBan(target, minutes))
 		{
+			static char sTeamID64[32], sTeamID2[32], sReason[64];
+			GetClientAuthId(target, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+			GetClientAuthId(target, AuthId_Steam2, sTeamID2, sizeof(sTeamID2));
+				
 			if(client > 0)
 			{
-				LogToFileEx(sg_log, "[TS] Ban: %N(Adm) exban %N for %d minute(s)", client, target, minutes);
+				LogToFileEx(sg_log, "[TS] Ban: %N(Adm) ExBan %N (ID: %s) for %d minute(s)", client, target, sTeamID64, minutes);
 				CPrintToChatAll("%T", "ExBan_1", target, minutes);
 			}
 			else
 			{
-				LogToFileEx(sg_log, "[TS] Ban: Server exban %N for %d minute(s)", target, minutes);
+				LogToFileEx(sg_log, "[TS] Ban: Server ExBan %N (ID: %s) for %d minute(s)", target, sTeamID64, minutes);
 				CPrintToChatAll("%T", "ExBan_2", target, minutes);
 			}
-			KickClient(target, "%d minute(s) exban.", minutes);
+
+			FormatEx(sReason, sizeof(sReason),"%d minute(s) ExBan.", minutes);
+			//KickClient(target, sReason);
+
+			//有使用sourceban++會記錄 (有名子顯示)
+			//使用sm_ban 會立即踢人
+			ServerCommand("sm_ban #%d %d \"%s\"", GetClientUserId(target), minutes, sReason);
+
+			//有使用sourceban++會記錄 (沒名子顯示)
+			//使用sm_addban不會立即踢人
+			//ServerCommand("sm_addban %d \"%s\" \"%s\"", minutes, sTeamID2, sReason);
+			
+			/*
+			//有使用sourceban++不會記錄
+			BanIdentity(sTeamID2, 
+						minutes, 
+						BANFLAG_AUTHID, 
+						sReason, 
+						"sm_addban", 
+						0);
+			*/
 		}
 	}
 	else
@@ -471,19 +623,42 @@ bool HxClientTimeGag(int &client, int iminute)
 
 	if (IsClientInGame(client))
 	{
-		static char sName[128], sTeamID[24];
+		static char sName[128], sTeamID64[32];
 
 		GetClientName(client, sName, sizeof(sName));
-		GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
 
-		g_hGM.JumpToKey(sTeamID, true);
+		g_hGM.JumpToKey(sTeamID64, true);
 
 		int iTimeGag = GetTime() + (iminute * 60);
 		g_hGM.SetString("Name", sName);
-		g_hGM.SetNum("gag", iTimeGag);
+		if(iminute == 0)
+		{
+			g_hGM.SetNum("gag", 0);
+		}
+		else
+		{
+			g_hGM.SetNum("gag", iTimeGag);
+		}
 		g_hGM.Rewind();
 		g_hGM.ExportToFile(sg_fileTxt);
-		ServerCommand("sm_gag #%d", GetClientUserId(client));
+		
+		if(iminute == 0)
+		{
+			ServerCommand("sm_ungag #%d", GetClientUserId(client));
+		}
+		else
+		{	
+			if(g_bSourcecommsAvailable)
+			{
+				SourceComms_SetClientGag(client, true, iminute, true, "ExGag");
+			}
+			else
+			{
+				BaseComm_SetClientGag(client, true);
+			}
+		}
+		
 		return true;
 	}
 
@@ -494,7 +669,7 @@ int MenuHandler_GagPlayer(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		static char sInfo[8], sTeamID[24];
+		static char sInfo[8], sTeamID64[32];
 		menu.GetItem(param2, sInfo, sizeof(sInfo));
 		int target = StringToInt(sInfo);
 		target = GetClientOfUserId(target);
@@ -502,8 +677,8 @@ int MenuHandler_GagPlayer(Menu menu, MenuAction action, int param1, int param2)
 		{
 			if (HxClientTimeGag(target, g_iMinutes[param1]))
 			{
-				GetClientAuthId(target, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
-				LogToFileEx(sg_log, "Gag: %N(Adm) exgag (ID: %s) for %d minute(s)", param1, target, sTeamID, g_iMinutes[param1]);
+				GetClientAuthId(target, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+				LogToFileEx(sg_log, "Gag: %N(Adm) ExGag %N (ID: %s) for %d minute(s)", param1, target, sTeamID64, g_iMinutes[param1]);
 				CPrintToChatAll("%t", "ExGag_2", target, g_iMinutes[param1]);
 			
 				delete g_hGagTimer[target];
@@ -583,13 +758,13 @@ Action CMD_ExGag(int client, int args)
 {
 	if (g_bCvarGagAllow == false)
 	{
-		ReplyToCommand(client, "[TS] exGag Menu is disabled now.");
+		ReplyToCommand(client, "[TS] ExGag Menu is disabled now.");
 		return Plugin_Handled;
 	}
 
 	if (args != 2 && args != 0)
 	{
-		ReplyToCommand(client, "[TS] sm_exgag <name> <minutes> or sm_exgag to open exGag menu");
+		ReplyToCommand(client, "[TS] sm_exgag <name> <minutes> or sm_exgag to open ExGag menu");
 	}
 
 	if(args == 2)
@@ -605,14 +780,17 @@ Action CMD_ExGag(int client, int args)
 
 		if (HxClientTimeGag(target, minutes))
 		{
+			static char sTeamID64[32];
+			GetClientAuthId(target, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+
 			if(client > 0)
 			{
-				LogToFileEx(sg_log, "Gag: %N(Adm) exgag %N for %d minute(s)", client, target, minutes);
+				LogToFileEx(sg_log, "Gag: %N(Adm) ExGag %N (ID: %s) for %d minute(s)", client, target, sTeamID64, minutes);
 				CPrintToChatAll("%t", "ExGag_2", target, minutes);
 			}
 			else
 			{
-				LogToFileEx(sg_log, "[TS] Gag: Server exgag %N for %d minute(s)", target, minutes);
+				LogToFileEx(sg_log, "[TS] Gag: Server ExGag %N (ID: %s) for %d minute(s)", target, sTeamID64, minutes);
 				CPrintToChatAll("%t", "ExGag_3", target, minutes);
 			}
 
@@ -649,20 +827,42 @@ bool HxClientTimeMute(int &client, int iminute)
 
 	if (IsClientInGame(client))
 	{
-		static char sName[128], sTeamID[24];
+		static char sName[128], sTeamID64[32];
 
 		GetClientName(client, sName, sizeof(sName));
-		GetClientAuthId(client, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
 
-		g_hGM.JumpToKey(sTeamID, true);
+		g_hGM.JumpToKey(sTeamID64, true);
 
 		int iTimeMute = GetTime() + (iminute * 60);
 		g_hGM.SetString("Name", sName);
-		g_hGM.SetNum("mute", iTimeMute);
+		if(iminute == 0)
+		{
+			g_hGM.SetNum("mute", 0);
+		}
+		else
+		{
+			g_hGM.SetNum("mute", iTimeMute);
+		}
 		g_hGM.Rewind();
 		g_hGM.ExportToFile(sg_fileTxt);
 
-		ServerCommand("sm_mute #%d", GetClientUserId(client));
+		if(iminute == 0)
+		{
+			ServerCommand("sm_unmute #%d", GetClientUserId(client));
+		}
+		else
+		{
+			if(g_bSourcecommsAvailable)
+			{
+				SourceComms_SetClientMute(client, true, iminute, true, "ExMute");
+			}
+			else
+			{
+				BaseComm_SetClientMute(client, true);
+			}
+		}
+
 		return true;
 	}
 
@@ -673,7 +873,7 @@ int MenuHandler_MutePlayer(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
-		static char sInfo[8], sTeamID[24];
+		static char sInfo[8], sTeamID64[32];
 		menu.GetItem(param2, sInfo, sizeof(sInfo));
 		int target = StringToInt(sInfo);
 		target = GetClientOfUserId(target);
@@ -681,8 +881,8 @@ int MenuHandler_MutePlayer(Menu menu, MenuAction action, int param1, int param2)
 		{
 			if (HxClientTimeMute(target, g_iMinutes[param1]))
 			{
-				GetClientAuthId(target, AuthId_SteamID64, sTeamID, sizeof(sTeamID));
-				LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N (ID: %s) for %d minute(s).", param1, target, sTeamID, g_iMinutes[param1]);
+				GetClientAuthId(target, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+				LogToFileEx(sg_log, "Mute: %N(Adm) ExMute %N (ID: %s) for %d minute(s).", param1, target, sTeamID64, g_iMinutes[param1]);
 				CPrintToChatAll("%t", "ExMute_2", target, g_iMinutes[param1]);
 			
 				delete g_hMuteTimer[target];
@@ -759,13 +959,13 @@ Action CMD_ExMute(int client, int args)
 {
 	if (g_bCvarMuteAllow == false)
 	{
-		ReplyToCommand(client, "[TS] exMute Menu is disabled now.");
+		ReplyToCommand(client, "[TS] ExMute Menu is disabled now.");
 		return Plugin_Handled;
 	}
 
 	if (args != 2 && args != 0)
 	{
-		ReplyToCommand(client, "[TS] sm_exmute <name> <minutes> or sm_exmute to open exMute menu");
+		ReplyToCommand(client, "[TS] sm_exmute <name> <minutes> or sm_exmute to open ExMute menu");
 	}
 
 	if(args == 2)
@@ -781,14 +981,17 @@ Action CMD_ExMute(int client, int args)
 
 		if (HxClientTimeMute(target, minutes))
 		{
+			static char sTeamID64[32];
+			GetClientAuthId(target, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+
 			if(client > 0)
 			{
-				LogToFileEx(sg_log, "Mute: %N(Adm) exMute %N for %d minute(s).", client, target, minutes);
+				LogToFileEx(sg_log, "Mute: %N(Adm) ExMute %N (ID: %s) for %d minute(s).", client, target, sTeamID64, minutes);
 				CPrintToChatAll("%t", "ExMute_2", target, minutes);
 			}
 			else
 			{
-				LogToFileEx(sg_log, "[TS] Mute: Server exmute %N for %d minute(s)", target, minutes);
+				LogToFileEx(sg_log, "[TS] Mute: Server exmute %N (ID: %s) for %d minute(s)", target, sTeamID64, minutes);
 				CPrintToChatAll("%t", "ExMute_3", target, minutes);
 			}
 
@@ -977,8 +1180,7 @@ Action Timer_UnGag(Handle timer, int client)
 {
 	if(client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientGagged(client))
 	{
-		int userid = GetClientUserId(client);
-		ServerCommand("sm_ungag #%d", userid);
+		HxClientTimeGag(client, 0);
 	}
 
 	g_hGagTimer[client] = null;
@@ -989,8 +1191,7 @@ Action Timer_UnMute(Handle timer, int client)
 {
 	if(client && IsClientInGame(client) && !IsFakeClient(client) && BaseComm_IsClientMuted(client))
 	{
-		int userid = GetClientUserId(client);
-		ServerCommand("sm_unmute #%d", userid);
+		HxClientTimeMute(client, 0);
 	}
 
 	g_hMuteTimer[client] = null;
@@ -1017,6 +1218,26 @@ Action Timer_PutInServer(Handle timer, int userid)
 	return Plugin_Continue;
 }
 
+Action Timer_PutInServer_Sourcecomms(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+
+	if(client && IsClientInGame(client) && !IsFakeClient(client))
+	{
+		HxClientGagMuteBanEx(client, true, true, true);
+
+		if (g_bCvarServerVoice == false) {
+			CPrintToChat(client, "%T", "sv_voiceenable_off", client);
+		}
+
+		if (g_bCvarServerChat == false) {
+			CPrintToChat(client, "%T", "sv_chatenable_off", client);
+		}
+	}
+
+	return Plugin_Continue;
+}
+
 // Replace original text with translated text (Zakikun)
 char[] Translate(int client, const char[] format, any ...)
 {
@@ -1024,4 +1245,122 @@ char[] Translate(int client, const char[] format, any ...)
 	SetGlobalTransTarget(client);
 	VFormat(buffer, sizeof(buffer), format, 3);
 	return buffer;
+}
+
+public void BaseComm_OnClientGag(int client, bool gagState)
+{
+	if(gagState) return;
+
+	if(g_hGM == null) return;
+	g_hGM.Rewind();
+
+	if (IsClientInGame(client))
+	{
+		static char sName[128], sTeamID64[32];
+
+		GetClientName(client, sName, sizeof(sName));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+
+		g_hGM.JumpToKey(sTeamID64, true);
+		g_hGM.SetNum("gag", 0);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
+	}
+}
+
+public void BaseComm_OnClientMute(int client, bool muteState)
+{
+	if(muteState) return;
+
+	if(g_hGM == null) return;
+	g_hGM.Rewind();
+
+	if (IsClientInGame(client))
+	{
+		static char sName[128], sTeamID64[32];
+
+		GetClientName(client, sName, sizeof(sName));
+		GetClientAuthId(client, AuthId_SteamID64, sTeamID64, sizeof(sTeamID64));
+
+		g_hGM.JumpToKey(sTeamID64, true);
+		g_hGM.SetNum("mute", 0);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
+	}
+}
+
+/*
+// 只有 basban 會觸發
+public Action OnRemoveBan(const char[] identity,
+						   int flags,
+						   const char[] command,
+						   any source)
+{
+	if(g_hGM == null) return Plugin_Continue;
+	g_hGM.Rewind();
+
+	//PrintToServer("OnRemoveBan %s", identity);
+
+	static char sTeamID64[32];
+
+	g_hGM.Rewind();
+	if (g_hGM.JumpToKey("Steam_Id_Convert"))
+	{
+		if(g_hGM.JumpToKey(identity) == false) return Plugin_Continue;
+
+		g_hGM.GetString("steam_id_64", sTeamID64, sizeof(sTeamID64));
+		g_hGM.Rewind();
+	}
+	else
+	{
+		return Plugin_Continue;
+	}
+
+	if (g_hGM.JumpToKey(sTeamID64))
+	{
+		g_hGM.SetNum("ban", 0);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
+	}
+
+	return Plugin_Continue;
+}*/
+
+
+// sourceban++ 與 basban 都會觸發
+Action CommandListener_removeid(int client, const char[] command, int args)
+{
+	static char sTeamID[5][32], sTeamID2[32];
+	GetCmdArg(1, sTeamID[0], sizeof(sTeamID[]));
+	GetCmdArg(2, sTeamID[1], sizeof(sTeamID[]));
+	GetCmdArg(3, sTeamID[2], sizeof(sTeamID[]));
+	GetCmdArg(4, sTeamID[3], sizeof(sTeamID[]));
+	GetCmdArg(5, sTeamID[4], sizeof(sTeamID[]));
+	FormatEx(sTeamID2, sizeof(sTeamID2), "%s%s%s%s%s", sTeamID[0], sTeamID[1], sTeamID[2], sTeamID[3], sTeamID[4]);
+
+	//PrintToServer("removeid args: %s", sTeamID2);
+
+	static char sTeamID64[32];
+
+	g_hGM.Rewind();
+	if (g_hGM.JumpToKey("Steam_Id_Convert"))
+	{
+		if(g_hGM.JumpToKey(sTeamID2) == false) return Plugin_Continue;
+
+		g_hGM.GetString("steam_id_64", sTeamID64, sizeof(sTeamID64));
+		g_hGM.Rewind();
+	}
+	else
+	{
+		return Plugin_Continue;
+	}
+
+	if (g_hGM.JumpToKey(sTeamID64))
+	{
+		g_hGM.SetNum("ban", 0);
+		g_hGM.Rewind();
+		g_hGM.ExportToFile(sg_fileTxt);
+	}
+
+	return Plugin_Continue;
 }

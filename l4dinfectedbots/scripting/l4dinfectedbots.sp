@@ -1,4 +1,4 @@
-//此插件0.2秒後設置Tank血量
+//此插件0.1秒後設置Tank血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
 * Version	: 2.9.3  (2009-2024)
@@ -4607,8 +4607,8 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 
 			if(IsPlayerTank(client))
 			{
-				// 0.2秒後設置Tank血量
-				CreateTimer(0.2, Timer_SetTankHealth, userid, TIMER_FLAG_NO_MAPCHANGE);
+				// 0.1秒後設置Tank血量
+				CreateTimer(0.1, Timer_SetTankHealth, userid, TIMER_FLAG_NO_MAPCHANGE);
 
 				if(IsFakeClient(client))
 				{

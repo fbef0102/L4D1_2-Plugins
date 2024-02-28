@@ -14,13 +14,14 @@ Gag & Mute & Ban - Ex
 
     * Type !admin to call adm menu and you will see "Ban/Mute/Gag-Ex" option
     * Admin can type
-        * sm_exban to ban player
-        * sm_exgag to gag player (Unable to type any words in chatbox)
-        * sm_exmute to mute player (Unable to use microphone)
+        * ```sm_exban``` to ban player
+        * ```sm_exgag``` to gag player (Unable to type any words in chatbox)
+        * ```sm_exmute``` to mute player (Unable to use microphone)
     * The database of players with gag & mute & ban: ```data/gagmutebanex.txt```
         * Before ban timeout, player still got banned even if he rejoins server
         * Before gag/mute timeout, player still got gag or mute even if he rejoins server
     * Records all actions about gag & mute & ban: ```logs/GagMuteBan.log```
+    * Compatible with [SourceBan++](https://github.com/sbpp/sourcebans-pp)
 </details>
 
 * Require | 必要安裝
@@ -39,12 +40,15 @@ Gag & Mute & Ban - Ex
         // 0=Gag Menu off, 1=Gag Menu on.
         GagMuteBanEx_gag_allow "1"
 
-        // If 0, Be Quient, No one can chat.
-        sv_chatenable "1"
-
         // Players with these flags can chat when '_chatenable' is 0 (Empty = Everyone, -1: Nobody)
         GagMuteBanEx_chat_immue_flag "z"
 		```
+
+    * Not in cfg/sourcemod/GagMuteBanEx.cfg
+        ```php
+        // If 0, Be Quient, No one can chat.
+        sv_chatenable "1"
+        ```
 </details>
 
 * <details><summary>Command | 命令</summary>
@@ -112,11 +116,10 @@ Gag & Mute & Ban - Ex
         * The original sm_gag, sm_mute does not work if player rejoins server again or map change
     
     * How do I unban, ungag, unmute player ?
-        1. Modify file ```data/gagmutebanex.txt```
-        2. Search Player's Steam64 ID, delete
-
-    * Can this plugin be compatible with [SourceBan++](https://github.com/sbpp/sourcebans-pp) ?
-        * Yes
+        * unban - ```sm_unban <steamid>```
+        * ungag - ```sm_ungag <target>```
+        * unmute - ```sm_unmute <target>```
+        * If the above cvars didn't work, modify file ```data/gagmutebanex.txt``` => Search Player's Steam64 ID => delete => save file => restart server
 </details>
 
 * Apply to | 適用於
@@ -134,6 +137,10 @@ Gag & Mute & Ban - Ex
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.1h (2024-2-28)
+        * Compatible with SourceBan++
+        * Update cvars
 
     * v1.0h (2023-11-05)
         * Add translation file
@@ -162,13 +169,14 @@ Gag & Mute & Ban - Ex
 * 原理
     * 管理員輸入 !admin -> 將會看到 "封鎖/禁音/禁言-強化版"
     * 管理員可以輸入命令
-        * sm_exban 封鎖玩家
-        * sm_exgag 禁言玩家 (不能打字發言)
-        * sm_exmute 禁音玩家 (不能用麥克風發出聲音)
+        * ```sm_exban``` 封鎖玩家
+        * ```sm_exgag``` 禁言玩家 (不能打字發言)
+        * ```sm_exmute``` 禁音玩家 (不能用麥克風發出聲音)
     * 封鎖/禁音/禁言 的玩家資料將儲存於: ```data/gagmutebanex.txt```
         * 封鎖時間到之前，下次玩家進入伺服器依然被封鎖
         * 禁言/禁音時間到之前，下次玩家進入伺服器依然被禁言/禁音
     * 所有封鎖/禁音/禁言紀錄將保存在 ```logs/GagMuteBan.log```
+    * 可以與[SourceBan++](https://github.com/sbpp/sourcebans-pp)並用
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -183,13 +191,16 @@ Gag & Mute & Ban - Ex
         // 0=關閉強化禁言, 1=開啟強化禁言
         GagMuteBanEx_gag_allow "1"
 
-        // 0 = 所有人無法輸入文字聊天
-        // 1 = 所有人可以輸入文字聊天
-        sv_chatenable "1"
-
         // 擁有這些權限的玩家，才可以在 _chatenable 為0時輸入文字聊天 (留白 = 任何人都能, -1: 無人)
         GagMuteBanEx_chat_immue_flag "z"
 		```
+
+    * 以下插件指令不會寫在 cfg/sourcemod/GagMuteBanEx.cfg
+        ```php
+        // 0 = 所有人無法輸入文字聊天
+        // 1 = 所有人可以輸入文字聊天
+        sv_chatenable "1"
+        ```
 </details>
 
 * <details><summary>命令中文介紹 (點我展開)</summary>
@@ -257,10 +268,9 @@ Gag & Mute & Ban - Ex
         * (sm_gag/sm_mute) 禁音/禁言名單, 在切換關卡之後會失效
         * 被禁音/禁言的人, 只要離開再重新加入伺服器, 禁音/禁言會失效
     
-    * 我要如何解除封鎖、解除禁音、解除禁言玩家 ?
-        1. 修改檔案 ```data/gagmutebanex.txt```
-        2. 尋找玩家的Steam ID64，然後刪除
-
-    * 我可以與[SourceBan++](https://github.com/sbpp/sourcebans-pp)並用嗎?
-        * 可以
+    * 我要如何解除封鎖、解除禁言、解除禁音玩家 ?
+        * 解除封鎖 - ```sm_unban <steamid>```
+        * 解除禁言 - ```sm_ungag <target>```
+        * 解除禁音 - ```sm_unmute <target>```
+        * 如果以上方法無效，請自行修改檔案 ```data/gagmutebanex.txt``` => 尋找玩家的Steam ID64 => 刪除 => 儲存 => 重啟
 </details>

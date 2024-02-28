@@ -33,6 +33,7 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 		sv_glowenable "1"
 
 		// If 1, Enable Server Glows for survivor team. (0=Hide Glow)
+		// Does not work in realism mode
 		l4d_survivor_glowenable "0"
 
 		// HUD hidden flag for survivor team. (1=weapon selection, 2=flashlight, 4=all, 8=health, 16=player dead, 32=needssuit, 64=misc, 128=chat, 256=crosshair, 512=vehicle crosshair, 1024=in vehicle)
@@ -121,6 +122,7 @@ L4D1/2 真寫實模式 (沒有光圈與介面)
 		sv_glowenable "1"
 
 		// 0=倖存者隊伍光圈關閉，1=倖存者隊伍光圈開啟
+		// 寫實模式不起作用
 		l4d_survivor_glowenable "0"
 
 		// 隱藏介面 1=武器欄, 2=手電筒, 4=全部, 8=血量欄, 16=死亡玩家狀態, 32=needssuit(不會用到), 64=misc(不會用到), 128=聊天室窗, 256=準心, 512=vehicle crosshair(不會用到), 1024=in vehicle(不會用到)
