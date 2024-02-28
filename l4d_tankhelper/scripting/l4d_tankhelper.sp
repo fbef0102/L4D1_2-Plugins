@@ -1,3 +1,5 @@
+//此插件0.3秒後設置Tank血量 (僅限此插件生成的tank)
+
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
@@ -634,8 +636,8 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	{
 		if(chooseclass == ZC_TANK)
 		{
-			// 0.5秒後設置Tank血量
-			CreateTimer(0.5, Timer_SetTankHealth, GetClientUserId(selected), TIMER_FLAG_NO_MAPCHANGE);
+			// 0.3秒後設置Tank血量
+			CreateTimer(0.3, Timer_SetTankHealth, GetClientUserId(selected), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	else if (selected == 0) //throw teammate
