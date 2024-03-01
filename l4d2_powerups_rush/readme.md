@@ -128,9 +128,6 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
         * 近戰揮砍速度變快
         * 被震暈和起身的回復速度快
 
-* 功能
-    * 查看下方"指令中文介紹"與"命令中文介紹"
-
 * <details><summary>指令中文介紹(點我展開)</summary>
 
     * cfg/sourcemod/l4d2_powerups_rush.cfg
