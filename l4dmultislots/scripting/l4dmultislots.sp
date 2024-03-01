@@ -57,7 +57,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar survivor_limit, z_max_player_zombies, survivor_respawn_with_guns;
 int g_iInfectedLimit, iOffiicalCvar_survivor_respawn_with_guns;
 
-ConVar g_hSurvivorsLimit, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval, 
+ConVar g_hMaxSurvivors, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval, 
 	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons, hSpawnSurvivorsAtStart,
 	g_hGiveKitSafeRoom, g_hGiveKitFinalStart, g_hNoSecondChane, g_hCvar_InvincibleTime,
@@ -66,7 +66,7 @@ ConVar g_hSurvivorsLimit, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval,
 
 //ConVar g_hCvar_VSAutoBalance;
 
-int g_iSurvivorsLimit, g_iMinSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
+int g_iMaxSurvivors, g_iMinSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
 	iRespawnHP, iRespawnBuffHP, g_iCvar_JoinSurvivrMethod, g_iCvar_VSUnBalanceLimit;
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
 bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
@@ -142,13 +142,14 @@ public void OnPluginStart()
 		SetFailState("Do not modify \"survivor_limit\" valve above 4, unload l4dmultislots.smx now!");
 	}
 	survivor_limit.Flags = survivor_limit.Flags & ~FCVAR_NOTIFY;
+	survivor_limit.SetBounds(ConVarBound_Lower, true, 1.0);
 
 	survivor_respawn_with_guns = FindConVar("survivor_respawn_with_guns");
 	z_max_player_zombies = FindConVar("z_max_player_zombies");
 
 	BufferHP = FindSendPropInfo( "CTerrorPlayer", "m_healthBuffer" );
 	
-	g_hSurvivorsLimit	= CreateConVar(			"l4d_multislots_limit_survivors", 				"10", 	"Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.\nMust be greater then or equal to 'l4d_multislots_min_survivors'", CVAR_FLAGS, true, 4.0, true, 32.0);
+	g_hMaxSurvivors	= CreateConVar(				"l4d_multislots_max_survivors", 				"10", 	"Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.\nMust be greater then or equal to 'l4d_multislots_min_survivors'", CVAR_FLAGS, true, 4.0, true, 32.0);
 	g_hMinSurvivors	= CreateConVar(				"l4d_multislots_min_survivors", 				"4", 	"Set minimum # of survivors in game.(Override official cvar 'survivor_limit')\nKick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)", CVAR_FLAGS, true, 1.0, true, 32.0);
 	hStripBotWeapons = CreateConVar(			"l4d_multislots_bot_items_delete", 				"1", 	"Delete all items form survivor bots when they got kicked by this plugin. (0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hDeadBotTime = CreateConVar(				"l4d_multislots_alive_bot_time", 				"0", 	"When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
@@ -189,7 +190,7 @@ public void OnPluginStart()
 	survivor_respawn_with_guns.AddChangeHook(ConVarChanged_Cvars);
 	z_max_player_zombies.AddChangeHook(ConVarChanged_Cvars);
 
-	g_hSurvivorsLimit.AddChangeHook(ConVarChanged_Cvars);
+	g_hMaxSurvivors.AddChangeHook(ConVarChanged_Cvars);
 	g_hMinSurvivors.AddChangeHook(ConVarChanged_SurvivorCvars);
 	hStripBotWeapons.AddChangeHook(ConVarChanged_Cvars);
 	hDeadBotTime.AddChangeHook(ConVarChanged_Cvars);
@@ -356,9 +357,9 @@ void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newV
 
 void GetCvars()
 {
-	g_iSurvivorsLimit = g_hSurvivorsLimit.IntValue;
+	g_iMaxSurvivors = g_hMaxSurvivors.IntValue;
 	g_iMinSurvivors = g_hMinSurvivors.IntValue;
-	if(g_iSurvivorsLimit < g_iMinSurvivors) g_iSurvivorsLimit = g_iMinSurvivors;
+	if(g_iMaxSurvivors < g_iMinSurvivors) g_iMaxSurvivors = g_iMinSurvivors;
 	g_bStripBotWeapons = hStripBotWeapons.BoolValue;
 	iDeadBotTime = hDeadBotTime.IntValue;
 	g_fSpecCheckInterval = hSpecCheckInterval.FloatValue;
@@ -436,16 +437,19 @@ public void OnClientPutInServer(int client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	
-	if(client && IsClientInGame(client) && !IsFakeClient(client) && g_bIsObserver[client] == false)
+	if(client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		if(L4D_HasPlayerControlledZombies())
+		if(g_bIsObserver[client] == false)
 		{
-			//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-		}
-		else
-		{
-			g_bLimit[client] = false;
-			CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			if(L4D_HasPlayerControlledZombies())
+			{
+				//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			}
+			else
+			{
+				g_bLimit[client] = false;
+				CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			}
 		}
 	}
 
@@ -726,7 +730,7 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 					}
 				}
 
-				if(TotalSurvivors() >= g_iSurvivorsLimit)
+				if(TotalSurvivors() >= g_iMaxSurvivors)
 				{
 					int bot = FindBotToTakeOver(false);
 					if(bot > 0) // 2 player + 2 dead bots => new player takes over dead bot
@@ -1800,7 +1804,7 @@ int GetTeamMaxSlots(int team)
 	int teammaxslots = 0;
 	if(team == TEAM_SURVIVORS)
 	{
-		return g_iSurvivorsLimit;
+		return g_iMaxSurvivors;
 	}
 	else if (team == TEAM_INFECTED)
 	{
@@ -1849,10 +1853,11 @@ void SaveObservers()
 
 /**
  * 當控制台輸入changelevel時
- * 投票換圖或重新章節 也會有changelevel xxxxx (xxxxx is map name)
+ * 投票換圖或重新章節或通關換圖 也會有changelevel xxxxx (xxxxx is map name)
  * 管理員!admin->換圖 也會有changelevel xxxxx (xxxxx is map name)
  * 插件使用 ServerCommand("changelevel %s", ..... 也會有changelevel xxxxx (xxxxx is map name)
  * 插件使用 ForceChangeLevel("xxxxxx", ..... 也會有changelevel xxxxx (xxxxx is map name)
+ * 指令通過前的一刻，因此還可以抓到玩家的狀態與所在的隊伍 (閒置也抓得到)
  */
 Action ServerCmd_changelevel(int client, const char[] command, int argc)
 {
