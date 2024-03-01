@@ -9,20 +9,29 @@
 
 public Plugin myinfo =
 {
-    name = "[L4D2] Vote Manager Remake",
+    name = "[L4D1/2] Vote Manager Remake",
     author = "McFlurry, Harry",
     description = "Unable to call valve vote if player does not have access",
     version = PLUGIN_VERSION,
     url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     EngineVersion test = GetEngineVersion();
 
-    if( test != Engine_Left4Dead2 )
+    if( test == Engine_Left4Dead )
     {
-        strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+        g_bL4D2Version = false;
+    }
+    else if( test == Engine_Left4Dead2 )
+    {
+        g_bL4D2Version = true;
+    }
+    else
+    {
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
         return APLRes_SilentFailure;
     }
 
@@ -37,7 +46,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define VOTE_NONE 0
 #define VOTE_POLLING 1
-#define CUSTOM_ISSUE "#L4D_TargetID_Player"
 
 char votes[][] =
 {
@@ -138,8 +146,11 @@ public void OnPluginStart()
     g_hCvarKickPlayerFlag.AddChangeHook(ConVarChanged_Cvars);
     g_hCvarKickImmunityFlag.AddChangeHook(ConVarChanged_Cvars);
 
-    HookUserMessage(GetUserMessageId("VotePass"), VotePass);
-    HookUserMessage(GetUserMessageId("VoteFail"), VoteFail);
+    if(g_bL4D2Version)
+    {
+        HookUserMessage(GetUserMessageId("VotePass"), VotePass);
+        HookUserMessage(GetUserMessageId("VoteFail"), VoteFail);
+    }
 
     AddCommandListener(VoteStart, "callvote");
     AddCommandListener(VoteAction, "vote");
@@ -345,10 +356,6 @@ Action VotePass(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, 
     return Plugin_Continue;
 }
 
-/* this simply indicates that the vote failed, team is stored in it
-structure
-byte    team
-*/
 Action VoteFail(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, bool reliable, bool init)
 {
     LogVoteManager("%T", "Vote Failed", LANG_SERVER);
