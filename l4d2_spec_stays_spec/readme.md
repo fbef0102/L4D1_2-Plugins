@@ -1,5 +1,5 @@
 # Description | 內容
-Adm type !hp to set survivor team full health
+Spectator will stay as spectators on mapchange/new round.
 
 * Video | 影片展示
 <br/>None

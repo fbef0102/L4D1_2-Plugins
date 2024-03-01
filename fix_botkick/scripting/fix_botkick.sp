@@ -37,8 +37,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	g_hSurvivorLimit = FindConVar("survivor_limit");
-	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Upper, true, 32.0);
-	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Lower, true, 1.0);
 
 	g_iCvarSurvLimit = g_hSurvivorLimit.IntValue;
 	g_hSurvivorLimit.AddChangeHook(OnCvarChange_SurvivorLimit);
@@ -62,8 +60,6 @@ void OnCvarChange_SurvivorLimit(ConVar convar, const char[] oldValue, const char
 public void OnMapStart()
 {
 	bTempBlock = false;
-	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Upper, true, 32.0);
-	SetConVarBounds(g_hSurvivorLimit, ConVarBound_Lower, true, 1.0);
 }
 
 public void OnMapEnd()
