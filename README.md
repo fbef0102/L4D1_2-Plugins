@@ -12,8 +12,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 > __Note__  
 > **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**<br/>
 > **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**
-* <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.＝
-* <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
+* <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
@@ -180,6 +179,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復一些武器的 weapon_*.txt 參數沒有作用
 * <b>[l4d2_spec_stays_spec](/l4d2_spec_stays_spec)</b>: Spectator will stay as spectators on mapchange/new round.
     * 上一回合是旁觀者的玩家, 下一回合開始時繼續待在旁觀者 (避免被自動切換到人類/特感隊伍)
+* <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
+    * 阻擋一些非必要提示的訊息在聊天框 (指令更改、名字更改)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

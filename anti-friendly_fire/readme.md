@@ -49,7 +49,7 @@ shoot your teammate = shoot yourself
     L4D2
     ```
 
-* <details><summary>Similar Plugin | 相似插件</summary>
+* <details><summary>Related Plugin | 相關插件</summary>
 
     1. [l4dffannounce](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dffannounce): Adds Friendly Fire Announcements (who kills teammates)
         > 顯示誰他馬TK我
