@@ -185,8 +185,15 @@ Action Timer_RestartServer(Handle timer)
 
 Action Timer_Cmd_RestartServer(Handle timer)
 {
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if(!IsClientInGame(i)) continue;
+		if(IsFakeClient(i)) continue;
+
+		KickClient(i, "Server is restarting");
+	}
 	UnloadAccelerator();
-	CreateTimer(0.1, Timer_RestartServer);
+	CreateTimer(0.2, Timer_RestartServer);
 
 	return Plugin_Continue;
 }
