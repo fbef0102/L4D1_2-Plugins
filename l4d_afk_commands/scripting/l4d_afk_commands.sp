@@ -362,7 +362,7 @@ Action Command_SwapTo(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	int player_id;
+	int player_id, player_team;
 
 	char player[64];
 	
@@ -373,11 +373,23 @@ Action Command_SwapTo(int client, int args)
 		
 		if(player_id == -1)
 			continue;
+
+		player_team = GetClientTeam(player_id);
 		
 		if(team == 1)
-			ChangeClientTeam(player_id,1);
+		{
+			ChangeClientTeam(player_id, 1);
+		}
 		else if(team == 2)
 		{
+			if(player_team == 3) ChangeClientTeam(player_id, 1);
+			else if(player_team == 2) continue;
+			else if(player_team == 1 && IsClientIdle(player_id))
+			{
+				L4D_TakeOverBot(player_id);
+				continue;
+			}
+
 			int bot = FindBotToTakeOver(true);
 			if (bot==0)
 			{
@@ -385,15 +397,20 @@ Action Command_SwapTo(int client, int args)
 			}
 			if (bot==0)
 			{
-				ChangeClientTeam(player_id,2);
-				return Plugin_Handled;
+				//ChangeClientTeam(player_id, 2);
+				continue;
 			}
 
 			L4D_SetHumanSpec(bot, player_id);
 			L4D_TakeOverBot(player_id);
 		}
 		else if (team == 3)
-			ChangeClientTeam(player_id,3);
+		{
+			if(player_team == 3) continue;
+
+			ChangeClientTeam(player_id, 3);
+		}
+
 			
 		if(client != player_id) CPrintToChatAll("[{olive}TS{default}] %t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
 	}
