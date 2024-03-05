@@ -494,12 +494,10 @@ void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 Action Timer_ChangeTeam(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client))
+	if(client && IsClientInGame(client) && 
+		!IsFakeClient(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client))
 	{
-		if(!IsFakeClient(client) && GetClientTeam(client) == TEAM_SPECTATORS && IsPlayerAlive(client))
-		{
-			RecordSteamID(client); // Record SteamID of player.
-		}
+		RecordSteamID(client); // Record SteamID of player.
 	}
 
 	return Plugin_Continue;
@@ -566,7 +564,7 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		}
 		else
 		{
-			RecordSteamID(client); // Record SteamID of player.
+			CreateTimer(1.0, Timer_ChangeTeam, userid, TIMER_FLAG_NO_MAPCHANGE);  // Record SteamID of player.
 
 			if(g_bSpawnSurvivorsAtStart)
 				CreateTimer(0.2, Timer_KickNoNeededBot2);

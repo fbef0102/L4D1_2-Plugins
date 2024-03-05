@@ -25,6 +25,20 @@
 		"pt_p"			"Você irá respawnar automaticamente em {1} segundos!"
 		"jp"			"あと {1} 秒でリスポーンします!"
 	}
+	"Seconds To Respawn limit"
+	{
+		"#format"        "{1:i},{2:i}"
+		"en"            "You will respawn in {1} seconds! ({2} lives left) " 
+		"zho"			"你將於 {1} 秒後自動復活! (剩餘 {2} 條命) "
+		"chi"			"你将于 {1} 秒后自动复活! (剩余 {2} 条命) "
+	}
+	"Seconds To Respawn limit (1)"
+	{
+		"#format"        "{1:i}"
+		"en"            "You will respawn in {1} seconds! (1 live left) " 
+		"zho"			"你將於 {1} 秒後自動復活! (剩餘 1 條命) "
+		"chi"			"你将于 {1} 秒后自动复活! (剩余 1 条命) "
+	}
 	"Respawned"
 	{
 		"#format"		"{1:s}"

@@ -8,7 +8,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION 			"3.9-2024/2/26"
+#define PLUGIN_VERSION 			"4.0-2024/3/5"
 
 public Plugin myinfo = 
 {
@@ -747,7 +747,22 @@ Action TimerCount( Handle hTimer, int client )
 
 	Seconds[client] --;
 
-	PrintHintText( client, "%T", "Seconds To Respawn", client, Seconds[client] );
+	if(g_bEnablesRespawnLimit)
+	{
+		int left = g_iRespawnLimit - RespawnLimit[client];
+		if(left == 1)
+		{
+			PrintHintText( client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
+		}
+		else
+		{	
+			PrintHintText( client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
+		}
+	}
+	else
+	{
+		PrintHintText( client, "%T", "Seconds To Respawn", client, Seconds[client] );
+	}
 
 	return Plugin_Continue;
 }
