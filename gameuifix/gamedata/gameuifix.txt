@@ -1,0 +1,28 @@
+"Games"
+{
+	"left4dead"
+	{
+		"Offsets"
+		{
+			"AcceptInput"
+			{
+				"windows"	"37"
+				"linux"		"38"
+				"mac"		"38"
+			}
+		}
+	}
+	
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			"AcceptInput"
+			{
+				"windows"	"44"
+				"linux"		"45"
+				"mac"		"45"
+			}
+		}
+	}
+}

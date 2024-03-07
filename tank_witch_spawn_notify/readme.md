@@ -51,7 +51,6 @@ When the tank and witch spawns, it announces itself in chat by making a sound
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* 1.0
-		* Request by Yabi
 		* Initial Release
 </details>
 
