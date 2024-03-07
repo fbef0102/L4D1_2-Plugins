@@ -16,7 +16,7 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 	* Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 	* Weapons
 		* Fire Rate (Standing)
-			* Pistol, dual pistol, shotguns obey "CycleTime" keyvalue in weapon_*.txt
+			* Dual pistol, shotguns obey "CycleTime" keyvalue in weapon_*.txt
 		* Fire Rate (Incap) 
 			* If weapon_*.txt "CycleTime" slower than official cvar "survivor_incapacitated_cycle_time", ignores the cvar and uses weapon "CycleTime" for incap shooting cycle rate
 			* If weapon_*.txt "CycleTime" faster than official cvar "survivor_incapacitated_cycle_time", use "survivor_incapacitated_cycle_time" for incap shooting cycle rate
@@ -39,8 +39,8 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		// 0=Plugin off, 1=Plugin on.
 		l4d_weapon_editor_fix_enable "1"
 
-		// The dual pistol Cycle Time (the inverse of fire rate, 0: keeps vanilla cycle rate of 0.075)
-		l4d_weapon_editor_fix_dual_pistol_CycleTime "0.075"
+		// The dual pistol Cycle Time (fire rate, 0: keeps vanilla cycle rate of 0.075)
+		l4d_weapon_editor_fix_dual_pistol_CycleTime "0.1"
 
 		// The dual pistol Reload Duration (0: keeps vanilla reload duration of 2.333)
 		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "2.333"
@@ -68,6 +68,13 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 	None
 </details>
 
+* <details><summary>Known Conflicts</summary>
+	
+	If you don't use any of these plugins at all, no need to worry about conflicts.
+	1. [l4d2_pistol_delay from SirPlease/L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_pistol_delay.sp): Allows you to adjust the rate of fire of pistols (with a high tickrate, the rate of fire of dual pistols is very high).
+		* Please Remove
+</details>
+
 * Apply to | 適用於
 	```
 	L4D1
@@ -84,6 +91,10 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.1 (2024-3-7)
+		* Update cvars
+		* Delete function: pistol obey "CycleTime" keyvalue
+
 	* v1.0 (2024-2-17)
 		* Initial Release
 </details>
@@ -99,9 +110,9 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 
 	* 槍械武器
 		* 射速
-			* 手槍、雙手槍、散彈槍符合武器參數 "CycleTime"
+			* 雙手槍、散彈槍符合武器參數 "CycleTime"
 		* 倒地射速
-			* 修復部分武器倒地射速比站立射速還快
+			* 修復部分武器倒地射速比站立時的射速還快
 		* 裝彈時間
 			* 雙手槍、散彈槍符合武器參數 "ReloadDuration"
 	* 近戰武器
@@ -122,7 +133,7 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		l4d_weapon_editor_fix_enable "1"
 
 		// 設置雙手槍的開槍間隔 (射速, 0: 維持遊戲預設的0.075秒)
-		l4d_weapon_editor_fix_dual_pistol_CycleTime "0.075"
+		l4d_weapon_editor_fix_dual_pistol_CycleTime "0.1"
 
 		// 設置雙手槍的裝彈時間 (0: 維持遊戲預設的2.333秒)
 		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "2.333"
@@ -140,9 +151,16 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		// 為1時，近戰武器的揮砍間隔強制符合 melee\*.txt 的武器參數"refire_delay"
 		l4d_weapon_editor_fix_melee_swing "1"
 
-		// 倒地狀態下，近戰武器的揮砍間隔 0=不變, >0: 改變倍增, (譬如: 使用Silvers的Incapped Weapons Patch插件，可以在倒地狀態下使用近戰)
+		// 倒地狀態下，近戰武器的揮砍間隔 0=不變, >0: 調整砍速 (使用Silvers的Incapped Weapons Patch插件，可以在倒地狀態下使用近戰)
 		l4d_weapon_editor_fix_melee_swing_incap_multi "1.3"
 		```
+</details>
+
+* <details><summary>會衝突的插件</summary>
+	
+	如果沒安裝以下插件就不需要擔心衝突
+	1. [l4d2_pistol_delay from SirPlease/L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_pistol_delay.sp): 修復手槍在高tickrate下的射速
+		* 請移除
 </details>
 
 
