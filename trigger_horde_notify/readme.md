@@ -54,7 +54,6 @@ Who called the horde ?
         * Require lef4dhooks v1.33 or above
 
 	* v1.0
-		* Request by Yabi
         * Intital Release
 		* Thanks to [Forgetest](https://github.com/jensewe) for gamedata
 </details>

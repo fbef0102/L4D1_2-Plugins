@@ -1,21 +1,34 @@
+#pragma semicolon 1
+#pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <dhooks>
-
-Handle g_hWeapon_ShootPosition = INVALID_HANDLE;
-// Handle g_hWeapon_ShootPosition_SDKCall = INVALID_HANDLE;
-float  g_vecOldWeaponShootPos[MAXPLAYERS + 1][3];
-// bool   g_bCallingWeapon_ShootPosition = false;
 
 public Plugin myinfo =
 {
 	name = "Bullet position fix",
 	author = "xutaxkamay,LuckyServ",
 	description = "Fixes shoot position",
-	version = "1.1",
-	url = "https://forums.alliedmods.net/showthread.php?p=2646571"
+	version = "1.0h-2024/3/7",
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+    EngineVersion test = GetEngineVersion();
+
+    if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
+    {
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+        return APLRes_SilentFailure;
+    }
+
+    return APLRes_Success;
+}
+
+Handle g_hWeapon_ShootPosition = INVALID_HANDLE;
+float  g_vecOldWeaponShootPos[MAXPLAYERS + 1][3];
 
 public void OnPluginStart()
 {
@@ -25,24 +38,6 @@ public void OnPluginStart()
 	{
 		SetFailState("[FireBullets Fix] No game data present");
 	}
-
-	/*
-	StartPrepSDKCall(SDKCall_Player);
-
-	if (!PrepSDKCall_SetFromConf(gameData, SDKConf_Virtual, "Weapon_ShootPosition"))
-	{
-		SetFailState("[FireBullets Fix] couldn't read config for preparing Weapon_ShootPosition SDKCall");
-	}
-
-	PrepSDKCall_SetReturnInfo(SDKType_Vector, SDKPass_ByValue);
-	// Crashes the game...
-	g_hWeapon_ShootPosition_SDKCall = EndPrepSDKCall();
-	
-	if (g_hWeapon_ShootPosition_SDKCall == INVALID_HANDLE)
-	{
-		SetFailState("[FireBullets Fix] couldn't prepare Weapon_ShootPosition SDKCall");
-	}
-	*/
 			
 	int offset = GameConfGetOffset(gameData, "Weapon_ShootPosition");
 
@@ -50,8 +45,6 @@ public void OnPluginStart()
 	{
 		SetFailState("[FireBullets Fix] failed to find offset");
 	}
-
-	//LogMessage("Found offset for Weapon_ShootPosition %d", offset);
 
 	g_hWeapon_ShootPosition = DHookCreate(offset, HookType_Entity, ReturnType_Vector, ThisPointer_CBaseEntity);
 
@@ -79,17 +72,12 @@ public Action OnPlayerRunCmd(int client)
 	if (IsSurvivor(client) && IsClientConnected(client) && !IsFakeClient(client))
 	{
 		GetClientEyePosition(client, g_vecOldWeaponShootPos[client]);
-		/*
-		g_bCallingWeapon_ShootPosition = true;
-		SDKCall(g_hWeapon_ShootPosition_SDKCall, client, g_vecOldWeaponShootPos[client]); 
-		g_bCallingWeapon_ShootPosition = false;
-		*/
 	}
 		
 	return Plugin_Continue;
 }
 
-public MRESReturn Weapon_ShootPosition_Post(int client, Handle hReturn)
+MRESReturn Weapon_ShootPosition_Post(int client, Handle hReturn)
 {
     if (IsSurvivor(client)) 
     {
@@ -100,7 +88,7 @@ public MRESReturn Weapon_ShootPosition_Post(int client, Handle hReturn)
     return MRES_Ignored;
 }
 
-public bool IsSurvivor(client)
+bool IsSurvivor(int client)
 {
     return client > 0 && client <= MaxClients && IsClientInGame(client) && GetClientTeam(client) == 2;
 }

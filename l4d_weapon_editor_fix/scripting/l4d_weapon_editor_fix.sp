@@ -40,12 +40,11 @@
  * 修復一些武器的weapon_*.txt參數沒有作用 (彌補l4d_info_editor插件無法修改的武器參數，檔案: data/l4d_info_editor_weapons.cfg)
  * -Weapons
  *  -CycleTime (Standing)
- *   1. pistol
- *   2. dual pistol (plugin cvar)
- *   3. pump shotgun
- *   4. shotgun chrome
- *   5. autoshotgun
- *   6. shotgun spas
+ *   1. dual pistol (plugin cvar)
+ *   2. pump shotgun
+ *   3. shotgun chrome
+ *   4. autoshotgun
+ *   5. shotgun spas
  *  
  *  -CycleTime (Incap) (wh_use_incap_cycle_cvar must be 1 from WeaponHandling)
  *   If weapon_*.txt "CycleTime" slower than official cvar "survivor_incapacitated_cycle_time", ignores the cvar and uses weapon_*.txt "CycleTime" for incap shooting cycle rate
@@ -75,7 +74,7 @@
 #include <left4dhooks>          // https://forums.alliedmods.net/showthread.php?t=321696
 #include <WeaponHandling>       // https://forums.alliedmods.net/showthread.php?t=319947
 
-#define PLUGIN_VERSION			"1.0-2024/2/17"
+#define PLUGIN_VERSION			"1.1-2024/3/6"
 #define PLUGIN_NAME			    "l4d_weapon_editor_fix"
 #define DEBUG 0
 
@@ -148,13 +147,16 @@ public void OnPluginStart()
 	g_hCvar_IncapCycle = FindConVar("survivor_incapacitated_cycle_time");
 
 	g_hCvarEnable 							= CreateConVar( PLUGIN_NAME ... "_enable",        				"1",   		"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarDualPistol_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_dual_pistol_CycleTime",   	"0.075",   	"The dual pistol Cycle Time (the inverse of fire rate, 0: keeps vanilla cycle rate of 0.075)", CVAR_FLAGS, true, 0.0);
+	g_hCvarDualPistol_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_dual_pistol_CycleTime",   	"0.1",   	"The dual pistol Cycle Time (fire rate, 0: keeps vanilla cycle rate of 0.075)", CVAR_FLAGS, true, 0.0);
 	g_hCvarDualPistol_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_dual_pistol_ReloadDuration",  "2.333",   	"The dual pistol Reload Duration (0: keeps vanilla reload duration of 2.333)", CVAR_FLAGS, true, 0.0);
 	g_hCvarShotGun_Fix_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_shotgun_fire_rate",  			"1",   		"If 1, Make shotgun fire rate obey \"CycleTime\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarShotGun_Fix_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_shotgun_reload",  			"1",   		"If 1, Make shotgun reload duration obey \"ReloadDuration\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarWeaponIncap_Fix_CycleTime 		= CreateConVar( PLUGIN_NAME ... "_incap_fire_rate",  			"1",   		"If 1, Use weapon_*.txt \"CycleTime\" or official cvar \"survivor_incapacitated_cycle_time\" for incap shooting cycle rate, depends on which cycle rate is slower than another\n(\"wh_use_incap_cycle_cvar\" must be 1)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarMelee_Fix_Refire_Delay			= CreateConVar( PLUGIN_NAME ... "_melee_swing",  				"1",   		"If 1, Make melee swing rate obey \"refire_delay\" keyvalue in melee\\*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarMeleeIncap_Refire_Delay_Multi	= CreateConVar( PLUGIN_NAME ... "_melee_swing_incap_multi",  	"1.3",   	"0=Unchanged, Modify melee swinging rate multi when incapacitated, (ex. Use 'Incapped Weapons Patch by Silvers' to allow using melee while Incapped)", CVAR_FLAGS, true, 0.0);
+	if(g_bL4D2Version)
+	{
+		g_hCvarMelee_Fix_Refire_Delay			= CreateConVar( PLUGIN_NAME ... "_melee_swing",  				"1",   		"If 1, Make melee swing rate obey \"refire_delay\" keyvalue in melee\\*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
+		g_hCvarMeleeIncap_Refire_Delay_Multi	= CreateConVar( PLUGIN_NAME ... "_melee_swing_incap_multi",  	"1.3",   	"0=Unchanged, Modify melee swinging rate multi when incapacitated, (ex. Use 'Incapped Weapons Patch by Silvers' to allow using melee while Incapped)", CVAR_FLAGS, true, 0.0);
+	}
 	CreateConVar(                       					PLUGIN_NAME ... "_version",       				PLUGIN_VERSION, PLUGIN_NAME ... 	" Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true,                					PLUGIN_NAME);
 
@@ -166,8 +168,11 @@ public void OnPluginStart()
 	g_hCvarShotGun_Fix_CycleTime.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarShotGun_Fix_ReloadDuration.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarWeaponIncap_Fix_CycleTime.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarMelee_Fix_Refire_Delay.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarMeleeIncap_Refire_Delay_Multi.AddChangeHook(ConVarChanged_Cvars);
+	if(g_bL4D2Version)
+	{
+		g_hCvarMelee_Fix_Refire_Delay.AddChangeHook(ConVarChanged_Cvars);
+		g_hCvarMeleeIncap_Refire_Delay_Multi.AddChangeHook(ConVarChanged_Cvars);
+	}
 
 	AddCommandListener(CmdListen_weapon_reparse_server, "weapon_reparse_server");
 	if(g_bL4D2Version)
@@ -202,8 +207,11 @@ void GetCvars()
 	g_bCvarShotGun_Fix_CycleTime = g_hCvarShotGun_Fix_CycleTime.BoolValue;
 	g_bCvarShotGun_Fix_ReloadDuration = g_hCvarShotGun_Fix_ReloadDuration.BoolValue;
 	g_bCvarWeaponIncap_Fix_CycleTime = g_hCvarWeaponIncap_Fix_CycleTime.BoolValue;
-	g_bCvarMelee_Fix_Refire_Delay = g_hCvarMelee_Fix_Refire_Delay.BoolValue;
-	g_fCvarMeleeIncap_Refire_Delay_Multi = g_hCvarMeleeIncap_Refire_Delay_Multi.FloatValue;
+	if(g_bL4D2Version)
+	{
+		g_bCvarMelee_Fix_Refire_Delay = g_hCvarMelee_Fix_Refire_Delay.BoolValue;
+		g_fCvarMeleeIncap_Refire_Delay_Multi = g_hCvarMeleeIncap_Refire_Delay_Multi.FloatValue;
+	}
 }
 
 void ConVarChanged_incap_cycle(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
@@ -284,36 +292,36 @@ public void WH_OnGetRateOfFire(int client, int weapon, L4D2WeaponType weapontype
 				{
 					if(g_fCvarDualPistol_CycleTime == 0.0) return;
 
-					speedmodifier = 0.075 *(1.0/g_fCvarDualPistol_CycleTime); // dual pistol "CycleTime" = 0.075 
+					speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 0.075 * (1.0/0.2) : 0.075 *(1.0/g_fCvarDualPistol_CycleTime); // dual pistol "CycleTime" = 0.075 
 				}
-				else
+				/*else
 				{
-					speedmodifier = 0.175 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pistol]); // single pistol "CycleTime" = 0.175 
-				}
+					speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 0.175 * (1.0/0.2625) : 0.175 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pistol]); // single pistol "CycleTime" = 0.175 
+				}*/
 			}
 			case L4D2WeaponType_Pumpshotgun:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 
-				speedmodifier = 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pumpshotgun]); // Pumpshotgun "CycleTime" = 0.875 
+				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pumpshotgun]); // Pumpshotgun "CycleTime" = 0.875 
 			}
 			case L4D2WeaponType_PumpshotgunChrome:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 
-				speedmodifier = 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_PumpshotgunChrome]); // PumpshotgunChrome "CycleTime" = 0.875 
+				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_PumpshotgunChrome]); // PumpshotgunChrome "CycleTime" = 0.875 
 			}
 			case L4D2WeaponType_Autoshotgun:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 
-				speedmodifier = 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Autoshotgun]); // Autoshotgun "CycleTime" = 0.250 
+				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Autoshotgun]); // Autoshotgun "CycleTime" = 0.250 
 			}
 			case L4D2WeaponType_AutoshotgunSpas:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 
-				speedmodifier = 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_AutoshotgunSpas]); // AutoshotgunSpas "CycleTime" = 0.250 
+				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_AutoshotgunSpas]); // AutoshotgunSpas "CycleTime" = 0.250 
 			}
 		}
 	}

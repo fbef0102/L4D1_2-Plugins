@@ -9,7 +9,8 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 	<br/>![l4d_expertrealism_1](image/l4d_expertrealism_1.gif)
 
 * Require | 必要安裝
-	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 * <details><summary>How does it work?</summary>
 
@@ -53,6 +54,10 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 
 		// For HardCore Mode, changes how message displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
 		l4d_survivor_hardcore_announce_type "0"
+
+		// If 1, Enable Server Glows for infected team. (0=Hide Glow)
+		// Work in realism mode
+		l4d_infected_glowenable "0"
         ```
 </details>
 
@@ -60,18 +65,17 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 
 	* **Hide one client glow (Admin Flag: ADMFLAG_BAN)**
 		```php
-		sm_glowoff
+		sm_glowoff <name/#userid>
 		```
 
 	* **Show one client glow (Admin Flag: ADMFLAG_BAN)**
 		```php
-		sm_glowon
+		sm_glowon <name/#userid>
 		```
 
 	* **Hide your hud flag (Admin Flag: ADMFLAG_BAN)**
 		```php
-		sm_hidehud
-		sm_hud
+		sm_hidehud <HUD flag>
 		```
 </details>
 
@@ -83,12 +87,14 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.0h (2023-3-7)
+		* Disable glow for infected team
+		* Update cvars
+
 	* v1.5 (2023-2-28)
-		* Request by eviltechno
 		* Hide players' name above their head on expert
 
 	* v1.4 (2023-2-27)
-		* Request by eviltechno
 		* Remake code
 		* Control glow and hud flag
 		* Enable Hard Core Hud Mode, hide HUD and Glow by default, Hud will show while survivors are in stillness or holding SLOW_WALK(Shift) or holding DUCK
@@ -121,8 +127,8 @@ L4D1/2 真寫實模式 (沒有光圈與介面)
 		// 為1時，啟動伺服器所有光圈的效果 (這是隱藏的官方指令)
 		sv_glowenable "1"
 
-		// 0=倖存者隊伍光圈關閉，1=倖存者隊伍光圈開啟
-		// 寫實模式不起作用
+		// 0=倖存者玩家看不到任何光圈 (隊友輪廓與物品光圈)，1=倖存者玩家看得到任何光圈
+		// 寫實模式下此指令不起作用
 		l4d_survivor_glowenable "0"
 
 		// 隱藏介面 1=武器欄, 2=手電筒, 4=全部, 8=血量欄, 16=死亡玩家狀態, 32=needssuit(不會用到), 64=misc(不會用到), 128=聊天室窗, 256=準心, 512=vehicle crosshair(不會用到), 1024=in vehicle(不會用到)
@@ -143,5 +149,9 @@ L4D1/2 真寫實模式 (沒有光圈與介面)
 
 		// (HardCore Mode) 提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
 		l4d_survivor_hardcore_announce_type "0"
+
+		// 0=特感玩家看不到任何光圈 (倖存者輪廓與隊友輪廓)，1=特感玩家看得到任何光圈
+		// 寫實模式下此指令可以起作用
+		l4d_infected_glowenable "0"
         ```
 </details>
