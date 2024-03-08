@@ -4,16 +4,16 @@
 	{
 		"#format"	"{1:N}"
 		"en"		"{olive}{1}{default} has force-vetoed current vote!"
-		"zho"		"{olive}{1}{default} 強制通過目前的投票項目!"
-		"chi"		"{olive}{1}{default} 强制通过目前的投票项目!"
+		"zho"		"{olive}{1}{default} 強制否決目前的投票項目!"
+		"chi"		"{olive}{1}{default} 强制否决目前的投票项目!"
 	}
 	
 	"Passed"
 	{
 		"#format"	"{1:N}"
 		"en"		"{olive}{1}{default} has force-passed current vote!"
-		"zho"		"{olive}{1}{default} 強制否決目前的投票項目!"
-		"chi"		"{olive}{1}{default} 强制否决目前的投票项目!"
+		"zho"		"{olive}{1}{default} 強制通過目前的投票項目!"
+		"chi"		"{olive}{1}{default} 强制通过目前的投票项目!"
 	}
 	
 	"Cant Pass"

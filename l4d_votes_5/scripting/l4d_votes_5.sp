@@ -4,6 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <multicolors>
+#include <builtinvotes>
 
 #define SCORE_DELAY_EMPTY_SERVER 3.0
 #define ZOMBIECLASS_SMOKER 1
@@ -23,15 +24,12 @@
 #define VOTEDELAY_TIME 60
 #define READY_RESTART_MAP_DELAY 2
 
-int Votey = 0;
-int Voten = 0;
 bool game_l4d2 = false;
 int kickplayer_userid;
 char kickplayer_name[MAX_NAME_LENGTH];
 char kickplayer_SteamId[MAX_NAME_LENGTH];
 char votesmaps[MAX_NAME_LENGTH];
 char votesmapsname[MAX_NAME_LENGTH];
-ConVar g_Cvar_Limits;
 ConVar VotensHpED;
 ConVar VotensAlltalkED;
 ConVar VotensAlltalk2ED;
@@ -46,11 +44,9 @@ ConVar g_hKickImmueAccess;
 int g_iCvarPlayerLimit;
 Handle g_hVoteMenu = null;
 float lastDisconnectTime;
-bool ClientVoteMenu[MAXPLAYERS + 1];
 int g_iCount;
 char g_sMapinfo[MAX_CAMPAIGN_LIMIT][MAX_NAME_LENGTH];
 char g_sMapname[MAX_CAMPAIGN_LIMIT][MAX_NAME_LENGTH];
-float g_fLimit;
 bool g_bEnable, VotensHpE_D, VotensAlltalkE_D, VotensAlltalk2E_D, VotensRestartmapE_D, 
 	VotensMapE_D, VotensMap2E_D, g_bVotensKickED, g_bVotensForceSpectateED;
 char g_sKickImmueAccesslvl[16];
@@ -97,7 +93,7 @@ public Plugin myinfo =
 	name = "L4D2 Vote Menu",
 	author = "HarryPotter",
 	description = "Votes Commands",
-	version = "6.2",
+	version = "1.0h-2024/3/8",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -115,23 +111,19 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_callvotes", Command_Votes, "open vote meun");
 	RegConsoleCmd("votesforcespectate", Command_Votesforcespectate);
 
-	g_Cvar_Limits = CreateConVar("sm_votes_s", "0.60", "pass vote percentage.", 0, true, 0.05, true, 1.0);
-	VotensHpED = CreateConVar("l4d_VotenshpED", "1", "If 1, Enable Give HP Vote.", FCVAR_NOTIFY);
-	VotensAlltalkED = CreateConVar("l4d_VotensalltalkED", "1", "If 1, Enable All Talk On Vote.", FCVAR_NOTIFY);
-	VotensAlltalk2ED = CreateConVar("l4d_Votensalltalk2ED", "1", "If 1, Enable All Talk Off Vote.", FCVAR_NOTIFY);
-	VotensRestartmapED = CreateConVar("l4d_VotensrestartmapED", "1", "If 1, Enable Restart Current Map Vote.", FCVAR_NOTIFY);
-	VotensMapED = CreateConVar("l4d_VotensmapED", "1", "If 1, Enable Change Valve Map Vote.", FCVAR_NOTIFY);
-	VotensMap2ED = CreateConVar("l4d_Votensmap2ED", "1", "If 1, Enable Change Custom Map Vote.", FCVAR_NOTIFY);
-	VotensED = CreateConVar("l4d_Votens", "1", "0=Off, 1=On this plugin", FCVAR_NOTIFY);
-	VotensKickED = CreateConVar("l4d_VotesKickED", "1", "If 1, Enable Kick Player Vote.", FCVAR_NOTIFY);
-	VotensForceSpectateED = CreateConVar("l4d_VotesForceSpectateED", "1", "If 1, Enable ForceSpectate Player Vote.", FCVAR_NOTIFY);
-	g_hCvarPlayerLimit = CreateConVar("sm_vote_player_limit", "2", "Minimum # of players in game to start the vote", FCVAR_NOTIFY);
-	g_hKickImmueAccess = CreateConVar("l4d_VotesKick_immue_access_flag", "z", "Players with these flags have kick immune. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	
-	HookEvent("round_start", event_Round_Start);
+	VotensHpED 				= CreateConVar("l4d_VotenshpED", 					"1", "If 1, Enable Give HP Vote.", FCVAR_NOTIFY);
+	VotensAlltalkED 		= CreateConVar("l4d_VotensalltalkED", 				"1", "If 1, Enable All Talk On Vote.", FCVAR_NOTIFY);
+	VotensAlltalk2ED 		= CreateConVar("l4d_Votensalltalk2ED", 				"1", "If 1, Enable All Talk Off Vote.", FCVAR_NOTIFY);
+	VotensRestartmapED 		= CreateConVar("l4d_VotensrestartmapED",			"1", "If 1, Enable Restart Current Map Vote.", FCVAR_NOTIFY);
+	VotensMapED 			= CreateConVar("l4d_VotensmapED", 					"1", "If 1, Enable Change Valve Map Vote.", FCVAR_NOTIFY);
+	VotensMap2ED 			= CreateConVar("l4d_Votensmap2ED", 					"1", "If 1, Enable Change Custom Map Vote.", FCVAR_NOTIFY);
+	VotensED 				= CreateConVar("l4d_Votens", 						"1", "0=Off, 1=On this plugin", FCVAR_NOTIFY);
+	VotensKickED 			= CreateConVar("l4d_VotesKickED", 					"1", "If 1, Enable Kick Player Vote.", FCVAR_NOTIFY);
+	VotensForceSpectateED 	= CreateConVar("l4d_VotesForceSpectateED", 			"1", "If 1, Enable ForceSpectate Player Vote.", FCVAR_NOTIFY);
+	g_hCvarPlayerLimit 		= CreateConVar("sm_vote_player_limit", 				"2", "Minimum # of players in game to start the vote", FCVAR_NOTIFY);
+	g_hKickImmueAccess 		= CreateConVar("l4d_VotesKick_immue_access_flag", 	"z", "Players with these flags have kick immune. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 
 	GetCvars();
-	g_Cvar_Limits.AddChangeHook(ConVarChanged_Cvars);
 	VotensHpED.AddChangeHook(ConVarChanged_Cvars);
 	VotensAlltalkED.AddChangeHook(ConVarChanged_Cvars);
 	VotensAlltalk2ED.AddChangeHook(ConVarChanged_Cvars);
@@ -147,14 +139,21 @@ public void OnPluginStart()
 	AutoExecConfig(true, "l4d_votes_5");
 }
 
-public void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
+public void OnPluginEnd()
+{
+    if(g_hVoteMenu!=null)
+    {
+        CancelBuiltinVote();
+    }
+}
+
+void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
 
 void GetCvars()
 {
-	g_fLimit = g_Cvar_Limits.FloatValue;
 	g_iCvarPlayerLimit = g_hCvarPlayerLimit.IntValue;
 	VotensHpE_D = VotensHpED.BoolValue;
 	VotensAlltalkE_D = VotensAlltalkED.BoolValue;
@@ -170,7 +169,7 @@ void GetCvars()
 
 void RestartMapDelayed()
 {
-	if (MapCountdownTimer == INVALID_HANDLE)
+	if (MapCountdownTimer == null)
 	{
 		PrintHintTextToAll("Get Ready!\nMap restart in: %d",READY_RESTART_MAP_DELAY+1);
 		isMapRestartPending = true;
@@ -183,7 +182,7 @@ Action timerRestartMap(Handle timer)
 {
 	if (MapRestartDelay == 0)
 	{
-		MapCountdownTimer = INVALID_HANDLE;
+		MapCountdownTimer = null;
 		RestartMapNow();
 		return Plugin_Stop;
 	}
@@ -204,12 +203,6 @@ void RestartMapNow()
 	ServerCommand("changelevel %s", currentMap);
 }
 
-public void event_Round_Start(Event event, const char[] name, bool dontBroadcast) 
-{
-	for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = false; 
-	
-}
-
 public void OnClientPutInServer(int client)
 {
 	g_iSpectatePenaltyCounter[client] = FORCESPECTATE_PENALTY;
@@ -218,7 +211,7 @@ public void OnClientPutInServer(int client)
 public void OnMapStart()
 {
 	isMapRestartPending = false;
-	MapCountdownTimer = INVALID_HANDLE;
+	MapCountdownTimer = null;
 	
 	ParseCampaigns();
 	
@@ -230,15 +223,12 @@ public void OnMapStart()
 	{	
 		g_iSpectatePenaltyCounter[i] = FORCESPECTATE_PENALTY;
 	}
-	PrecacheSound("ui/menu_enter05.wav");
-	PrecacheSound("ui/beep_synthtone01.wav");
-	PrecacheSound("ui/beep_error01.wav");
 	PrecacheSound("buttons/blip1.wav");
 	
-	VoteMenuClose();
+	g_hVoteMenu = null;
 }
 
-public Action Command_Votes(int client, int args) 
+Action Command_Votes(int client, int args) 
 { 
 	if (client == 0)
 	{
@@ -251,81 +241,81 @@ public Action Command_Votes(int client, int args)
 		return Plugin_Handled;
 	}
 
-	ClientVoteMenu[client] = true;
 	if(g_bEnable == true)
 	{	
-		Handle menu = CreatePanel();
-		SetPanelTitle(menu, "菜單");
+		Panel panel = new Panel();
+		SetPanelTitle(panel, "菜單");
 		if (VotensHpE_D == false)
 		{
-			DrawPanelItem(menu, "回血(關閉中) Give Hp(Disable)");
+			DrawPanelItem(panel, "回血(關閉中) Give Hp(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "回血 Give hp");
+			DrawPanelItem(panel, "回血 Give hp");
 		}
 		if (VotensAlltalkE_D == false)
 		{ 
-			DrawPanelItem(menu, "全語音(關閉中) Turn on AllTalk(Disable)");
+			DrawPanelItem(panel, "全語音(關閉中) Turn on AllTalk(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "全語音 All talk");
+			DrawPanelItem(panel, "全語音 All talk");
 		}
 		if (VotensAlltalk2E_D == false)
 		{
-			DrawPanelItem(menu, "關閉全語音(關閉中) Turn off AllTalk(Disable)");
+			DrawPanelItem(panel, "關閉全語音(關閉中) Turn off AllTalk(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "關閉全語音 Turn off AllTalk");
+			DrawPanelItem(panel, "關閉全語音 Turn off AllTalk");
 		}
 		if (VotensRestartmapE_D == false)
 		{
-			DrawPanelItem(menu, "重新目前地圖(關閉中) Stop restartmap(Disable)");
+			DrawPanelItem(panel, "重新目前地圖(關閉中) Stop restartmap(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "重新目前地圖 Restartmap");
+			DrawPanelItem(panel, "重新目前地圖 Restartmap");
 		}
 		if (VotensMapE_D == false)
 		{
-			DrawPanelItem(menu, "換圖(關閉中) Change Maps(Disable)");
+			DrawPanelItem(panel, "換圖(關閉中) Change Maps(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "換圖 Change Maps");
+			DrawPanelItem(panel, "換圖 Change Maps");
 		}
 
 		if (VotensMap2E_D == false)
 		{
-			DrawPanelItem(menu, "換三方圖(關閉中) Change addon maps(Disable)");
+			DrawPanelItem(panel, "換三方圖(關閉中) Change addon maps(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "換第三方圖 Change addon maps");
+			DrawPanelItem(panel, "換第三方圖 Change addon maps");
 		}
 
 		if (g_bVotensKickED == false)
 		{
-			DrawPanelItem(menu, "踢出玩家(關閉中) Kick Player(Disable)");
+			DrawPanelItem(panel, "踢出玩家(關閉中) Kick Player(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "踢出玩家 Kick Player");
+			DrawPanelItem(panel, "踢出玩家 Kick Player");
 		}
 
 		if (g_bVotensForceSpectateED == false)
 		{
-			DrawPanelItem(menu, "強制玩家旁觀(關閉中) Forcespectate Player(Disable)");
+			DrawPanelItem(panel, "強制玩家旁觀(關閉中) Forcespectate Player(Disable)");
 		}
 		else
 		{
-			DrawPanelItem(menu, "強制玩家旁觀 Forcespectate Player");
+			DrawPanelItem(panel, "強制玩家旁觀 Forcespectate Player");
 		}
-		DrawPanelText(menu, " \n");
-		DrawPanelText(menu, "0. Exit");
-		SendPanelToClient(menu, client, Votes_Menu, MENU_TIME);
+		DrawPanelText(panel, " \n");
+		DrawPanelText(panel, "0. Exit");
+		SendPanelToClient(panel, client, Votes_Menu, MENU_TIME);
+		delete panel;
 		return Plugin_Handled;
 	}
 	else
@@ -335,7 +325,8 @@ public Action Command_Votes(int client, int args)
 	
 	return Plugin_Stop;
 }
-public int Votes_Menu(Menu menu, MenuAction action, int client, int itemNum)
+
+int Votes_Menu(Menu menu, MenuAction action, int client, int itemNum)
 {
 	if ( action == MenuAction_Select ) 
 	{ 
@@ -439,10 +430,6 @@ public int Votes_Menu(Menu menu, MenuAction action, int client, int itemNum)
 			}
 		}
 	}
-	else if ( action == MenuAction_Cancel)
-	{
-		ClientVoteMenu[client] = false;
-	}
 	else if(action == MenuAction_End)
 	{
 		delete menu;
@@ -451,7 +438,7 @@ public int Votes_Menu(Menu menu, MenuAction action, int client, int itemNum)
 	return 0;
 }
 
-public Action Command_VoteHp(int client, int args)
+Action Command_VoteHp(int client, int args)
 {
 	if(g_bEnable == true 
 	&& VotensHpE_D == true)
@@ -464,22 +451,18 @@ public Action Command_VoteHp(int client, int args)
 		{
 			CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a vote: {blue}give hp",client);
 			
-			
-			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
-			
 			g_voteType = view_as<voteType>(hp);
-			char SteamId[35];
-			GetClientAuthId(client, AuthId_Steam2,SteamId, sizeof(SteamId));
+			static char SteamId[32];
+			GetClientAuthId(client, AuthId_SteamID64, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: give hp!",  client, SteamId);//記錄在log文件
-			g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL);
-			SetMenuTitle(g_hVoteMenu, "Sure to give hp?");
-			AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
-			AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
-		
-			SetMenuExitButton(g_hVoteMenu, false);
-			VoteMenuToAll(g_hVoteMenu, 20);	
-			
-			EmitSoundToAll("ui/beep_synthtone01.wav");
+			g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+			char sTitle[64];
+			FormatEx(sTitle, sizeof(sTitle), "Give HP?");
+			SetBuiltinVoteArgument(g_hVoteMenu, sTitle);
+			SetBuiltinVoteInitiator(g_hVoteMenu, client);
+			SetBuiltinVoteResultCallback(g_hVoteMenu, VoteResultHandler);
+			DisplayBuiltinVoteToAll(g_hVoteMenu, 20);
+			FakeClientCommand(client, "Vote Yes");
 		}
 		else
 		{
@@ -494,7 +477,7 @@ public Action Command_VoteHp(int client, int args)
 	}
 	return Plugin_Handled;
 }
-public Action Command_VoteAlltalk(int client, int args)
+Action Command_VoteAlltalk(int client, int args)
 {
 	if(g_bEnable == true 
 	&& VotensAlltalkE_D == true)
@@ -506,22 +489,20 @@ public Action Command_VoteAlltalk(int client, int args)
 		if(CanStartVotes(client))
 		{
 			CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a vote: {blue}turn on alltalk",client);
-			
-			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
-			
+				
 			g_voteType = view_as<voteType>(alltalk);
-			char SteamId[35];
-			GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
+			static char SteamId[32];
+			GetClientAuthId(client, AuthId_SteamID64, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: turn on Alltalk!",  client, SteamId);//紀錄在log文件
-			g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL);
-			SetMenuTitle(g_hVoteMenu, "sure to tun on alltalk?");
-			AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
-			AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
-		
-			SetMenuExitButton(g_hVoteMenu, false);
-			VoteMenuToAll(g_hVoteMenu, 20);
 			
-			EmitSoundToAll("ui/beep_synthtone01.wav");
+			g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+			char sTitle[64];
+			FormatEx(sTitle, sizeof(sTitle), "Turn on All Talk?");
+			SetBuiltinVoteArgument(g_hVoteMenu, sTitle);
+			SetBuiltinVoteInitiator(g_hVoteMenu, client);
+			SetBuiltinVoteResultCallback(g_hVoteMenu, VoteResultHandler);
+			DisplayBuiltinVoteToAll(g_hVoteMenu, 20);
+			FakeClientCommand(client, "Vote Yes");
 		}
 		else
 		{
@@ -536,7 +517,7 @@ public Action Command_VoteAlltalk(int client, int args)
 	}
 	return Plugin_Handled;
 }
-public Action Command_VoteAlltalk2(int client, int args)
+Action Command_VoteAlltalk2(int client, int args)
 {
 	if(g_bEnable == true 
 	&& VotensAlltalk2E_D == true )
@@ -549,22 +530,20 @@ public Action Command_VoteAlltalk2(int client, int args)
 		if(CanStartVotes(client))
 		{
 			CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a vote: {blue}turn off alltalk",client);
-			
-			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
-			
+	
 			g_voteType = view_as<voteType>(alltalk2);
-			char SteamId[35];
-			GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
+			static char SteamId[32];
+			GetClientAuthId(client, AuthId_SteamID64, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: turn off Alltalk!",  client, SteamId);//紀錄在log文件
-			g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL);
-			SetMenuTitle(g_hVoteMenu, "sure to trun off alltalk?");
-			AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
-			AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
-		
-			SetMenuExitButton(g_hVoteMenu, false);
-			VoteMenuToAll(g_hVoteMenu, 20);
 			
-			EmitSoundToAll("ui/beep_synthtone01.wav");
+			g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+			char sTitle[64];
+			FormatEx(sTitle, sizeof(sTitle), "Turn off All Talk?");
+			SetBuiltinVoteArgument(g_hVoteMenu, sTitle);
+			SetBuiltinVoteInitiator(g_hVoteMenu, client);
+			SetBuiltinVoteResultCallback(g_hVoteMenu, VoteResultHandler);
+			DisplayBuiltinVoteToAll(g_hVoteMenu, 20);
+			FakeClientCommand(client, "Vote Yes");
 		}
 		else
 		{
@@ -579,7 +558,7 @@ public Action Command_VoteAlltalk2(int client, int args)
 	}
 	return Plugin_Handled;
 }
-public Action Command_VoteRestartmap(int client, int args)
+Action Command_VoteRestartmap(int client, int args)
 {
 	if(g_bEnable == true 
 	&& VotensRestartmapE_D == true)
@@ -592,22 +571,20 @@ public Action Command_VoteRestartmap(int client, int args)
 		if(CanStartVotes(client))
 		{
 			CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a vote: {blue}restartmap",client);
-			
-			for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
-			
+
 			g_voteType = view_as<voteType>(restartmap);
-			char SteamId[35];
-			GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
+			static char SteamId[32];
+			GetClientAuthId(client, AuthId_SteamID64, SteamId, sizeof(SteamId));
 			LogMessage("%N(%s) starts a vote: restartmap!",  client, SteamId);//紀錄在log文件
-			g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL);
-			SetMenuTitle(g_hVoteMenu, "sure to restartmap?");
-			AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
-			AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
-		
-			SetMenuExitButton(g_hVoteMenu, false);
-			VoteMenuToAll(g_hVoteMenu, 20);
 			
-			EmitSoundToAll("ui/beep_synthtone01.wav");
+			g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+			char sTitle[64];
+			FormatEx(sTitle, sizeof(sTitle), "Restart Current Map?");
+			SetBuiltinVoteArgument(g_hVoteMenu, sTitle);
+			SetBuiltinVoteInitiator(g_hVoteMenu, client);
+			SetBuiltinVoteResultCallback(g_hVoteMenu, VoteResultHandler);
+			DisplayBuiltinVoteToAll(g_hVoteMenu, 20);
+			FakeClientCommand(client, "Vote Yes");
 		}
 		else
 		{
@@ -622,7 +599,7 @@ public Action Command_VoteRestartmap(int client, int args)
 	}
 	return Plugin_Handled;
 }
-public Action Command_VotesKick(int client, int args)
+Action Command_VotesKick(int client, int args)
 {
 	if(client==0) return Plugin_Handled;		
 	if(g_bEnable == true && g_bVotensKickED == true)
@@ -658,7 +635,7 @@ void CreateVoteKickMenu(int client)
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME);	
 }
-public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
+int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -701,8 +678,6 @@ public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 		{
 			Command_Votes(param1, 0);
 		}
-		else
-			ClientVoteMenu[param1] = false;
 	}
 	else if ( action == MenuAction_End)
 	{
@@ -712,7 +687,7 @@ public int Menu_VotesKick(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-public void DisplayVoteKickMenu(int client)
+void DisplayVoteKickMenu(int client)
 {
 	if (!TestVoteDelay(client))
 	{
@@ -721,24 +696,20 @@ public void DisplayVoteKickMenu(int client)
 	
 	if(CanStartVotes(client))
 	{
+		g_voteType = view_as<voteType>(kick);
 		char SteamId[35];
 		GetClientAuthId(client, AuthId_Steam2, SteamId, sizeof(SteamId));
 		LogMessage("%N(%s) starts a vote: kick %s(%s)",  client, SteamId, kickplayer_name, kickplayer_SteamId);//紀錄在log文件
 		CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a votes: {blue}kick %s", client, kickplayer_name);
-		
-		for(int i=1; i <= MaxClients; i++) 
-			ClientVoteMenu[i] = true;
-		
-		g_voteType = view_as<voteType>(kick);
-		
-		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL); 
-		SetMenuTitle(g_hVoteMenu, "kick player %s ?",kickplayer_name);
-		AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
-		AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
-		SetMenuExitButton(g_hVoteMenu, false);
-		VoteMenuToAll(g_hVoteMenu, 20);
-		
-		EmitSoundToAll("ui/beep_synthtone01.wav");
+
+		g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+		char sTitle[64];
+		FormatEx(sTitle, sizeof(sTitle), "Kick %s ?",kickplayer_name);
+		SetBuiltinVoteArgument(g_hVoteMenu, sTitle);
+		SetBuiltinVoteInitiator(g_hVoteMenu, client);
+		SetBuiltinVoteResultCallback(g_hVoteMenu, VoteResultHandler);
+		DisplayBuiltinVoteToAll(g_hVoteMenu, 20);
+		FakeClientCommand(client, "Vote Yes");
 	}
 	else
 	{
@@ -746,7 +717,7 @@ public void DisplayVoteKickMenu(int client)
 	}
 }
 
-public Action Command_VotemapsMenu(int client, int args)
+Action Command_VotemapsMenu(int client, int args)
 {
 	if(g_bEnable == true && VotensMapE_D == true)
 	{
@@ -796,7 +767,7 @@ public Action Command_VotemapsMenu(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Command_Votemaps2Menu(int client, int args)
+Action Command_Votemaps2Menu(int client, int args)
 {
 	if(g_bEnable == true && VotensMap2E_D == true)
 	{
@@ -825,7 +796,7 @@ public Action Command_Votemaps2Menu(int client, int args)
 	return Plugin_Handled;
 }
 
-public int MapMenuHandler(Menu menu, MenuAction action, int client, int itemNum)
+int MapMenuHandler(Menu menu, MenuAction action, int client, int itemNum)
 {
 	if ( action == MenuAction_Select ) 
 	{
@@ -841,8 +812,6 @@ public int MapMenuHandler(Menu menu, MenuAction action, int client, int itemNum)
 		{
 			Command_Votes(client, 0);
 		}
-		else
-			ClientVoteMenu[client] = false;
 	}
 	else if ( action == MenuAction_End)
 	{
@@ -851,7 +820,8 @@ public int MapMenuHandler(Menu menu, MenuAction action, int client, int itemNum)
 
 	return 0;
 }
-public void DisplayVoteMapsMenu(int client)
+
+void DisplayVoteMapsMenu(int client)
 {
 	if (!TestVoteDelay(client))
 	{
@@ -865,19 +835,17 @@ public void DisplayVoteMapsMenu(int client)
 		LogMessage("%N(%s) starts a vote: change map %s",  client, SteamId,votesmapsname);//紀錄在log文件
 		CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a vote: {blue}change map %s", client, votesmapsname);
 		
-		for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = true;
-		
 		g_voteType = view_as<voteType>(map);
 		
-		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL);
-		//SetMenuTitle(g_hVoteMenu, "Vote to change map %s %s",votesmapsname, votesmaps);
-		SetMenuTitle(g_hVoteMenu, "Vote to change map: %s",votesmapsname);
-		AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
-		AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
-		SetMenuExitButton(g_hVoteMenu, false);
-		VoteMenuToAll(g_hVoteMenu, 20);
-		
-		EmitSoundToAll("ui/beep_synthtone01.wav");
+		g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+
+		char sTitle[64];
+		FormatEx(sTitle, sizeof(sTitle), "Vote to change map: %s", votesmapsname);
+		SetBuiltinVoteArgument(g_hVoteMenu, sTitle);
+		SetBuiltinVoteInitiator(g_hVoteMenu, client);
+		SetBuiltinVoteResultCallback(g_hVoteMenu, VoteResultHandler);
+		DisplayBuiltinVoteToAll(g_hVoteMenu, 20);
+		FakeClientCommand(client, "Vote Yes");
 	}
 	else
 	{
@@ -885,7 +853,7 @@ public void DisplayVoteMapsMenu(int client)
 	}
 }
 
-public Action Command_Votesforcespectate(int client, int args)
+Action Command_Votesforcespectate(int client, int args)
 {
 	if(client==0) return Plugin_Handled;		
 	if(g_bEnable == true && g_bVotensForceSpectateED == true)
@@ -921,7 +889,7 @@ void CreateVoteforcespectateMenu(int client)
 	SetMenuExitButton(menu, true);
 	DisplayMenu(menu, client, MENU_TIME);	
 }
-public int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int param2)
+int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -939,8 +907,6 @@ public int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int
 		{
 			Command_Votes(param1, 0);
 		}
-		else
-			ClientVoteMenu[param1] = false;
 	}
 	else if(action == MenuAction_End)
 	{
@@ -950,7 +916,7 @@ public int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int
 	return 0;
 }
 
-public void DisplayVoteforcespectateMenu(int client)
+void DisplayVoteforcespectateMenu(int client)
 {
 	if (!TestVoteDelay(client))
 	{
@@ -966,22 +932,14 @@ public void DisplayVoteforcespectateMenu(int client)
 		int iTeam = GetClientTeam(client);
 		CPrintToChatAll("[{olive}TS{default}]{olive} %N {default}starts a vote: {blue}forcespectate player %s{default}, only their team can vote", client, forcespectateplayername);
 		
-		for(int i=1; i <= MaxClients; i++) 
-			if (IsClientConnected(i) && IsClientInGame(i) && GetClientTeam(i) == iTeam)
-				ClientVoteMenu[i] = true;
-		
 		g_voteType = view_as<voteType>(forcespectate);
 		
-		g_hVoteMenu = CreateMenu(Handler_VoteCallback, MENU_ACTIONS_ALL); 
+		g_hVoteMenu = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
 		SetMenuTitle(g_hVoteMenu, "forcespectate player %s?",forcespectateplayername);
 		AddMenuItem(g_hVoteMenu, VOTE_YES, "Yes");
 		AddMenuItem(g_hVoteMenu, VOTE_NO, "No");
 		SetMenuExitButton(g_hVoteMenu, false);
 		DisplayVoteMenuToTeam(g_hVoteMenu, 20,iTeam);
-		
-		for (int i=1; i<=MaxClients; i++)
-			if(IsClientConnected(i)&&IsClientInGame(i)&&!IsFakeClient(i)&&GetClientTeam(i) == iTeam)
-				EmitSoundToClient(i,"ui/beep_synthtone01.wav");
 	}
 	else
 	{
@@ -996,7 +954,7 @@ stock bool DisplayVoteMenuToTeam(Handle hMenu,int iTime, int iTeam)
     
     for (int i = 1; i <= MaxClients; i++)
     {
-        if (!IsClientConnected(i) || !IsClientInGame(i) || IsFakeClient(i) || GetClientTeam(i) != iTeam)
+        if (!IsClientInGame(i) || IsFakeClient(i) || GetClientTeam(i) != iTeam)
         {
             continue;
         }
@@ -1006,85 +964,48 @@ stock bool DisplayVoteMenuToTeam(Handle hMenu,int iTime, int iTeam)
     
     return VoteMenu(hMenu, iPlayers, iTotal, iTime, 0);
 }    
-public int Handler_VoteCallback(Menu menu, MenuAction action, int param1, int param2)
+
+int VoteActionHandler(Handle vote, BuiltinVoteAction action, int param1, int param2)
 {
-	//==========================
-	if(action == MenuAction_Select)
+	switch (action)
 	{
-		switch(param2)
+		case BuiltinVoteAction_End:
 		{
-			case 0: 
-			{
-				Votey += 1;
-				//CPrintToChatAll("[{olive}TS{default}] %N {blue}has voted{default}.", param1);
-			}
-			case 1: 
-			{
-				Voten += 1;
-				//CPrintToChatAll("[{olive}TS{default}] %N {blue}has voted{default}.", param1);
-			}
-		}
-	}
-	else if ( action == MenuAction_Cancel)
-	{
-		if (param1>0 && param1 <=MaxClients && IsClientConnected(param1) && IsClientInGame(param1) && !IsFakeClient(param1))
-		{
-			//CPrintToChatAll("[{olive}TS{default}] %N {blue}abandons the vote{default}.", param1);
-		}
-	}
-	//==========================
-	char item[64], display[64];
-	float percent;
-	int votes, totalVotes;
-
-	GetMenuVoteInfo(param2, votes, totalVotes);
-	GetMenuItem(menu, param1, item, sizeof(item), _, display, sizeof(display));
-	
-	if (strcmp(item, VOTE_NO) == 0 && param1 == 1)
-	{
-		votes = totalVotes - votes;
-	}
-	percent = GetVotePercent(votes, totalVotes);
-
-	CheckVotes();
-	if (action == MenuAction_VoteCancel && param1 == VoteCancel_NoVotes)
-	{
-		CPrintToChatAll("[{olive}TS{default}] No votes");
-		g_votedelay = VOTEDELAY_TIME;
-		EmitSoundToAll("ui/beep_error01.wav");
-		CreateTimer(2.0, VoteEndDelay);
-		CreateTimer(1.0, Timer_VoteDelay, _, TIMER_REPEAT| TIMER_FLAG_NO_MAPCHANGE);
-	}	
-	else if (action == MenuAction_VoteEnd)
-	{
-		if ((strcmp(item, VOTE_YES) == 0 && FloatCompare(percent, g_fLimit) < 0 && param1 == 0) || (strcmp(item, VOTE_NO) == 0 && param1 == 1))
-		{
+			delete vote;
+			g_hVoteMenu = null;
 			g_votedelay = VOTEDELAY_TIME;
 			CreateTimer(1.0, Timer_VoteDelay, _, TIMER_REPEAT| TIMER_FLAG_NO_MAPCHANGE);
-			EmitSoundToAll("ui/beep_error01.wav");
-			CPrintToChatAll("[{olive}TS{default}] {lightgreen}Vote fail.{default} At least {green}%d%%{default} to agree.(agree {green}%d%%{default}, total {green}%i {default}votes)", RoundToNearest(100.0*g_fLimit), RoundToNearest(100.0*percent), totalVotes);
-			CreateTimer(2.0, VoteEndDelay);
 		}
-		else
+		case BuiltinVoteAction_Cancel:
 		{
-			g_votedelay = VOTEDELAY_TIME;
-			CreateTimer(1.0, Timer_VoteDelay, _, TIMER_REPEAT| TIMER_FLAG_NO_MAPCHANGE);
-			EmitSoundToAll("ui/menu_enter05.wav");
-			CPrintToChatAll("[{olive}TS{default}] {lightgreen}Vote pass.{default}(agree {green}%d%%{default}, total {green}%i {default}votes)", RoundToNearest(100.0*percent), totalVotes);
-			CreateTimer(2.0, VoteEndDelay);
-			CreateTimer(3.0, COLD_DOWN,_);
+			DisplayBuiltinVoteFail(vote, view_as<BuiltinVoteFailReason>(param1));
 		}
-	}
-	else if(action == MenuAction_End)
-	{
-		VoteMenuClose();
-		//delete menu;
 	}
 
 	return 0;
 }
 
-public Action Timer_forcespectate(Handle timer, any client)
+void VoteResultHandler(Handle vote, int num_votes, int num_clients, const int[][] client_info, int num_items, const int[][] item_info)
+{
+	for (int i=0; i<num_items; i++)
+	{
+		if (item_info[i][BUILTINVOTEINFO_ITEM_INDEX] == BUILTINVOTES_VOTE_YES)
+		{
+			if (item_info[i][BUILTINVOTEINFO_ITEM_VOTES] > (num_clients / 2))
+			{
+				DisplayBuiltinVotePass(vote, "Vote Pass...");
+				CreateTimer(3.0, COLD_DOWN,_);
+
+				return;
+			}
+		}
+	}
+
+	// Vote Failed
+	DisplayBuiltinVoteFail(vote, BuiltinVoteFail_Loses);
+}
+
+Action Timer_forcespectate(Handle timer, any client)
 {
 	static bool bClientJoinedTeam = false;		//did the client try to join the infected?
 	
@@ -1127,66 +1048,64 @@ public Action Timer_forcespectate(Handle timer, any client)
 }
 
 //====================================================
-public void AnyHp()
+void AnyHp()
 {
-	//CPrintToChatAll("[{olive}TS{default}] All players{blue}");
-	int flags = GetCommandFlags("give");	
-	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
-	for (int i = 1; i <= MaxClients; i++)
+	for( int i = 1; i <= MaxClients; i++ ) 
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		if (IsClientInGame(i) && GetClientTeam(i)==2 && IsPlayerAlive(i))
+			CheatCommand(i);
+	}
+}
+
+void CheatCommand(int client)
+{
+	int give_flags = GetCommandFlags("give");
+	SetCommandFlags("give", give_flags & ~FCVAR_CHEAT);
+	if (GetEntProp(client, Prop_Send, "m_isHangingFromLedge"))//懸掛
+	{
+		FakeClientCommand(client, "give health");
+	}
+	else if (L4D_IsPlayerIncapacitated(client))//倒地
+	{
+		if(L4D_GetPinnedInfected(client) < 0)
 		{
-			FakeClientCommand(i, "give health");
-			SetEntityHealth(i, MaxHealth);
+			FakeClientCommand(client, "give health");
+			SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime());
+			SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
 		}
 	}
-	SetCommandFlags("give", flags|FCVAR_CHEAT);
+	else if(GetClientHealth(client)<100) //血量低於100
+	{
+		FakeClientCommand(client, "give health");
+		SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime());
+		SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
+	}
+	
+	SetCommandFlags("give", give_flags);
 }
-//================================
-void CheckVotes()
-{
-	PrintHintTextToAll("Agree: \x04%i\nDisagree: \x04%i", Votey, Voten);
-}
-public Action VoteEndDelay(Handle timer)
-{
-	Votey = 0;
-	Voten = 0;
-	for(int i=1; i <= MaxClients; i++) ClientVoteMenu[i] = false;
 
-	return Plugin_Continue;
-}
-public Action Changelevel_Map(Handle timer)
+Action Changelevel_Map(Handle timer)
 {
 	ServerCommand("changelevel %s", votesmaps);
 
 	return Plugin_Continue;
 }
+
 //===============================
-void VoteMenuClose()
-{
-	Votey = 0;
-	Voten = 0;
-	CloseHandle(g_hVoteMenu);
-	g_hVoteMenu = INVALID_HANDLE;
-}
-float GetVotePercent(int votes, int totalVotes)
-{
-	return (float(votes) / float(totalVotes));
-}
+
 bool TestVoteDelay(int client)
 {
-	
  	int delay = CheckVoteDelay();
  	
  	if (delay > 0)
  	{
  		if (delay > 60)
  		{
- 			CPrintToChat(client, "[{olive}TS{default}] You must wait for {red}%i {default}sec then start a int vote!", delay % 60);
+ 			CPrintToChat(client, "[{olive}TS{default}] You must wait for {red}%i {default}sec then start a new vote!", delay % 60);
  		}
  		else
  		{
- 			CPrintToChat(client, "[{olive}TS{default}] You must wait for {red}%i {default}sec then start a int vote!", delay);
+ 			CPrintToChat(client, "[{olive}TS{default}] You must wait for {red}%i {default}sec then start a new vote!", delay);
  		}
  		return false;
  	}
@@ -1194,7 +1113,7 @@ bool TestVoteDelay(int client)
 	delay = GetVoteDelay();
  	if (delay > 0)
  	{
- 		CPrintToChat(client, "[{olive}TS{default}] You must wait for {red}%i {default}sec then start a int vote!", delay);
+ 		CPrintToChat(client, "[{olive}TS{default}] You must wait for {red}%i {default}sec then start a new vote!", delay);
  		return false;
  	}
 	return true;
@@ -1202,7 +1121,7 @@ bool TestVoteDelay(int client)
 
 bool CanStartVotes(int client)
 {
- 	if(g_hVoteMenu  != INVALID_HANDLE || IsVoteInProgress())
+ 	if(g_hVoteMenu != null || IsVoteInProgress())
 	{
 		CPrintToChat(client, "[{olive}TS{default}] A vote is already in progress!");
 		return false;
@@ -1211,7 +1130,7 @@ bool CanStartVotes(int client)
 	//list of players
 	for (int i=1; i<=MaxClients; i++)
 	{
-		if (!IsClientInGame(i) || IsFakeClient(i) || !IsClientConnected(i))
+		if (!IsClientInGame(i) || IsFakeClient(i))
 		{
 			continue;
 		}
@@ -1237,7 +1156,7 @@ public void OnClientDisconnect(int client)
 	lastDisconnectTime = currenttime;
 }
 
-public Action IsNobodyConnected(Handle timer, any timerDisconnectTime)
+Action IsNobodyConnected(Handle timer, any timerDisconnectTime)
 {
 	if (timerDisconnectTime != lastDisconnectTime) return Plugin_Stop;
 
@@ -1250,7 +1169,7 @@ public Action IsNobodyConnected(Handle timer, any timerDisconnectTime)
 	return  Plugin_Stop;
 }
 
-public Action COLD_DOWN(Handle timer,any client)
+Action COLD_DOWN(Handle timer,any client)
 {
 	switch (g_voteType)
 	{
@@ -1318,7 +1237,7 @@ public Action COLD_DOWN(Handle timer,any client)
 	return Plugin_Continue;
 }
 
-public Action Timer_VoteDelay(Handle timer, any client)
+Action Timer_VoteDelay(Handle timer, any client)
 {
 	g_votedelay--;
 	if(g_votedelay<=0)

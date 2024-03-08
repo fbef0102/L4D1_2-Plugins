@@ -4,7 +4,15 @@ L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 
 > __Note__ This Plugin has been discontinued, [New Version here](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d2_vote_change)
 
+* Require | 必要安裝
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+	3. [builtinvotes](https://github.com/fbef0102/Game-Private_Plugin/releases/tag/builtinvotes)
+
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.0h (2024-3-8)
+        * Require builtinvotes
 
     * v6.2 (2023-11-15)
         * Delete command "sm_restartmap"
