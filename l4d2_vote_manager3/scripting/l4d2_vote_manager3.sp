@@ -368,8 +368,9 @@ Action VoteFail(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, 
 Action Command_VoteVeto(int client, int args)
 {
     if(client == 0) return Plugin_Handled;
+    if(!HasAccess(client, g_sCvarVetoFlag)) return Plugin_Handled;
 
-    if(IfVoteIsInPOLLING() && HasAccess(client, g_sCvarVetoFlag))
+    if(IfVoteIsInPOLLING())
     {
         int yesvoters = VoteManagerGetVotedAll(Voted_Yes);
         int undecided = VoteManagerGetVotedAll(Voted_CanVote);
@@ -387,30 +388,32 @@ Action Command_VoteVeto(int client, int args)
         else
         {
             LogVoteManager("%T", "Cant VetoPass", LANG_SERVER, client);
-            ReplyToCommand(client, "%s %T", MSGTAG, "Cant Veto", client, client);
+            CPrintToChat(client, "%s %T", MSGTAG, "Cant Veto", client);
             VoteLogAction(client, -1, "'%L' sm_veto ('not enough undecided players')", client);
             return Plugin_Handled;
         }
         LogVoteManager("%T", "Vetoed", LANG_SERVER, client);
-        ReplyToCommand(client, "%s %T", MSGTAG, "Vetoed", LANG_SERVER, client);
+        CPrintToChatAll("%s %t", MSGTAG, "Vetoed", client);
         VoteLogAction(client, -1, "'%L' sm_veto ('allowed')", client);
         VoteStatus = VOTE_NONE;
+
         return Plugin_Handled;
     }
-    else if(HasAccess(client, g_sCvarVetoFlag))
+    else
     {
-        ReplyToCommand(client, "%s %T", MSGTAG, "No Vote", client);
+        CPrintToChat(client, "%s %T", MSGTAG, "No Vote", client);
         VoteLogAction(client, -1, "'%L' sm_veto ('no vote')", client);
+
         return Plugin_Handled;
     }
-    return Plugin_Handled;
 }
 
 Action Command_VotePassvote(int client, int args)
 {
     if(client == 0) return Plugin_Handled;
+    if(!HasAccess(client, g_sCvarPassFlag)) return Plugin_Handled;
 
-    if(IfVoteIsInPOLLING() && HasAccess(client, g_sCvarPassFlag))
+    if(IfVoteIsInPOLLING())
     {
         int novoters = VoteManagerGetVotedAll(Voted_No);
         int undecided = VoteManagerGetVotedAll(Voted_CanVote);
@@ -428,23 +431,24 @@ Action Command_VotePassvote(int client, int args)
         else
         {
             LogVoteManager("%T", "Cant VetoPass", LANG_SERVER, client);
-            ReplyToCommand(client, "%s %T", MSGTAG, "Cant Pass", LANG_SERVER, client);
+            CPrintToChat(client, "%s %T", MSGTAG, "Cant Pass", client);
             VoteLogAction(client, -1, "'%L' sm_veto ('not enough undecided players')", client);
             return Plugin_Handled;
         }
         LogVoteManager("%T", "Passed", LANG_SERVER, client);
-        ReplyToCommand(client, "%s %T", MSGTAG, "Passed", LANG_SERVER, client);
+        CPrintToChatAll("%s %t", MSGTAG, "Passed", client);
         VoteLogAction(client, -1, "'%L' sm_pass ('allowed')", client);
         VoteStatus = VOTE_NONE;
+
         return Plugin_Handled;
     }
-    else if(HasAccess(client, g_sCvarPassFlag))
+    else
     {
-        ReplyToCommand(client, "%s %T", MSGTAG, "No Vote", client);
+        CPrintToChat(client, "%s %T", MSGTAG, "No Vote", client);
         VoteLogAction(client, -1, "'%L' sm_pass ('no vote')", client);
+
         return Plugin_Handled;
     }
-    return Plugin_Handled;
 }
 
 bool ClientHasVoteAccess(int client, const char[] vote_sIssue)
@@ -744,7 +748,7 @@ void LogVoteManager(const char[] log, any ...)
         ReplaceString(buffer, sizeof(buffer), "{cyan}",			"", false);
         ReplaceString(buffer, sizeof(buffer), "{lightgreen}",	"", false);
         ReplaceString(buffer, sizeof(buffer), "{orange}",		"", false);
-        ReplaceString(buffer, sizeof(buffer), "{green}",		"", false); // Actually orange in L4D2, but replicating colors.inc behaviour
+        ReplaceString(buffer, sizeof(buffer), "{green}",		"", false);
         ReplaceString(buffer, sizeof(buffer), "{olive}",		"", false);
         
         WriteFileLine(file, buffer);

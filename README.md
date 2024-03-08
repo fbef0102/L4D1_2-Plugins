@@ -183,7 +183,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
     * 修復子彈擊中與伺服器運算相差 1 tick的延遲
 * <b>[gameuifix](/gameuifix)</b>: Fixes a crash in game_ui entities
-    * 修復"game_ui"實體所造成的崩潰
+    * 修復"game_ui"實體所造成的崩潰 (常見於三方圖)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
