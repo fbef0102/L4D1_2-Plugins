@@ -503,8 +503,15 @@ void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
 	int client = GetClientOfUserId(UserID);
 	
 	delete RespawnTimer[client];
-	
-	if ( IsPlayerAlive(client) || !IsValidClient(client) ) return;
+
+	CreateTimer(0.1, Timer_Event_PlayerSpawn, UserID, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+Action Timer_Event_PlayerSpawn(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+
+	if ( !IsValidClient(client) || IsPlayerAlive(client) ) return Plugin_Continue;
 
 	if ( !g_bEnablesRespawnLimit )
 	{
@@ -546,6 +553,8 @@ void Event_PlayerSpawn( Event hEvent, const char[] sName, bool bDontBroadcast )
 			bRescuable[client] = false;
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 void Event_ReviveSuccess( Event hEvent, const char[] sName, bool bDontBroadcast )
