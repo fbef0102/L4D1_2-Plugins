@@ -101,7 +101,8 @@ enum eChance
 bool g_bIsTraceRock[MAXENTITIES +1];
 int throw_tank_health, throw_witch_health, iThrowSILimit[9];
 bool g_bSpawnWitchBride;
-float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fThrowSIChance[eChance_Max], z_tank_throw_force_speed, g_fWitchKillTime, g_fCarKillTime;
+float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fl4d_tank_throw_witch,
+	fThrowSIChance[eChance_Max], z_tank_throw_force_speed, g_fWitchKillTime, g_fCarKillTime;
 Handle g_hNextBotPointer, g_hGetLocomotion, g_hJump;
 
 static float g_99999Position[3] = {9999999.0, 9999999.0, 9999999.0};
@@ -214,6 +215,7 @@ void GetConVar()
 {
 	fl4d_tank_throw_si_ai = l4d_tank_throw_si_ai.FloatValue;
 	fl4d_tank_throw_si_real = l4d_tank_throw_si_real.FloatValue;
+	fl4d_tank_throw_witch = l4d_tank_throw_witch.FloatValue;
 	fThrowSIChance[eChance_Hunter]=l4d_tank_throw_hunter.FloatValue;
 	fThrowSIChance[eChance_Smoker]=fThrowSIChance[eChance_Hunter]+l4d_tank_throw_smoker.FloatValue;
 	fThrowSIChance[eChance_Boomer]=fThrowSIChance[eChance_Smoker]+l4d_tank_throw_boomer.FloatValue;
@@ -1115,6 +1117,8 @@ Address GetLocomotionPointer( Address nextbot )
 
 public void OnActionCreated( BehaviorAction action, int actor, const char[] name )
 {
+	if (fl4d_tank_throw_witch == 0.0 || iThrowSILimit[4] == 0) return;
+
 	if ( strcmp(name, "WitchIdle") == 0 )
 	{
 		action.OnUpdate = OnUpdate;

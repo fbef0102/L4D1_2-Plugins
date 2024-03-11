@@ -17,11 +17,11 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
         // 1=Plugin On. 0=Plugin Off
         witch_target_override_on "1"
 
-        // If 1, allow witch to chase another target after she incapacitates a survivor.
-        witch_target_override_incap_chase "1"
+        // Chance the witch will chase another target after she incapacitates a survivor. [0-100]
+        witch_target_override_incap_chance "100"
 
-        // If 1, allow witch to chase another target after she kills a survivor.
-        witch_target_override_kill_chase "1"
+        // Chance the witch will chase another target after she kills a survivor. [0-100]
+        witch_target_override_kill_chance "100"
 
         // Add witch health if she is allowed to chase another target after she incapacitates a survivor. (0=Off)
         witch_target_override_incap_health_add "100"
@@ -65,6 +65,9 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.1 (2024-3-11)
+        * Update Cvars
+
     * v2.0 (2024-1-26)
         * Require actions
 
@@ -101,11 +104,11 @@ Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
         // 1=開啟插件. 0=關閉插件
         witch_target_override_on "1"
 
-        // 如設置數值為1，目標玩家倒地之後繼續追殺其他倖存者
-        witch_target_override_incap_chase "1"
+        // 目標玩家倒地之後繼續追殺其他倖存者的機率 [0-100]
+        witch_target_override_incap_chance "100"
 
-        // 如設置數值為1，目標玩家死亡之後繼續追殺其他倖存者
-        witch_target_override_kill_chase "1"
+        // 目標玩家死亡之後繼續追殺其他倖存者的機率 [0-100]
+        witch_target_override_kill_chance "100"
 
         // 如果Witch在目標玩家倒地之後繼續追殺其他倖存者，增加數值血量. (0=關閉)
         witch_target_override_incap_health_add "100"

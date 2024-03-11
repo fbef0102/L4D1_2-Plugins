@@ -2,7 +2,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "2.0-2024/1/26"
+#define PLUGIN_VERSION "2.1-2024/3/11"
 #define DEBUG 0
 
 #include <sourcemod>
@@ -55,12 +55,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar z_witch_burn_time;
 float witch_burn_time;
 
-ConVar g_hCvarAllow, g_hCvarIncapOverride, g_hCvarKillOverride,
+ConVar g_hCvarAllow, g_hCvarIncapChance, g_hCvarKillChance,
     g_hCvarIncapOverrideHealth, g_hCvarKillOverrideHealth, g_hRequiredRange,
     g_hWitchChanceFollowsurvivor, g_hWitchFollowRange, g_hWitchFollowSpeed,
 	g_hWitchAngryRange;
-int g_iCvarIncapOverrideHealth, g_iCvarKillOverrideHealth, g_iWitchChanceFollowsurvivor;
-bool g_bCvarAllow, g_bCvarIncapOverride, g_bCvarKillOverride;
+int g_iCvarIncapChance, g_iCvarKillChance,
+	g_iCvarIncapOverrideHealth, g_iCvarKillOverrideHealth, g_iWitchChanceFollowsurvivor;
+bool g_bCvarAllow;
 float g_fRequiredRange, g_fWitchFollowRange, g_fWitchFollowSpeed, g_fWitchAngryRange;
 
 int Enemy[MAXENTITY+1];
@@ -80,8 +81,8 @@ public void OnPluginStart()
 	z_witch_burn_time = FindConVar("z_witch_burn_time");
 
 	g_hCvarAllow 					= CreateConVar("witch_target_override_on", 						"1", 		"1=Plugin On. 0=Plugin Off", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarIncapOverride 			= CreateConVar("witch_target_override_incap_chase", 			"1", 		"If 1, allow witch to chase another target after she incapacitates a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarKillOverride 			= CreateConVar("witch_target_override_kill_chase", 				"1", 		"If 1, allow witch to chase another target after she kills a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarIncapChance 				= CreateConVar("witch_target_override_incap_chance", 			"100", 		"Chance the witch will chase another target after she incapacitates a survivor. [0-100]", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	g_hCvarKillChance 				= CreateConVar("witch_target_override_kill_chance", 			"100", 		"Chance the witch will chase another target after she kills a survivor. [0-100]", FCVAR_NOTIFY, true, 0.0, true, 100.0);
 	g_hCvarIncapOverrideHealth 		= CreateConVar("witch_target_override_incap_health_add", 		"100", 		"Add witch health if she is allowed to chase another target after she incapacitates a survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0, true, 9999.0);
 	g_hCvarKillOverrideHealth 		= CreateConVar("witch_target_override_kill_health_add", 		"400", 		"Add witch health if she is allowed to chase another target after she kills a survivor. (0=Off)", FCVAR_NOTIFY, true, 0.0, true, 9999.0);
 	g_hRequiredRange 				= CreateConVar("witch_target_override_chase_range", 			"9999", 	"This controls the range for witch to reacquire another target. [1.0, 9999.0] (If no targets within range, witch default behavior)", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
@@ -94,8 +95,8 @@ public void OnPluginStart()
 	GetCvars();
 	z_witch_burn_time.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarAllow.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarIncapOverride.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarKillOverride.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarIncapChance.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarKillChance.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarIncapOverrideHealth.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarKillOverrideHealth.AddChangeHook(ConVarChanged_Cvars);
 	g_hRequiredRange.AddChangeHook(ConVarChanged_Cvars);
@@ -145,8 +146,8 @@ void GetCvars()
 	witch_burn_time = z_witch_burn_time.FloatValue;
 
 	g_bCvarAllow = g_hCvarAllow.BoolValue;
-	g_bCvarIncapOverride = g_hCvarIncapOverride.BoolValue;
-	g_bCvarKillOverride = g_hCvarKillOverride.BoolValue;
+	g_iCvarIncapChance = g_hCvarIncapChance.IntValue;
+	g_iCvarKillChance = g_hCvarKillChance.IntValue;
 	g_iCvarIncapOverrideHealth = g_hCvarIncapOverrideHealth.IntValue;
 	g_iCvarKillOverrideHealth = g_hCvarKillOverrideHealth.IntValue;
 	g_fRequiredRange = g_hRequiredRange.FloatValue;
@@ -178,7 +179,7 @@ Action sm_insult ( int client, int args )
 
 void Player_Incapacitated(Event event, const char[] event_name, bool dontBroadcast)
 {
-    if(g_bCvarAllow == false || g_bCvarIncapOverride == false) return;
+    if(g_bCvarAllow == false || GetRandomInt(1,100) > g_iCvarIncapChance) return;
 
     int victim = GetClientOfUserId(event.GetInt("userid"));
     int witch = event.GetInt("attackerentid");
@@ -193,7 +194,7 @@ void Player_Incapacitated(Event event, const char[] event_name, bool dontBroadca
 
 void Player_Death(Event event, const char[] event_name, bool dontBroadcast)
 {
-    if(g_bCvarAllow == false || g_bCvarKillOverride == false ) return;
+    if(g_bCvarAllow == false || GetRandomInt(1,100) > g_iCvarKillChance ) return;
 
     int victim = GetClientOfUserId(event.GetInt("userid"));
     int witch = event.GetInt("attackerentid");
@@ -726,7 +727,7 @@ void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage,
 		delete BurnWitchTimer[witch];
 
 		DataPack hPack;
-		BurnWitchTimer[witch] = CreateDataTimer(witch_burn_time, BurnWitchDead_Timer, hPack);
+		BurnWitchTimer[witch] = CreateDataTimer(witch_burn_time, BurnWitchDead_Timer, hPack); // fix memory leak
 		hPack.WriteCell(witch);
 		hPack.WriteCell(EntIndexToEntRef(witch));
 	}
@@ -859,7 +860,7 @@ bool WitchLastTargetIsDead(int witch)
 
 public void OnActionCreated(BehaviorAction action, int actor, const char[] name)
 {
-	if (g_bCvarAllow && g_bCvarKillOverride &&
+	if (g_bCvarAllow && GetRandomInt(1,100) <= g_iCvarKillChance &&
 	 name[0] == 'W' && strcmp(name, "WitchRetreat") == 0) //準備撤退
 	{
 		RequestFrame(OnNextFrame, EntIndexToEntRef(actor));
