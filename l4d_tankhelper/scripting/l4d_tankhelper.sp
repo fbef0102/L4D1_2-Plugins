@@ -19,7 +19,6 @@ public Plugin myinfo =
 }
 
 static int ZC_TANK;
-static char sSpawnCommand[32];
 int L4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
@@ -29,13 +28,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	{
 		L4D2Version = false;
 		ZC_TANK = 5;
-		sSpawnCommand = "z_spawn";
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
 		L4D2Version = true;
 		ZC_TANK = 8;
-		sSpawnCommand = "z_spawn_old";
 	}
 	else
 	{
@@ -190,6 +187,7 @@ public void OnMapStart()
 		PrecacheParticle(PARTICLE_ELECTRICAL);
 	}
 
+	g_bSpawnWitchBride = false;
 	char sMap[64];
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
@@ -362,36 +360,11 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			if(!IsFakeClient(i))
 			{
 				iClients[iClientCount++] = i;
-				SetLifeState(i, true);
 			}
 		}
 	}
 
 	infectedfreeplayer = (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
-
-	bool resetGhost[MAXPLAYERS+1];
-	bool resetLife[MAXPLAYERS+1];
-	if(infectedfreeplayer > 0)
-	{
-		for(int i = 1; i <= MaxClients; i++)
-		{	
-			if(i != infectedfreeplayer && IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == L4D_TEAM_INFECTED)
-			{
-				if (IsPlayerGhost(i))
-				{
-					resetGhost[i] = true;
-					SetGhostStatus(i, false);
-					continue;
-				}
-				if (!IsPlayerAlive(i))
-				{
-					resetLife[i] = true;
-					SetLifeState(i, false);
-					continue;
-				}
-			}		 
-		}
-	}
 
 	int witches =0;
 	int entity = MaxClients + 1;
@@ -409,18 +382,19 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Hunter"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_HUNTER);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else 
 			{
 				selected = NoLimit_CreateInfected("hunter", pos, NULL_VECTOR);
 				if(selected > 0) bSpawnSuccessful = true;
 			}
+		}
+		else
+		{
+			return -1;
 		}
 		
 		chooseclass = ZC_HUNTER;
@@ -431,12 +405,9 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Smoker"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_SMOKER);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else 
 			{
@@ -453,12 +424,9 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Boomer"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_BOOMER);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else 
 			{
@@ -475,12 +443,9 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Tank"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_TANK);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else
 			{
@@ -529,12 +494,9 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Charger"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_CHARGER);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else
 			{
@@ -551,12 +513,9 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Spitter"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_SPITTER);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else
 			{
@@ -573,12 +532,9 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				CheatCommand(thetank, sSpawnCommand, "Jockey"); 
-				if(IsPlayerAlive(infectedfreeplayer))
-				{
-					selected = infectedfreeplayer;
-					bSpawnSuccessful = true;
-				}
+				L4D_SetClass(infectedfreeplayer, ZC_JOCKEY);
+				selected = infectedfreeplayer;
+				bSpawnSuccessful = true;
 			}
 			else
 			{
@@ -623,19 +579,19 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		return -1;
 	}
 
-	if(infectedfreeplayer > 0) // We restore the player's status
-	{
-		for (int i=1;i<=MaxClients;i++)
-		{
-			if (resetGhost[i] == true)
-				SetGhostStatus(i, true);
-			if (resetLife[i] == true)
-				SetLifeState(i, true);
-		}
-	}
-
 	if (bSpawnSuccessful && selected > 0 && selected <= MaxClients) // SpawnSuccessful (AI/Real Player)
 	{
+		if(infectedfreeplayer == selected)
+		{
+			L4D_State_Transition(infectedfreeplayer, STATE_GHOST);
+			TeleportEntity(infectedfreeplayer, pos, NULL_VECTOR, velocity);
+			L4D_MaterializeFromGhost(infectedfreeplayer);
+		}
+		else
+		{
+			TeleportEntity(selected, pos, NULL_VECTOR, velocity);
+		}
+
 		if(chooseclass == ZC_TANK)
 		{
 			// 0.3秒後設置Tank血量
@@ -648,7 +604,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		int index=0;
 		for(int i = 1; i <= MaxClients; i++)
 		{	
-			if(IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == L4D_TEAM_INFECTED && L4D_GetSurvivorVictim(i) == -1)
+			if(IsClientInGame(i) && IsPlayerAlive(i) && !IsPlayerGhost(i) && GetClientTeam(i) == L4D_TEAM_INFECTED && L4D_GetSurvivorVictim(i) == -1)
 			{
 				if(GetEntProp(i,Prop_Send,"m_zombieClass") == chooseclass)
 				{
@@ -659,28 +615,18 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 
 		if(index > 0) selected = andidate[GetRandomInt(0, index-1)];
 		else selected = thetank; //all infected busy, throw tank self
+		
+		if (selected > 0) TeleportEntity(selected, pos, NULL_VECTOR, velocity);
 	}
-
-	if (selected > 0) 
+	else
 	{
-		/*PrintToChatAll("%d (%d) was throw: %.2f %.2f %.2f %.2f %.2f %.2f", 
-			selected, chooseclass, pos[0], pos[1], pos[2], velocity[0], velocity[1], velocity[2]);*/
-
-		TeleportEntity(selected, pos, NULL_VECTOR, velocity);
+		return -1;
 	}
+
+	/*PrintToChatAll("%d (%d) was throw: %.2f %.2f %.2f %.2f %.2f %.2f", 
+		selected, chooseclass, pos[0], pos[1], pos[2], velocity[0], velocity[1], velocity[2]);*/
  
  	return selected;
-}
- 
-void CheatCommand(int client, char[] command, char[] arguments = "")
-{
-	int userFlags = GetUserFlagBits(client);
-	SetUserFlagBits(client, ADMFLAG_ROOT);
-	int flags = GetCommandFlags(command);
-	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
-	FakeClientCommand(client, "%s %s", command, arguments);
-	SetCommandFlags(command, flags);
-	SetUserFlagBits(client, userFlags);
 }
 
 int DisplayParticle(int target, const char[] sParticle, const float vPos[3], const float vAng[3], float refire = 0.0)
@@ -984,22 +930,6 @@ bool IsPlayerGhost (int client)
 	if (GetEntProp(client, Prop_Send, "m_isGhost"))
 		return true;
 	return false;
-}
-
-void SetGhostStatus (int client, bool ghost)
-{
-	if (ghost)
-		SetEntProp(client, Prop_Send, "m_isGhost", 1, 1);
-	else
-		SetEntProp(client, Prop_Send, "m_isGhost", 0, 1);
-}
-
-void SetLifeState (int client, bool ready)
-{
-	if (ready)
-		SetEntProp(client, Prop_Send,  "m_lifeState", 1, 1);
-	else
-		SetEntProp(client, Prop_Send, "m_lifeState", 0, 1);
 }
 
 bool CheckIfEntityMax(int entity)
