@@ -1,28 +1,73 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.2h-2024/2/14"
-#define PLUGIN_URL ""
+#define PLUGIN_VERSION "1.3h-2024/3/15"
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
-
-#include <sourcemod>
-#include <sdktools>
-#include <adminmenu>
 
 #pragma semicolon 1
 #pragma newdecls required
 
+#include <sourcemod>
+#include <sdktools>
+#include <adminmenu>
+#include <left4dhooks>
+
+public Plugin myinfo = 
+{
+	name = PLUGIN_NAME,
+	author = PLUGIN_AUTHOR,
+	description = PLUGIN_DESC,
+	version = PLUGIN_VERSION,
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
+}
+
+bool g_bLeft4Dead2;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	if(GetEngineVersion() == Engine_Left4Dead2)
+	{
+		g_bLeft4Dead2 = true;
+	}
+	else if(GetEngineVersion() == Engine_Left4Dead)
+	{
+		g_bLeft4Dead2 = false;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead and Left 4 Dead 2.");
+		return APLRes_SilentFailure;
+	}
+
+	CreateNative("NoLimit_CreateInfected", Native_CreateInfected);
+	RegPluginLibrary("spawn_infected_nolimit");
+	return APLRes_Success;
+}
+
 TopMenu hTopMenu;
 
 // Infected models
-#define MODEL_SMOKER "models/infected/smoker.mdl"
-#define MODEL_BOOMER "models/infected/boomer.mdl"
-#define MODEL_HUNTER "models/infected/hunter.mdl"
-#define MODEL_SPITTER "models/infected/spitter.mdl"
-#define MODEL_JOCKEY "models/infected/jockey.mdl"
-#define MODEL_CHARGER "models/infected/charger.mdl"
-#define MODEL_TANK "models/infected/hulk.mdl"
+#define MODEL_SMOKER           		"models/infected/smoker.mdl"
+#define MODEL_SMOKER_L4D1           "models/infected/smoker_l4d1.mdl"
+
+#define MODEL_BOOMER           		"models/infected/boomer.mdl"
+#define MODEL_BOOMER_L4D1           "models/infected/boomer_l4d1.mdl"
+#define MODEL_BOOMER_BOOMETTE       "models/infected/boomette.mdl"
+
+#define MODEL_HUNTER           		"models/infected/hunter.mdl"
+#define MODEL_HUNTER_L4D1           "models/infected/hunter_l4d1.mdl"
+
+#define MODEL_EXPLODED              "models/infected/limbs/exploded_boomer.mdl"
+#define MODEL_EXPLODED_BOOMETTE     "models/infected/limbs/exploded_boomette.mdl"
+
+#define MODEL_SPITTER 	"models/infected/spitter.mdl"
+#define MODEL_JOCKEY 	"models/infected/jockey.mdl"
+#define MODEL_CHARGER 	"models/infected/charger.mdl"
+
+#define MODEL_TANK             		"models/infected/hulk.mdl"
+#define MODEL_TANK_DLC              "models/infected/hulk_dlc3.mdl"
+#define MODEL_TANK_L4D1             "models/infected/hulk_l4d1.mdl"
+
 #define MODEL_WITCH "models/infected/witch.mdl"
 #define MODEL_WITCHBRIDE "models/infected/witch_bride.mdl"
 
@@ -33,7 +78,6 @@ TopMenu hTopMenu;
 
 #define DIRECTOR_CLASS "info_director"
 #define DIRECTOR_ENT "plugin_director_ent_do_not_use"
-#define BRIDE_WITCH_TARGETNAME "plugin_dzs_bride"
 
 GameData hConf = null;
 
@@ -84,41 +128,29 @@ static Handle hInfectedAttackSurvivorTeam = null;
 
 ConVar version_cvar;
 
-static bool g_isSequel = false;
 
 #define MAXENTITIES                   2048
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
-{
-	if(GetEngineVersion() == Engine_Left4Dead2)
-	{
-		g_isSequel = true;
-	}
-	else if(GetEngineVersion() == Engine_Left4Dead)
-	{
-		g_isSequel = false;
-	}
-	else
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead and Left 4 Dead 2.");
-		return APLRes_SilentFailure;
-	}
-
-	CreateNative("NoLimit_CreateInfected", Native_CreateInfected);
-	RegPluginLibrary("spawn_infected_nolimit");
-	return APLRes_Success;
-}
-
 /**
 * @brief 			   Spawn special infected without the director limits!
 *
-* @param zomb          S.I. Name: "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch", "witch_bride"
-* @param vecPos        Vector coordinate where the special will be spawned
-* @param vecAng         QAngle where special will be facing
+* @param zomb          	S.I. Name: 
+*                             (L4D2) "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch"
+*                             (L4D1) "tank", "smoker", "hunter", "boomer", "witch"
+* @param vecPos        	Vector coordinate where the special will be spawned
+* @param vecAng        	QAngle where special will be facing
+* @param variantModel  	The zombie variant model 
+*                             (L4D2) Smoker: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
+*                             (L4D2) Boomer: 	1=L4D2 Model, 2=L4D1 Model, 3=Female Boomer, 0=Random
+*                             (L4D2) Hunter: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
+*                             (L4D2) Tank: 		1=L4D2 Model, 2=DLC Model, 3=L4D1 Model, 0=Random
+*                             (L4D1) Tank: 		1=L4D1 Model, 2=DLC Model, 0=Random
 *
-* @return              client index of the spawned special infected, -1 if fail to spawn
+* @return               client index of the spawned special infected, -1 if fail to spawn
 */
+//native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3], int variantModel = 1);
+
 int Native_CreateInfected(Handle plugin, int numParams)
 {
 	char zomb[10];
@@ -128,17 +160,17 @@ int Native_CreateInfected(Handle plugin, int numParams)
 	GetNativeArray(2, vPos, sizeof(vPos));
 	GetNativeArray(3, vAng, sizeof(vAng));
 
-	int bot = CreateInfected(zomb, vPos, vAng);
-	return bot;
-}
+	int bot;
+	if(numParams >= 4)
+	{
+		bot = CreateInfected(zomb, vPos, vAng, GetNativeCell(4));
+	}
+	else
+	{
+		bot = CreateInfected(zomb, vPos, vAng);
+	}
 
-public Plugin myinfo = 
-{
-	name = PLUGIN_NAME,
-	author = PLUGIN_AUTHOR,
-	description = PLUGIN_DESC,
-	version = PLUGIN_VERSION,
-	url = PLUGIN_URL
+	return bot;
 }
 
 public void OnPluginStart()
@@ -155,83 +187,35 @@ public void OnPluginStart()
 	
 	RegAdminCmd("sm_dzspawn", Command_Spawn, ADMFLAG_CHEATS, "sm_dzspawn <zombie> <number> <mode> - Spawn a special infected, bypassing the limit enforced by the game.");
 	RegAdminCmd("sm_mdzs", Command_SpawnMenu, ADMFLAG_CHEATS, "Open a menu to spawn a special infected, bypassing the limit enforced by the game.");
-	
-	HookEvent("witch_harasser_set", witch_harasser_set, EventHookMode_Post);
-	HookEvent("witch_killed", witch_killed, EventHookMode_Post);
-}
-
-void CheckandPrecacheModel(const char[] model)
-{
-	if (!IsModelPrecached(model))
-		PrecacheModel(model, true);
 }
 
 public void OnMapStart()
 {
-	CheckandPrecacheModel(MODEL_SMOKER);
-	CheckandPrecacheModel(MODEL_BOOMER);
-	CheckandPrecacheModel(MODEL_HUNTER);
-	if (g_isSequel)
+	PrecacheModel(MODEL_SMOKER, true);
+	PrecacheModel(MODEL_BOOMER, true);
+	PrecacheModel(MODEL_EXPLODED, true); // Prevents server crash when a Boomer dies.
+	PrecacheModel(MODEL_HUNTER, true);
+	
+	PrecacheModel(MODEL_TANK);
+	PrecacheModel(MODEL_WITCH);
+
+	if (g_bLeft4Dead2)
 	{
-		CheckandPrecacheModel(MODEL_SPITTER);
-		CheckandPrecacheModel(MODEL_JOCKEY);
-		CheckandPrecacheModel(MODEL_CHARGER);
-		CheckandPrecacheModel(MODEL_WITCHBRIDE);
+		PrecacheModel(MODEL_SMOKER_L4D1, true);
+		PrecacheModel(MODEL_BOOMER_L4D1, true);
+		PrecacheModel(MODEL_BOOMER_BOOMETTE, true);
+		PrecacheModel(MODEL_EXPLODED_BOOMETTE, true); // Prevents server crash when a Boomette dies.
+		PrecacheModel(MODEL_HUNTER_L4D1, true);
+
+		PrecacheModel(MODEL_SPITTER, true);
+		PrecacheModel(MODEL_JOCKEY, true);
+		PrecacheModel(MODEL_CHARGER, true);
+
+		PrecacheModel(MODEL_TANK_DLC);
+		PrecacheModel(MODEL_TANK_L4D1);
+		PrecacheModel(MODEL_WITCHBRIDE);
 	}
-	CheckandPrecacheModel(MODEL_TANK);
-	CheckandPrecacheModel(MODEL_WITCH);
-}
 
-void witch_harasser_set(Event event, const char[] name, bool dontBroadcast)
-{
-	int witch = event.GetInt("witchid");
-	if (!RealValidEntity(witch)) return;
-	
-	static char witchName[17];
-	GetEntPropString(witch, Prop_Data, "m_iName", witchName, sizeof(witchName));
-	if (strcmp(witchName, BRIDE_WITCH_TARGETNAME, false) != 0) return;
-	
-	int dir_ent = CheckForDirectorEnt();
-	if (!RealValidEntity(dir_ent)) return;
-	
-	PrintToServer("Bride startled");
-	
-	DispatchKeyValue(witch, "targetname", "");
-	AcceptEntityInput(dir_ent, "ForcePanicEvent");
-}
-
-void witch_killed(Event event, const char[] name, bool dontBroadcast)
-{
-	int witch = event.GetInt("witchid");
-	if (!RealValidEntity(witch)) return;
-	
-	static char witchName[17];
-	GetEntPropString(witch, Prop_Data, "m_iName", witchName, sizeof(witchName));
-	if (strcmp(witchName, BRIDE_WITCH_TARGETNAME, false) != 0) return;
-	
-	int dir_ent = CheckForDirectorEnt();
-	if (!RealValidEntity(dir_ent)) return;
-	
-	//if (!event.GetBool("oneshot")) return;
-	
-	PrintToServer("Bride killed");
-	
-	DispatchKeyValue(witch, "targetname", "");
-	AcceptEntityInput(dir_ent, "ForcePanicEvent");
-}
-
-int CheckForDirectorEnt()
-{
-	int result = FindEntityByClassname(-1, DIRECTOR_CLASS);
-	if (!RealValidEntity(result))
-	{
-		result = CreateEntityByName(DIRECTOR_CLASS);
-		if(CheckIfEntitySafe(result) == false) return -1;
-		
-		DispatchSpawn(result);
-		ActivateEntity(result);
-	}
-	return result;
 }
 
 Action Command_SpawnMenu(int client, any args)
@@ -247,7 +231,7 @@ Action Command_SpawnMenu(int client, any args)
 	AddMenuItem(menu, "Smoker", "Smoker");
 	AddMenuItem(menu, "Boomer", "Boomer");
 	AddMenuItem(menu, "Hunter", "Hunter");
-	if (g_isSequel)
+	if (g_bLeft4Dead2)
 	{
 		AddMenuItem(menu, "Jockey", "Jockey");
 		AddMenuItem(menu, "Spitter", "Spitter");
@@ -255,7 +239,7 @@ Action Command_SpawnMenu(int client, any args)
 	}
 	AddMenuItem(menu, "Tank", "Tank");
 	AddMenuItem(menu, "Witch", "Witch");
-	if (g_isSequel)
+	if (g_bLeft4Dead2)
 	{ AddMenuItem(menu, "witch_bride", "Bride Witch"); }
 	AddMenuItem(menu, "", "Common");
 	AddMenuItem(menu, "chase", "Chasing Common");
@@ -392,61 +376,123 @@ bool TraceRayDontHitPlayers(int entity, int mask, any data)
 	return true;
 }
 
-int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
+int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], int variantModel = 2)
 {
 	int bot = -1;
-	
-	if (strncmp(zomb, "witch", 5, false) == 0 || (g_isSequel && strncmp(zomb, "witch_bride", 11, false) == 0))
+	static char sModel[64];
+	sModel[0] = '\0';
+
+	if (strncmp(zomb, "witch", 5, false) == 0 || (g_bLeft4Dead2 && strncmp(zomb, "witch_bride", 11, false) == 0))
 	{
-		int witch = CreateEntityByName("witch");
-		if(CheckIfEntitySafe(witch) == false) return -1;
-		
-		TeleportEntity(witch, pos, ang, NULL_VECTOR);
-		DispatchSpawn(witch);
-		ActivateEntity(witch);
-		if (g_isSequel && strncmp(zomb, "witch_bride", 11, false) == 0)
-		{
-			SetEntityModel(witch, MODEL_WITCHBRIDE);
-			//AssignPanicToWitch(witch);
-			DispatchKeyValue(witch, "targetname", BRIDE_WITCH_TARGETNAME);
-		}
+		int witch = L4D2_SpawnWitch(pos, ang);
+
+		return witch;
+	}
+	else if(g_bLeft4Dead2 && strncmp(zomb, "witch_bride", 11, false) == 0)
+	{
+		int witch = L4D2_SpawnWitchBride(pos, ang);
 
 		return witch;
 	}
 	else if (strncmp(zomb, "smoker", 6, false) == 0)
 	{
 		bot = SDKCall(hCreateSmoker, "Smoker");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_SMOKER);
+		if(g_bLeft4Dead2)
+		{
+			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
+
+			switch(variantModel)
+			{
+				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
+				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER_L4D1);
+				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
+			}
+		}
+		else
+		{
+			FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
+		}
 	}
 	else if (strncmp(zomb, "boomer", 6, false) == 0)
 	{
 		bot = SDKCall(hCreateBoomer, "Boomer");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_BOOMER);
+		if(g_bLeft4Dead2)
+		{
+			variantModel = (variantModel == 0) ? GetRandomInt(1, 3) : variantModel;
+
+			switch(variantModel)
+			{
+				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
+				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER_L4D1);
+				case 3: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER_BOOMETTE);
+				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
+			}
+		}
+		else
+		{
+			FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
+		}
 	}
 	else if (strncmp(zomb, "hunter", 6, false) == 0)
 	{
 		bot = SDKCall(hCreateHunter, "Hunter");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_HUNTER);
+		if(g_bLeft4Dead2)
+		{
+			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
+
+			switch(variantModel)
+			{
+				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
+				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER_L4D1);
+				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
+			}
+		}
+		else
+		{
+			FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
+		}
 	}
-	else if (strncmp(zomb, "spitter", 7, false) == 0 && g_isSequel)
+	else if (strncmp(zomb, "spitter", 7, false) == 0 && g_bLeft4Dead2)
 	{
 		bot = SDKCall(hCreateSpitter, "Spitter");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_SPITTER);
+		FormatEx(sModel, sizeof(sModel), "%s", MODEL_SPITTER);
 	}
-	else if (strncmp(zomb, "jockey", 6, false) == 0 && g_isSequel)
+	else if (strncmp(zomb, "jockey", 6, false) == 0 && g_bLeft4Dead2)
 	{
 		bot = SDKCall(hCreateJockey, "Jockey");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_JOCKEY);
+		FormatEx(sModel, sizeof(sModel), "%s", MODEL_JOCKEY);
 	}
-	else if (strncmp(zomb, "charger", 7, false) == 0 && g_isSequel)
+	else if (strncmp(zomb, "charger", 7, false) == 0 && g_bLeft4Dead2)
 	{
 		bot = SDKCall(hCreateCharger, "Charger");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_CHARGER);
+		FormatEx(sModel, sizeof(sModel), "%s", MODEL_CHARGER);
 	}
 	else if (strncmp(zomb, "tank", 4, false) == 0)
 	{
 		bot = SDKCall(hCreateTank, "Tank");
-		if (IsValidClient(bot)) SetEntityModel(bot, MODEL_TANK);
+		if(g_bLeft4Dead2)
+		{
+			variantModel = (variantModel == 0) ? GetRandomInt(1, 3) : variantModel;
+
+			switch(variantModel)
+			{
+				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
+				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_DLC);
+				case 3: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_L4D1);
+				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
+			}
+		}
+		else
+		{
+			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
+
+			switch(variantModel)
+			{
+				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
+				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_DLC);
+				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
+			}
+		}
 	}
 	else
 	{
@@ -458,6 +504,7 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 		ActivateEntity(infected);
 		if (hInfectedAttackSurvivorTeam != null && StrContains(zomb, "chase", false) > -1)
 		{ CreateTimer(0.4, Timer_Chase, EntIndexToEntRef(infected)); }
+		
 		return infected;
 	}
 	
@@ -474,6 +521,7 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3])
 		SetEntProp(bot, Prop_Send, "m_zombieState", 0);
 		DispatchSpawn(bot);
 		ActivateEntity(bot);
+		if(strlen(sModel) > 0) SetEntityModel(bot, sModel);
 		
 		DataPack data = new DataPack();
 		data.WriteFloat(pos[0]);
@@ -835,7 +883,7 @@ void PrepSDKCall()
 	}
 	else
 	{
-		if (g_isSequel)
+		if (g_bLeft4Dead2)
 		{
 			PrepL4D2CreateBotCalls();
 		}
