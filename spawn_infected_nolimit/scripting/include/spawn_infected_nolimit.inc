@@ -6,13 +6,21 @@
 /**
 * @brief 			   Spawn special infected without the director limits!
 *
-* @param zomb          S.I. Name: "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch", "witch_bride"
-* @param vecPos        Vector coordinate where the special will be spawned
-* @param vecAng         QAngle where special will be facing
+* @param zomb          	S.I. Name: 
+*                             (L4D2) "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch"
+*                             (L4D1) "tank", "smoker", "hunter", "boomer", "witch"
+* @param vecPos        	Vector coordinate where the special will be spawned
+* @param vecAng        	QAngle where special will be facing
+* @param variantModel  	The zombie variant model 
+*                             (L4D2) Smoker: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
+*                             (L4D2) Boomer: 	1=L4D2 Model, 2=L4D1 Model, 3=Female Boomer, 0=Random
+*                             (L4D2) Hunter: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
+*                             (L4D2) Tank: 		1=L4D2 Model, 2=DLC Model, 3=L4D1 Model, 0=Random
+*                             (L4D1) Tank: 		1=L4D1 Model, 2=DLC Model, 0=Random
 *
-* @return              client index of the spawned special infected, -1 if fail to spawn
+* @return               client index of the spawned special infected, -1 if fail to spawn
 */
-native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3]);
+native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3], int variantModel = 1);
 
 public SharedPlugin __pl_spawn_infected_nolimit =
 {

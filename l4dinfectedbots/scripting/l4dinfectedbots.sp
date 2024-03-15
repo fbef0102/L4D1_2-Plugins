@@ -1676,6 +1676,7 @@ void evtRoundEnd (Event event, const char[] name, bool dontBroadcast)
 public void OnMapStart()
 {
 	g_bMapStarted = true;
+	
 	CheckandPrecacheModel(MODEL_SMOKER);
 	CheckandPrecacheModel(MODEL_BOOMER);
 	CheckandPrecacheModel(MODEL_HUNTER);
@@ -1684,6 +1685,7 @@ public void OnMapStart()
 	CheckandPrecacheModel(MODEL_CHARGER);
 	CheckandPrecacheModel(MODEL_TANK);
 
+	g_bSpawnWitchBride = false;
 	char sMap[64];
 	GetCurrentMap(sMap, sizeof(sMap));
 	if(StrEqual("c6m1_riverbank", sMap, false))
@@ -1701,7 +1703,6 @@ public void OnMapEnd()
 	g_iPlayerSpawn = 0;
 	roundInProgress = false;
 	g_bMapStarted = false;
-	g_bSpawnWitchBride = false;
 	g_iPlayersInSurvivorTeam = -1;
 	
 	ResetTimer();
@@ -3412,7 +3413,6 @@ Action TankBugFix(Handle timer, int client)
 				#if DEBUG
 					PrintToChatAll("[TS] Ghost BugFix");
 				#endif
-				SetEntityModel(bot, MODEL_TANK);
 				ChangeClientTeam(bot, TEAM_INFECTED);
 				//SDKCall(hRoundRespawn, bot);
 				SetEntProp(bot, Prop_Send, "m_usSolidFlags", 16);
@@ -3721,7 +3721,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateSmoker, "Smoker Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_SMOKER);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -3745,7 +3744,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateBoomer, "Boomer Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_BOOMER);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -3769,7 +3767,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateHunter, "Hunter Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_HUNTER);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -3793,7 +3790,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateSpitter, "Spitter Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_SPITTER);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -3817,7 +3813,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateJockey, "Jockey Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_JOCKEY);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -3841,7 +3836,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateCharger, "Charger Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_CHARGER);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -3865,7 +3859,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 					bot = SDKCall(hCreateTank, "Tank Bot");
 					if (IsValidClient(bot))
 					{
-						SetEntityModel(bot, MODEL_TANK);
 						bSpawnSuccessful = true;
 					}
 				}
@@ -5238,7 +5231,7 @@ int GetRandomAliveSurvivor()
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i))
+		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i) && !IsClientInKickQueue(i))
 		{
 			iClients[iClientCount++] = i;
 		}
