@@ -15,11 +15,17 @@ Spawn special infected without the director limits!
 </details>
 
 * Require | 必要安裝
-<br/>None
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
-* Related Plugin | 相關插件
-	1. [l4d_together](https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_together): A simple anti - runner system , punish the runner by spawn SI behind her.
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_tankhelper](/l4d_tankhelper): Tanks throw Tank/S.I./Witch/Hittable instead of rock
+		> Tank不扔石頭而是扔出特感/Tank/Witch/車子
+	2. [l4d_together](https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_together): A simple anti - runner system , punish the runner by spawn SI behind her.
 		> 離隊伍太遠的玩家，特感代替月亮懲罰你
+	3. [l4d_tank_spawn](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Tank_%E5%9D%A6%E5%85%8B/l4d_tank_spawn): Spawn multi Tanks on the map and final rescue
+		> 一個關卡中或救援期間生成多隻Tank，對抗模式也適用
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -54,6 +60,11 @@ Spawn special infected without the director limits!
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.3h (2024-3-15)
+		* Use better way to spawn witch and bride witch
+		* Require left4dhooks
+		* Update API
 
 	* v1.2h (2024-2-14)
 		* Safetly create entity if server too many entities 
