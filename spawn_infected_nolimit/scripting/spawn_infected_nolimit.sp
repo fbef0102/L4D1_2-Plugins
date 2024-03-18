@@ -528,7 +528,7 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 		data.WriteFloat(pos[1]);
 		data.WriteFloat(pos[2]);
 		data.WriteFloat(ang[1]);
-		data.WriteCell(bot);
+		data.WriteCell(GetClientUserId(bot));
 		RequestFrame(RequestFrame_SetPos, data);
 	}
 	else
@@ -623,8 +623,9 @@ void RequestFrame_SetPos(DataPack data)
 	float pos1 = data.ReadFloat();
 	float pos2 = data.ReadFloat();
 	float ang1 = data.ReadFloat();
-	int bot = data.ReadCell();
+	int bot = GetClientOfUserId(data.ReadCell());
 	delete data;
+	if(!bot || !IsClientInGame(bot)) return;
 	
 	float pos[3];pos[0]=pos0;pos[1]=pos1;pos[2]=pos2;
 	float ang[3];ang[0]=0.0;ang[1]=ang1;ang[2]=0.0;

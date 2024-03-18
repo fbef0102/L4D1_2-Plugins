@@ -195,7 +195,7 @@ Action Timer_MoveToSpec(Handle timer, int client)
     {
         if (GetClientTeam(client) == 1)
         {
-            CreateTimer(2.0, ReSpec, client);
+            CreateTimer(2.0, ReSpec, GetClientUserId(client));
 
             spectatorTimer[client] = null;
             return Plugin_Stop;

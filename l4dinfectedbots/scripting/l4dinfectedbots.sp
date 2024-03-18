@@ -3713,6 +3713,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_SMOKER);
 					bSpawnSuccessful = true;
 				}
@@ -3736,6 +3737,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_BOOMER);
 					bSpawnSuccessful = true;
 				}
@@ -3759,6 +3761,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_HUNTER);
 					bSpawnSuccessful = true;
 				}
@@ -3782,6 +3785,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_SPITTER);
 					bSpawnSuccessful = true;
 				}
@@ -3805,6 +3809,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_JOCKEY);
 					bSpawnSuccessful = true;
 				}
@@ -3828,6 +3833,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_CHARGER);
 					bSpawnSuccessful = true;
 				}
@@ -3851,6 +3857,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			{
 				if(human > 0)
 				{
+					L4D_State_Transition(human, STATE_GHOST);
 					L4D_SetClass(human, ZOMBIECLASS_TANK);
 					bSpawnSuccessful = true;
 				}
@@ -3874,7 +3881,6 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	{
 		if(human > 0)
 		{
-			L4D_State_Transition(human, STATE_GHOST);
 			if(bot_type == 7 || g_ePluginSettings.m_bCoopVersusHumanGhost == false)
 			{
 				TeleportEntity(human, vecPos, NULL_VECTOR, NULL_VECTOR);	
