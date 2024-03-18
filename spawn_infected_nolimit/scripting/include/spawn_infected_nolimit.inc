@@ -12,11 +12,11 @@
 * @param vecPos        	Vector coordinate where the special will be spawned
 * @param vecAng        	QAngle where special will be facing
 * @param variantModel  	The zombie variant model 
-*                             (L4D2) Smoker: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
-*                             (L4D2) Boomer: 	1=L4D2 Model, 2=L4D1 Model, 3=Female Boomer, 0=Random
-*                             (L4D2) Hunter: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
-*                             (L4D2) Tank: 		1=L4D2 Model, 2=DLC Model, 3=L4D1 Model, 0=Random
-*                             (L4D1) Tank: 		1=L4D1 Model, 2=DLC Model, 0=Random
+*                             (L4D2) Smoker: 	1=L4D2 Model, 2=L4D1 Model, 0=Random.
+*                             (L4D2) Boomer: 	1=L4D2 Model, 2=L4D1 Model, 3=Female Boomer, 0=Random.
+*                             (L4D2) Hunter: 	1=L4D2 Model, 2=L4D1 Model, 0=Random.
+*                             (L4D2) Tank: 		1=L4D2 Model, 2=DLC Model, 3=L4D1 Model, 0=Random.
+*                             (L4D1) Tank: 		1=L4D1 Model, 2=DLC Model, 0=Random.
 *
 * @return               client index of the spawned special infected, -1 if fail to spawn
 */
