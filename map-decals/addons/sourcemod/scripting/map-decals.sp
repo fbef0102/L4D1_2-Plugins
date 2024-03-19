@@ -1438,7 +1438,7 @@ void CreateFileIfNotExist(const char[] file)
 	Handle fileHandle = OpenFile(file, "a");  /* Append */
 	if(fileHandle == null)
 	{
-		CreateDirectory("/addons/sourcemod/configs/map-decals/maps", 0);
+		CreateDirectory("/addons/sourcemod/configs/map-decals/maps", 755);
 		fileHandle = OpenFile(file, "a"); //open again
 	}
 	delete fileHandle;

@@ -331,7 +331,7 @@ public void OnAllPluginsLoaded()
 	// stripper extension
 	if( FindConVar("stripper_version") == null )
 	{
-		SetFailState("\n==========\nWarning: You should install \"Stripper:Source\" to spawn objects permanently to the map: http://www.bailopan.net/stripper/#install\n==========\n");
+		SetFailState("\n==========\nWarning: You should install \"Stripper:Source\" to spawn objects permanently to the map: https://www.bailopan.net/stripper/snapshots/1.2/\n==========\n");
 	}
 
 	stripper_cfg_path = FindConVar("stripper_cfg_path");
@@ -3503,7 +3503,7 @@ public void BuildFileDirectories()
 	{
 		if(!DirExists(FolderNames[Num]))
 		{
-			CreateDirectory(FolderNames[Num], 509);
+			CreateDirectory(FolderNames[Num], 511);
 		}
 	}
 }

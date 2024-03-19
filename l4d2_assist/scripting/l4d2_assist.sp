@@ -27,9 +27,8 @@ char Temp5[] = "\x05";
 char Temp6[] = "\x01";
 int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
 bool g_bDied[MAXPLAYERS+1]; //tank already dead
-int g_iLastHP[MAXPLAYERS+1]; //tank last hp before dead
 int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
-int g_iOtherDamage[MAXPLAYERS+1]; //tank other damage
+int g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
 bool g_bAnnounceWitchDamage[MAXENTITIES+1];
 bool g_bTankOnly;
 int ZC_TANK;
@@ -129,6 +128,9 @@ Action OnTakeDamageAlive(int client, int &attacker, int &inflictor, float &damag
 { 
 	if(GetClientTeam(client) == L4D_TEAM_INFECTED && IsPlayerAlive(client))
 	{
+		if (GetEntProp(client, Prop_Send, "m_zombieClass") == ZC_TANK && GetEntProp(client, Prop_Send, "m_isIncapacitated"))
+			return Plugin_Continue;
+
 		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
 	}
 
@@ -257,7 +259,8 @@ void HookEvents()
 {
 	HookEvent("player_hurt", Event_Player_Hurt);
 	HookEvent("player_spawn", Event_PlayerSpawn);
-	HookEvent("player_death", Event_Player_Death);
+	HookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
+	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("player_incapacitated", Event_PlayerIncapacitated);
 	HookEvent("witch_spawn", Event_WitchSpawn);
 	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
@@ -270,7 +273,8 @@ void UnhookEvents()
 {
 	UnhookEvent("player_hurt", Event_Player_Hurt);
 	UnhookEvent("player_spawn", Event_PlayerSpawn);
-	UnhookEvent("player_death", Event_Player_Death);
+	UnhookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
+	UnhookEvent("player_death", Event_PlayerDeath);
 	UnhookEvent("player_incapacitated", Event_PlayerIncapacitated);
 	UnhookEvent("witch_spawn", Event_WitchSpawn);
 	UnhookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
@@ -308,7 +312,7 @@ void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast)
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int damageDone = g_iSIHealth[victim] - event.GetInt("health");
-	if(damageDone <= 0.0) return;
+	if(damageDone <= 0) return;
 	
 	if (0 < victim && victim <= MaxClients && IsClientInGame(victim))
 	{
@@ -316,7 +320,7 @@ void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast)
 		{
 			if (GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
 			{
-				if( g_bDied[victim] || g_iLastHP[victim] - damageDone < 0) //坦克死亡動畫或是散彈槍重複計算
+				if( g_bDied[victim] || g_iSIHealth[victim] - damageDone < 0) //坦克死亡動畫或是散彈槍重複計算
 				{
 					return;
 				}
@@ -324,15 +328,12 @@ void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast)
 				if( GetEntProp(victim, Prop_Send, "m_isIncapacitated") ) //坦克死掉播放動畫，即使是玩家造成傷害，attacker還是0
 				{
 					g_bDied[victim] = true;
-				}
-				else
-				{
-					g_iLastHP[victim] = event.GetInt("health");
+					return;
 				}
 				
 				if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
 				{
-					//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iLastHP[victim], damageDone, g_bDied[victim]);
+					//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iSIHealth[victim], damageDone, g_bDied[victim]);
 					if(!g_bDied[victim]) g_iDamage[attacker][victim] += damageDone;
 				}
 				else
@@ -347,21 +348,25 @@ void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast)
 			}
 			else
 			{
-				//PrintToChatAll("g_iLastHP[victim]: %d, damageDone: %d", g_iLastHP[victim], damageDone);
-				if( g_iLastHP[victim] - damageDone <= 0) //超過最後血量
+				//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d", g_iSIHealth[victim], damageDone);
+				if( g_iSIHealth[victim] - damageDone <= 0) //超過最後血量
 				{
-					damageDone = g_iLastHP[victim];
+					damageDone = g_iSIHealth[victim];
 				}
-
-				g_iLastHP[victim] = event.GetInt("health");
 
 				if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
 				{
 					g_iDamage[attacker][victim] += damageDone;
 				}
+				else
+				{
+					g_iOtherDamage[victim] += damageDone;
+				}
 			}
 		}
 	}
+
+	g_iSIHealth[victim] = event.GetInt("health");
 }
 
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
@@ -371,13 +376,39 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	if(client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
 	{
 		g_bDied[client] = false;
-		g_iLastHP[client] = GetEntProp(client, Prop_Data, "m_iHealth");
+		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
 		for( int i = 1; i <= MaxClients; i++ ) g_iDamage[i][client] = 0;
 		g_iOtherDamage[client] = 0;
 	}
 }
 
-void Event_Player_Death(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast) 
+{
+	int victim = GetClientOfUserId(event.GetInt("userid"));
+	int attacker = GetClientOfUserId(event.GetInt("attacker"));
+	
+	if(!victim || !IsClientInGame(victim)) return;
+
+	if(GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
+
+	if (attacker && IsClientInGame(attacker))
+	{
+		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
+		{
+			g_iDamage[attacker][victim] += g_iSIHealth[victim];
+		}
+		else
+		{
+			g_iDamage[attacker][victim] += g_iSIHealth[victim];
+		}
+	}
+	else
+	{
+		g_iOtherDamage[victim] += g_iSIHealth[victim];
+	}
+}
+
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -400,12 +431,6 @@ void Event_Player_Death(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	if(GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
-
-	if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
-	{
-		if(attacker && IsClientInGame(attacker)) g_iDamage[attacker][victim] += g_iLastHP[victim];
-		else g_iOtherDamage[victim] += g_iLastHP[victim];
-	}
 	
 	if (attacker && IsClientInGame(attacker) && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
 	{
@@ -416,7 +441,6 @@ void Event_Player_Death(Event event, const char[] name, bool dontBroadcast)
 				ClearDmgSI(victim);
 				return;
 			}
-			g_iDamage[attacker][victim] += g_iLastHP[victim];
 		}
 		
 		char MsgAssist[512];

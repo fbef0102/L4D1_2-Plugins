@@ -2,7 +2,7 @@
 #pragma newdecls required
 #include <sourcemod>
 #include <regex>
-#define PLUGIN_VERSION			"2.9-2024/2/27"
+#define PLUGIN_VERSION			"3.0-2024/3/19"
 #define DEBUG 0
 
 public Plugin myinfo =
@@ -38,6 +38,9 @@ bool
 	g_bCmdMap,
 	g_bAnyoneConnectedBefore;
 
+char
+	g_sPath[256];
+
 public void OnPluginStart()
 {
 	g_hConVarHibernate = FindConVar("sv_hibernate_when_empty");
@@ -50,6 +53,8 @@ public void OnPluginStart()
 	g_bFirstMap = true;
 	g_bCmdMap = false;
 	AddCommandListener(ServerCmd_map, "map");
+
+	BuildPath(Path_SM, g_sPath, sizeof(g_sPath), "logs/linux_auto_restart.log");
 }
 
 public void OnPluginEnd()
@@ -116,13 +121,13 @@ Action Cmd_RestartServer(int client, int args)
 		static char steamid[32];
 		GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true);
 
-		LogMessage("Manually restarting server... by %N [%s]", client, steamid);
+		LogToFileEx(g_sPath, "Manually restarting server... by %N [%s]", client, steamid);
 		PrintToServer("Manually restarting server in 5 seconds later... by %N", client);
 		PrintToChatAll("Manually restarting server in 5 seconds later... by %N", client);
 	}
 	else
 	{
-		LogMessage("Manually restarting server...");
+		LogToFileEx(g_sPath, "Manually restarting server by server console...");
 		PrintToServer("Manually restarting server in 5 seconds later...");
 		PrintToChatAll("Manually restarting server in 5 seconds later...");
 	}
@@ -161,7 +166,7 @@ Action COLD_DOWN(Handle timer, any client)
 		return Plugin_Continue;
 	}
 	
-	LogMessage("Last one player left the server, Restart server now");
+	LogToFileEx(g_sPath, "Last one player left the server, Restart server now");
 	PrintToServer("Last one player left the server, Restart server now");
 
 	UnloadAccelerator();

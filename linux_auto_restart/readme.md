@@ -36,11 +36,16 @@ Restart server when the last player disconnects from the server.
 	L4D2
 	```
 
-* Related Plugin | 相關插件
+* <details><summary>Related Plugin | 相關插件</summary>
+
 	1. [asherkin/Accelerator](https://forums.alliedmods.net/showthread.php?t=277703): Analyses crash reports to extract useful information and uploads the crash reports
 		> 伺服器崩潰會有記錄，可以查看崩潰日誌
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.0 (2024-3-19)
+		* Add log
 
 	* v2.9 (2024-2-27)
 	* v2.8 (2024-1-21)
