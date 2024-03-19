@@ -220,8 +220,10 @@ void LogChat2(int client, const char[] sArgs, bool teamchat)
 	static char steamID[128];
 	
 	if (client == 0 || !IsClientInGame(client)) {
-		//FormatEx(country, sizeof(country), "  ");
-		FormatEx(teamName, sizeof(teamName), "");
+		country[0] = '\0';
+		teamName[0] = '\0';
+		playerIP[0] = '\0';
+		steamID[0] = '\0';
 	} else {
 		if(GetClientIP(client, playerIP, sizeof(playerIP), true) == false) {
 			//country   = "  ";
@@ -270,9 +272,10 @@ stock void LogCommand(int client, int args)
 	static char steamID[128];
 	
 	if (client == 0 || !IsClientInGame(client)) {
-		/* Don't try and obtain client country/team if this is a console message */
-		//FormatEx(country, sizeof(country), "  ");
-		FormatEx(teamName, sizeof(teamName), "");
+		country[0] = '\0';
+		teamName[0] = '\0';
+		playerIP[0] = '\0';
+		steamID[0] = '\0';
 	} else {
 		/* Get 2 digit country code for current player */
 		if(GetClientIP(client, playerIP, sizeof(playerIP), true) == false) {
