@@ -173,20 +173,25 @@ Let admins spawn any kind of objects and saved to cfg
 	L4D2
 	```
 
-* Translation Support | 支援翻譯
+* <details><summary>Translation Support | 支援翻譯</summary>
+
 	```
 	English
 	繁體中文
 	简体中文
 	```
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v4.1 (2024-3-24)
+		* Fixed error
 
 	* v4.0 (2023-2-21)
 		* Support stripper cvar to save map.cfg
 			```c
-			"stripper_cfg_path" = "addons/stripper"
-			 - Stripper Config Path
+			// Stripper Config Path
+			stripper_cfg_path "addons/stripper"
 			```
 
 	* v3.9 (2023-1-5)
@@ -211,7 +216,11 @@ Let admins spawn any kind of objects and saved to cfg
 創造屬於自己風格的地圖，製作迷宮與障礙物
 
 * 必看
-	* 必須[安裝Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dstripper)才能改變地圖樣貌
+	* 必須[安裝Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dstripper)才能改變地圖
+		```c
+		// Stripper Config Path
+		stripper_cfg_path "addons/stripper"
+		```
 
 * <details><summary>如何使用?</summary>
 
