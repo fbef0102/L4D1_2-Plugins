@@ -6,7 +6,7 @@
 #include <left4dhooks>
 #include <multicolors>
 #define DEBUG 0
-#define GETVERSION "4.0"
+#define GETVERSION "4.1-2024/3/24"
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -258,8 +258,8 @@ int g_iCategory[MAXPLAYERS+1]				= {0};
 int g_iSubCategory[MAXPLAYERS+1]			= {0};
 int g_iFileCategory[MAXPLAYERS+1]			= {0};
 int g_iMoveCategory[MAXPLAYERS+1]			= {0};
-int g_iLastObject[MAXPLAYERS+1]			= {-1};
-int g_iLockObject[MAXPLAYERS+1]	= {-1};
+int g_iLastObject[MAXPLAYERS+1]				= {INVALID_ENT_REFERENCE};
+int g_iLockObject[MAXPLAYERS+1]				= {INVALID_ENT_REFERENCE};
 
 bool g_bSpawned[MAX_ENTITY]				= {false};
 bool g_bUnsolid[MAX_ENTITY]				= {false};
@@ -395,7 +395,7 @@ public void OnPluginEnd()
 
 //-------------------------------Cvars-------------------------------
 
-public void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
 	GetCvars();
 }
@@ -405,7 +405,7 @@ void GetCvars()
 	stripper_cfg_path.GetString(g_sCvar_stripper_cfg_path, sizeof(g_sCvar_stripper_cfg_path));
 }
 
-public Action CmdDebugProp(int client, int args)
+Action CmdDebugProp(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -500,7 +500,7 @@ public void OnMapStart()
 	}
 }
 
-public Action CmdSpawnProp(int client, int args)
+Action CmdSpawnProp(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -568,8 +568,8 @@ public Action CmdSpawnProp(int client, int args)
 		g_bUnsolid[prop] = false;
 
 		LockGlow(client, prop);
-		g_iLastObject[client] = prop;
-		g_iLockObject[client] = prop;
+		g_iLastObject[client] = EntIndexToEntRef(prop);
+		g_iLockObject[client] = EntIndexToEntRef(prop);
 
 		LogSpawn("%N spawned a static object with model <%s>", client, model);
 	}
@@ -615,8 +615,8 @@ public Action CmdSpawnProp(int client, int args)
 		g_bUnsolid[prop] = true;
 
 		LockGlow(client, prop);
-		g_iLastObject[client] = prop;
-		g_iLockObject[client] = prop;
+		g_iLastObject[client] = EntIndexToEntRef(prop);
+		g_iLockObject[client] = EntIndexToEntRef(prop);
 
 		LogSpawn("%N spawned a dynamic object with model <%s>", client, model);
 	}
@@ -660,8 +660,8 @@ public Action CmdSpawnProp(int client, int args)
 		g_bSpawned[prop] = true;
 
 		LockGlow(client, prop);
-		g_iLastObject[client] = prop;
-		g_iLockObject[client] = prop;
+		g_iLastObject[client] = EntIndexToEntRef(prop);
+		g_iLockObject[client] = EntIndexToEntRef(prop);
 
 		LogSpawn("%N spawned a physics object with model <%s>", client, model);
 	}
@@ -693,7 +693,7 @@ public void OnAdminMenuReady(Handle topmenu)
 }
 
 //Admin Category Name
-public void Category_Handler(TopMenu topmenu, TopMenuAction action, TopMenuObject topobj_id, int param, char[] buffer, int maxlength)
+void Category_Handler(TopMenu topmenu, TopMenuAction action, TopMenuObject topobj_id, int param, char[] buffer, int maxlength)
 {
 	if(action == TopMenuAction_DisplayTitle)
 	{
@@ -710,7 +710,7 @@ public void Category_Handler(TopMenu topmenu, TopMenuAction action, TopMenuObjec
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
 */
 
-public void AdminMenu_Delete(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
+void AdminMenu_Delete(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
 {
 	if(action == TopMenuAction_DisplayOption)
 	{
@@ -744,7 +744,7 @@ void BuildDeleteAllAskMenu(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_DA_Ask(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_DA_Ask(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -779,7 +779,7 @@ public int MenuHandler_DA_Ask(Menu menu, MenuAction action, int param1, int para
 	return 0;
 }
 
-public int MenuHandler_Delete(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_Delete(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -825,7 +825,7 @@ public int MenuHandler_Delete(Menu menu, MenuAction action, int param1, int para
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
 */
 
-public void AdminMenu_Edit(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
+void AdminMenu_Edit(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
 {
 	if(action == TopMenuAction_DisplayOption)
 	{
@@ -843,7 +843,7 @@ public void AdminMenu_Edit(TopMenu topmenu, TopMenuAction action, TopMenuObject 
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
 */
 
-public void AdminMenu_Spawn(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
+void AdminMenu_Spawn(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
 {
 	if(action == TopMenuAction_DisplayOption)
 	{
@@ -885,7 +885,7 @@ void BuildSpawnMenu(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_Spawn(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_Spawn(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -948,7 +948,7 @@ public int MenuHandler_Spawn(Menu menu, MenuAction action, int param1, int param
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
 */
 
-public void AdminMenu_Save(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
+void AdminMenu_Save(TopMenu topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
 {
 	if(action == TopMenuAction_DisplayOption)
 	{
@@ -970,7 +970,7 @@ void BuildSaveMenu(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_Save(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_Save(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1107,7 +1107,7 @@ void BuildEditPropMenu(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_PhysicsCursor(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_PhysicsCursor(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1157,7 +1157,7 @@ public int MenuHandler_PhysicsCursor(Menu menu, MenuAction action, int param1, i
 	return 0;
 }
 
-public int MenuHandler_PhysicsPosition(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_PhysicsPosition(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1207,7 +1207,7 @@ public int MenuHandler_PhysicsPosition(Menu menu, MenuAction action, int param1,
 	return 0;
 }
 
-public int MenuHandler_DynamicCursor(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_DynamicCursor(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1257,7 +1257,7 @@ public int MenuHandler_DynamicCursor(Menu menu, MenuAction action, int param1, i
 	return 0;
 }
 
-public int MenuHandler_DynamicPosition(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_DynamicPosition(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1308,7 +1308,7 @@ public int MenuHandler_DynamicPosition(Menu menu, MenuAction action, int param1,
 
 }
 
-public int MenuHandler_StaticCursor(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_StaticCursor(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1359,7 +1359,7 @@ public int MenuHandler_StaticCursor(Menu menu, MenuAction action, int param1, in
 
 }
 
-public int MenuHandler_StaticPosition(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_StaticPosition(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1410,7 +1410,7 @@ public int MenuHandler_StaticPosition(Menu menu, MenuAction action, int param1, 
 
 }
 
-public int MenuHandler_ItemCursor(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_ItemCursor(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1453,7 +1453,7 @@ public int MenuHandler_ItemCursor(Menu menu, MenuAction action, int param1, int 
 
 }
 
-public int MenuHandler_ItemPosition(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_ItemPosition(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1496,7 +1496,7 @@ public int MenuHandler_ItemPosition(Menu menu, MenuAction action, int param1, in
 
 }
 
-public int MenuHandler_EditProp(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_EditProp(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1842,7 +1842,7 @@ void DisplayMoveMenu(int client)
 	menu.DisplayAt(client, g_iMoveMenuPosition[client], MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -1882,8 +1882,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				g_bSpawned[prop] = true;
 
 				LockGlow(param1, prop);
-				g_iLastObject[param1] = prop;
-				g_iLockObject[param1] = prop;
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
 
 				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
 			}
@@ -1905,8 +1905,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				g_bSpawned[prop] = true;
 
 				LockGlow(param1, prop);
-				g_iLastObject[param1] = prop;
-				g_iLockObject[param1] = prop;
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
 
 				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
 			}
@@ -1940,8 +1940,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				g_bUnsolid[prop] = true;
 
 				LockGlow(param1, prop);
-				g_iLastObject[param1] = prop;
-				g_iLockObject[param1] = prop;
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
 
 				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
 			}
@@ -1965,8 +1965,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				g_bUnsolid[prop] = true;
 
 				LockGlow(param1, prop);
-				g_iLastObject[param1] = prop;
-				g_iLockObject[param1] = prop;
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
 
 				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
 			}
@@ -2000,8 +2000,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				g_bSpawned[prop] = true;
 
 				LockGlow(param1, prop);
-				g_iLastObject[param1] = prop;
-				g_iLockObject[param1] = prop;
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
 
 				LogSpawn("%N spawned a static object with model <%s>", param1, model);
 			}
@@ -2025,8 +2025,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 				g_bSpawned[prop] = true;
 
 				LockGlow(param1, prop);
-				g_iLastObject[param1] = prop;
-				g_iLockObject[param1] = prop;
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
 
 				LogSpawn("%N spawned a static object with model <%s>", param1, model);
 			}
@@ -2085,8 +2085,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned a weapon object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
@@ -2117,8 +2117,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned a melee object with script <%s>", param1, g_sMeleeScripts[param2]);
@@ -2204,8 +2204,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
@@ -2251,8 +2251,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
@@ -2302,8 +2302,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned a weapon object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
@@ -2332,8 +2332,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned a melee object with script <%s>", param1, g_sMeleeScripts[param2]);
@@ -2382,8 +2382,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
@@ -2428,8 +2428,8 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 					DispatchSpawn(entity_weapon);
 
 					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = entity_weapon;
-					g_iLockObject[param1] = entity_weapon;
+					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
+					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
 					g_bSpawned[entity_weapon] = true;
 
 					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
@@ -2544,7 +2544,7 @@ public int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int pa
 	return 0;
 }
 
-public int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -2556,8 +2556,8 @@ public int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, in
 			{
 				case 1:
 				{
-					int Object = g_iLockObject[param1];
-					if(Object <= MaxClients || !IsValidEntity(Object))
+					int Object = EntRefToEntIndex(g_iLockObject[param1]);
+					if(Object == INVALID_ENT_REFERENCE)
 					{
 						CPrintToChat(param1, "[TS] %T","You haven't locked anything yet", param1);
 						g_iRotateMenuPosition[param1] = menu.Selection;
@@ -2684,8 +2684,8 @@ public int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, in
 				}
 				case 2:
 				{
-					int Object = g_iLockObject[param1];
-					if(Object <= MaxClients || !IsValidEntity(Object))
+					int Object = EntRefToEntIndex(g_iLockObject[param1]);
+					if(Object == INVALID_ENT_REFERENCE)
 					{
 						CPrintToChat(param1, "[TS] %T","You haven't locked anything yet", param1);
 						g_iMoveMenuPosition[param1] = menu.Selection; 
@@ -2791,7 +2791,7 @@ public int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, in
 	return 0;
 }
 
-public bool TraceRayDontHitSelf(int entity, int mask, any data)
+bool TraceRayDontHitSelf(int entity, int mask, any data)
 {
 	if(entity == data) // Check if the TraceRay hit the itself.
 	{
@@ -2830,14 +2830,14 @@ void DeleteLookingEntity(int client)
 
 	AcceptEntityInput(Object, "KillHierarchy");
 	CPrintToChat(client, "[TS] %T", "Successfully removed an object", client, Object);
-	if(Object == g_iLastObject[client])
+	if(Object == EntRefToEntIndex(g_iLastObject[client]))
 	{
-		g_iLastObject[client] = -1;
+		g_iLastObject[client] = INVALID_ENT_REFERENCE;
 	}
 	
-	if(Object == g_iLockObject[client])
+	if(Object == EntRefToEntIndex(g_iLockObject[client]))
 	{
-		g_iLockObject[client] = -1;
+		g_iLockObject[client] = INVALID_ENT_REFERENCE;
 	}
 }
 
@@ -2847,8 +2847,8 @@ void DeleteAllProps(bool bRemoveObjects = true)
 	int lastlockobject;
 	for(int i=1; i<=MaxClients; i++)
 	{
-		lastlockobject = g_iLockObject[i];
-		if(lastlockobject >= MaxClients && IsValidEntity(lastlockobject))
+		lastlockobject = EntRefToEntIndex(g_iLockObject[i]);
+		if(lastlockobject != INVALID_ENT_REFERENCE)
 		{
 			if(g_bLeft4Dead2)
 			{
@@ -2857,8 +2857,8 @@ void DeleteAllProps(bool bRemoveObjects = true)
 			SetEntityRenderMode(lastlockobject, RENDER_NORMAL);
 		}
 
-		g_iLockObject[i] = -1;
-		g_iLastObject[i] = -1;
+		g_iLockObject[i] = INVALID_ENT_REFERENCE;
+		g_iLastObject[i] = INVALID_ENT_REFERENCE;
 	}
 
 	for(int i=MaxClients; i < MAX_ENTITY; i++)
@@ -2902,14 +2902,14 @@ void CheatCommand(int client = 0, char[] command, char[] arguments="")
 
 void DeleteLastProp(int client)
 {
-	if(g_iLastObject[client] == -1)
+	if(g_iLastObject[client] == INVALID_ENT_REFERENCE)
 	{
 		CPrintToChat(client, "[TS] %T", "You haven't spawned anything yet", client);
 		return;
 	}
 
-	int Object = g_iLastObject[client];
-	if(Object > MaxClients && IsValidEntity(Object))
+	int Object = EntRefToEntIndex(g_iLastObject[client]);
+	if(Object != INVALID_ENT_REFERENCE)
 	{
 		static char class[256];
 		GetEntityClassname(Object, class, sizeof(class));
@@ -2920,20 +2920,20 @@ void DeleteLastProp(int client)
 		{
 			AcceptEntityInput(g_iLastObject[client], "KillHierarchy");
 			CPrintToChat(client, "[TS] %T","Succesfully deleted the last spawned object",client);
-			g_iLastObject[client] = -1;
+			g_iLastObject[client] = INVALID_ENT_REFERENCE;
 			g_bSpawned[Object] = false;
 			g_bUnsolid[Object] = false;
 
-			if(Object == g_iLockObject[client])
+			if(Object == EntRefToEntIndex(g_iLockObject[client]))
 			{
-				g_iLockObject[client] = -1;
+				g_iLockObject[client] = INVALID_ENT_REFERENCE;
 			}
 			return;
 		}
 		else
 		{
 			CPrintToChat(client, "[TS] %T", "The last spawned object index is not an object anymore!", client, Object);
-			g_iLastObject[client] = -1;
+			g_iLastObject[client] = INVALID_ENT_REFERENCE;
 			g_bSpawned[Object] = false;
 			g_bUnsolid[Object] = false;
 		}
@@ -2964,7 +2964,7 @@ void LogSpawn(const char[] format, any ...)
 	CloseHandle(file);
 }
 
-public Action CmdSaveMap(int client, int args)
+Action CmdSaveMap(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3105,7 +3105,7 @@ void SaveMapStripper(int client)
 	CPrintToChat(client, "{lightgreen}[TS] %T (%s/maps/%s.cfg)", "Succesfully saved the map data", client, g_sCvar_stripper_cfg_path, map);
 }
 
-public Action CmdRotate(int client, int args)
+Action CmdRotate(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3150,7 +3150,7 @@ public Action CmdRotate(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdRemoveLast(int client, int args)
+Action CmdRemoveLast(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3158,7 +3158,7 @@ public Action CmdRemoveLast(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdRemoveLook(int client, int args)
+Action CmdRemoveLook(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3166,7 +3166,7 @@ public Action CmdRemoveLook(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdRemoveAll(int client, int args)
+Action CmdRemoveAll(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3185,7 +3185,7 @@ void BuildDeleteAllCmd(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_cmd_Ask(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_cmd_Ask(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
@@ -3215,7 +3215,7 @@ public int MenuHandler_cmd_Ask(Menu menu, MenuAction action, int param1, int par
 	return 0;
 }
 
-public Action CmdMove(int client, int args)
+Action CmdMove(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3261,7 +3261,7 @@ public Action CmdMove(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdSetAngles(int client, int args)
+Action CmdSetAngles(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3295,7 +3295,7 @@ public Action CmdSetAngles(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdSetPosition(int client, int args)
+Action CmdSetPosition(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3328,7 +3328,7 @@ public Action CmdSetPosition(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdLock(int client, int args)
+Action CmdLock(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
@@ -3341,19 +3341,19 @@ public Action CmdLock(int client, int args)
 
 	
 	LockGlow(client, Object);
-	g_iLockObject[client] = Object;
+	g_iLockObject[client] = EntIndexToEntRef(Object);
 
 	CPrintToChat(client, "[TS] %T", "Succesfully locked spawned object", client, Object);
 
 	return Plugin_Handled;
 }
 
-public Action CmdClone(int client, int args)
+Action CmdClone(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 
-	int Object = g_iLockObject[client];
-	if(Object <= MaxClients || !IsValidEntity(Object))
+	int Object = EntRefToEntIndex(g_iLockObject[client]);
+	if(Object == INVALID_ENT_REFERENCE)
 	{
 		CPrintToChat(client, "[TS] %T", "You haven't locked anything yet", client);
 		return Plugin_Handled;
@@ -3393,8 +3393,8 @@ public Action CmdClone(int client, int args)
 		}
 
 		LockGlow(client, prop);
-		g_iLastObject[client] = prop;
-		g_iLockObject[client] = prop;
+		g_iLastObject[client] = EntIndexToEntRef(prop);
+		g_iLockObject[client] = EntIndexToEntRef(prop);
 		g_bSpawned[prop] = true;
 
 		LogSpawn("%N spawned a dynamic object with model <%s>", client, sModel);
@@ -3414,8 +3414,8 @@ public Action CmdClone(int client, int args)
 		DispatchSpawn(prop);
 
 		LockGlow(client, prop);
-		g_iLastObject[client] = prop;
-		g_iLockObject[client] = prop;
+		g_iLastObject[client] = EntIndexToEntRef(prop);
+		g_iLockObject[client] = EntIndexToEntRef(prop);
 		g_bSpawned[prop] = true;
 
 		LogSpawn("%N spawned a physics object with model <%s>", client, sModel);
@@ -3441,8 +3441,8 @@ public Action CmdClone(int client, int args)
 		DispatchSpawn(entity_weapon);
 
 		LockGlow(client, entity_weapon);
-		g_iLastObject[client] = entity_weapon;
-		g_iLockObject[client] = entity_weapon;
+		g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+		g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
 		g_bSpawned[entity_weapon] = true;
 
 		LogSpawn("%N spawned a melee object with script <%s>", client, sMeleeName);
@@ -3483,8 +3483,8 @@ public Action CmdClone(int client, int args)
 		DispatchSpawn(entity_weapon);
 
 		LockGlow(client, entity_weapon);
-		g_iLastObject[client] = entity_weapon;
-		g_iLockObject[client] = entity_weapon;
+		g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+		g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
 		g_bSpawned[entity_weapon] = true;
 	}
 
@@ -3497,7 +3497,7 @@ public Action CmdClone(int client, int args)
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
 */
 
-public void BuildFileDirectories()
+void BuildFileDirectories()
 {
 	for(int Num; Num < sizeof(FolderNames); Num++)
 	{
@@ -3526,10 +3526,10 @@ public void OnEntityDestroyed(int entity)
 
 	for(int i=1; i<=MaxClients; i++)
 	{
-		if(entity == g_iLockObject[i])
+		if(entity == EntRefToEntIndex(g_iLockObject[i]))
 		{
-			g_iLockObject[i] = -1;
-			g_iLastObject[i] = -1;
+			g_iLockObject[i] = INVALID_ENT_REFERENCE;
+			g_iLastObject[i] = INVALID_ENT_REFERENCE;
 		}
 	}
 }
@@ -3769,7 +3769,7 @@ int FindObjectYouAreLooking(int client, bool bSpawned = true)
 	return 0;
 }
 
-public bool TracesSpawnedObjectFilter(int entity, int contentsMask, int client)
+bool TracesSpawnedObjectFilter(int entity, int contentsMask, int client)
 {
 	if(entity == client) // Check if the TraceRay hit the itself.
 	{
@@ -3789,7 +3789,7 @@ public bool TracesSpawnedObjectFilter(int entity, int contentsMask, int client)
 	return false;
 }
 
-public bool TracesObjectFilter(int entity, int contentsMask, int client)
+bool TracesObjectFilter(int entity, int contentsMask, int client)
 {
 	if(entity == client) // Check if the TraceRay hit the itself.
 	{
@@ -3814,8 +3814,8 @@ public bool TracesObjectFilter(int entity, int contentsMask, int client)
 
 void LockGlow(int client, int Object)
 {
-	int lastlockobject = g_iLockObject[client];
-	if(lastlockobject >= MaxClients && IsValidEntity(lastlockobject))
+	int lastlockobject = EntRefToEntIndex(g_iLockObject[client]);
+	if(lastlockobject != INVALID_ENT_REFERENCE)
 	{
 		if(g_bLeft4Dead2)
 		{
