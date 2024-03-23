@@ -1,42 +1,4 @@
 /**
- * End-user License Agreements
- * 1-Year warranty since deal, fix any bug for free
- * 
- * You cannot distribute, copy or share this code without explicit permission
- * 
- * You can install on server and use the function of this plugin to receive sponsorships
- * 
- * You are free to modify source code for your convenience, but this will void the warranty. 
- * In case of bugs or malfunctions resulting from such modifications, we will not be responsible.
- * 
- * Once you receive this sp file, you are deemed to have agreed, understood and applied to the content above.
- * 
- * -----------------------------------------------------------------------------
- * 終端使用者授權合約
- * 以交易日期計算只有一年保固期，一年內插件有問題或者出現bug或者有優化可以免費更新修復到好
- * 
- * 未經同意，你不能隨意散播發布、複製、分享這個插件與這個插件的代碼
- * 
- * 你可以使用、安裝到伺服器上、用此插件的功能營利或獲得贊助
- * 
- * 你可以修改源碼，以利於自己能方便使用，但這將導致保固期失效；出現Bug或不能正常使用的情況，後果自行承擔
- * 
- * 一旦拿到此插件源碼即視為您對該內容已認同、了解及適用
- * 
- * -----------------------------------------------------------------------------
- * 终端使用者授权合约
- * 以交易日期计算只有一年保固期，一年内插件有问题或者出现bug或者有优化可以免费更新修复到好
- * 
- * 未经同意，你不能随意散播发布、复制、分享这个插件与这个插件的代码
- * 
- * 你可以使用、安装到伺服器上、用此插件的功能营利或获得赞助
- * 
- * 你可以修改源码，以利于自己能方便使用，但这将导致保固期失效；出现Bug或不能正常使用的情况，后果自行承担
- * 
- * 一旦拿到此插件源码即视为您对该内容已认同、了解及适用
- */
-
-/**
  * 修復一些武器的weapon_*.txt參數沒有作用 (彌補l4d_info_editor插件無法修改的武器參數，檔案: data/l4d_info_editor_weapons.cfg)
  * -Weapons
  *  -CycleTime (Standing)
