@@ -124,9 +124,15 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"charger_weight"     "100"
 				"scale_weights"      "1"
 
+				"smoker_health"      "250"
+				"boomer_health"      "50"
+				"hunter_health"      "250"
+				"spitter_health"     "100"
+				"jockey_health"      "325"
+				"charger_health"     "600"
+
 				"tank_limit"                "1"
 				"tank_spawn_probability"    "5"
-				"adjust_tank_health"        "1"
 				"tank_health"               "4000"
 				"tank_spawn_final"          "0"
 
@@ -136,7 +142,6 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"witch_life"                "200.0"
 				"witch_spawn_final"         "0"
 
-				"adjust_common_limit"   "1"
 				"common_limit"          "30"
 
 				"spawn_same_frame"                       "0"
@@ -292,13 +297,18 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	4. <details><summary>Adjust Tank health</summary>
+	4. <details><summary>Adjust SI/Tank health</summary>
 
 		```php
-		// 1 = Adjust and overrides tank health by this plugin. (0=Don't modify tank health)
-		"adjust_tank_health"  "1"
+		// Set SI Health (0=Don't modify SI health)
+		"smoker_health"      "250"
+		"boomer_health"      "50"
+		"hunter_health"      "250"
+		"spitter_health"     "100"
+		"jockey_health"      "325"
+		"charger_health"     "600"
 
-		// Sets Health for Tank
+		// Sets Health for Tank (0=Don't modify tank health)
 		"tank_health"         "4000"
 		```
 	</details>
@@ -306,10 +316,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	5. <details><summary>Adjust common infected limit</summary>
 
 		```php
-		// 1 = Adjust and overrides zombie common limit by this plugin
-		"adjust_common_limit"  "1"
-
-		// Set zombie common limit. (override official convar "z_common_limit")
+		// Set zombie common limit. (override official convar "z_common_limit", 0=No commons, -1=Off)
 		"common_limit"         "30"
 		```
 	</details>
@@ -504,6 +511,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2024
 	```
+	* v2.9.4 (2024-3-25)
+		* Update Data Config
+		* Add smoker, boomer, hunter, spitter, jockey, charger health in data
+
 	* v2.9.3 (2024-2-23)
 		* You can choose to load different data config instead of xxxx.cfg (xxxx = gamemode or mutation name) in data\l4dinfectedbots folder
 		* pdate Data Config
@@ -701,9 +712,15 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"charger_weight"     "100"
 				"scale_weights"      "1"
 
+				"smoker_health"      "250"
+				"boomer_health"      "50"
+				"hunter_health"      "250"
+				"spitter_health"     "100"
+				"jockey_health"      "325"
+				"charger_health"     "600"
+
 				"tank_limit"                "1"
 				"tank_spawn_probability"    "5"
-				"adjust_tank_health"        "1"
 				"tank_health"               "4000"
 				"tank_spawn_final"          "0"
 
@@ -713,7 +730,6 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				"witch_life"                "200.0"
 				"witch_spawn_final"         "0"
 
-				"adjust_common_limit"   "1"
 				"common_limit"          "30"
 
 				"spawn_same_frame"                       "0"
@@ -869,13 +885,18 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	4. <details><summary>調整Tank血量</summary>
+	4. <details><summary>調整特感與Tank血量</summary>
 
 		```php
-		// 1 = 修改Tank血量 (0=不修改)
-		"adjust_tank_health"  "1"
+		// 設置特感血量 (0=不修改血量)
+		"smoker_health"      "250"
+		"boomer_health"      "50"
+		"hunter_health"      "250"
+		"spitter_health"     "100"
+		"jockey_health"      "325"
+		"charger_health"     "600"
 
-		// 設置Tank血量
+		// 設置Tank血量 (0=不修改血量)
 		"tank_health"         "4000"
 		```
 	</details>
@@ -883,10 +904,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	5. <details><summary>調整普通感染者的數量上限</summary>
 
 		```php
-		// 1 = 修改普通感染者的數量上限 (0=不修改)
-		"adjust_common_limit"  "1"
-
-		// 設置普通感染者的數量上限 (覆蓋官方指令 "z_common_limit")
+		// 設置普通感染者的數量上限 (覆蓋官方指令 "z_common_limit", 0=場上無普通殭屍, -1=不修改)
 		"common_limit"         "30"
 		```
 	</details>
