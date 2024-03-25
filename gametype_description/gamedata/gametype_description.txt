@@ -1,0 +1,51 @@
+"Games"
+{
+	"#default"
+	{
+		"Offsets"
+		{
+			"OS"
+			{
+				"linux"		"1"
+				"windows"	"0"
+			}
+		}
+	}
+
+	"left4dead2" 
+	{
+		"MemPatches"
+		{
+			"GameDescription"
+			{
+				"signature"		"GetGameDescription"
+
+				"linux"
+				{
+					"offset"	"6h"
+					"verify"	"\xC7\x44\x24\x08"
+					"patch"		"\xC7\x44\x24\x08\x00\x00\x00\x00"
+				}
+				
+				"windows"
+				{
+					"offset"	"0h"
+					"verify"	"\x68"
+					"patch"		"\x68\x00\x00\x00\x00"
+				}
+			}
+		}
+		
+		"Signatures"
+		{
+			/* GetGameDescription(void) */
+			"GetGameDescription"
+			{
+				"library"	"server"
+				"linux"		"@_Z18GetGameDescriptionv"
+				"windows"	"\x68\x2A\x2A\x2A\x2A\x68\x80\x00\x00\x00\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x83\xC4\x0C"
+				/* 68 ? ? ? ? 68 80 00 00 00 68 ? ? ? ? E8 ? ? ? ? 83 C4 0C */
+			}
+		}
+	}
+}
