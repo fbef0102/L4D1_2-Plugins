@@ -81,7 +81,7 @@ public void OnPluginStart()
 
 }
 
-public void ChangeVars(ConVar convar, const char[] oldValue, const char[] newValue)
+void ChangeVars(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -125,7 +125,7 @@ public void OnClientDisconnect(int client)
 	delete BWCheckTimer[client];
 }
 
-public void EventReviveSuccess(Event event, const char[] name, bool dontBroadcast) 
+void EventReviveSuccess(Event event, const char[] name, bool dontBroadcast) 
 {
 	int target = GetClientOfUserId(event.GetInt("subject"));
 	if(target == 0 || !IsClientInGame(target)) return;
@@ -213,7 +213,7 @@ public void EventReviveSuccess(Event event, const char[] name, bool dontBroadcas
 				}
 				else
 				{
-					if(bandw_type == 1) PrintHintText(x, "%N (\x04%s\x01) 黑白了.", target, charName);
+					if(bandw_type == 1) PrintHintText(x, "%N (%s) 黑白了.", target, charName);
 					else PrintToChat(x, "%N (\x04%s\x01) 黑白了.", target, charName);	
 				}
 			}
@@ -232,7 +232,7 @@ public void EventReviveSuccess(Event event, const char[] name, bool dontBroadcas
 				}
 				else
 				{
-					if(bandw_type == 1) PrintHintText(x, "%N (\x04%s\x01) 黑白了.", target, charName);
+					if(bandw_type == 1) PrintHintText(x, "%N (%s) 黑白了.", target, charName);
 					else PrintToChat(x, "%N (\x04%s\x01) 黑白了.", target, charName);					
 				}
 			}
@@ -242,7 +242,7 @@ public void EventReviveSuccess(Event event, const char[] name, bool dontBroadcas
 	return;
 }
 
-public void EventHealSuccess(Event event, const char[] name, bool dontBroadcast) 
+void EventHealSuccess(Event event, const char[] name, bool dontBroadcast) 
 {
 	int target = GetClientOfUserId(event.GetInt("subject"));
 	
@@ -258,7 +258,7 @@ public void EventHealSuccess(Event event, const char[] name, bool dontBroadcast)
 	return;
 }
 
-public void OnBotSwap(Event event, const char[] name, bool dontBroadcast) 
+void OnBotSwap(Event event, const char[] name, bool dontBroadcast) 
 {
 	int bot = GetClientOfUserId(event.GetInt("bot"));
 	int player = GetClientOfUserId(event.GetInt("player"));
@@ -297,7 +297,7 @@ public void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
     ResetTimer();
 }
