@@ -898,6 +898,7 @@ bool
 	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
 	g_bAdjustTankHealth[MAXPLAYERS+1], //true if tank adjust health already
 	g_bDeSpawn[MAXPLAYERS+1],
+	g_bMaterializeFromGhost[MAXPLAYERS+1],
 	g_bSpawnAlive[MAXPLAYERS+1];
 char 
 	g_sCvarMPGameMode[32];
@@ -3447,6 +3448,11 @@ public void L4D_OnEnterGhostState(int client)
 	}
 }
 
+public void L4D_OnMaterializeFromGhost(int client)
+{
+	g_bMaterializeFromGhost[client] = true;
+}
+
 Action TankBugFix(Handle timer, int client)
 {
 	#if DEBUG
@@ -4232,9 +4238,7 @@ Action TimerAnnounce2(Handle timer, int client)
 	client = GetClientOfUserId(client);
 	if (IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsPlayerGhost(client))
 	{
-		{
-			CPrintToChat(client, "[{olive}TS{default}] %T","sm_zss",client);
-		}
+		CPrintToChat(client, "[{olive}TS{default}] %T","sm_zss",client);
 	}
 
 	return Plugin_Continue;
@@ -4656,6 +4660,7 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 			}
 
 			// 0.1秒後設置Tank或特感血量
+			g_bMaterializeFromGhost[client] = false;
 			CreateTimer(0.1, Timer_SetHealth, userid, TIMER_FLAG_NO_MAPCHANGE);
 
 			if(IsPlayerTank(client))
@@ -4677,83 +4682,45 @@ Action Timer_SetHealth(Handle timer, any client)
 	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client))
 	{	
 		g_bSpawnAlive[client] = true;
+		bool bSetHealth = true;
+		if (g_bDeSpawn[client] && g_bMaterializeFromGhost[client]) bSetHealth = false;
+		g_bMaterializeFromGhost[client] = false;
 
 		if (IsPlayerTank(client) && g_ePluginSettings.m_iTankHealth > 0)
 		{
-			if(g_bAdjustTankHealth[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
+			if(!g_bAdjustTankHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
+			
 			g_bAdjustTankHealth[client] = true;
 		}
 		else if(IsPlayerSmoker(client) && g_ePluginSettings.m_iSIHealth[SI_SMOKER] > 0)
 		{
-			if(g_bDeSpawn[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
+			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
 		}
 		else if(IsPlayerBoomer(client) && g_ePluginSettings.m_iSIHealth[SI_BOOMER] > 0)
 		{
-			if(g_bDeSpawn[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
+			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
 		}
 		else if(IsPlayerHunter(client) && g_ePluginSettings.m_iSIHealth[SI_HUNTER] > 0)
 		{
-			if(g_bDeSpawn[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
+			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
 		}
 		else if(g_bL4D2Version && IsPlayerSpitter(client) && g_ePluginSettings.m_iSIHealth[SI_SPITTER] > 0)
 		{
-			if(g_bDeSpawn[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
+			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
 		}
 		else if(g_bL4D2Version && IsPlayerJockey(client) && g_ePluginSettings.m_iSIHealth[SI_JOCKEY] > 0)
 		{
-			if(g_bDeSpawn[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
+			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
 		}
 		else if(g_bL4D2Version && IsPlayerCharger(client) && g_ePluginSettings.m_iSIHealth[SI_CHARGER] > 0)
 		{
-			if(g_bDeSpawn[client])
-			{
-				SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
-				return Plugin_Continue;
-			}
-
-			SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
+			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
 		}
 	}
