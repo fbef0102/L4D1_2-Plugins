@@ -1,4 +1,3 @@
-
 # Description | 內容
 L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
 

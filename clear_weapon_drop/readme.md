@@ -1,4 +1,3 @@
-
 # Description | 內容
 Remove weapon dropped by survivor or uncommon infected + remove upgrade pack when deployed
 

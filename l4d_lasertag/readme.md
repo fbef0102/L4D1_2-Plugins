@@ -1,4 +1,3 @@
-
 # Description | 內容
 Shows a laser for straight-flying fired projectiles
 

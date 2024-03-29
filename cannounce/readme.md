@@ -1,4 +1,3 @@
-
 # Description | 內容
 Replacement of default player connection message, allows for custom connection messages
 

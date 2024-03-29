@@ -1,4 +1,3 @@
-
 # Description | 內容
 Allows players to drop the weapon they are holding
 
