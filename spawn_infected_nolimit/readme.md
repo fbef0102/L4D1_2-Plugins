@@ -34,12 +34,12 @@ Spawn special infected without the director limits!
 
 * <details><summary>Command | 命令</summary>
 
-	* **Spawn a special infected, bypassing the limit enforced by the game. (ADM required: ADMFLAG_CHEATS)**
+	* **Spawn a special infected, bypassing the limit enforced by the game. (ADM required: ADMFLAG_ROOT)**
 		```php
 		sm_dzspawn <witch|witch_bride|smoker|boomer|hunter|spitter|jockey|charger|tank|infected> <number> <0:Crosshair, 1:Self Position>
 		```
 
-	* **Open a menu to spawn a special infected, bypassing the limit enforced by the game. (ADM required: ADMFLAG_CHEATS)**
+	* **Open a menu to spawn a special infected, bypassing the limit enforced by the game. (ADM required: ADMFLAG_ROOT)**
 		```php
 		sm_mdzs
 		```
@@ -95,12 +95,12 @@ Spawn special infected without the director limits!
 
 * <details><summary>命令中文介紹 (點我展開)</summary>
 
-	* **生成特感, 不會受到導演系統限制 (權限: ADMFLAG_CHEATS)**
+	* **生成特感, 不會受到導演系統限制 (權限: ADMFLAG_ROOT)**
 		```php
 		sm_dzspawn <witch|witch_bride|smoker|boomer|hunter|spitter|jockey|charger|tank|infected> <數量> <0:準心指向, 1:自己身上>
 		```
 
-	* **打開菜單生成特感, 不會受到導演系統限制 (權限: ADMFLAG_CHEATS)**
+	* **打開菜單生成特感, 不會受到導演系統限制 (權限: ADMFLAG_ROOT)**
 		```php
 		sm_mdzs
 		```

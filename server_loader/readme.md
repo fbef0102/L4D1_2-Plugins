@@ -1,4 +1,3 @@
-
 # Description | 內容
 Executes cfg file on server startup
 

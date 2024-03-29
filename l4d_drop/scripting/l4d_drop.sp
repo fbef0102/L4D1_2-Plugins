@@ -56,10 +56,15 @@ char g_sCvarDropSoundFile[PLATFORM_MAX_PATH];
 
 bool g_bValidMap;
 
+int g_iOffsetAmmo, g_iPrimaryAmmoType;
+
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
-	
+
+	g_iOffsetAmmo = FindSendPropInfo("CTerrorPlayer", "m_iAmmo");
+	g_iPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+
 	BlockSecondaryDrop = CreateConVar("sm_drop_block_secondary", "0", "Prevent players from dropping their secondaries? (Fixes bugs that can come with incapped weapons or A-Posing.)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	BlockDropMidAction = CreateConVar("sm_drop_block_mid_action", "1", "Prevent players from dropping objects in between actions? (Fixes throwable cloning.) 1 = All weapons. 2 = Only throwables.", FCVAR_NOTIFY, true, 0.0, true, 2.0);
 	if (g_bL4D2Version)
@@ -81,7 +86,7 @@ public void OnPluginStart()
 		BlockM60Drop.AddChangeHook(ConVarChanged_Cvars);
 	}
 	g_hCvarDropSoundFile.AddChangeHook(ConVarChanged_Cvars);
-	
+
 	AutoExecConfig(true, "l4d_drop");
 	GetCvars();
 
@@ -240,7 +245,10 @@ void DropWeapon(int client, int weapon)
 	if ( ( g_iBlockDropMidAction == 1 || ( g_iBlockDropMidAction == 2 && GetPlayerWeaponSlot(client, 2) == weapon ) ) && 
 	GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon && 
 	GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= GetGameTime()) return;
-	// slot 2 is throwable
+
+	// throwable is already thrown
+	if ( GetPlayerWeaponSlot(client, 2) == weapon && 
+		GetOrSetPlayerAmmo(client, weapon) == 0) return;
 
 	int owner = GetEntPropEnt(weapon, Prop_Data, "m_hOwner");
 	//PrintToChatAll("owner: %d, client: %d", owner, client);
@@ -420,4 +428,21 @@ int GetInfectedAttacker(int client)
 void PlaySoundAroundClient(int client, char[] sSoundName)
 {
 	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_AIRCRAFT, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+}
+
+int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
+{
+	int offset = GetEntData(iWeapon, g_iPrimaryAmmoType) * 4; // Thanks to "Root" or whoever for this method of not hard-coding offsets: https://github.com/zadroot/AmmoManager/blob/master/scripting/ammo_manager.sp
+
+	if( offset )
+	{
+		if( iAmmo != -1 ) SetEntData(client, g_iOffsetAmmo + offset, iAmmo);
+		else
+		{
+			int ammo = GetEntData(client, g_iOffsetAmmo + offset);
+			return ammo >= 999 ? 999 : ammo;
+		}
+	}
+
+	return 0;
 }

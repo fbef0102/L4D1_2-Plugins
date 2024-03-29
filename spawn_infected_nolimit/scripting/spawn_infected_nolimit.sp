@@ -74,6 +74,8 @@ TopMenu hTopMenu;
 #define TEAM_SURVIVORS 2
 #define TEAM_INFECTED 3
 
+#define L4D_MAX_PLAYERS 31
+
 #define GAMEDATA "spawn_infected_nolimit"
 
 #define DIRECTOR_CLASS "info_director"
@@ -185,8 +187,8 @@ public void OnPluginStart()
 	
 	GetGamedata();
 	
-	RegAdminCmd("sm_dzspawn", Command_Spawn, ADMFLAG_CHEATS, "sm_dzspawn <zombie> <number> <mode> - Spawn a special infected, bypassing the limit enforced by the game.");
-	RegAdminCmd("sm_mdzs", Command_SpawnMenu, ADMFLAG_CHEATS, "Open a menu to spawn a special infected, bypassing the limit enforced by the game.");
+	RegAdminCmd("sm_dzspawn", Command_Spawn, ADMFLAG_ROOT, "sm_dzspawn <zombie> <number> <mode> - Spawn a special infected, bypassing the limit enforced by the game.");
+	RegAdminCmd("sm_mdzs", Command_SpawnMenu, ADMFLAG_ROOT, "Open a menu to spawn a special infected, bypassing the limit enforced by the game.");
 }
 
 public void OnMapStart()
@@ -222,7 +224,7 @@ Action Command_SpawnMenu(int client, any args)
 {
 	if (client == 0)  
 	{ 
-		ReplyToCommand(client, "[SM] Menu is in-game only."); 
+		ReplyToCommand(client, "[SIN] Menu is in-game only."); 
 		return Plugin_Handled; 
 	}
 	
@@ -278,10 +280,9 @@ int SpawnMenu_Handler(Handle menu, MenuAction action, int client, int param)
 
 Action Command_Spawn(int client, any args)
 {
-	int kick = 0;
 	if (!IsValidClient(client))
 	{
-		ReplyToCommand(client, "[SM] Invalid client! Unable to get position and angles!");
+		ReplyToCommand(client, "[SIN] Invalid client! Unable to get position and angles!");
 		return Plugin_Handled;
 	}
 	if (args > 4)
@@ -299,39 +300,15 @@ Action Command_Spawn(int client, any args)
 	if (number_int < 1)
 	{ number_int = 1; }
 	
-	if (GetClientCount(false) >= (MaxClients - number_int))
+	if (GetClientCount(false) > L4D_MAX_PLAYERS - number_int)
 	{
-		ReplyToCommand(client, "[SM] Attempt to kick dead infected bots...");
-		kick = KickDeadInfectedBots(client);
+		ReplyToCommand(client, "[SIN] Not enough player slots");
+		return Plugin_Handled;
     }
-	
-	if (kick <= 0)
-	{ CreateInfectedWithParams(client, zomb, mode_int, number_int); }
-	else
-	{
-		DataPack data;
-		CreateDataTimer(0.01, Timer_CreateInfected, data);
-		data.WriteCell(GetClientUserId(client));
-		data.WriteString(zomb);
-		data.WriteCell(mode_int);
-		data.WriteCell(number_int);
-	}
-	
-	return Plugin_Handled;
-}
-
-Action Timer_CreateInfected(Handle timer, DataPack data)
-{
-	data.Reset();
-	int client = GetClientOfUserId(data.ReadCell());
-	static char zomb[128];
-	data.ReadString(zomb, sizeof(zomb));
-	int mode_int = data.ReadCell();
-	int number_int = data.ReadCell();
 	
 	CreateInfectedWithParams(client, zomb, mode_int, number_int);
 
-	return Plugin_Continue;
+	return Plugin_Handled;
 }
 
 void CreateInfectedWithParams(int client, const char[] zomb, int mode = 0, int number = 1)
@@ -351,7 +328,7 @@ void CreateInfectedWithParams(int client, const char[] zomb, int mode = 0, int n
 		}
 		else
 		{
-			PrintToChat(client, "[SM] Vector out of world geometry. Teleporting on origin instead");
+			PrintToChat(client, "[SIN] Vector out of world geometry. Teleporting on origin instead");
 		}
 	}
 	ang[0] = 0.0;ang[2] = 0.0;
@@ -363,9 +340,9 @@ void CreateInfectedWithParams(int client, const char[] zomb, int mode = 0, int n
 		{ failed_Count += 1; }
 	}
 	if (failed_Count > 1)
-	{ PrintToChat(client, "[SM] Failed to spawn %i %s infected!", failed_Count, zomb); }
+	{ PrintToChat(client, "[SIN] Failed to spawn %i %s infected!", failed_Count, zomb); }
 	else if (failed_Count > 0)
-	{ PrintToChat(client, "[SM] Failed to spawn %s infected!", zomb); }
+	{ PrintToChat(client, "[SIN] Failed to spawn %s infected!", zomb); }
 }
 bool TraceRayDontHitPlayers(int entity, int mask, any data)
 {
@@ -376,8 +353,14 @@ bool TraceRayDontHitPlayers(int entity, int mask, any data)
 	return true;
 }
 
-int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], int variantModel = 2)
+int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], int variantModel = 1)
 {
+	if (GetClientCount(false) >= L4D_MAX_PLAYERS)
+	{
+		PrintToServer("[SIN] Not enough player slots");
+		return 0;
+	}
+
 	int bot = -1;
 	static char sModel[64];
 	sModel[0] = '\0';
@@ -633,21 +616,6 @@ void RequestFrame_SetPos(DataPack data)
 	TeleportEntity(bot, pos, ang, NULL_VECTOR);
 }
 
-int KickDeadInfectedBots(int client)
-{
-	int kicked_Bots = 0;
-	for (int loopclient = 1; loopclient <= MaxClients; loopclient++)
-	{
-		if (!IsValidClient(loopclient)) continue;
-		if (!IsInfected(loopclient) || !IsFakeClient(loopclient) || IsPlayerAlive(loopclient)) continue;
-		KickClient(loopclient);
-		kicked_Bots += 1;
-	}
-	if (kicked_Bots > 0)
-	{ PrintToChat(client, "Kicked %i bots.", kicked_Bots); }
-	return kicked_Bots;
-}
-
 void GetGamedata()
 {
 	static char filePath[PLATFORM_MAX_PATH];
@@ -658,7 +626,7 @@ void GetGamedata()
 	}
 	else
 	{
-		SetFailState("[SM] Unable to get %s.txt gamedata file", GAMEDATA);
+		SetFailState("[SIN] Unable to get %s.txt gamedata file", GAMEDATA);
 	}
 
 	PrepSDKCall();
@@ -899,13 +867,6 @@ void PrepSDKCall()
 	hInfectedAttackSurvivorTeam = EndPrepSDKCall();
 	if (hInfectedAttackSurvivorTeam == null)
 	{ PrintToServer("WARNING: Cannot initialize %s SDKCall, signature is broken. Chase infected spawn is disabled.", NAME_InfectedAttackSurvivorTeam); }
-}
-
-bool IsInfected(int client)
-{
-	if (!IsValidClient(client)) return false;
-	if (GetClientTeam(client) == TEAM_INFECTED) return true;
-	return false;
 }
 
 bool IsValidClient(int client, bool replaycheck = true)

@@ -1,4 +1,3 @@
-
 # Description | 內容
 The witch turns back if nearby survivor scares her behind
 
