@@ -88,8 +88,8 @@ Replacement of default player connection message, allows for custom connection m
 			// {green}: orange
 			// {olive}: green
 			// {lightgreen}: lightgreen
-			// {red}: red
-			// {blue}: blue
+			// {red}: red - There must be at least one player or bot in infected team，or red will turn into {green} color
+			// {blue}: blue - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
 			// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
 			"messages" //display message to everyone (Non-admin)
 			{
@@ -177,8 +177,8 @@ Replacement of default player connection message, allows for custom connection m
 			// {green}: 橘色
 			// {olive}: 綠色
 			// {lightgreen}: 淺綠色
-			// {red}: 紅色
-			// {blue}: 藍色
+			// {red}: 紅色 - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+			// {blue}: 藍色 - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
 			// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
 			"messages" //除了管理員外所有人會看到的
 			{

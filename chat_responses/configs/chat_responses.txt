@@ -2,8 +2,8 @@
 //		{N}-Default White
 //		{G}-Green
 //		{L}-Lightgreen
-//		{R}-Red 		- There must be at least one player or bot in infected team，or red will turn into Green color
-//		{B}-Blue   		- There must be at least one player or bot in survivor team，or blue will turn into Green color
+//		{R}-Red 		- There must be at least one player or bot in infected team，or red will turn into {G} color
+//		{B}-Blue   		- There must be at least one player or bot in survivor team，or blue will turn into {G} color
 //		{T}-Teamcolor   - Depends on the team where you at, Survivor-Blue, Infected-Red, Spectator-Default White
 //		{O}-Olive
 //		Warning:  2 of (Blue, Red, Lightgreen, Teamcolor) colors can not be used together

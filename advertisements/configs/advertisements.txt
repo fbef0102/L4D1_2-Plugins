@@ -11,8 +11,8 @@
 //	 - {green}		(olive color)
 //	 - {olive}		(green color)
 //	 - {lightgreen}	(light green color)
-//	 - {red}		(red color)
-//	 - {blue}		(blue color)
+//	 - {red}		(red color) - There must be at least one player or bot in infected team，or red will turn into {green} color
+//	 - {blue}		(blue color) - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
 //	 Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
 
 // 中文說明
@@ -28,8 +28,8 @@
 //	 - {green}		(橘色)
 //	 - {olive}		(綠色)
 //	 - {lightgreen}	(淺綠色)
-//	 - {red}		(紅色)
-//	 - {blue}		(藍色)
+//	 - {red}		(紅色) - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+//	 - {blue}		(藍色) - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
 //	 注意事項: 藍色、紅色、淺綠色，這三種顏色不可出現在同一句話裡
 //
 

@@ -851,10 +851,11 @@ Handle infHUDTimer 		= null;	// The main HUD refresh timer
 Handle g_hCheckSpawnTimer 		= null;	// The main HUD refresh timer
 Panel pInfHUD = null;
 StringMap usrHUDPref 		= null;	// Stores the client HUD preferences persistently
-Handle FightOrDieTimer[MAXPLAYERS+1] = {null}; // kill idle bots
-Handle hSpawnWitchTimer = null;
-Handle RestoreColorTimer[MAXPLAYERS+1] = {null};
-Handle DisplayTimer, InitialSpawnResetTimer;
+Handle FightOrDieTimer[MAXPLAYERS+1],
+	RestoreColorTimer[MAXPLAYERS+1], 
+	g_hPlayerSpawnTimer[MAXPLAYERS+1],
+	hSpawnWitchTimer,
+	DisplayTimer, InitialSpawnResetTimer;
 
 #define L4D_MAXPLAYERS 32
 Handle SpawnInfectedBotTimer[L4D_MAXPLAYERS+1] = {null};
@@ -896,10 +897,8 @@ int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
 bool 
 	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
-	g_bAdjustTankHealth[MAXPLAYERS+1], //true if tank adjust health already
-	g_bDeSpawn[MAXPLAYERS+1],
-	g_bMaterializeFromGhost[MAXPLAYERS+1],
-	g_bSpawnAlive[MAXPLAYERS+1];
+	g_bAdjustSIHealth[MAXPLAYERS+1]; //true if SI adjust health already
+
 char 
 	g_sCvarMPGameMode[32];
 
@@ -1462,8 +1461,7 @@ void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		g_bDeSpawn[i] = false;
-		g_bSpawnAlive[i] = false;
+		g_bAdjustSIHealth[i] = false;
 	}
 }
 
@@ -1784,7 +1782,7 @@ void IsAllowed()
 		HookEvent("player_spawn", evtInfectedSpawn);
 		HookEvent("player_hurt", evtInfectedHurt);
 		HookEvent("player_team", evtTeamSwitch);
-		HookEvent("ghost_spawn_time", evtInfectedWaitSpawn);
+		HookEvent("ghost_spawn_time", Event_GhostSpawnTime);
 		HookEvent("player_first_spawn", evtPlayerFirstSpawned);
 		HookEvent("player_entered_start_area", evtPlayerFirstSpawned);
 		HookEvent("player_entered_checkpoint", evtPlayerFirstSpawned);
@@ -1834,7 +1832,7 @@ void IsAllowed()
 		UnhookEvent("player_spawn", evtInfectedSpawn);
 		UnhookEvent("player_hurt", evtInfectedHurt);
 		UnhookEvent("player_team", evtTeamSwitch);
-		UnhookEvent("ghost_spawn_time", evtInfectedWaitSpawn);
+		UnhookEvent("ghost_spawn_time", Event_GhostSpawnTime);
 		UnhookEvent("player_first_spawn", evtPlayerFirstSpawned);
 		UnhookEvent("player_entered_start_area", evtPlayerFirstSpawned);
 		UnhookEvent("player_entered_checkpoint", evtPlayerFirstSpawned);
@@ -1969,7 +1967,8 @@ public void OnClientPutInServer(int client)
 	if(g_bCvarAllow == false) return;
 
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-	g_bAdjustTankHealth[client] = false;
+
+	g_bAdjustSIHealth[client] = false;
 
 	if (IsFakeClient(client))
 		return;
@@ -2290,7 +2289,7 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		GetClientName(client, clientname, sizeof(clientname));
 		if (g_iCurrentMode == 1 && IsFakeClient(client) && RealPlayersOnInfected() && StrContains(clientname, "Bot", false) == -1)
 		{
-			CreateTimer(0.1, TankBugFix, client, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, TankBugFix, userid, TIMER_FLAG_NO_MAPCHANGE);
 		}
 		if (g_bLeftSaveRoom)
 		{
@@ -2304,12 +2303,12 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 				{
 					if ( (!AreTherePlayersWhoAreNotTanks() && g_ePluginSettings.m_bCoopTankPlayable && StrContains(clientname, "Bot", false) == -1) || (!g_ePluginSettings.m_bCoopTankPlayable && StrContains(clientname, "Bot", false) == -1) )
 					{
-						CreateTimer(0.1, TankBugFix, client, TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(0.1, TankBugFix, userid, TIMER_FLAG_NO_MAPCHANGE);
 					}
 					else if (g_ePluginSettings.m_bCoopTankPlayable && AreTherePlayersWhoAreNotTanks())
 					{
-						CreateTimer(0.5, TankSpawner, client, TIMER_FLAG_NO_MAPCHANGE);
-						CreateTimer(1.0, kickbot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(0.5, TankSpawner, userid, TIMER_FLAG_NO_MAPCHANGE);
+						CreateTimer(1.0, kickbot, userid, TIMER_FLAG_NO_MAPCHANGE);
 					}
 				}
 			}
@@ -2355,12 +2354,11 @@ Action DisposeOfCowards(Handle timer, int coward)
 void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	// We get the client id and time
-	int client = GetClientOfUserId(event.GetInt("userid"));
+	int userid = event.GetInt("userid");
+	int client = GetClientOfUserId(userid);
 	if (!client || !IsClientInGame(client)) return;
 
 	DeleteLight(client); // Delete attached flashlight
-	g_bSpawnAlive[client] = false;
-	g_bDeSpawn[client] = false;
 
 	if(GetClientTeam(client) == TEAM_SURVIVOR)
 	{
@@ -2369,16 +2367,18 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
 
-	g_bAdjustTankHealth[client] = false;
+	CreateTimer(0.1, Timer_PlayerDeath, userid, TIMER_FLAG_NO_MAPCHANGE);
+
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
+	delete g_hPlayerSpawnTimer[client];
 
 	if (GetClientTeam(client) != TEAM_INFECTED ) return;
 
 	// Removes Sphere bubbles in the map when a player dies
 	if (!IsFakeClient(client) && L4D_HasPlayerControlledZombies() == false)
 	{
-		CreateTimer(0.1, ScrimmageTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, ScrimmageTimer, userid, TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	// If round has ended .. we ignore this
@@ -2468,7 +2468,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 	if (!clientGreeted[client] && g_bAnnounce)
 	{
-		CreateTimer(3.0, TimerAnnounce, client, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(3.0, TimerAnnounce, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	int zClass = GetEntProp(client, Prop_Send, "m_zombieClass");
@@ -2628,14 +2628,26 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
+
+Action Timer_PlayerDeath(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if (!client || !IsClientInGame(client) || IsPlayerAlive(client)) return Plugin_Continue;
+
+	g_bAdjustSIHealth[client] = false;
+	delete g_hPlayerSpawnTimer[client];
+
+	return Plugin_Continue;
+}
+
 void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
 	if(!client || !IsClientInGame(client)) return; 
 
-	g_bSpawnAlive[client] = false;
-	g_bDeSpawn[client] = false;
+	g_bAdjustSIHealth[client] = false;
+	delete g_hPlayerSpawnTimer[client];
 
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
@@ -2659,8 +2671,6 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		g_bAdjustTankHealth[client] = false;
-
 		delete DisplayTimer;
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
 
@@ -2752,7 +2762,8 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 {
 	pack.Reset();
-	int client = GetClientOfUserId(pack.ReadCell());
+	int userid = pack.ReadCell();
+	int client = GetClientOfUserId(userid);
 	int oldteam = pack.ReadCell();
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
@@ -2779,7 +2790,7 @@ Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 			if(newteam == 3 || newteam == 1)
 			{
 				// Removes Sphere bubbles in the map when a player joins the infected team, or spectator team
-				CreateTimer(0.1, ScrimmageTimer, client, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(0.1, ScrimmageTimer, userid, TIMER_FLAG_NO_MAPCHANGE);
 			}
 
 			if(oldteam == 3 || newteam == 3)
@@ -2869,6 +2880,7 @@ public void OnClientDisconnect(int client)
 	PlayerLifeState[client] = false;
 	PlayerHasEnteredStart[client] = false;
 
+	delete g_hPlayerSpawnTimer[client];
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
 
@@ -2962,6 +2974,7 @@ public void OnClientDisconnect(int client)
 
 Action ScrimmageTimer (Handle timer, int client)
 {
+	client = GetClientOfUserId(client);
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
 		SetEntProp(client, Prop_Send, "m_scrimmageType", 0);
@@ -3292,6 +3305,7 @@ Action TankSpawner(Handle timer, int tank)
 	int IndexCount = 0;
 	bool tankonfire;
 
+	tank = GetClientOfUserId(tank);
 	if (tank && IsClientInGame(tank))
 	{
 		if (GetEntProp(tank, Prop_Data, "m_fFlags") & FL_ONFIRE && IsPlayerAlive(tank))
@@ -3356,11 +3370,8 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
 		player > 0 && player <= MaxClients && IsClientInGame(player)) 
 	{
-		g_bAdjustTankHealth[bot] = g_bAdjustTankHealth[player];
-		g_bAdjustTankHealth[player] = false;
-
-		g_bDeSpawn[bot] = g_bDeSpawn[player];
-		g_bDeSpawn[player] = false;
+		g_bAdjustSIHealth[bot] = g_bAdjustSIHealth[player];
+		g_bAdjustSIHealth[player] = false;
 
 		if(L4D_HasPlayerControlledZombies() == false) //not versus
 		{
@@ -3383,11 +3394,8 @@ void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
 	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) 
 		&& player > 0 && player <= MaxClients && IsClientInGame(player)) 
 	{
-		g_bAdjustTankHealth[player] = g_bAdjustTankHealth[bot];
-		g_bAdjustTankHealth[bot] = false;
-
-		g_bDeSpawn[player] = g_bDeSpawn[bot];
-		g_bDeSpawn[bot] = false;
+		g_bAdjustSIHealth[player] = g_bAdjustSIHealth[bot];
+		g_bAdjustSIHealth[bot] = false;
 	}
 }
 
@@ -3395,8 +3403,8 @@ public void L4D_OnReplaceTank(int tank, int newtank)
 {
 	if(tank == newtank) return;
 
-	g_bAdjustTankHealth[newtank] = g_bAdjustTankHealth[tank];
-	g_bAdjustTankHealth[tank] = false;
+	g_bAdjustSIHealth[newtank] = g_bAdjustSIHealth[tank];
+	g_bAdjustSIHealth[tank] = false;
 }
 
 void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
@@ -3405,8 +3413,9 @@ void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
 	RequestFrame(OnNextFrame_Reset);
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	g_bSpawnAlive[client] = false;
-	g_bDeSpawn[client] = false;
+	if (!client || !IsClientInGame(client)) return;
+
+	g_bAdjustSIHealth[client] = false;
 }
 
 void OnNextFrame_Reset()
@@ -3429,15 +3438,6 @@ public Action L4D_OnEnterGhostStatePre(int client)
 
 public void L4D_OnEnterGhostState(int client)
 {
-	if(g_bSpawnAlive[client]) //回魂
-	{
-		g_bDeSpawn[client] = true;
-	}
-	else
-	{
-		g_bDeSpawn[client] = false;
-	}
-
 	if(L4D_HasPlayerControlledZombies() == false)
 	{
 		DeleteLight(client);
@@ -3448,18 +3448,14 @@ public void L4D_OnEnterGhostState(int client)
 	}
 }
 
-public void L4D_OnMaterializeFromGhost(int client)
-{
-	g_bMaterializeFromGhost[client] = true;
-}
-
 Action TankBugFix(Handle timer, int client)
 {
 	#if DEBUG
 	LogMessage("Tank BugFix Triggred");
 	#endif
+	client = GetClientOfUserId(client);
 
-	if (IsClientInGame(client) && IsFakeClient(client) && GetClientTeam(client) == 3)
+	if (client && IsClientInGame(client) && IsFakeClient(client) && GetClientTeam(client) == 3)
 	{
 		int lifestate = GetEntData(client, FindSendPropInfo("CTerrorPlayer", "m_lifeState"));
 		if (lifestate == 0)
@@ -3518,7 +3514,7 @@ Action HookSound_Callback(int Clients[64], int &NumClients, char StrSample[PLATF
 				if (AreTherePlayersWhoAreNotTanks())
 				{
 					TankReplacing = true;
-					CreateTimer(0.1, TankSpawner, i, TIMER_FLAG_NO_MAPCHANGE);
+					CreateTimer(0.1, TankSpawner, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
 					CreateTimer(0.5, kickbot, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
@@ -4211,7 +4207,8 @@ int Menu_InfHUDPanel(Menu menu, MenuAction action, int param1, int param2) { ret
 
 Action TimerAnnounce(Handle timer, int client)
 {
-	if (IsClientInGame(client))
+	client = GetClientOfUserId(client);
+	if (client && IsClientInGame(client))
 	{
 		if (GetClientTeam(client) == TEAM_INFECTED)
 		{
@@ -4639,7 +4636,7 @@ void evtTeamSwitch(Event event, const char[] name, bool dontBroadcast)
 void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
-	int client = GetClientOfUserId(event.GetInt("userid"));
+	int client = GetClientOfUserId(userid);
 	if (client && IsClientInGame(client))
 	{
 		if (GetClientTeam(client) == TEAM_INFECTED)
@@ -4651,17 +4648,17 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 			// already seen it or not.
 			if (!clientGreeted[client] && g_bAnnounce)
 			{
-				CreateTimer(3.0, TimerAnnounce, client, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(3.0, TimerAnnounce, userid, TIMER_FLAG_NO_MAPCHANGE);
 			}
 			if(!IsFakeClient(client) && IsPlayerAlive(client))
 			{
-				CreateTimer(1.0, TimerAnnounce2, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(1.0, TimerAnnounce2, userid, TIMER_FLAG_NO_MAPCHANGE);
 				fPlayerSpawnEngineTime[client] = GetEngineTime();
 			}
 
 			// 0.1秒後設置Tank或特感血量
-			g_bMaterializeFromGhost[client] = false;
-			CreateTimer(0.1, Timer_SetHealth, userid, TIMER_FLAG_NO_MAPCHANGE);
+			delete g_hPlayerSpawnTimer[client];
+			g_hPlayerSpawnTimer[client] = CreateTimer(0.1, Timer_SetHealth, client);
 
 			if(IsPlayerTank(client))
 			{
@@ -4669,7 +4666,7 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 				{
 					g_bAngry[client] = false;
 
-					CreateTimer(1.0, Timer_CheckAngry, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+					CreateTimer(1.0, Timer_CheckAngry, userid, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
 		}
@@ -4678,51 +4675,47 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_SetHealth(Handle timer, any client)
 {
-	client = GetClientOfUserId(client);
+	g_hPlayerSpawnTimer[client] = null;
+
 	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client))
 	{	
-		g_bSpawnAlive[client] = true;
-		bool bSetHealth = true;
-		if (g_bDeSpawn[client] && g_bMaterializeFromGhost[client]) bSetHealth = false;
-		g_bMaterializeFromGhost[client] = false;
-
 		if (IsPlayerTank(client) && g_ePluginSettings.m_iTankHealth > 0)
 		{
-			if(!g_bAdjustTankHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
-			
-			g_bAdjustTankHealth[client] = true;
 		}
 		else if(IsPlayerSmoker(client) && g_ePluginSettings.m_iSIHealth[SI_SMOKER] > 0)
 		{
-			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
 		}
 		else if(IsPlayerBoomer(client) && g_ePluginSettings.m_iSIHealth[SI_BOOMER] > 0)
 		{
-			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
 		}
 		else if(IsPlayerHunter(client) && g_ePluginSettings.m_iSIHealth[SI_HUNTER] > 0)
 		{
-			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
 		}
 		else if(g_bL4D2Version && IsPlayerSpitter(client) && g_ePluginSettings.m_iSIHealth[SI_SPITTER] > 0)
 		{
-			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
 		}
 		else if(g_bL4D2Version && IsPlayerJockey(client) && g_ePluginSettings.m_iSIHealth[SI_JOCKEY] > 0)
 		{
-			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
 		}
 		else if(g_bL4D2Version && IsPlayerCharger(client) && g_ePluginSettings.m_iSIHealth[SI_CHARGER] > 0)
 		{
-			if(bSetHealth) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
+			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
 			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
 		}
+
+		g_bAdjustSIHealth[client] = true;
 	}
 
 	return Plugin_Continue;
@@ -4788,7 +4781,7 @@ void evtInfectedHurt(Event event, const char[] name, bool dontBroadcast)
 	FightOrDieTimer[attacker] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, attacker);
 }
 
-void evtInfectedWaitSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_GhostSpawnTime(Event event, const char[] name, bool dontBroadcast)
 {
 	// Don't bother with infected HUD update if the round has ended
 	if (!roundInProgress) return;
@@ -4797,7 +4790,8 @@ void evtInfectedWaitSpawn(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		g_bSpawnAlive[client] = false;
+		g_bAdjustSIHealth[client] = false;
+
 		if (L4D_HasPlayerControlledZombies())
 		{
 			int spawntime = event.GetInt("spawntime");
@@ -5149,6 +5143,7 @@ void ResetTimer()
 		PlayerHasEnteredStart[i] = false;
 		delete FightOrDieTimer[i];
 		delete RestoreColorTimer[i];
+		delete g_hPlayerSpawnTimer[i];
 	}
 
 	delete hSpawnWitchTimer;
