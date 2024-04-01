@@ -2,8 +2,8 @@
 // {default}-Default White
 // {green}-olive
 // lightgreen}-Lightgreen
-// {red}-Red 			- There must be at least one player or bot in infected team，or red will turn into Green color
-// {blue}-Blue   		- There must be at least one player or bot in survivor team，or blue will turn into Green color
+// {red}-Red 			- There must be at least one player or bot in infected team，or red will turn into {green} color
+// {blue}-Blue   		- There must be at least one player or bot in survivor team，or blue will turn into {green} color
 // {olive}-green
 // Warning:  2 of (blue, red, lightgreen) colors can not be used together
 
