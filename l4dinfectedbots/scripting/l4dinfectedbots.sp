@@ -1806,6 +1806,7 @@ void IsAllowed()
 			if (IsClientInGame(i))
 			{
 				OnClientPutInServer(i);
+				OnClientPostAdminCheck(i);
 			}
 		}
 	}
@@ -1960,8 +1961,6 @@ Action Timer_PlayerLeftStart(Handle Timer)
 	return Plugin_Continue;
 }
 
-// This code, combined with Durzel's code, announce certain messages to clients when they first enter the server
-
 public void OnClientPutInServer(int client)
 {
 	if(g_bCvarAllow == false) return;
@@ -1974,8 +1973,14 @@ public void OnClientPutInServer(int client)
 		return;
 
 	iPlayerTeam[client] = 1;
+}
 
-	char clientSteamID[32];
+public void OnClientPostAdminCheck(int client)
+{
+	if (IsFakeClient(client))
+		return;
+
+	static char clientSteamID[32];
 
 	GetClientAuthId(client, AuthId_SteamID64, clientSteamID, sizeof(clientSteamID));
 
