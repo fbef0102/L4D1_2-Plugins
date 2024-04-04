@@ -123,7 +123,7 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Conflicts</summary>
 
-	* DO NOT modify cvar ```survivor_limit``` value above 4 in your cfg, otherwise the new 5+ player could spawn in saferoom
+	* DO NOT modify cvar ```survivor_limit``` value in your cfg
 	* If you have one of following plugins, please delete
 		1. [bebop - additional coop players (20+ players possible)](https://forums.alliedmods.net/showthread.php?t=110210)
 		2. [SuperVersus](https://forums.alliedmods.net/showthread.php?p=830069)
