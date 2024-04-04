@@ -137,12 +137,15 @@ public void OnPluginStart()
 	LoadTranslations("l4dmultislots.phrases");
 
 	survivor_limit = FindConVar("survivor_limit");
+	/*
 	if(survivor_limit.IntValue > 4)
 	{
 		SetFailState("Do not modify \"survivor_limit\" valve above 4, unload l4dmultislots.smx now!");
 	}
+	*/
 	survivor_limit.Flags = survivor_limit.Flags & ~FCVAR_NOTIFY;
 	survivor_limit.SetBounds(ConVarBound_Lower, true, 1.0);
+	survivor_limit.SetBounds(ConVarBound_Upper, true, 31.0);
 
 	survivor_respawn_with_guns = FindConVar("survivor_respawn_with_guns");
 	z_max_player_zombies = FindConVar("z_max_player_zombies");
@@ -389,8 +392,9 @@ void GetCvars()
 
 void SetOfficialSurvivorLimit()
 {
-	if(g_iMinSurvivors < 4) survivor_limit.SetInt(g_iMinSurvivors);
-	else survivor_limit.SetInt(4);
+	//if(g_iMinSurvivors < 4) survivor_limit.SetInt(g_iMinSurvivors);
+	//else survivor_limit.SetInt(4);
+	survivor_limit.SetInt(g_iMinSurvivors);
 }
 
 ////////////////////////////////////
@@ -402,9 +406,13 @@ Action ADMAddBot(int client, int args)
 		return Plugin_Continue;
 	
 	if(SpawnFakeClient(true) == true)
+	{
 		PrintToChat(client, "%T", "A surviving Bot was added.", client);
+	}
 	else
+	{
 		PrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
+	}
 	
 	return Plugin_Handled;
 }
