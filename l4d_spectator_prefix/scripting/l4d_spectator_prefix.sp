@@ -39,7 +39,7 @@ public void OnPluginStart()
 	g_hCvarModes 	= CreateConVar( "l4d_spectator_prefix_modes",			"",		"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff = CreateConVar( "l4d_spectator_prefix_modes_off",		"",		"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog = CreateConVar( "l4d_spectator_prefix_modes_tog",   	"0",	"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
-	g_hPrefixType 	= CreateConVar(" l4d_spectator_prefix_type", 			"(S)",  "Determine your preferred type of Spectator Prefix", CVAR_FLAGS);
+	g_hPrefixType 	= CreateConVar( "l4d_spectator_prefix_type", 			"(S)",  "Determine your preferred type of Spectator Prefix", CVAR_FLAGS);
 	
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
 	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
