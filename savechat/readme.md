@@ -18,19 +18,19 @@ Records player chat messages to a file
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\savechat.cfg
-		```php
+    * cfg\sourcemod\savechat.cfg
+        ```php
         // 0=Plugin off, 1=Plugin on.
         savechat_enable "1"
 
         // If 1, Record and save console commands.
         savechat_cosole_command "1"
-		```
+        ```
 </details>
 
 * <details><summary>Command | 命令</summary>
 
-	None
+    None
 </details>
 
 * <details><summary>Save Chat File</summary>
@@ -50,23 +50,23 @@ Records player chat messages to a file
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v2.0 (2023-10-29)
+    * v2.0 (2023-10-29)
 
         * Optimize code
-	* v1.9 (2023-6-28)
+    * v1.9 (2023-6-28)
         * Optimize code
         
-	* v1.8 (2023-5-9)
+    * v1.8 (2023-5-9)
         * Optimize code
 
-	* v1.7 (2023-2-21)
+    * v1.7 (2023-2-21)
         * Record comamnds
 
-	* v1.6
+    * v1.6
         * Remake code
         * Record steam id、ip
 
-	* v1.2.1
+    * v1.2.1
         * [Original Plugin by citkabuto](https://forums.alliedmods.net/showthread.php?p=1071512)
 </details>
 
@@ -86,19 +86,19 @@ Records player chat messages to a file
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\savechat.cfg
-		```php
+    * cfg\sourcemod\savechat.cfg
+        ```php
         // 0=關閉插件, 1=啟動插件
         savechat_enable "1"
 
         // 為1時，玩家在遊戲控制台輸入指令時，將記錄到文件裡
         savechat_cosole_command "1"
-		```
+        ```
 </details>
 
 * <details><summary>Save Chat文件</summary>
 
-	* * ```sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt```
+    * * ```sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt```
         * ```xxxxx``` 是伺服器的端口，也就是port
         * ```yy``` 是年份
         * ```mm``` 是月份

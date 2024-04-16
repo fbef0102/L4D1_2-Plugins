@@ -76,8 +76,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 允許管理員將任何塗鴉放置在配置中定義的地圖中，並為每個地圖永久保存它們
 * <b>[sm_downloader](/sm_downloader)</b>: SM File/Folder Downloader and Precacher
     * SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
-* <b>[sm_l4d_mapchanger](/sm_l4d_mapchanger)</b>: Force change to next mission when current mission(final stage) end.
-    * 最後一關結束時自動換圖 + 滅團N次後切換到下一個關卡 (生存模式也適用)
 * <b>[tank_witch_spawn_notify](/tank_witch_spawn_notify)</b>: When the tank and witch spawns, it announces itself in chat by making a sound
     * Tank/Witch出現有提示與音效
 * <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde ?
