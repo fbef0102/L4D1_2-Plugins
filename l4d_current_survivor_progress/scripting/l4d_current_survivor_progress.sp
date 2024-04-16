@@ -8,7 +8,7 @@
 #define MAX(%0,%1) (((%0) > (%1)) ? (%0) : (%1))
 
 ConVar g_hBossBuffer;
-int SurCurrent = 0;
+int g_iSurCurrent = 0;
 
 public Plugin myinfo =
 {
@@ -25,21 +25,35 @@ public void OnPluginStart()
 
 	RegConsoleCmd("sm_cur", CurrentCmd);
 	RegConsoleCmd("sm_current", CurrentCmd);
+	RegConsoleCmd("sm_boss", CurrentCmd);
+	RegConsoleCmd("sm_tank", CurrentCmd);
+	RegConsoleCmd("sm_witch", CurrentCmd);
+	RegConsoleCmd("sm_t", CurrentCmd);
 
 	HookEvent("round_start", RoundStartEvent, EventHookMode_PostNoCopy);
 }
 
 Action CurrentCmd(int client, int args)
 {
-	SurCurrent = GetMaxSurvivorCompletion();
-	CPrintToChat(client, "{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", SurCurrent);
+	if(client == 0) return Plugin_Handled;
+
+	RequestFrame(OnNextFrame_CurrentCmd, GetClientUserId(client));
 
 	return Plugin_Handled;
 }
 
+void OnNextFrame_CurrentCmd(int client)
+{
+	client = GetClientOfUserId(client);
+	if(!client || !IsClientInGame(client)) return;
+	
+	g_iSurCurrent = GetMaxSurvivorCompletion();
+	CPrintToChat(client, "{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%", g_iSurCurrent);
+}
+
 void RoundStartEvent(Event event, const char[] name, bool dontBroadcast) 
 {
-	SurCurrent = 0;
+	g_iSurCurrent = 0;
 }
 
 
@@ -82,9 +96,9 @@ int GetMaxSurvivorCompletion() {
 		flow = flow / L4D2Direct_GetMapMaxFlowDistance();
 	}
 
-	//PrintToChatAll("%.2f - %d -%.2f", flow, SurCurrent, (g_hBossBuffer.FloatValue / L4D2Direct_GetMapMaxFlowDistance()));
+	//PrintToChatAll("%.2f - %d -%.2f", flow, g_iSurCurrent, (g_hBossBuffer.FloatValue / L4D2Direct_GetMapMaxFlowDistance()));
 	flow = flow * 100;
-	if (flow <= 1.0) flow = SurCurrent * 1.0;
+	if (flow <= 1.0) flow = g_iSurCurrent * 1.0;
 	else if(flow > 100.0) flow = 100.0;
 
 	return RoundToNearest(flow);

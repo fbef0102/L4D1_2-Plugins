@@ -143,7 +143,7 @@ In-game Help Menu (Support Translation)
 	```
 </details>
 
-* <details><summary>Optional | 輔助插件</summary>
+* <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready Plugin
 		> 準備插件
@@ -151,10 +151,6 @@ In-game Help Menu (Support Translation)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//chundo @ 2008
-	//Harry @ 2020 - 2022
-	```
 	* v0.8 (2022-11-29)
 		* Convert All codes to new syntax.
 		* Translation support.

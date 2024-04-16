@@ -1,7 +1,7 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.4  (2009-2024)
+* Version	: 2.9.5  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.9.5 (2024-4-13)
+*	   - Fixed Crash when real player playing infected team in coop/realism/survival
 *
 * Version 2.9.4 (2024-3-25)
 *	   - Update Data Config
@@ -767,7 +770,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.4"
+#define PLUGIN_VERSION 			"2.9.5"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -807,7 +810,8 @@ int SI_TANK = 6;
 #define IGNITE_TIME 3600.0
 
 // l4d1/2 value
-static int ZOMBIECLASS_TANK;
+char sSpawnCommand[32];
+int ZOMBIECLASS_TANK;
 int NUM_INFECTED;
 
 int InfectedRealCount; // Holds the amount of real alive infected players
@@ -988,12 +992,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	if( test == Engine_Left4Dead )
 	{
 		ZOMBIECLASS_TANK = 5;
+		sSpawnCommand = "z_spawn";
 		g_bL4D2Version = false;
 		NUM_INFECTED = 3;
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
 		ZOMBIECLASS_TANK = 8;
+		sSpawnCommand = "z_spawn_old";
 		g_bL4D2Version = true;
 		NUM_INFECTED = 6;
 	}
@@ -3703,7 +3709,8 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		return Plugin_Continue;
 	}
 
-	// Before spawning the bot, we determine if an real infected player is dead, since the int infected bot will be controlled by this player
+	bool resetGhost[MAXPLAYERS+1];
+	bool resetLife[MAXPLAYERS+1];
 	int human = 0;
 	for (int i=1;i<=MaxClients;i++)
 	{
@@ -3712,21 +3719,24 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			// If player is on infected's team and is dead ..
 			if (GetClientTeam(i) == TEAM_INFECTED)
 			{
-				// If player is a ghost ....
 				if (IsPlayerGhost(i))
 				{
-					continue;
+					resetGhost[i] = true;
+					SetGhostStatus(i, false);
 				}
 				else if (!IsPlayerAlive(i) && L4D_HasPlayerControlledZombies()) // if player is just dead
 				{
-					continue;
+					resetLife[i] = true;
+					SetLifeState(i, false);
 				}
 				else if (!IsPlayerAlive(i) && respawnDelay[i] > 0)
 				{
-					continue;
+					resetLife[i] = true;
+					SetLifeState(i, false);
 				}
 				else if (!IsPlayerAlive(i) && respawnDelay[i] <= 0 && human == 0)
 				{
+					SetLifeState(i, true);
 					human = i;
 					break;
 				}
@@ -3759,23 +3769,71 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	int bot_type = BotTypeNeeded(), bot;
 	bool bSpawnSuccessful = false;
 	float vecPos[3];
-	switch (bot_type)
+
+	if (human > 0)
 	{
-		case 0: // Nothing
+		switch (bot_type)
 		{
-			bSpawnSuccessful = false;
-		}
-		case 1: // Smoker
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_SMOKER,ZOMBIESPAWN_Attempts,vecPos) == true)
+			case 0: // Nothing
 			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_SMOKER);
-					bSpawnSuccessful = true;
-				}
-				else
+				bSpawnSuccessful = false;
+			}
+			case 1: // Smoker
+			{
+				CheatCommand(anyclient, sSpawnCommand, "smoker auto");
+			}
+			case 2: // Boomer
+			{
+				CheatCommand(anyclient, sSpawnCommand, "boomer auto");
+			}
+			case 3: // Hunter
+			{
+				CheatCommand(anyclient, sSpawnCommand, "hunter auto");
+			}
+			case 4: // Spitter
+			{
+				CheatCommand(anyclient, sSpawnCommand, "spitter auto");
+			}
+			case 5: // Jockey
+			{
+				CheatCommand(anyclient, sSpawnCommand, "jockey auto");
+			}
+			case 6: // Charger
+			{
+				CheatCommand(anyclient, sSpawnCommand, "charger auto");
+			}
+			case 7: // Tank
+			{
+				CheatCommand(anyclient, sSpawnCommand, "tank auto");
+			}
+		}
+
+		if(IsPlayerAlive(human))
+		{
+			bSpawnSuccessful = true;
+			if(bot_type != 7 && g_ePluginSettings.m_bCoopVersusHumanGhost == true)
+			{
+				L4D_State_Transition(human, STATE_GHOST);
+			}
+
+			CreateTimer(0.0, CheckIfBotsNeededLater, 1, TIMER_FLAG_NO_MAPCHANGE);
+		}
+		else
+		{
+			CreateTimer(1.0, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+	else
+	{
+		switch (bot_type)
+		{
+			case 0: // Nothing
+			{
+				bSpawnSuccessful = false;
+			}
+			case 1: // Smoker
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_SMOKER,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateSmoker, "Smoker Bot");
 					if (IsValidClient(bot))
@@ -3783,23 +3841,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Smoker Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-		case 2: // Boomer
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_BOOMER,ZOMBIESPAWN_Attempts,vecPos) == true)
-			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_BOOMER);
-					bSpawnSuccessful = true;
-				}
 				else
+				{
+					PrintToServer("[TS] Couldn't find a Smoker Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
+			}
+			case 2: // Boomer
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_BOOMER,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateBoomer, "Boomer Bot");
 					if (IsValidClient(bot))
@@ -3807,23 +3856,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Boomer Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-		case 3: // Hunter
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_HUNTER,ZOMBIESPAWN_Attempts,vecPos) == true)
-			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_HUNTER);
-					bSpawnSuccessful = true;
-				}
 				else
+				{
+					PrintToServer("[TS] Couldn't find a Boomer Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
+			}
+			case 3: // Hunter
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_HUNTER,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateHunter, "Hunter Bot");
 					if (IsValidClient(bot))
@@ -3831,23 +3871,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Hunter Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-		case 4: // Spitter
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_SPITTER,ZOMBIESPAWN_Attempts,vecPos) == true)
-			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_SPITTER);
-					bSpawnSuccessful = true;
-				}
 				else
+				{
+					PrintToServer("[TS] Couldn't find a Hunter Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
+			}
+			case 4: // Spitter
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_SPITTER,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateSpitter, "Spitter Bot");
 					if (IsValidClient(bot))
@@ -3855,23 +3886,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Spitter Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-		case 5: // Jockey
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_JOCKEY,ZOMBIESPAWN_Attempts,vecPos) == true)
-			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_JOCKEY);
-					bSpawnSuccessful = true;
-				}
 				else
+				{
+					PrintToServer("[TS] Couldn't find a Spitter Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
+			}
+			case 5: // Jockey
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_JOCKEY,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateJockey, "Jockey Bot");
 					if (IsValidClient(bot))
@@ -3879,23 +3901,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Jockey Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-		case 6: // Charger
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_CHARGER,ZOMBIESPAWN_Attempts,vecPos) == true)
-			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_CHARGER);
-					bSpawnSuccessful = true;
-				}
 				else
+				{
+					PrintToServer("[TS] Couldn't find a Jockey Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
+			}
+			case 6: // Charger
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_CHARGER,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateCharger, "Charger Bot");
 					if (IsValidClient(bot))
@@ -3903,23 +3916,14 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Charger Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-		case 7: // Tank
-		{
-			if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_TANK,ZOMBIESPAWN_Attempts,vecPos) == true)
-			{
-				if(human > 0)
-				{
-					L4D_State_Transition(human, STATE_GHOST);
-					L4D_SetClass(human, ZOMBIECLASS_TANK);
-					bSpawnSuccessful = true;
-				}
 				else
+				{
+					PrintToServer("[TS] Couldn't find a Charger Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
+			}
+			case 7: // Tank
+			{
+				if(L4D_GetRandomPZSpawnPosition(anyclient,ZOMBIECLASS_TANK,ZOMBIESPAWN_Attempts,vecPos) == true)
 				{
 					bot = SDKCall(hCreateTank, "Tank Bot");
 					if (IsValidClient(bot))
@@ -3927,36 +3931,16 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 						bSpawnSuccessful = true;
 					}
 				}
-			}
-			else
-			{
-				PrintToServer("[TS] Couldn't find a Tank Spawn position in %d tries",ZOMBIESPAWN_Attempts);
-			}
-		}
-	}
-
-	if (bSpawnSuccessful)
-	{
-		if(human > 0)
-		{
-			if(bot_type == 7 || g_ePluginSettings.m_bCoopVersusHumanGhost == false)
-			{
-				TeleportEntity(human, vecPos, NULL_VECTOR, NULL_VECTOR);	
-				L4D_MaterializeFromGhost(human);
-			}
-
-			if(IsPlayerAlive(human))
-			{
-				CreateTimer(0.0, CheckIfBotsNeededLater, 1, TIMER_FLAG_NO_MAPCHANGE);
-			}
-			else
-			{
-				CreateTimer(1.0, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
+				else
+				{
+					PrintToServer("[TS] Couldn't find a Tank Spawn position in %d tries",ZOMBIESPAWN_Attempts);
+				}
 			}
 		}
-		else
+		
+		if(bSpawnSuccessful)
 		{
-			ChangeClientTeam(bot, 3);
+			ChangeClientTeam(bot, TEAM_INFECTED);
 			SetEntProp(bot, Prop_Send, "m_usSolidFlags", 16);
 			SetEntProp(bot, Prop_Send, "movetype", 2);
 			SetEntProp(bot, Prop_Send, "deadflag", 0);
@@ -3971,9 +3955,18 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			if(!g_bIsCoordination) CreateTimer(0.05, CheckIfBotsNeededLater, 1, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
-	else
+
+	if (!bSpawnSuccessful)
 	{
 		if(!g_bIsCoordination) CreateTimer(0.1, CheckIfBotsNeededLater, 0, TIMER_FLAG_NO_MAPCHANGE);
+	}
+
+	for (int i=1;i<=MaxClients;i++)
+	{
+		if (resetGhost[i] == true)
+			SetGhostStatus(i, true);
+		if (resetLife[i] == true)
+			SetLifeState(i, true);
 	}
 
 	// Debug print
@@ -4067,6 +4060,22 @@ bool IsPlayerTank (int client)
 	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_TANK)
 		return true;
 	return false;
+}
+
+void SetGhostStatus (int client, bool ghost)
+{
+	if (ghost)
+		SetEntProp(client, Prop_Send, "m_isGhost", 1, 1);
+	else
+		SetEntProp(client, Prop_Send, "m_isGhost", 0, 1);
+}
+
+void SetLifeState (int client, bool ready)
+{
+	if (ready)
+		SetEntProp(client, Prop_Send,  "m_lifeState", 1, 1);
+	else
+		SetEntProp(client, Prop_Send, "m_lifeState", 0, 1);
 }
 
 int HumansOnInfected ()

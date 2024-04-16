@@ -511,6 +511,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	//mi123645 @ 2009-2011
 	//HarryPotter @ 2019-2024
 	```
+	* v2.9.5 (2024-4-13)
+		* Fixed Crash when real player playing infected team in coop/realism/survival
+
 	* v2.9.4 (2024-3-25)
 		* Update Data Config
 		* Add smoker, boomer, hunter, spitter, jockey, charger health in data
