@@ -55,6 +55,7 @@ public void OnPluginStart()
 void OnCvarChange_SurvivorLimit(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	g_iCvarSurvLimit = g_hSurvivorLimit.IntValue;
+	if(g_iCvarSurvLimit > 4) g_iCvarSurvLimit = 4;
 }
 
 public void OnMapStart()

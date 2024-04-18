@@ -11,7 +11,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
 
 * Require
-	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit
+	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 survivors and server slots limit
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	4. [CreateSurvivorBot](https://forums.alliedmods.net/showpost.php?p=2729883&postcount=16)
