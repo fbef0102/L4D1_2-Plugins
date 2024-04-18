@@ -39,7 +39,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 }
 
 #define CVAR_FLAGS					FCVAR_NOTIFY
-#define DELAY_KICK_FAKECLIENT 		0.1
 #define DELAY_KICK_NONEEDBOT 		5.0
 #define DELAY_KICK_NONEEDBOT_SAFE   25.0
 #define DELAY_CHANGETEAM_NEWPLAYER 	3.5
@@ -145,15 +144,15 @@ public void OnPluginStart()
 	*/
 	survivor_limit.Flags = survivor_limit.Flags & ~FCVAR_NOTIFY;
 	survivor_limit.SetBounds(ConVarBound_Lower, true, 1.0);
-	survivor_limit.SetBounds(ConVarBound_Upper, true, 31.0);
+	survivor_limit.SetBounds(ConVarBound_Upper, true, float(MaxClients));
 
 	survivor_respawn_with_guns = FindConVar("survivor_respawn_with_guns");
 	z_max_player_zombies = FindConVar("z_max_player_zombies");
 
 	BufferHP = FindSendPropInfo( "CTerrorPlayer", "m_healthBuffer" );
 	
-	g_hMaxSurvivors	= CreateConVar(				"l4d_multislots_max_survivors", 				"10", 	"Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.\nMust be greater then or equal to 'l4d_multislots_min_survivors'", CVAR_FLAGS, true, 4.0, true, 32.0);
-	g_hMinSurvivors	= CreateConVar(				"l4d_multislots_min_survivors", 				"4", 	"Set minimum # of survivors in game.(Override official cvar 'survivor_limit')\nKick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)", CVAR_FLAGS, true, 1.0, true, 32.0);
+	g_hMaxSurvivors	= CreateConVar(				"l4d_multislots_max_survivors", 				"10", 	"Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.\nMust be greater then or equal to 'l4d_multislots_min_survivors'", CVAR_FLAGS, true, 4.0, true, float(MaxClients));
+	g_hMinSurvivors	= CreateConVar(				"l4d_multislots_min_survivors", 				"4", 	"Set minimum # of survivors in game.(Override official cvar 'survivor_limit')\nKick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)", CVAR_FLAGS, true, 1.0, true, float(MaxClients));
 	hStripBotWeapons = CreateConVar(			"l4d_multislots_bot_items_delete", 				"1", 	"Delete all items form survivor bots when they got kicked by this plugin. (0=off)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	hDeadBotTime = CreateConVar(				"l4d_multislots_alive_bot_time", 				"0", 	"When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)", CVAR_FLAGS, true, 0.0);
 	hSpecCheckInterval = CreateConVar(			"l4d_multislots_spec_message_interval", 		"25", 	"Setup time interval the instruction message to spectator.(0=off)", CVAR_FLAGS, true, 0.0);
@@ -334,6 +333,7 @@ public void OnMapStart()
 
 	g_bEnableKick = false;
 	g_bPluginHasStarted = false;
+	g_bLeftSafeRoom = false;
 }
 
 public void OnMapEnd()
