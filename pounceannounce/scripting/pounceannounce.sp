@@ -19,7 +19,7 @@ float infectedPosition[MAXPLAYERS +1][3]; //support up to 32 slots on a server
 #define DEBUG 0
 
 //For variable types of pounce display
-enum PounceDistanceDisplay
+enum
 {
 	None = 0, 
 	Units = 1, 
@@ -34,7 +34,7 @@ public Plugin myinfo =
 	name = "Pounce Announce",
 	author = "n0limit & HarryPotter",
 	description = "Announces hunter pounces to the entire server",
-	version = "1.8",
+	version = "1.9",
 	url = "http://forums.alliedmods.net/showthread.php?t=93605"
 }
 
@@ -66,7 +66,7 @@ public void OnAllPluginsLoaded()
 
 	if ( g_hMaxPounceDistance == null ) { g_hMaxPounceDistance 	= CreateConVar( "z_pounce_damage_range_max",  			"1000.0", 	"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
 	if ( g_hMinPounceDistance == null ) { g_hMinPounceDistance 	= CreateConVar( "z_pounce_damage_range_min",  			"300.0", 	"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
-	if ( g_hMaxPounceDamage == null ) 	{ g_hMaxPounceDamage 	= CreateConVar( "z_hunter_max_pounce_bonus_damage", 	"49", 		"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
+	if ( g_hMaxPounceDamage == null ) 	{ g_hMaxPounceDamage 	= CreateConVar( "z_hunter_max_pounce_bonus_damage", 	"24", 		"Not available on this server, added by pounceannounce.", FCVAR_NONE, true, 0.0, false ); }
 	
 	GetPounceCvars();
 	g_hMaxPounceDistance.AddChangeHook(ConVarChanged_PounceCvars);
@@ -160,23 +160,23 @@ public void Event_PlayerPounced(Event event, const char[] name, bool dontBroadca
 		{
 			switch(g_iShowDistance)
 			{
-				case (view_as<int>(Units)):
+				case (Units):
 				{
 					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units",distance);
 				}
-				case (view_as<int>(UnitsAndFeet)):
+				case (UnitsAndFeet):
 				{ //units / 16 = feet in game
 					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units (%d feet)",distance, distance / 16);
 				}
-				case (view_as<int>(UnitsAndMeters)):
+				case (UnitsAndMeters):
 				{	//0.0213 = conversion rate for units to meters
 					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units (%.0f meters)",distance, distance * 0.0213);
 				}
-				case (view_as<int>(Feet)):
+				case (Feet):
 				{
 					Format(distanceBuffer,sizeof(distanceBuffer)," over %d feet", distance / 16); 
 				}
-				case (view_as<int>(Meters)):
+				case (Meters):
 				{
 					Format(distanceBuffer,sizeof(distanceBuffer)," over %.0f meters", distance * 0.0213);
 				}
@@ -188,12 +188,13 @@ public void Event_PlayerPounced(Event event, const char[] name, bool dontBroadca
 			CPrintToChatAll(pounceLine);
 		else if(g_iCenterChat == 1)
 			PrintHintTextToAll(pounceLine);
+	}
 
-		//PrintToChatAll("killdamage: %f, dmg, %f, victimClient: %N", g_iKillDamage, dmg, victimClient);
-		if(g_iKillDamage != 0.0 && g_iKillDamage <= dmg)
-		{
-			ForcePlayerSuicide(victimClient);
-			CPrintToChatAll("\x04[SM] %N\x01's high pounce causes \x05%N\x01 instant kill!");
-		}	
+
+	//PrintToChatAll("killdamage: %f, dmg, %f, victimClient: %N", g_iKillDamage, dmg, victimClient);
+	if(g_iKillDamage != 0.0 && g_iKillDamage <= dmg)
+	{
+		ForcePlayerSuicide(victimClient);
+		CPrintToChatAll("\x04[SM] %N\x01's high pounce causes \x05%N\x01 instant kill!", attackerClient, victimClient);
 	}
 }
