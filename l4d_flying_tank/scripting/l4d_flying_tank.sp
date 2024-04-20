@@ -1056,20 +1056,15 @@ void SetParentModel( int client )
 		iEntity = CreateEntityByName( "prop_dynamic_override" );
 		if( CheckIfEntitySafe( iEntity ) )
 		{
-			char sName[64];
-			Format(sName, sizeof(sName), "Tank%d", client);
-			DispatchKeyValue(client, "targetname", sName);
-			GetEntPropString(client, Prop_Data, "m_iName", sName, sizeof(sName));
-			
 			DispatchKeyValue(iEntity, "model", "models/props_equipment/oxygentank01.mdl");
 			SetEntityRenderColor(iEntity, RenderRGB[0], RenderRGB[1], RenderRGB[2], RenderRGB[3]);
 			DispatchKeyValue(iEntity, "targetname", "PropaneTankEntity");
-			DispatchKeyValue(iEntity, "parentname", sName);
 			DispatchKeyValueVector(iEntity, "origin", vOrigin);
 			DispatchKeyValueVector(iEntity, "angles", vAngles);
 			DispatchSpawn(iEntity);
-			SetVariantString(sName);
-			AcceptEntityInput(iEntity, "SetParent", iEntity, iEntity);
+			
+			SetVariantString("!activator");
+			AcceptEntityInput(iEntity, "SetParent", client);
 			switch(iCount)
 			{
 				case 0:{ SetVariantString("rfoot"); vOrigin = view_as<float>({0.0, 30.0,  8.0}); }
@@ -1121,13 +1116,7 @@ void SetParentFlame( int client )
 		iEntity = CreateEntityByName("env_steam");
 		if( CheckIfEntitySafe( iEntity ) )
 		{
-			char sName[64];
-			Format(sName, sizeof(sName), "Tank%d", client);
-			DispatchKeyValue(client, "targetname", sName);
-			GetEntPropString(client, Prop_Data, "m_iName", sName, sizeof(sName));
-			
 			DispatchKeyValue(iEntity, "targetname", "SteamEntity");
-			DispatchKeyValue(iEntity, "parentname", sName);
 			DispatchKeyValueVector(iEntity, "origin", vOrigin);
 			//DispatchKeyValueVector(iEntity, "angles", vAngles);
 			DispatchKeyValue(iEntity, "SpawnFlags", "1");
@@ -1138,12 +1127,13 @@ void SetParentFlame( int client )
 			DispatchKeyValue(iEntity, "Startsize", "6");
 			DispatchKeyValue(iEntity, "EndSize", "8");
 			DispatchKeyValue(iEntity, "Rate", "555");
-			DispatchKeyValue(iEntity, "RenderColor", "255 100 10 41");
+			DispatchKeyValue(iEntity, "RenderColor", "255 100 10");
 			DispatchKeyValue(iEntity, "JetLength", "40"); 
 			DispatchKeyValue(iEntity, "RenderAmt", "180");
 			DispatchSpawn(iEntity);
-			SetVariantString(sName);
-			AcceptEntityInput(iEntity, "SetParent", iEntity, iEntity );
+
+			SetVariantString("!activator");
+			AcceptEntityInput(iEntity, "SetParent", client);
 			switch( iCount )
 			{
 				case 0:{ SetVariantString("rfoot"); vOrigin = view_as<float>({0.0, 0.0,  8.0}); }
@@ -1297,11 +1287,6 @@ void SetParentLight( int client )
 		vOrigin[2] -= 120.0;
 		TeleportEntity(iEntity, vOrigin, vAngleA, NULL_VECTOR);
 
-		char sName[32];
-		Format(sName, sizeof(sName), "Tank%d", client);
-		DispatchKeyValue(client, "targetname", sName);
-		
-		DispatchKeyValue(iEntity, "parentname", sName);
 		SetVariantString("!activator");
 		AcceptEntityInput(iEntity, "SetParent", client );
 		AcceptEntityInput(iEntity, "TurnOn");
