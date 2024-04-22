@@ -115,6 +115,9 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
     //Pan Xiaohai @ 2010-2011
     //Harry @ 2022-2024
     ```
+    * v2.3h (2024-4-22)
+        * Optimize code and improve performance
+
     * v2.2h (2024-1-27)
         * Update Gamedata
         * Update Cvars

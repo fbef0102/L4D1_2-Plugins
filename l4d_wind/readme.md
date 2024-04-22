@@ -9,7 +9,7 @@ Create a survivor bot in game + Teleport player
 	<br/>![l4d_wind_2](image/l4d_wind_2.jpg)
 
 * Require | 必要安裝
-	None
+<br/>None
 
 * <details><summary>ConVar | 指令</summary>
 

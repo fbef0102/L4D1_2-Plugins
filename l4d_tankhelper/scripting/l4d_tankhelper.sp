@@ -14,12 +14,13 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw Tank/S.I./Witch/Hittable instead of rock",
-	version = "2.2h-2024/1/27",
+	version = "2.3h-2024/4/22",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
-static int ZC_TANK;
+int ZC_TANK;
 int L4D2Version;
+char sSpawnCommand[32];
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -28,11 +29,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	{
 		L4D2Version = false;
 		ZC_TANK = 5;
+		sSpawnCommand = "z_spawn";
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
 		L4D2Version = true;
 		ZC_TANK = 8;
+		sSpawnCommand = "z_spawn_old";
 	}
 	else
 	{
@@ -104,7 +107,8 @@ Handle g_hNextBotPointer, g_hGetLocomotion, g_hJump;
 
 static float g_99999Position[3] = {9999999.0, 9999999.0, 9999999.0};
 
-forward void L4D_OnTraceRockCreated(int entity); //from l4d_tracerock
+int 
+	g_iSetTankHealth[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
@@ -176,6 +180,8 @@ public void OnPluginStart()
 	l4d_tank_throw_witch_limit.AddChangeHook(ConVarChange);
 	l4d_tank_throw_car.AddChangeHook(ConVarChange);
 	l4d_tank_car_time.AddChangeHook(ConVarChange);
+
+	HookEvent("bot_player_replace", Event_PlayerReplaceBot);
 
 	AddNormalSoundHook(OnNormalSoundPlay);
 }
@@ -249,6 +255,13 @@ void GetConVar()
 	g_fCarKillTime = l4d_tank_car_time.FloatValue;
 }
 
+// Sourcemod API Forward-------------------------------
+
+public void OnClientDisconnect(int client) 
+{
+	g_iSetTankHealth[client] = 0;
+}
+
 //-------------------------------Left4Dhooks API Forward-------------------------------
 
 public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3], const float vecAng[3], const float vecVel[3], const float vecRot[3])
@@ -285,12 +298,43 @@ public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3
 //-------------------------------Other API Forward-------------------------------
 
 // from l4d_tracerock.smx by Harry, Tank's rock will trace survivor until hit something.
-public void L4D_OnTraceRockCreated(int rock)
+public void L4D_OnTraceRockCreated(int tank, int rock)
 {
 	g_bIsTraceRock[rock] = true;
 }
 
-//--------------------------------------------------------------
+//-------------------------------Sound Hook-------------------------------
+
+Action OnNormalSoundPlay(int Clients[64], int &NumClients, char StrSample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level,
+	int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
+{
+	if (StrEqual(StrSample, SOUND_THROWN_MISSILE, false)) {
+		NumClients = 0;
+		return Plugin_Changed;
+	}
+
+	return Plugin_Continue;
+}
+
+// Event-------------------------------
+
+void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
+{
+	int bot = GetClientOfUserId(event.GetInt("bot"));
+	int player = GetClientOfUserId(event.GetInt("player"));
+	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && player > 0 && player <= MaxClients && IsClientInGame(player)) 
+	{
+		if(g_iSetTankHealth[bot] > 0)
+		{
+			// 0.3秒後設置Tank血量
+			CreateTimer(0.3, Timer_SetTankHealth, GetClientUserId(player), TIMER_FLAG_NO_MAPCHANGE);
+
+			g_iSetTankHealth[bot] = 0;
+		}
+	}
+}
+
+// Function-------------------------------
 
 bool IsRockStuck(int ent, const float pos[3])
 {
@@ -360,11 +404,36 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 			if(!IsFakeClient(i))
 			{
 				iClients[iClientCount++] = i;
+				SetLifeState(i, true);
 			}
 		}
 	}
 
 	infectedfreeplayer = (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
+
+	bool resetGhost[MAXPLAYERS+1];
+	bool resetLife[MAXPLAYERS+1];
+	if(infectedfreeplayer > 0)
+	{
+		for(int i = 1; i <= MaxClients; i++)
+		{	
+			if(i != infectedfreeplayer && IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == L4D_TEAM_INFECTED)
+			{
+				if (IsPlayerGhost(i))
+				{
+					resetGhost[i] = true;
+					SetGhostStatus(i, false);
+					continue;
+				}
+				if (!IsPlayerAlive(i))
+				{
+					resetLife[i] = true;
+					SetLifeState(i, false);
+					continue;
+				}
+			}		 
+		}
+	}
 
 	int witches =0;
 	int entity = MaxClients + 1;
@@ -382,9 +451,12 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_HUNTER);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Hunter"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else 
 			{
@@ -405,9 +477,12 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_SMOKER);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Smoker"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else 
 			{
@@ -424,9 +499,12 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_BOOMER);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Boomer"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else 
 			{
@@ -443,14 +521,21 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_TANK);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Tank"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else
 			{
 				selected = NoLimit_CreateInfected("tank", pos, NULL_VECTOR);
-				if(selected > 0) bSpawnSuccessful = true;
+				if(selected > 0)
+				{
+					SetClientInfo(selected, "name", "helper Tank");
+					bSpawnSuccessful = true;
+				}
 			}
 		}
 
@@ -494,9 +579,12 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_CHARGER);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Charger"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else
 			{
@@ -513,9 +601,12 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_SPITTER);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Spitter"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else
 			{
@@ -532,9 +623,12 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		{
 			if(infectedfreeplayer > 0)
 			{
-				L4D_SetClass(infectedfreeplayer, ZC_JOCKEY);
-				selected = infectedfreeplayer;
-				bSpawnSuccessful = true;
+				CheatCommand(thetank, sSpawnCommand, "Jockey"); 
+				if(IsPlayerAlive(infectedfreeplayer))
+				{
+					selected = infectedfreeplayer;
+					bSpawnSuccessful = true;
+				}
 			}
 			else
 			{
@@ -579,13 +673,22 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		return -1;
 	}
 
+	if(infectedfreeplayer > 0) // We restore the player's status
+	{
+		for (int i=1;i<=MaxClients;i++)
+		{
+			if (resetGhost[i] == true)
+				SetGhostStatus(i, true);
+			if (resetLife[i] == true)
+				SetLifeState(i, true);
+		}
+	}
+
 	if (bSpawnSuccessful && selected > 0 && selected <= MaxClients) // SpawnSuccessful (AI/Real Player)
 	{
 		if(infectedfreeplayer == selected)
 		{
-			L4D_State_Transition(infectedfreeplayer, STATE_GHOST);
 			TeleportEntity(infectedfreeplayer, pos, NULL_VECTOR, velocity);
-			L4D_MaterializeFromGhost(infectedfreeplayer);
 		}
 		else
 		{
@@ -594,6 +697,11 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 
 		if(chooseclass == ZC_TANK)
 		{
+			SetEntProp(selected, Prop_Data, "m_iHealth", throw_tank_health);
+			SetEntProp(selected, Prop_Data, "m_iMaxHealth", throw_tank_health);
+
+			g_iSetTankHealth[selected] = throw_tank_health;
+
 			// 0.3秒後設置Tank血量
 			CreateTimer(0.3, Timer_SetTankHealth, GetClientUserId(selected), TIMER_FLAG_NO_MAPCHANGE);
 		}
@@ -809,17 +917,6 @@ int L4D_GetSurvivorVictim(int client)
 	return -1;
 }
 
-Action OnNormalSoundPlay(int Clients[64], int &NumClients, char StrSample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level,
-	int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
-{
-	if (StrEqual(StrSample, SOUND_THROWN_MISSILE, false)) {
-		NumClients = 0;
-		return Plugin_Changed;
-	}
-
-	return Plugin_Continue;
-}
-
 Action Timer_SetTankHealth(Handle timer, any client)
 {
 	client = GetClientOfUserId(client);
@@ -829,6 +926,7 @@ Action Timer_SetTankHealth(Handle timer, any client)
 		SetEntProp(client, Prop_Data, "m_iMaxHealth", throw_tank_health); 
 	}
 
+	g_iSetTankHealth[client] = 0;
 	return Plugin_Continue;
 }
 
@@ -968,7 +1066,48 @@ Action Timer_NormalVelocity(Handle timer, int ref)
 	return Plugin_Continue;
 }
 
-// by BHaType: https://forums.alliedmods.net/showpost.php?p=2771305&postcount=2
+bool CheckIfEntitySafe(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
+}
+
+void CheatCommand(int client, char[] command, char[] arguments = "")
+{
+	int userFlags = GetUserFlagBits(client);
+	SetUserFlagBits(client, ADMFLAG_ROOT);
+	int flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s", command, arguments);
+	SetCommandFlags(command, flags);
+	SetUserFlagBits(client, userFlags);
+}
+
+void SetGhostStatus (int client, bool ghost)
+{
+	if (ghost)
+		SetEntProp(client, Prop_Send, "m_isGhost", 1, 1);
+	else
+		SetEntProp(client, Prop_Send, "m_isGhost", 0, 1);
+}
+
+void SetLifeState (int client, bool ready)
+{
+	if (ready)
+		SetEntProp(client, Prop_Send,  "m_lifeState", 1, 1);
+	else
+		SetEntProp(client, Prop_Send, "m_lifeState", 0, 1);
+}
+
+// Teleport witch and make her move
+// -----------by BHaType: https://forums.alliedmods.net/showpost.php?p=2771305&postcount=2
+
 void ForceWitchJump( int witch, const float vVelocity[3], bool add = false )
 {
     Address locomotion = GetLocomotion(witch);
@@ -1064,16 +1203,4 @@ public Action OnUpdate( BehaviorAction action, int actor, float interval, Action
 	}
 
 	return Plugin_Handled;
-}
-
-bool CheckIfEntitySafe(int entity)
-{
-	if(entity == -1) return false;
-
-	if(	entity > ENTITY_SAFE_LIMIT)
-	{
-		RemoveEntity(entity);
-		return false;
-	}
-	return true;
 }
