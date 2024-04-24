@@ -980,7 +980,7 @@ public Plugin myinfo =
 {
 	name = "[L4D/L4D2] Infected Bots (Coop/Versus/Realism/Scavenge/Survival/Mutation)",
 	author = "djromero (SkyDavid), MI 5, Harry Potter",
-	description = "Spawns multi infected bots in versus + allows playable special infected in coop/survival + unlock infected limitt",
+	description = "Spawns multi infected bots in versus + allows playable special infected in coop/survival + unlock infected limit",
 	version = PLUGIN_VERSION,
 	url = "https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371"
 }
@@ -1024,10 +1024,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_zss", ForceInfectedSuicide,"suicide myself (if infected get stuck or somthing)");
 	RegAdminCmd("sm_zlimit", Console_ZLimit, ADMFLAG_ROOT,"control max special zombies limit");
 	RegAdminCmd("sm_timer", Console_Timer, ADMFLAG_ROOT,"control special zombies spawn timer");
-	#if DEBUG
-	RegConsoleCmd("sm_sp", JoinSpectator);
-	RegConsoleCmd("sm_gamemode", CheckGameMode);
-	#endif
+
 	RegConsoleCmd("sm_checkqueue", CheckQueue);
 
 	// Hook "say" so clients can toggle HUD on/off for themselves
@@ -6000,6 +5997,7 @@ void CleanUpStateAndMusic(int client)
 			// Tank
 			L4D_StopMusic(client, "Event.Tank");
 			L4D_StopMusic(client, "Event.TankMidpoint");
+			L4D_StopMusic(client, "Event.TankMidpoint_Metal");
 			L4D_StopMusic(client, "Event.TankBrothers");
 			L4D_StopMusic(client, "C2M5.RidinTank1");
 			L4D_StopMusic(client, "C2M5.RidinTank2");

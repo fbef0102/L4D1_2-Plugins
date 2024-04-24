@@ -6,7 +6,16 @@
 #include <geoip>
 #include <basecomm>
 
-#define PLUGIN_VERSION "2.0-2023/10/29"
+#define PLUGIN_VERSION "2.1-2024/4/25"
+
+public Plugin myinfo = 
+{
+	name = "SaveChat",
+	author = "citkabuto & Harry Potter",
+	description = "Records player chat messages to a file",
+	version = PLUGIN_VERSION,
+	url = "http://forums.alliedmods.net/showthread.php?t=117116"
+}
 
 ConVar hostport;
 char sHostport[10];
@@ -18,15 +27,6 @@ bool g_bCvarEnable, g_bCvarConsole;
 
 StringMap
 	g_smIgnoreList;
-
-public Plugin myinfo = 
-{
-	name = "SaveChat",
-	author = "citkabuto & Harry Potter",
-	description = "Records player chat messages to a file",
-	version = PLUGIN_VERSION,
-	url = "http://forums.alliedmods.net/showthread.php?t=117116"
-}
 
 public void OnPluginStart()
 {
@@ -129,7 +129,7 @@ public void OnMapStart(){
 	BuildPath(Path_SM, chatFile, PLATFORM_MAX_PATH, logFile);
 
 	FormatTime(time, sizeof(time), "%d/%m/%Y %H:%M:%S", -1);
-	Format(msg, sizeof(msg), "[%s] --- Map: %s ---", time, map);
+	FormatEx(msg, sizeof(msg), "[%s] --- Map: %s ---", time, map);
 
 	SaveMessage("--=================================================================--");
 	SaveMessage(msg);
@@ -212,6 +212,7 @@ void event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 
 void LogChat2(int client, const char[] sArgs, bool teamchat)
 {
+	static char Args[512];
 	static char msg[2048];
 	static char time[21];
 	static char country[3];
@@ -236,6 +237,8 @@ void LogChat2(int client, const char[] sArgs, bool teamchat)
 		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 	}
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
+	FormatEx(Args, sizeof(Args), "%s", sArgs);
+	ReplaceString(Args, sizeof(Args), "%", "%%");
 
 	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : %s%s",
 		time,
@@ -244,7 +247,7 @@ void LogChat2(int client, const char[] sArgs, bool teamchat)
 		teamName,
 		client,
 		teamchat == true ? "(TEAM) " : "",
-		sArgs);
+		Args);
 
 	SaveMessage(msg);
 }
@@ -289,6 +292,7 @@ stock void LogCommand(int client, int args)
 		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 	}
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
+	ReplaceString(text, sizeof(text), "%", "%%");
 
 	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : (CMD) %s %s",
 		time,
@@ -315,6 +319,7 @@ void SaveMessage(const char[] message)
 			return;
 		}
 	}
+
 	WriteFileLine(fileHandle, message);
 	delete fileHandle;
 }
