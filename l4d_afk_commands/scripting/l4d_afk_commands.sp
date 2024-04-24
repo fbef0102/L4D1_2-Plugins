@@ -1750,18 +1750,18 @@ int GetSurvivorVictim(int client)
 	return -1;
 }
 
-bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] sAcclvl)
 {
 	// no permissions set
-	if (strlen(g_sAcclvl) == 0)
+	if (strlen(sAcclvl) == 0)
 		return true;
 
-	else if (StrEqual(g_sAcclvl, "-1"))
+	else if (StrEqual(sAcclvl, "-1"))
 		return false;
 
 	// check permissions
 	int flag = GetUserFlagBits(client);
-	if ( flag & ReadFlagString(g_sAcclvl) || flag & ADMFLAG_ROOT )
+	if ( flag & ReadFlagString(sAcclvl) || flag & ADMFLAG_ROOT )
 	{
 		return true;
 	}
@@ -2050,6 +2050,7 @@ void CleanUpStateAndMusic(int client)
 			// Tank
 			L4D_StopMusic(client, "Event.Tank");
 			L4D_StopMusic(client, "Event.TankMidpoint");
+			L4D_StopMusic(client, "Event.TankMidpoint_Metal");
 			L4D_StopMusic(client, "Event.TankBrothers");
 			L4D_StopMusic(client, "C2M5.RidinTank1");
 			L4D_StopMusic(client, "C2M5.RidinTank2");
