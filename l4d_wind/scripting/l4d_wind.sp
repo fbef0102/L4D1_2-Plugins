@@ -48,8 +48,8 @@ public void OnPluginStart()
 {
 	LoadTranslations("wind.phrases");
 
-	RegAdminCmd("sm_addbot", sm_addabot, ADMFLAG_BAN, "Add a survivor bot");
-	RegAdminCmd("sm_createbot", sm_addabot, ADMFLAG_BAN, "Add a survivor bot");
+	RegAdminCmd("sm_addbot", sm_addabot, ADMFLAG_ROOT, "Add a survivor bot");
+	RegAdminCmd("sm_createbot", sm_addabot, ADMFLAG_ROOT, "Add a survivor bot");
 	RegAdminCmd("sm_teleport", sm_teleport, ADMFLAG_BAN, "Open 'Teleport player' menu");
 	RegAdminCmd("sm_tp", sm_teleport, ADMFLAG_BAN, "Open 'Teleport player' menu");
 
@@ -98,7 +98,7 @@ public Action sm_addabot(int client, int args)
 			PerformTeleport(client, bot, g_pos[client], true);
 		}
 		
-		CreateTimer(0.1, Timer_KickFakeBot, bot, TIMER_REPEAT);
+		CreateTimer(0.1, Timer_KickFakeBot, GetClientUserId(bot));
 	}
 	return Plugin_Handled;
 }
@@ -160,13 +160,14 @@ void PerformTeleport(int client, int target, float pos[3], bool addbot = false)
 	}
 }
 
-public Action Timer_KickFakeBot(Handle timer, int fakeclient)
+Action Timer_KickFakeBot(Handle timer, int fakeclient)
 {
-	if(IsClientConnected(fakeclient))
+	fakeclient = GetClientOfUserId(fakeclient);
+	if(fakeclient && IsClientInGame(fakeclient))
 	{
 		KickClient(fakeclient, "Kicking FakeClient");	
-		return Plugin_Stop;
 	}	
+
 	return Plugin_Continue;
 }
 
