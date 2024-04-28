@@ -49,14 +49,14 @@ public void OnPluginStart()
 	g_smIgnoreList.SetValue("spec_prev", true);
 	g_smIgnoreList.SetValue("spec_next", true);
 	g_smIgnoreList.SetValue("spec_mode", true);
-	g_smIgnoreList.SetValue("SkipOuttro", true);
+	g_smIgnoreList.SetValue("skipouttro", true);
 	g_smIgnoreList.SetValue("vocalize", true); // character vocalize
-	g_smIgnoreList.SetValue("VModEnable", true); // join server check
+	g_smIgnoreList.SetValue("vmodenable", true); // join server check
 	g_smIgnoreList.SetValue("achievement_earned", true); // achievement_earned x x
 	g_smIgnoreList.SetValue("vban", true); // join server check
 	g_smIgnoreList.SetValue("choose_closedoor", true); // close door
 	g_smIgnoreList.SetValue("choose_opendoor", true); // open door
-	g_smIgnoreList.SetValue("Vote", true); // Vote Yes / Vote No
+	g_smIgnoreList.SetValue("vote", true); // Vote Yes / Vote No
 	g_smIgnoreList.SetValue("joingame", true);
 	g_smIgnoreList.SetValue("demorestart", true);
 	g_smIgnoreList.SetValue("menuselect", true); // menuselect 1~9
@@ -124,7 +124,7 @@ public void OnMapStart(){
 	GetCurrentMap(map, sizeof(map));
 
 	/* The date may have rolled over, so update the logfile name here */
-	FormatTime(date, sizeof(date), "%y_%m_%d", -1);
+	FormatTime(date, sizeof(date), "%Y_%m_%d", -1);
 	Format(logFile, sizeof(logFile), "/logs/chat/server_%s_chat_%s.log", sHostport, date);
 	BuildPath(Path_SM, chatFile, PLATFORM_MAX_PATH, logFile);
 
@@ -258,6 +258,7 @@ stock void LogCommand(int client, int args)
 	static char text[1024];
 
 	GetCmdArg(0, cmd, sizeof(cmd));
+	StringToLowerCase(cmd);
 	bool bTemp;
 	if( g_smIgnoreList.GetValue(cmd, bTemp) == true )
 	{
@@ -351,3 +352,10 @@ void my_GetTeamName(int team, char[] sTeamName, int size)
 	}
 }
 
+void StringToLowerCase(char[] input)
+{
+    for (int i = 0; i < strlen(input); i++)
+    {
+        input[i] = CharToLower(input[i]);
+    }
+}
