@@ -878,7 +878,7 @@ void CreateVoteforcespectateMenu(int client)
 	{
 		if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i)==team)
 		{
-			Format(playerid,sizeof(playerid),"%d",i);
+			Format(playerid,sizeof(playerid),"%d",GetClientUserId(i));
 			if(GetClientName(i,name,sizeof(name)))
 			{
 				AddMenuItem(menu, playerid, name);				
@@ -895,11 +895,20 @@ int Menu_Votesforcespectate(Menu menu, MenuAction action, int param1, int param2
 	{
 		char info[32], name[32];
 		GetMenuItem(menu, param2, info, sizeof(info), _, name, sizeof(name));
-		forcespectateid = StringToInt(info);
-		forcespectateid = GetClientUserId(forcespectateid);
-		forcespectateplayername = name;
 		
-		DisplayVoteforcespectateMenu(param1);		
+		int UserId = StringToInt(info);
+		int target = GetClientOfUserId(UserId);
+		if( target && IsClientInGame(target))
+		{
+			forcespectateid = GetClientUserId(target);
+			forcespectateplayername = name;	
+			DisplayVoteforcespectateMenu(param1);		
+		}
+		else
+		{
+			CPrintToChat(param1, "[{olive}TS{default}] Target is not in game, choose again!");
+			CreateVoteforcespectateMenu(param1);
+		}	
 	}
 	else if ( action == MenuAction_Cancel)
 	{
@@ -1288,18 +1297,18 @@ void ParseCampaigns()
 	delete g_kvCampaigns;
 }
 
-bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] sAcclvl)
 {
 	// no permissions set
-	if (strlen(g_sAcclvl) == 0)
+	if (strlen(sAcclvl) == 0)
 		return true;
 
-	else if (StrEqual(g_sAcclvl, "-1"))
+	else if (StrEqual(sAcclvl, "-1"))
 		return false;
 
 	// check permissions
-	int iFlag = GetUserFlagBits(client);
-	if ( iFlag & ReadFlagString(g_sAcclvl) || iFlag & ADMFLAG_ROOT )
+	int userFlags = GetUserFlagBits(client);
+	if ( userFlags & ReadFlagString(sAcclvl) || (userFlags & ADMFLAG_ROOT))
 	{
 		return true;
 	}
