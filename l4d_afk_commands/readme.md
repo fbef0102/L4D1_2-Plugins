@@ -204,6 +204,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.2 (2024-4-30)
+		* Update translation
+
 	* v5.1 (2023-11-25)
 		* Fixed go_away_from_keyboard (esc -> take a break) not working
 
