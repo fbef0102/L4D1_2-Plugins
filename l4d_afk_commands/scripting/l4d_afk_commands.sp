@@ -67,7 +67,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.1-2023/12/10"
+#define PLUGIN_VERSION 		"5.2-2024/4/30"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -198,9 +198,9 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_jointeam3", TurnClientToInfected);
 	RegConsoleCmd("sm_zombie", TurnClientToInfected);
 	
-	RegConsoleCmd("jointeam", WTF); // press M
-	AddCommandListener(WTF2, "go_away_from_keyboard"); //esc -> take a break
-	RegConsoleCmd("sb_takecontrol", WTF3);  //sb_takecontrol
+	RegConsoleCmd("jointeam", jointeam); // press M
+	AddCommandListener(go_away_from_keyboard, "go_away_from_keyboard"); //esc -> take a break
+	RegConsoleCmd("sb_takecontrol", sb_takecontrol);  //sb_takecontrol
 
 	AddCommandListener(CommandListener_SpecNext, "spec_next"); //監聽旁觀者的滑鼠左鍵.
 
@@ -1178,7 +1178,7 @@ bool IsInteger(char[] buffer)
     return true;    
 }
 
-Action WTF(int client, int args) //press m (jointeam)
+Action jointeam(int client, int args) //press m (jointeam)
 {
 	if (client == 0)
 	{
@@ -1264,7 +1264,7 @@ Action WTF(int client, int args) //press m (jointeam)
 	}
 }
 
-Action WTF2(int client, const char[] command, int args) //esc->take a break (go_away_from_keyboard)
+Action go_away_from_keyboard(int client, const char[] command, int args) //esc->take a break (go_away_from_keyboard)
 {
 	if (client == 0)
 	{
@@ -1328,7 +1328,7 @@ Action Time_go_away_from_keyboard(Handle timer, any iUserID)
 	return Plugin_Continue;
 }
 
-Action WTF3(int client, int args) //sb_takecontrol
+Action sb_takecontrol(int client, int args) //sb_takecontrol
 {
 	if (client == 0)
 	{
@@ -1378,8 +1378,14 @@ Action CommandListener_SpecNext(int client, char[] command, int argc)
 	{
 		if(IsClientIdle(client))
 		{
-			bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
-			if(CanClientChangeTeam(client, 2, bHaveAccess) == false) return Plugin_Handled;
+			if(HasAccess(client, g_sImmuneAcclvl))return Plugin_Continue;
+
+			if(InCoolDownTime[client])
+			{
+				bClientJoinedTeam[client] = true;
+				PrintHintText(client, "%T", "Idle Wait" , client, g_iSpectatePenaltTime[client]);
+				return Plugin_Handled;
+			}
 		}
 	}
 
