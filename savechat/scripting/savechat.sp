@@ -177,17 +177,37 @@ void event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 		return;
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
+
+	static char msg[2048];
+	static char time[21];
+	//static char country[3];
+	static char steamID[64];
+	static char playerIP[50];
+	static char reason[128];
+	event.GetString("reason", reason, sizeof(reason));
+	
+	if(client == 0 && strcmp(reason, "Connection closing", false) == 0)
+	{
+		static char playerName[128];
+		event.GetString("name", playerName, sizeof(playerName));
+
+		static char networkid[32];
+		event.GetString("networkid", networkid, sizeof(networkid));
+
+		FormatTime(time, sizeof(time), "%H:%M:%S", -1);
+		FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) %-25s has left (%s).",
+			time,
+			networkid,
+			"Unknown",
+			playerName,
+			reason);
+
+		SaveMessage(msg);
+		return;
+	}
 	
 	if( client && !IsFakeClient(client) && !dontBroadcast )
 	{
-		static char msg[2048];
-		static char time[21];
-		//static char country[3];
-		static char steamID[64];
-		static char playerIP[50];
-		static char reason[128];
-		event.GetString("reason", reason, sizeof(reason));
-		
 		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 		
 		if(GetClientIP(client, playerIP, sizeof(playerIP), true) == false) {
