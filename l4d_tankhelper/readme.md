@@ -111,10 +111,9 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    ```php
-    //Pan Xiaohai @ 2010-2011
-    //Harry @ 2022-2024
-    ```
+    * v2.4h (2024-5-1)
+        * Don't throw SI if over too much special infeced limit
+
     * v2.3h (2024-4-22)
         * Optimize code and improve performance
 

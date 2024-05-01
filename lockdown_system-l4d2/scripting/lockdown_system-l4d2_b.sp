@@ -6,7 +6,7 @@
 #include <multicolors>
 #include <left4dhooks>
 #include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
-#define PLUGIN_VERSION "5.8-2024/2/20"
+#define PLUGIN_VERSION "5.9-2024/5/1"
 
 GlobalForward g_hForwardOpenSafeRoomFinish;
 /**
@@ -80,7 +80,7 @@ float fDoorSpeed, fFirstUserOrigin[3], fPreventDoorSpamDuration;
 bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport, 
 	bTankDemolitionBefore, bTankDemolitionAfter, bSurvivorsAssembleAlready,
 	blsHint, bDoorBotDisable;
-bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord;
+bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord, g_bStartLockDown;
 char sKeyMan[128];
 Handle hAntiFarmTimer, hLockdownTimer, hSpawnMobTimer;
 
@@ -150,6 +150,8 @@ public void OnPluginStart()
 	HookEvent("entity_killed", TC_ev_EntityKilled);
 	HookEvent("door_open",			Event_DoorOpen);
 	HookEvent("door_close",			Event_DoorClose);
+
+	HookEvent("tank_spawn", tank_spawn);
 
 	AutoExecConfig(true, "lockdown_system-l4d2");
 }
@@ -258,6 +260,36 @@ void OnLSCVarsChanged(ConVar cvar, const char[] sOldValue, const char[] sNewValu
 	GetCvars();
 }
 
+void GetCvars()
+{
+	iAntiFarmDuration = lsAntiFarmDuration.IntValue;
+	iDuration = lsDuration.IntValue;
+	iMobs = lsMobs.IntValue;
+	
+	bAnnounce = lsAnnounce.BoolValue;
+	bTankDemolitionBefore = lsTankDemolitionBefore.BoolValue;
+	bTankDemolitionAfter = lsTankDemolitionAfter.BoolValue;
+	iMinSurvivorPercent = lsMinSurvivorPercent.IntValue;
+	blsHint = lsHint.BoolValue;
+	iGetInLimit = lsGetInLimit.IntValue;
+	bDoorOpeningTeleport = lsDoorOpeningTeleport.BoolValue;
+	iDoorOpeningTankInterval = lsDoorOpeningTankInterval.IntValue;
+	bDoorBotDisable = lsDoorBotDisable.BoolValue;
+	fPreventDoorSpamDuration = lsPreventDoorSpamDuration.FloatValue;
+	if(g_bL4D2Version) iDoorGlowRange = lsDoorGlowRange.IntValue;
+	g_iDoorOpenChance = lsDoorOpenChance.IntValue;
+	iCountDownHintType = lsCountDownHintType.IntValue;
+	
+	if(g_bL4D2Version)
+	{
+		char sColor[16];
+		lsDoorLockColor.GetString(sColor, sizeof(sColor));
+		GetColor(g_iDoorLockColors, sColor);
+		lsDoorUnlockColor.GetString(sColor, sizeof(sColor));
+		GetColor(g_iDoorUnlockColors, sColor);
+	}
+}
+
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
@@ -267,6 +299,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_bSLSDisable = false;
 	g_iStartCheckpointDoor = -1;
 	g_iEndCheckpointDoor = -1;
+	g_bStartLockDown = false;
 }
 
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
@@ -355,6 +388,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	ResetPlugin();
 
 	sb_unstick.SetBool(sb_unstick_default);
+	g_bStartLockDown = false;
 }
 
 Action ForceEndLockdown(Handle timer)
@@ -452,11 +486,11 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 					return Plugin_Handled;
 				}
 				
-				
 				if (!bAntiFarmInit)
 				{
 					bAntiFarmInit = true;
 					iSystemTime = iAntiFarmDuration;
+					g_bStartLockDown = true;
 					
 					PrintHintText(client, "[TS] %T", "Tank is still alive", client);
 					EmitSoundToAll("doors/latchlocked2.wav", door, SNDCHAN_AUTO);
@@ -486,6 +520,7 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 				{
 					bLockdownInit = true;
 					iSystemTime = iDuration;
+					g_bStartLockDown = true;
 
 					GetClientAbsOrigin(client, fFirstUserOrigin);
 					GetClientName(client, sKeyMan, sizeof(sKeyMan));
@@ -1021,11 +1056,7 @@ void CreateTankBot()
 		int anyclient = my_GetRandomClient();
 		if(anyclient > 0 && L4D_GetRandomPZSpawnPosition(anyclient,8,5,vecPos) == true)
 		{
-			int newtankbot = NoLimit_CreateInfected("tank", vecPos, NULL_VECTOR);//召喚坦克
-			if (newtankbot > 0)
-			{
-				CreateTimer(3.0, AttackOnTank, GetClientUserId(newtankbot), TIMER_FLAG_NO_MAPCHANGE);
-			}
+			NoLimit_CreateInfected("tank", vecPos, NULL_VECTOR);//召喚坦克
 		}
 	}
 }
@@ -1104,33 +1135,11 @@ void DoorPrint(Event event, bool open)
 	}
 }
 
-void GetCvars()
+void tank_spawn(Event event, const char[] name, bool dontbroadcast)
 {
-	iAntiFarmDuration = lsAntiFarmDuration.IntValue;
-	iDuration = lsDuration.IntValue;
-	iMobs = lsMobs.IntValue;
-	
-	bAnnounce = lsAnnounce.BoolValue;
-	bTankDemolitionBefore = lsTankDemolitionBefore.BoolValue;
-	bTankDemolitionAfter = lsTankDemolitionAfter.BoolValue;
-	iMinSurvivorPercent = lsMinSurvivorPercent.IntValue;
-	blsHint = lsHint.BoolValue;
-	iGetInLimit = lsGetInLimit.IntValue;
-	bDoorOpeningTeleport = lsDoorOpeningTeleport.BoolValue;
-	iDoorOpeningTankInterval = lsDoorOpeningTankInterval.IntValue;
-	bDoorBotDisable = lsDoorBotDisable.BoolValue;
-	fPreventDoorSpamDuration = lsPreventDoorSpamDuration.FloatValue;
-	if(g_bL4D2Version) iDoorGlowRange = lsDoorGlowRange.IntValue;
-	g_iDoorOpenChance = lsDoorOpenChance.IntValue;
-	iCountDownHintType = lsCountDownHintType.IntValue;
-	
-	if(g_bL4D2Version)
+	if(g_bStartLockDown)
 	{
-		char sColor[16];
-		lsDoorLockColor.GetString(sColor, sizeof(sColor));
-		GetColor(g_iDoorLockColors, sColor);
-		lsDoorUnlockColor.GetString(sColor, sizeof(sColor));
-		GetColor(g_iDoorUnlockColors, sColor);
+		CreateTimer(3.0, AttackOnTank, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 

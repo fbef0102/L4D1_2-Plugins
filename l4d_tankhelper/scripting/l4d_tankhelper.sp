@@ -14,7 +14,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw Tank/S.I./Witch/Hittable instead of rock",
-	version = "2.3h-2024/4/22",
+	version = "2.4h-2024/5/1",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -81,7 +81,8 @@ ConVar l4d_tank_throw_si_ai, l4d_tank_throw_si_real, l4d_tank_throw_hunter, l4d_
 	l4d_tank_throw_hunter_limit, l4d_tank_throw_smoker_limit, l4d_tank_throw_boomer_limit,l4d_tank_throw_charger_limit, l4d_tank_throw_spitter_limit,
 	l4d_tank_throw_jockey_limit,l4d_tank_throw_tank_limit,l4d_tank_throw_witch_limit;
 
-ConVar z_tank_throw_force;
+ConVar z_tank_throw_force, z_max_player_zombies;
+int g_iCvarMaxZombiePlayers;
 
 enum eChance
 {
@@ -115,6 +116,8 @@ public void OnPluginStart()
 	GetGameData();
 
 	z_tank_throw_force = FindConVar("z_tank_throw_force");
+	z_max_player_zombies = FindConVar("z_max_player_zombies");
+
 	l4d_tank_throw_si_ai = CreateConVar("l4d_tank_throw_si_ai", 						"100.0", 	"AI Tank throws helper special infected or car chance [0.0, 100.0]", FCVAR_NOTIFY, true, 0.0,true, 100.0); 
 	l4d_tank_throw_si_real = CreateConVar("l4d_tank_throw_si_player", 					"70.0", 	"Real Tank Player throws helper special infected or car chance [0.0, 100.0]", FCVAR_NOTIFY, true, 0.0,true, 100.0); 
 	l4d_tank_throw_hunter 	= CreateConVar("l4d_tank_throw_hunter", 					"5.0", 		"Weight of helper Hunter[0.0, 10.0]", FCVAR_NOTIFY, true, 0.0,true, 10.0); 
@@ -150,6 +153,7 @@ public void OnPluginStart()
  
 	GetConVar();
 	z_tank_throw_force.AddChangeHook(ConVarChange);
+	z_max_player_zombies.AddChangeHook(ConVarChange);
 	l4d_tank_throw_si_ai.AddChangeHook(ConVarChange);
 	l4d_tank_throw_si_real.AddChangeHook(ConVarChange);
 	l4d_tank_throw_hunter.AddChangeHook(ConVarChange);
@@ -217,6 +221,9 @@ void ConVarChange(ConVar convar, const char[] oldValue, const char[] newValue)
 }
 void GetConVar()
 {
+	z_tank_throw_force_speed = z_tank_throw_force.FloatValue;
+	g_iCvarMaxZombiePlayers = z_max_player_zombies.IntValue;
+
 	fl4d_tank_throw_si_ai = l4d_tank_throw_si_ai.FloatValue;
 	fl4d_tank_throw_si_real = l4d_tank_throw_si_real.FloatValue;
 	fl4d_tank_throw_witch = l4d_tank_throw_witch.FloatValue;
@@ -246,7 +253,6 @@ void GetConVar()
 	}
 
 	throw_tank_health = l4d_tank_throw_tank_health.IntValue;
-	z_tank_throw_force_speed = z_tank_throw_force.FloatValue;
 	throw_witch_health = l4d_tank_throw_witch_health.IntValue;
 	g_fWitchKillTime = g_hWitchKillTime.FloatValue;
 
@@ -409,6 +415,13 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 		}
 	}
 
+	bool bOverLimit;
+	if( (smokers+boomers+hunters+tanks+spitters+jockeys+chargers >= g_iCvarMaxZombiePlayers + 2) ||
+		(smokers+boomers+hunters+tanks+spitters+jockeys+chargers >= MaxClients) )
+	{
+		bOverLimit = true;
+	}
+
 	infectedfreeplayer = (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 
 	bool resetGhost[MAXPLAYERS+1];
@@ -447,7 +460,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	bool bSpawnSuccessful = false;
 	if(random<=fThrowSIChance[eChance_Hunter] && l4d_tank_throw_hunter.FloatValue > 0.0)
 	{
-		if(hunters < iThrowSILimit[0])
+		if(!bOverLimit && hunters < iThrowSILimit[0])
 		{
 			if(infectedfreeplayer > 0)
 			{
@@ -473,7 +486,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	}
 	else if(random<=fThrowSIChance[eChance_Smoker] && l4d_tank_throw_smoker.FloatValue > 0.0)
 	{
-		if(smokers < iThrowSILimit[1])
+		if(!bOverLimit && smokers < iThrowSILimit[1])
 		{
 			if(infectedfreeplayer > 0)
 			{
@@ -495,7 +508,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	}
 	else if(random<=fThrowSIChance[eChance_Boomer] && l4d_tank_throw_boomer.FloatValue > 0.0)
 	{
-		if(boomers < iThrowSILimit[2])
+		if(!bOverLimit && boomers < iThrowSILimit[2])
 		{
 			if(infectedfreeplayer > 0)
 			{
@@ -517,7 +530,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	}
 	else if(random<=fThrowSIChance[eChance_Tank] && l4d_tank_throw_tank.FloatValue > 0.0)
 	{
-		if(tanks < iThrowSILimit[3])
+		if(!bOverLimit && tanks < iThrowSILimit[3])
 		{
 			if(infectedfreeplayer > 0)
 			{
@@ -569,13 +582,13 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 
 		chooseclass = ZC_WITCH;
 	}
-	else if(random<=fThrowSIChance[eChance_self] && l4d_tank_throw_charger.FloatValue > 0.0)
+	else if(random<=fThrowSIChance[eChance_self] && l4d_tank_throw_self.FloatValue > 0.0)
 	{
 		selected=thetank;
 	}
-	else if(random<=fThrowSIChance[eChance_Charger] && l4d_tank_throw_spitter.FloatValue > 0.0)
+	else if(random<=fThrowSIChance[eChance_Charger] && l4d_tank_throw_charger.FloatValue > 0.0)
 	{
-		if(chargers < iThrowSILimit[6])
+		if(!bOverLimit && chargers < iThrowSILimit[6])
 		{
 			if(infectedfreeplayer > 0)
 			{
@@ -597,7 +610,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	}
 	else if(random<=fThrowSIChance[eChance_Spitter] && l4d_tank_throw_spitter.FloatValue > 0.0)
 	{
-		if(spitters < iThrowSILimit[7])
+		if(!bOverLimit && spitters < iThrowSILimit[7])
 		{
 			if(infectedfreeplayer > 0)
 			{
@@ -619,7 +632,7 @@ stock int CreateSI(int thetank, const float pos[3], const float ang[3], const fl
 	}
 	else if(random<=fThrowSIChance[eChance_Jockey] && l4d_tank_throw_jockey.FloatValue > 0.0)
 	{
-		if(jockeys < iThrowSILimit[8])
+		if(!bOverLimit && jockeys < iThrowSILimit[8])
 		{
 			if(infectedfreeplayer > 0)
 			{

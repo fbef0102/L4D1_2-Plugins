@@ -1,7 +1,7 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.5  (2009-2024)
+* Version	: 2.9.6  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.9.6 (2024-5-1)
+*	   - Fixed Enable/Disable cvar
 *
 * Version 2.9.5 (2024-4-13)
 *	   - Fixed Crash when real player playing infected team in coop/realism/survival
@@ -770,7 +773,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.5"
+#define PLUGIN_VERSION 			"2.9.6"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -853,7 +856,6 @@ Handle PlayerLeftStartTimer = null; //Detect player has left safe area or not
 Handle infHUDTimer 		= null;	// The main HUD refresh timer
 Handle g_hCheckSpawnTimer 		= null;	// The main HUD refresh timer
 Panel pInfHUD = null;
-StringMap usrHUDPref 		= null;	// Stores the client HUD preferences persistently
 Handle FightOrDieTimer[MAXPLAYERS+1],
 	RestoreColorTimer[MAXPLAYERS+1], 
 	g_hPlayerSpawnTimer[MAXPLAYERS+1],
@@ -1320,7 +1322,6 @@ void TweakSettings()
 				SetConVarInt(FindConVar("survival_max_jockeys"), g_ePluginSettings.m_iSpawnLimit[SI_JOCKEY]);
 				SetConVarInt(FindConVar("survival_max_chargers"), g_ePluginSettings.m_iSpawnLimit[SI_CHARGER]);
 				SetConVarInt(FindConVar("survival_max_specials"), g_ePluginSettings.m_iMaxSpecials);
-				//SetConVarInt(FindConVar("survival_tank_stage_interval"), 9999999);
 				SetConVarInt(FindConVar("survival_special_limit_increase"), 0);
 				SetConVarInt(FindConVar("survival_special_spawn_interval"), 9999999);
 				SetConVarInt(FindConVar("survival_special_stage_interval"), 9999999);
@@ -1338,7 +1339,6 @@ void TweakSettings()
 				SetConVarInt(FindConVar("holdout_max_boomers"), g_ePluginSettings.m_iSpawnLimit[SI_BOOMER]);
 				SetConVarInt(FindConVar("holdout_max_hunters"), g_ePluginSettings.m_iSpawnLimit[SI_HUNTER]);
 				SetConVarInt(FindConVar("holdout_max_specials"), g_ePluginSettings.m_iMaxSpecials);
-				//SetConVarInt(FindConVar("holdout_tank_stage_interval"), 9999999);
 				SetConVarInt(FindConVar("holdout_special_spawn_interval"), 9999999);
 				SetConVarInt(FindConVar("holdout_special_stage_interval"), 9999999);
 
@@ -1349,15 +1349,9 @@ void TweakSettings()
 		}
 	}
 
-	//Some cvar tweaks
-	
-	//SetConVarInt(FindConVar("z_attack_flow_range"), 50000);
-	//SetConVarInt(FindConVar("director_spectate_specials"), 1);
-	//SetConVarInt(FindConVar("z_spawn_flow_limit"), 50000);
 	if (g_bL4D2Version)
 	{
 		SetConVarInt(director_allow_infected_bots, 0);
-		//SetConVarInt(FindConVar("versus_special_respawn_interval"), 99999999);
 	}
 
 	//LogMessage("Tweaking Settings");
@@ -1380,7 +1374,6 @@ void ResetCvars()
 			ResetConVar(FindConVar("survival_max_jockeys"), true, true);
 			ResetConVar(FindConVar("survival_max_chargers"), true, true);
 			ResetConVar(FindConVar("survival_max_specials"), true, true);
-			//ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
 			ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
@@ -1391,7 +1384,6 @@ void ResetCvars()
 			ResetConVar(FindConVar("holdout_max_boomers"), true, true);
 			ResetConVar(FindConVar("holdout_max_hunters"), true, true);
 			ResetConVar(FindConVar("holdout_max_specials"), true, true);
-			//ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
 		}
@@ -1407,7 +1399,6 @@ void ResetCvars()
 			ResetConVar(FindConVar("survival_max_jockeys"), true, true);
 			ResetConVar(FindConVar("survival_max_chargers"), true, true);
 			ResetConVar(FindConVar("survival_max_specials"), true, true);
-			//ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
 			ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
@@ -1418,7 +1409,6 @@ void ResetCvars()
 			ResetConVar(FindConVar("holdout_max_boomers"), true, true);
 			ResetConVar(FindConVar("holdout_max_hunters"), true, true);
 			ResetConVar(FindConVar("holdout_max_specials"), true, true);
-			//ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
 			ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
 		}
@@ -1757,10 +1747,6 @@ void IsAllowed()
 		CreateTimer(0.5, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
 		g_bCvarAllow = true;
 
-		// Create persistent storage for client HUD preferences
-		delete usrHUDPref;
-		usrHUDPref = new StringMap();
-
 		SetSpawnDis();
 
 		HookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
@@ -1796,6 +1782,7 @@ void IsAllowed()
 		HookEvent("player_bot_replace", Event_BotReplacePlayer);
 		HookEvent("bot_player_replace", Event_PlayerReplaceBot);
 		HookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
+		HookEvent("player_disconnect", Event_PlayerDisconnect); //換圖不會觸發該事件
 
 		// Hook a sound
 		AddNormalSoundHook(HookSound_Callback);
@@ -1805,7 +1792,6 @@ void IsAllowed()
 			if (IsClientInGame(i))
 			{
 				OnClientPutInServer(i);
-				OnClientPostAdminCheck(i);
 			}
 		}
 	}
@@ -1847,6 +1833,7 @@ void IsAllowed()
 		UnhookEvent("player_bot_replace", Event_BotReplacePlayer);
 		UnhookEvent("bot_player_replace", Event_PlayerReplaceBot);
 		UnhookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
+		UnhookEvent("player_disconnect", Event_PlayerDisconnect); //換圖不會觸發該事件
 
 
 		// Hook a sound
@@ -1962,8 +1949,6 @@ Action Timer_PlayerLeftStart(Handle Timer)
 
 public void OnClientPutInServer(int client)
 {
-	if(g_bCvarAllow == false) return;
-
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 
 	g_bAdjustSIHealth[client] = false;
@@ -1972,20 +1957,6 @@ public void OnClientPutInServer(int client)
 		return;
 
 	iPlayerTeam[client] = 1;
-}
-
-public void OnClientPostAdminCheck(int client)
-{
-	if (IsFakeClient(client))
-		return;
-
-	static char clientSteamID[32];
-
-	GetClientAuthId(client, AuthId_SteamID64, clientSteamID, sizeof(clientSteamID));
-
-	// Try and find their HUD visibility preference
-	hudDisabled[client] = false;
-	usrHUDPref.GetValue(clientSteamID, hudDisabled[client]);
 }
 
 Action CheckQueue(int client, int args)
@@ -3429,6 +3400,8 @@ void OnNextFrame_Reset()
 
 public Action L4D_OnEnterGhostStatePre(int client)
 {
+	if(g_bCvarAllow == false) return Plugin_Continue;
+
 	if (g_iCurrentMode != 2 && lastHumanTankId && GetClientUserId(client) == lastHumanTankId)
 	{
 		lastHumanTankId = 0;
@@ -3442,6 +3415,8 @@ public Action L4D_OnEnterGhostStatePre(int client)
 
 public void L4D_OnEnterGhostState(int client)
 {
+	if(g_bCvarAllow == false) return;
+
 	if(L4D_HasPlayerControlledZombies() == false)
 	{
 		DeleteLight(client);
@@ -3536,6 +3511,15 @@ void evtFinaleStart(Event event, const char[] name, bool dontBroadcast)
 
 	g_bFinaleStarted = true;
 	CreateTimer(1.0, CheckIfBotsNeededLater, 2, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if (client && IsClientInGame(client))
+	{
+		hudDisabled[client] = false;
+	}
 }
 
 int BotTypeNeeded()
@@ -4165,7 +4149,6 @@ public void OnPluginEnd()
 		ResetConVar(FindConVar("survival_max_jockeys"), true, true);
 		ResetConVar(FindConVar("survival_max_chargers"), true, true);
 		ResetConVar(FindConVar("survival_max_specials"), true, true);
-		//ResetConVar(FindConVar("survival_tank_stage_interval"), true, true);
 		ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
 		ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
 		ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
@@ -4183,7 +4166,6 @@ public void OnPluginEnd()
 		ResetConVar(FindConVar("holdout_max_boomers"), true, true);
 		ResetConVar(FindConVar("holdout_max_hunters"), true, true);
 		ResetConVar(FindConVar("holdout_max_specials"), true, true);
-		//ResetConVar(FindConVar("holdout_tank_stage_interval"), true, true);
 		ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
 		ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
 
@@ -4191,17 +4173,11 @@ public void OnPluginEnd()
 		ResetConVar(FindConVar("z_exploding_limit"), true, true);
 		ResetConVar(FindConVar("z_hunter_limit"), true, true);
 	}
-	//ResetConVar(FindConVar("z_attack_flow_range"), true, true);
-	//ResetConVar(FindConVar("director_spectate_specials"), true, true);
 	ResetConVar(FindConVar("z_spawn_safety_range"), true, true);
-	//ResetConVar(FindConVar("z_spawn_range"), true, true);
 	if(g_bL4D2Version)
 	{
-		//ResetConVar(FindConVar("z_finale_spawn_tank_safety_range"), true, true);
-		//ResetConVar(FindConVar("z_finale_spawn_mob_safety_range"), true, true);
 		ResetConVar(director_allow_infected_bots, true, true);
 	}
-	//ResetConVar(FindConVar("z_spawn_flow_limit"), true, true);
 	if(g_ePluginSettings.m_iCommonLimit >= 0) ResetConVar(h_common_limit_cvar, true, true);
 	vs_max_team_switches.SetInt(vs_max_team_switches_default);
 	if (!g_bL4D2Version)
@@ -4218,8 +4194,6 @@ public void OnPluginEnd()
 		for( int i = 1; i <= MaxClients; i++ )
 			if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, g_hCvarMPGameMode, g_sCvarMPGameMode);
 	}
-	// Destroy the persistent storage for client HUD preferences
-	delete usrHUDPref;
 }
 
 int Menu_InfHUDPanel(Menu menu, MenuAction action, int param1, int param2) { return 0; }
@@ -4380,21 +4354,16 @@ Action Command_infhud(int client, int args)
 	if( g_bCvarAllow == false) return Plugin_Handled;
 	if( client == 0 || IsFakeClient(client)) return Plugin_Handled;
 
-	char clientSteamID[32];
-	GetClientAuthId(client, AuthId_SteamID64, clientSteamID, sizeof(clientSteamID));
-
 	if (g_bInfHUD)
 	{
 		if (!hudDisabled[client])
 		{
 			PrintToChat(client, "\x01\x04[infhud]\x01 %T","Hud Disable",client);
-			usrHUDPref.SetValue(clientSteamID, true);
 			hudDisabled[client] = true;
 		}
 		else
 		{
 			PrintToChat(client, "\x01\x04[infhud]\x01 %T","Hud Enable",client);
-			usrHUDPref.Remove(clientSteamID);
 			hudDisabled[client] = false;
 		}
 	}
@@ -5023,28 +4992,25 @@ void SetSpawnDis()
 	{
 		if(g_bL4D2Version)
 		{
-			// Removes the boundaries for z_finale_spawn_tank_safety_range and notify flag
-			int flags2 = FindConVar("z_finale_spawn_tank_safety_range").Flags;
-			SetConVarBounds(FindConVar("z_finale_spawn_tank_safety_range"), ConVarBound_Upper, false);
-			SetConVarFlags(FindConVar("z_finale_spawn_tank_safety_range"), flags2 & ~FCVAR_NOTIFY);
-			SetConVarInt(FindConVar("z_finale_spawn_tank_safety_range"),h_SpawnDistanceFinal.IntValue);
+			// 修改數值會導致救援期間tank生不出來
+			// z_finale_spawn_tank_safety_range
 
-			// Add The last stand new convar "z_finale_spawn_mob_safety_range"
-			int flags3 = FindConVar("z_finale_spawn_mob_safety_range").Flags;
-			SetConVarBounds(FindConVar("z_finale_spawn_mob_safety_range"), ConVarBound_Upper, false);
-			SetConVarFlags(FindConVar("z_finale_spawn_mob_safety_range"), flags3 & ~FCVAR_NOTIFY);
-			SetConVarInt(FindConVar("z_finale_spawn_mob_safety_range"),h_SpawnDistanceFinal.IntValue);
+			// 修改數值會導致救援期間屍潮生不出來
+			// 修改數值也影響救援期間靈魂特感復活距離
+			// z_finale_spawn_safety_range
+
+			// 修改數值會導致救援期間屍潮生不出來
+			// z_finale_spawn_mob_safety_range
 		}
 	}
 
-	// Removes the boundaries for z_spawn_range and notify flag
-	int flags3 = (FindConVar("z_spawn_range")).Flags;
-	SetConVarBounds(FindConVar("z_spawn_range"), ConVarBound_Upper, false);
-	SetConVarFlags(FindConVar("z_spawn_range"), flags3 & ~FCVAR_NOTIFY);
-	SetConVarInt(FindConVar("z_spawn_range"),h_SpawnDistanceMax.IntValue);
+	// 修改數值也影響小殭屍生成距離
+	// 不建議將生成距離擴大
+	// z_spawn_range
 	*/
 
-	// Removes the boundaries for z_spawn_safety_range and notify flag
+	// 修改數值也影響小殭屍生成距離
+	// 修改數值也影響靈魂特感復活距離
 	ConVar z_spawn_safety_range = FindConVar("z_spawn_safety_range");
 	int flags4 = z_spawn_safety_range.Flags;
 	z_spawn_safety_range.SetBounds(ConVarBound_Upper, false);
@@ -5186,7 +5152,7 @@ void ResetTimer()
 // prevent infecetd fall damage on coop
 Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
 {
-	if(L4D_HasPlayerControlledZombies() || victim <= 0 || victim > MaxClients || !IsClientInGame(victim) || IsFakeClient(victim)) return Plugin_Continue;
+	if(g_bCvarAllow == false || L4D_HasPlayerControlledZombies() || victim <= 0 || victim > MaxClients || !IsClientInGame(victim) || IsFakeClient(victim)) return Plugin_Continue;
 	if(attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) ) return Plugin_Continue;
 
 	if(attacker == victim && GetClientTeam(attacker) == TEAM_INFECTED && !IsPlayerTank(attacker))
@@ -6305,6 +6271,8 @@ void LoadData()
 
 public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 {
+	if( g_bCvarAllow == false) return Plugin_Continue;
+	
 	if (strcmp(sKey, "BoomerLimit", false) == 0) {
 
 		retVal = g_ePluginSettings.m_iSpawnLimit[SI_BOOMER];
@@ -6369,6 +6337,8 @@ public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 
 public Action L4D_OnGetScriptValueFloat(const char[] sKey, float &retVal)
 {
+	if( g_bCvarAllow == false) return Plugin_Continue;
+
 	if(strcmp(sKey, "SpecialRespawnInterval", false) == 0 || strcmp(sKey, "cm_SpecialRespawnInterval", false) == 0) {
 
 		retVal = 999999.9;

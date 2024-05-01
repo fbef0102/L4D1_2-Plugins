@@ -507,10 +507,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//mi123645 @ 2009-2011
-	//HarryPotter @ 2019-2024
-	```
+	* v2.9.6 (2024-5-1)
+		* Fixed Enable/Disable cvar
+
 	* v2.9.5 (2024-4-13)
 		* Fixed Crash when real player playing infected team in coop/realism/survival
 

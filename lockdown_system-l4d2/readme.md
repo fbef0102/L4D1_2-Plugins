@@ -139,13 +139,8 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    ```php
-    //cravenge @ 2016-2019
-    //HarryPotter @ 2020-2024
-    ```
-    * v5.8 (2024-2-20)
-        * Update Cvars
-        * Add Data config to disable plugin in which maps
+    * v5.9 (2024-5-1)
+        * Make tank leave stasis when spawn during door opening
 
     * v5.7 (2024-2-4)
         * Update Cvars
