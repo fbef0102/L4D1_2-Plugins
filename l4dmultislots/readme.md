@@ -85,9 +85,11 @@ Allows additional survivor players in server when 5+ player joins the server
 		l4d_multislots_finale_extra_first_aid "1"
 
 		// If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)
+		// Take effect after survivor has left safe zone
 		l4d_multislots_no_second_free_spawn "0"
 
 		// Invincible time after new 5+ Survivor spawn by this plugin. (0=off)
+		// Take effect after survivor has left safe zone
 		l4d_multislots_respawn_invincibletime "3.0"
 
 		// How to join the game for new player.
@@ -189,10 +191,9 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//mi123645 @ 2009-2010
-	//HarryPotter @ 2020-2024
-	```
+	* v6.4 (2024-5-3)
+		* If player game crash and rejoin server again, he will get an alive bot
+
 	* v6.3 (2024-2-10)
 	* v6.2 (2024-1-23)
 		* Update Cvars

@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"6.3-2024/2/10"
+#define PLUGIN_VERSION 				"6.4-2024/5/3"
 
 public Plugin myinfo = 
 {
@@ -175,8 +175,8 @@ public void OnPluginStart()
 	}
 	g_hGiveKitSafeRoom 			= CreateConVar(	"l4d_multislots_saferoom_extra_first_aid", 		"1", 	"If 1, allow extra first aid kits for 5+ players when in start saferoom, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hGiveKitFinalStart 		= CreateConVar(	"l4d_multislots_finale_extra_first_aid", 		"1" , 	"If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hNoSecondChane 			= CreateConVar(	"l4d_multislots_no_second_free_spawn",	 		"0" , 	"If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvar_InvincibleTime 		= CreateConVar(	"l4d_multislots_respawn_invincibletime", 		"3.0", 	"Invincible time after new 5+ Survivor spawn by this plugin. (0=off)",  FCVAR_NOTIFY, true, 0.0);
+	g_hNoSecondChane 			= CreateConVar(	"l4d_multislots_no_second_free_spawn",	 		"0" , 	"If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)\nTake effect after survivor has left safe zone", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvar_InvincibleTime 		= CreateConVar(	"l4d_multislots_respawn_invincibletime", 		"3.0", 	"Invincible time after new 5+ Survivor spawn by this plugin. (0=off)\nTake effect after survivor has left safe zone",  FCVAR_NOTIFY, true, 0.0);
 	g_hCvar_JoinSurvivrMethod 	= CreateConVar(	"l4d_multislots_join_survior_method", 			"0", 	"How to join the game for new player. \n0: Old method. Spawn an alive bot first -> new player takes over. \n1: Switch new player to survivor team (dead state) -> player respawns.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvar_JoinCommandBlock  	= CreateConVar(	"l4d_multislots_join_command_block", 			"0", 	"If 1, Block 'Join Survivors' commands (sm_join, sm_js)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	//g_hCvar_VSAutoBalance  		= CreateConVar(	"l4d_multislots_versus_auto_balance", 		"0", 	"If 1, Enable auto team balance when new player joins the server in versus/scavenge.\nThis could cause both team mess after map change", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -664,9 +664,33 @@ void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast)
 
 void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
 {
-    int client = GetClientOfUserId(event.GetInt("userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if(!client || !IsClientInGame(client) || IsFakeClient(client) ) return;
 
-    g_bIsObserver[client] = false;
+	if(IsPlayerAlive(client) && GetClientTeam(client) == L4D_TEAM_SURVIVOR)
+	{
+		static char reason[64];
+		event.GetString("reason", reason, sizeof(reason));
+
+		static char playerName[128];
+		event.GetString("name", playerName, sizeof(playerName));
+
+		static char timedOut[256];
+		FormatEx(timedOut, sizeof(timedOut), "%s timed out", playerName);
+		
+		// If the leaving survivor player crashed.
+		if ( strcmp(reason, timedOut, false) == 0 || 
+				strcmp(reason, "No Steam logon", false) == 0 || 
+				strcmp(reason, "No Response", false) == 0 )
+		{
+			static char steamid[32];
+			if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
+			g_hSteamIDs.Remove(steamid);
+		}
+	}
+
+	g_bIsObserver[client] = false;
 }
 
 void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
@@ -1431,7 +1455,7 @@ void OnNextFrame(DataPack hPack)
 		TeleportEntity(weapon, nPos, NULL_VECTOR, NULL_VECTOR);
 	}
 
-	if(g_bLeftSafeRoom) clinetSpawnGodTime[client] = GetEngineTime() + g_fInvincibleTime;
+	if(g_bLeftSafeRoom && g_fInvincibleTime > 0.0) clinetSpawnGodTime[client] = GetEngineTime() + g_fInvincibleTime;
 }
 
 bool HasIdlePlayer(int bot)
@@ -1659,7 +1683,7 @@ stock void CheatCommand(int client, const char[] command, const char[] argument1
 bool IsSecondTime(int client)
 {
 	char SteamID[64];
-	bool valid = GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));		
+	bool valid = GetClientAuthId(client, AuthId_SteamID64, SteamID, sizeof(SteamID));		
 	
 	if (valid == false) return false;
 
@@ -1675,7 +1699,7 @@ void RecordSteamID(int client)
 {
 	// Stores the Steam ID, so if reconnect/rejoin we don't allow free respawn
 	char SteamID[64];
-	bool valid = GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
+	bool valid = GetClientAuthId(client, AuthId_SteamID64, SteamID, sizeof(SteamID));
 	if (valid && !g_hSteamIDs.GetValue(SteamID, valid))
 	{
 		g_hSteamIDs.SetValue(SteamID, true, true);
