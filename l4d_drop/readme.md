@@ -23,8 +23,11 @@ Allows players to drop the weapon they are holding
 		// Prevent players from dropping the M60? (Allows for better compatibility with certain plugins.)
 		sm_drop_block_m60 "0"
 
-		// Drop - sound file (relative to to sound/, empty=disable)
+		// (L4D2) Drop - sound file (relative to to sound/, empty=disable)
 		sm_drop_soundfile "ui/gift_pickup.wav"
+
+		// (L4D1) Drop - sound file (relative to to sound/, empty=disable)
+		sm_drop_soundfile "items/itempickup.wav"
 		```
 </details>
 
@@ -114,8 +117,11 @@ Allows players to drop the weapon they are holding
 		// 為1時，禁止丟棄M60 (搭配其他有使用M60相關的插件)
 		sm_drop_block_m60 "0"
 
-		// 丟棄武器的音效檔案 (路徑相對於 sound 資料夾, 空=無音效)
+		// (L4D2) 丟棄武器的音效檔案 (路徑相對於 sound 資料夾, 空=無音效)
 		sm_drop_soundfile "ui/gift_pickup.wav"
+
+		// (L4D1) 丟棄武器的音效檔案 (路徑相對於 sound 資料夾, 空=無音效)
+		sm_drop_soundfile "items/itempickup.wav"
 		```
 </details>
 
