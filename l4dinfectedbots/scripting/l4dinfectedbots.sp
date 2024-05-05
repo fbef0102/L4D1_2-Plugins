@@ -863,7 +863,7 @@ Handle FightOrDieTimer[MAXPLAYERS+1],
 	DisplayTimer, InitialSpawnResetTimer;
 
 #define L4D_MAXPLAYERS 32
-Handle SpawnInfectedBotTimer[L4D_MAXPLAYERS+1] = {null};
+Handle SpawnInfectedBotTimer[MAXPLAYERS+1] = {null};
 
 //signature call
 static Handle hFlashLightTurnOn = null;
@@ -2101,10 +2101,10 @@ Action Console_ZLimit(int client, int args)
 		else if(newlimit!=g_ePluginSettings.m_iMaxSpecials)
 		{
 			int survivors = GetSurvivorsInServer();
-			if(L4D_MAXPLAYERS - survivors - 1 < newlimit)
+			if(MaxClients - survivors < newlimit)
 			{
-				CPrintToChat(client, "[{olive}TS{default}] %T", "Infected Over Limit", client, newlimit, survivors);
-				newlimit = L4D_MAXPLAYERS - survivors - 1;
+				CPrintToChat(client, "[{olive}TS{default}] %T", "Infected Over Limit", client, newlimit, survivors, MaxClients);
+				newlimit = MaxClients - survivors;
 			}
 
 			g_ePluginSettings.m_iMaxSpecials = newlimit;
@@ -2375,7 +2375,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 			if( g_ePluginSettings.m_bCoordination && IsPlayerTank(client)) respawnDelay[client] = 0;
 			
-			for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+			for(int i = 1; i <= MaxClients; i++)
 			{
 				if(SpawnInfectedBotTimer[i] == null)
 				{
@@ -2423,7 +2423,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 		if( g_ePluginSettings.m_bCoordination && IsPlayerTank(client)) respawnDelay[client] = 0;
 
-		for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+		for(int i = 1; i <= MaxClients; i++)
 		{
 			if(SpawnInfectedBotTimer[i] == null)
 			{
@@ -2800,10 +2800,10 @@ Action Timer_CountSurvivor(Handle timer)
 
 		int newlimit = g_ePluginSettings.m_iMaxSpecials;
 		int survivors = GetSurvivorsInServer();
-		if(L4D_MAXPLAYERS - survivors -1 < newlimit)
+		if(MaxClients - survivors < newlimit)
 		{
-			CPrintToChatAll("[{olive}TS{default}] %t", "Infected Over Limit", newlimit, survivors);
-			newlimit = L4D_MAXPLAYERS - survivors -1;
+			CPrintToChatAll("[{olive}TS{default}] %t", "Infected Over Limit", newlimit, survivors, MaxClients);
+			newlimit = MaxClients - survivors -1;
 		}
 
 		g_ePluginSettings.m_iMaxSpecials = newlimit;
@@ -2935,7 +2935,7 @@ public void OnClientDisconnect(int client)
 
 			if( g_ePluginSettings.m_bCoordination && IsPlayerTank(client)) respawnDelay[client] = 0;
 			
-			for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+			for(int i = 1; i <= MaxClients; i++)
 			{
 				if(SpawnInfectedBotTimer[i] == null)
 				{
@@ -3028,7 +3028,7 @@ void CheckIfBotsNeeded(int spawn_type)
 		#endif
 
 		InfectedBotQueue++;
-		for(int i = 0; i <= L4D_MAXPLAYERS; i++)
+		for(int i = 0; i <= MaxClients; i++)
 		{
 			if(SpawnInfectedBotTimer[i] == null)
 			{
@@ -3053,7 +3053,7 @@ void CheckIfBotsNeeded(int spawn_type)
 		if(SpawnTime < 3.0) SpawnTime = 3.0;
 
 		InfectedBotQueue++;
-		for(int i = 0; i <= L4D_MAXPLAYERS; i++)
+		for(int i = 0; i <= MaxClients; i++)
 		{
 			if(SpawnInfectedBotTimer[i] == null)
 			{
@@ -3589,7 +3589,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 	if (g_ePluginSettings.m_bCoordination && !g_bInitialSpawn && g_bIsCoordination == false)
 	{
-		for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+		for(int i = 1; i <= MaxClients; i++)
 		{
 			if(i != index && SpawnInfectedBotTimer[i] != null)
 			{
@@ -3618,7 +3618,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 		// PrintToChatAll("InfectedRealCount: %d, InfectedRealQueue: %d, InfectedBotCount: %d, g_ePluginSettings.m_iMaxSpecials: %d", InfectedRealCount, InfectedRealQueue, InfectedBotCount, g_ePluginSettings.m_iMaxSpecials);
 		if ( InfectedRealCount + InfectedRealQueue + InfectedBotCount >= g_ePluginSettings.m_iMaxSpecials ||
-			AllPlayerCount >= L4D_MAXPLAYERS)
+			AllPlayerCount >= MaxClients)
 		{
 			#if DEBUG
 				LogMessage("team is already full, don't spawn a bot");
@@ -3636,7 +3636,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 
 		//PrintToChatAll("InfectedRealCount: %d, InfectedBotCount: %d, g_ePluginSettings.m_iMaxSpecials: %d", InfectedRealCount, InfectedBotCount, g_ePluginSettings.m_iMaxSpecials);
 		if ( InfectedRealCount + InfectedBotCount >= g_ePluginSettings.m_iMaxSpecials ||
-			AllPlayerCount >= L4D_MAXPLAYERS )
+			AllPlayerCount >= MaxClients )
 		{
 			#if DEBUG
 				LogMessage("team is already full, don't spawn a bot");
@@ -4295,7 +4295,7 @@ Action Timer_CheckSpawn(Handle timer)
 	}
 
 	/*int count;
-	for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+	for(int i = 1; i <= MaxClients; i++)
 	{
 		if(SpawnInfectedBotTimer[i] != null)
 		{
@@ -4313,7 +4313,7 @@ Action Timer_CheckSpawn(Handle timer)
 		 * 刪除多餘的Spawn Bot Timer
 		 * */
 		int spawntimers = 0;
-		for(int index = 1; index <= L4D_MAXPLAYERS; index++)
+		for(int index = 1; index <= MaxClients; index++)
 		{
 			if(SpawnInfectedBotTimer[index] != null)
 			{
@@ -4330,7 +4330,7 @@ Action Timer_CheckSpawn(Handle timer)
 	else
 	{
 		int spawntimers = 0;
-		for(int index = 1; index <= L4D_MAXPLAYERS; index++)
+		for(int index = 1; index <= MaxClients; index++)
 		{
 			if(SpawnInfectedBotTimer[index] != null)
 			{
@@ -4569,7 +4569,7 @@ void ShowInfectedHUD()
 		#endif
 
 		#if DEBUG
-		for(int i = 0; i <= L4D_MAXPLAYERS; i++)
+		for(int i = 0; i <= MaxClients; i++)
 		{
 			if(SpawnInfectedBotTimer[i] != null)
 			{
@@ -5138,7 +5138,7 @@ void ResetTimer()
 	delete DisplayTimer;
 	delete InitialSpawnResetTimer;
 
-	for(int i = 0; i <= L4D_MAXPLAYERS; i++)
+	for(int i = 0; i <= MaxClients; i++)
 	{
 		delete SpawnInfectedBotTimer[i];
 	}

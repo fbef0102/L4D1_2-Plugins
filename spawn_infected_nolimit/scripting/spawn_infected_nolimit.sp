@@ -74,8 +74,6 @@ TopMenu hTopMenu;
 #define TEAM_SURVIVORS 2
 #define TEAM_INFECTED 3
 
-#define L4D_MAX_PLAYERS 31
-
 #define GAMEDATA "spawn_infected_nolimit"
 
 #define DIRECTOR_CLASS "info_director"
@@ -300,7 +298,7 @@ Action Command_Spawn(int client, any args)
 	if (number_int < 1)
 	{ number_int = 1; }
 	
-	if (GetClientCount(false) > L4D_MAX_PLAYERS - number_int)
+	if (GetClientCount(false) > MaxClients - number_int)
 	{
 		ReplyToCommand(client, "[SIN] Not enough player slots");
 		return Plugin_Handled;
@@ -355,7 +353,7 @@ bool TraceRayDontHitPlayers(int entity, int mask, any data)
 
 int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], int variantModel = 1)
 {
-	if (GetClientCount(false) >= L4D_MAX_PLAYERS)
+	if (GetClientCount(false) >= MaxClients)
 	{
 		PrintToServer("[SIN] Not enough player slots");
 		return 0;
