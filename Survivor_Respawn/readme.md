@@ -53,8 +53,8 @@ When a Survivor dies, will respawn after a period of time.
 		// Rand T3 = M60 or Grenade Launcher
 		l4d_survivorrespawn_firstweapon "1"
 
-		// (L4D2) Second slot weapon for repawn Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=Random, 0=Only Pistol)
-		l4d_survivorrespawn_secondweapon "12"
+		// (L4D2) Second slot weapon for new 5+ Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4=Melee weapon from map, 5=Random, 0=Only Pistol)
+		l4d_survivorrespawn_secondweapon "4"
 
 		// (L4D2) Third slot weapon for repawn Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 4=Random, 0=off)
 		l4d_survivorrespawn_thirdweapon "4"
@@ -121,10 +121,9 @@ When a Survivor dies, will respawn after a period of time.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//Ernecio @ 2020
-	//HarryPotter @ 2021-2024
-	```
+	* v4.1 (2024-5-10)
+		* Give melee weapons from the meleeweapons StringTable
+
 	* v4.0 (2024-3-5)
 		* Update Translation
 
@@ -204,8 +203,8 @@ When a Survivor dies, will respawn after a period of time.
 		// 隨機T3武器 = M60機槍 或 榴彈發射器
 		l4d_survivorrespawn_firstweapon "1"
 
-		// (L4D2) 復活後給予的副武器 (1- 雙手槍, 2-沙漠之鷹, 3-電鋸, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=隨機, 0=只有一把手槍)
-		l4d_survivorrespawn_secondweapon "12"
+		// (L4D2) 給予新生成的倖存者Bot副武器 (1- 雙手槍, 2-沙漠之鷹, 3-電鋸, 4=任一把近戰武器, 5=隨機, 0=只有一把手槍)
+		l4d_survivorrespawn_secondweapon "4"
 
 		// (L4D2) 復活後給予的投擲物品 (1 - 火瓶, 2 - 土製炸彈, 3 - 膽汁, 4=隨機, 0=關閉)
 		l4d_survivorrespawn_thirdweapon "4"
