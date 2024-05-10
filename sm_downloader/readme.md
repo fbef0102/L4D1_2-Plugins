@@ -101,7 +101,7 @@ SM File/Folder Downloader and Precacher
 			* If you are L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2/"	
 				```
 
 	3. Uploading files to server.
@@ -220,7 +220,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 			* 如果你是 L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2/"	
 				```
 		
 	3. 上傳文件到伺服器

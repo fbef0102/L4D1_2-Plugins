@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"6.4-2024/5/3"
+#define PLUGIN_VERSION 				"6.5-2024/5/10"
 
 public Plugin myinfo = 
 {
@@ -47,11 +47,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define TEAM_SURVIVORS 				2
 #define TEAM_INFECTED				3
 
-#define DAMAGE_EVENTS_ONLY			1
-#define	DAMAGE_YES					2
-#define	DAMAGE_NO					0
-
-#define CLOSE_RANGE 100
+#define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
 ConVar survivor_limit, z_max_player_zombies, survivor_respawn_with_guns;
 int g_iInfectedLimit, iOffiicalCvar_survivor_respawn_with_guns;
@@ -131,6 +128,12 @@ static char g_sWeaponModels2[MAX_WEAPONS2][] =
 	"models/w_models/weapons/w_eq_incendiary_ammopack.mdl",
 };
 
+char 
+    g_sMeleeClass[16][32];
+
+int 
+    g_iMeleeClassCount;
+
 public void OnPluginStart()
 {
 	LoadTranslations("l4dmultislots.phrases");
@@ -162,7 +165,7 @@ public void OnPluginStart()
 	
 	if ( g_bLeft4Dead2 ) {
 		hFirstWeapon 			= CreateConVar(	"l4d_multislots_firstweapon", 					"19", 	"First slot weapon for new 5+ Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)", CVAR_FLAGS, true, 0.0, true, 20.0);
-		hSecondWeapon 			= CreateConVar(	"l4d_multislots_secondweapon", 					"16", 	"Second slot weapon for new 5+ Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=Random, 0=Only Pistol)", CVAR_FLAGS, true, 0.0, true, 16.0);
+		hSecondWeapon 			= CreateConVar(	"l4d_multislots_secondweapon", 					"5", 	"Second slot weapon for new 5+ Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4=Melee weapon from map, 5=Random, 0=Only Pistol)", CVAR_FLAGS, true, 0.0, true, 5.0);
 		hThirdWeapon 			= CreateConVar(	"l4d_multislots_thirdweapon", 					"4", 	"Third slot item for new 5+ Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 4=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 4.0);
 		hFourthWeapon 			= CreateConVar(	"l4d_multislots_forthweapon", 					"0", 	"Fourth slot item for new 5+ Survivor (1 - Medkit, 2 - Defib, 3 - Incendiary Pack, 4 - Explosive Pack, 5=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 5.0);
 		hFifthWeapon 			= CreateConVar(	"l4d_multislots_fifthweapon", 					"0", 	"Fifth slot item for new 5+ Survivor (1 - Pills, 2 - Adrenaline, 3=Random, 0=off)", CVAR_FLAGS, true, 0.0, true, 3.0);
@@ -283,44 +286,6 @@ public void OnMapStart()
 		{
 			PrecacheModel(g_sWeaponModels2[i], true);
 		}
-		PrecacheModel("models/weapons/melee/v_bat.mdl", true);
-		PrecacheModel("models/weapons/melee/v_cricket_bat.mdl", true);
-		PrecacheModel("models/weapons/melee/v_crowbar.mdl", true);
-		PrecacheModel("models/weapons/melee/v_electric_guitar.mdl", true);
-		PrecacheModel("models/weapons/melee/v_fireaxe.mdl", true);
-		PrecacheModel("models/weapons/melee/v_frying_pan.mdl", true);
-		PrecacheModel("models/weapons/melee/v_golfclub.mdl", true);
-		PrecacheModel("models/weapons/melee/v_katana.mdl", true);
-		PrecacheModel("models/weapons/melee/v_machete.mdl", true);
-		PrecacheModel("models/weapons/melee/v_tonfa.mdl", true);
-		PrecacheModel("models/weapons/melee/v_pitchfork.mdl", true);
-		PrecacheModel("models/weapons/melee/v_shovel.mdl", true);
-
-		PrecacheModel("models/weapons/melee/w_bat.mdl", true);
-		PrecacheModel("models/weapons/melee/w_cricket_bat.mdl", true);
-		PrecacheModel("models/weapons/melee/w_crowbar.mdl", true);
-		PrecacheModel("models/weapons/melee/w_electric_guitar.mdl", true);
-		PrecacheModel("models/weapons/melee/w_fireaxe.mdl", true);
-		PrecacheModel("models/weapons/melee/w_frying_pan.mdl", true);
-		PrecacheModel("models/weapons/melee/w_golfclub.mdl", true);
-		PrecacheModel("models/weapons/melee/w_katana.mdl", true);
-		PrecacheModel("models/weapons/melee/w_machete.mdl", true);
-		PrecacheModel("models/weapons/melee/w_tonfa.mdl", true);
-		PrecacheModel("models/weapons/melee/w_pitchfork.mdl", true);
-		PrecacheModel("models/weapons/melee/w_shovel.mdl", true);
-
-		PrecacheGeneric("scripts/melee/baseball_bat.txt", true);
-		PrecacheGeneric("scripts/melee/cricket_bat.txt", true);
-		PrecacheGeneric("scripts/melee/crowbar.txt", true);
-		PrecacheGeneric("scripts/melee/electric_guitar.txt", true);
-		PrecacheGeneric("scripts/melee/fireaxe.txt", true);
-		PrecacheGeneric("scripts/melee/frying_pan.txt", true);
-		PrecacheGeneric("scripts/melee/golfclub.txt", true);
-		PrecacheGeneric("scripts/melee/katana.txt", true);
-		PrecacheGeneric("scripts/melee/machete.txt", true);
-		PrecacheGeneric("scripts/melee/tonfa.txt", true);
-		PrecacheGeneric("scripts/melee/pitchfork.txt", true);
-		PrecacheGeneric("scripts/melee/shovel.txt", true);
 	}
 	else
 	{
@@ -342,6 +307,11 @@ public void OnMapEnd()
 	g_hSteamIDs = new StringMap();
 	ClearDefault();
 	ResetTimer();
+}
+
+public void OnConfigsExecuted()
+{
+	GetMeleeTable();
 }
 
 void ConVarChanged_SurvivorCvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -1542,7 +1512,7 @@ void GiveItems(int client) // give client weapon
 	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
 	
 	int iRandom = g_iSecondWeapon;
-	if(g_bLeft4Dead2 && iRandom == 16) iRandom = GetRandomInt(1,15);
+	if(g_bLeft4Dead2 && iRandom == 5) iRandom = GetRandomInt(1,4);
 		
 	switch ( iRandom )
 	{
@@ -1553,18 +1523,17 @@ void GiveItems(int client) // give client weapon
 		}
 		case 2: FakeClientCommand(client, "give pistol_magnum");
 		case 3: FakeClientCommand(client, "give chainsaw");
-		case 4: FakeClientCommand(client, "give frying_pan");
-		case 5: FakeClientCommand(client, "give katana");
-		case 6: FakeClientCommand(client, "give shovel");
-		case 7: FakeClientCommand(client, "give golfclub");
-		case 8: FakeClientCommand(client, "give machete");
-		case 9: FakeClientCommand(client, "give cricket_bat");
-		case 10: FakeClientCommand(client, "give fireaxe");
-		case 11: FakeClientCommand(client, "give knife");
-		case 12: FakeClientCommand(client, "give baseball_bat");
-		case 13: FakeClientCommand(client, "give crowbar");
-		case 14: FakeClientCommand(client, "give pitchfork");
-		case 15: FakeClientCommand(client, "give electric_guitar");
+		case 4: 
+		{
+			int entity = CreateEntityByName("weapon_melee");
+			if (CheckIfEntitySafe( entity ) == false)
+				return;
+
+			DispatchKeyValue(entity, "solid", "6");
+			DispatchKeyValue(entity, "melee_script_name", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
+			DispatchSpawn(entity);
+			EquipPlayerWeapon(client, entity);
+		}
 		default: {
 			FakeClientCommand( client, "give pistol" );
 		}
@@ -1879,6 +1848,32 @@ void SaveObservers()
 			}
 		}
 	}
+}
+
+bool CheckIfEntitySafe(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
+}
+
+void GetMeleeTable()
+{
+    int table = FindStringTable("meleeweapons");
+    if (table != INVALID_STRING_TABLE) 
+    {
+        g_iMeleeClassCount = GetStringTableNumStrings(table);
+
+        for (int i = 0; i < g_iMeleeClassCount; i++) 
+        {
+            ReadStringTable(table, i, g_sMeleeClass[i], sizeof(g_sMeleeClass[]));
+        }
+    }
 }
 
 /**

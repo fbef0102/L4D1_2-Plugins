@@ -8,7 +8,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION 			"4.0-2024/3/5"
+#define PLUGIN_VERSION 			"4.1-2024/5/10"
 
 public Plugin myinfo = 
 {
@@ -19,7 +19,7 @@ public Plugin myinfo =
     url 		= "https://steamcommunity.com/profiles/76561198026784913"
 }
 
-bool bLate, g_bLeft4Dead2;
+bool bLate, g_bL4D2Version;
 public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_max )
 {	
 	EngineVersion engine = GetEngineVersion();
@@ -29,12 +29,14 @@ public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_ma
 		return APLRes_SilentFailure;
 	}
 	
-	g_bLeft4Dead2 = ( engine == Engine_Left4Dead2 );
+	g_bL4D2Version = ( engine == Engine_Left4Dead2 );
 	
 	bLate = late;
 	return APLRes_Success;
 }
 
+#define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
 #define TEAM_SPECTATOR 	1
 #define TEAM_SURVIVOR 	2
@@ -138,8 +140,13 @@ int iPlayerData_L4D2[ MAXPLAYERS + 1 ][ sizeof( sPlayerSave_L4D2 ) ];
 float fPlayerData[ MAXPLAYERS + 1 ][ 2 ];
 int Seconds[ MAXPLAYERS + 1 ];
 float clinetReSpawnTime[ MAXPLAYERS + 1 ];
-
 bool g_bIsOpenSafeRoom;
+
+char 
+    g_sMeleeClass[16][32];
+
+int 
+    g_iMeleeClassCount;
 
 #define SOUND_RESPAWN "ui/helpful_event_1.wav"
 
@@ -161,9 +168,9 @@ public void OnPluginStart()
 	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 		"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
 	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", 	"If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
-	if ( g_bLeft4Dead2 ) {
+	if ( g_bL4D2Version ) {
 		FirstWeapon 		= CreateConVar("l4d_survivorrespawn_firstweapon", 		"1", 	"First slot weapon for repawn Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 20.0);
-		SecondWeapon 		= CreateConVar("l4d_survivorrespawn_secondweapon", 		"12", 	"Second slot weapon for repawn Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4-Fry Pan, 5-Katana, 6-Shovel, 7-Golfclub, 8-Machete, 9-Cricket, 10=Fireaxe, 11=Knife, 12=Bball Bat, 13=Crowbar, 14=Pitchfork, 15=Guitar, 16=Random, 0=Only Pistol)", FCVAR_NOTIFY, true, 0.0, true, 16.0);
+		SecondWeapon 		= CreateConVar("l4d_survivorrespawn_secondweapon", 		"4", 	"Second slot weapon for repawn Survivor (1- Dual Pistol, 2-Magnum, 3-Chainsaw, 4=Melee weapon from map, 5=Random, 0=Only Pistol)", FCVAR_NOTIFY, true, 0.0, true, 5.0);
 		ThirdWeapon 		= CreateConVar("l4d_survivorrespawn_thirdweapon", 		"4", 	"Third slot weapon for repawn Survivor (1 - Moltov, 2 - Pipe Bomb, 3 - Bile Jar, 4=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 4.0);
 		FourthWeapon 		= CreateConVar("l4d_survivorrespawn_forthweapon", 		"1", 	"Fourth slot weapon for repawn Survivor (1 - Medkit, 2 - Defib, 3 - Incendiary Pack, 4 - Explosive Pack, 5=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 5.0);
 		FifthWeapon 		= CreateConVar("l4d_survivorrespawn_fifthweapon", 		"2", 	"Fifth slot weapon for repawn Survivor (1 - Pills, 2 - Adrenaline, 3=Random, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
@@ -255,6 +262,11 @@ public void OnMapEnd()
 		delete HangingTimer[client];
 		delete IncapTimer[client];
 	}
+}
+
+public void OnConfigsExecuted()
+{
+	GetMeleeTable();
 }
 
 void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -796,7 +808,7 @@ void RespawnTarget_Crosshair( int client, int target )
 	if(g_fInvincibleTime > 0.0)
 	{
 		clinetReSpawnTime[target] = GetEngineTime() + g_fInvincibleTime;
-		if(g_bLeft4Dead2) L4D2_UseAdrenaline(target, g_fInvincibleTime, false);
+		if(g_bL4D2Version) L4D2_UseAdrenaline(target, g_fInvincibleTime, false);
 	}
 	
 	if ( bCanTeleport )
@@ -838,7 +850,7 @@ void RespawnTarget( int client )
 	if(g_fInvincibleTime > 0.0)
 	{
 		clinetReSpawnTime[client] = GetEngineTime() + g_fInvincibleTime;
-		if(g_bLeft4Dead2) L4D2_UseAdrenaline(client, g_fInvincibleTime, false);
+		if(g_bL4D2Version) L4D2_UseAdrenaline(client, g_fInvincibleTime, false);
 	}
 
 	EmitSoundToAll(SOUND_RESPAWN, client, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);		
@@ -874,7 +886,7 @@ void GiveItems(int client) // give client weapon
 	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
 	
 	int iRandom = g_iSecondWeapon;
-	if(g_bLeft4Dead2 && iRandom == 16) iRandom = GetRandomInt(1,15);
+	if(g_bL4D2Version && iRandom == 5) iRandom = GetRandomInt(1,4);
 		
 	switch ( iRandom )
 	{
@@ -885,25 +897,24 @@ void GiveItems(int client) // give client weapon
 		}
 		case 2: FakeClientCommand(client, "give pistol_magnum");
 		case 3: FakeClientCommand(client, "give chainsaw");
-		case 4: FakeClientCommand(client, "give frying_pan");
-		case 5: FakeClientCommand(client, "give katana");
-		case 6: FakeClientCommand(client, "give shovel");
-		case 7: FakeClientCommand(client, "give golfclub");
-		case 8: FakeClientCommand(client, "give machete");
-		case 9: FakeClientCommand(client, "give cricket_bat");
-		case 10: FakeClientCommand(client, "give fireaxe");
-		case 11: FakeClientCommand(client, "give knife");
-		case 12: FakeClientCommand(client, "give baseball_bat");
-		case 13: FakeClientCommand(client, "give crowbar");
-		case 14: FakeClientCommand(client, "give pitchfork");
-		case 15: FakeClientCommand(client, "give electric_guitar");
+		case 4: 
+		{
+			int entity = CreateEntityByName("weapon_melee");
+			if (CheckIfEntitySafe( entity ) == false)
+				return;
+
+			DispatchKeyValue(entity, "solid", "6");
+			DispatchKeyValue(entity, "melee_script_name", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
+			DispatchSpawn(entity);
+			EquipPlayerWeapon(client, entity);
+		}
 		default: {
 			FakeClientCommand( client, "give pistol" );
 		}
 	}
 
 	iRandom = g_iFirstWeapon;
-	if(g_bLeft4Dead2)
+	if(g_bL4D2Version)
 	{
 		if(g_iFirstWeapon == 18) iRandom = GetRandomInt(13,17);
 		else if(g_iFirstWeapon == 19) iRandom = GetRandomInt(1,10);
@@ -948,8 +959,8 @@ void GiveItems(int client) // give client weapon
 	}
 	
 	iRandom = g_iThirdWeapon;
-	if (g_bLeft4Dead2 && iRandom == 4) iRandom = GetRandomInt(1,3);
-	if (!g_bLeft4Dead2 && iRandom == 3) iRandom = GetRandomInt(1,2);
+	if (g_bL4D2Version && iRandom == 4) iRandom = GetRandomInt(1,3);
+	if (!g_bL4D2Version && iRandom == 3) iRandom = GetRandomInt(1,2);
 	
 	switch ( iRandom )
 	{
@@ -961,7 +972,7 @@ void GiveItems(int client) // give client weapon
 	
 	
 	iRandom = g_iFourthWeapon;
-	if(g_bLeft4Dead2 && iRandom == 5) iRandom = GetRandomInt(1,4);
+	if(g_bL4D2Version && iRandom == 5) iRandom = GetRandomInt(1,4);
 	
 	switch ( iRandom )
 	{
@@ -973,7 +984,7 @@ void GiveItems(int client) // give client weapon
 	}
 	
 	iRandom = g_iFifthWeapon;
-	if(g_bLeft4Dead2 && iRandom == 3) iRandom = GetRandomInt(1,2);
+	if(g_bL4D2Version && iRandom == 3) iRandom = GetRandomInt(1,2);
 	
 	switch ( iRandom )
 	{
@@ -1099,7 +1110,7 @@ void SaveStats( int client )
 	for( int i = 0; i < sizeof( iPlayerData[] ); i++ )
 		iPlayerData[client][i] = GetEntProp( client, Prop_Send, sPlayerSave[i] );
 	
-	if ( g_bLeft4Dead2 )
+	if ( g_bL4D2Version )
 		for( int i = 0; i < sizeof( iPlayerData_L4D2[] ); i++ )
 			iPlayerData_L4D2[client][i] = GetEntProp( client, Prop_Send, sPlayerSave_L4D2[i] );
 }
@@ -1112,7 +1123,7 @@ void LoadStats( int client )
 	for( int i = 0; i < sizeof(iPlayerData[] ); i++ )
 		SetEntProp( client, Prop_Send, sPlayerSave[i], iPlayerData[client][i] );
 	
-	if ( g_bLeft4Dead2 )
+	if ( g_bL4D2Version )
 		for( int i = 0; i < sizeof( iPlayerData_L4D2[] ); i++ )
 			SetEntProp( client, Prop_Send, sPlayerSave_L4D2[i], iPlayerData_L4D2[client][i] );
 }
@@ -1261,6 +1272,33 @@ void StripWeapons(int client) // strip all items from client
 		}
 	}
 }
+
+void GetMeleeTable()
+{
+    int table = FindStringTable("meleeweapons");
+    if (table != INVALID_STRING_TABLE) 
+    {
+        g_iMeleeClassCount = GetStringTableNumStrings(table);
+
+        for (int i = 0; i < g_iMeleeClassCount; i++) 
+        {
+            ReadStringTable(table, i, g_sMeleeClass[i], sizeof(g_sMeleeClass[]));
+        }
+    }
+}
+
+bool CheckIfEntitySafe(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
+}
+
 
 //-------------------------------lockdown_system-l4d2_b API Forward-------------------------------
 
