@@ -3,7 +3,7 @@
 	"WelcomeMessage"
 	{
 		"en"			"{green}[SM]{default} Welcome to Official Server!! For help, type {olive}!helpmenu{default} in chat."
-		"ru"			"{green}[SM]{default} Добро пожаловать на официальный сервер!! Для получения помощи введите {olive}!helpmenu{default} в чате."
+		"ru"			"{green}[SM]{default} Добро пожаловать на официальный сервер!! Для получения помощи: {olive}!helpmenu{default} в чате."
 		"zho"			"{green}[SM]{default} 歡迎來到本伺服器!! 聊天視窗輸入 {olive}!helpmenu{default} 可尋求幫助"
 		"chi"			"{green}[SM]{default} 欢迎来到本伺服器!! 聊天视窗输入 {olive}!helpmenu{default} 可寻求帮助"
 	}
@@ -54,14 +54,14 @@
 		"en"			"List Online Admins"
 		"zho"			"在線管理員"
 		"chi"			"在线管理员"	
-        "ru"			"Список админов в игре"
+                "ru"			"Список админов в игре"
 	}
 	"Join our steam group"
 	{
 		"en"			"Join our steam group"
 		"zho"			"加入我們的Steam群組"	
 		"chi"			"加入我们的Steam群组"
-		"ru"			"Присоединяйтесь к группе в Steam"
+		"ru"			"Заходите в группу Steam"
 	}
 	"Don't display again"
 	{
@@ -88,14 +88,14 @@
 	"enabled"
 	{
 		"en"			"enabled"
-		"ru"			"включено"
+		"ru"			"вкл."
 		"zho"			"開啟"	
 		"chi"			"开启"
 	}
 	"disabled"
 	{
 		"en"			"disabled"
-		"ru"			"отключено"
+		"ru"			"откл."
 		"zho"			"關閉"	
 		"chi"			"关闭"
 	}
@@ -133,28 +133,28 @@
 		"en"			"!buy - Purchase items"
 		"zho"			"!buy - 購買商品"
 		"chi"			"!buy - 购买商品"
-		"ru"			"!buy - Покупка предметов"
+		"ru"			"!buy - покупка предметов"
 	}
 	"say !s"
 	{
 		"en"			"!s - Become Spectator"
 		"zho"			"!s - 成為旁觀者"
 		"chi"			"!s - 成为旁观者"
-		"ru"			"!s - Стать наблюдателем"
+		"ru"			"!s - стать наблюдателем"
 	}
 	"say !ji"
 	{
 		"en"			"!ji - Join Infected"
 		"zho"			"!ji - 加入特感陣營"
 		"chi"			"!ji - 加入特感阵营"
-		"ru"			"!ji - Присоединиться к заражённым"
+		"ru"			"!ji - зайти к заражённым"
 	}
 	"say !join"
 	{
 		"en"			"!join - Join Survivor"
 		"zho"			"!join - 加入人類陣營"
 		"chi"			"!join - 加入人类阵营"
-		"ru"			"!join - Присоединиться к выжившим"
+		"ru"			"!join - зайти к выжившим"
 	}
 	"Human Play"
 	{
