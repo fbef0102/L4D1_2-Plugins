@@ -29,7 +29,7 @@
 		"en"		"dmg"
 		"zho"		"傷害"
 		"chi"		"伤害"
-		"ru"		"УРН"
+		"ru"		"ед. УРН"
 		"hu"		"sbz"		
 	}
 	"Got_Killed_By"
