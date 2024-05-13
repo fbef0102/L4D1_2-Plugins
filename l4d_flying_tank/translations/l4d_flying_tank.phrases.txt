@@ -5,17 +5,20 @@
 		"en"	"You are flying! Move: (W)(S)(D)(A)\nRise(Space), Forward(Shift), Descend(E)"
 		"zho"	"你正在飛行! 移動: (W)(S)(D)(A)\n上升(Space), 往前飛(Shift), 下降(E)"
 		"chi"	"你正在飞行! 移动: (W)(S)(D)(A)\n上升(Space), 往前飞(Shift), 下降(E)"
+		"ru"	"Вы летаете! Перемещение: (W)(S)(D)(A)\nВверх(пробел), вперёд(Shift), вниз(E)"
 	}
 	"narrow"
 	{
 		"en"	"Too narrow to start flight!"
 		"zho"	"空間太狹窄無法飛行"
 		"chi"	"空间太狭窄无法飞行"
+		"ru"	"Слишком узкий для полёта!"
 	}
 	"long"
 	{
 		"en"	"You can't fly too long!"
 		"zho"	"不能飛太久時間"
 		"chi"	"不能飞太久时间"
+		"ru"	"Вы не можете летать слишком долго!"
 	}
 }
