@@ -91,6 +91,7 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 
