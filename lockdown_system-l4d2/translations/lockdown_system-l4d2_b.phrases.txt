@@ -95,7 +95,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"The survivors have only {green}{1}{default} chance(s) to open the safe room door"
-		"ru"			"У выживших есть только {green}{1}{default} шанс(-а-ов) открыть дверь убежища"
+		"ru"			"Осталось шансов на открытие двери убежища у выживних: {green}{1}"
 		"zho"			"倖存者只有 {green}{1}{default} 次機會打開安全室大門!"
 		"chi"			"生还者只有 {green}{1}{default} 次机会打开安全室大门!"
 	}
