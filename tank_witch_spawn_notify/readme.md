@@ -45,6 +45,7 @@ When the tank and witch spawns, it announces itself in chat by making a sound
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 
