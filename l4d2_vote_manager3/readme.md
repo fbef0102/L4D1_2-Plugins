@@ -101,6 +101,7 @@ Unable to call valve vote if player does not have access
     English
     繁體中文
     简体中文
+    Russian
     ```
 </details>
 
