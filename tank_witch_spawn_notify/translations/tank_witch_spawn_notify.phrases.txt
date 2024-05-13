@@ -5,11 +5,13 @@
 		"en"		"{green}[{lightgreen}!{green}] {olive}Tank {green}has spawned!"
 		"zho"		"{green}[{lightgreen}!{green}] {olive}Tank {green}在前方!"
 		"chi"		"{green}[{lightgreen}!{green}] {olive}Tank {green}在前方!"
+		"ru"		"{green}[{lightgreen}!{green}] {olive}Танк {green}появился!"
 	}
 	"Witch"
 	{
 		"en"		"{green}[{lightgreen}!{green}] {olive}Witch {green}has spawned!"
 		"zho"		"{green}[{lightgreen}!{green}] {olive}Witch {green}在前方!"
 		"chi"		"{green}[{lightgreen}!{green}] {olive}Witch {green}在前方!"
+		"ru"		"{green}[{lightgreen}!{green}] {olive}Ведьма {green}появилась!"
 	}
 }
