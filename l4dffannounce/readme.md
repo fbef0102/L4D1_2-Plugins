@@ -40,6 +40,7 @@ Adds Friendly Fire Announcements (who kills teammates)
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 
