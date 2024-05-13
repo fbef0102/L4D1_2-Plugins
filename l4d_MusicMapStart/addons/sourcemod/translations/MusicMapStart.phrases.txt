@@ -10,7 +10,7 @@
 	"PlayAgain"
 	{
 		"en"		"Play music again"
-		"ru"		"Играть музыку ещё раз"
+		"ru"		"Воспроизвести заново"
 		"chi"		"再播放一次"
 		"zho"		"再播放一次"
 	}
@@ -24,35 +24,35 @@
 	"NextVolume"
 	{
 		"en"		"Volume for the next track:"
-		"ru"		"Громкость для следующего трека:"
+		"ru"		"Громкость для след. трека:"
 		"chi"		"下个音乐音量："
 		"zho"		"下個音樂音量:"
 	}
 	"Mute"
 	{
 		"en"		"[Music] type !mp3off to mute round start music"
-		"ru"		"[Музыка] Введите !mp3off, чтобы отключить музыку"
+		"ru"		"[Музыка] Введите !mp3off для отключения музыки"
 		"chi"		"[音乐] 输入!mp3off 关闭回合音乐"
 		"zho"		"[音樂] 輸入!mp3off 關閉回合音樂"
 	}
 	"UnMute"
 	{
 		"en"		"[Music] type !mp3on to unmute round start music"
-		"ru"		"[Музыка] Введите !mp3on, чтобы включить музыку"
+		"ru"		"[Музыка] Введите !mp3on для включения музыки"
 		"chi"		"[音乐] 输入!mp3on 开启回合音乐"
 		"zho"		"[音樂] 輸入!mp3on 開啟回合音樂"
 	}
 	"ChooseMusic"
 	{
 		"en"		"choose track"
-		"ru"		"выбрать трек"
+		"ru"		"выбор трека"
 		"chi"		"选择音乐"
 		"zho"		"選擇音樂"
 	}
 	"PlayMusic"
 	{
 		"en"		"Play Music (Everyone can hear)"
-		"ru"		"Играть музыку (услышат все)"
+		"ru"		"Воспроизвести (услышат все)"
 		"chi"		"全体播放点歌系统"
 		"zho"		"全體播放點歌系統"
 	}
@@ -66,14 +66,14 @@
 	"Request Song"
 	{
 		"en"		"[Music] {olive}%N{default} use {lightgreen}!music{default} to choose a tracker: {green}%s"
-		"ru"		"[Музыка] {olive}%N{default} используйте {lightgreen}!music{default} для выбора трека: {green}%s"
+		"ru"		"[Музыка] {olive}%N{default}, используйте {lightgreen}!music{default} для выбора трека: {green}%s"
 		"chi"		"[音乐] {olive}%N{default} 使用{lightgreen}!music{default}点歌: {green}%s"
 		"zho"		"[音樂] {olive}%N{default} 使用{lightgreen}!music{default}點歌: {green}%s"
 	}
 	"Too quickly"
 	{
 		"en"		"[Music] You can't choose a tracker so quickly, Wait at least {green}%.0f{default} seconds."
-		"ru"		"[Музыка] Вы не можете выбрать трек так быстро, подождите хотя бы {green}%.0f{default} сек."
+		"ru"		"[Музыка] Вы не можете выбрать трек так быстро, подождите {green}%.0f{default} сек."
 		"chi"		"[音乐] 点歌冷却时间 {green}%.0f{default} 秒未到."
 		"zho"		"[音樂] 點歌冷卻時間 {green}%.0f{default} 秒未到."
 	}
