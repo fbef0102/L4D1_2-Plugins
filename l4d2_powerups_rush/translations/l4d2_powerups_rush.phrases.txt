@@ -6,7 +6,7 @@
 		"en"		"[{olive}TS{default}] In this server, using the {green}Adrenaline {default}(or {green}Pills{default}) will grant a {green}Reload, Firing, and Melee Swing bonus {default}during that duration"
 		"zho"		"[{olive}TS{default}] 在這個伺服器中, 使用{green}腎上腺素{default}(或{green}止痛藥{default}) 會短時間內提升 {green}裝彈速度、開槍速度、近戰砍速"
 		"chi"		"[{olive}TS{default}] 在这个伺服器中, 使用{green}肾上腺素{default}(或{green}止痛药{default}) 会短时间内提升 {green}装弹速度、开枪速度、近战砍速"
-        "ru"        "[{olive}TS{default}] На этом сервере использование {green}адреналина {default} (или {green}таблеток{default}) даст {green}бонус на перезарядку, стрельбу и удар в ближнем бою"
+        "ru"        "[{olive}TS{default}] На этом сервере использование {green}адреналина {default} (или {green}таблеток{default}) даст {green}бонус к перезарядке, стрельбе и удару в ближнем бою"
 	}
 	
 	"broadcast"
@@ -14,7 +14,7 @@
 		"en"		"In this server, using the Adrenaline (or Pills) will grant a\nReload, Firing, and Melee Swing bonus during that duration"
 		"zho"		"在這個伺服器中, 使用腎上腺素(或止痛藥) 會短時間內提升 裝彈速度、開槍速度、近戰砍速"
 		"chi"		"在这个伺服器中, 使用肾上腺素(或止痛药) 会短时间内提升 装弹速度、开枪速度、近战砍速"
-		"ru"		"На этом сервере использование адреналина (или таблеток) даст бонус a\nНа перезарядку, Стрельбу, и удар в ближнем бою"
+		"ru"		"На этом сервере использование адреналина (или таблеток) даст бонус \nк перезарядке, стрельбе и удару в ближнем бою"
 	}
 	
 	"Grabbin Adrenaline"
@@ -38,7 +38,7 @@
 		"en"		"[{olive}TS{default}] Reload, Firing, and Melee Swing Rates increased!"
 		"zho"		"[{olive}TS{default}] 已提升裝彈速度、開槍速度、近戰砍速"
 		"chi"		"[{olive}TS{default}] 已提升装弹速度、开枪速度、近战砍速"
-		"ru"		"[{olive}TS{default}] Увеличена скорость перезарядки, стрельбы и ударов в ближнем бою!"
+		"ru"		"[{olive}TS{default}] Ускорена скорость перезарядки, стрельбы и ударов в ближнем бою!"
 	}
 	
 	"notify"
@@ -46,7 +46,7 @@
 		"en"		"Reload, Firing, and Melee Swing Rates increased!"
 		"zho"		"已提升裝彈速度、開槍速度、近戰砍速"
 		"chi"		"已提升装弹速度、开枪速度、近战砍速"
-		"ru"		"Увеличена скорость перезарядки, стрельбы и ударов в ближнем бою!"
+		"ru"		"Ускорена скорость перезарядки, стрельбы и ударов в ближнем бою!"
 	}
 	
 	"notify_normal (C)"
@@ -79,7 +79,7 @@
 		"en"		"Powerups time left: {green}{1}{default}"
 		"zho"		"藥效剩餘時間: {green}{1}{default}"
 		"chi"		"药效剩余时间: {green}{1}{default}"
-		"ru"		"Осталось время усилении: {green}{1}{default}"
+		"ru"		"Время усиления: {green}{1}{default}"
 	}
 	
 	"Powerups time"
@@ -88,6 +88,6 @@
 		"en"		"Powerups time left: {1}"
 		"zho"		"藥效剩餘時間: {1}"
 		"chi"		"药效剩余时间: {1}"
-		"ru"		"Осталось время усилении: {1}"
+		"ru"		"Время усиления: {1}"
 	}
 }
