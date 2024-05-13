@@ -1,4 +1,4 @@
-//русский by HekuT, berry
+//русский от HekuT, berry
 
 "Phrases"
 {
