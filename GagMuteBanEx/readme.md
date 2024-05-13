@@ -132,6 +132,7 @@ Gag & Mute & Ban - Ex
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 
