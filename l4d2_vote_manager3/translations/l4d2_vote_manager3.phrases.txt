@@ -6,6 +6,7 @@
 		"en"		"{olive}{1}{default} has force-vetoed current vote!"
 		"zho"		"{olive}{1}{default} 強制否決目前的投票項目!"
 		"chi"		"{olive}{1}{default} 强制否决目前的投票项目!"
+		"ru"		"{olive}{1}{default} заканчивает голосование!"
 	}
 	
 	"Passed"
@@ -14,6 +15,7 @@
 		"en"		"{olive}{1}{default} has force-passed current vote!"
 		"zho"		"{olive}{1}{default} 強制通過目前的投票項目!"
 		"chi"		"{olive}{1}{default} 强制通过目前的投票项目!"
+		"ru"		"{olive}{1}{default} пропускает голосование!"
 	}
 	
 	"Cant Pass"
@@ -21,6 +23,7 @@
 		"en"		"Not enough undecided players to force-pass this vote!"
 		"zho"		"無法強制通過，玩家已經投票!"
 		"chi"		"无法强制通过，玩家已经投票!"
+		"ru"		"Недостаточно неопределившихся игроков, чтобы пропустить голосование!"
 	}
 	
 	"Cant Veto"
@@ -28,6 +31,7 @@
 		"en"		"Not enough undecided players to force-veto this vote!"
 		"zho"		"無法強制否決，玩家已經投票!"
 		"chi"		"無法強制否决，玩家已經投票!"
+		"ru"		"Недостаточно неопределившихся игроков, чтобы закончить голосование!"
 	}	
 	
 	"No Vote"
@@ -35,6 +39,7 @@
 		"en"		"No vote is currently in progress!"
 		"zho"		"目前沒有任何投票項目!"
 		"chi"		"目前没有任何投票项目!"
+		"ru"		"Сейчас другое голосование не идёт!"
 	}
 	
 	"Log Error"
@@ -42,6 +47,7 @@
 		"en"		"Vote Manager 3 failed to log an action to its own file!"
 		"zho"		"Vote Manager 3 紀錄log失敗"
 		"chi"		"Vote Manager 3 纪录log失败"
+		"ru"		"Vote Manager 3 не смог записать действие в свой собственный файл!"
 	}
 	
 	"Conflict"
@@ -49,6 +55,7 @@
 		"en"		"A vote is active right now! Wait until that vote is over!"
 		"zho"		"目前已有投票項目! 請等待投票結束!"
 		"chi"		"目前已有投票项目! 请等待投票结束!"
+		"ru"		"Голосование уже идёт! Подождите, пока голосование не закончится!"
 	}
 	
 	"Wait"
@@ -57,6 +64,7 @@
 		"en"		"You must wait {green}{1}{default} seconds before calling a vote!"
 		"zho"		"你必須等待 {green}{1}{default} 秒才能再發起新投票!"
 		"chi"		"你必须等待 {green}{1}{default} 秒才能再发起新投票!"
+		"ru"		"Вы должны подождать {green}{1}{default} сек., прежде чем начать голосование!"
 	}
 	
 	"No Vote Access"
@@ -65,6 +73,7 @@
 		"en"		"{olive}{1}{default} was prevented from starting a {green}{2}{default} vote! Reason: no access!"
 		"zho"		"{olive}{1}{default} 被阻擋發起 {green}{2}{default} 投票! 原因: 無權限!"
 		"chi"		"{olive}{1}{default} 被阻挡发起 {green}{2}{default} 投票! 原因: 无权限!"
+		"ru"		"{olive}{1}{default} нельзя начать голосование ({green}{2}{default})! Причина: нет доступа!"
 	}	
 	
 	"Vote Called"
@@ -73,6 +82,7 @@
 		"en"		"{olive}{1}{default} started a {green}{2}{default} vote!"
 		"zho"		"{olive}{1}{default} 發起了 {green}{2}{default} 投票!"
 		"chi"		"{olive}{1}{default} 发起了 {green}{2}{default} 投票!"
+		"ru"		"{olive}{1}{default} начинает голосование ({green}{2}{default})!"
 	}
 	
 	"Vote Failed"
@@ -80,6 +90,7 @@
 		"en"		"Called vote has failed!"
 		"zho"		"投票未通過!"
 		"chi"		"投票未通过!"
+		"ru"		"Не удалось начать голосование!"
 	}
 	
 	"Vote Called 2 Arguments"
@@ -88,6 +99,7 @@
 		"en"		"{olive}{1}{default} started a {green}{2}{default} vote with option {green}{3}{default}!"
 		"zho"		"{olive}{1}{default} 發起了 {green}{2}{default} 投票, 項目: {green}{3}{default}!"
 		"chi"		"{olive}{1}{default} 发起了 {green}{2}{default} 投票, 項目: {green}{3}{default}!"
+		"ru"		"{olive}{1}{default} начинает голосование ({green}{2}{default}) с вариантом ({green}{3}{default})!"
 	}
 	
 	"Vote Passed"
@@ -95,6 +107,7 @@
 		"en"		"Called vote has passed!"
 		"zho"		"投票通過!"
 		"chi"		"投票通过!"
+		"ru"		"Голосование пропущено!"
 	}
 
 	"Kick Vote"
@@ -103,6 +116,7 @@
 		"en"		"{olive}{1}{default} has started a Kick vote against {green}{2}{default}!"
 		"zho"		"{olive}{1}{default} 發起踢人投票, 對象: {green}{2}{default}!"
 		"chi"		"{olive}{1}{default} 发起踢人投票, 对象: {green}{2}{default}!"
+		"ru"		"{olive}{1}{default} начинает голосование за изгнание {green}{2}{default}!"
 	}
 
 	"Kick Vote Call Failed"
@@ -111,6 +125,7 @@
 		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against {green}{2}{default}! Reason: {green}can't target player!"
 		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象: {green}{2}{default}! 原因: {green}無法踢出該玩家!"
 		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象: {green}{2}{default}! 原因: {green}无法踢出该玩家!"
+		"ru"		"{olive}{1}{default} не удалось начать голосование за изгнание {green}{2}{default}! Причина: {green}невозможно выбрать!"
 	}
 	
 	"Kick Immunity"
@@ -119,6 +134,7 @@
 		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against {green}{2}{default}! Reason: {green}player is immune to kick votes!"
 		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象: {green}{2}{default}! 原因: {green}該玩家有權限!"
 		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象: {green}{2}{default}! 原因: {green}该玩家有权限!"
+		"ru"		"{olive}{1}{default} не удалось начать голосование за изгнание {green}{2}{default}! Причина: {green}игрок имеет иммунитет!"
 	}	
 	
 	"Invalid Kick Userid"
@@ -127,6 +143,7 @@
 		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against userid {green}{2}{default}! Reason: {green}invalid player!"
 		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象: {green}{2}{default}! 原因: {green}玩家不存在!"
 		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象: {green}{2}{default}! 原因: {green}玩家不存在!"
+		"ru"		"{olive}{1}{default} не удалось начать голосование за изгнание IDпольз. {green}{2}{default}! Причина: {green}недействительный игрок!"
 	}
 	
 	"Tank Immune Response"
@@ -135,6 +152,7 @@
 		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against {green}{2}{default}! Reason: {green}tanks are immune!"
 		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象: {green}{2}{default}! 原因: {green}Tank玩家免疫!"
 		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象: {green}{2}{default}! 原因: {green}Tank玩家免疫!"
+		"ru"		"{olive}{1}{default} не удалось начать голосование за изгнание {green}{2}{default}! Причина: {green}танки имеют иммунитет!"
 	}
 	
 	"Spectator Response"
@@ -143,6 +161,7 @@
 		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against {green}{2}{default}}! Reason: {green}spectators can't call kick votes!"
 		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象: {green}{2}{default}! 原因: {green}旁觀者!"
 		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象: {green}{2}{default}! 原因: {green}旁观者!"
+		"ru"		"{olive}{1}{default} не удалось начать голосование за изгнание {green}{2}{default}}! Причина: {green}наблюдатели не могут выгонять!"
 	
 	}
 	
@@ -152,6 +171,7 @@
 		"en"		"{olive}{1}{default} (Steam ID: {green}{2}{default}) tried to start a fake vote type: {green}{3}{default}!"
 		"zho"		"{olive}{1}{default} (Steam ID: {green}{2}{default}) 嘗試發起不合法的投票項目: {green}{3}{default}!"
 		"chi"		"{olive}{1}{default} (Steam ID: {green}{2}{default}) 尝试发起不合法的投票项目: {green}{3}{default}!"
+		"ru"		"{olive}{1}{default} (Steam ID: {green}{2}{default}) попытался начать ложное голосование типа: {green}{3}{default}!"
 	}
 	
 	"NotAllowed"
@@ -159,5 +179,6 @@
 		"en"		"Not allowed to start a new vote now!"
 		"zho"		"目前無法發起新投票!"
 		"chi"		"目前无法发起新投票!"
+		"ru"		"Нельзя начать новое голосование сейчас!"
 	}
 }	
