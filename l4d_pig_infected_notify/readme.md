@@ -38,7 +38,7 @@ Show who is pig teammate in infected team
 	English
 	繁體中文
 	简体中文
-        Russian
+	Russian
 	```
 </details>
 
