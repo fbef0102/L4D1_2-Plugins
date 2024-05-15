@@ -95,7 +95,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"The survivors have only {green}{1}{default} chance(s) to open the safe room door"
-		"ru"			"У выживших есть только {green}{1}{default} шанс(-а-ов) открыть дверь убежища"
+		"ru"			"У выживших осталось шансов на открытие двери убежища: только {green}{1}"
 		"zho"			"倖存者只有 {green}{1}{default} 次機會打開安全室大門!"
 		"chi"			"生还者只有 {green}{1}{default} 次机会打开安全室大门!"
 	}
@@ -103,7 +103,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"The survivors have {green}{1}{default} chance(s) left to open the door"
-		"ru"			"У выживших осталось: {green}{1}{default} шанс(-а-ов) открыть дверь"
+		"ru"			"У выживших осталось шансов на открытие двери: {green}{1}{default}"
 		"zho"			"倖存者剩餘 {green}{1}{default} 次機會打開大門!"
 		"chi"			"生还者剩余 {green}{1}{default} 次机会打开大门!"
 	}

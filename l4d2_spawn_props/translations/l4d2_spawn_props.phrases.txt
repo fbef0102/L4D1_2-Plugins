@@ -5,492 +5,574 @@
 		"en"	"Spawn Objects"
 		"zho"	"生成物件"
 		"chi"	"生成物件"
+		"ru"	"Создать объекты"
 	}
 	"Select a task:"
 	{
 		"en"	"Select a task:"
 		"zho"	"選擇一項任務:"
 		"chi"	"选择一项任务:"
+		"ru"	"Выберите задачу:"
 	}
 	"Select the delete task"
 	{
 		"en"	"Select the delete task"
 		"zho"	"選擇刪除任務"
 		"chi"	"选择删除任务"
+		"ru"	"Выберите задачу удаления"
 	}
 	"Delete All Objects"
 	{
 		"en"	"Delete All Objects"
 		"zho"	"刪除所有生成過的物件"
 		"chi"	"删除所有生成过的物件"
+		"ru"	"Удалить все объекты"
 	}
 	"Delete Looking Object"
 	{
 		"en"	"Delete Looking Object"
 		"zho"	"刪除眼前的物件 (準心指向)"
 		"chi"	"删除眼前的物件 (准心指向)"
+		"ru"	"Удалить объект на курсоре"
 	}
 	"Delete Last Object"
 	{
 		"en"	"Delete Last Object"
 		"zho"	"刪除上一個生成的物件"
 		"chi"	"删除上一个生成的物件"
+		"ru"	"Удалить посл. объект"
 	}
 	"Are you sure(Delete All)?"
 	{
 		"en"	"Are you sure to delete all objects?"
 		"zho"	"確定刪除所有生成過的物件?"
 		"chi"	"确定删除所有生成过的物件?"
+		"ru"	"Вы уверены в удалении всех объектов?"
 	}
 	"Yes"
 	{
 		"en"	"Yes"
 		"zho"	"是"
 		"chi"	"是"
+		"ru"	"Да"
 	}
 	"No"
 	{
 		"en"	"No"
 		"zho"	"不要"
 		"chi"	"不要"
+		"ru"	"Нет"
 	}
 	"Successfully deleted all spawned objects"
 	{
 		"en"	"Successfully deleted all spawned objects"
 		"zho"	"成功地刪除了所有生成過的物件"
 		"chi"	"成功地删除了所有生成过的物件"
+		"ru"	"Выполнено удаление всех созданных объектов"
 	}
 	"Canceled"
 	{
 		"en"	"Canceled"
 		"zho"	"取消"
 		"chi"	"取消"
+		"ru"	"Отменено"
 	}
 	"delete all the spawned objects?"
 	{
 		"en"	"Are you sure that you want to delete all the spawned objects?"
 		"zho"	"你確定要刪除所有生成過的物件?"
 		"chi"	"你确定要删除所有生成过的物件?"
+		"ru"	"Вы уверены, что хотите удалить все созданные объекты?"
 	}
 	"Edit Object"
 	{
 		"en"	"Edit Object"
 		"zho"	"編輯物件"
 		"chi"	"编辑物件"
+		"ru"	"Изменение объекта"
 	}
 	"Delete Object"
 	{
 		"en"	"Delete Object"
 		"zho"	"刪除物件"
 		"chi"	"删除物件"
+		"ru"	"Удаление объекта"
 	}
 	"Select the spawn method"
 	{
 		"en"	"Select the spawn method"
 		"zho"	"選擇一個生成方式"
 		"chi"	"选择一个生成方式"
+		"ru"	"Выберите метод создания"
 	}
 	"Spawn Physics On Cursor"
 	{
 		"en"	"Spawn Physics On Cursor"
 		"zho"	"生成動態物件在準心位置上"
 		"chi"	"生成动态物件在准心位置上"
+		"ru"	"Физич. объект на курсоре"
 	}
 	"Spawn Physics On Origin"
 	{
 		"en"	"Spawn Physics On Origin"
 		"zho"	"生成動態物件在目前位置上"
 		"chi"	"生成动态物件在目前位置上"
+		"ru"	"Физич. объект на координате"
 	}
 	"Spawn Non-solid On Cursor"
 	{
 		"en"	"Spawn Non-solid On Cursor"
 		"zho"	"生成穿透物件在準心位置上"
 		"chi"	"生成穿透物件在准心位置上"
+		"ru"	"Нетв. объект на курсоре"
 	}
 	"Spawn Non-solid On Origin"
 	{
 		"en"	"Spawn Non-solid On Origin"
 		"zho"	"生成穿透物件在目前位置上"
 		"chi"	"生成穿透物件在目前位置上"
+		"ru"	"Нетв. объект на координате"
 	}
 	"Spawn Solid On Cursor"
 	{
 		"en"	"Spawn Solid On Cursor"
 		"zho"	"生成固定物件在準心位置上"
 		"chi"	"生成固定物件在准心位置上"
+		"ru"	"Твёрдый объект на курсоре"
 	}
 	"Spawn Solid On Origin"
 	{
 		"en"	"Spawn Solid On Origin"
 		"zho"	"生成固定物件在目前位置上"
 		"chi"	"生成固定物件在目前位置上"
+		"ru"	"Твёрдый объект на координате"
 	}
 	"Save Objects"
 	{
 		"en"	"Save Objects"
 		"zho"	"儲存物件"
 		"chi"	"储存物件"
+		"ru"	"Сохр. объекты"
 	}
 	"Select The Save Method"
 	{
 		"en"	"Select The Save Method"
 		"zho"	"選擇儲存方式"
 		"chi"	"选择储存方式"
+		"ru"	"Выберите метод сохранения"
 	}
 	"Save Stripper File"
 	{
 		"en"	"Save Stripper File"
 		"zho"	"儲存於 Stripper File"
 		"chi"	"储存于 Stripper File"
+		"ru"	"Сохр. файл Stripper"
 	}
 	"Are you sure?"
 	{
 		"en"	"Are you sure?"
 		"zho"	"你確定?"
 		"chi"	"你确定?"
+		"ru"	"Вы уверены?"
 	}
 	"Vehicles"
 	{
 		"en"	"Vehicles"
 		"zho"	"載具類"
 		"chi"	"载具类"
+		"ru"	"Машины"
 	}
 	"Foliage"
 	{
 		"en"	"Foliage"
 		"zho"	"植物類"
 		"chi"	"植物类"
+		"ru"	"Листва"
 	}
 	"Interior"
 	{
 		"en"	"Interior"
 		"zho"	"室內類"
 		"chi"	"室内类"
+		"ru"	"Интерьер"
 	}
 	"Exterior"
 	{
 		"en"	"Exterior"
 		"zho"	"室外類"
 		"chi"	"室外类"
+		"ru"	"Экстерьер"
 	}
 	"Decorative"
 	{
 		"en"	"Decorative"
 		"zho"	"裝飾類"
 		"chi"	"装饰类"
+		"ru"	"Декор"
 	}
 	"Misc"
 	{
 		"en"	"Misc"
 		"zho"	"雜項類"
 		"chi"	"杂项类"
+		"ru"	"Разное"
 	}
 	"Select an action:"
 	{
 		"en"	"Select an action:"
 		"zho"	"選擇動作:"
 		"chi"	"选择动作:"
+		"ru"	"Выберите действие:"
 	}
 	"Rotate"
 	{
 		"en"	"Rotate"
 		"zho"	"旋轉"
 		"chi"	"旋转"
+		"ru"	"Поворот"
 	}
 	"Move"
 	{
 		"en"	"Move"
 		"zho"	"移動"
 		"chi"	"移动"
+		"ru"	"Переместить"
 	}
 	"Lock"
 	{
 		"en"	"Lock the looking spawned object"
 		"zho"	"鎖定準心指向生成物件"
 		"chi"	"鎖定准心指向生成物件"
+		"ru"	"Закрепить объект на курсоре"
 	}
 	"Clone"
 	{
 		"en"	"Clone Locked Object"
 		"zho"	"複製被鎖定的物件"
 		"chi"	"复制被锁定的物件"
+		"ru"	"Клонировать закреп. объект"
 	}
 	"Info"
 	{
 		"en"	"Print the looking object information"
 		"zho"	"列印準心指向物件資訊"
 		"chi"	"列印准心指向物件资讯"
+		"ru"	"Вывести информацию об объекте на курсоре"
 	}
 	"Rotate 1 degree (X axys)"
 	{
 		"en"	"Rotate 1 degree (X axys)"
 		"zho"	"選轉 1 度 (X 軸)"
 		"chi"	"旋转 1 度 (X 轴)"
+		"ru"	"Поворот на 1 гр. (гориз.)"
 	}
 	"Rotate 10 degree (X axys)"
 	{
 		"en"	"Rotate 10 degree (X axys)"
 		"zho"	"選轉 10 度 (X 軸)"
 		"chi"	"旋转 10 度 (X 轴)"
+		"ru"	"Поворот на 10 гр. (гориз.)"
 	}
 	"Rotate 15 degree (X axys)"
 	{
 		"en"	"Rotate 15 degree (X axys)"
 		"zho"	"選轉 15 度 (X 軸)"
 		"chi"	"旋转 15 度 (X 轴)"
+		"ru"	"Поворот на 15 гр. (гориз.)"
 	}
 	"Rotate 45 degree (X axys)"
 	{
 		"en"	"Rotate 40 degree (X axys)"
 		"zho"	"選轉 40 度 (X 軸)"
 		"chi"	"旋转 40 度 (X 轴)"
+		"ru"	"Поворот на 40 гр. (гориз.)"
 	}
 	"Rotate 90 degree (X axys)"
 	{
 		"en"	"Rotate 90 degree (X axys)"
 		"zho"	"選轉 90 度 (X 軸)"
 		"chi"	"旋转 90 度 (X 轴)"
+		"ru"	"Поворот на 90 гр. (гориз.)"
 	}
 	"Rotate 180 degree (X axys)"
 	{
 		"en"	"Rotate 180 degree (X axys)"
 		"zho"	"選轉 180 度 (X 軸)"
 		"chi"	"旋转 180 度 (X 轴)"
+		"ru"	"Поворот на 180 гр. (гориз.)"
 	}
 	"Back 1 degree (X axys)"
 	{
 		"en"	"Back 1 degree (X axys)"
 		"zho"	"退回 1 度 (X 軸)"
 		"chi"	"退回 1 度 (X 轴)"
+		"ru"	"Назад на 1 гр. (гориз.)"
 	}
 	"Back 10 degree (X axys)"
 	{
 		"en"	"Back 10 degree (X axys)"
 		"zho"	"退回 10 度 (X 軸)"
 		"chi"	"退回 10 度 (X 轴)"
+		"ru"	"Назад на 10 гр. (гориз.)"
 	}
 	"Back 15 degree (X axys)"
 	{
 		"en"	"Back 15 degree (X axys)"
 		"zho"	"退回 15 度 (X 軸)"
 		"chi"	"退回 15 度 (X 轴)"
+		"ru"	"Назад на 15 гр. (гориз.)"
 	}
 	"Rotate 1 degree (Y axys)"
 	{
 		"en"	"Rotate 1 degree (Y axys)"
 		"zho"	"選轉 1 度 (Y 軸)"
 		"chi"	"旋转 1 度 (Y 轴)"
+		"ru"	"Поворот на 1 гр. (верт.)"
 	}
 	"Rotate 10 degree (Y axys)"
 	{
 		"en"	"Rotate 10 degree (Y axys)"
 		"zho"	"選轉 10 度 (Y 軸)"
 		"chi"	"旋转 10 度 (Y 轴)"
+		"ru"	"Поворот на 10 гр. (верт.)"
 	}
 	"Rotate 15 degree (Y axys)"
 	{
 		"en"	"Rotate 15 degree (Y axys)"
 		"zho"	"選轉 15 度 (Y 軸)"
 		"chi"	"旋转 15 度 (Y 轴)"
+		"ru"	"Поворот на 15 гр. (верт.)"
 	}
 	"Rotate 45 degree (Y axys)"
 	{
 		"en"	"Rotate 40 degree (Y axys)"
 		"zho"	"選轉 40 度 (Y 軸)"
 		"chi"	"旋转 40 度 (Y 轴)"
+		"ru"	"Поворот на 40 гр. (верт.)"
 	}
 	"Rotate 90 degree (Y axys)"
 	{
 		"en"	"Rotate 90 degree (Y axys)"
 		"zho"	"選轉 90 度 (Y 軸)"
 		"chi"	"旋转 90 度 (Y 轴)"
+		"ru"	"Поворот на 90 гр. (верт.)"
 	}
 	"Rotate 180 degree (Y axys)"
 	{
 		"en"	"Rotate 180 degree (Y axys)"
 		"zho"	"選轉 180 度 (Y 軸)"
 		"chi"	"旋转 180 度 (Y 轴)"
+		"ru"	"Поворот на 180 гр. (верт.)"
 	}
 	"Back 1 degree (Y axys)"
 	{
 		"en"	"Back 1 degree (Y axys)"
 		"zho"	"退回 1 度 (Y 軸)"
 		"chi"	"退回 1 度 (Y 轴)"
+		"ru"	"Назад на 1 гр. (верт.)"
 	}
 	"Back 10 degree (Y axys)"
 	{
 		"en"	"Back 10 degree (Y axys)"
 		"zho"	"退回 10 度 (Y 軸)"
 		"chi"	"退回 10 度 (Y 轴)"
+		"ru"	"Назад на 10 гр. (верт.)"
 	}
 	"Back 15 degree (Y axys)"
 	{
 		"en"	"Back 15 degree (Y axys)"
 		"zho"	"退回 15 度 (Y 軸)"
 		"chi"	"退回 15 度 (Y 轴)"
+		"ru"	"Назад на 15 гр. (верт.)"
 	}
 	"Rotate 1 degree (Z axys)"
 	{
 		"en"	"Rotate 1 degree (Z axys)"
 		"zho"	"選轉 1 度 (Z 軸)"
 		"chi"	"旋转 1 度 (Z 轴)"
+		"ru"	"Поворот на 1 гр. (диагон.)"
 	}
 	"Rotate 10 degree (Z axys)"
 	{
 		"en"	"Rotate 10 degree (Z axys)"
 		"zho"	"選轉 10 度 (Z 軸)"
 		"chi"	"旋转 10 度 (Z 轴)"
+		"ru"	"Поворот на 10 гр. (диагон.)"
 	}
 	"Rotate 15 degree (Z axys)"
 	{
 		"en"	"Rotate 15 degree (Z axys)"
 		"zho"	"選轉 15 度 (Z 軸)"
 		"chi"	"旋转 15 度 (Z 轴)"
+		"ru"	"Поворот на 15 гр. (диагон.)"
 	}
 	"Rotate 45 degree (Z axys)"
 	{
 		"en"	"Rotate 40 degree (Z axys)"
 		"zho"	"選轉 40 度 (Z 軸)"
 		"chi"	"旋转 40 度 (Z 轴)"
+		"ru"	"Поворот на 40 гр. (диагон.)"
 	}
 	"Rotate 90 degree (Z axys)"
 	{
 		"en"	"Rotate 90 degree (Z axys)"
 		"zho"	"選轉 90 度 (Z 軸)"
 		"chi"	"旋转 90 度 (Z 轴)"
+		"ru"	"Поворот на 90 гр. (диагон.)"
 	}
 	"Rotate 180 degree (Z axys)"
 	{
 		"en"	"Rotate 180 degree (Z axys)"
 		"zho"	"選轉 180 度 (Z 軸)"
 		"chi"	"旋转 180 度 (Z 轴)"
+		"ru"	"Поворот на 180 гр. (диагон.)"
 	}
 	"Back 1 degree (Z axys)"
 	{
 		"en"	"Back 1 degree (Z axys)"
 		"zho"	"退回 1 度 (Z 軸)"
 		"chi"	"退回 1 度 (Z 轴)"
+		"ru"	"Назад на 1 гр. (диагон.)"
 	}
 	"Back 10 degree (Z axys)"
 	{
 		"en"	"Back 10 degree (Z axys)"
 		"zho"	"退回 10 度 (Z 軸)"
 		"chi"	"退回 10 度 (Z 轴)"
+		"ru"	"Назад на 10 гр. (диагон.)"
 	}
 	"Back 15 degree (Z axys)"
 	{
 		"en"	"Back 15 degree (Z axys)"
 		"zho"	"退回 15 度 (Z 軸)"
 		"chi"	"退回 15 度 (Z 轴)"
+		"ru"	"Назад на 15 гр. (диагон.)"
 	}
 	"Move Up 1 Unit"
 	{
 		"en"	"Move Up 1 Unit"
 		"zho"	"向上移動 1 單位"
 		"chi"	"向上移动 1 单位"
+		"ru"	"Поднять на 1 ед."
 	}
 	"Move Up 10 Unit"
 	{
 		"en"	"Move Up 10 Unit"
 		"zho"	"向上移動 10 單位"
 		"chi"	"向上移动 10 单位"
+		"ru"	"Поднять на 10 ед."
 	}
 	"Move Up 30 Unit"
 	{
 		"en"	"Move Up 30 Unit"
 		"zho"	"向上移動 30 單位"
 		"chi"	"向上移动 30 单位"
+		"ru"	"Поднять на 30 ед."
 	}
 	"Move Down 1 Unit"
 	{
 		"en"	"Move Down 1 Unit"
 		"zho"	"向下移動 1 單位"
 		"chi"	"向下移动 1 单位"
+		"ru"	"Опустить на 1 ед."
 	}
 	"Move Down 10 Unit"
 	{
 		"en"	"Move Down 10 Unit"
 		"zho"	"向下移動 10 單位"
 		"chi"	"向下移动 10 单位"
+		"ru"	"Опустить на 10 ед."
 	}
 	"Move Down 30 Unit"
 	{
 		"en"	"Move Down 30 Unit"
 		"zho"	"向下移動 30 單位"
 		"chi"	"向下移动 30 单位"
+		"ru"	"Опустить на 30 ед."
 	}
 	"Move Right 1 Unit"
 	{
 		"en"	"Move Right 1 Unit"
 		"zho"	"向右移動 1 單位"
 		"chi"	"向右移动 1 单位"
+		"ru"	"Сдвинуть вправо на 1 ед."
 	}
 	"Move Right 10 Unit"
 	{
 		"en"	"Move Right 10 Unit"
 		"zho"	"向右移動 10 單位"
 		"chi"	"向右移动 10 单位"
+		"ru"	"Сдвинуть вправо на 10 ед."
 	}
 	"Move Right 30 Unit"
 	{
 		"en"	"Move Right 30 Unit"
 		"zho"	"向右移動 30 單位"
 		"chi"	"向右移动 30 单位"
+		"ru"	"Сдвинуть вправо на 30 ед."
 	}
 	"Move Left 1 Unit"
 	{
 		"en"	"Move Left 1 Unit"
 		"zho"	"向左移動 1 單位"
 		"chi"	"向左移动 1 单位"
+		"ru"	"Сдвинуть влево на 1 ед."
 	}
 	"Move Left 10 Unit"
 	{
 		"en"	"Move Left 10 Unit"
 		"zho"	"向左移動 10 單位"
 		"chi"	"向左移动 10 单位"
+		"ru"	"Сдвинуть влево на 10 ед."
 	}
 	"Move Left 30 Unit"
 	{
 		"en"	"Move Left 30 Unit"
 		"zho"	"向左移動 30 單位"
 		"chi"	"向左移动 30 单位"
+		"ru"	"Сдвинуть влево на 30 ед."
 	}
 	"Move Forward 1 Unit"
 	{
 		"en"	"Move Forward 1 Unit"
 		"zho"	"向前移動 1 單位"
 		"chi"	"向前移动 1 单位"
+		"ru"	"Сдвинуть вперёд на 1 ед."
 	}
 	"Move Forward 10 Unit"
 	{
 		"en"	"Move Forward 10 Unit"
 		"zho"	"向前移動 10 單位"
 		"chi"	"向前移动 10 单位"
+		"ru"	"Сдвинуть вперёд на 10 ед."
 	}
 	"Move Forward 30 Unit"
 	{
 		"en"	"Move Forward 30 Unit"
 		"zho"	"向前移動 30 單位"
 		"chi"	"向前移动 30 单位"
+		"ru"	"Сдвинуть вперёд на 30 ед."
 	}
 	"Move Backward 1 Unit"
 	{
 		"en"	"Move Backward 1 Unit"
 		"zho"	"向後移動 1 單位"
 		"chi"	"向后移动 1 单位"
+		"ru"	"Сдвинуть назад на 1 ед."
 	}
 	"Move Backward 10 Unit"
 	{
 		"en"	"Move Backward 10 Unit"
 		"zho"	"向後移動 10 單位"
 		"chi"	"向后移动 10 单位"
+		"ru"	"Сдвинуть назад на 10 ед."
 	}
 	"Move Backward 30 Unit"
 	{
 		"en"	"Move Backward 30 Unit"
 		"zho"	"向後移動 30 單位"
 		"chi"	"向后移动 30 单位"
+		"ru"	"Сдвинуть назад на 30 ед."
 	}
 	"Object Model"
 	{
@@ -498,6 +580,7 @@
 		"en"	"Object ({olive}{1}{default}) Model: {olive}{2}"
 		"zho"	"物件 ({olive}{1}{default}) 模組: {olive}{2}"
 		"chi"	"物件 ({olive}{1}{default}) 模组: {olive}{2}"
+		"ru"	"Объект ({olive}{1}{default}) Модель: {olive}{2}"
 	}
 	"Object Targetname"
 	{
@@ -505,6 +588,7 @@
 		"en"	"Object Targetname: {olive}{1}"
 		"zho"	"物件 Targetname: {olive}{1}"
 		"chi"	"物件 Targetname: {olive}{1}"
+		"ru"	"Имя объекта: {olive}{1}"
 	}
 	"Object Position"
 	{
@@ -512,6 +596,7 @@
 		"en"	"Object Position: {olive}{1} {2} {3}"
 		"zho"	"物件 位置: {olive}{1} {2} {3}"
 		"chi"	"物件 位置: {olive}{1} {2} {3}"
+		"ru"	"Позиция объекта: {olive}{1} {2} {3}"
 	}
 	"Object Angle"
 	{
@@ -519,6 +604,7 @@
 		"en"	"Object Angle: {olive}{1} {2} {3}"
 		"zho"	"物件 角度: {olive}{1} {2} {3}"
 		"chi"	"物件 角度: {olive}{1} {2} {3}"
+		"ru"	"Угол объекта: {olive}{1} {2} {3}"
 	}
 	"Successfully removed an object"
 	{
@@ -526,37 +612,43 @@
 		"en"	"Successfully removed an object ({olive}{1}{default})"
 		"zho"	"成功地移除了物件 ({olive}{1}{default})"
 		"chi"	"成功地移除了物件 ({olive}{1}{default})"
+		"ru"	"Выполнено удаление объекта ({olive}{1}{default})"
 	}
 	"This plugin won't work in this game"
 	{
 		"en"	"This plugin won't work in this game"
 		"zho"	"這個插件在這款遊戲上行不通"
 		"chi"	"这个插件在这款游戏上行不通"
+		"ru"	"Этот плагин не работает в этой игре"
 	}
 	"You are not looking at a valid object"
 	{
 		"en"	"You are not looking at a valid object"
 		"zho"	"你並沒有指向一個合法的物件"
 		"chi"	"你并没有指向一个合法的物件"
+		"ru"	"Вы не смотрите на действительный объект"
 	}
 	"You are not looking at a spawned object"
 	{
 		"en"	"You are not looking at a spawned object"
 		"zho"	"你並沒有指向一個由此插件生成的物件"
 		"chi"	"你并没有指向一个由此插件生成的物件"
+		"ru"	"Вы не смотрите на созданный объект"
 	}
 	"Succesfully deleted the last spawned object"
 	{
-		"en"	"Succesfully deleted the last spawned object"
+		"en"	"Successfully deleted the last spawned object"
 		"zho"	"成功地刪除了上一個生成的物件"
 		"chi"	"成功地删除了上一个生成的物件"
+		"ru"	"Выполнено удаление последнего созданного объекта"
 	}
 	"Succesfully locked spawned object"
 	{
 		"#format"	"{1:d}"
-		"en"	"Succesfully locked spawned object ({olive}{1}{default})"
+		"en"	"Successfully locked spawned object ({olive}{1}{default})"
 		"zho"	"成功地鎖定物件 ({olive}{1}{default})"
 		"chi"	"成功地锁定物件 ({olive}{1}{default})"
+		"ru"	"Выполнена фиксация созданного объекта ({olive}{1}{default})"
 	}
 	"The last spawned object index is not an object anymore!"
 	{
@@ -564,83 +656,97 @@
 		"en"	"The last spawned object index {1} is not an object anymore!"
 		"zho"	"上一個生成的物件 {1} 已經不再是一個合法的東西!"
 		"chi"	"上一个生成的物件 {1} 已经不再是一个合法的东西!"
+		"ru"	"Посл. созданный объект с индексом {1} больше не является объектом!"
 	}
 	"The last object is not valid anymore"
 	{
 		"en"	"The last object is not valid anymore"
 		"zho"	"上一個生成的物件已經不合法了"
 		"chi"	"上一个生成的物件已经不合法了"
+		"ru"	"Последний созданный больше не действителен"
 	}
 	"You haven't spawned anything yet"
 	{
 		"en"	"You haven't spawned anything yet"
 		"zho"	"你還沒生成過任何物件"
 		"chi"	"你还没生成过任何物件"
+		"ru"	"Вы ещё ничего не создали"
 	}
 	"You haven't locked anything yet"
 	{
 		"en"	"You haven't locked anything yet"
 		"zho"	"你還沒生成鎖定任何物件"
 		"chi"	"你还没生成锁定任何物件"
+		"ru"	"Вы ещё ничего не зафиксировали"
 	}
 	"Saving the content. Please Wait"
 	{
 		"en"	"Saving the content. Please Wait"
 		"zho"	"正在儲存所有生成物件，請稍後"
 		"chi"	"正在储存所有生成物件，请稍后"
+		"ru"	"Сохранение содержимого. Пожалуйста, подождите"
 	}
 	"The file already exists."
 	{
 		"en"	"The file already exists. The older content won't be deleted."
 		"zho"	"檔案已存在. 舊的內容不會被刪除."
 		"chi"	"档案已存在. 旧的内容不会被删除."
+		"ru"	"Файл уже существует. Старое содержимое не будет удалено."
 	}
 	"Succesfully saved the map data"
 	{
-		"en"	"Succesfully saved the map data"
+		"en"	"Successfully saved the map data"
 		"zho"	"已成功儲存所有物件"
 		"chi"	"已成功储存所有物件"
+		"ru"	"Выполнено сохранение данных карты"
 	}
 	"The last spawned object index is not an object anymore!"
 	{
 		"en"	"The last spawned object index is not an object anymore!"
 		"zho"	"上一個生成的物件已不再是物體!"
 		"chi"	"上一个生成的物件已不再是物体!"
+		"ru"	"Последний индекс созданного объекта больше не является объектом!"
 	}
 	"Spawn Items On Cursor"
 	{
 		"en"	"Spawn Items & Weapons On Cursor"
 		"zho"	"生成物品物件在準心位置上"
 		"chi"	"生成物品物件在准心位置上"
+		"ru"	"Предметы и оружие на курсоре"
 	}
 	"Spawn Items On Origin"
 	{
 		"en"	"Spawn Items & Weapons On Origin"
 		"zho"	"生成物品物件在目前位置上"
 		"chi"	"生成物品物件在目前位置上"
+		"ru"	"Предметы и оружие на координате"
 	}
 	"Weapons"
 	{
 		"en"	"Weapons"
 		"zho"	"武器類"
 		"chi"	"武器类"
+		"ru"	"Оружие"
 	}
 	"Melees"
 	{
 		"en"	"Melees"
 		"zho"	"近戰類"
 		"chi"	"近战类"
+		"ru"	"Ближн. бой"
 	}
 	"Items"
 	{
 		"en"	"Items"
 		"zho"	"物品類"
 		"chi"	"物品类"
+		"ru"	"Предметы"
 	}
 	"Others"
 	{
 		"en"	"Others"
 		"zho"	"其他類"
 		"chi"	"其他类"
+		"ru"	"Другое"
 	}
 }

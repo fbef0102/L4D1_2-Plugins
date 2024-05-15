@@ -113,6 +113,7 @@ Provides the ability to fly to Tanks and special effects.
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 

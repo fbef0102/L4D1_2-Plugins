@@ -18,6 +18,7 @@ Allows players to be respawned by admin.
 	English
 	繁體中文
 	简体中文
+	Russian
 	Hungarian
 	```
 

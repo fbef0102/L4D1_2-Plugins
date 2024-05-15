@@ -3,7 +3,7 @@
 	"Usage: sm_swapto"
 	{
 		"en"			"Usage: sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to team <teamnum> (1: spec, 2: survivor, or 3: infected)"
-		"ru"			"Использование: sm_swapto <игрок1> [игрок2] ... [кол-во игрок.] <ном.команд.> - перевести всех перечисленных игроков в команду <ном.команд.> (1: наблюд, 2: выжившие, or 3: заражённые)"
+		"ru"			"Использование: sm_swapto <игрок1> [игрок2] ... [кол-во игрок.] <ном.команд.> - перевести всех перечисленных игроков в команду <ном.команд.> (1: набл., 2: выжившие или 3: заражённые)"
 		"zho"			"使用方式: sm_swapto <player1> [player2] ... [playerN] <teamnum> - 強制列出的所有玩家更換到指定的隊伍 <隊伍編號> (1: 旁觀, 2: 倖存者, or 3: 感染者)."
 		"chi"			"使用方法: sm_swapto <player1> [player2] ... [playerN] <teamnum> - 强制列出的所有玩家更换到指定的队伍 <队伍编号> (1: 旁观, 2: 生还者, or 3: 特殊感染者)."
 		"hu"			"Használat: sm_swapto <player1> [player2] ... [playerN] <teamnum> - az összes listán lévő játékos átrakása ebbe a csapatba <teamnum> (1: néző, 2: túlélő, or 3: fertőzött)"
@@ -20,7 +20,7 @@
 	"ADM Swap Player Team"
 	{
 		"en"			"{lightgreen}%N{default}(ADM): %N has been swapped to the %s team."
-		"ru"			"{lightgreen}%N{default}(АДМИН): Переводит %N в команду %s."
+		"ru"			"{lightgreen}%N{default}(АДМ): Переводит %N в команду: %s."
 		"zho"			"{lightgreen}%N{default}(管理員): %N 已被強制更換到 %s 隊伍."
 		"chi"			"{lightgreen}%N{default}(管理员): %N 已被强制更换到 %s 队伍."
 		"hu"			"{lightgreen}%N{default}(ADM): %N át lett helyezve a %s csapatába."
@@ -28,7 +28,7 @@
 	"You wish!"
 	{
 		"en"			"Can not suicide before leaving out start safe area. You wish!"
-		"ru"			"Невозможно совершить самоубийство до выхода из стартовой безопасной зоны. Даже и не мечтай!"
+		"ru"			"Невозможно совершить самоубийство до выхода из убежища. Даже и не мечтай!"
 		"zho"			"尚未離開安全區域禁止自殺. 你作夢!"
 		"chi"			"还没离开安全室就自杀,玩你妈臭嗨!"
 		"hu"			"Nem lehetsz öngyilkos csak ha elhagytad a biztonságos területet. Csak szeretnéd!"
@@ -36,7 +36,7 @@
 	"In your dreams!"
 	{
 		"en"			"Can not suicide when you are capped by special infected. In your dreams!"
-		"ru"			"Невозможно совершить самоубийство, когда вас схватил особый заражённый. Только в твоих снах!"
+		"ru"			"Невозможно совершить самоубийство, когда вас схватил особый заражённый. Нетушки!"
 		"zho"			"被特感抓住期間禁止自殺. 想得美!"
 		"chi"			"被特感控了就自杀,玩你妈."
 		"hu"			"Nem válthatsz csapatott amikor egy speciális fertőzött elkapott. Álmodban esetleg!"
@@ -52,7 +52,7 @@
 	"Suicide"
 	{
 		"en"			"{olive}%N {default}use command {green}!zs{default} to suicide!"
-		"ru"			"{olive}%N {default}используйте команду {green}!zs{default} для самоубийства!"
+		"ru"			"{olive}%N{default}, используйте команду {green}!zs{default} для самоубийства!"
 		"zho"			"{olive}%N {default}使用指令 {green}!zs{default} 自殺了!"
 		"chi"			"{olive}%N {default}使用指令 {green}!zs{default} 自杀了!"
 		"hu"			"{olive}%N {default}használd a {green}!zs{default} parancsot az öngyilkossághoz!"
@@ -84,7 +84,7 @@
 	"You are in idle, Press Left Mouse to play"
 	{
 		"en"			"You are in idle, Press Left Mouse to play"
-		"ru"			"Вы бездействуете, нажмите ЛКМ, чтобы играть"
+		"ru"			"Вы бездействуете, нажмите ЛКМ для игры"
 		"zho"			"你正在閒置中. 請按左鍵遊玩倖存者."
 		"chi"			"你正在闲置中,请按左键游玩生还者."
 		"hu"			"Szüneten vagy, nyomd meg a bal egér gombot hogy játszhass"
@@ -140,7 +140,7 @@
 	"Infected can't go idle"
 	{
 		"en"			"Infected can't go idle, you dumb as fuck."
-		"ru"			"Заражённые не могут бездействовать, ты тупой, как чёрт."
+		"ru"			"Заражённые не могут бездействовать, глупец."
 		"zho"			"走開!! 特感玩家無法閒置!."
 		"chi"			"去你妈特感你还闲置,是不是要我教你玩L4D?"
 		"hu"			"Fertőzöttek nem mehetnek szünetre, te buta."
@@ -181,7 +181,7 @@
 	"Can not change team during the game!!"
 	{
 		"en"			"Can not change team after survivors have left safe area!!"
-		"ru"			"Невозможно сменить команду после того, как выжившие покинули безопасную зону!!"
+		"ru"			"Невозможно сменить команду после того, как выжившие покинули убежище!!"
 		"zho"			"倖存者離開安全區域後{green} 禁止更換隊伍{default}!!"
 		"chi"			"生还者离开安全区域后{green} 禁止更换队伍{default}!!"
 		"hu"			"A csapatváltás nem megengedett miután a túlélők elhagyták a biztonságos területet!!"
@@ -189,7 +189,7 @@
 	"You are a dead survivor"
 	{
 		"en"			"You are a dead survivor, switching team is prohibited!!"
-		"ru"			"Вы мёртвый выживший, смена команды запрещена!!"
+		"ru"			"Вы мёртвый выживший, смена команды невозможна!!"
 		"zho"			"你已經在倖存者隊伍死亡, {red}禁止跳隊{default}!!"
 		"chi"			"你已经在生还者队伍死亡, {red}禁止换队{default}!!"
 		"hu"			"Halott túlélő vagy, a csapatváltás nem megengedett!!"
@@ -198,7 +198,7 @@
 	{
 		"#format"		"{1:t}"
 		"en"			"Go Back to {green}{1} {default}Team, Switching team is prohibited after survivors have left safe area!!"
-		"ru"			"Возвращайтесь в команду {green}{1}{default}, смена команды запрещена после того, как выжившие покинули безопасную зону!!"
+		"ru"			"Возвращайтесь в команду ({green}{1}{default}), смена команды запрещена после того, как выжившие покинули убежище!!"
 		"zho"			"請回到 {green}{1} {default}隊伍, 倖存者離開安全區域後{red}禁止跳隊{default}!!"
 		"chi"			"请回到 {green}{1} {default}队伍, 生还者离开安全区域后{red}禁止换队{default}!!"
 		"hu"			"Menny vissza a {green}{1} {default}csapatába, A csapatváltás nem megengedett miután a túlélők elhagyták a biztonságos területet!!"
@@ -262,6 +262,7 @@
 	"Can not change team while reloading weapon"
 	{
 		"en"			"Can not change team while reloading a weapon"
+		"ru"			"Нельзя сменить команду при перезарядке оружия"
 		"zho"			"武器裝彈期間禁止換隊."
 		"chi"			"武器装弹期间禁止换队."
 		"hu"			"Nem lehet csapatot váltani fegyver újra töltés közben."
@@ -269,6 +270,7 @@
 	"Survivor"
 	{
 		"en"			"Survivor"
+		"ru"			"Выжившие"
 		"zho"			"倖存者"
 		"chi"			"生还者"
 		"hu"			"Túlélő"
@@ -276,6 +278,7 @@
 	"Infected"
 	{
 		"en"			"Infected"
+		"ru"			"Заражённые"
 		"zho"			"特感"
 		"chi"			"感染者"
 		"hu"			"Fertőzött"
@@ -283,24 +286,28 @@
 	"Too many survivors, unbalance"
 	{
 		"en" 	"Sorry! Team is unbalance, too many players in survivor team!"
+                "ru" 	"Извините! Баланс команды нарушен, слишком много игроков в команде выживших!"
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在生還者隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在生还者队伍!"
 	}
 	"Too many infected, unbalance"
 	{
 		"en" 	"Sorry! Team is unbalance, too many players in infected team!"
+		"ru" 	"Извините! Баланс команды нарушен, слишком много игроков в команде заражённых!"
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在特感隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在特感队伍!"
 	}
 	"Get Up Stagger Block"
 	{
 		"en" 	"Can not change team while getting up or staggering!"
+		"ru" 	"Нельзя сменить команду, вставая или пошатываясь!"
 		"zho" 	"起身或硬直狀態中禁止換隊!"
 		"chi" 	"起身或硬直状态中禁止换队!"
 	}
 	"Can not change team after grenade"
 	{
 		"en"			"Can not change team after firing the grenade launcher"
+		"ru"			"Невозможно сменить команду после выстрела из гранатомёта"
 		"zho"			"榴彈發射期間禁止換隊."
 		"chi"			"榴弹发射期间禁止换队."
 	}
@@ -308,6 +315,7 @@
 	{
 		"#format"		"{1:.0f}"
 		"en"			"Please wait {1} second(s) to play!!"
+		"ru"			"Пожалуйста, подождите {1} сек., чтобы играть!!"
 		"zho"			"請等待 {1} 秒遊玩倖存者."
 		"chi"			"请等待 {1} 秒游玩幸存者."
 	}

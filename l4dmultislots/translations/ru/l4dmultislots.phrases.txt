@@ -1,4 +1,4 @@
-//русский by HekuT, berry
+//Russian by HekuT, berry
 
 "Phrases"
 {
@@ -8,7 +8,7 @@
 	}
 	"Impossible to generate a bot at the moment."
 	{
-		"ru" "В настоящий момент невозможно создать бота."
+		"ru" "Сейчас невозможно создать бота."
 	}
 	"Please wait to be revived or rescued"
 	{
@@ -16,7 +16,7 @@
 	}
 	"You are idle. press the left mouse button to join the survivors!"
 	{
-		"ru" "Вы бездействуете. Нажмите ЛКМ, чтобы вернуться в команду!"
+		"ru" "Вы бездействуете. Нажмите ЛКМ для возврата к выжившим!"
 	}
 	"You are already on the team of survivors."
 	{
@@ -24,7 +24,7 @@
 	}
 	"Type in chat !join To join the survivors"
 	{
-		"ru" "Введите в чате {olive}!join{default}, чтобы присоединиться к выжившим."
+		"ru" "Введите в чате {olive}!join{default} для присоединения к выжившим."
 	}
 	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
@@ -37,5 +37,13 @@
 	"No Second Chance"
 	{
 		"ru" "В этом раунде вы уже играли в {blue}команде выживших{default}. Вы появитесь {green}мёртвым{default}."
+	}
+	"Sorry! No survivor slots"
+	{
+		"ru" "Извините! Количество выживших достигло предела!"
+	}
+	"Too many survivors, unbalance"
+	{
+		"ru" "Извините! Баланс команды нарушен, слишком много игроков в команде выживших!"
 	}
 }

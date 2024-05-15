@@ -3,7 +3,7 @@
 	"List_Players"
 	{
 		"en"		"Who do you want to respawn?"
-		"ru"		"Кого оживить?"
+		"ru"		"Кого возродить?"
 		"hu"		"Kit szeretnél visszahozni?"
 		"es"		"¿A quien quieres reaparecer?"
 		"sv"       	"Vem vill du förnya/återuppliva?"
@@ -13,7 +13,7 @@
 	"Respawn_Player"
 	{
 		"en"		"Respawn player"
-		"ru"		"Оживить игрока"
+		"ru"		"Возродить игрока"
 		"hu"		"Játékos visszahozása"
 		"es"		"Reaparecer jugador"
 		"sv"        "Förnya spelare '%N'"
@@ -23,7 +23,7 @@
 	"Respawn_Info"
 	{
 		"en"		"Respawned player '%N'"
-		"ru"		"Оживлён игрок '%N'"
+		"ru"		"Возрождён игрок \"%N\""
 		"hu"		"Játékos visszahozva '%N'"
 		"es"		"Reapareciste a '%N'"
 		"sv"        "Förnyade spelare '%N'"
@@ -33,6 +33,7 @@
 	"No Any Dead Survivor"
 	{
 		"en"		"There Are No Any Dead Survivor"
+		"ru"		"Мёртвых выживших нет"
 		"zho"       "沒有死掉的玩家"
 		"chi"       "没有死掉的玩家"
 		"hu"		"Nincsenek halott túlélők"		
@@ -40,6 +41,7 @@
 	"message_1"
 	{
 		"en"		"You Dumb? %N is still alive!"
+		"ru"		"Вы совсем? %N в живых!"
 		"zho"       "蠢? 目標玩家還活著!"
 		"chi"       "傻B? 目标玩家还活着!"
 		"hu"		"Hülye vagy? %N még mindig él!"		
@@ -47,6 +49,7 @@
 	"message_2"
 	{
 		"en"		"Failed! %N is not survivor"
+		"ru"		"Не удалось! %N не выживший"
 		"zho"       "失敗! 目標玩家不是倖存者"
 		"chi"       "失败! 目标玩家不是生还者"
 		"hu"		"Sikertelen! %N nem túlélő"		
@@ -54,6 +57,7 @@
 	"message_3"
 	{
 		"en"		"Failed! %N is spectator"
+		"ru"		"Не удалось! %N наблюдатель"
 		"zho"       "失敗! 目標玩家是旁觀者"
 		"chi"       "失败! 目标玩家是旁观者"
 		"hu"		"Sikertelen! %N egy néző"		

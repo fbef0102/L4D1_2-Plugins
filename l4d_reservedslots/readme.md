@@ -51,6 +51,7 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	English
 	繁體中文
 	简体中文
+        Russian
 	```
 </details>
 

@@ -130,7 +130,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:c}"
 		"en"			"{1}[SM] {2}Usage: {3}sm_removedecal [all | id | last | name]"
-		"ru"			"{1}[SM] {2}Использование: {3}sm_removedecal [all | id | last | name]"
+		"ru"			"{1}[SM] {2}Использование: {3}sm_removedecal [все | id | посл. | имя]"
 		"chi"			"{1}[SM] {2}用法: {3}sm_removedecal [all | id | last | name]"
 		"zho"			"{1}[SM] {2}用法: {3}sm_removedecal [all | id | last | name]"
 		"de"			"{1}[SM] {2}Anwendung: {3}sm_removedecal [all | id | last | name]"
@@ -175,7 +175,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
 		"en"			"{1}[SM] Last painted Decal {2}{3}{4}: {5}{6}{7}"
-		"ru"			"{1}[SM] Последняя нарисованная наклейка {2}{3}{4}: {5}{6}{7}"
+		"ru"			"{1}[SM] Последняя наклейка {2}{3}{4}: {5}{6}{7}"
 		"chi"			"{1}[SM] 最后绘制的涂鸦 {2}{3}{4}：{5}{6}{7}"
 		"zho"			"{1}[SM] 最後繪製的塗鴉 {2}{3}{4}：{5}{6}{7}"
 		"de"			"{1}[SM] Zuletzt angebrachtes Decal {2}{3}{4}: {5}{6}{7}"
@@ -202,7 +202,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:c}"
 		"en"			"{1}[SM] {2}Usage: {3}sm_listdecal [all | id | last | map | name | saved]"
-		"ru"			"{1}[SM] {2}Использование: {3}sm_listdecal [all | id | last | карта | имя | saved]"
+		"ru"			"{1}[SM] {2}Использование: {3}sm_listdecal [все | id | посл. | карта | имя | сохр.]"
 		"chi"			"{1}[SM] {2}用法: {3}sm_listdecal [all | id | last | map | name | saved]"
 		"zho"			"{1}[SM] {2}用法: {3}sm_listdecal [all | id | last | map | name | saved]"
 		"de"			"{1}[SM] {2}Anwendung: {3}sm_listdecal [all | id | last | map | name | saved]"
@@ -283,7 +283,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:s},{4:c}"
 		"en"			"{1}[SM] Saved last painted Decal Position (Name = {2}{3}{4})."
-		"ru"			"{1}[SM] Сохранено положение последней нарисованной наклейки (Имя = {2}{3}{4})."
+		"ru"			"{1}[SM] Сохранено положение последней наклейки (Имя = {2}{3}{4})."
 		"chi"			"{1}[SM] 保存最后绘制的涂鸦位置（名称 = {2}{3}{4}）。"
 		"zho"			"{1}[SM] 保存最後繪製的塗鴉位置（名稱 = {2}{3}{4}）。"
 		"de"			"{1}[SM] Letzte Decal Position gespeichert (Name = {2}{3}{4})."
@@ -292,7 +292,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:d},{4:c},{5:c},{6:s},{7:c}"
 		"en"			"{1}[SM] Saved {2}{3}{4} Decal Position (Name = {5}{6}{7})."
-		"ru"			"{1}[SM] Saved {2}{3}{4} Decal Position (Name = {5}{6}{7})."
+		"ru"			"{1}[SM] Сохранено положение наклейки {2}{3}{4} (Имя = {5}{6}{7})."
 		"chi"			"{1}[SM] 已保存 {2}{3}{4} 涂鸦位置（名称 = {5}{6}{7}）。"
 		"zho"			"{1}[SM] 已保存 {2}{3}{4} 塗鴉位置（名稱 = {5}{6}{7}）。"
 		"de"			"{1}[SM] {2}{3}{4} Decal Position gespeichert (Name = {5}{6}{7})."
@@ -319,7 +319,7 @@
 	{
 		"#format"	"{1:c},{2:c},{3:c}"
 		"en"			"{1}[SM] {2}Usage: {3}sm_savedecal [all | id | last | name ]"
-		"ru"			"{1}[SM] {2}Использование: {3}sm_savedecal [all | id | last | имя ]"
+		"ru"			"{1}[SM] {2}Использование: {3}sm_savedecal [все | id | посл. | имя ]"
 		"chi"			"{1}[SM] {2}用法: {3}sm_savedecal [all | id | last | name ]"
 		"zho"			"{1}[SM] {2}用法: {3}sm_savedecal [all | id | last | name ]"
 		"de"			"{1}[SM] {2}Anwendung: {3}sm_savedecal [all | id | last | name ]"
@@ -389,7 +389,7 @@
 	"save_decal_title"
 	{
 		"en"			"Save Decal:"
-		"ru"			"Сохранить наклейку:"
+		"ru"			"Сохр. наклейку:"
 		"chi"			"保存涂鸦："
 		"zho"			"保存塗鴉："
 		"de"			"Decal speichern:"
@@ -429,7 +429,7 @@
 	"paint_decal"
 	{
 		"en"			"Paint Decal"
-		"ru"			"Нарисовать наклейку"
+		"ru"			"Нарисовать"
 		"chi"			"绘制涂鸦"
 		"zho"			"繪製塗鴉"
 		"de"			"Decal anbringen"
@@ -453,7 +453,7 @@
 	"save_decal"
 	{
 		"en"			"Save Decal"
-		"ru"			"Сохранить наклейку"
+		"ru"			"Сохр. наклейку"
 		"chi"			"保存涂鸦"
 		"zho"			"保存塗鴉"
 		"de"			"Decal speichern"
@@ -509,7 +509,7 @@
 	"last_painted"
 	{
 		"en"			"Last Painted"
-		"ru"			"Последняя покраска"
+		"ru"			"Посл. наклейка"
 		"chi"			"最近绘制"
 		"zho"			"最近繪製"
 		"de"			"Zuletzt angebrachtes Decal"
