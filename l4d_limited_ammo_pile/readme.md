@@ -42,6 +42,7 @@ Once everyone has used the same ammo pile at least once, it is removed.
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 

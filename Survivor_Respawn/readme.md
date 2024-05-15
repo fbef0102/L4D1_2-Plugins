@@ -108,6 +108,7 @@ When a Survivor dies, will respawn after a period of time.
 	English
 	繁體中文
 	简体中文
+	Russian
 	```
 </details>
 

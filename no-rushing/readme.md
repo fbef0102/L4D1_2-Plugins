@@ -18,7 +18,7 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 	English
 	繁體中文
 	简体中文
-    Russian
+	Russian
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>

@@ -46,6 +46,7 @@ Show statistics of surviviors (kill S.I, C.I. and FF)on round end
 	简体中文
 	Spanish
 	Portuguese
+        Russian
 	```
 </details>
 

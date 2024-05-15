@@ -6,7 +6,7 @@
 		"en"				"[{green}No-Rush{default}] {1}Please Please Stay{2} Closer To {3}Your Team!"
 		"zho"				"[{green}No-Rush{default}] {1}請和{3}你的隊伍{2} 待在一起!"
 		"chi"				"[{green}No-Rush{default}] {1}请和{3}你的队伍{2} 待在一起!"
-		"ru"				"[{green}No-Rush{default}] {1}Пожалуйста, оставайтесь{2} ближе {3}к своей команде!"
+		"ru"				"[{green}No-Rush{default}] {1}Пожалуйста, оставайтесь{2} ближе к {3}своей команде!"
 	}
 	"Rushing Notice"
 	{
@@ -22,7 +22,7 @@
 		"en"				"[{green}No-Rush{default}] {1}Rushing {2}Is Prohibited! Trials: {3}{6} {4}/ {5}{7}"
 		"zho"				"[{green}No-Rush{default}] {1}跑圖{2} 是禁止的! 次數上限: {3}{6} {4}/ {5}{7}"
 		"chi"				"[{green}No-Rush{default}] {1}跑图{2} 是禁止的! 次数上限: {3}{6} {4}/ {5}{7}"
-		"ru"				"[{green}No-Rush{default}] {1}Не {2}спешите! Попыток: {3}{6} {4}/ {5}{7}"
+		"ru"				"[{green}No-Rush{default}] {2}Не {1}спешите! Попыток: {3}{6} {4}/ {5}{7}"
 	}
 	"Rushing Violation"
 	{
@@ -30,6 +30,6 @@
 		"en"				"[{green}No-Rush{default}] {1}{4} {2}Was Punished {3}For Rushing! (That's What You Get!)"
 		"zho"				"[{green}No-Rush{default}] {1}{4} {2}被懲罰 {3}其跑圖行為! (That's What You Get!)"
 		"chi"				"[{green}No-Rush{default}] {1}{4} {2}被惩罚 {3}其跑图行为! (That's What You Get!)"
-		"ru"				"[{green}No-Rush{default}] {1}{4} {2}Был наказан {3}за спешку! (Вот тебе!)"
+		"ru"				"[{green}No-Rush{default}] {1}{4} {2}получает наказание {3}за спешку! (Вот тебе!)"
 	}
 }

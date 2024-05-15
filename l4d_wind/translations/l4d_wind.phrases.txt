@@ -5,95 +5,111 @@
 		"en"		"Teleport Player"
 		"zho"		"傳送玩家"
 		"chi"		"传送玩家"
+		"ru"		"Телепорт игрока"
 	}	
 	"l4d_wind_2"
 	{
 		"en"		"Choose Target"
 		"zho"		"選擇玩家"
 		"chi"		"选择玩家"
+		"ru"		"Выберите цель"
 	}	
 	"l4d_wind_3"
 	{
 		"en"		"There Are No Any alive player"
 		"zho"		"目前沒有活著的玩家"
 		"chi"		"目前没有活着的玩家"
+		"ru"		"Нет ни одного живого игрока"
 	}	
 	"l4d_wind_4"
 	{
 		"en"		"Target is not a valid alive player."
 		"zho"		"傳送對象不是一個活著的玩家"
 		"chi"		"传送对象不是一个活着的玩家"
+		"ru"		"Цель не является живым игроком."
 	}	
 	"l4d_wind_5"
 	{
 		"en"		"Choose Destination"
 		"zho"		"選擇傳送地點"
 		"chi"		"选择传送地点"
+		"ru"		"Выберите место"
 	}	
 	"l4d_wind_6"
 	{
 		"en"		"Crosshair"
 		"zho"		"準心上"
 		"chi"		"准心上"
+		"ru"		"Прицел"
 	}	
 	"l4d_wind_7"
 	{
 		"en"		"Self"
 		"zho"		"自己身上"
 		"chi"		"自己身上"
+		"ru"		"К себе"
 	}	
 	"l4d_wind_8"
 	{
 		"en"		"Target is hanging from ledge, you can't teleport %N."
 		"zho"		"傳送對象正在掛邊，無法傳送 %N"
 		"chi"		"传送对象正在挂边，无法传送 %N"
+		"ru"		"Цель висит на карнизе, вы не можете телепортировать: %N."
 	}	
 	"l4d_wind_9"
 	{
 		"en"		"Target is capped by special infected, you can't teleport %N."
 		"zho"		"傳送對象正在被特感控，無法傳送 %N"
 		"chi"		"传送对象正在被特感控，无法传送 %N"
+		"ru"		"Цель схвачена особым заражённым, вы не можете телепортировать: %N."
 	}
 	"l4d_wind_10"
 	{
 		"en"		"Target is busy, you can't teleport %N."
 		"zho"		"傳送對象正在忙著控倖存者，無法傳送 %N"
 		"chi"		"传送对象正在忙着控生还者，无法传送 %N"
+		"ru"		"Цель занята, вы не можете телепортировать: %N."
 	}	
 	"l4d_wind_11"
 	{
 		"en"		"Not a valid alive player, choose again!"
 		"zho"		"不是一個活著的玩家，請重新選擇!"
 		"chi"		"不是一个活着的玩家，请重新选择!"
+		"ru"		"Это не настоящий живой игрок, выберите снова!"
 	}	
 	"l4d_wind_12"
 	{
 		"en"		"You teleport player %N."
 		"zho"		"你傳送了 %N."
 		"chi"		"你传送了 %N."
+		"ru"		"Вы телепортируете игрока: %N."
 	}	
 	"l4d_wind_13"
 	{
 		"en"		"Failed to teleport player %N, try again later!"
 		"zho"		"無法傳送 %N，請重新選擇!"
 		"chi"		"无法传送 %N，请重新选择!"
+		"ru"		"Не удалось телепортировать игрока: %N, попробуйте позже!"
 	}	
 	"l4d_wind_14"
 	{
 		"en"		"Target is not a valid alive player, choose again!"
 		"zho"		"要傳送的對象不是一個活著的玩家，請重新選擇!"
 		"chi"		"要传送的对象不是一个活着的玩家，请重新选择!"
+		"ru"		"Цель не является действительным живым игроком, выберите снова!"
 	}	
 	"l4d_wind_15"
 	{
 		"en"		"Failed to add a bot"
 		"zho"		"失敗! 無法增加一個Bot!"
 		"chi"		"失败! 无法增加一个Bot!"
+		"ru"		"Не удалось добавить бота"
 	}	
 	"l4d_wind_16"
 	{
 		"en"		"Myself"
 		"zho"		"自己"
 		"chi"		"自己"
+		"ru"		"Себя"
 	}	
 }
