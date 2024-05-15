@@ -831,7 +831,6 @@ bool b_HasRoundStarted, // Used to state if the round started or not
 	g_bHasRoundEnded, // States if the round has ended or not
 	g_bLeftSaveRoom, // States if the survivors have left the safe room
 	g_bFinaleStarted, // States whether the finale has started or not
-	TankReplacing, // Used only in coop, prevents the Sound hook event from triggering over and over again
 	PlayerLifeState[MAXPLAYERS+1], // States whether that player has the lifestate changed from switching the gamemode
 	g_bInitialSpawn, // Related to the coordination feature, tells the plugin to let the infected spawn when the survivors leave the safe room
 	g_bL4D2Version, // Holds the version of L4D; false if its L4D, true if its L4D2
@@ -1508,7 +1507,6 @@ Action Timer_PluginStart(Handle timer)
 	g_bInitialSpawn = true;
 	g_bLeftSaveRoom = false;
 	g_bHasRoundEnded = false;
-	TankReplacing = false;
 
 	// This little part is needed because some events just can't execute when another round starts.
 	if (L4D_HasPlayerControlledZombies() && g_bVersusCoop)
@@ -1784,9 +1782,6 @@ void IsAllowed()
 		HookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
 		HookEvent("player_disconnect", Event_PlayerDisconnect); //換圖不會觸發該事件
 
-		// Hook a sound
-		AddNormalSoundHook(HookSound_Callback);
-
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsClientInGame(i))
@@ -1834,10 +1829,6 @@ void IsAllowed()
 		UnhookEvent("bot_player_replace", Event_PlayerReplaceBot);
 		UnhookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
 		UnhookEvent("player_disconnect", Event_PlayerDisconnect); //換圖不會觸發該事件
-
-
-		// Hook a sound
-		RemoveNormalSoundHook(HookSound_Callback);
 
 		for( int i = 1; i <= MaxClients; i++ ){
 			if(IsClientInGame(i)) OnClientDisconnect(i);
@@ -1949,6 +1940,8 @@ Action Timer_PlayerLeftStart(Handle Timer)
 
 public void OnClientPutInServer(int client)
 {
+	if(g_bCvarAllow == false) return;
+
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 
 	g_bAdjustSIHealth[client] = false;
@@ -1978,6 +1971,8 @@ Action JoinInfectedInCoop(int client, int args)
 	if ( g_bCvarAllow == false) return Plugin_Continue;
 	if (L4D_HasPlayerControlledZombies()) return Plugin_Continue;
 	if (client == 0 || IsFakeClient(client)) return Plugin_Continue;
+	if (GetClientTeam(client) == TEAM_INFECTED) return Plugin_Continue;
+
 	if ( g_ePluginSettings.m_bCoopVersusEnable == false || g_ePluginSettings.m_iCoopVersusHumanLimit == 0 )
 	{
 		CPrintToChat(client, "%T", "Not available to join infected (C)", client);
@@ -2023,14 +2018,14 @@ Action JoinInfectedInCoop(int client, int args)
 
 Action JoinSurvivorsInCoop(int client, int args)
 {
-	if( g_bCvarAllow == false) return Plugin_Handled;
+	if( g_bCvarAllow == false) return Plugin_Continue;
 
 	if (client && L4D_HasPlayerControlledZombies() == false)
 	{
 		SwitchToSurvivors(client);
 	}
 
-	return Plugin_Handled;
+	return Plugin_Continue;
 }
 
 Action ForceInfectedSuicide(int client, int args)
@@ -2262,7 +2257,7 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	{
 		char clientname[256];
 		GetClientName(client, clientname, sizeof(clientname));
-		if (g_iCurrentMode == 1 && IsFakeClient(client) && RealPlayersOnInfected() && StrContains(clientname, "Bot", false) == -1)
+		if (L4D_HasPlayerControlledZombies() == false && IsFakeClient(client) && RealPlayersOnInfected() && StrContains(clientname, "Bot", false) == -1)
 		{
 			CreateTimer(0.1, TankBugFix, userid, TIMER_FLAG_NO_MAPCHANGE);
 		}
@@ -2272,7 +2267,7 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 			LogMessage("Tank Event Triggered");
 			#endif
 
-			if (g_iCurrentMode == 3)
+			if (L4D_HasPlayerControlledZombies() == false)
 			{
 				if (IsFakeClient(client) && RealPlayersOnInfected())
 				{
@@ -3269,7 +3264,6 @@ Action TankSpawner(Handle timer, int tank)
 {
 	if( g_bCvarAllow == false)
 	{
-		TankReplacing = false;
 		return Plugin_Continue;
 	}
 
@@ -3332,7 +3326,6 @@ Action TankSpawner(Handle timer, int tank)
 			IgniteEntity(target, IGNITE_TIME);
 	}
 
-	TankReplacing = false;
 	return Plugin_Continue;
 }
 
@@ -3352,8 +3345,8 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 		{
 			if(IsPlayerTank(bot) && IsFakeClient(bot) && !IsFakeClient(player) && playerid == lastHumanTankId)
 			{
-				ForcePlayerSuicide(player);
-				KickClient(bot, "Pass Tank to AI");
+				ForcePlayerSuicide(bot);
+				//KickClient(bot, "Pass Tank to AI");
 
 				PrintHintText(player, "[TS] %T", "You don't attack survivors", player);
 			}
@@ -3469,39 +3462,6 @@ Action TankBugFix(Handle timer, int client)
 
 	return Plugin_Continue;
 }
-
-Action HookSound_Callback(int Clients[64], int &NumClients, char StrSample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level,
-	int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
-{
-	if (g_iCurrentMode != 1 || !g_ePluginSettings.m_bCoopTankPlayable)
-		return Plugin_Continue;
-
-	//to work only on tank steps, its Tank_walk
-	if (StrContains(StrSample, "Tank_walk", false) == -1) return Plugin_Continue;
-
-	for (int i=1;i<=MaxClients;i++)
-	{
-		// We check if player is in game
-		if (!IsClientInGame(i)) continue;
-
-		// Check if client is infected ...
-		if (GetClientTeam(i)==TEAM_INFECTED)
-		{
-			// If player is a tank
-			if (IsPlayerTank(i) && IsPlayerAlive(i) && IsFakeClient(i) && TankReplacing == false)
-			{
-				if (AreTherePlayersWhoAreNotTanks())
-				{
-					TankReplacing = true;
-					CreateTimer(0.1, TankSpawner, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
-					CreateTimer(0.5, kickbot, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
-				}
-			}
-		}
-	}
-	return Plugin_Continue;
-}
-
 
 // This event serves to make sure the bots spawn at the start of the finale event. The director disallows spawning until the survivors have started the event, so this was
 // definitely needed.
@@ -4259,6 +4219,39 @@ Action showInfHUD(Handle timer)
 		}
 	}
 
+	if(L4D_HasPlayerControlledZombies() == false)
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i) && !IsFakeClient(i) && IsPlayerAlive(i))
+			{
+				if ( (GetClientTeam(i) == TEAM_INFECTED))
+				{
+					if(IsPlayerTank(i))
+					{
+						int fus = 100 - GetFrustration(i);
+						if(fus <= 75)
+						{
+							PrintHintText(i, "[TS] Tank Control: %d%%%%", fus);
+						}
+						
+						if(fus <= 0)
+						{
+							PrintHintText(i, "[TS] %T", "You don't attack survivors", i);
+
+							Event hFakeEvent = CreateEvent("tank_frustrated");
+							hFakeEvent.SetInt("userid", GetClientUserId(i));
+							FireEvent(hFakeEvent);
+							
+							L4D_ReplaceWithBot(i);
+							continue;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	ShowInfectedHUD();
 	return Plugin_Continue;
 }
@@ -4378,63 +4371,10 @@ Action Command_infhud(int client, int args)
 
 void ShowInfectedHUD()
 {
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (IsClientInGame(i) && !IsFakeClient(i) && IsPlayerAlive(i))
-		{
-			if ( (GetClientTeam(i) == TEAM_INFECTED))
-			{
-				if(IsPlayerTank(i) && L4D_HasPlayerControlledZombies() == false)
-				{
-					int fus = 100 - GetFrustration(i);
-					if(fus <= 75)
-					{
-						PrintHintText(i, "[TS] Tank Control: %d%%%%", fus);
-					}
-					
-					if(fus <= 5)
-					{
-						PrintHintText(i, "[TS] %T","You don't attack survivors",i);
-						SetTankFrustration(i, 100);
-						ForcePlayerSuicide(i);
-						continue;
-					}
-				}
-			}
-		}
-	}
-
 	if (!g_bInfHUD || IsVoteInProgress())
 	{
 		return;
 	}
-
-	// If no bots are alive, no point in showing the HUD
-	// if (L4D_HasPlayerControlledZombies() && !BotsAlive())
-	// {
-	// 	return;
-	// }
-
-	#if DEBUG
-		char calledFunc[255];
-		switch (src)
-		{
-			case 1: strcopy(calledFunc, sizeof(calledFunc), "showInfHUD");
-			case 2: strcopy(calledFunc, sizeof(calledFunc), "monitorRespawn");
-			case 3: strcopy(calledFunc, sizeof(calledFunc), "delayedDmgUpdate");
-			case 4: strcopy(calledFunc, sizeof(calledFunc), "doomedTankCountdown");
-			case 10: strcopy(calledFunc, sizeof(calledFunc), "queueHUDUpdate - client join");
-			case 11: strcopy(calledFunc, sizeof(calledFunc), "queueHUDUpdate - team switch");
-			case 12: strcopy(calledFunc, sizeof(calledFunc), "queueHUDUpdate - spawn");
-			case 13: strcopy(calledFunc, sizeof(calledFunc), "queueHUDUpdate - death");
-			case 14: strcopy(calledFunc, sizeof(calledFunc), "queueHUDUpdate - menu closed");
-			case 15: strcopy(calledFunc, sizeof(calledFunc), "queueHUDUpdate - player kicked");
-			case 16: strcopy(calledFunc, sizeof(calledFunc), "evtRoundEnd");
-			default: strcopy(calledFunc, sizeof(calledFunc), "UNKNOWN");
-		}
-
-		PrintToChatAll("\x01\x04[infhud]\x01 [%f] ShowInfectedHUD() called by [\x04%i\x01] '\x03%s\x01'", GetGameTime(), src, calledFunc);
-	#endif
 
 	int iHP;
 	char iClass[100],lineBuf[100],iStatus[25];
@@ -5258,11 +5198,6 @@ bool IsplayerIncap(int client)
 int GetFrustration(int tank_index)
 {
 	return GetEntProp(tank_index, Prop_Send, "m_frustration");
-}
-
-void SetTankFrustration(int client, int iFrustration)
-{
-	SetEntProp(client, Prop_Send, "m_frustration", 100 - iFrustration);
 }
 
 int GetAheadSurvivor()
