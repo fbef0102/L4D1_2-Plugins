@@ -69,6 +69,8 @@ bool g_bCvarBanAllow, g_bCvarMuteAllow, g_bCvarGagAllow,
 
 int g_iMinutes[MAXPLAYERS+1];
 char g_sImmueAcclvl[16];
+bool 
+	g_bHasNotify[MAXPLAYERS+1];
 
 Handle 
 	g_hGagTimer[MAXPLAYERS+1],
@@ -117,6 +119,8 @@ public void OnPluginStart()
 	g_hCvarServerVoice.AddChangeHook(ConVarChanged_CvarServerVoice);
 	g_hCvarServerChat.AddChangeHook(ConVarChanged_CvarServerChat);
 	g_hCvarServerChatImmuneAccess.AddChangeHook(ConVarChanged_Cvars);
+
+	HookEvent("player_disconnect",      Event_PlayerDisconnect); //換圖不會觸發該事件
 
 	RegAdminCmd("sm_exban",  CMD_ExBan,  ADMFLAG_BAN,  "sm_exban to Open ExBan Steamid Menu or sm_exban <#userid|name> <minutes|0>");
 	RegAdminCmd("sm_exgag",  CMD_ExGag,  ADMFLAG_CHAT, "sm_exgag to Open ExGag Menu or sm_exgag <#userid|name> <minutes|0>");
@@ -1157,18 +1161,18 @@ void AdminMenu_GagEx( TopMenu hTop_Menu, TopMenuAction hAction, TopMenuObject ob
 		CMD_ExGag( param , 0);
 }
 
-bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] sAcclvl)
 {
 	// no permissions set
-	if (strlen(g_sAcclvl) == 0)
+	if (strlen(sAcclvl) == 0)
 		return true;
 
-	else if (StrEqual(g_sAcclvl, "-1"))
+	else if (StrEqual(sAcclvl, "-1"))
 		return false;
 
 	// check permissions
 	int userFlags = GetUserFlagBits(client);
-	if ( (userFlags & ReadFlagString(g_sAcclvl)) || (userFlags & ADMFLAG_ROOT))
+	if ( (userFlags & ReadFlagString(sAcclvl)) || (userFlags & ADMFLAG_ROOT))
 	{
 		return true;
 	}
@@ -1207,11 +1211,13 @@ Action Timer_PutInServer(Handle timer, int userid)
 		HxClientGagMuteBanEx(client, false, true);
 
 		if (g_bCvarServerVoice == false) {
-			CPrintToChat(client, "%T", "sv_voiceenable_off", client);
+			if(!g_bHasNotify[client]) CPrintToChat(client, "%T", "sv_voiceenable_off", client);
+			g_bHasNotify[client] = true;
 		}
 
 		if (g_bCvarServerChat == false) {
-			CPrintToChat(client, "%T", "sv_chatenable_off", client);
+			if(!g_bHasNotify[client]) CPrintToChat(client, "%T", "sv_chatenable_off", client);
+			g_bHasNotify[client] = true;
 		}
 	}
 
@@ -1227,11 +1233,13 @@ Action Timer_PutInServer_Sourcecomms(Handle timer, int userid)
 		HxClientGagMuteBanEx(client, true, true, true);
 
 		if (g_bCvarServerVoice == false) {
-			CPrintToChat(client, "%T", "sv_voiceenable_off", client);
+			if(!g_bHasNotify[client]) CPrintToChat(client, "%T", "sv_voiceenable_off", client);
+			g_bHasNotify[client] = true;
 		}
 
 		if (g_bCvarServerChat == false) {
-			CPrintToChat(client, "%T", "sv_chatenable_off", client);
+			if(!g_bHasNotify[client]) CPrintToChat(client, "%T", "sv_chatenable_off", client);
+			g_bHasNotify[client] = true;
 		}
 	}
 
@@ -1363,4 +1371,13 @@ Action CommandListener_removeid(int client, const char[] command, int args)
 	}
 
 	return Plugin_Continue;
+}
+
+void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if(client == 0 || !IsClientInGame(client))
+		return;
+
+	g_bHasNotify[client] = false;
 }
