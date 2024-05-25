@@ -25,10 +25,6 @@ public void OnPluginStart()
 
 	RegConsoleCmd("sm_cur", CurrentCmd);
 	RegConsoleCmd("sm_current", CurrentCmd);
-	RegConsoleCmd("sm_boss", CurrentCmd);
-	RegConsoleCmd("sm_tank", CurrentCmd);
-	RegConsoleCmd("sm_witch", CurrentCmd);
-	RegConsoleCmd("sm_t", CurrentCmd);
 
 	HookEvent("round_start", RoundStartEvent, EventHookMode_PostNoCopy);
 }
