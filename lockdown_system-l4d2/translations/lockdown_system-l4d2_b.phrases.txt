@@ -12,7 +12,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"Tank is still alive, kill tank first! Or wait {1} seconds"
-		"ru"			"Танк всё ещё жив, сначала убейте его! Или подождите {1} сек."
+		"ru"			"Танк всё ещё жив, сначала убейте его или подождите {1} сек."
 		"zho"			"Tank還活著，請先殺了Tank!\n否則等待 {1} 秒!"
 		"chi"			"坦克还活着，请先杀了坦克!\n否则等待 {1} 秒!"
 		"es"			"¡MATAR AL TANK O ESPERAR {1} SEGUNDOS!"
@@ -54,23 +54,23 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"Saferoom outside dead in {1} seconds"
-		"ru"			"Все будут мертвы снаружи убежища через {1} сек."
+		"ru"			"Все,кто снаружи убежища,будут мертвы через {1} сек."
 		"zho"			"安全室門外死亡倒數 {1} 秒!"
 		"chi"			"安全室门外死亡倒数 {1} 秒!"
 		"es"			"PUERTA ABIERTA, ENTRA O MORIRAS EN {1} SEGUNDOS"
 	}
 	"Outside Slay"
 	{
-		"en"			"{olive}Players outside the saferoom will be {green}executed{default}!"
-		"ru"			"{olive}Игроки, находящиеся за пределами убежища, будут {green}казнены{default}!"
+		"en"			"{olive}Players outside the saferoom will be {green}killed{default}!"
+		"ru"			"{olive}Игроки, находящиеся за пределами убежища, будут {green}убиты{default}!"
 		"zho"			"{olive}室外區域的玩家將{green}處以死刑{default}!"
 		"chi"			"{olive}室外区域的玩家将{green}处以死刑{default}!"
 		"es"			"¡JUGADORES FUERA DEL REFUGIO SERAN ASESINADOS!"
 	}
 	"You have been executed for outside the saferoom!"
 	{
-		"en"			"You have been executed for outside the saferoom!"
-		"ru"			"Вы были казнены за выход за пределы убежища!"
+		"en"			"You have been killed for outside the saferoom!"
+		"ru"			"Вы были убиты за выход за пределы убежища!"
 		"zho"			"你位於安全門外，處以死刑!!"
 		"chi"			"你位于安全门外，处以死刑!!"
 		"es"			"¡HAS SIDO ASESINADO POR ESTAR FUERA DE REFUGIO!"
@@ -95,7 +95,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"The survivors have only {green}{1}{default} chance(s) to open the safe room door"
-		"ru"			"У выживших осталось шансов на открытие двери убежища: только {green}{1}"
+		"ru"			"У выживших осталось шансов на открытие двери убежища: {green}{1}"
 		"zho"			"倖存者只有 {green}{1}{default} 次機會打開安全室大門!"
 		"chi"			"生还者只有 {green}{1}{default} 次机会打开安全室大门!"
 	}
