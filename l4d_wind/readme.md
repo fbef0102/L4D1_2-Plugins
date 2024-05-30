@@ -6,7 +6,7 @@ Create a survivor bot in game + Teleport player
 
 * Image
 	* teleport menu
-	<br/>![l4d_wind_2](image/l4d_wind_2.jpg)
+	<br/>![l4d_wind_1](image/l4d_wind_1.jpg)
 
 * Require | 必要安裝
 <br/>None
@@ -65,6 +65,9 @@ Create a survivor bot in game + Teleport player
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.7 (2024-5-31)
+		* Respawn bot if bot was added as dead state
+
 	* v1.6 (2022-11-23)
 		* Initial Release
 </details>
@@ -75,7 +78,7 @@ Create a survivor bot in game + Teleport player
 
 * 圖示
 	* 傳送玩家菜單
-	<br/>![l4d_wind_1](image/l4d_wind_1.jpg)
+	<br/>![zho/l4d_wind_1](image/zho/l4d_wind_1.jpg)
 
 * 原理
 	* 管理員輸入!teleport 可以傳送指定玩家到準心上或是其他玩家身上
