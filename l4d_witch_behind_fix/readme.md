@@ -6,15 +6,10 @@ The witch turns back if nearby survivor scares her behind
 * Image | 圖示
     <br/>None
 
-* Require | 必要安裝
-<br/>None
-
-* Related Plugin | 相關插件
-	1. [Witch fixes[Left 4 Fix]](https://forums.alliedmods.net/showthread.php?t=315481): Witch fixes! by Lux
-		> 由Lux大老製作修復Witch各種的bug
-
-	2. [witch_target_override](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/witch_target_override): Change target when the witch incapacitates or kills victim + witchs auto follow survivors
-		> Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
+* Image | 圖示
+	| Before (裝此插件之前)  			| After (裝此插件之後) |
+	| -------------|:-----------------:|
+	| ![l4d_tank_spawn_1](image/l4d_witch_behind_fix_1.gif)|![l4d_tank_spawn_2](image/l4d_witch_behind_fix_2.gif)|
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -31,6 +26,18 @@ The witch turns back if nearby survivor scares her behind
     L4D1
     L4D2
     ```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [Witch fixes[Left 4 Fix]](https://forums.alliedmods.net/showthread.php?t=315481): Witch fixes! by Lux
+		> 由Lux大老製作修復Witch各種的bug
+
+	2. [witch_target_override](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/witch_target_override): Change target when the witch incapacitates or kills victim + witchs auto follow survivors
+		> Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
+
+	3. [l4d_witch_stagger_block](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_stagger_block): Block Witch stumble by Weapons/Shove/Explosive Bullet/Pipebomb/....
+		> Witch 不會被狙擊槍/高爆子彈/土製炸彈... 震退
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
