@@ -892,7 +892,7 @@ bool roundInProgress 		= false;		// Flag that marks whether or not a round is cu
 float fPlayerSpawnEngineTime[MAXPLAYERS+1] = {0.0}; //time when real infected player spawns
 
 int g_iClientColor[MAXPLAYERS+1], g_iClientIndex[MAXPLAYERS+1], g_iLightIndex[MAXPLAYERS+1];
-int iPlayerTeam[MAXPLAYERS+1];
+//int iPlayerTeam[MAXPLAYERS+1];
 bool g_bCvarAllow, g_bMapStarted, g_bVersusCoop,
 	g_bInfHUD, g_bAnnounce, g_bIncludingDead;
 int g_iZSDisableGamemode;
@@ -1949,7 +1949,7 @@ public void OnClientPutInServer(int client)
 	if (IsFakeClient(client))
 		return;
 
-	iPlayerTeam[client] = 1;
+	//iPlayerTeam[client] = 1;
 }
 
 Action CheckQueue(int client, int args)
@@ -1997,7 +1997,7 @@ Action JoinInfectedInCoop(int client, int args)
 		{
 			CleanUpStateAndMusic(client);
 			ChangeClientTeam(client, TEAM_INFECTED);
-			iPlayerTeam[client] = TEAM_INFECTED;
+			//iPlayerTeam[client] = TEAM_INFECTED;
 			if(g_aPlayedInfected.FindString(sSteamId) == -1)
 			{
 				g_aPlayedInfected.PushString(sSteamId);
@@ -2649,12 +2649,12 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 			int iTeam = GetClientTeam(client);
 			if(iTeam == TEAM_INFECTED)
 			{
-				if(iPlayerTeam[client] != TEAM_INFECTED)
+				/*if(iPlayerTeam[client] != TEAM_INFECTED)
 				{
 					ChangeClientTeam(client,TEAM_SPECTATOR);
 					//FakeClientCommand(client,"sm_js");
 					return Plugin_Continue;
-				}
+				}*/
 
 				if(g_ePluginSettings.m_bCoopVersusEnable)
 				{
@@ -2698,7 +2698,7 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 			}
 			else
 			{
-				iPlayerTeam[client] = iTeam;
+				//iPlayerTeam[client] = iTeam;
 				if(g_bL4D2Version)
 				{
 					SendConVarValue(client, g_hCvarMPGameMode, g_sCvarMPGameMode);
@@ -2841,7 +2841,7 @@ public void OnClientDisconnect(int client)
 {
 	if(!IsClientInGame(client)) return;
 
-	iPlayerTeam[client] = 1;
+	//iPlayerTeam[client] = 1;
 	// When a client disconnects we need to restore their HUD preferences to default for when
 	// a int client joins and fill the space.
 	clientGreeted[client] = 0;
