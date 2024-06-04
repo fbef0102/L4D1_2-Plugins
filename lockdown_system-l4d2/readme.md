@@ -23,13 +23,13 @@ Locks Saferoom Door Until Someone Opens It.
         // If 1, Enable saferoom door status Announcements
         lockdown_system-l4d2_announce "1"
 
-        // Duration Of Anti-Farm
+        // Duration Of Anti-Farm, locks door if tank is on the field
         lockdown_system-l4d2_anti-farm_duration "50"
 
         // Change how Count Down Timer Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
         lockdown_system-l4d2_count_hint_type "2"
 
-        // Duration Of Lockdown
+        // Duration Of end saferoom door opening
         lockdown_system-l4d2_duration "100"
 
         // (L4D2) The default value for saferoom door glow range.
@@ -38,7 +38,7 @@ Locks Saferoom Door Until Someone Opens It.
         // (L4D2) The default glow color for saferoom door when lock. Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.
         lockdown_system-l4d2_lock_glow_color "255 0 0"
 
-        // Number Of Mobs To Spawn (-1=infinite horde, 0=Off)
+        // Number Of horde mobs to spawn (-1=Infinite horde, 0=Off)
         lockdown_system-l4d2_mobs "5"
 
         // After saferoom door is opened, how many chance can the survivors open the door. (0=Can't open door after close, -1=No limit)
@@ -59,7 +59,7 @@ Locks Saferoom Door Until Someone Opens It.
         // If 1, prevent AI survivor from opening and closing the door.
         lockdown_system-l4d2_spam_bot_disable "1"
 
-        // 0=Off. 1=Display a message showing who opened or closed the saferoom door.
+        // If 1, Display a message showing who opened or closed the saferoom door.
         lockdown_system-l4d2_spam_hint "1"
 
         // If 1, Enable Tank Demolition, server will spawn tank after door open 
@@ -194,7 +194,7 @@ Locks Saferoom Door Until Someone Opens It.
 
     * cfg/sourcemod/lockdown_system-l4d2.cfg
         ```php
-        // 為1時, 顯示安全室大門的狀態
+        // 為1時, 顯示終點安全室大門的狀態
         lockdown_system-l4d2_announce "1"
 
         // 當有人開門並且有Tank在場時，必須等待50秒或者殺死Tank <= 避免略過tank不殺死直衝終點
@@ -203,28 +203,28 @@ Locks Saferoom Door Until Someone Opens It.
         // 開門倒數計時該如何顯示? (0: 不顯示, 1: 聊天視窗, 2: 下方黑底白字, 3: 螢幕中央)
         lockdown_system-l4d2_count_hint_type "2"
 
-        // 大門開啟時間
+        // 終點安全室大門開啟時間
         lockdown_system-l4d2_duration "100"
 
-        // (L4D2) 大門發光的範圍
+        // (L4D2) 終點安全室大門發光的範圍
         lockdown_system-l4d2_glow_range "550"
 
-        // (L4D2) 大門鎖住狀態的光圈顏色
+        // (L4D2) 終點安全室大門鎖住狀態的光圈顏色
         lockdown_system-l4d2_lock_glow_color "255 0 0"
 
-        // (L4D2) 大門解鎖狀態的光圈顏色
+        // (L4D2) 終點安全室大門解鎖狀態的光圈顏色
         lockdown_system-l4d2_unlock_glow_color "200 200 200"
 
-        // 大門開啟期間屍潮生成的數量 (-1=無限屍潮, 0=不要生成屍潮)
+        // 終點安全室大門開啟期間屍潮生成的數量 (-1=無限屍潮, 0=不要生成屍潮)
         lockdown_system-l4d2_mobs "5"
 
-        // 大門開啟之後，倖存者只有兩次機會能再度打開大門. (0=關閉之後不能再打開, -1=無限制) <= 不給傻B機會
+        // 終點安全室大門開啟之後，倖存者只有兩次機會能再度打開大門. (0=關閉之後不能再打開, -1=無限制) <= 不給傻B機會
         lockdown_system-l4d2_open_chance "2"
 
-        // 大門開啟期間，每50秒生成一隻Tank (0=不生成)
+        // 終點安全室大門開啟期間，每50秒生成一隻Tank (0=不生成)
         lockdown_system-l4d2_opening_tank_interval "50"
 
-        // 大門開啟之後經過60秒，如果還有倖存者逗留在門外，將處死 (0=關閉) <= 避免傻B在外面逗留
+        // 終點安全室大門開啟之後經過60秒，如果還有倖存者逗留在門外，將處死 (0=關閉) <= 避免傻B在外面逗留
         lockdown_system-l4d2_outside_slay_duration "60"
 
         // 必須隊內存活的倖存者們有50%的人集合在安全室附近，才能打開大門 (0=關閉)  <= 避免傻B一個人拋棄隊伍抵達安全室
@@ -236,7 +236,7 @@ Locks Saferoom Door Until Someone Opens It.
         // 為1時, 禁止Bot開門與關門
         lockdown_system-l4d2_spam_bot_disable "1"
 
-        // 0=關閉. 1=顯示哪位玩家開關門.  <= 可以知道誰是兇手開門
+        // 為1時, 顯示哪位玩家開關門.  <= 可以知道誰是兇手開門
         lockdown_system-l4d2_spam_hint "1"
 
         // 為1時, 大門開啟之後，生成大量的Tank
@@ -248,7 +248,7 @@ Locks Saferoom Door Until Someone Opens It.
         // 0=關閉. 1=大門開啟期間，安全室內的普通感染者與特感碰到門會傳送到門外 (避免他們都生在室內卡住, 只有lockdown_system-l4d2_type指令是2才會運作)
         lockdown_system-l4d2_teleport "1"
 
-        // 大門開啟方式: 0=隨機, 1=緩慢地打開, 2=預設
+        // 終點安全室大門開啟方式: 0=隨機, 1=緩慢地打開, 2=預設
         lockdown_system-l4d2_type "0"
         ```
 </details>
