@@ -182,6 +182,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復子彈擊中與伺服器運算相差 1 tick的延遲
 * <b>[gametype_description](/gametype_description)</b>: Allows changing of displayed game type in server browser
     * 更改伺服器的遊戲欄資訊
+* <b>[sm_translator](/sm_translator)</b>: Translate chat messagesbrowser
+    * 翻譯你的句子給其他玩家 (玩家對應的語言)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

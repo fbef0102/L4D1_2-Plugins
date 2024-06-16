@@ -47,7 +47,7 @@ Locks Saferoom Door Until Someone Opens It.
         // Time Interval to spawn a tank when door is opening (0=off)
         lockdown_system-l4d2_opening_tank_interval "50"
 
-        // After saferoom door is opened, slay players who are not inside saferoom in seconds. (0=off)
+        // After end saferoom door is opened, slay players who are not inside saferoom in seconds. (0=off)
         lockdown_system-l4d2_outside_slay_duration "60"
 
         // What percentage of the ALIVE survivors must assemble near the saferoom door before open. (0=off)
