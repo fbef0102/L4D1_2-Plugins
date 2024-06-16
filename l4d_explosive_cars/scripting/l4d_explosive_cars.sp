@@ -246,17 +246,14 @@ void FindMapCars()
 				SDKHook(entity, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 			}
 
-			float vpos[3];
-			GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vpos);
+			//float vpos[3];
+			//GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vpos);
 			//LogMessage("pos: %.2f %.2f %.2f", vpos[0], vpos[1], vpos[2]);
 		}
 		else if(strcmp(classname, "prop_car_alarm") == 0)
 		{
-			if(StrContains(model, "vehicle", false) != -1)
-			{
-				g_bHooked[entity] = true;
-				SDKHook(entity, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
-			}
+			g_bHooked[entity] = true;
+			SDKHook(entity, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 		}
 	}
 }
@@ -311,8 +308,10 @@ public void OnNextFrame(int entityRef)
 	char model[256];
 	if(strncmp(classname, "prop_physics", 12) == 0)
 	{
+		if(!IsTankProp(entity)) return;
+
 		GetEntPropString(entity, Prop_Data, "m_ModelName", model, sizeof(model));
-		if(StrContains(model, "vehicle", false) != -1 && IsTankProp(entity))
+		if(StrContains(model, "vehicle", false) != -1)
 		{
 			SDKHook(entity, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 			g_bHooked[entity] = true;
@@ -321,9 +320,13 @@ public void OnNextFrame(int entityRef)
 			g_bMidWreck[entity] = false;
 			g_bHighWreck[entity] = false;
 			g_bCritWreck[entity] = false;
-			g_bHooked[entity] = false;
 			g_bExploded[entity] = false;
 			g_iParticle[entity] = -1;
+		}
+		else if (strcmp(model, "models/props/cs_assault/forklift.mdl", false) == 0)
+		{
+			g_bHooked[entity] = true;
+			SDKHook(entity, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 		}
 	}
 	else if(strcmp(classname, "prop_car_alarm") == 0)
@@ -335,7 +338,6 @@ public void OnNextFrame(int entityRef)
 		g_bMidWreck[entity] = false;
 		g_bHighWreck[entity] = false;
 		g_bCritWreck[entity] = false;
-		g_bHooked[entity] = false;
 		g_bExploded[entity] = false;
 		g_iParticle[entity] = -1;
 	}
