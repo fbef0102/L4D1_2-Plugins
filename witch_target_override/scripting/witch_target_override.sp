@@ -2,7 +2,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "2.1-2024/3/11"
+#define PLUGIN_VERSION "2.2-2024/6/20"
 #define DEBUG 0
 
 #include <sourcemod>
@@ -342,7 +342,7 @@ void witch_spawn(Event event, const char[] event_name, bool dontBroadcast)
 	bWitchSit[witchid] = false;
 	CreateTimer(0.5, DelayHookWitch, EntIndexToEntRef(witchid), TIMER_FLAG_NO_MAPCHANGE );
 
-	SDKHook(witchid, SDKHook_OnTakeDamageAlivePost, OnTakeDamageWitchPost);	
+	SDKHook(witchid, SDKHook_OnTakeDamagePost, WitchOnTakeDamagePost);	
 
 	delete BurnWitchTimer[witchid];
 }
@@ -715,7 +715,7 @@ void RotateVector(float direction[3], float vec[3], float alfa, float result[3])
     AddVectors(result, uuv, result);
 }
 
-void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage, int damagetype)
+void WitchOnTakeDamagePost(int witch, int attacker, int inflictor, float damage, int damagetype)
 {
 	if(EnemyTime[witch] > 0.0 && attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) == 2)
 	{
@@ -725,6 +725,7 @@ void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage,
 	if( damagetype & DMG_BURN && BurnWitchTimer[witch] == null)
 	{
 		delete BurnWitchTimer[witch];
+		//PrintToChatAll("burn timer");
 
 		DataPack hPack;
 		BurnWitchTimer[witch] = CreateDataTimer(witch_burn_time, BurnWitchDead_Timer, hPack); // fix memory leak

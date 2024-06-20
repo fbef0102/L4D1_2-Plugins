@@ -65,6 +65,9 @@ Change target when the witch incapacitates or kills victim + witchs auto follow 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.2 (2024-6-20)
+        * Fixed witch wil be killed after change target 15 seconds 
+
     * v2.1 (2024-3-11)
         * Update Cvars
 
