@@ -223,8 +223,6 @@ public void OnMapEnd()
 	delete hSpawnMobTimer;
 	delete hAntiFarmTimer;
 	delete hLockdownTimer;
-	
-	SetCheckpointDoor_Default();
 
 	ResetPlugin();
 }
@@ -382,8 +380,6 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	{
 		CreateTimer(1.5, ForceEndLockdown,_, TIMER_FLAG_NO_MAPCHANGE);
 	}
-	
-	CreateTimer(2.0, OrderShutDown,_,TIMER_FLAG_NO_MAPCHANGE);
 
 	ResetPlugin();
 
@@ -396,12 +392,6 @@ Action ForceEndLockdown(Handle timer)
 	delete hLockdownTimer;
 	bLDFinished = true;
 	
-	return Plugin_Continue;
-}
-
-Action OrderShutDown(Handle timer)
-{
-	SetCheckpointDoor_Default();
 	return Plugin_Continue;
 }
 

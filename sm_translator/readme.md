@@ -1,7 +1,8 @@
 # Description | 內容
 Translate chat messagesbrowser
 
-* [Video | 影片展示](https://youtu.be/SapXAIOsNJI)
+* Video | 影片展示
+<br/>None
 
 * Image | 圖示
     <br/>![sm_translator_1](image/sm_translator_1.jpg)

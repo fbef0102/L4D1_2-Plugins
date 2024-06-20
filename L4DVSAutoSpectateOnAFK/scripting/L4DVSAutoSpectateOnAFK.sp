@@ -178,17 +178,18 @@ public void OnClientPutInServer(int client)
 	afkPlayerTimeLeftAction[client] = afkKickTime;
 }
 
-bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] sAcclvl)
 {
 	// no permissions set
-	if (strlen(g_sAcclvl) == 0)
+	if (strlen(sAcclvl) == 0)
 		return true;
 
-	else if (StrEqual(g_sAcclvl, "-1"))
+	else if (StrEqual(sAcclvl, "-1"))
 		return false;
 
 	// check permissions
-	if ( GetUserFlagBits(client) & ReadFlagString(g_sAcclvl) )
+	int flag = GetUserFlagBits(client);
+	if ( flag & ReadFlagString(sAcclvl) || flag & ADMFLAG_ROOT )
 	{
 		return true;
 	}
