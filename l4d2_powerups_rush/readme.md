@@ -41,7 +41,7 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
         // If 1, players will be given pills when leaving saferoom? (0 = OFF)
         l4d_powerups_pills_give_on "0"
 
-        // The luckey change for pills that will grant the boost. (1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)
+        // The luckey change for pills that will grant the boost. (0=Off, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)", FCVAR_NOTIFY, true, 0.0)
         l4d_powerups_pills_luck "3"
 
         // If 1, enable this plugin ? (0 = Disable)
@@ -160,7 +160,7 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
         // 如何顯示服用生效與失效的提示 (0: 關閉提示, 1:聊天框, 2: 螢幕下方黑底白字框, 3: 螢幕正中間)
         l4d_powerups_notify_type "1"
 
-        // 止痛藥丸也會獲得跟腎上腺素一樣的效果，機率為 (1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4 等等)
+        // 止痛藥丸也會獲得跟腎上腺素一樣的效果，機率為 (0=沒效果, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4 等等)
         l4d_powerups_pills_luck "3"
 
         // 腎上腺素的效時間多長?
