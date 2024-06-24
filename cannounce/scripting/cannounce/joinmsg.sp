@@ -51,7 +51,7 @@ void SetupJoinMsg()
 	g_CvarPlaySoundFile = CreateConVar("sm_ca_playsoundfile", "ambient\\alarms\\klaxon1.wav", "Sound to play on player connect if sm_ca_playsound = 1");
 
 	g_CvarPlayDiscSound = CreateConVar("sm_ca_playdiscsound", "0", "Plays a specified (sm_ca_playdiscsoundfile) sound on player discconnect");
-	g_CvarPlayDiscSoundFile = CreateConVar("sm_ca_playdiscsoundfile", "weapons\\cguard\\charging.wav", "Sound to play on player discconnect if sm_ca_playdiscsound = 1");
+	g_CvarPlayDiscSoundFile = CreateConVar("sm_ca_playdiscsoundfile", "ambient\\alarms\\perimeter_alarm.wav", "Sound to play on player discconnect if sm_ca_playdiscsound = 1");
 
 	g_CvarMapStartNoSound = CreateConVar("sm_ca_mapstartnosound", "30.0", "Time to ignore all player join sounds on a map load");
 }
