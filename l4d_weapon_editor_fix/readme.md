@@ -43,7 +43,7 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		l4d_weapon_editor_fix_dual_pistol_CycleTime "0.1"
 
 		// The dual pistol Reload Duration (0: keeps vanilla reload duration of 2.333)
-		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "2.333"
+		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "0"
 
 		// If 1, Make shotgun fire rate obey "CycleTime" keyvalue in weapon_*.txt
 		l4d_weapon_editor_fix_shotgun_fire_rate "1"
@@ -91,6 +91,9 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2 (2024-6-25)
+		* Fixed Reload playback when shove
+
 	* v1.1 (2024-3-7)
 		* Update cvars
 		* Delete function: pistol obey "CycleTime" keyvalue
@@ -136,7 +139,7 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		l4d_weapon_editor_fix_dual_pistol_CycleTime "0.1"
 
 		// 設置雙手槍的裝彈時間 (0: 維持遊戲預設的2.333秒)
-		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "2.333"
+		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "0"
 
 		// 為1時，散彈槍的開槍間隔強制符合 weapon_*.txt 的武器參數"CycleTime"
 		l4d_weapon_editor_fix_shotgun_fire_rate "1"

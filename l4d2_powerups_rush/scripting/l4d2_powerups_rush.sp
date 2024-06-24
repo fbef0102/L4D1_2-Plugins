@@ -156,7 +156,7 @@ public void OnPluginStart()
 	powerups_notify_type = CreateConVar("l4d_powerups_notify_type", "1", "Changes how activation hint and deactivation hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	powerups_timer_type = CreateConVar("l4d_powerups_coutdown_type", "2", "Changes how countdown timer hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	if(g_i_L4D_12 == 2) powerups_adrenaline_effect = CreateConVar("l4d_powerups_add_adrenaline_effect", "1", "(L4D2) If 1, set adrenaline effect time same as l4d_powerups_duration (Progress bar faster, such as use kits faster, save teammates faster... etc)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	pills_luck = CreateConVar("l4d_powerups_pills_luck", "3", "The luckey change for pills that will grant the boost. (1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)", FCVAR_NOTIFY, true, 1.0);
+	pills_luck = CreateConVar("l4d_powerups_pills_luck", "3", "The luckey change for pills that will grant the boost. (0=Off, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)", FCVAR_NOTIFY, true, 0.0);
 	
 	g_h_reload_rate = CreateConVar("l4d_powerups_weaponreload_rate", "0.5714", "The interval incurred by reloading is multiplied by this value (clamped between 0.2 ~ 0.9)", FCVAR_NOTIFY, true, 0.2, true, 0.9);
 	g_h_melee_rate = CreateConVar("l4d_powerups_weaponmelee_rate", "0.45", "The interval for swinging melee weapon (clamped between 0.3 ~ 0.9)", FCVAR_NOTIFY, true, 0.3, true, 0.9);
@@ -224,7 +224,7 @@ public void OnPluginEnd()
 }
 
 
-public void Convar_Cvars (ConVar convar, const char[] oldValue, const char[] newValue)
+void Convar_Cvars (ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	CvarsChanged();
 }
@@ -262,7 +262,7 @@ public void OnClientDisconnect(int client)
 	}
 }
 
-public Action Timer_Notify(Handle Timer, any client)
+Action Timer_Notify(Handle Timer, any client)
 {
 	if (g_powerups_plugin_on && IsInGame(client))
 	{
@@ -282,7 +282,7 @@ public Action Timer_Notify(Handle Timer, any client)
 	return Plugin_Continue;
 }
 
-public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if( !client ) return;
@@ -292,7 +292,7 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 	g_usedhealth[client] = 0;
 }
 
-public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if( !client ) return;
@@ -302,7 +302,7 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	g_usedhealth[client] = 0;
 }
 
-public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	for(int i = 1; i <= MaxClients; i++)
 		fGameTimeSave[i] = 0.0;
@@ -314,7 +314,7 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 }
 
-public Action Timer_PlayerLeftStart(Handle Timer)
+Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{
@@ -342,7 +342,7 @@ Action Timer_GiveAdrenaline(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action Command_GiveAdrenaline(int client, int args)
+Action Command_GiveAdrenaline(int client, int args)
 {
 	GiveAdrenalineToAll();
 	return Plugin_Handled;
@@ -363,7 +363,7 @@ void GiveAdrenalineToAll()
 	SetCommandFlags("give", flags|FCVAR_CHEAT);
 }
 // ////////////////////////////////////////////////////////////////////////////
-public Action Timer_GivePills(Handle timer)
+Action Timer_GivePills(Handle timer)
 {
 	if (g_powerups_plugin_on)
 	{
@@ -376,13 +376,13 @@ public Action Timer_GivePills(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action Command_GivePills(int client, int args)
+Action Command_GivePills(int client, int args)
 {
 	GivePillsToAll();
 	return Plugin_Handled;
 }
 
-public void GivePillsToAll()
+void GivePillsToAll()
 {
 	int flags = GetCommandFlags("give");	
 	SetCommandFlags("give", flags & ~FCVAR_CHEAT);	
@@ -397,7 +397,7 @@ public void GivePillsToAll()
 	SetCommandFlags("give", flags|FCVAR_CHEAT);
 }
 // ////////////////////////////////////////////////////////////////////////////
-public Action Timer_GiveRandom(Handle timer)
+Action Timer_GiveRandom(Handle timer)
 {
 	if (g_powerups_plugin_on)
 	{
@@ -410,13 +410,13 @@ public Action Timer_GiveRandom(Handle timer)
 	return Plugin_Continue;
 }
 
-public Action Command_GiveRandom(int client, int args)
+Action Command_GiveRandom(int client, int args)
 {
 	GiveRandomToAll();
 	return Plugin_Handled;
 }
 
-public void GiveRandomToAll()
+void GiveRandomToAll()
 {
 	int flags = GetCommandFlags("give");	
 	SetCommandFlags("give", flags & ~FCVAR_CHEAT);	
@@ -441,7 +441,7 @@ public void GiveRandomToAll()
 }
 
 //Popping the Adrenaline
-public void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroadcast)
+void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_powerups_plugin_on)
 	{
@@ -477,9 +477,9 @@ public void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroad
 }
 
 //Popping the Pills
-public void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
+void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_powerups_plugin_on)
+	if (g_powerups_plugin_on && pills_luck.IntValue != 0)
 	{
 		int client = GetClientOfUserId(event.GetInt("subject"));
 		if (client == 0 || !IsClientInGame(client)) return;
@@ -523,7 +523,7 @@ public Action OnAdrenalineGiven(int client, float duration) {
 	return Plugin_Continue;
 }
 
-public Action Timer_Countdown(Handle timer, any client)
+Action Timer_Countdown(Handle timer, any client)
 {
 	if(!client || !IsClientInGame(client) || GetClientTeam(client) != 2)
 	{
@@ -574,7 +574,7 @@ public Action Timer_Countdown(Handle timer, any client)
 	}
 }
 
-public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ClearAll();
 	ResetTimer();
@@ -582,7 +582,7 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 
 //Reloading weapon
-public void Event_Reload (Event event, const char[] name, bool dontBroadcast)
+void Event_Reload (Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_powerups_plugin_on)
 	{
@@ -704,7 +704,7 @@ void MagStart (int iEntid, int client)
 }
 
 //called for autoshotguns
-public Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
+Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 {
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
@@ -774,7 +774,7 @@ public Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 	return Plugin_Stop;
 }
 
-public Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
+Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
 {
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
@@ -836,7 +836,7 @@ public Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
 }
 
 //called for pump/chrome shotguns
-public Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
+Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 {
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
@@ -906,7 +906,7 @@ public Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 }
 // ////////////////////////////////////////////////////////////////////////////
 //this resets the playback rate on non-shotguns
-public Action Timer_MagEnd (Handle timer, any iEntid)
+Action Timer_MagEnd (Handle timer, any iEntid)
 {
 	if (IsServerProcessing() == false)
 		return Plugin_Stop;
@@ -924,7 +924,7 @@ public Action Timer_MagEnd (Handle timer, any iEntid)
 	return Plugin_Stop;
 }
 
-public Action Timer_MagEnd2 (Handle timer, DataPack hPack)
+Action Timer_MagEnd2 (Handle timer, DataPack hPack)
 {
 	ResetPack(hPack);
 	int iCid = ReadPackCell(hPack);
@@ -955,7 +955,7 @@ public Action Timer_MagEnd2 (Handle timer, DataPack hPack)
 	return Plugin_Stop;
 }
 
-public Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
+Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
 {
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-autoshotgun tick");
@@ -996,7 +996,7 @@ public Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
 // ////////////////////////////////////////////////////////////////////////////
 //since cocking requires more time, this function does
 //exactly as the above, except it adds slightly more time
-public Action Timer_ShotgunEndCock (Handle timer, DataPack hPack)
+Action Timer_ShotgunEndCock (Handle timer, DataPack hPack)
 {
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}-autoshotgun tick");
@@ -1444,7 +1444,7 @@ void UnHookAll()
 			SDKUnhook(i, SDKHook_PostThinkPost, hOnPostThinkPost);
 }
 
-public void hOnPostThinkPost(int iClient)
+void hOnPostThinkPost(int iClient)
 {
 	if(IsFakeClient(iClient) && GetClientTeam(iClient) != 2)
 	{
