@@ -99,11 +99,9 @@ Announces hunter pounces to the entire server
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d2_pounce_damage by Silvers](https://forums.alliedmods.net/showthread.php?p=2675236): Patches the Hunter to enable bonus damage in all gamemodes.
-		> 任何模式的AI Hunter都可以造成高撲傷害
-	2. [pounce_maxdamage](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/pounce_maxdamage.sp): Makes it easy to properly uncap hunter pounces
+	1. [pounce_maxdamage](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/pounce_maxdamage.sp): Makes it easy to properly uncap hunter pounces
 		> (L4D1) 可以改變最大高撲的傷害值
-	3. [accelerator74/Pounce-Damage-Uncap](https://github.com/accelerator74/Pounce-Damage-Uncap/actions): Change the pounce range and max pounce damage in L4D2
+	2. [accelerator74/Pounce-Damage-Uncap](https://github.com/accelerator74/Pounce-Damage-Uncap/actions): Change the pounce range and max pounce damage in L4D2
 		> (L4D2) 可以改變最大高撲的傷害值
 </details>
 

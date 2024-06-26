@@ -81,14 +81,6 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 	L4D2
 	```
 
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [Mission and Weapons - Info Editor by Silvers](https://forums.alliedmods.net/showthread.php?t=310586): Modify gamemodes.txt and weapons.txt values by config instead of conflicting VPK files.
-        * 透過文件修改遊戲與武器參數
-	2. [Incapped Weapons Patch by Silvers](https://forums.alliedmods.net/showthread.php?t=322859): Patches the game to allow using Weapons while Incapped, instead of changing weapons scripts.
-        * 倒地狀態下可使用主武器與近戰
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* v1.2 (2024-6-25)
