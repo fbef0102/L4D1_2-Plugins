@@ -10,27 +10,17 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <multicolors>
-#define PLUGIN_VERSION "2.4"
+#define PLUGIN_VERSION "2.5-2024/6/27"
 
 
 // For cvars
-ConVar g_hAfkWarnSpecTime;
-ConVar g_hAfkSpecTime;
-ConVar g_hAfkWarnKickTime;
-ConVar g_hAfkKickTime;
-ConVar g_hAfkCheckInterval;
-ConVar g_hAfkKickEnabled;
-ConVar g_hAfkSaferoomIgnore;
-ConVar g_hImmuneAccess;
-ConVar g_hSayResetTime;
-int afkWarnSpecTime;
-int afkSpecTime;
-int afkWarnKickTime;
-int afkKickTime;
-int afkCheckInterval;
-bool afkKickEnabled;
-bool bAfkSaferoomIgnore;
-bool g_bSayResetTime;
+ConVar g_hAfkWarnSpecTime, g_hAfkSpecTime, g_hAfkWarnKickTime, g_hAfkKickTime,
+ 	g_hAfkCheckInterval, g_hAfkKickEnabled, g_hAfkSaferoomIgnore, 
+	g_hImmuneAccess, g_hSayResetTime, g_hSpecAfkMsgEnable;
+
+int afkWarnSpecTime, afkSpecTime, afkWarnKickTime, 
+	afkKickTime, afkCheckInterval;
+bool afkKickEnabled, bAfkSaferoomIgnore, g_bSayResetTime, g_bSpecAfkMsgEnable;
 
 
 // work variables
@@ -101,15 +91,16 @@ public void OnPluginStart()
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("player_spawn",			Event_PlayerSpawn,	EventHookMode_PostNoCopy);
 
-	g_hAfkWarnSpecTime 		= CreateConVar("l4d_specafk_warnspectime", "20", "Warn time before spec", FCVAR_NOTIFY, true, 0.0);
-	g_hAfkSpecTime 			= CreateConVar("l4d_specafk_spectime", "15", "time before spec (after warn)", FCVAR_NOTIFY, true, 0.0);
-	g_hAfkWarnKickTime	 	= CreateConVar("l4d_specafk_warnkicktime", "60", "Warn time before kick (while already on spec)", FCVAR_NOTIFY, true, 0.0);
-	g_hAfkKickTime 			= CreateConVar("l4d_specafk_kicktime", "30", "time before kick (while already on spec after warn)", FCVAR_NOTIFY, true, 0.0);
-	g_hAfkCheckInterval 	= CreateConVar("l4d_specafk_checkinteral", "1", "Check/warn time interval", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hAfkKickEnabled 		= CreateConVar("l4d_specafk_kickenabled", "1", "If 1, kick enabled on afk while on spec", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hAfkSaferoomIgnore 	= CreateConVar("l4d_specafk_saferoom_ignore", "0", "If 1, player will still be forced to spectate and kicked whether surviros leave saferoom or not.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hImmuneAccess 		= CreateConVar("l4d_specafk_immune_access_flag", "z", "Players with these flags have immune to be kicked while spec. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
-	g_hSayResetTime 		= CreateConVar("l4d_specafk_say_reset", "1", "If 1, Reset time when player types words in chatbox.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hAfkWarnSpecTime 		= CreateConVar("l4d_specafk_warnspectime", 			"20", "Warn time before spec", FCVAR_NOTIFY, true, 0.0);
+	g_hAfkSpecTime 			= CreateConVar("l4d_specafk_spectime", 				"15", "time before spec (after warn)", FCVAR_NOTIFY, true, 0.0);
+	g_hAfkWarnKickTime	 	= CreateConVar("l4d_specafk_warnkicktime", 			"60", "Warn time before kick (while already on spec)", FCVAR_NOTIFY, true, 0.0);
+	g_hAfkKickTime 			= CreateConVar("l4d_specafk_kicktime", 				"30", "time before kick (while already on spec after warn)", FCVAR_NOTIFY, true, 0.0);
+	g_hAfkCheckInterval 	= CreateConVar("l4d_specafk_checkinteral", 			"1", "Check/warn time interval", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hAfkKickEnabled 		= CreateConVar("l4d_specafk_kickenabled", 			"1", "If 1, kick enabled on afk while on spec", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hAfkSaferoomIgnore 	= CreateConVar("l4d_specafk_saferoom_ignore", 		"0", "If 1, player will still be forced to spectate and kicked whether surviros leave saferoom or not.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hImmuneAccess 		= CreateConVar("l4d_specafk_immune_access_flag", 	"z", "Players with these flags have immune to be kicked while spec. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
+	g_hSayResetTime 		= CreateConVar("l4d_specafk_say_reset", 			"1", "If 1, Reset time when player types words in chatbox.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSpecAfkMsgEnable 	= CreateConVar("l4d_specafk_join_hint_msg", 		"1", "If 1, Display \"You're spectating. Join any team to play.\" message to afk spectator", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	CreateConVar("l4d_specafk_version", PLUGIN_VERSION, "Version of L4D VS Auto spectate on AFK", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 	AutoExecConfig(true, "L4DVSAutoSpectateOnAFK");
 	
@@ -124,6 +115,7 @@ public void OnPluginStart()
 	g_hAfkSaferoomIgnore.AddChangeHook(ConVarChanged);
 	g_hImmuneAccess.AddChangeHook(ConVarChanged);
 	g_hSayResetTime.AddChangeHook(ConVarChanged);
+	g_hSpecAfkMsgEnable.AddChangeHook(ConVarChanged);
 
 	if(g_bLate)
 	{
@@ -151,6 +143,7 @@ void ReadCvars()
 	g_hImmuneAccess.GetString(g_sAccesslvl,sizeof(g_sAccesslvl));
 
 	g_bSayResetTime = g_hSayResetTime.BoolValue;
+	g_bSpecAfkMsgEnable = g_hSpecAfkMsgEnable.BoolValue;
 }
 
 void ConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -317,6 +310,8 @@ Action ClientReallyChangeTeam(Handle timer, int victim)
 
 Action afkJoinHint (Handle Timer, int client)
 {
+	if(!g_bSpecAfkMsgEnable) return Plugin_Stop;
+
 	client = GetClientOfUserId(client);
 	// If player is valid
 	if (client && IsClientInGame(client) && afkPlayerTimeLeftWarn[client] > 0)
