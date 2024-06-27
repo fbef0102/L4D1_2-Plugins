@@ -414,12 +414,6 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 	L4D2WeaponType weapontype = GetWeaponTypeFromClassname(sClassname);
 	if(weapontype == L4D2WeaponType_Unknown) return;
 
-	if(g_fWeapon_ReloadDuration[weapontype] <= 0.0)
-	{
-		DebugPrint("該武器沒設定裝彈時間: %s", sClassname);
-		return;
-	}
-
 	/*float m_flPlaybackRate = GetEntPropFloat(ActiveWeapon, Prop_Send, "m_flPlaybackRate");
 	PrintToChatAll("%d %s %f", weapontype, sClassname, m_flPlaybackRate);
 	if(m_flPlaybackRate >= 1.0) //裝彈比原本快
@@ -431,29 +425,59 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 
 	float playbackRate;
 	int clip = GetEntProp(ActiveWeapon, Prop_Send, "m_iClip1");
-	switch(weapontype)
+	if(weapontype == L4D2WeaponType_Pistol)
 	{
-		case L4D2WeaponType_Pistol:
+		if(GetEntProp(ActiveWeapon, Prop_Send, "m_isDualWielding", 1))
 		{
-			if(GetEntProp(ActiveWeapon, Prop_Send, "m_isDualWielding", 1))
+			if(g_fCvarDualPistol_ReloadDuration == 0.0)
 			{
-				if(g_fCvarDualPistol_ReloadDuration == 0.0)
+				return;
+			}
+			else
+			{
+				if(clip <= 1) 
 				{
-					return;
+					playbackRate = 2.516 / g_fCvarDualPistol_ReloadDuration;
 				}
 				else
 				{
-					if(clip <= 1) 
-					{
-						playbackRate = 2.516 / g_fCvarDualPistol_ReloadDuration;
-					}
-					else
-					{
-						playbackRate = 2.35 / g_fCvarDualPistol_ReloadDuration;
-					}
+					playbackRate = 2.35 / g_fCvarDualPistol_ReloadDuration;
 				}
 			}
+		}
+		else
+		{
+			if(g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol] <= 0.0)
+			{
+				DebugPrint("該武器沒設定裝彈時間: %s", sClassname);
+				return;
+			}
+
+			if(clip == 0) 
+			{
+				playbackRate = 2.016 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+			}
 			else
+			{
+				playbackRate = 1.68 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+			}
+		}
+	}
+	else
+	{
+		if(g_fWeapon_ReloadDuration[weapontype] <= 0.0)
+		{
+			DebugPrint("該武器沒設定裝彈時間: %s", sClassname);
+			return;
+		}
+
+		switch(weapontype)
+		{
+			case L4D2WeaponType_Pistol:
+			{
+
+			}
+			case L4D2WeaponType_Magnum:
 			{
 				if(clip == 0) 
 				{
@@ -461,76 +485,65 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 				}
 				else
 				{
-					playbackRate = 1.68 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+					playbackRate = 1.65 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
 				}
 			}
-		}
-		case L4D2WeaponType_Magnum:
-		{
-			if(clip == 0) 
+			case L4D2WeaponType_Rifle:
 			{
-				playbackRate = 2.016 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+				playbackRate = 2.216 / g_fWeapon_ReloadDuration[L4D2WeaponType_Rifle];
 			}
-			else
+			case L4D2WeaponType_RifleAk47:
 			{
-				playbackRate = 1.65 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+				playbackRate = 2.373 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleAk47];
 			}
-		}
-		case L4D2WeaponType_Rifle:
-		{
-			playbackRate = 2.216 / g_fWeapon_ReloadDuration[L4D2WeaponType_Rifle];
-		}
-		case L4D2WeaponType_RifleAk47:
-		{
-			playbackRate = 2.373 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleAk47];
-		}
-		case L4D2WeaponType_RifleDesert:
-		{
-			playbackRate = 3.316 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleDesert];
-		}
-		case L4D2WeaponType_RifleM60:
-		{
-			playbackRate = 2.4 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleM60];
-		}
-		case L4D2WeaponType_RifleSg552:
-		{
-			playbackRate = 3.433 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleSg552];
-		}
-		case L4D2WeaponType_HuntingRifle:
-		{
-			playbackRate = 3.14 / g_fWeapon_ReloadDuration[L4D2WeaponType_HuntingRifle];
-		}
-		case L4D2WeaponType_SniperAwp:
-		{
-			playbackRate = 3.66 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperAwp];
-		}
-		case L4D2WeaponType_SniperMilitary:
-		{
-			playbackRate = 3.35 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperMilitary];
-		}
-		case L4D2WeaponType_SniperScout:
-		{
-			playbackRate = 2.916 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperScout];
-		}
-		case L4D2WeaponType_SMG:
-		{
-			playbackRate = 2.251 / g_fWeapon_ReloadDuration[L4D2WeaponType_SMG];
-		}
-		case L4D2WeaponType_SMGSilenced:
-		{
-			playbackRate = 2.251 / g_fWeapon_ReloadDuration[L4D2WeaponType_SMGSilenced];
-		}
-		case L4D2WeaponType_SMGMp5:
-		{
-			playbackRate = 3.069 / g_fWeapon_ReloadDuration[L4D2WeaponType_Magnum];
-		}
-		case L4D2WeaponType_GrenadeLauncher:
-		{
-			playbackRate = 3.35 / g_fWeapon_ReloadDuration[L4D2WeaponType_GrenadeLauncher];
-		}
-		default:
-		{
-			return;
+			case L4D2WeaponType_RifleDesert:
+			{
+				playbackRate = 3.316 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleDesert];
+			}
+			case L4D2WeaponType_RifleM60:
+			{
+				playbackRate = 2.4 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleM60];
+			}
+			case L4D2WeaponType_RifleSg552:
+			{
+				playbackRate = 3.433 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleSg552];
+			}
+			case L4D2WeaponType_HuntingRifle:
+			{
+				playbackRate = 3.14 / g_fWeapon_ReloadDuration[L4D2WeaponType_HuntingRifle];
+			}
+			case L4D2WeaponType_SniperAwp:
+			{
+				playbackRate = 3.66 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperAwp];
+			}
+			case L4D2WeaponType_SniperMilitary:
+			{
+				playbackRate = 3.35 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperMilitary];
+			}
+			case L4D2WeaponType_SniperScout:
+			{
+				playbackRate = 2.916 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperScout];
+			}
+			case L4D2WeaponType_SMG:
+			{
+				playbackRate = 2.251 / g_fWeapon_ReloadDuration[L4D2WeaponType_SMG];
+			}
+			case L4D2WeaponType_SMGSilenced:
+			{
+				playbackRate = 2.251 / g_fWeapon_ReloadDuration[L4D2WeaponType_SMGSilenced];
+			}
+			case L4D2WeaponType_SMGMp5:
+			{
+				playbackRate = 3.069 / g_fWeapon_ReloadDuration[L4D2WeaponType_Magnum];
+			}
+			case L4D2WeaponType_GrenadeLauncher:
+			{
+				playbackRate = 3.35 / g_fWeapon_ReloadDuration[L4D2WeaponType_GrenadeLauncher];
+			}
+			default:
+			{
+				return;
+			}
 		}
 	}
 
