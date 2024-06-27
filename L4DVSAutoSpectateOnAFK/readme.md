@@ -26,6 +26,9 @@ Forces survivors and infected to spectate if they're AFK after certain time
         // Players with these flags have immune to be kicked while spec. (Empty = Everyone, -1: Nobody)
         l4d_specafk_immune_access_flag "z"
 
+        // If 1, Display "You're spectating. Join any team to play." message to afk spectator
+        l4d_specafk_join_hint_msg "1"
+
         // If 1, kick enabled on afk while on spec
         l4d_specafk_kickenabled "1"
 
@@ -78,6 +81,9 @@ Forces survivors and infected to spectate if they're AFK after certain time
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.5 (2024-6-27)
+        * Update Cvars
+
     * v2.4 (2023-3-20)
         * Add a cvar
             ```php
@@ -127,6 +133,9 @@ Forces survivors and infected to spectate if they're AFK after certain time
 
         // 擁有這權限的玩家在旁觀區不會被踢出伺服器 (留白 = 任何人都有權限, -1: 任何人都沒權限)
         l4d_specafk_immune_access_flag "z"
+
+        // 為1時，顯示 "你正在旁觀，輸入 !join 加入遊戲..." 訊息給AFK旁觀者
+        l4d_specafk_join_hint_msg "1"
 
         // 為1時，啟動旁觀者AFK踢出伺服器
         l4d_specafk_kickenabled "1"
