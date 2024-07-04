@@ -4351,19 +4351,19 @@ Action Command_infhud(int client, int args)
 	{
 		if (!hudDisabled[client])
 		{
-			PrintToChat(client, "\x01\x04[infhud]\x01 %T","Hud Disable",client);
+			CPrintToChat(client, "%T","Hud Disable",client);
 			hudDisabled[client] = true;
 		}
 		else
 		{
-			PrintToChat(client, "\x01\x04[infhud]\x01 %T","Hud Enable",client);
+			CPrintToChat(client, "%T","Hud Enable",client);
 			hudDisabled[client] = false;
 		}
 	}
 	else
 	{
 		// Server admin has disabled Infected HUD server-wide
-		PrintToChat(client, "\x01\x04[infhud]\x01 %T","Infected HUD is currently DISABLED",client);
+		CPrintToChat(client, "%T","Infected HUD is currently DISABLED",client);
 	}
 
 	return Plugin_Handled;

@@ -140,24 +140,24 @@
 	}
 	"Hud Disable"
 	{
-		"en"			"Infected HUD DISABLED - say {green}!infhud{default} to re-enable."
-		"ru"			"Интерфейс заражённого: ОТКЛ. - введите {green}!infhud{default} для включения."
-		"zho"			"特感介面關閉 - 請輸入 {green}!infhud{default} 重新開啟"
-		"chi"			"特感界面关闭 - 请输入 {green}!infhud{default} 重新开启"
+		"en"			"{green}[infhud]{default} Infected HUD DISABLED - say {green}!infhud{default} to re-enable."
+		"ru"			"{green}[infhud]{default} Интерфейс заражённого: ОТКЛ. - введите {green}!infhud{default} для включения."
+		"zho"			"{green}[infhud]{default} 特感介面關閉 - 請輸入 {green}!infhud{default} 重新開啟"
+		"chi"			"{green}[infhud]{default} 特感界面关闭 - 请输入 {green}!infhud{default} 重新开启"
 	}
 	"Hud Enable"
 	{
-		"en"			"Infected HUD ENABLED - say {green}!infhud{default} to disable."
-		"ru"			"Интерфейс заражённого: ВКЛ. - введите {green}!infhud{default} для отключения."
-		"zho"			"特感介面開啟 - 請輸入 {green}!infhud{default} 關閉"
-		"chi"			"特感界面开启 - 请输入 {green}!infhud{default} 关闭"
+		"en"			"{green}[infhud]{default} Infected HUD ENABLED - say {green}!infhud{default} to disable."
+		"ru"			"{green}[infhud]{default} Интерфейс заражённого: ВКЛ. - введите {green}!infhud{default} для отключения."
+		"zho"			"{green}[infhud]{default} 特感介面開啟 - 請輸入 {green}!infhud{default} 關閉"
+		"chi"			"{green}[infhud]{default} 特感界面开启 - 请输入 {green}!infhud{default} 关闭"
 	}
 	"Infected HUD is currently DISABLED"
 	{
-		"en"			"Infected HUD is currently DISABLED on this server for all players."
-		"ru"			"Интерфейс заражённого ОТКЛЮЧЁН на этом сервере для всех игроков."
-		"zho"			"所有玩家特感介面暫時全部關閉"
-		"chi"			"所有玩家特感界面暂时全部关闭"
+		"en"			"{green}[infhud]{default} Infected HUD is currently DISABLED on this server for all players."
+		"ru"			"{green}[infhud]{default} Интерфейс заражённого ОТКЛЮЧЁН на этом сервере для всех игроков."
+		"zho"			"{green}[infhud]{default} 所有玩家特感介面暫時全部關閉"
+		"chi"			"{green}[infhud]{default} 所有玩家特感界面暂时全部关闭"
 	}
 	"Not allowed to respawn"
 	{
