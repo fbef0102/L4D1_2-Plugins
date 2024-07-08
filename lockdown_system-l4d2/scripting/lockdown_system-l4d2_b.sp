@@ -1,3 +1,9 @@
+/* Ashamed - JustMadMan (https://forums.alliedmods.net/member.php?u=338863, https://steamcommunity.com/profiles/76561198835850999/)
+* Accuse me of stealing without any evidence and then run away
+* Spit to this guy, retarded
+* False accusation: https://forums.alliedmods.net/showthread.php?t=348125, https://forum.myarena.ru/index.php?/topic/47900-zarabotok-putem-prodazhi-chuzhikh-plaginov/
+*/
+
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
