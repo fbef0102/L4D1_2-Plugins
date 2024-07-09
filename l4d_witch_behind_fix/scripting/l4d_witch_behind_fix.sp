@@ -83,7 +83,7 @@ void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public void OnNextFrame(DataPack hPack)
+void OnNextFrame(DataPack hPack)
 {
 	hPack.Reset();
 	float fFinalwitch[3];
@@ -91,15 +91,16 @@ public void OnNextFrame(DataPack hPack)
 	fFinalwitch[0] = hPack.ReadFloat();
 	fFinalwitch[1] = hPack.ReadFloat();
 	fFinalwitch[2] = hPack.ReadFloat();
-	delete hPack;
 
 	if( witch == INVALID_ENT_REFERENCE )
 	{
+		delete hPack;
 		return;
 	}
 
 	if(GetEntProp(witch, Prop_Data, "m_iHealth") < 1)
 	{
+		delete hPack;
 		return;
 	}
 
@@ -110,4 +111,6 @@ public void OnNextFrame(DataPack hPack)
 		RequestFrame(OnNextFrame, hPack);
 		return;
 	}
+
+	delete hPack;
 }
