@@ -80,7 +80,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * Tank/Witch出現有提示與音效
 * <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde ?
     * 顯示誰觸發了屍潮事件
-* <b>[witch_target_override](/witch_target_override)</b>: Change target when the witch incapacitates or kills victim + witchs auto follow survivors
+* <b>[witch_target_override](/witch_target_override)</b>: Change target when the witch incapacitates or kills victim + witch auto follows survivors
     * Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 * <b>[l4d_expertrealism](/l4d_expertrealism)</b>: L4D1/2 Real Realism Mode (No Glow + No Hud)
     * L4D1/2 真寫實模式 (沒有光圈與介面)
