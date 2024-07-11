@@ -14,7 +14,7 @@ public Plugin myinfo =
 {
 	name = "Witch Target Override",
 	author = "xZk, BHaType, HarryPotter",
-	description = "Change target when the witch incapacitates or kills victim + witchs auto follow survivors",
+	description = "Change target when the witch incapacitates or kills victim + witch auto follows survivors",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };

@@ -1,5 +1,5 @@
 # Description | 內容
-Change target when the witch incapacitates or kills victim + witchs auto follow survivors
+Change target when the witch incapacitates or kills victim + witch auto follows survivors
 
 * [Video | 影片展示](https://youtu.be/SapXAIOsNJI)
 
