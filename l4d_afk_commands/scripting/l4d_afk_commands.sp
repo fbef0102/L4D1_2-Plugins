@@ -131,8 +131,8 @@ ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSe
 	g_hVSCommandBalance, g_hVSUnBalanceLimit;
 
 //value
-char g_sImmuneAcclvl[16], g_sSpecCommandAccesslvl[16], g_sInfCommandAccesslvl[16], 
-	g_sSurCommandAccesslvl[16], g_sObsCommandAccesslvl[16];
+char g_sImmuneAcclvl[AdminFlags_TOTAL], g_sSpecCommandAccesslvl[AdminFlags_TOTAL], g_sInfCommandAccesslvl[AdminFlags_TOTAL], 
+	g_sSurCommandAccesslvl[AdminFlags_TOTAL], g_sObsCommandAccesslvl[AdminFlags_TOTAL];
 bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpStaggerBlock, g_bThrowableBlock, g_bGrenadeBlock,
 	g_bInfectedAttackBlock, g_bInfectedCapBlock,
 	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance;
@@ -1934,7 +1934,8 @@ void CleanUpStateAndMusic(int client)
 			L4D_StopMusic(client, "Event.LedgeHangFalling");
 			L4D_StopMusic(client, "Event.Down");
 			L4D_StopMusic(client, "Event.BleedingOut");
-			L4D_StopMusic(client, "Event.Down");
+			L4D_StopMusic(client, "Event.SurvivorDeath");
+			L4D_StopMusic(client, "Event.ScenarioLose");
 		}
 		else
 		{

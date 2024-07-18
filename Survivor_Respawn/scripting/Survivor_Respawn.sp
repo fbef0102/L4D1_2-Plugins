@@ -793,6 +793,7 @@ void RespawnTarget_Crosshair( int client, int target )
 	float vec[3];
 	bool bCanTeleport = GetSpawnEndPoint( client, vec);
 	L4D_RespawnPlayer(target);
+	CleanUpStateAndMusic(target);
 	
 	SetHealth( target );
 	StripWeapons( target );
@@ -834,6 +835,7 @@ void RespawnTarget( int client )
 		return;
 	}
 	L4D_RespawnPlayer(client);
+	CleanUpStateAndMusic(client);
 	Teleport( client, anyclient);
 	SetHealth( client );
 	StripWeapons( client );
@@ -1247,6 +1249,7 @@ void RespawnTargeAgain(int target)
 	}
 
 	L4D_RespawnPlayer(target);
+	CleanUpStateAndMusic(target);
 	
 	SetHealth( target );
 	StripWeapons( target );
@@ -1297,6 +1300,18 @@ bool CheckIfEntitySafe(int entity)
 		return false;
 	}
 	return true;
+}
+
+void CleanUpStateAndMusic(int client)
+{
+	if (!g_bL4D2Version)
+	{
+		L4D_StopMusic(client, "Event.SurvivorDeath");
+	}
+	else
+	{
+		L4D_StopMusic(client, "Event.SurvivorDeath");
+	}
 }
 
 
