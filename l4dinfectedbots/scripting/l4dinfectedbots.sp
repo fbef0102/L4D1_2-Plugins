@@ -5784,7 +5784,8 @@ void CleanUpStateAndMusic(int client)
 			L4D_StopMusic(client, "Event.LedgeHangFalling");
 			L4D_StopMusic(client, "Event.Down");
 			L4D_StopMusic(client, "Event.BleedingOut");
-			L4D_StopMusic(client, "Event.Down");
+			L4D_StopMusic(client, "Event.SurvivorDeath");
+			L4D_StopMusic(client, "Event.ScenarioLose");
 		}
 		else
 		{

@@ -346,6 +346,7 @@ bool vRespawnPlayer(int client, int target, float vec[3] = {99999.0, 99999.0, 99
 			}
 
 			L4D_RespawnPlayer(target);
+			CleanUpStateAndMusic(target);
 			
 			char sItems[6][64], sLoadout[512];
 			g_cvLoadout.GetString(sLoadout, sizeof sLoadout);
@@ -510,4 +511,16 @@ bool IsValidEntRef(int entity)
 	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE)
 		return true;
 	return false;
+}
+
+void CleanUpStateAndMusic(int client)
+{
+	if (!g_bLeft4dead2)
+	{
+		L4D_StopMusic(client, "Event.SurvivorDeath");
+	}
+	else
+	{
+		L4D_StopMusic(client, "Event.SurvivorDeath");
+	}
 }
