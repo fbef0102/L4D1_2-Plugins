@@ -100,7 +100,7 @@ Spawn special infected without the director limits!
 		sm_dzspawn <witch|witch_bride|smoker|boomer|hunter|spitter|jockey|charger|tank|infected> <數量> <0:準心指向, 1:自己身上>
 		```
 
-	* **打開菜單生成特感, 不會受到導演系統限制 (權限: ADMFLAG_ROOT)**
+	* **打開選單生成特感, 不會受到導演系統限制 (權限: ADMFLAG_ROOT)**
 		```php
 		sm_mdzs
 		```

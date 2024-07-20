@@ -244,7 +244,7 @@ Action Command_Votes(int client, int args)
 	if(g_bEnable == true)
 	{	
 		Panel panel = new Panel();
-		SetPanelTitle(panel, "菜單");
+		SetPanelTitle(panel, "選單");
 		if (VotensHpE_D == false)
 		{
 			DrawPanelItem(panel, "回血(關閉中) Give Hp(Disable)");
@@ -320,7 +320,7 @@ Action Command_Votes(int client, int args)
 	}
 	else
 	{
-		CPrintToChat(client, "[{olive}TS{default}] 投票菜單插件已關閉!");
+		CPrintToChat(client, "[{olive}TS{default}] 投票選單插件已關閉!");
 	}
 	
 	return Plugin_Stop;

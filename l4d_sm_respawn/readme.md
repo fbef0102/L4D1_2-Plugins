@@ -76,6 +76,6 @@ Allows players to be respawned by admin.
 	* 管理員輸入!respawn 可以復活指定的死亡玩家並傳送到準心上
 
 * 功能
-	* 可以加入到管理員菜單下，輸入!admin->玩家指令->復活玩家
+	* 可以加入到管理員選單下，輸入!admin->玩家指令->復活玩家
 	* 可設置復活後給予的武器
 	* 紀錄log

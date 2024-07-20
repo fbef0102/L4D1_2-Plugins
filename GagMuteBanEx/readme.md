@@ -205,19 +205,19 @@ Gag & Mute & Ban - Ex
 
 * <details><summary>命令中文介紹 (點我展開)</summary>
     
-    * **打開強化封鎖菜單或直接封鎖玩家 (權限: ADMFLAG_BAN)**
+    * **打開強化封鎖選單或直接封鎖玩家 (權限: ADMFLAG_BAN)**
 		```php
         sm_exban
         sm_exban <#userid|name> <minutes|0>
 		```
 
-    * **打開強化禁言菜單或直接禁言玩家 (權限: ADMFLAG_CHAT)**
+    * **打開強化禁言選單或直接禁言玩家 (權限: ADMFLAG_CHAT)**
 		```php
         sm_exgag
         sm_exgag <#userid|name> <minutes|0>
 		```
 
-    * **打開強化禁音菜單或直接禁音玩家 (權限: ADMFLAG_CHAT)**
+    * **打開強化禁音選單或直接禁音玩家 (權限: ADMFLAG_CHAT)**
 		```php
         sm_exmute
         sm_exmute <#userid|name> <minutes|0>

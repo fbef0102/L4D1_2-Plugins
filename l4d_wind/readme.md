@@ -60,7 +60,7 @@ Create a survivor bot in game + Teleport player
 * <details><summary>Similar Plugin | 相似插件</summary>
 
 	1. [l4d_teleport_call](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Survivor_人類/l4d_teleport_call): Teleport Call Menu
-		> 呼叫傳送功能菜單，能傳送玩家到起點、終點、救援區域
+		> 呼叫傳送功能選單，能傳送玩家到起點、終點、救援區域
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -77,7 +77,7 @@ Create a survivor bot in game + Teleport player
 新增Bot + 傳送玩家到其他位置上
 
 * 圖示
-	* 傳送玩家菜單
+	* 傳送玩家選單
 	<br/>![zho/l4d_wind_1](image/zho/l4d_wind_1.jpg)
 
 * 原理
@@ -90,7 +90,7 @@ Create a survivor bot in game + Teleport player
 		// 為1時，管理員可以輸入!addbot 增加bot數量
 		l4d_wind_add_bot_enable "1"
 
-		// 為1時，加入到管理員菜單下，輸入!admin->玩家指令->傳送玩家
+		// 為1時，加入到管理員選單下，輸入!admin->玩家指令->傳送玩家
 		l4d_wind_teleport_adminmenu "1"
 
 		// 為1時，管理員可以傳送特感
@@ -106,7 +106,7 @@ Create a survivor bot in game + Teleport player
 		sm_createbot
 		```
 
-	* **打開"傳送玩家菜單" (權限: ADMFLAG_BAN)**
+	* **打開"傳送玩家選單" (權限: ADMFLAG_BAN)**
 		```php
 		sm_teleport
 		sm_tp

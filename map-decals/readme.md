@@ -215,7 +215,7 @@ Allows admins to place any decals into the map that are defined in the the confi
 	sm_aimpos
 	```
 
-	* **管理員的地圖塗鴉菜單 (Adm required: Custom3)**
+	* **管理員的地圖塗鴉選單 (Adm required: Custom3)**
 	```php
 	sm_decalmenu
 	```

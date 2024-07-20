@@ -47,7 +47,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[cannounce](/cannounce)</b>: Replacement of default player connection message, allows for custom connection messages
     * 顯示玩家進來遊戲或離開遊戲的提示訊息 (IP、國家、Steam ID 等等)
 * <b>[helpmenu](/helpmenu)</b>: In-game Help Menu (Support Translation)
-    * 輸入!helpmenu顯示菜單，用來幫助玩家瞭解你的伺服器內容
+    * 輸入!helpmenu顯示選單，用來幫助玩家瞭解你的伺服器內容
 * <b>[l4d_afk_commands](/l4d_afk_commands)</b>: Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.),but no abuse.
     * 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 * <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
@@ -63,7 +63,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[l4d_shotgun_sound_fix](/l4d_shotgun_sound_fix)</b>: Thirdpersonshoulder Shotgun Sound Fix
     * 修復第三人稱下，散彈槍射擊沒有槍聲
 * <b>[l4d_votes_5](/l4d_votes_5)</b>: L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
-    * L4D1/2 投票菜單 (換圖、踢人、重新回合、回血、全頻語音)
+    * L4D1/2 投票選單 (換圖、踢人、重新回合、回血、全頻語音)
 * <b>[l4d_wind](/l4d_wind)</b>: Create a survivor bot in game. + Teleport Player
     * 新增Bot + 傳送玩家到其他位置上
 * <b>[l4d_witch_behind_fix](/l4d_witch_behind_fix)</b>: The witch turns back if nearby survivor scares her behind
