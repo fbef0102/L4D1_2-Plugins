@@ -45,7 +45,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	3. Optional - [[INC] unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Versus_對抗模式/l4d_team_unscramble/scripting/include/unscramble.inc)
+	3. Optional - [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Versus_對抗模式/l4d_team_unscramble)
 
 * <details><summary>ConVar</summary>
 

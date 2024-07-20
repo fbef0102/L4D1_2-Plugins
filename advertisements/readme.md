@@ -116,7 +116,7 @@ Display advertisements
 		// center: 廣告文字顯示於螢幕中央
 		// chat: 廣告文字顯示於聊天框
 		// hint: 廣告文字顯示於螢幕下方黑底白字框
-		// menu: 廣告文字顯示於Menu菜單
+		// menu: 廣告文字顯示於Menu選單
 		//
 		// -----
 		//	以下顏色只支援於 L4D1/L4D2:
@@ -132,7 +132,7 @@ Display advertisements
 		{
 			"1"
 			{
-				"chat"			"{olive}!votes {lightgreen}投票菜單: 踢人、換圖、重新關卡"
+				"chat"			"{olive}!votes {lightgreen}投票選單: 踢人、換圖、重新關卡"
 			}
 			"2"
 			{

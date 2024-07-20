@@ -10,7 +10,7 @@ In-game Help Menu (Support Translation)
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	2. Optional - [[INC] readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Plugin_插件/Server_伺服器/readyup/scripting/include/readyup.inc)
+	2. Optional - [readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Plugin_插件/Server_伺服器/readyup)
 
 * <details><summary>Data & Translation Example</summary>
 
@@ -163,15 +163,15 @@ In-game Help Menu (Support Translation)
 
 - - - -
 # 中文說明
-輸入!helpmenu顯示菜單，用來幫助玩家瞭解你的伺服器內容
+輸入!helpmenu顯示選單，用來幫助玩家瞭解你的伺服器內容
 
 * 圖示
-	* 幫助菜單
+	* 幫助選單
 	<br/>![helpmenu_2](image/helpmenu_2.jpg)
 
 * 原理
-	* 玩家進來伺服器的時後自動顯示或者玩家自己輸入菜單
-	* 菜單內容可以自訂新增或修改，是用來幫助玩家更快速瞭解你的伺服器有什麼內容與玩法
+	* 玩家進來伺服器的時後自動顯示或者玩家自己輸入選單
+	* 選單內容可以自訂新增或修改，是用來幫助玩家更快速瞭解你的伺服器有什麼內容與玩法
 
 * 功能
 	1. 顯示在線管理員
@@ -180,31 +180,31 @@ In-game Help Menu (Support Translation)
 
 * <details><summary>文件設定 範例</summary>
 
-	* 菜單配置: configs/helpmenu.cfg
+	* 選單配置: configs/helpmenu.cfg
 		```php
 		"Help"
 		{
-			"MENU1" //MENU1 菜單標題，名稱可自取，翻譯文件會用到
+			"MENU1" //MENU1 選單標題，名稱可自取，翻譯文件會用到
 			{
-				"title"		"MENU1"　	//MENU1 菜單標題
+				"title"		"MENU1"　	//MENU1 選單標題
 				"type"		"text"      //<-- 請寫 text 或是 list
 				"items"
 				{
-					""		"AAA"　//菜單上AAA的內容，名稱可自取，翻譯文件會用到
-					""		"BBB"　//菜單上BBB的內容，名稱可自取，翻譯文件會用到
+					""		"AAA"　//選單上AAA的內容，名稱可自取，翻譯文件會用到
+					""		"BBB"　//選單上BBB的內容，名稱可自取，翻譯文件會用到
 				}
 			}
-			"Chat Commands"　//Chat Commands 菜單標題，名稱可自取，翻譯文件會用到
+			"Chat Commands"　//Chat Commands 選單標題，名稱可自取，翻譯文件會用到
 			{
-				"title"		"Chat Commands"　//Chat Commands 菜單標題
+				"title"		"Chat Commands"　//Chat Commands 選單標題
 				"type"		"list"       //<-- 請寫 text 或是 list
 				"items"
 				{
-					"say !help"		"Default Description"　//菜單上say !help的內容，名稱可自取，翻譯文件會用到
+					"say !help"		"Default Description"　//選單上say !help的內容，名稱可自取，翻譯文件會用到
 				}
 			}
 
-			// 自行新增其他菜單配置
+			// 自行新增其他選單配置
 			....
 		}
 		```
@@ -215,7 +215,7 @@ In-game Help Menu (Support Translation)
 		{
 			"MENU1"
 			{
-				"zho"			"請寫下 MENU1 的菜單標題"
+				"zho"			"請寫下 MENU1 的選單標題"
 			}
 			"AAA"
 			{
@@ -227,7 +227,7 @@ In-game Help Menu (Support Translation)
 			}
 			"Chat Commands"
 			{
-				"zho"			"請寫下 Chat Commands 的菜單標題"
+				"zho"			"請寫下 Chat Commands 的選單標題"
 			}
 			"say !help"
 			{

@@ -383,7 +383,7 @@
 		"en"			"Map Decals:"
 		"ru"			"Наклейки на карте:"
 		"chi"			"涂鸦菜单："
-		"zho"			"塗鴉菜單："
+		"zho"			"塗鴉選單："
 		"de"			"Map Decals:"
 	}
 	"save_decal_title"

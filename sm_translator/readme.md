@@ -74,7 +74,7 @@ Translate chat messagesbrowser
     <br/>![zho/sm_translator_1](image/zho/sm_translator_1.jpg)
 
 * 原理
-    * 進入伺服器之後顯示菜單 -> 選擇"好..." -> 你打字聊天的內容會自動翻譯給其他玩家 (根據他們的steam平台設置的語言)
+    * 進入伺服器之後顯示選單 -> 選擇"好..." -> 你打字聊天的內容會自動翻譯給其他玩家 (根據他們的steam平台設置的語言)
     * 伺服器語言設置位於 ```addons/sourcemod/configs/core.cfg``` -> "ServerLang" 參數
 
 * 注意事項
@@ -92,7 +92,7 @@ Translate chat messagesbrowser
 
 * <details><summary>命令中文介紹 (點我展開)</summary>
 
-	* **打開菜單**
+	* **打開選單**
 		```php
 		sm_translator
 		```
