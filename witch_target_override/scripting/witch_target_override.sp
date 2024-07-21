@@ -220,7 +220,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 
 void WitchAttackTarget(int witch, int target, int addHealth)
 {
-	if(GetEntProp(witch, Prop_Data, "m_iHealth") < 0) return;
+	if(GetEntProp(witch, Prop_Data, "m_iHealth") <= 0) return;
 	#if DEBUG
 		PrintToChatAll("witch attacking new target %N, her max health: %d, now health: %d", target, GetEntProp(witch, Prop_Data, "m_iMaxHealth"), GetEntProp(witch, Prop_Data, "m_iHealth"));
 	#endif
