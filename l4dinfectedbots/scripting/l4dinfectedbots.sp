@@ -837,14 +837,15 @@ bool b_HasRoundStarted, // Used to state if the round started or not
 	PlayerHasEnteredStart[MAXPLAYERS+1],
 	bDisableSurvivorModelGlow, 
 	g_bSurvivalStart, 
-	g_bIsCoordination;
+	g_bIsCoordination,
+	g_bSomeCvarChanged;
 
 ConVar sb_all_bot_game, allow_all_bot_survivor_team, sb_all_bot_team, vs_max_team_switches, z_max_player_zombies,
 	director_no_specials, director_allow_infected_bots, z_ghost_delay_min, z_ghost_delay_max, h_common_limit_cvar;
 int vs_max_team_switches_default, g_iCvar_z_common_limit;
 float g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max;
 bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default, director_no_specials_bool;
-bool g_bFirstRecord, g_bConfigsExecuted;
+bool g_bConfigsExecuted;
 
 ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
 ConVar h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead,
@@ -1084,15 +1085,24 @@ public void OnPluginStart()
 	if(g_bL4D2Version)
 	{
 		sb_all_bot_game = FindConVar("sb_all_bot_game");
+		sb_all_bot_game_default = sb_all_bot_game.BoolValue;
+		sb_all_bot_game.AddChangeHook(ConVarChanged_DefaultCvars);
+
 		allow_all_bot_survivor_team = FindConVar("allow_all_bot_survivor_team");
+		allow_all_bot_survivor_team_default = allow_all_bot_survivor_team.BoolValue;
+		allow_all_bot_survivor_team.AddChangeHook(ConVarChanged_DefaultCvars);
+
+		director_allow_infected_bots = FindConVar("director_allow_infected_bots");
 	}
 	else
 	{
 		sb_all_bot_team = FindConVar("sb_all_bot_team");
+		sb_all_bot_team_default = sb_all_bot_team.BoolValue;
+		sb_all_bot_team.AddChangeHook(ConVarChanged_DefaultCvars);
 	}
 	vs_max_team_switches = FindConVar("vs_max_team_switches");
-
-	director_allow_infected_bots = FindConVar("director_allow_infected_bots");
+	vs_max_team_switches_default = vs_max_team_switches.BoolValue;
+	vs_max_team_switches.AddChangeHook(ConVarChanged_DefaultCvars);
 
 	g_smPlayedInfected = new StringMap();
 	g_aPlayedInfected = new ArrayList();
@@ -1141,6 +1151,7 @@ void GetCvars()
 	g_bIncludingDead = h_IncludingDead.BoolValue;
 	g_hCvarReloadSettings.GetString(g_sCvarReloadSettings, sizeof(g_sCvarReloadSettings));
 }
+
 void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	char sGameMode[32];
@@ -1184,22 +1195,24 @@ void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 		}
 	}
 }
+
 void ConVarVersusCoop(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	g_bVersusCoop = h_VersusCoop.BoolValue;
 	if(L4D_HasPlayerControlledZombies() == true)
 	{
+		g_bSomeCvarChanged = true;
 		if (g_bVersusCoop)
 		{
-			SetConVarInt(vs_max_team_switches, 0);
+			vs_max_team_switches.SetInt(0);
 			if (g_bL4D2Version)
 			{
-				SetConVarInt(sb_all_bot_game, 1);
-				SetConVarInt(allow_all_bot_survivor_team, 1);
+				sb_all_bot_game.SetInt(1);
+				allow_all_bot_survivor_team.SetInt(1);
 			}
 			else
 			{
-				SetConVarInt(sb_all_bot_team, 1);
+				sb_all_bot_team.SetInt(1);
 			}
 		}
 		else
@@ -1215,6 +1228,7 @@ void ConVarVersusCoop(ConVar convar, const char[] oldValue, const char[] newValu
 				sb_all_bot_team.SetBool(sb_all_bot_team_default);
 			}
 		}
+		g_bSomeCvarChanged = false;
 	}
 }
 
@@ -1222,16 +1236,17 @@ void CoopVersus_SettingsChanged()
 {
 	if(L4D_HasPlayerControlledZombies() == false)
 	{
+		g_bSomeCvarChanged = true;
 		if (g_ePluginSettings.m_bCoopVersusEnable)
 		{
 			if (g_bL4D2Version)
 			{
-				SetConVarInt(sb_all_bot_game, 1);
-				SetConVarInt(allow_all_bot_survivor_team, 1);
+				sb_all_bot_game.SetInt(1);
+				allow_all_bot_survivor_team.SetInt(1);
 			}
 			else
 			{
-				SetConVarInt(sb_all_bot_team, 1);
+				sb_all_bot_team.SetInt(1);
 			}
 
 			bDisableSurvivorModelGlow = false;
@@ -1258,7 +1273,24 @@ void CoopVersus_SettingsChanged()
 				}
 			}
 		}
+		g_bSomeCvarChanged = false;
 	}
+}
+
+void ConVarChanged_DefaultCvars(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	if(g_bSomeCvarChanged) return;
+
+	if(g_bL4D2Version)
+	{
+		sb_all_bot_game_default = sb_all_bot_game.BoolValue;
+		allow_all_bot_survivor_team_default = allow_all_bot_survivor_team.BoolValue;
+	}
+	else
+	{
+		sb_all_bot_team_default = sb_all_bot_team.BoolValue;
+	}
+	vs_max_team_switches_default = vs_max_team_switches.IntValue;
 }
 
 void TweakSettings()
@@ -1308,7 +1340,11 @@ void TweakSettings()
 			}
 
 			if (g_bVersusCoop)
+			{
+				g_bSomeCvarChanged = true;
 				vs_max_team_switches.SetInt(0);
+				g_bSomeCvarChanged = false;
+			}
 		}
 		case 3: // Survival, Turns off the ability for the director to spawn infected bots in survival, MI 5
 		{
@@ -1475,7 +1511,7 @@ Action Timer_PluginStart(Handle timer)
 	}
 
 	float now = GetEngineTime();
-	if(g_ePluginSettings.m_fCoopVersusHumanCoolDown > 0.0 && L4D_HasPlayerControlledZombies() == false)
+	if(g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_fCoopVersusHumanCoolDown > 0.0 && L4D_HasPlayerControlledZombies() == false)
 	{
 		static char sSteamId[64];
 		int length = g_aPlayedInfected.Length;
@@ -1569,15 +1605,17 @@ Action Timer_PluginStart(Handle timer)
 
 	if (g_ePluginSettings.m_bCoopVersusEnable && L4D_HasPlayerControlledZombies() == false || g_bVersusCoop && L4D_HasPlayerControlledZombies())
 	{
+		g_bSomeCvarChanged = true;
 		if (g_bL4D2Version)
 		{
-			SetConVarInt(sb_all_bot_game, 1);
-			SetConVarInt(allow_all_bot_survivor_team, 1);
+			sb_all_bot_game.SetInt(1);
+			allow_all_bot_survivor_team.SetInt(1);
 		}
 		else
 		{
-			SetConVarInt(sb_all_bot_team, 1);
+			sb_all_bot_team.SetInt(1);
 		}
+		g_bSomeCvarChanged = false;
 	}
 
 	return Plugin_Continue;
@@ -1587,7 +1625,8 @@ void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
 {
 	// This event's purpose is to execute when a player first enters the server. This eliminates a lot of problems when changing variables setting timers on clients, among fixing many sb_all_bot_team
 	// issues.
-	int client = GetClientOfUserId(event.GetInt("userid"));
+	int userid = event.GetInt("userid");
+	int client = GetClientOfUserId(userid);
 
 	if (!client || IsFakeClient(client) || PlayerHasEnteredStart[client])
 		return;
@@ -1599,7 +1638,7 @@ void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
 	// Versus Coop code, puts all players on infected at start, delay is added to prevent a weird glitch
 
 	if (L4D_HasPlayerControlledZombies() && g_bVersusCoop)
-		CreateTimer(0.1, Timer_VersusCoopTeamChanger, client, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Timer_VersusCoopTeamChanger, userid, TIMER_FLAG_NO_MAPCHANGE);
 
 	// Kill the player if they are infected and its not versus (prevents survival finale bug and player ghosts when there shouldn't be)
 	if (L4D_HasPlayerControlledZombies() == false)
@@ -1608,12 +1647,12 @@ void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
 		{
 			if (IsPlayerGhost(client))
 			{
-				CreateTimer(0.2, Timer_InfectedKillSelf, client, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(0.2, Timer_InfectedKillSelf, userid, TIMER_FLAG_NO_MAPCHANGE);
 			}
 		}
 		if(g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce)
 		{
-			CreateTimer(10.0, AnnounceJoinInfected, client, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(10.0, AnnounceJoinInfected, userid, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 
@@ -1622,7 +1661,8 @@ void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_VersusCoopTeamChanger(Handle Timer, int client)
 {
-	if(IsClientInGame(client))
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) != TEAM_INFECTED)
 	{
 		CleanUpStateAndMusic(client);
 		ChangeClientTeam(client, TEAM_INFECTED);
@@ -1635,6 +1675,7 @@ Action Timer_InfectedKillSelf(Handle Timer, int client)
 {
 	if(g_ePluginSettings.m_bCoopVersusHumanGhost == true) return Plugin_Continue;
 
+	client = GetClientOfUserId(client);
 	if( client && IsClientInGame(client) && !IsFakeClient(client) && L4D_IsPlayerGhost(client) )
 	{
 		PrintHintText(client,"[TS] %T","Not allowed to respawn",client);
@@ -1708,21 +1749,6 @@ public void OnConfigsExecuted()
 {
 	g_hCvarMPGameMode.GetString(g_sCvarMPGameMode, sizeof(g_sCvarMPGameMode));
 	LoadData();
-
-	if(!g_bFirstRecord)
-	{
-		if(g_bL4D2Version)
-		{
-			sb_all_bot_game_default = sb_all_bot_game.BoolValue;
-			allow_all_bot_survivor_team_default = allow_all_bot_survivor_team.BoolValue;
-		}
-		else
-		{
-			sb_all_bot_team_default = sb_all_bot_team.BoolValue;
-		}
-		vs_max_team_switches_default = vs_max_team_switches.IntValue;
-		g_bFirstRecord = true;
-	}
 
 	IsAllowed();
 
@@ -2216,7 +2242,8 @@ Action Console_Timer(int client, int args)
 
 Action AnnounceJoinInfected(Handle timer, int client)
 {
-	if (IsClientInGame(client) && (!IsFakeClient(client)))
+	client = GetClientOfUserId(client);
+	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
 		if (g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce && L4D_HasPlayerControlledZombies() == false)
 		{
@@ -2224,6 +2251,7 @@ Action AnnounceJoinInfected(Handle timer, int client)
 			CPrintToChat(client,"%T","Join survivor team",client);
 		}
 	}
+
 	return Plugin_Continue;
 }
 
@@ -2646,6 +2674,8 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 
 		if(L4D_HasPlayerControlledZombies() == false)
 		{
+			if(!g_ePluginSettings.m_bCoopVersusEnable) return Plugin_Continue;
+
 			int iTeam = GetClientTeam(client);
 			if(iTeam == TEAM_INFECTED)
 			{
@@ -2656,37 +2686,34 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 					return Plugin_Continue;
 				}*/
 
-				if(g_ePluginSettings.m_bCoopVersusEnable)
+				/*static char sSteamId[64];
+				GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
+				float fLockTime, now = GetEngineTime();
+				if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
 				{
-					static char sSteamId[64];
-					GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
-					float fLockTime, now = GetEngineTime();
-					if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
-					{
-						ChangeClientTeam(client, TEAM_SPECTATOR);
-						CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
-						PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
-						return Plugin_Continue;
-					}
+					ChangeClientTeam(client, TEAM_SPECTATOR);
+					CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
+					PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
+					return Plugin_Continue;
+				}
 
-					if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
+				if(HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
+				{
+					if (HumansOnInfected() <= g_ePluginSettings.m_iCoopVersusHumanLimit)
 					{
-						if (HumansOnInfected() <= g_ePluginSettings.m_iCoopVersusHumanLimit)
+						if(g_bL4D2Version)
 						{
-							if(g_bL4D2Version)
+							SendConVarValue(client, g_hCvarMPGameMode, "versus");
+							if(bDisableSurvivorModelGlow == true)
 							{
-								SendConVarValue(client, g_hCvarMPGameMode, "versus");
-								if(bDisableSurvivorModelGlow == true)
+								bDisableSurvivorModelGlow = false;
+								for( int i = 1; i <= MaxClients; i++ )
 								{
-									bDisableSurvivorModelGlow = false;
-									for( int i = 1; i <= MaxClients; i++ )
-									{
-										CreateSurvivorModelGlow(i);
-									}
+									CreateSurvivorModelGlow(i);
 								}
 							}
-							return Plugin_Continue;
 						}
+						return Plugin_Continue;
 					}
 				}
 				else
@@ -2694,7 +2721,7 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 					PrintHintText(client, "%T", "Can't Join The Infected Team.", client);
 				}
 
-				ChangeClientTeam(client,TEAM_SPECTATOR);
+				ChangeClientTeam(client,TEAM_SPECTATOR);*/
 			}
 			else
 			{
@@ -2860,6 +2887,7 @@ public void OnClientDisconnect(int client)
 
 	if(!IsFakeClient(client) && L4D_HasPlayerControlledZombies() == false && CheckRealPlayers_InSV(client) == false)
 	{
+		g_bSomeCvarChanged = true;
 		if (!g_bL4D2Version)
 		{
 			sb_all_bot_team.SetBool(sb_all_bot_team_default);
@@ -2869,6 +2897,7 @@ public void OnClientDisconnect(int client)
 			sb_all_bot_game.SetBool(sb_all_bot_game_default);
 			allow_all_bot_survivor_team.SetBool(allow_all_bot_survivor_team_default);
 		}
+		g_bSomeCvarChanged = false;
 	}
 
 	if(roundInProgress == false) { respawnDelay[client] = 0; return;}
@@ -3416,7 +3445,7 @@ public void L4D_OnEnterGhostState(int client)
 		if(g_ePluginSettings.m_bCoopVersusHumanGhost)
 			TurnFlashlightOn(client);
 		else
-			CreateTimer(0.2, Timer_InfectedKillSelf, client, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.2, Timer_InfectedKillSelf, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -4086,12 +4115,8 @@ int  FindBotToTakeOver()
 	return 0;
 }
 
-//---------------------------------------------Durzel's HUD------------------------------------------
-
 public void OnPluginEnd()
 {
-	g_bFirstRecord = false;
-
 	g_iPlayerSpawn = 0;
 
 	for( int i = 1; i <= MaxClients; i++ )
@@ -4139,6 +4164,8 @@ public void OnPluginEnd()
 		ResetConVar(director_allow_infected_bots, true, true);
 	}
 	if(g_ePluginSettings.m_iCommonLimit >= 0) ResetConVar(h_common_limit_cvar, true, true);
+	
+	g_bSomeCvarChanged = true;
 	vs_max_team_switches.SetInt(vs_max_team_switches_default);
 	if (!g_bL4D2Version)
 	{
@@ -4149,6 +4176,8 @@ public void OnPluginEnd()
 		sb_all_bot_game.SetBool(sb_all_bot_game_default);
 		allow_all_bot_survivor_team.SetBool(allow_all_bot_survivor_team_default);
 	}
+	g_bSomeCvarChanged = false;
+
 	if(g_bL4D2Version)
 	{
 		for( int i = 1; i <= MaxClients; i++ )
