@@ -82,7 +82,7 @@
 #include <left4dhooks>
 
 #undef REQUIRE_PLUGIN
-#include <unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_team_unscramble/scripting/include/unscramble.inc
+#tryinclude <unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_team_unscramble/scripting/include/unscramble.inc
 
 public Plugin myinfo =
 {
