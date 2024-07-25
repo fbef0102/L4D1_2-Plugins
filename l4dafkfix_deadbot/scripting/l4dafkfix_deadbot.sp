@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION "1.1"
+#define PLUGIN_VERSION "1.0h"
 #define TEAM_SURVIVORS 2
 #define TEAM_SPECTATOR 1
 
@@ -53,9 +53,6 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 
 int FindidOfIdlePlayer(int bot)
 {
-	char sNetClass[12];
-	GetEntityNetClass(bot, sNetClass, sizeof(sNetClass));
-
 	if( HasEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))
 	{
 		int client = GetClientOfUserId(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID"));

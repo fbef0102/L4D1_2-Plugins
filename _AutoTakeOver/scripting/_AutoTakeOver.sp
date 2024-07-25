@@ -49,13 +49,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	CreateConVar("auto_take_over", Plugin_Version, "Plugin_Version", FCVAR_DONTRECORD|FCVAR_NOTIFY|FCVAR_SPONLY);
-	g_hCvarEnable 						= CreateConVar("ato_enabled", "1", "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarCoopTakeOverMethod 			= CreateConVar("ato_coop_take_over_method", "0", "If 1, you will skip idle state in survival/coop/realism.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTakeOverUponDeath 			= CreateConVar("ato_take_over_UponDeath", "1", "If 1, when a survivor player dies, he will take over an alive free bot if any. (Random choose bot)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTakeOverOnBotSpawnDead 		= CreateConVar("ato_take_over_OnBotSpawn_dead", "1", "If 1, when a survivor bot spawns or replaces a player, any dead survivor player will take over bot. (Random choose dead survivor)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTakeOverOnBotSpawnSpectator 	= CreateConVar("ato_take_over_OnBotSpawn_spectator", "0", "If 1, when a survivor bot spawns or replaces a player, any free spectator player will take over bot. (Random choose free spectator)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTakeOverOnJoinServer 		= CreateConVar("ato_take_over_OnJoinServer", "1", "If 1, when a player joins server, he will take over an alive free bot if any. (Random choose bot)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	AutoExecConfig(true, "_auto_take_over");
+	g_hCvarEnable 						= CreateConVar("AutoTakeOver_enabled", 							"1", "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarCoopTakeOverMethod 			= CreateConVar("AutoTakeOver_coop_take_over_method", 			"0", "If 1, you will skip idle state in survival/coop/realism.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTakeOverUponDeath 			= CreateConVar("AutoTakeOver_take_over_UponDeath", 				"1", "If 1, when a survivor player dies, he will take over an alive free bot if any. (Random choose bot)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTakeOverOnBotSpawnDead 		= CreateConVar("AutoTakeOver_take_over_OnBotSpawn_dead",		"1", "If 1, when a survivor bot spawns or replaces a player, any dead survivor player will take over bot. (Random choose dead survivor)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTakeOverOnBotSpawnSpectator 	= CreateConVar("AutoTakeOver_take_over_OnBotSpawn_spectator", 	"0", "If 1, when a survivor bot spawns or replaces a player, any free spectator player will take over bot. (Random choose free spectator)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTakeOverOnJoinServer 		= CreateConVar("AutoTakeOver_take_over_OnJoinServer", 			"1", "If 1, when a player joins server, he will take over an alive free bot if any. (Random choose bot)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	AutoExecConfig(true, "_AutoTakeOver");
 
 	HookEvent("player_death", ePlayerDeath);
 	HookEvent("player_team", eTeamChange);
@@ -79,14 +79,14 @@ public void OnPluginStart()
 	g_hCvarTakeOverOnJoinServer.AddChangeHook(ConVarChanged_Cvars);
 }
 
-public void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 	
 	CheckGameMode();
 }
 
-public void ConVarChanged_Cvars(Handle hCvar, const char[] sOldVal, const char[] sNewVal)
+void ConVarChanged_Cvars(Handle hCvar, const char[] sOldVal, const char[] sNewVal)
 {
 	GetCvars();
 }
