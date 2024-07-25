@@ -60,7 +60,7 @@ $Copyright: (c) Simple Plugins 2008-2009$
  * @param 		message						The contents of the chat message (Byref)
  * @return									Plugin_Stop to block chat message, Plugin_Changed to use overwritten values from plugin, Plugin_Continue otherwise
  **********************************************************************/
-#pragma deprecated Use OnChatMessage2(int &author, ArrayList recipients, char[] name, int maxlength_name, char[] message, int maxlength_message) instead
+#pragma deprecated Use OnChatMessage2(int author, ArrayList recipients, char[] name, int maxlength_name, char[] message, int maxlength_message) instead
 forward Action OnChatMessage(int &author, ArrayList recipients, char[] name, char[] message);
 
 /**********************************************************************
@@ -79,7 +79,7 @@ forward Action OnChatMessage(int &author, ArrayList recipients, char[] name, cha
  * @param 		maxlength_message			Maximum length of message string to store to
  * @return									Plugin_Stop to block chat message, Plugin_Changed to use overwritten values from plugin, Plugin_Continue otherwise
  **********************************************************************/
-forward Action OnChatMessage2(int &author, ArrayList recipients, char[] name, int maxlength_name, char[] message, int maxlength_message);
+forward Action OnChatMessage2(int author, ArrayList recipients, char[] name, int maxlength_name, char[] message, int maxlength_message);
 
 
 /**********************************************************************

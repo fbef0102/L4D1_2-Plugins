@@ -36,7 +36,7 @@ $Copyright: (c) Simple Plugins 2008-2009$
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
-#define PLUGIN_VERSION			"1.6h-2023/12/10"
+#define PLUGIN_VERSION			"1.7h-2024/7/26"
 #define PLUGIN_NAME			    "simple-chatprocessor"
 #define DEBUG 0
 
@@ -48,6 +48,7 @@ public Plugin myinfo = {
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/simple-chatprocessor"
 };
 
+GlobalForward g_fwdOnChatMessage, g_fwdOnChatMessagePost;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -58,8 +59,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
+	/**
+	Create the global forwards for other plugins
+	*/
+	g_fwdOnChatMessage = new GlobalForward("OnChatMessage2", ET_Hook, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
+	g_fwdOnChatMessagePost = new GlobalForward("OnChatMessage_Post", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String);
+
 	MarkNativeAsOptional("GetUserMessageType");
 	CreateNative("GetMessageFlags", Native_GetMessageFlags);
+
 	RegPluginLibrary("scp");
 
 	return APLRes_Success;
@@ -94,9 +102,7 @@ ArrayList g_hDPArray = null;
 
 StringMap
 	  g_hChatFormats;
-GlobalForward
-	  g_fwdOnChatMessage
-	, g_fwdOnChatMessagePost;
+	  
 bool
 	  g_bSayText2;
 int
@@ -163,12 +169,6 @@ public void OnPluginStart()
 			SetFailState("Translation file is not present: translations/%s.txt", sTranslationFile);
 		}
 	}
-
-	/**
-	Create the global forwards for other plugins
-	*/
-	g_fwdOnChatMessage = new GlobalForward("OnChatMessage2", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
-	g_fwdOnChatMessagePost = new GlobalForward("OnChatMessage_Post", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String);
 
 	g_hDPArray = new ArrayList();
 }
@@ -299,7 +299,7 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 	*/
 	Action fResult;
 	Call_StartForward(g_fwdOnChatMessage);
-	Call_PushCellRef(cpSender);
+	Call_PushCell(cpSender);
 	Call_PushCell(cpRecipients);
 	Call_PushStringEx(cpSender_Name, sizeof(cpSender_Name), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
 	Call_PushCell(sizeof(cpSender_Name));
@@ -450,7 +450,7 @@ public Action OnSayText(UserMsg msg_id, BfRead msg, const int[] players, int pla
 	*/
 	Action fResult;
 	Call_StartForward(g_fwdOnChatMessage);
-	Call_PushCellRef(cpSender);
+	Call_PushCell(cpSender);
 	Call_PushCell(cpRecipients);
 	Call_PushStringEx(senderName, sizeof(senderName), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
 	Call_PushCell(sizeof(senderName));

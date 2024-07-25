@@ -4,11 +4,11 @@
 
 #define MAX_ENTITIES 2048
 
-#define PLUGIN_VERSION "1.7"
+#define PLUGIN_VERSION "1.0h-2024/7/26"
 
 #define PLUGIN_NAME "No Rushing"
 #define PLUGIN_DESCRIPTION "Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates."
-#define CONFIG_MAPS "configs/norushing"
+#define CONFIG_FILE "configs/no-rushing.cfg"
 #define CVAR_SHOW FCVAR_NOTIFY
 
 #pragma semicolon 1
@@ -81,12 +81,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	CreateConVar("no-rushing_version", PLUGIN_VERSION, "No Rushing Version", FCVAR_SPONLY);
-	h_InfractionLimit = CreateConVar("l4d_rushing_limit", "2", "Maximum rushing limits", FCVAR_SPONLY);
-	h_SurvivorsRequired = CreateConVar("l4d_rushing_require_survivors", "3", "Minimum number of alive survivors before No-Rushing function works. Must be 3 or greater.", FCVAR_SPONLY);
-	h_IgnoreIncapacitated = CreateConVar("l4d_rushing_ignore_incapacitated", "0", "Ignore Incapacitated Survivors?", FCVAR_SPONLY,true, 0.0, true, 1.0);
-	h_IgnoreStraggler = CreateConVar("l4d_rushing_ignore_lagging", "0", "Ignore lagging or lost players behind?", FCVAR_SPONLY,true, 0.0, true, 1.0);
-	h_InfractionResult = CreateConVar("l4d_rushing_action_rushers", "1", "Modes: 0=Teleport only, 1=Teleport and kill after reaching limits, 2=Teleport and kick after reaching limits.", FCVAR_SPONLY,true, 0.0, true, 2.0);
-	AutoExecConfig(true, "no-rushing");
+	h_InfractionLimit 		= CreateConVar("no-rushing_limit", 					"2", "Maximum rushing limits", FCVAR_SPONLY);
+	h_SurvivorsRequired 	= CreateConVar("no-rushing_require_survivors", 		"3", "Minimum number of alive survivors before No-Rushing function works. Must be 3 or greater.", FCVAR_SPONLY);
+	h_IgnoreIncapacitated 	= CreateConVar("no-rushing_ignore_incapacitated", 	"0", "Ignore Incapacitated Survivors?", FCVAR_SPONLY,true, 0.0, true, 1.0);
+	h_IgnoreStraggler 		= CreateConVar("no-rushing_ignore_lagging", 		"0", "Ignore lagging or lost players behind?", FCVAR_SPONLY,true, 0.0, true, 1.0);
+	h_InfractionResult 		= CreateConVar("no-rushing_action_rushers", 		"1", "Modes: 0=Teleport only, 1=Teleport and kill after reaching limits, 2=Teleport and kick after reaching limits.", FCVAR_SPONLY,true, 0.0, true, 2.0);
+	AutoExecConfig(true, 	"no-rushing");
 
 	i_InfractionLimit = h_InfractionLimit.IntValue;
 	i_SurvivorsRequired = h_SurvivorsRequired.IntValue;
@@ -113,7 +113,7 @@ public void OnPluginStart()
 	HookEvent("player_spawn",		Event_PlayerSpawn,	EventHookMode_PostNoCopy);
 	
 	LoadTranslations("common.phrases");
-	LoadTranslations("norushing.phrases");
+	LoadTranslations("no-rushing.phrases");
 	
 	CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -131,13 +131,6 @@ public void OnConfigsExecuted()
 		g_NoticeDistance = 0.0;
 		g_WarningDistance = 0.0;
 		g_IgnoreDistance = 0.0;
-		
-		char s_Path[PLATFORM_MAX_PATH];
-		BuildPath(Path_SM, s_Path, sizeof(s_Path), "%s", CONFIG_MAPS);
-		if (!DirExists(s_Path))
-		{
-			CreateDirectory(s_Path, 511);
-		}
 		
 		ParseMapConfigs();
 	}
@@ -246,7 +239,7 @@ public Action Timer_DistanceCheck(Handle timer)
 			{
 				if (!i_IgnoreStraggler)
 				{
-					C_PrintToChat(i, "%T", "Lagging Behind", i, white, green, white);
+					CPrintToChat(i, "%T", "Lagging Behind", i, white, green, white);
 					TeleportLaggingPlayer(i);
 					IsLagging[i] = true;
 					continue;
@@ -267,7 +260,7 @@ public Action Timer_DistanceCheck(Handle timer)
 				if (g_WarningCounter[i] + 1 < i_InfractionLimit)
 				{
 					g_WarningCounter[i]++;
-					C_PrintToChat(i, "%s %T", s_rup, "Rushing Warning", i, white, orange, green, white, green, g_WarningCounter[i], i_InfractionLimit);
+					CPrintToChat(i, "%s %T", s_rup, "Rushing Warning", i, white, orange, green, white, green, g_WarningCounter[i], i_InfractionLimit);
 					TeleportRushingPlayer(i);
 				}
 				else
@@ -278,7 +271,7 @@ public Action Timer_DistanceCheck(Handle timer)
 					GetClientAuthId(i, AuthId_Steam2, AuthId, sizeof(AuthId));
 					if (i_InfractionResult > 0)
 					{
-						C_PrintToChatAll("%s %t", s_rup, "Rushing Violation", blue, white, orange, nClient);
+						CPrintToChatAll("%s %t", s_rup, "Rushing Violation", blue, white, orange, nClient);
 						if (i_InfractionResult == 1)
 						{
 							ForcePlayerSuicide(i);
@@ -297,7 +290,7 @@ public Action Timer_DistanceCheck(Handle timer)
 			else if (!DistanceWarning[i] && g_TeamDistance + g_NoticeDistance < g_PlayerDistance)
 			{
 				DistanceWarning[i] = true;
-				C_PrintToChat(i, "%s %T", s_rup, "Rushing Notice", i, white, orange);
+				CPrintToChat(i, "%s %T", s_rup, "Rushing Notice", i, white, orange);
 			}
 			else if (DistanceWarning[i] && g_TeamDistance + g_NoticeDistance > g_PlayerDistance)
 			{
@@ -315,7 +308,7 @@ stock bool IsClientLaggingBehind(int client)
 
 	//C_PrintToChatAll("%N: g_PlayerDistance %f,g_IgnoreDistance %f,g_TeamDistance %f",client,g_PlayerDistance,g_IgnoreDistance,g_TeamDistance);
 	if(g_PlayerDistance < 0.0 || g_PlayerDistance > 1.0 || g_TeamDistance == -1.0) return false;
-	if (g_IgnoreDistance == 0.0 || g_PlayerDistance + g_IgnoreDistance > g_TeamDistance || IsClientDown(client))
+	if (g_IgnoreDistance == 0.0 || g_PlayerDistance + g_IgnoreDistance > g_TeamDistance)
 	{
 		return false;
 	}
@@ -401,36 +394,42 @@ stock float CalculateTeamDistance(int client)
 	return g_TeamDistance;
 }
 
-stock void ParseMapConfigs()
+void ParseMapConfigs()
 {
-	
-	char Path[PLATFORM_MAX_PATH];
-	char mapname[64];
-	GetCurrentMap(mapname, sizeof(mapname));
-	Format(mapname, sizeof(mapname), "%s", mapname);
-	BuildPath(Path_SM, Path, sizeof(Path), "%s/%s.cfg", CONFIG_MAPS,mapname);
-	Handle h_MapFile = CreateKeyValues(mapname);
-	if (!FileToKeyValues(h_MapFile, Path))
+	char sPath[PLATFORM_MAX_PATH];
+	char sMapName[64];
+	GetCurrentMap(sMapName, sizeof(sMapName));
+	BuildPath(Path_SM, sPath, sizeof(sPath), "%s", CONFIG_FILE);
+	KeyValues hFile = new KeyValues("no-rushing");
+	if (!hFile.ImportFromFile(sPath))
 	{
-		CloseHandle(h_MapFile);
-		SetFailState("Couldn't load %s",Path);
+		CloseHandle(hFile);
+		SetFailState("Couldn't load %s", sPath);
 		return;
 	}
 	
-	char s_value[32];
-	KvRewind(h_MapFile);
+	g_NoticeDistance = 0.15;
+	g_WarningDistance = 0.2;
+	g_IgnoreDistance = 0.31;
+	if( hFile.JumpToKey("default") )
+	{
+		g_NoticeDistance = hFile.GetFloat("Notice_Rushing_Distance", g_NoticeDistance);
+		g_WarningDistance = hFile.GetFloat("Warning_Distance", g_WarningDistance);
+		g_IgnoreDistance = hFile.GetFloat("Behind_Distance", g_IgnoreDistance);
+		
+		hFile.GoBack();
+	}
+
+	if( hFile.JumpToKey(sMapName) )
+	{
+		g_NoticeDistance = hFile.GetFloat("Notice_Rushing_Distance", g_NoticeDistance);
+		g_WarningDistance = hFile.GetFloat("Warning_Distance", g_WarningDistance);
+		g_IgnoreDistance = hFile.GetFloat("Behind_Distance", g_IgnoreDistance);
+		
+		hFile.GoBack();
+	}
 	
-	
-	KvGetString(h_MapFile, "Notice Rushing Distance", s_value, sizeof(s_value));
-	g_NoticeDistance = StringToFloat(s_value);
-	
-	KvGetString(h_MapFile, "Warning Distance", s_value, sizeof(s_value));
-	g_WarningDistance = StringToFloat(s_value);
-	
-	KvGetString(h_MapFile, "Behind Distance", s_value, sizeof(s_value));
-	g_IgnoreDistance = StringToFloat(s_value);
-	
-	CloseHandle(h_MapFile);
+	delete hFile;
 }
 
 stock bool IsSurvival()

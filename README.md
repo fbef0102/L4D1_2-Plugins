@@ -20,8 +20,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
-* <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
-* <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
 * <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
@@ -184,6 +182,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 更改伺服器的遊戲欄資訊
 * <b>[sm_translator](/sm_translator)</b>: Translate chat messagesbrowser
     * 翻譯你的句子給其他玩家 (玩家對應的語言)
+* <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
+    * 當真人玩家死亡時，自動取代另一個有空閒的Bot繼續遊玩倖存者
+* <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
+    * 修正5+多人遊戲裡，當真人玩家閒置的時候如果他的Bot死亡，真人玩家不會取代死亡Bot而是變成完全旁觀者
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
