@@ -157,15 +157,19 @@ public void OnMapEnd()
 	ResetTimer();
 }
 
-public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iPlayerSpawn = 1;
 }
 
-public void OnFunctionStart(Event event, const char[] name, bool dontBroadcast)
+void OnFunctionStart(Event event, const char[] name, bool dontBroadcast)
 {
+	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
+		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iRoundStart = 1;
+
 	b_LeftSaveRoom = false;
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -176,24 +180,22 @@ public void OnFunctionStart(Event event, const char[] name, bool dontBroadcast)
 			IsLagging[i] = false;
 		}
 	}
-	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
-		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
-	g_iRoundStart = 1;
 }
 
-public Action tmrStart(Handle timer)
+Action tmrStart(Handle timer)
 {
 	g_MapFlowDistance = L4D2Direct_GetMapMaxFlowDistance();
 	ResetPlugin();
 	if (L4D_GetGameModeType() != GAMEMODE_SURVIVAL)
 	{
-		if(PlayerLeftStartTimer == null) CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
+		delete PlayerLeftStartTimer;
+		PlayerLeftStartTimer = CreateTimer(1.0, PlayerLeftStart, _, TIMER_REPEAT);
 	}
 
 	return Plugin_Continue;
 }
 
-public void OnFunctionEnd(Event event, const char[] name, bool dontBroadcast)
+void OnFunctionEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
 	ResetTimer();
@@ -210,14 +212,8 @@ public void OnFunctionEnd(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-public Action Timer_DistanceCheck(Handle timer)
+Action Timer_DistanceCheck(Handle timer)
 {
-	if (!b_LeftSaveRoom)
-	{
-		DistanceCheckTimer = null;
-		return Plugin_Stop;
-	}
-
 	if (ActiveSurvivors() < i_SurvivorsRequired)
 	{
 		return Plugin_Continue;
@@ -253,7 +249,8 @@ public Action Timer_DistanceCheck(Handle timer)
 			g_TeamDistance = CalculateTeamDistance(i);
 			g_PlayerDistance = (L4D2Direct_GetFlowDistance(i) / g_MapFlowDistance);
 			
-			if(g_PlayerDistance < 0.0 || g_PlayerDistance > 1.0 || g_TeamDistance == -1.0) continue;
+			if(g_PlayerDistance <= 0.0 || g_TeamDistance == -1.0) continue;
+			if(g_PlayerDistance >= 1.0) g_PlayerDistance = 1.0;
 
 			if (DistanceWarning[i] && g_TeamDistance + g_WarningDistance < g_PlayerDistance)
 			{
@@ -301,13 +298,15 @@ public Action Timer_DistanceCheck(Handle timer)
 	return Plugin_Continue;
 }
 
-stock bool IsClientLaggingBehind(int client)
+bool IsClientLaggingBehind(int client)
 {
 	float g_TeamDistance = CalculateTeamDistance(client);
 	float g_PlayerDistance = (L4D2Direct_GetFlowDistance(client) / g_MapFlowDistance);
 
 	//C_PrintToChatAll("%N: g_PlayerDistance %f,g_IgnoreDistance %f,g_TeamDistance %f",client,g_PlayerDistance,g_IgnoreDistance,g_TeamDistance);
-	if(g_PlayerDistance < 0.0 || g_PlayerDistance > 1.0 || g_TeamDistance == -1.0) return false;
+	if(g_PlayerDistance <= 0.0 || g_TeamDistance == -1.0) return false;
+	if(g_PlayerDistance >= 1.0) g_PlayerDistance = 1.0;
+	
 	if (g_IgnoreDistance == 0.0 || g_PlayerDistance + g_IgnoreDistance > g_TeamDistance)
 	{
 		return false;
@@ -315,7 +314,7 @@ stock bool IsClientLaggingBehind(int client)
 	return true;
 }
 
-stock int ActiveSurvivors()
+int ActiveSurvivors()
 {
 	int count =	0;
 	for (int i = 1; i <= MaxClients; i++)
@@ -328,7 +327,7 @@ stock int ActiveSurvivors()
 	return count;
 }
 
-stock void TeleportLaggingPlayer(int client)
+void TeleportLaggingPlayer(int client)
 {
 	float g_TargetDistance;
 	float g_PlayerDistance;
@@ -338,8 +337,10 @@ stock void TeleportLaggingPlayer(int client)
 		if (IsClientConnected(i) && IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i) && i != client)
 		{
 			g_PlayerDistance = (L4D2Direct_GetFlowDistance(i) / g_MapFlowDistance);
+			if(g_PlayerDistance <= 0.0) continue;
+			if(g_PlayerDistance >= 1.0) g_PlayerDistance = 1.0;
 			
-			if (g_PlayerDistance > 0.0 && g_PlayerDistance < 1.0 && g_PlayerDistance > g_TargetDistance)
+			if (g_PlayerDistance > g_TargetDistance)
 			{
 				g_TargetDistance = g_PlayerDistance;
 				target = i;
@@ -355,7 +356,7 @@ stock void TeleportLaggingPlayer(int client)
 	}
 }
 
-stock void TeleportRushingPlayer(int client)
+void TeleportRushingPlayer(int client)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -370,7 +371,7 @@ stock void TeleportRushingPlayer(int client)
 	}
 }
 
-stock float CalculateTeamDistance(int client)
+float CalculateTeamDistance(int client)
 {
 	float g_TeamDistance = 0.0;
 	int counter = 0;
@@ -381,11 +382,11 @@ stock float CalculateTeamDistance(int client)
 			if (i_IgnoreIncapacitated && !IsClientDown(i) || !i_IgnoreIncapacitated)
 			{
 				float fPlayerflow = L4D2Direct_GetFlowDistance(i) / g_MapFlowDistance;
-				if(fPlayerflow > 0.0 && fPlayerflow < 1.0)//in case player out of map
-				{
-					g_TeamDistance += fPlayerflow;
-					counter++;
-				}
+				if(fPlayerflow <= 0.0) continue; //in case player out of map
+				if(fPlayerflow >= 1.0) fPlayerflow = 1.0;
+					
+				g_TeamDistance += fPlayerflow;
+				counter++;
 			}
 		}
 	}
@@ -432,17 +433,6 @@ void ParseMapConfigs()
 	delete hFile;
 }
 
-stock bool IsSurvival()
-{
-	char GameType[128];
-	GetConVarString(FindConVar("mp_gamemode"), GameType, 128);
-	if (StrEqual(GameType, "survival"))
-	{
-		return true;
-	}
-	return false;
-}
-
 bool IsClientDown(int client)
 {
 	if( GetEntProp(client, Prop_Send, "m_isIncapacitated", 1) ||
@@ -452,39 +442,40 @@ bool IsClientDown(int client)
 	return false;
 }
 
-public void ConVarInfractionLimit(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarInfractionLimit(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_InfractionLimit = h_InfractionLimit.IntValue;
 }
 
-public void ConVarSurvivorsRequired(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarSurvivorsRequired(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_SurvivorsRequired = h_SurvivorsRequired.IntValue;
 }
 
-public void ConVarIgnoreIncapacitated(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarIgnoreIncapacitated(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_IgnoreIncapacitated = h_IgnoreIncapacitated.IntValue;
 }
 
-public void ConVarIgnoreStraggler(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarIgnoreStraggler(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_IgnoreStraggler = h_IgnoreStraggler.IntValue;
 }
 
-public void ConVarInfractionResult(ConVar convar, const char[] oldValue, const char[] newValue)
+void ConVarInfractionResult(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	i_InfractionResult = h_InfractionResult.IntValue;
 }
 
-public Action PlayerLeftStart(Handle Timer)
+Action PlayerLeftStart(Handle Timer)
 {
 	if (LeftStartArea())
 	{	
 		if (!b_LeftSaveRoom)
 		{
 			b_LeftSaveRoom = true;
-			if(DistanceCheckTimer == null) CreateTimer(1.0, Timer_DistanceCheck, _, TIMER_REPEAT);
+			delete DistanceCheckTimer;
+			DistanceCheckTimer = CreateTimer(1.0, Timer_DistanceCheck, _, TIMER_REPEAT);
 			PlayerLeftStartTimer = null;
 			return Plugin_Stop;
 		}
@@ -522,16 +513,8 @@ bool LeftStartArea()
 
 void ResetTimer()
 {
-	if(PlayerLeftStartTimer != null) 
-	{
-		KillTimer(PlayerLeftStartTimer);
-		PlayerLeftStartTimer = null;
-	}
-	if(DistanceCheckTimer != null)
-	{
-		KillTimer(DistanceCheckTimer);
-		DistanceCheckTimer = null;
-	}
+	delete PlayerLeftStartTimer;
+	delete DistanceCheckTimer;
 }
 
 void ResetPlugin()
@@ -541,7 +524,7 @@ void ResetPlugin()
 }
 
 
-stock int GetInfectedAttacker(int client)
+int GetInfectedAttacker(int client)
 {
 	int attacker;
 
