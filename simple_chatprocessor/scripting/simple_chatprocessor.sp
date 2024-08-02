@@ -36,8 +36,8 @@ $Copyright: (c) Simple Plugins 2008-2009$
 #pragma semicolon 1
 #pragma newdecls required
 #include <sourcemod>
-#define PLUGIN_VERSION			"1.7h-2024/7/26"
-#define PLUGIN_NAME			    "simple-chatprocessor"
+#define PLUGIN_VERSION			"1.8h-2024/8/3"
+#define PLUGIN_NAME			    "simple_chatprocessor"
 #define DEBUG 0
 
 public Plugin myinfo = {
@@ -45,10 +45,10 @@ public Plugin myinfo = {
 	author = "Simple Plugins, Mini, HarryPotter",
 	description = "Process chat and allows other plugins to manipulate chat.",
 	version = PLUGIN_VERSION,
-	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/simple-chatprocessor"
+	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/simple_chatprocessor"
 };
 
-GlobalForward g_fwdOnChatMessage, g_fwdOnChatMessagePost;
+GlobalForward g_fwdOnChatMessagePre, g_fwdOnChatMessagePost;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -62,13 +62,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	/**
 	Create the global forwards for other plugins
 	*/
-	g_fwdOnChatMessage = new GlobalForward("OnChatMessage2", ET_Hook, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
-	g_fwdOnChatMessagePost = new GlobalForward("OnChatMessage_Post", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String);
+	g_fwdOnChatMessagePre = new GlobalForward("OnChatMessage2", ET_Hook, Param_Cell, Param_CellByRef, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
+	g_fwdOnChatMessagePost = new GlobalForward("OnChatMessage2_Post", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_String, Param_String);
 
 	MarkNativeAsOptional("GetUserMessageType");
 	CreateNative("GetMessageFlags", Native_GetMessageFlags);
 
-	RegPluginLibrary("scp");
+	RegPluginLibrary("simple_chatprocessor");
 
 	return APLRes_Success;
 }
@@ -153,7 +153,7 @@ public void OnPluginStart()
 		char sTranslationLocation[PLATFORM_MAX_PATH];
 
 		GetGameFolderName(sGameDir, sizeof(sGameDir));
-		Format(sTranslationFile, sizeof(sTranslationFile), "scp.%s.phrases", sGameDir);
+		Format(sTranslationFile, sizeof(sTranslationFile), "simple_chatprocessor.%s.phrases", sGameDir);
 		BuildPath(Path_SM, sTranslationLocation, sizeof(sTranslationLocation), "translations/%s.txt", sTranslationFile);
 
 		if (FileExists(sTranslationLocation)) {
@@ -191,16 +191,16 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 	Get the sender of the usermessage and bug out if it is not a player
 	*/
 	bool bProtobuf = (CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available && GetUserMessageType() == UM_Protobuf);
-	int cpSender;
+	int realSender, cpSender;
 	if (bProtobuf) {
-		cpSender = UserMessageToProtobuf(msg).ReadInt("ent_idx");
+		realSender = UserMessageToProtobuf(msg).ReadInt("ent_idx");
 	}
 	else {
-		cpSender = msg.ReadByte();
+		realSender = msg.ReadByte();
 	}
 
 	
-	if (cpSender == SENDER_WORLD) {
+	if (realSender == SENDER_WORLD) {
 		return Plugin_Continue;
 	}
 
@@ -249,8 +249,8 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 		}
 
 		if (StrContains(cpTranslationName, "dead", false) != -1
-			|| (g_bCvarDeathSurvivor && GetClientTeam(cpSender) == 2 && !IsPlayerAlive(cpSender))
-			|| (g_bCvarDeathInfected && GetClientTeam(cpSender) == 3 && !IsPlayerAlive(cpSender))) {
+			|| (g_bCvarDeathSurvivor && GetClientTeam(realSender) == 2 && !IsPlayerAlive(realSender))
+			|| (g_bCvarDeathInfected && GetClientTeam(realSender) == 3 && !IsPlayerAlive(realSender))) {
 			g_CurrentChatType = g_CurrentChatType | CHATFLAGS_DEAD;
 		}
 	}
@@ -294,12 +294,15 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 	char sOriginalName[MAXLENGTH_NAME];
 	strcopy(sOriginalName, sizeof(sOriginalName), cpSender_Name);
 
+	cpSender = realSender;
+
 	/**
 	Start the forward for other plugins
 	*/
 	Action fResult;
-	Call_StartForward(g_fwdOnChatMessage);
-	Call_PushCell(cpSender);
+	Call_StartForward(g_fwdOnChatMessagePre);
+	Call_PushCell(realSender);
+	Call_PushCellRef(cpSender);
 	Call_PushCell(cpRecipients);
 	Call_PushStringEx(cpSender_Name, sizeof(cpSender_Name), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
 	Call_PushCell(sizeof(cpSender_Name));
@@ -337,6 +340,7 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 	DataPack cpPack = new DataPack();
 	int numRecipients = cpRecipients.Length;
 
+	cpPack.WriteCell(realSender);
 	cpPack.WriteCell(cpSender);
 
 	for (int i = 0; i < numRecipients; i++) {
@@ -374,15 +378,15 @@ public Action OnSayText(UserMsg msg_id, BfRead msg, const int[] players, int pla
 	Get the sender of the usermessage and bug out if it is not a player
 	*/
 	bool bProtobuf = (CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available && GetUserMessageType() == UM_Protobuf);
-	int cpSender;
+	int cpSender, realSender;
 	if (bProtobuf) {
-		cpSender = UserMessageToProtobuf(msg).ReadInt("ent_idx");
+		realSender = UserMessageToProtobuf(msg).ReadInt("ent_idx");
 	}
 	else {
-		cpSender = msg.ReadByte();
+		realSender = msg.ReadByte();
 	}
 
-	if (cpSender == SENDER_WORLD) {
+	if (realSender == SENDER_WORLD) {
 		return Plugin_Continue;
 	}
 
@@ -413,7 +417,7 @@ public Action OnSayText(UserMsg msg_id, BfRead msg, const int[] players, int pla
 	}
 
 	char prefix[64], senderName[MAX_NAME_LENGTH], textMessage[MAXLENGTH_MESSAGE], buffer[MAXLENGTH_INPUT];
-	GetClientName(cpSender, senderName, sizeof(senderName));
+	GetClientName(realSender, senderName, sizeof(senderName));
 	Format(buffer, sizeof(buffer), "%s:", senderName);
 	int pos = StrContains(message, buffer);
 
@@ -430,7 +434,7 @@ public Action OnSayText(UserMsg msg_id, BfRead msg, const int[] players, int pla
 		g_CurrentChatType |= CHATFLAGS_TEAM;
 	}
 
-	if (GetClientTeam(cpSender) <= 1) {
+	if (GetClientTeam(realSender) <= 1) {
 		g_CurrentChatType |= CHATFLAGS_SPEC;
 	}
 
@@ -445,12 +449,15 @@ public Action OnSayText(UserMsg msg_id, BfRead msg, const int[] players, int pla
 	ReplaceString(message, sizeof(message), "\n", "");
 	strcopy(textMessage, sizeof(textMessage), message[pos + strlen(senderName) + 2]);
 
+	cpSender = realSender;
+
 	/**
 	Start the forward for other plugins
 	*/
 	Action fResult;
-	Call_StartForward(g_fwdOnChatMessage);
-	Call_PushCell(cpSender);
+	Call_StartForward(g_fwdOnChatMessagePre);
+	Call_PushCell(realSender);
+	Call_PushCellRef(cpSender);
 	Call_PushCell(cpRecipients);
 	Call_PushStringEx(senderName, sizeof(senderName), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
 	Call_PushCell(sizeof(senderName));
@@ -489,6 +496,7 @@ public Action OnSayText(UserMsg msg_id, BfRead msg, const int[] players, int pla
 
 	int numRecipients = cpRecipients.Length;
 
+	cpPack.WriteCell(realSender);
 	cpPack.WriteCell(cpSender);
 
 	for (int i = 0; i < numRecipients; i++) {
@@ -530,10 +538,11 @@ public void OnGameFrame() {
 			sMessage[MAXLENGTH_INPUT],
 			sTranslation[MAXLENGTH_MESSAGE],
 			sTemp[MAXLENGTH_MESSAGE];
-		int client;
+		int realSender, cpSender;
 		ArrayList recipients = new ArrayList();
 		if (g_bSayText2) {
-			client = pack.ReadCell();
+			realSender = pack.ReadCell();
+			cpSender = pack.ReadCell();
 			int numClientsStart = pack.ReadCell();
 			int numClientsFinish;
 			int[] clients = new int[numClientsStart];
@@ -565,7 +574,7 @@ public void OnGameFrame() {
 					FormatEx(sTranslation, sizeof(sTranslation), "%T", sChatType, target, sSenderName, sMessage);
 
 					Protobuf pb = UserMessageToProtobuf(msg);
-					pb.SetInt("ent_idx", client);
+					pb.SetInt("ent_idx", cpSender);
 					pb.SetBool("chat", bChat);
 
 					pb.SetString("msg_name", sTranslation);
@@ -597,7 +606,7 @@ public void OnGameFrame() {
 
 					msg = StartMessageOne("SayText2", target, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
 					BfWrite buf = UserMessageToBfWrite(msg);
-					buf.WriteByte(client);
+					buf.WriteByte(cpSender);
 					buf.WriteByte(bChat);
 					buf.WriteString(sTranslation);
 					EndMessage();
@@ -605,7 +614,8 @@ public void OnGameFrame() {
 			}
 		}
 		else {
-			client = pack.ReadCell();
+			realSender = pack.ReadCell();
+			cpSender = pack.ReadCell();
 			int numClientsStart = pack.ReadCell();
 			int numClientsFinish;
 			int[] clients = new int[numClientsStart];
@@ -626,7 +636,7 @@ public void OnGameFrame() {
 			char message[MAXLENGTH_MESSAGE];
 
 			int teamColor;
-			switch (GetClientTeam(client)) {
+			switch (GetClientTeam(cpSender)) {
 				case 0, 1: teamColor = 0xCCCCCC;
 				case 2: teamColor = 0x4D7942;
 				case 3: teamColor = 0xFF4040;
@@ -647,7 +657,8 @@ public void OnGameFrame() {
 			g_CurrentChatType = pack.ReadCell();
 		}
 		Call_StartForward(g_fwdOnChatMessagePost);
-		Call_PushCell(client);
+		Call_PushCell(realSender);
+		Call_PushCell(cpSender);
 		Call_PushCell(recipients);
 		Call_PushString(sSenderName);
 		Call_PushString(sMessage);

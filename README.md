@@ -132,7 +132,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
-* <b>[simple-chatprocessor](/simple-chatprocessor)</b>: Process chat and allows other plugins to manipulate chat.
+* <b>[simple_chatprocessor](/simple_chatprocessor)</b>: Process chat and allows other plugins to manipulate chat.
     * 輔助插件，控制玩家在聊天窗口輸入的文字與顏色
 * <b>[match_vote](/match_vote)</b>: Type !match/!load/!mode to vote a new mode
     * 輸入!match/!load/!mode投票執行cfg文件，用於更換模式或玩法
