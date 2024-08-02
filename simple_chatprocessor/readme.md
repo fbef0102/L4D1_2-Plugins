@@ -12,13 +12,13 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg/sourcemod/simple-chatprocessor.cfg
+	* cfg/sourcemod/simple_chatprocessor.cfg
 		```php
 		// If 1, Display Survivor *DEAD* in chatbox
-		simple-chatprocessor_survivor_dead "1"
+		simple_chatprocessor_survivor_dead "1"
 
 		// If 1, Display Infected *DEAD* in chatbox
-		simple-chatprocessor_infected_dead "0"
+		simple_chatprocessor_infected_dead "0"
 		```
 </details>
 
@@ -29,9 +29,9 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>API | 串接</summary>
 
-    * ```scripting\include\scp.inc```
+    * ```scripting\include\simple_chatprocessor.inc```
         ```php
-        Registers a library name: simple-chatcolors
+        Registers a library name: simple_chatprocessor
         ```
 </details>
 
@@ -52,6 +52,11 @@ Process chat and allows other plugins to manipulate chat.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.8h (2024-8-3)
+		* Update API
+        * Add API OnChatMessage2_Post()
+		* Change plugin name
 
 	* v1.7h (2024-7-26)
 		* Update API
@@ -77,7 +82,7 @@ Process chat and allows other plugins to manipulate chat.
 
 	* v1.0h (2023-3-12)
 		* Delete API OnChatMessage(int &author, ArrayList recipients, char[] name, char[] message)
-        * Add API OnChatMessage2(int &author, ArrayList recipients, char[] name, int maxlength_name, char[] message, int maxlength_message)
+        * Add API OnChatMessage2()
         * Fixed translation file error in l4d1/l4d2
 
 	* v2.3.0
@@ -100,13 +105,13 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/simple-chatprocessor.cfg
+	* cfg/sourcemod/simple_chatprocessor.cfg
 		```php
 		// 為1時，死亡的倖存者玩家說話時顯示*DEAD*
-		simple-chatprocessor_survivor_dead "1"
+		simple_chatprocessor_survivor_dead "1"
 
 		// 為1時，死亡的特感玩家說話時顯示*DEAD*
-		simple-chatprocessor_infected_dead "0"
+		simple_chatprocessor_infected_dead "0"
 		```
 </details>
 
