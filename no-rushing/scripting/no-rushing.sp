@@ -4,7 +4,7 @@
 
 #define MAX_ENTITIES 2048
 
-#define PLUGIN_VERSION "1.0h-2024/7/26"
+#define PLUGIN_VERSION "1.1h-2024/8/4"
 
 #define PLUGIN_NAME "No Rushing"
 #define PLUGIN_DESCRIPTION "Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates."
@@ -32,10 +32,12 @@ bool DistanceWarning[MAXPLAYERS+1];
 bool IsLagging[MAXPLAYERS+1];
 int g_WarningCounter[MAXPLAYERS+1];
 
+bool g_bEnable;
 float g_NoticeDistance;
 float g_WarningDistance;
 float g_IgnoreDistance;
 float g_MapFlowDistance;
+float g_fRangeDistance;
 char white[10];
 char blue[10];
 char orange[10];
@@ -80,12 +82,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-	CreateConVar("no-rushing_version", PLUGIN_VERSION, "No Rushing Version", FCVAR_SPONLY);
-	h_InfractionLimit 		= CreateConVar("no-rushing_limit", 					"2", "Maximum rushing limits", FCVAR_SPONLY);
-	h_SurvivorsRequired 	= CreateConVar("no-rushing_require_survivors", 		"3", "Minimum number of alive survivors before No-Rushing function works. Must be 3 or greater.", FCVAR_SPONLY);
-	h_IgnoreIncapacitated 	= CreateConVar("no-rushing_ignore_incapacitated", 	"0", "Ignore Incapacitated Survivors?", FCVAR_SPONLY,true, 0.0, true, 1.0);
-	h_IgnoreStraggler 		= CreateConVar("no-rushing_ignore_lagging", 		"0", "Ignore lagging or lost players behind?", FCVAR_SPONLY,true, 0.0, true, 1.0);
-	h_InfractionResult 		= CreateConVar("no-rushing_action_rushers", 		"1", "Modes: 0=Teleport only, 1=Teleport and kill after reaching limits, 2=Teleport and kick after reaching limits.", FCVAR_SPONLY,true, 0.0, true, 2.0);
+	h_InfractionLimit 		= CreateConVar("no-rushing_limit", 					"2", "Maximum rushing limits", FCVAR_NOTIFY);
+	h_SurvivorsRequired 	= CreateConVar("no-rushing_require_survivors", 		"3", "Minimum number of alive survivors before No-Rushing function works. Must be 3 or greater.", FCVAR_NOTIFY, true, 3.0);
+	h_IgnoreIncapacitated 	= CreateConVar("no-rushing_ignore_incapacitated", 	"0", "Ignore Incapacitated Survivors?", FCVAR_NOTIFY,true, 0.0, true, 1.0);
+	h_IgnoreStraggler 		= CreateConVar("no-rushing_ignore_lagging", 		"0", "Ignore lagging or lost players behind?", FCVAR_NOTIFY,true, 0.0, true, 1.0);
+	h_InfractionResult 		= CreateConVar("no-rushing_action_rushers", 		"1", "Modes: 0=Teleport only, 1=Teleport and kill after reaching limits, 2=Teleport and kick after reaching limits.", FCVAR_NOTIFY,true, 0.0, true, 2.0);
+	CreateConVar("no-rushing_version", PLUGIN_VERSION, "No Rushing Version", FCVAR_NOTIFY);
 	AutoExecConfig(true, 	"no-rushing");
 
 	i_InfractionLimit = h_InfractionLimit.IntValue;
@@ -214,7 +216,13 @@ void OnFunctionEnd(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_DistanceCheck(Handle timer)
 {
-	if (ActiveSurvivors() < i_SurvivorsRequired)
+	if (!g_bEnable || ActiveSurvivors() < i_SurvivorsRequired)
+	{
+		return Plugin_Continue;
+	}
+
+	int iAliveSur = ActiveSurvivors();
+	if (iAliveSur < i_SurvivorsRequired)
 	{
 		return Plugin_Continue;
 	}
@@ -235,6 +243,8 @@ Action Timer_DistanceCheck(Handle timer)
 			{
 				if (!i_IgnoreStraggler)
 				{
+					if(CheckIfLoner(i, iAliveSur) == false) continue;
+
 					CPrintToChat(i, "%T", "Lagging Behind", i, white, green, white);
 					TeleportLaggingPlayer(i);
 					IsLagging[i] = true;
@@ -254,6 +264,8 @@ Action Timer_DistanceCheck(Handle timer)
 
 			if (DistanceWarning[i] && g_TeamDistance + g_WarningDistance < g_PlayerDistance)
 			{
+				if(CheckIfLoner(i, iAliveSur) == false) continue;
+				
 				if (g_WarningCounter[i] + 1 < i_InfractionLimit)
 				{
 					g_WarningCounter[i]++;
@@ -319,7 +331,7 @@ int ActiveSurvivors()
 	int count =	0;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientConnected(i) && IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i))
+		if (IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVOR && IsPlayerAlive(i))
 		{
 			count++;
 		}
@@ -409,23 +421,40 @@ void ParseMapConfigs()
 		return;
 	}
 	
-	g_NoticeDistance = 0.15;
-	g_WarningDistance = 0.2;
-	g_IgnoreDistance = 0.31;
-	if( hFile.JumpToKey("default") )
+	if( !L4D_IsMissionFinalMap(true))
 	{
-		g_NoticeDistance = hFile.GetFloat("Notice_Rushing_Distance", g_NoticeDistance);
-		g_WarningDistance = hFile.GetFloat("Warning_Distance", g_WarningDistance);
-		g_IgnoreDistance = hFile.GetFloat("Behind_Distance", g_IgnoreDistance);
-		
-		hFile.GoBack();
+		if(hFile.JumpToKey("default"))
+		{
+			g_bEnable = view_as<bool>(hFile.GetNum("Enable", 1));
+			g_NoticeDistance = hFile.GetFloat("Notice_Rushing_Distance", 0.15);
+			g_WarningDistance = hFile.GetFloat("Warning_Distance", 0.2);
+			g_IgnoreDistance = hFile.GetFloat("Behind_Distance", 0.31);
+			g_fRangeDistance = hFile.GetFloat("Range_Distance", 600.0);
+			
+			hFile.GoBack();
+		}
+	}
+	else
+	{
+		if(hFile.JumpToKey("default_final"))
+		{
+			g_bEnable = view_as<bool>(hFile.GetNum("Enable", 1));
+			g_NoticeDistance = hFile.GetFloat("Notice_Rushing_Distance", 0.8);
+			g_WarningDistance = hFile.GetFloat("Warning_Distance", 0.7);
+			g_IgnoreDistance = hFile.GetFloat("Behind_Distance", 0.91);
+			g_fRangeDistance = hFile.GetFloat("Range_Distance", 1000.0);
+			
+			hFile.GoBack();
+		}
 	}
 
 	if( hFile.JumpToKey(sMapName) )
 	{
+		g_bEnable = view_as<bool>(hFile.GetNum("Enable", g_bEnable));
 		g_NoticeDistance = hFile.GetFloat("Notice_Rushing_Distance", g_NoticeDistance);
 		g_WarningDistance = hFile.GetFloat("Warning_Distance", g_WarningDistance);
 		g_IgnoreDistance = hFile.GetFloat("Behind_Distance", g_IgnoreDistance);
+		g_fRangeDistance = hFile.GetFloat("Range_Distance", g_fRangeDistance);
 		
 		hFile.GoBack();
 	}
@@ -565,4 +594,33 @@ int GetInfectedAttacker(int client)
 	}
 
 	return -1;
+}
+
+bool CheckIfLoner(int client, int iAliveSur)
+{
+	float playerPos[3];
+	float pos[3];
+	GetClientEyePosition(client, playerPos);
+	int iCount = 0;
+	for( int i=1; i<=MaxClients; i++)
+	{
+		if(IsClientInGame(i) && GetClientTeam(i)==2 && IsPlayerAlive(i))
+		{
+			if(i==client) continue;
+			
+			GetClientEyePosition(i, pos);
+			float dis=GetVectorDistance(pos, playerPos);
+			if(dis>g_fRangeDistance)
+			{
+				iCount++;				 
+			}
+		} 
+	}
+
+	if( ( iCount >= RoundToCeil(0.5 * iAliveSur) ) )
+	{
+		return true;
+	}
+
+	return false;
 }

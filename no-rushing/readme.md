@@ -51,9 +51,20 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
         {
             "c12m4_barn" // map name
             {
-                "Notice Rushing Distance"		"0.15"  // Warn rushers if they reached this distance (No teleportations, just warnings.)
-                "Warning Distance"		"0.2"   // Teleport rusher back to team after reaching this distance
-                "Behind Distance"		"0.31"  // Teleport player back to team if player is behind team and reach this distance
+                // 1=Enable plugin, 0=Disable plguin in this map
+                "Enable"	"1"
+                
+                // [0.00~1.00] Warn rushers if they reached this distance (No teleportations, just warnings.)
+                "Notice_Rushing_Distance"		"0.15" 
+                
+                // [0.00~1.00] Teleport rusher back to team after reaching this distance
+                "Warning_Distance"				"0.2"
+                
+                // [0.00~1.00] Teleport player back to team if player is behind team and reach this distance
+                "Behind_Distance"				"0.31"
+                
+                // Only teleport player back to team if far away range from team (To prevent nav bug)
+                "Range_Distance"				"600.0"
             }
 
             ...
@@ -78,6 +89,9 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.1h (2024-8-4)
+        * Update Config file
 
     * v1.0h (2024-7-26)
         * Update Config file
@@ -129,9 +143,20 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
         {
             "c12m4_barn" //地圖名
             {
-                "Notice Rushing Distance"		"0.15"  // 離開隊伍超過15%路程會警告
-                "Warning Distance"		"0.2"   // 離開隊伍超過20%路程會傳送回隊伍中
-                "Behind Distance"		"0.31"  // 落後隊伍於後方並且超過31%路程會傳送回隊伍中
+                // 1=在這張地圖開啟插件, 0=在這張地圖關閉插件
+                "Enable"	"1"
+                
+                // [0.00~1.00] 往前離開隊伍超過15%路程會警告
+                "Notice_Rushing_Distance"		"0.15" 
+                
+                // [0.00~1.00] 往前離開隊伍超過20%路程會傳送回隊伍中
+                "Warning_Distance"				"0.2"
+                
+                // [0.00~1.00] 落後隊伍於後方並且超過31%路程會傳送回隊伍中
+                "Behind_Distance"				"0.31"
+                
+                // 與隊伍超過此距離才會傳送玩家並懲罰 (避免隔牆 nav bug)
+                "Range_Distance"				"600.0"
             }
 
             ...
