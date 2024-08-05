@@ -4,8 +4,8 @@ Cars explode after they take some damage
 * [Video | 影片展示](https://youtu.be/B_-pOplOML4)
 
 * Image
-	* Cars Explosions (車子連環爆)
-	<br/>![l4d_explosive_cars_1](image/l4d_explosive_cars_1.jpg)
+	* Cars Explosions (車子會爆炸)
+	<br/>![l4d_explosive_cars_1](image/l4d_explosive_cars_1.gif)
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -26,9 +26,6 @@ Cars explode after they take some damage
 		// Damage made by the explosion
 		l4d_explosive_cars_damage "10"
 
-		// Time before the fire trace left by the explosion expires
-		l4d_explosive_cars_trace "25"
-
 		// Should the car explosion cause a panic event? (1: Yes 0: No)
 		l4d_explosive_cars_panic "1"
 
@@ -45,13 +42,18 @@ Cars explode after they take some damage
 		l4d_explosive_cars_removetime "60"
 
 		// On which maps should the plugin disable itself? separate by commas (no spaces). (Example: c5m3_cemetery,c5m5_bridge)
-		l4d_explosive_cars_unload "c5m3_cemetery,c5m5_bridge"
+		l4d_explosive_cars_unload_map "c5m3_cemetery,c5m5_bridge"
 
-		// Should cars get damaged by another car's explosion?
+		// If 1, cars get damaged by another car's explosion
 		l4d_explosive_cars_explosion_damage "1"
 
-		// How often should the fire trace left by the explosion hurt?
-		l4d_explosive_cars_trace_interval "0.4"
+		// If 1, Display outline glow of car's health
+		l4d_explosive_cars_health_outline "1"
+
+		// (L4D2) Which method to send survivor flying by car.
+		// 0=Flings a player to the ground, like they were hit by a Charger
+		// 1=Stagger player
+		l4d_explosive_cars_flying_method "0"
         ```
 </details>
 
@@ -70,8 +72,13 @@ Cars explode after they take some damage
 
 	```php
 	//honorcode23 @ 2010-2011
-	//HarryPotter @ 2021-2023
+	//HarryPotter @ 2021-2024
 	```
+	* v2.4 (2024-8-5)
+		* Add outline glow of car's health
+		* Delete invisible fire
+		* Update Cvars
+
 	* v2.3 (2023-6-7)
 		* Change back ```L4D_ForcePanicEvent()```
 		* Fixed non-car hittables would burn and explode
@@ -119,9 +126,6 @@ Cars explode after they take some damage
 		// 爆炸所產生的傷害
 		l4d_explosive_cars_damage "10"
 
-		// 車子爆炸後，火焰持續時間
-		l4d_explosive_cars_trace "25"
-
 		// 為1時，車子爆炸會導致屍潮
 		l4d_explosive_cars_panic "1"
 
@@ -138,13 +142,18 @@ Cars explode after they take some damage
 		l4d_explosive_cars_removetime "60"
 
 		// 在這些地圖上關閉此插件, 逗號區隔 (無空白). (範例: c5m3_cemetery,c5m5_bridge)
-		l4d_explosive_cars_unload "c5m3_cemetery,c5m5_bridge"
+		l4d_explosive_cars_unload_map "c5m3_cemetery,c5m5_bridge"
 
 		// 為1時，車子爆炸後也會對周圍的車子產生連鎖爆炸效應
 		l4d_explosive_cars_explosion_damage "1"
 
-		// 車子爆炸後，火焰傷害的間隔
-		l4d_explosive_cars_trace_interval "0.4"
+		// 為1時，車子光圈顯示血量狀態 (黃->紅)
+		l4d_explosive_cars_health_outline "1"
+
+		// (L4D2) 選擇倖存者被車子爆炸炸飛的方式
+		// 0=撞飛倖存者, 就像被Charger撞到
+		// 1=震退倖存者
+		l4d_explosive_cars_flying_method "0"
         ```
 </details>
 
