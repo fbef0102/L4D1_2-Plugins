@@ -66,11 +66,15 @@ shoot your teammate = shoot yourself
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.7 (2023-12-17)
-		* Optimize code and improve performance
+    * v1.8 (2024-8-6)
+        * Add Gamedata
+        * Optimize code and improve performance
 
-	* v1.6 (2023-11-18)
-		* Add grenade launcher damage
+    * v1.7 (2023-12-17)
+        * Optimize code and improve performance
+
+    * v1.6 (2023-11-18)
+        * Add grenade launcher damage
 
     * v1.5 (2022-12-6)
         * Disable Pipe Bomb Explosive friendly fire
