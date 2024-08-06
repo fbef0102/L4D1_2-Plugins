@@ -1,0 +1,53 @@
+"Games"
+{
+	"#default"
+	{
+		"Functions"
+		{
+			"CTerrorPlayer::AllowDamage"
+			{
+				"signature"		"CTerrorPlayer::AllowDamage"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+				"arguments"
+				{
+					"const CTakeDamageInfo&"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
+		}
+	}
+	
+	"left4dead"
+	{
+		"Signatures"
+		{
+			// Search string "%s is dying instead of incapping because they have been revived %d times already."
+			"CTerrorPlayer::AllowDamage"
+			{
+				"library"		"server"
+				"linux"			"@_ZN13CTerrorPlayer11AllowDamageERK15CTakeDamageInfo"
+				"windows"		"\x56\x8B\x2A\x8B\x2A\x8B\x2A\x2A\x2A\x2A\x2A\xFF\x2A\x84\x2A\x75\x2A\x5E\xC2\x2A\x2A\x55"
+								/* 56 8B ? 8B ? 8B ? ? ? ? ? FF ? 84 ? 75 ? 5E C2 ? ? 55 */
+			}
+		}
+	}
+
+	"left4dead2"
+	{
+		"Signatures"
+		{
+			// Search string "%s is dying instead of incapping because they have been revived %d times already."
+			"CTerrorPlayer::AllowDamage"
+			{
+				"library"		"server"
+				"linux"			"@_ZN13CTerrorPlayer11AllowDamageERK15CTakeDamageInfo"
+				"windows"		"\x55\x8B\x2A\x83\x2A\x2A\x2A\x8B\x2A\x8B\x2A\x8B\x2A\x2A\x2A\x2A\x2A\xFF\x2A\x84\x2A\x75\x2A\x2A\x8B\x2A\x5D\xC2\x2A\x2A\x53"
+								/* 55 8B ? 83 ? ? ? 8B ? 8B ? 8B ? ? ? ? ? FF ? 84 ? 75 ? ? 8B ? 5D C2 ? ? 53 */
+			}
+		}
+	}
+}
