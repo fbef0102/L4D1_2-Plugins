@@ -961,7 +961,7 @@ enum struct EPluginData
 	bool m_bCoopTankPlayable;
 	bool m_bCoopVersusAnnounce;
 	int m_iCoopVersusHumanLimit;
-	char m_sCoopVersusJoinAccess[16];
+	char m_sCoopVersusJoinAccess[AdminFlags_TOTAL];
 	bool m_bCoopVersusHumanLight;
 	bool m_bCoopVersusHumanGhost;
 	float m_fCoopVersusHumanCoolDown;
@@ -2812,6 +2812,12 @@ Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 
 Action Timer_CountSurvivor(Handle timer)
 {
+	if(g_bCvarAllow == false)
+	{
+		DisplayTimer = null;
+		return Plugin_Continue;
+	}
+	
 	int iAliveSurplayers = CheckAliveSurvivorPlayers_InSV();
 
 	if(iAliveSurplayers != g_iPlayersInSurvivorTeam)
