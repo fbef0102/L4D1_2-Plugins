@@ -1,7 +1,7 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.6  (2009-2024)
+* Version	: 2.9.7  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.9.7 (2024-8-8)
+*	   - Fixed Special Infected Health
 *
 * Version 2.9.6 (2024-5-1)
 *	   - Fixed Enable/Disable cvar
@@ -773,7 +776,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.6"
+#define PLUGIN_VERSION 			"2.9.7"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -3413,17 +3416,17 @@ public void L4D_OnReplaceTank(int tank, int newtank)
 void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
 {
 	lastHumanTankId = event.GetInt("userid");
-	RequestFrame(OnNextFrame_Reset);
-
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (!client || !IsClientInGame(client)) return;
-
-	g_bAdjustSIHealth[client] = false;
+	RequestFrame(OnNextFrame_Reset, event.GetInt("userid"));
 }
 
-void OnNextFrame_Reset()
+void OnNextFrame_Reset(int userid)
 {
 	lastHumanTankId = 0;
+
+	/*int client = GetClientOfUserId(userid);
+	if (!client || !IsClientInGame(client)) return;
+
+	g_bAdjustSIHealth[client] = false;*/
 }
 
 public Action L4D_OnEnterGhostStatePre(int client)

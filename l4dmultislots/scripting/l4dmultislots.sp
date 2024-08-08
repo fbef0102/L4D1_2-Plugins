@@ -62,8 +62,8 @@ ConVar g_hMaxSurvivors, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval,
 
 //ConVar g_hCvar_VSAutoBalance;
 
-int g_iMaxSurvivors, g_iMinSurvivors, iDeadBotTime, g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon,
-	iRespawnHP, iRespawnBuffHP, g_iCvar_JoinSurvivrMethod, g_iCvar_VSUnBalanceLimit;
+int g_iMaxSurvivors, g_iMinSurvivors, iDeadBotTime, g_iCvarFirstWeapon, g_iCvarSecondWeapon, g_iCvarThirdWeapon, g_iCvarFourthWeapon, g_iCvarFifthWeapon,
+	g_iCvarRespawnHP, g_iCvarRespawnBuffHP, g_iCvar_JoinSurvivrMethod, g_iCvar_VSUnBalanceLimit;
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
 bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
 	g_bGiveKitSafeRoom, g_bGiveKitFinalStart, g_bNoSecondChane, g_bFinalHasStarted, g_bPluginHasStarted,
@@ -338,14 +338,14 @@ void GetCvars()
 	g_fSpecCheckInterval = hSpecCheckInterval.FloatValue;
 	g_bSpawnSurvivorsAtStart = hSpawnSurvivorsAtStart.BoolValue;
 	
-	iRespawnHP = hRespawnHP.IntValue;
-	iRespawnBuffHP = hRespawnBuffHP.IntValue;
+	g_iCvarRespawnHP = hRespawnHP.IntValue;
+	g_iCvarRespawnBuffHP = hRespawnBuffHP.IntValue;
 	
-	g_iFirstWeapon = hFirstWeapon.IntValue;
-	g_iSecondWeapon = hSecondWeapon.IntValue;
-	g_iThirdWeapon = hThirdWeapon.IntValue;
-	g_iFourthWeapon = hFourthWeapon.IntValue;
-	g_iFifthWeapon = hFifthWeapon.IntValue;
+	g_iCvarFirstWeapon = hFirstWeapon.IntValue;
+	g_iCvarSecondWeapon = hSecondWeapon.IntValue;
+	g_iCvarThirdWeapon = hThirdWeapon.IntValue;
+	g_iCvarFourthWeapon = hFourthWeapon.IntValue;
+	g_iCvarFifthWeapon = hFifthWeapon.IntValue;
 	g_bGiveKitSafeRoom = g_hGiveKitSafeRoom.BoolValue;
 	g_bGiveKitFinalStart = g_hGiveKitFinalStart.BoolValue;
 	g_bNoSecondChane = g_hNoSecondChane.BoolValue;
@@ -1239,7 +1239,7 @@ Action Timer_KickNoNeededBot2(Handle timer)
 	return Plugin_Continue;
 }
 
-Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer, int client)
+Action Timer_SpawnSurvivorWhenRoundStarts(Handle timer)
 {
 	int team_count = TotalAliveSurvivors();
 	if(team_count < 4) return Plugin_Continue;
@@ -1279,6 +1279,10 @@ void TakeOverBotIfAny(int client)
 	{
 		L4D_SetHumanSpec(fakebot, client);
 		SetEntProp(client, Prop_Send, "m_iObserverMode", 5);
+		if(L4D_HasPlayerControlledZombies())
+		{
+			L4D_TakeOverBot(client);
+		}
 	}
 
 	return;
@@ -1502,8 +1506,8 @@ void SetHealth( int client )
 {
 	float Buff = GetEntDataFloat( client, BufferHP );
 
-	SetEntProp( client, Prop_Send, "m_iHealth", iRespawnHP, 1 );
-	SetEntDataFloat( client, BufferHP, Buff + iRespawnBuffHP, true );
+	SetEntProp( client, Prop_Send, "m_iHealth", g_iCvarRespawnHP, 1 );
+	SetEntDataFloat( client, BufferHP, Buff + g_iCvarRespawnBuffHP, true );
 }
 
 void GiveItems(int client) // give client weapon
@@ -1511,7 +1515,7 @@ void GiveItems(int client) // give client weapon
 	int flags = GetCommandFlags("give");
 	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
 	
-	int iRandom = g_iSecondWeapon;
+	int iRandom = g_iCvarSecondWeapon;
 	if(g_bLeft4Dead2 && iRandom == 5) iRandom = GetRandomInt(1,4);
 		
 	switch ( iRandom )
@@ -1539,12 +1543,12 @@ void GiveItems(int client) // give client weapon
 		}
 	}
 
-	iRandom = g_iFirstWeapon;
+	iRandom = g_iCvarFirstWeapon;
 	if(g_bLeft4Dead2)
 	{
-		if(g_iFirstWeapon == 18) iRandom = GetRandomInt(13,17);
-		else if(g_iFirstWeapon == 19) iRandom = GetRandomInt(1,10);
-		else if(g_iFirstWeapon == 20) iRandom = GetRandomInt(11,12);
+		if(g_iCvarFirstWeapon == 18) iRandom = GetRandomInt(13,17);
+		else if(g_iCvarFirstWeapon == 19) iRandom = GetRandomInt(1,10);
+		else if(g_iCvarFirstWeapon == 20) iRandom = GetRandomInt(11,12);
 		
 		switch ( iRandom )
 		{
@@ -1570,8 +1574,8 @@ void GiveItems(int client) // give client weapon
 	}
 	else
 	{
-		if(g_iFirstWeapon == 6) iRandom = GetRandomInt(4,5);
-		else if(g_iFirstWeapon == 7) iRandom = GetRandomInt(1,3);
+		if(g_iCvarFirstWeapon == 6) iRandom = GetRandomInt(4,5);
+		else if(g_iCvarFirstWeapon == 7) iRandom = GetRandomInt(1,3);
 		
 		switch ( iRandom )
 		{
@@ -1584,7 +1588,7 @@ void GiveItems(int client) // give client weapon
 		}
 	}
 	
-	iRandom = g_iThirdWeapon;
+	iRandom = g_iCvarThirdWeapon;
 	if (g_bLeft4Dead2 && iRandom == 4) iRandom = GetRandomInt(1,3);
 	if (!g_bLeft4Dead2 && iRandom == 3) iRandom = GetRandomInt(1,2);
 	
@@ -1597,7 +1601,7 @@ void GiveItems(int client) // give client weapon
 	}
 	
 	
-	iRandom = g_iFourthWeapon;
+	iRandom = g_iCvarFourthWeapon;
 	if(g_bLeft4Dead2 && iRandom == 5) iRandom = GetRandomInt(1,4);
 	
 	switch ( iRandom )
@@ -1609,7 +1613,7 @@ void GiveItems(int client) // give client weapon
 		default: {}//nothing
 	}
 	
-	iRandom = g_iFifthWeapon;
+	iRandom = g_iCvarFifthWeapon;
 	if(g_bLeft4Dead2 && iRandom == 3) iRandom = GetRandomInt(1,2);
 	
 	switch ( iRandom )
@@ -1633,17 +1637,6 @@ int GetRandomAliveSurvivor()
 		}
 	}
 	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
-}
-
-stock void CheatCommand(int client, const char[] command, const char[] argument1, const char[] argument2)
-{
-	int userFlags = GetUserFlagBits(client);
-	SetUserFlagBits(client, ADMFLAG_ROOT);
-	int flags = GetCommandFlags(command);
-	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
-	FakeClientCommand(client, "%s %s %s", command, argument1, argument2);
-	SetCommandFlags(command, flags);
-	SetUserFlagBits(client, userFlags);
 }
 
 // ------------------------------------------------------------------------
