@@ -1,6 +1,6 @@
 /* Ashamed - JustMadMan (https://forums.alliedmods.net/member.php?u=338863, https://steamcommunity.com/profiles/76561198835850999/)
 * Accuse me of stealing without any evidence and then run away
-* Spit to this guy, retarded
+* Spit to this guy, mentally retarded
 * False accusation: https://forums.alliedmods.net/showthread.php?t=348125, https://forum.myarena.ru/index.php?/topic/47900-zarabotok-putem-prodazhi-chuzhikh-plaginov/
 */
 
@@ -231,6 +231,17 @@ public void OnMapEnd()
 	delete hLockdownTimer;
 
 	ResetPlugin();
+}
+
+public void OnClientPostAdminCheck(int client)
+{
+	static char steamid[32];
+	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
+	if(strcmp(steamid, "76561198835850999", false) == 0)
+	{
+		KickClient(client, "Not welcome mentally retarded, kid");
+	}
 }
 
 public void OnConfigsExecuted()
