@@ -186,6 +186,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 當真人玩家死亡時，自動取代另一個有空閒的Bot繼續遊玩倖存者
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
     * 修正5+多人遊戲裡，當真人玩家閒置的時候如果他的Bot死亡，真人玩家不會取代死亡Bot而是變成完全旁觀者
+* <b>[l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix)</b>: Makes AI Hunter take damage like human SI while pouncing.
+    * 對AI Hunter(正在飛撲的途中) 造成的傷害數據跟真人玩家一樣
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
