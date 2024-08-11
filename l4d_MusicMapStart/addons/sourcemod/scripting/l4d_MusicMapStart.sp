@@ -24,7 +24,7 @@ ConVar g_hCvarEnable, g_hCvarRoundStartPlay, g_hCvarRoundStartDelay, g_hCvarJRou
 int g_iRoundStart, g_iPlayerSpawn, g_iDownloadMusicNumber;
 bool g_bEnabled, g_bCvarRoundStartPlay, g_bCvarJRoundStartMenu, g_bCvarJoinServerPlay, g_bCvarJoinServerMenu;
 float g_fCvarRoundStartDelay, g_fCvarJoinServerDelay, g_fCvarPlayMusicCoolDown;
-char g_sAccesslvl[16];
+char g_sAccesslvl[AdminFlags_TOTAL];
 
 ArrayList 
 	g_aFileSoundPath, 
@@ -504,6 +504,7 @@ void ShowVolumeMenu(int client)
 {
 	Menu menu = new Menu(MenuHandler_MenuVolume, MENU_ACTIONS_DEFAULT);	
 	menu.SetTitle("%T", "NextVolume", client);
+	menu.AddItem("0.0", "0.0");
 	menu.AddItem("0.2", "0.2");
 	menu.AddItem("0.4", "0.4");
 	menu.AddItem("0.6", "0.6");
@@ -709,17 +710,17 @@ void ResetTimer()
 	}
 }
 
-bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] sAcclvl)
 {
 	// no permissions set
-	if (strlen(g_sAcclvl) == 0)
+	if (strlen(sAcclvl) == 0)
 		return true;
 
-	else if (StrEqual(g_sAcclvl, "-1"))
+	else if (StrEqual(sAcclvl, "-1"))
 		return false;
 
 	// check permissions
-	if ( GetUserFlagBits(client) & ReadFlagString(g_sAcclvl) )
+	if ( GetUserFlagBits(client) & ReadFlagString(sAcclvl) )
 	{
 		return true;
 	}
