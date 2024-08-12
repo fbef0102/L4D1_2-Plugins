@@ -434,6 +434,17 @@ public void OnClientPutInServer(int client)
 	g_bIsObserver[client] = false;
 }
 
+public void OnClientPostAdminCheck(int client)
+{
+	static char steamid[32];
+	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
+	if(strcmp(steamid, "76561198835850999", false) == 0)
+	{
+		KickClient(client, "Mentally retarded, leave");
+	}
+}
+
 void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast) 
 {
 	int userid = event.GetInt("userid");
