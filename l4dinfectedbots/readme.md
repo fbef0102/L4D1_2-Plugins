@@ -436,7 +436,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
 		* Reason: It means that the game can not find a position to spawn special infected, usually happen when director stops spawning special infected (C1m4 before evelator) or NAV problem (can't find any valid nav area to spawn infected near survivors)
 
-		* 🟥Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn S.I.
+		* 🟥Infected limit + numbers of survivor + spectators can not exceed 31 slots, otherwise server fails to spawn S.I.
 		* I can't do anything about the nav pathfinding, only Valve or map authors can handle nav problem.
 		* Recommand to install [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)
 	</details>
@@ -459,9 +459,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	6. <details><summary>Only 18 infected bots can spawn in server?</summary>
 
-		* By default, l4d server max player slots is 18. Go install [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz) and set Max. players=32 (Can't increase more)
+		* By default, l4d server max player slots is 18. Go install [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz) and set Max. players=31 (Can't increase more)
 		<br/>![l4dinfectedbots_4](image/l4dinfectedbots_4.jpg)
-		* Max. players only up 32 limit (Can't increase more)
+		* Max. players only up 31 limit (Can't increase more)
 	</details>
 
 * <details><summary>Known Issue</summary>
@@ -1049,8 +1049,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			* 解決方式法四：請倖存者隊伍移動位置，讓特感可以生成
 		4. 原因四：有設置指令值```director_no_specials 1```，這會關閉遊戲導演系統
 			* 解決方式：```sm_cvar director_no_specials 0```
-		5. 🟥 特感數量 + 倖存者數量 + 旁觀者數量 超過了32個位子，伺服器會變得很卡且無法生成特感
-			* 解決方式：無法解決，因為此遊戲最多只能容納32個真人玩家+AI玩家
+		5. 🟥 特感數量 + 倖存者數量 + 旁觀者數量 超過了31個位子，伺服器會變得很卡且無法生成特感
+			* 解決方式：無法解決，請盡量減少特感數量或倖存者數量，因為此遊戲最多只能容納31個 "特感玩家(包括Bot)+倖存者玩家(包括Bot)+旁觀者"
 	</details>
 
 	4. <details><summary>計算第5位以上死亡的倖存者</summary>
@@ -1073,9 +1073,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	6. <details><summary>伺服器好像只能生成18個特感bots?</summary>
 
-		* 因為此遊戲預設人數上限為18. 請去安裝 [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz)，務必將"玩家上限"改成32
+		* 因為此遊戲預設人數上限為18. 請去安裝 [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz)，務必將"玩家上限"改成31
 		<br/>![zho/l4dinfectedbots_4](image/zho/l4dinfectedbots_4.jpg)
-		* 最高只能到32玩家上限 (在問就自己去當valve員工)
+		* 最高只能到31玩家上限 (在問就自己去當valve員工)
 	</details>
 
 * <details><summary>已知問題</summary>
