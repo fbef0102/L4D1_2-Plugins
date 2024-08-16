@@ -45,8 +45,11 @@ Allows admins to force the game to pause, only adm can unpause the game.
 
 	```php
 	//pvtschlag @ 2009
-	//HarryPotter @ 2019-2023
+	//HarryPotter @ 2019-2024
 	```
+	* v1.5 (2024-8-16)
+		* Support server console
+
 	* v1.5 (2023-5-22)
 		* The game would be unpaused if admin disconnects.
 

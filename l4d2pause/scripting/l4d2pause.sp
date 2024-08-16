@@ -3,7 +3,7 @@
 #include <sourcemod>
 #include <basecomm>
 #include <multicolors>
-#define PLUGIN_VERSION "1.5"
+#define PLUGIN_VERSION "1.6-2024/8/16"
 
 public Plugin myinfo =
 {
@@ -86,17 +86,39 @@ Action Command_SMForcePause(int client, int args)
 
 	if (g_bIsPaused && !g_bIsUnpausing) //Is paused and not currently unpausing
 	{
-		CPrintToChatAll("[{olive}TS{default}] The game has been unpaused by an admin: {lightgreen}%N{default}.",client);
+		if(client == 0)
+		{
+			CPrintToChatAll("[{olive}TS{default}] The game has been unpaused by Server.");
+			PrintToServer("The game has been unpaused by Server.");
+		}
+		else
+		{
+			CPrintToChatAll("[{olive}TS{default}] The game has been unpaused by an admin: {lightgreen}%N{default}.",client);
+		}
+
 		g_bIsUnpausing = true; //Set unpausing state
-		CreateTimer(1.0, UnpauseCountdown, client, TIMER_REPEAT); //Start unpause countdown
+		if(client == 0) CreateTimer(1.0, UnpauseCountdown, 0, TIMER_REPEAT); //Start unpause countdown
+		else CreateTimer(1.0, UnpauseCountdown, GetClientUserId(client), TIMER_REPEAT); //Start unpause countdown
 		g_iPauseAdmin = 0;
 	}
 	else if (!g_bIsPaused) //Is not paused
 	{
-		CPrintToChatAll("[{olive}TS{default}] The game has been paused by an admin: {lightgreen}%N{default}.",client);
-		CPrintToChatAll("To unpause the game, use \x04!forcepause{default}, admin only.");
+		if(client == 0) 
+		{
+			CPrintToChatAll("[{olive}TS{default}] The game has been paused by Server");
+			CPrintToChatAll("To unpause the game, use \x04!forcepause{default}, admin only.");
+			PrintToServer("The game has been paused by Server");
+			PrintToServer("To unpause the game, use sm_forcepause");
+			g_iPauseAdmin = 0;
+		}
+		else
+		{
+			CPrintToChatAll("[{olive}TS{default}] The game has been paused by an admin: {lightgreen}%N{default}.",client);
+			CPrintToChatAll("To unpause the game, use \x04!forcepause{default}, admin only.");
+			g_iPauseAdmin = client;
+		}
+		
 		Pause(client);
-		g_iPauseAdmin = client;
 	}
 	return Plugin_Handled;
 }
@@ -155,6 +177,7 @@ Action UnpauseCountdown(Handle timer, any client)
 	if(iCountdown == 0) //Resume game when countdown hits 0
 	{
 		PrintHintTextToAll("Game is Live!");
+		client = GetClientOfUserId(client);
 		Unpause(client);
 		iCountdown = 5;
 		return Plugin_Stop;
@@ -192,10 +215,28 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 void Pause(int client)
 {
 	ResetPauseRequest(); 
-	g_bIsPaused = true; 
-	SetConVarInt(g_hPausable, 1);
-	FakeClientCommand(client, "setpause"); 
-	SetConVarInt(g_hPausable, 0);
+
+	if(client == 0)
+	{
+		for(int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i))
+			{
+				g_bIsPaused = true; 
+				SetConVarInt(g_hPausable, 1);
+				FakeClientCommand(i, "setpause"); 
+				SetConVarInt(g_hPausable, 0);
+				break;
+			}
+		}
+	}
+	else
+	{
+		g_bIsPaused = true; 
+		SetConVarInt(g_hPausable, 1);
+		FakeClientCommand(client, "setpause"); 
+		SetConVarInt(g_hPausable, 0);
+	}
 
 	g_bIsUnpausing = false; //Game was just paused and can no longer be unpausing if it was
 }
@@ -203,10 +244,28 @@ void Pause(int client)
 void Unpause(int client)
 {
 	ResetPauseRequest(); 
-	g_bIsPaused = false; 
-	SetConVarInt(g_hPausable, 1); 
-	FakeClientCommand(client, "unpause");
-	SetConVarInt(g_hPausable, 0);
+
+	if(client == 0)
+	{
+		for(int i = 1; i <= MaxClients; i++)
+		{
+			if(IsClientInGame(i))
+			{
+				g_bIsPaused = false; 
+				SetConVarInt(g_hPausable, 1); 
+				FakeClientCommand(i, "unpause");
+				SetConVarInt(g_hPausable, 0);
+				break;
+			}
+		}
+	}
+	else
+	{
+		g_bIsPaused = false; 
+		SetConVarInt(g_hPausable, 1);
+		FakeClientCommand(client, "unpause"); 
+		SetConVarInt(g_hPausable, 0);
+	}
 
 	g_bIsUnpausing = false; //Game is active so it is no longer in the unpausing state
 }
