@@ -269,10 +269,25 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 		int anim = GetEntProp(witch, Prop_Send, "m_nSequence");
 		SDKHooks_TakeDamage(witch, target, target, 0.0, DMG_BURN);
 		SetEntProp(witch, Prop_Send, "m_nSequence", anim);
+		SetVariantFloat(0.0);
+		AcceptEntityInput(witch, "IgniteLifetime");
 		SetEntProp(witch, Prop_Send, "m_bIsBurning", 0);
+		int ent = GetEntPropEnt(witch, Prop_Data, "m_hMoveChild");
+		if(ent > MaxClients && IsValidEntity(ent)){
+			static char classname[32];
+			GetEntityClassname(ent, classname, sizeof(classname));
+			if(strcmp(classname, "entityflame") == 0){
+				SDKHook(ent, SDKHook_SetTransmit, SetTransmit_Fire);
+			}
+		}
 		SDKHook(witch, SDKHook_ThinkPost, PostThink);
 	}
 }
+
+Action SetTransmit_Fire(int entity, int client)
+{
+    return Plugin_Handled;
+} 
 
 void PostThink(int witch)
 {
