@@ -59,11 +59,16 @@ Change target when the witch incapacitates or kills victim + witch auto follows 
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_witch_target_forever](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_target_forever): If the witch incap/kill players that aren't her initial target, then make the witch proceed to chase her initial target.
-		> Witch因為被擋路或改變目標抓傷任何玩家之後，強制繼續追擊原始目標
+    1. [l4d_witch_target_forever](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_target_forever): If the witch incap/kill players that aren't her initial target, then make the witch proceed to chase her initial target.
+        * Witch因為被擋路或改變目標抓傷任何玩家之後，強制繼續追擊原始目標
+    2. [Witch fixes](https://forums.alliedmods.net/showthread.php?t=315481): 4 plugins By Lux
+        * 四個修復Witch的插件可以裝
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.3 (2024-8-17)
+        * Support l4d_witch_target_forever
 
     * v2.2 (2024-6-20)
         * Fixed witch wil be killed after change target 15 seconds 

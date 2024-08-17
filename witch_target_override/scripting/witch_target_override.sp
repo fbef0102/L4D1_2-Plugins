@@ -1,14 +1,16 @@
-//Harry @ 2021~2022
+//Harry @ 2021~2024
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION "2.2-2024/6/20"
+#define PLUGIN_VERSION "2.3-2024/8/17"
 #define DEBUG 0
 
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <actions>
+#undef REQUIRE_PLUGIN
+#tryinclude <l4d_witch_target_forever>
 
 public Plugin myinfo = 
 {
@@ -125,6 +127,22 @@ public void OnPluginEnd()
 	ResetTimer();
 }
 
+bool g_bl4d_witch_target_foreverAvailable;
+public void OnAllPluginsLoaded()
+{
+	g_bl4d_witch_target_foreverAvailable = LibraryExists("l4d_witch_target_forever");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	g_bl4d_witch_target_foreverAvailable = LibraryExists("l4d_witch_target_forever");
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	g_bl4d_witch_target_foreverAvailable = LibraryExists("l4d_witch_target_forever");
+}
+
 public void OnMapEnd()
 {
 	ResetTimer();
@@ -194,17 +212,17 @@ void Player_Incapacitated(Event event, const char[] event_name, bool dontBroadca
 
 void Player_Death(Event event, const char[] event_name, bool dontBroadcast)
 {
-    if(g_bCvarAllow == false || GetRandomInt(1,100) > g_iCvarKillChance ) return;
+	if(g_bCvarAllow == false || GetRandomInt(1,100) > g_iCvarKillChance ) return;
 
-    int victim = GetClientOfUserId(event.GetInt("userid"));
-    int witch = event.GetInt("attackerentid");
-    if (IsWitch(witch) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
-    {
-        int target = GetNearestSurvivorDist(witch);
-        if(target == 0) return;
+	int victim = GetClientOfUserId(event.GetInt("userid"));
+	int witch = event.GetInt("attackerentid");
+	if (IsWitch(witch) && victim > 0 && victim <= MaxClients && IsSurvivor(victim))
+	{
+		int target = GetNearestSurvivorDist(witch);
+		if(target == 0) return;
 
-        WitchAttackTarget(witch, target, g_iCvarKillOverrideHealth);
-    }
+		WitchAttackTarget(witch, target, g_iCvarKillOverrideHealth);
+	}
 }
 
 void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
@@ -224,6 +242,11 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 	#if DEBUG
 		PrintToChatAll("witch attacking new target %N, her max health: %d, now health: %d", target, GetEntProp(witch, Prop_Data, "m_iMaxHealth"), GetEntProp(witch, Prop_Data, "m_iHealth"));
 	#endif
+
+	if(g_bl4d_witch_target_foreverAvailable)
+	{
+		if(GetWitchInitialTarget(witch) > 0) return;
+	}
 
 	if(addHealth > 0)
 	{
