@@ -157,7 +157,7 @@ public void OnPluginStart()
 	HookEvent("door_open",			Event_DoorOpen);
 	HookEvent("door_close",			Event_DoorClose);
 
-	HookEvent("tank_spawn", tank_spawn);
+	HookEvent("player_spawn", Event_TankSpawn);
 
 	AutoExecConfig(true, "lockdown_system-l4d2");
 }
@@ -1073,9 +1073,13 @@ Action AttackOnTank(Handle timer, int tank)
 	tank = GetClientOfUserId(tank);
 	if(tank && IsClientInGame(tank))
 	{
-		SetEntProp(tank, Prop_Send, "m_zombieState", 1);
-		SetEntProp(tank, Prop_Send, "m_hasVisibleThreats", 1);
-		DealDamage(tank, 0,  GetSurvivor(), DMG_BULLET, "weapon_smg");
+		int survivor = GetAliveSurvivor();
+		if(survivor > 0)
+		{
+			SetEntProp(tank, Prop_Send, "m_zombieState", 1);
+			SetEntProp(tank, Prop_Send, "m_hasVisibleThreats", 1);
+			SDKHooks_TakeDamage(tank, survivor, survivor, 1.0, DMG_BULLET);
+		}
 	}
 	
 	return Plugin_Continue;
@@ -1142,11 +1146,16 @@ void DoorPrint(Event event, bool open)
 	}
 }
 
-void tank_spawn(Event event, const char[] name, bool dontbroadcast)
+void Event_TankSpawn(Event event, const char[] name, bool dontbroadcast)
 {
 	if(g_bStartLockDown)
 	{
-		CreateTimer(3.0, AttackOnTank, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE);
+		int userid = event.GetInt("userid");
+		int client = GetClientOfUserId(event.GetInt("userid"));
+		if(client && IsClientInGame(client) && IsFakeClient(client) && GetClientTeam(client) == 3 && IsPlayerTank(client))
+		{
+			CreateTimer(1.0, AttackOnTank, userid, TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
 }
 
@@ -1248,7 +1257,7 @@ void GetColor(int[] array, char[] sTemp)
 	array[2] = StringToInt(sColors[2]);
 }
 
-int GetSurvivor() {
+int GetAliveSurvivor() {
 	for( int i = 1; i <= MaxClients; i++ ) {
 		if( IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i) ) {
 		    return i;
@@ -1256,30 +1265,6 @@ int GetSurvivor() {
 	}
 
 	return 0;
-}
-
-void DealDamage(int victim, int damage, int attacker = 0, int dmg_type = DMG_GENERIC, char[] weapon = "") {
-	if(victim>0 && IsValidEdict(victim) && IsClientInGame(victim) && IsPlayerAlive(victim)) {
-		char dmg_str[16];
-		IntToString(damage,dmg_str,16);
-		char dmg_type_str[32];
-		IntToString(dmg_type,dmg_type_str,32);
-		int pointHurt=CreateEntityByName("point_hurt");
-		if (pointHurt) {
-			DispatchKeyValue(victim,"targetname","war3_hurtme");
-			DispatchKeyValue(pointHurt,"DamageTarget","war3_hurtme");
-			DispatchKeyValue(pointHurt,"Damage",dmg_str);
-			DispatchKeyValue(pointHurt,"DamageType",dmg_type_str);
-			
-			if(!StrEqual(weapon,"")) {
-				DispatchKeyValue(pointHurt,"classname",weapon);
-			}
-			DispatchSpawn(pointHurt);
-			AcceptEntityInput(pointHurt,"Hurt",(attacker>0)?attacker:-1);
-			DispatchKeyValue(victim,"targetname","war3_donthurtme");
-			RemoveEdict(pointHurt);
-		}
-	}
 }
 
 bool IsValidEntRef(int entity)
