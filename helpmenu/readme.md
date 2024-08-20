@@ -10,7 +10,6 @@ In-game Help Menu (Support Translation)
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	2. Optional - [readyup](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Plugin_插件/Server_伺服器/readyup)
 
 * <details><summary>Data & Translation Example</summary>
 
@@ -146,7 +145,7 @@ In-game Help Menu (Support Translation)
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready Plugin
-		> 準備插件
+		* 準備插件
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
