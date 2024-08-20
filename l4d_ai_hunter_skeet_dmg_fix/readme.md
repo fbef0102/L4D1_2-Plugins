@@ -22,11 +22,11 @@ Makes AI Hunter take damage like human SI while pouncing.
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg/sourcemod/l4d_ai_hunter_skeet_dmg_fix.cfg
-        ```php
+	* cfg/sourcemod/l4d_ai_hunter_skeet_dmg_fix.cfg
+		```php
 		// 0=Plugin off, 1=Plugin on.
 		l4d_ai_hunter_skeet_dmg_fix_enable "1"
-        ```
+		```
 </details>
 
 * <details><summary>Command | 命令</summary>
@@ -67,7 +67,7 @@ Makes AI Hunter take damage like human SI while pouncing.
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [charging_takedamage_patch](https://github.com/fbef0102/L4D2-Plugins/tree/master/charging_takedamage_patch): Makes AI Charger take damage like human SI while charging.
-    	* 移除AI Charger的衝鋒減傷
+		* 移除AI Charger的衝鋒減傷
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -92,11 +92,11 @@ Makes AI Hunter take damage like human SI while pouncing.
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg/sourcemod/l4d_ai_hunter_skeet_dmg_fix.cfg
-        ```php
+	* cfg/sourcemod/l4d_ai_hunter_skeet_dmg_fix.cfg
+		```php
 		// 0=關閉插件, 1=啟動插件
 		l4d_ai_hunter_skeet_dmg_fix_enable "1"
-        ```
+		```
 </details>
 
 * <details><summary>會衝突的插件</summary>

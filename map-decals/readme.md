@@ -115,8 +115,8 @@ Allows admins to place any decals into the map that are defined in the the confi
 
 	4. Uploading files to server.
 		* Upload "materials" folder to content-server
-			* If you are L4D1, ```your-content-server.com/game/left4dead/materials/decals/TS_SERVER/materials/``` 
-			* If you are L4D2, ```your-content-server.com/game/left4dead2/materials/decals/TS_SERVER/materials/```
+			* If you are L4D1, ```your-content-server.com/game/left4dead/materials/``` 
+			* If you are L4D2, ```your-content-server.com/game/left4dead2/materials/```
 		* Upload "materials" folder to your game server.
     		* If you are L4D1, ```Left 4 Dead Dedicated Server\left4dead\materials\```
     		* If you are L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2\materials\```

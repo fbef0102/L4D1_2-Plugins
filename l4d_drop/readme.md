@@ -45,18 +45,7 @@ Allows players to drop the weapon they are holding
 	```php
 	Registers a library name: l4d_drop
 	```
-	```c
-	/**
-	* @brief Called whenever weapon prepared to drop by plugin l4d_drop
-	*
-	* @param client        player index to be drop weapon
-	* @param weapon        weapon index to be drop
-	*
-	* @return              Plugin_Continue to continuing dropping,
-	*                      Plugin_Changed to change weapon target, otherwise to prevent weapon dropping.
-	*/
-	forward Action OnWeaponDrop(int client, int& weapon);
-	```
+	* ```scripting\include\l4d_drop.inc```
 </details>
 
 * Apply to | 適用於
@@ -68,7 +57,7 @@ Allows players to drop the weapon they are holding
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [drop_secondary](https://github.com/fbef0102/L4D2-Plugins/tree/master/drop_secondary): Survivor players will drop their secondary weapon (including melee) when they die
-	    > 死亡時掉落第二把武器
+		> 死亡時掉落第二把武器
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -100,8 +89,8 @@ Allows players to drop the weapon they are holding
 玩家可自行丟棄手中的武器
 
 * 原理
-    * 輸入!drop掉落手上的武器
-    * 可掉雙手槍
+	* 輸入!drop掉落手上的武器
+	* 可掉雙手槍
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
