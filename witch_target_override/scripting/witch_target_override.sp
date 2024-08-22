@@ -255,6 +255,7 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 
 	if(GetEntityFlags(witch) & FL_ONFIRE )
 	{
+		//滅火
 		ExtinguishEntity(witch);
 		int flame = GetEntPropEnt(witch, Prop_Send, "m_hEffectEntity");
 		if( flame != -1 )
@@ -262,6 +263,7 @@ void WitchAttackTarget(int witch, int target, int addHealth)
 			AcceptEntityInput(flame, "Kill");
 		}
 
+		//重新燒witch追擊新目標target
 		SDKHooks_TakeDamage(witch, target, target, 0.0, DMG_BURN);
 	}
 	else

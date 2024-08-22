@@ -1,6 +1,8 @@
 # Description | 內容
 Change target when the witch incapacitates or kills victim + witch auto follows survivors
 
+> __Note__ This Plugin has been discontinued
+
 * [Video | 影片展示](https://youtu.be/SapXAIOsNJI)
 
 * Image | 圖示
@@ -67,6 +69,9 @@ Change target when the witch incapacitates or kills victim + witch auto follows 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * Archived (2024-8-22)
+        * This Plugin has been discontinued
+
     * v2.3 (2024-8-17)
         * Support l4d_witch_target_forever
 
@@ -100,6 +105,8 @@ Change target when the witch incapacitates or kills victim + witch auto follows 
 - - - -
 # 中文說明
 Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
+
+> __Note__ 此插件已停止更新
 
 * 原理
     * 出現在Witch看得到的視野之內，她將會自動走向你

@@ -1,11 +1,7 @@
 # Description | 內容
 Forces AI tank to leave stasis and attack while spawn in coop/realism.
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+> __Note__ This Plugin has been discontinued
 
 * <details><summary>How does it work?</summary>
 
@@ -22,6 +18,9 @@ Forces AI tank to leave stasis and attack while spawn in coop/realism.
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * Archived (2024-8-22)
+        * This Plugin has been discontinued
 
 	* v1.1h (2023-8-19)
 		* Optimize Code
@@ -57,6 +56,8 @@ Forces AI tank to leave stasis and attack while spawn in coop/realism.
 - - - -
 # 中文說明
 戰役/寫實模式下，AI Tank一生成會直接往前進並攻擊倖存者，而非待在原地等待
+
+> __Note__ 此插件已停止更新
 
 * 原理
 	* (安裝此插件之前) 戰役/寫實模式下，AI Tank 會原地不動，等待倖存者走過來發現
