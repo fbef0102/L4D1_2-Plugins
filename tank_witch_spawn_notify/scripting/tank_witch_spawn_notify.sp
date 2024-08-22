@@ -88,7 +88,7 @@ public void ConVarChanged_SoundCvars(Handle hCvar, const char[] sOldVal, const c
     if(g_bMapStarted)
     {
         if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarTankSound);
-        if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarWitchSound);
+        if (strlen(g_sCvarWitchSound) > 0) PrecacheSound(g_sCvarWitchSound);
     }
 }
 
@@ -117,7 +117,7 @@ public void OnConfigsExecuted()
 {
     GetCvars();
     if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarTankSound);
-    if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarWitchSound);
+    if (strlen(g_sCvarWitchSound) > 0) PrecacheSound(g_sCvarWitchSound);
 }
 
 public void Event_TankSpawn(Event event, const char[] name, bool dontBroadcast)
