@@ -15,6 +15,11 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <readyup>
 
+#if !defined _readyup_included_
+	native bool ToggleReadyPanel(bool show, int target = 0);
+#endif
+
+
 #define PLUGIN_VERSION "0.8"
 
 enum HelpMenuType {
@@ -65,6 +70,8 @@ bool g_bShow[MAXPLAYERS + 1];
 bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
+	MarkNativeAsOptional("ToggleReadyPanel");
+	
 	bLate = late;
 	return APLRes_Success; 
 }
