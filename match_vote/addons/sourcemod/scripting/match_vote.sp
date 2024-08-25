@@ -4,8 +4,9 @@
 #include <sourcemod>
 #include <multicolors> 
 #include <builtinvotes> //https://github.com/L4D-Community/builtinvotes/actions
+#include <adminmenu>
 
-#define PLUGIN_VERSION			"1.4-2023/6/30"
+#define PLUGIN_VERSION			"1.5-2024/8/25"
 #define PLUGIN_NAME			    "match_vote"
 #define DEBUG 0
 
@@ -59,7 +60,13 @@ Handle g_hMatchVote, VoteDelayTimer;
 KeyValues g_hModesKV;
 char g_sCfg[128];
 int g_iLocalVoteDelay;
-bool g_bVoteInProgress;
+
+bool 
+	g_bVoteInProgress,
+	g_bAdminMenu[MAXPLAYERS+1];
+
+TopMenu 
+	g_hTopMenuHandle;
 
 public void OnPluginStart()
 {
@@ -77,6 +84,10 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_match", MatchRequest);
 	RegConsoleCmd("sm_load", MatchRequest);
 	RegConsoleCmd("sm_mode", MatchRequest);
+
+	TopMenu topmenu;
+	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
+		OnAdminMenuReady(topmenu);
 }
 
 public void OnPluginEnd()
@@ -99,6 +110,38 @@ void GetCvars()
 	g_iCvarVoteRequired = g_hCvarVoteRequired.IntValue;
 }
 
+// Admin Menu---------------
+
+public void OnAdminMenuReady(Handle menu) 
+{
+	if (menu == g_hTopMenuHandle)
+		return;
+
+	g_hTopMenuHandle = view_as<TopMenu>(menu);
+	TopMenuObject ServerCmdCategory = g_hTopMenuHandle.FindCategory(ADMINMENU_SERVERCOMMANDS);
+	
+	if (ServerCmdCategory != INVALID_TOPMENUOBJECT)
+	{
+		g_hTopMenuHandle.AddItem("sm_match", AdminMenu_MatchMode, ServerCmdCategory, "sm_match", ADMFLAG_ROOT);
+	}
+}
+
+void AdminMenu_MatchMode(TopMenu Top_Menu, TopMenuAction action, TopMenuObject object_id, int client, char[] Buffer, int maxlength)
+{
+	switch (action)
+	{
+		case TopMenuAction_DisplayOption: //在"伺服器指令"的選單名稱
+		{
+			FormatEx(Buffer, maxlength, "Match Mode");
+		}
+		case TopMenuAction_SelectOption:
+		{
+			g_bAdminMenu[client] = true;
+			MatchModeMenu(client);
+		}
+	}
+}
+
 //Sourcemod API Forward-------------------------------
 
 public void OnMapStart()
@@ -109,8 +152,8 @@ public void OnMapStart()
 
 public void OnMapEnd()
 {
-	g_iLocalVoteDelay = 0;
-	delete VoteDelayTimer;
+	//g_iLocalVoteDelay = 0;
+	//delete VoteDelayTimer;
 }
 
 public void OnConfigsExecuted()
@@ -150,7 +193,7 @@ Action MatchRequest(int client, int args)
 		return Plugin_Handled;
 	}
 
-	//show main menu
+	g_bAdminMenu[client] = false;
 	MatchModeMenu(client);
 
 	return Plugin_Handled;
@@ -174,17 +217,25 @@ void MatchModeMenu(int client)
 			hMenu.AddItem(sBuffer, sBuffer);
 		} while (g_hModesKV.GotoNextKey());
 	}
+	if(g_bAdminMenu[client]) hMenu.ExitBackButton = true;
 	hMenu.Display(client, 20);
 }
 
 int MatchModeMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 {
-	if (action == MenuAction_Select)
+	if (action == MenuAction_Cancel)
+	{
+		if (param2 == MenuCancel_ExitBack && g_hTopMenuHandle != null)
+		{
+			g_hTopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
+		}
+	}
+	else if (action == MenuAction_Select)
 	{
 		if(g_hModesKV == null) return 0;
 		g_hModesKV.Rewind();
 		
-		static char sInfo[64], sBuffer[64];
+		static char sInfo[128], sBuffer[128];
 		menu.GetItem(param2, sInfo, sizeof(sInfo));
 		if (g_hModesKV.JumpToKey(sInfo) && g_hModesKV.GotoFirstSubKey())
 		{
@@ -199,6 +250,7 @@ int MatchModeMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 				hMenu.AddItem(sInfo, sBuffer);
 			} while (g_hModesKV.GotoNextKey());
 
+			hMenu.ExitBackButton = true;
 			hMenu.Display(param1, 20);
 		}
 		else
@@ -221,10 +273,21 @@ int ConfigsMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 	{
 		static char sInfo[128], sBuffer[64];
 		menu.GetItem(param2, sInfo, sizeof(sInfo), _, sBuffer, sizeof(sBuffer));
+
+		if(g_bAdminMenu[param1])
+		{
+			strcopy(g_sCfg, sizeof(g_sCfg), sInfo);
+			CPrintToChatAll("[{olive}Matchvote{default}] Admin {lightgreen}%N{default} forced to change mode  {green}%s", param1, sBuffer);
+
+			ServerCommand("exec %s", g_sCfg);
+
+			return 0;
+		}
+
 		if (StartMatchVote(param1, sInfo, sBuffer))
 		{
 			strcopy(g_sCfg, sizeof(g_sCfg), sInfo);
-			CPrintToChatAll("[{olive}Matchvote{default}] {lightgreen}%N{default} starts a vote to change mode: {green}%s", param1, sBuffer);
+			CPrintToChatAll("[{olive}Matchvote{default}] {lightgreen}%N{default} started a vote to change mode: {green}%s", param1, sBuffer);
 			return 0;
 		}
 
@@ -236,7 +299,10 @@ int ConfigsMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 	}
 	else if (action == MenuAction_Cancel)
 	{
-		MatchModeMenu(param1);
+		if (param2 == MenuCancel_ExitBack)
+		{
+			MatchModeMenu(param1);
+		}
 	}
 
 	return 0;
