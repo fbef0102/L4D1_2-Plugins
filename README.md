@@ -119,7 +119,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[hp_tank_show](/hp_tank_show)</b>: Shows a sprite at the tank head that goes from green to red based on its HP
     * Tank頭上顯示血量狀態
 * <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
-    * 遊戲中頻繁檢測每一位玩家並踢出可能試圖使用作弊指令的客戶
+    * 遊戲中頻繁檢測每一位玩家並踢出試圖使用作弊指令的客戶
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
     * 修復Source引擎的踩頭跳躍bug
 * <b>[l4d2_spritetrail_fix](/l4d2_spritetrail_fix)</b>: Fixed the final stage get stucked

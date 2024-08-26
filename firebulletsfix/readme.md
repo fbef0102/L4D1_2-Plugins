@@ -29,11 +29,14 @@ Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.1h (2024-8-26)
+        * Improve code, [Credit](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/firebulletsfix.sp)
+
     * v1.0h (2024-3-7)
         * Fixed physics objects are broken therefore tank hittables are flying totally random in l4d1/2
 
-	* v1.0
-		* [Original Plugin by Xutax_Kamay](https://forums.alliedmods.net/showthread.php?t=315405)
+	* v1.0.2
+		* [Original Plugin by Xutax_Kamay](https://github.com/XutaxKamay/firebulletsfix)
 </details>
 
 - - - -

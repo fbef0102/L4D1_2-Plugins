@@ -1,406 +1,457 @@
 #pragma semicolon 1
 #pragma newdecls required;
 #include <sourcemod>
-
-char path[256];
-
-ConVar g_hPenalty;
-int g_iPenalty;
+#include <multicolors>
 
 public Plugin myinfo =
 {
 	name = "Mathack Block",
 	author = "Sir, Visor, NightTime & extrav3rt, Harry Potter",
 	description = "Kicks out clients who are potentially attempting to enable mathack",
-	version = "1.7",
+	version = "1.0h-2024/8/26",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+    EngineVersion test = GetEngineVersion();
+
+    if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
+    {
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+        return APLRes_SilentFailure;
+    }
+
+    return APLRes_Success;
+}
+
+#define CONFIG_FILE		        "configs/l4d_texture_manager_block.cfg"
+#define LOG_FILE		        "logs/l4d_texture_manager_block.log"
+
+char g_sPath[256], g_sList[256];
+
+#define CLS_CVAR_MAXLEN				128
+
+enum /*CLSAction*/
+{
+	CLSA_Kick = 0,
+	CLSA_Log  = 1,
+};
+
+enum struct CLSEntry
+{
+	char CLSE_cvar[CLS_CVAR_MAXLEN];
+	bool CLSE_hasMin;
+	float CLSE_min;
+	bool CLSE_hasMax;
+	float CLSE_max;
+	int CLSE_action;
+	char CLSE_Note[CLS_CVAR_MAXLEN];
+}
+
+ArrayList
+	ClientSettingsArray;
+
+Handle 
+	ClientSettingsCheckTimer;
+
+bool 
+	g_bParseList;
+
 public void OnPluginStart()
 {
-	g_hPenalty = CreateConVar("l4d1_penalty", "1", "1 - kick clients, 0 - record only, in log file(sourcemod/logs/mathack_cheaters.txt), other value: ban minutes");
-	
-	g_iPenalty = g_hPenalty.IntValue;
-	g_hPenalty.AddChangeHook(ConVarChanged_Cvars);
-	
-	BuildPath(Path_SM, path, 256, "logs/mathack_cheaters.txt");
-	
-	CreateTimer(2.5, CheckClients, _, TIMER_REPEAT);
+	BuildPath(Path_SM, g_sPath, sizeof(g_sPath), LOG_FILE);
+	BuildPath(Path_SM, g_sList, sizeof(g_sList), CONFIG_FILE);
 
-	AutoExecConfig(true, "l4d_texture_manager_block");
+	RegServerCmd("list_clientsettings", 	ServerCMD_ClientSettings_Cmd, 	"List Client settings enforced by l4d_texture_manager_block");
+	RegServerCmd("add_trackclientcvar", 	ServerCMD_TrackClientCvar_Cmd, 	"Add a Client CVar to be tracked and enforced by l4d_texture_manager_block");
+	RegServerCmd("reload_trackclientcvar", 	ServerCMD_reloadWhiteList, 		"Reload the 'trackclientcvar' list");
+
+	ClientSettingsArray = new ArrayList(sizeof(CLSEntry));
 }
 
-public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+// Sourcemod API Forward-------------------------------
+
+public void OnConfigsExecuted()
 {
-	g_iPenalty = g_hPenalty.IntValue;
+	g_bParseList = true;
+	ParseList();
+	RequestFrame(NextFrame_ParseList);
+
+	delete ClientSettingsCheckTimer;
+	ClientSettingsCheckTimer = CreateTimer(2.5, Timer_CheckClients, _, TIMER_REPEAT);
 }
 
-public Action CheckClients(Handle timer)
+// Command-------------------------------
+
+Action ServerCMD_ClientSettings_Cmd(int args)
+{
+	int iSize = ClientSettingsArray.Length;
+	PrintToServer("Tracked Client CVars (Total %d)", iSize);
+
+	CLSEntry clsetting;
+	char message[256], shortbuf[64];
+	for (int i = 0; i < iSize; i++) 
+	{
+		ClientSettingsArray.GetArray(i, clsetting, sizeof(clsetting));
+		Format(message, sizeof(message), "Client CVar: %s ", clsetting.CLSE_cvar);
+
+		if (clsetting.CLSE_hasMin) {
+			Format(shortbuf, sizeof(shortbuf), "Min: %f ", clsetting.CLSE_min);
+			StrCat(message, sizeof(message), shortbuf);
+		}
+
+		if (clsetting.CLSE_hasMax) {
+			Format(shortbuf, sizeof(shortbuf), "Max: %f ", clsetting.CLSE_max);
+			StrCat(message, sizeof(message), shortbuf);
+		}
+
+		switch (clsetting.CLSE_action) {
+			case CLSA_Kick: {
+				StrCat(message, sizeof(message), "Action: Kick");
+			}
+			case CLSA_Log: {
+				StrCat(message, sizeof(message), "Action: Log");
+			}
+		}
+
+		PrintToServer(message);
+	}
+
+	return Plugin_Handled;
+}
+
+Action ServerCMD_TrackClientCvar_Cmd(int args)
+{
+	if (args < 3 || args == 4) 
+	{
+		static char cmdbuf[128];
+		GetCmdArgString(cmdbuf, sizeof(cmdbuf));
+		if(g_bParseList)
+		{
+			LogError("Invalid track client cvar: %s", cmdbuf);
+			LogError("Usage: <cvar> <hasMin> <min> <hasMax> <max> <action> [note]");
+		}
+		else
+		{
+			PrintToServer("Invalid track client cvar: %s", cmdbuf);
+			PrintToServer("Usage: add_trackclientcvar <cvar> <hasMin> <min> <hasMax> <max> <action> [note]");
+		}
+
+		return Plugin_Handled;
+	}
+
+	char sBuffer[CLS_CVAR_MAXLEN], cvar[CLS_CVAR_MAXLEN], sNote[CLS_CVAR_MAXLEN];
+	bool hasMax;
+	float max;
+	int action = CLSA_Kick;
+
+	GetCmdArg(1, cvar, sizeof(cvar));
+
+	if (strlen(cvar) == 0) 
+	{
+		if(g_bParseList)
+		{
+			LogError("Unreadable cvar: empty");
+		}
+		else
+		{
+			PrintToServer("Unreadable cvar: empty");
+		}
+
+		return Plugin_Handled;
+	}
+
+	GetCmdArg(2, sBuffer, sizeof(sBuffer));
+	bool hasMin = view_as<bool>(StringToInt(sBuffer));
+
+	GetCmdArg(3, sBuffer, sizeof(sBuffer));
+	float min = StringToFloat(sBuffer);
+
+	if (args >= 5) {
+		GetCmdArg(4, sBuffer, sizeof(sBuffer));
+		hasMax = view_as<bool>(StringToInt(sBuffer));
+
+		GetCmdArg(5, sBuffer, sizeof(sBuffer));
+		max = StringToFloat(sBuffer);
+	}
+
+	if (args >= 6) {
+		GetCmdArg(6, sBuffer, sizeof(sBuffer));
+		action = StringToInt(sBuffer);
+	}
+
+	sNote[0] = '\0';
+	if (args >= 7) {
+		GetCmdArg(7, sNote, sizeof(sNote));
+	}
+
+	_AddClientCvar(cvar, hasMin, min, hasMax, max, action, sNote);
+
+	return Plugin_Handled;
+}
+
+Action ServerCMD_reloadWhiteList(int args)
+{
+	g_bParseList = true;
+	ParseList();
+	RequestFrame(NextFrame_ParseList);
+
+	delete ClientSettingsCheckTimer;
+	ClientSettingsCheckTimer = CreateTimer(2.5, Timer_CheckClients, _, TIMER_REPEAT);
+
+	return Plugin_Handled;
+}
+
+//Timer-------------------------------
+
+void NextFrame_ParseList()
+{
+	g_bParseList = false;
+}
+
+Action Timer_CheckClients(Handle timer)
 {
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client) && !IsFakeClient(client))
 		{
-			QueryClientConVar(client, "mat_texture_list", ClientQueryCallback);
-			QueryClientConVar(client, "mat_queue_mode", ClientQueryCallback_AntiVomit);
-			QueryClientConVar(client, "mat_hdr_level", ClientQueryCallback_HDRLevel);
-			QueryClientConVar(client, "mat_postprocess_enable", ClientQueryCallback_PostPrecess);
-			QueryClientConVar(client, "r_drawothermodels", ClientQueryCallback_DrawModels);
-			QueryClientConVar(client, "l4d_bhop", ClientQueryCallback_l4d_bhop); //ban auto bhop from dll
-			QueryClientConVar(client, "l4d_bhop_autostrafe", ClientQueryCallback_l4d_bhop_autostrafe); //ban auto bhop from dll
-			QueryClientConVar(client, "cl_fov", ClientQueryCallback_cl_fov);
-			QueryClientConVar(client, "r_minlightmap", ClientQueryCallback_r_minlightmap);
-			QueryClientConVar(client, "mat_monitorgamma_tv_exp", ClientQueryCallback_mat_monitorgamma_tv_exp);
-	
+			EnforceCliSettings(client);
 		}
 	}	
 
 	return Plugin_Continue;
 }
 
-void ClientQueryCallback(QueryCookie cookie,  int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
+//Config-------------------------------
+
+void ParseList()
 {
-	if(!IsClientInGame(client)) return;
+	delete ClientSettingsArray;
+	ClientSettingsArray = new ArrayList(sizeof(CLSEntry));
 
-	switch (view_as<int>(result))
+	File hFile = OpenFile(g_sList, "r");
+	if(hFile == null)
 	{
-		case 0:
+		LogError("%s not found", g_sList);
+		return;
+	}
+
+	bool bDataStart = false;
+	char sBuffer[256];
+	while(!hFile.EndOfFile() && hFile.ReadLine(sBuffer, sizeof(sBuffer)))
+	{
+		if(StrContains(sBuffer, "Do not delete this line", false) != -1)
 		{
-			int  mathax = StringToInt(cvarValue);
-			if (mathax > 0)
+			bDataStart = true;
+			continue;
+		}
+
+		if(strncmp(sBuffer, "//", 2, false) == 0)
+		{
+			continue;
+		}
+
+		if(bDataStart)
+		{
+			TrimString(sBuffer);
+			StripQuotes(sBuffer);
+
+			if(strlen(sBuffer) <= 0) continue;
+
+			ServerCommand("add_trackclientcvar %s", sBuffer);
+		}
+	}
+
+	delete hFile;
+}
+
+
+// Function. Codes from Confogl: https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/confoglcompmod/ClientSettings.sp
+
+void _AddClientCvar(const char[] cvar, bool hasMin, float min, bool hasMax, float max, int action, const char[] sNote)
+{
+	if (!(hasMin || hasMax)) 
+	{
+		if(g_bParseList)
+		{
+			LogError("Client CVar %s specified without max or min", cvar);
+		}
+		else
+		{
+			PrintToServer("Client CVar %s specified without max or min", cvar);
+		}
+		
+		return;
+	}
+
+	if (hasMin && hasMax && max < min) 
+	{
+		if(g_bParseList)
+		{
+			LogError("Client CVar %s specified max < min (%f < %f)", cvar, max, min);
+		}
+		else
+		{
+			PrintToServer("Client CVar %s specified max < min (%f < %f)", cvar, max, min);
+		}
+		
+		return;
+	}
+
+	if (strlen(cvar) >= CLS_CVAR_MAXLEN) 
+	{
+		if(g_bParseList)
+		{
+			LogError("CVar Specified (%s) is longer than max cvar length (%d)", cvar, CLS_CVAR_MAXLEN);
+		}
+		else
+		{
+			PrintToServer("CVar Specified (%s) is longer than max cvar length (%d)", cvar, CLS_CVAR_MAXLEN);
+		}
+		
+		return;
+	}
+
+	int iSize = ClientSettingsArray.Length;
+
+	CLSEntry newEntry;
+	for (int i = 0; i < iSize; i++) 
+	{
+		ClientSettingsArray.GetArray(i, newEntry, sizeof(newEntry));
+
+		if (strcmp(newEntry.CLSE_cvar, cvar, false) == 0) 
+		{
+			if(g_bParseList)
 			{
-				char t_name[MAX_NAME_LENGTH];
-				char SteamID[32];
-				GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-				
-				LogToFile(path, ".:[Name: %N | STEAMID: %s | r_drawothermodels: %d]:.", client, SteamID, mathax);
-				
-				if (g_iPenalty == 1)
-				{
-					PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: mat_texture_list\x01!", t_name);
-					KickClient(client, "ConVar mat_texture_list violation");
-				}
-				else if (g_iPenalty > 1)
-				{
-					PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_texture_list\x01!", client);
-					static char reason[255];
-					FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_texture_list violation");
-
-					BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-					ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-				}
-
+				LogError("Attempt to track CVar %s, which is already being tracked !!", cvar);
 			}
-		}
-		case 1:
-		{
-			KickClient(client, "ConVarQuery_NotFound");
-		}
-		case 2:
-		{
-			KickClient(client, "ConVarQuery_NotValid");
-		}
-		case 3:
-		{
-			KickClient(client, "ConVarQuery_Protected");
-		}
-	}
-}
-
-
-void ClientQueryCallback_DrawModels(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
-
-	int clientCvarValue = StringToInt(cvarValue);
-
-	if (clientCvarValue != 1)
-	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | r_drawothermodels: %d]:.", client, SteamID, clientCvarValue);
-
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: r_drawothermodels\x01!", t_name);
-			KickClient(client, "ConVar r_drawothermodels violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: r_drawothermodels\x01!", client);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using r_drawothermodels violation");
+			else
+			{
+				PrintToServer("Attempt to track CVar %s, which is already being tracked !!", cvar);
+			}
 			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
+			return;
 		}
 	}
-}
 
-void ClientQueryCallback_PostPrecess(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
+	strcopy(newEntry.CLSE_cvar, CLS_CVAR_MAXLEN, cvar);
+	newEntry.CLSE_hasMin = hasMin;
+	newEntry.CLSE_min = min;
+	newEntry.CLSE_hasMax = hasMax;
+	newEntry.CLSE_max = max;
+	newEntry.CLSE_action = action;
+	strcopy(newEntry.CLSE_Note, CLS_CVAR_MAXLEN, sNote);
 
-	int clientCvarValue = StringToInt(cvarValue);
-
-	if (clientCvarValue != 1)
+	if(g_bParseList)
 	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | mat_postprocess_enable: %d]:.", client, SteamID, clientCvarValue);
-
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_postprocess_enable\x01!", client);
-			KickClient(client, "ConVar mat_postprocess_enable violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_postprocess_enable\x01!", client);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_postprocess_enable violation");
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-		}
+		//LogError("Tracking Cvar '%s', Min(%d) %f Max(%d) %f, Action: %d", cvar, hasMin, min, hasMax, max, action);
 	}
-}
-
-void ClientQueryCallback_AntiVomit(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
-
-	int clientCvarValue = StringToInt(cvarValue);
-
-	if (clientCvarValue >= 3)
+	else
 	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
+		PrintToServer("Tracking Cvar '%s', Min(%d) %f Max(%d) %f, Action: %d", cvar, hasMin, min, hasMax, max, action);
+	}
 	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | mat_queue_mode: %d]:.", client, SteamID, clientCvarValue);
 
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_queue_mode\x01!", client);
-			KickClient(client, "ConVar mat_queue_mode violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_queue_mode\x01!", client);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_queue_mode violation");
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-		}
+	ClientSettingsArray.PushArray(newEntry, sizeof(newEntry));
+}
+
+void EnforceCliSettings(int client)
+{
+	int iSize = ClientSettingsArray.Length;
+	CLSEntry clsetting;
+	for (int i = 0; i < iSize; i++) 
+	{
+		ClientSettingsArray.GetArray(i, clsetting, sizeof(clsetting));
+
+		QueryClientConVar(client, clsetting.CLSE_cvar, _EnforceCliSettings_QueryReply, i);
 	}
 }
 
-void ClientQueryCallback_HDRLevel(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
-
-	int clientCvarValue = StringToInt(cvarValue);
-
-	if (clientCvarValue != 2)
+void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryResult result, \
+												const char[] cvarName, const char[] cvarValue, any value)
+{
+	if (!IsClientInGame(client) || IsClientInKickQueue(client)) 
 	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | mat_hdr_level: %d]:.", client, SteamID, clientCvarValue);
-
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_hdr_level\x01!", client);
-			KickClient(client, "ConVar mat_hdr_level violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mathack: mat_hdr_level\x01!", client);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_hdr_level violation");
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-		}
+		// Client disconnected or got kicked already
+		return;
 	}
-}
 
-void ClientQueryCallback_l4d_bhop(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
 	if(!IsClientInGame(client)) return;
 
-	int clientCvarValue = StringToInt(cvarValue);
+	static char sSteamID64[32];
+	GetClientAuthId(client, AuthId_SteamID64, sSteamID64, sizeof(sSteamID64));
 
-	if (clientCvarValue > 0)
+	/*if (result)
 	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-		
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | l4d_bhop: %d]:.", client, SteamID, clientCvarValue);
+		LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: Not Found]: Kicked from server, Couldn't retrieve cvar value", client, sSteamID64, cvarName);
+		KickClient(client, "Cvar '%s' protected/missing/invalid!", cvarName);
+	}*/
 
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop\x01!", client);
-			KickClient(client, "ConVar l4d_bhop violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04l4dbhop.dll: l4d_bhop\x01!", client);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using l4dbhop.dll");
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-		}
-	}
-}
+	float fCvarVal = StringToFloat(cvarValue);
+	int clsetting_index = value;
+	CLSEntry clsetting;
+	ClientSettingsArray.GetArray(clsetting_index, clsetting, sizeof(clsetting));
 
-void ClientQueryCallback_l4d_bhop_autostrafe(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
-
-	int clientCvarValue = StringToInt(cvarValue);
-
-	if (clientCvarValue > 0)
+	if ((clsetting.CLSE_hasMin && fCvarVal < clsetting.CLSE_min)
+		|| (clsetting.CLSE_hasMax && fCvarVal > clsetting.CLSE_max)
+	) 
 	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | l4d_bhop: %d]:.", client, SteamID, clientCvarValue);
-
-		if (g_iPenalty == 1)
+		if (clsetting.CLSE_action <= CLSA_Kick) 
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop_autostrafe\x01!", client);
-			KickClient(client, "ConVar l4d_bhop_autostrafe violation");
+			LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Kicked from server, bad cvar value. Min(%d): %f Max(%d): %f", \
+								client, sSteamID64, cvarName, fCvarVal, clsetting.CLSE_hasMin, \
+									clsetting.CLSE_min, clsetting.CLSE_hasMax, clsetting.CLSE_max);
+
+
+			CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default} was kicked for having an illegal value for '{green}%s{default}' ({green}%f{default})", \
+								client, cvarName, fCvarVal);
+
+			char kickMessage[CLS_CVAR_MAXLEN] = "Illegal Client Value for ";
+			Format(kickMessage, sizeof(kickMessage), "%s%s (%.2f)", kickMessage, cvarName, fCvarVal);
+
+			if (clsetting.CLSE_hasMin) {
+				Format(kickMessage, sizeof(kickMessage), "%s, Min %.2f", kickMessage, clsetting.CLSE_min);
+			}
+
+			if (clsetting.CLSE_hasMax) {
+				Format(kickMessage, sizeof(kickMessage), "%s, Max %.2f", kickMessage, clsetting.CLSE_max);
+			}
+
+			KickClient(client, "%s", kickMessage);
 		}
-		else if (g_iPenalty > 1)
+		else if (clsetting.CLSE_action == CLSA_Log) 
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04l4dbhop.dll: l4d_bhop_autostrafe\x01!", client);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using l4dbhop.dll");
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
+
+			LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Has bad cvar value. Min(%d): %f Max(%d): %f", \
+								client, sSteamID64, cvarName, fCvarVal, clsetting.CLSE_hasMin, \
+									clsetting.CLSE_min, clsetting.CLSE_hasMax, clsetting.CLSE_max);
 		}
-	}
-}
-
-void ClientQueryCallback_cl_fov(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
-
-	int clientCvarValue = StringToInt(cvarValue);
-
-	if (clientCvarValue > 120 || clientCvarValue < 75)
-	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-		
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | cl_fov: %d]:.", client, SteamID, clientCvarValue);
-
-		if (g_iPenalty == 1)
+		else if (clsetting.CLSE_action > 1) 
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04cl_fov %d\x01!", client, clientCvarValue);
-			KickClient(client, "ConVar cl_fov violation (must be 75~120)");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04cl_fov %d\x01!", client, clientCvarValue);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using cl_fov %d (must be 75~120)", clientCvarValue);
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-		}
-	}
-}
+			LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Banned from server, bad cvar value. Min(%d): %f Max(%d): %f", \
+								client, sSteamID64, cvarName, fCvarVal, clsetting.CLSE_hasMin, \
+									clsetting.CLSE_min, clsetting.CLSE_hasMax, clsetting.CLSE_max);
 
-void ClientQueryCallback_r_minlightmap(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
 
-	int clientCvarValue = StringToInt(cvarValue);
+			CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default} was banned for having an illegal value for '{green}%s{default}' ({green}%f{default})", \
+								client, cvarName, fCvarVal);
 
-	if (clientCvarValue > 0)
-	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-		
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | r_minlightmap: %d]:.", client, SteamID, clientCvarValue);
+			char banMessage[CLS_CVAR_MAXLEN] = "Illegal Client Value for ";
+			Format(banMessage, sizeof(banMessage), "%s%s (%.2f)", banMessage, cvarName, fCvarVal);
 
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04r_minlightmap %d\x01!", client, clientCvarValue);
-			KickClient(client, "ConVar r_minlightmap violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04r_minlightmap %d\x01!", client, clientCvarValue);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using r_minlightmap %d", clientCvarValue);
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
-		}
-	}
-}
+			if (clsetting.CLSE_hasMin) {
+				Format(banMessage, sizeof(banMessage), "%s, Min %.2f", banMessage, clsetting.CLSE_min);
+			}
 
-void ClientQueryCallback_mat_monitorgamma_tv_exp(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
-{	
-	if(!IsClientInGame(client)) return;
+			if (clsetting.CLSE_hasMax) {
+				Format(banMessage, sizeof(banMessage), "%s, Max %.2f", banMessage, clsetting.CLSE_max);
+			}
 
-	float clientCvarValue = StringToFloat(cvarValue);
+			BanClient(client, clsetting.CLSE_action, BANFLAG_AUTHID, banMessage, banMessage);
 
-	if (clientCvarValue > 2.5)
-	{
-		char t_name[MAX_NAME_LENGTH];
-		GetClientName(client,t_name,MAX_NAME_LENGTH);
-		
-		char SteamID[32];
-		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
-	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | mat_monitorgamma_tv_exp: %.1f]:.", client, SteamID, clientCvarValue);
-
-		if (g_iPenalty == 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mat_monitorgamma_tv_exp %.1f\x01!", client, clientCvarValue);
-			KickClient(client, "ConVar mat_monitorgamma_tv_exp violation");
-		}
-		else if (g_iPenalty > 1)
-		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been banned for using \x04mat_monitorgamma_tv_exp %.1f\x01!", client, clientCvarValue);
-			static char reason[255];
-			FormatEx(reason, sizeof(reason), "%s", "Banned for using mat_monitorgamma_tv_exp %.1f", clientCvarValue);
-			
-			BanClient(client, g_iPenalty, BANFLAG_AUTHID, reason, reason);
-			ServerCommand("sm_exbanid %d \"%s\"", g_iPenalty, SteamID);
+			// If using GagMuteBanEx.smx by Harry: github.com/fbef0102/L4D1_2-Plugins/tree/master/GagMuteBanEx
+			ServerCommand("sm_exbanid %d \"%s\"", clsetting.CLSE_action, sSteamID64);
 		}
 	}
 }
