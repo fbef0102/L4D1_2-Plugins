@@ -111,6 +111,9 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.5h (2024-8-27)
+        * Fixed ghost infected bug
+
     * v2.4h (2024-5-1)
         * Don't throw SI if over too much special infeced limit
 

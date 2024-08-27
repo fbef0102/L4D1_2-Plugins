@@ -15,11 +15,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
-* <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
 * <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
-* <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2 (fuck you valve), sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
 * <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
@@ -188,6 +186,11 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修正5+多人遊戲裡，當真人玩家閒置的時候如果他的Bot死亡，真人玩家不會取代死亡Bot而是變成完全旁觀者
 * <b>[l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix)</b>: Makes AI Hunter take damage like human SI while pouncing.
     * 對AI Hunter(正在飛撲的途中) 造成的傷害數據跟真人玩家一樣
+* <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
+    pouncing.
+    * 禁止玩家頻繁使用角色雷達語音
+* <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2, sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
+    * 修復切換陣營之後會導致倖存者死亡或倒地的Bug (官方的bug)
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
