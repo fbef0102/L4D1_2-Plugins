@@ -7,6 +7,12 @@ Allows players to drop the weapon they are holding
 * Image | 圖示
 <br/>None
 
+* <details><summary>How does it work?</summary>
+
+	* Type ```!drop``` to drop your guns or items
+	* Apply to pistol, melee, M60...
+</details>
+
 * Require | 必要安裝
 <br/>None
 
@@ -89,7 +95,7 @@ Allows players to drop the weapon they are holding
 玩家可自行丟棄手中的武器
 
 * 原理
-	* 輸入!drop掉落手上的武器
+	* 輸入```!drop```掉落手上的武器
 	* 可掉雙手槍
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
