@@ -291,8 +291,14 @@ void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccess
 
 	static char strval[512];
 	JSON_Array arr = view_as<JSON_Array>(json_decode(result));
+	if(arr == null) return;
+
 	arr = view_as<JSON_Array>(arr.GetObject(0));
+	if(arr == null) return;
+
 	arr = view_as<JSON_Array>(arr.GetObject(0));
+	if(arr == null) return;
+	
 	arr.GetString(0, strval, sizeof(strval));
 
 	int client = GetClientOfUserId(userid);
