@@ -1186,6 +1186,7 @@ Action jointeam(int client, int args) //press m (jointeam)
 		return Plugin_Handled;
 	}
 
+	if(!IsClientInGame(client)) return Plugin_Continue;
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 
 	if(args > 2) return Plugin_Handled;
@@ -1272,6 +1273,8 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 		return Plugin_Handled;
 	}
 
+	if(!IsClientInGame(client)) return Plugin_Continue;
+
 	if (GetClientTeam(client) == 1)
 	{
 		if(IsClientIdle(client))
@@ -1336,6 +1339,7 @@ Action sb_takecontrol(int client, int args) //sb_takecontrol
 		return Plugin_Handled;
 	}
 
+	if(!IsClientInGame(client)) return Plugin_Continue;
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 
 	if(args > 1) return Plugin_Handled;
