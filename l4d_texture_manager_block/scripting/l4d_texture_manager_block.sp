@@ -14,15 +14,16 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-    EngineVersion test = GetEngineVersion();
+	EngineVersion test = GetEngineVersion();
 
-    if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
-    {
-        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-        return APLRes_SilentFailure;
-    }
+	if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
 
-    return APLRes_Success;
+	CreateNative("MaterialHack_CheckClients", Native_CheckClients);
+	return APLRes_Success;
 }
 
 #define CONFIG_FILE		        "configs/l4d_texture_manager_block.cfg"
@@ -384,9 +385,14 @@ void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryR
 
 	/*if (result)
 	{
-		LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: Not Found]: Kicked from server, Couldn't retrieve cvar value", client, sSteamID64, cvarName);
+		LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: Not Found]: Kicked from server, Couldn't retrieve cvar value", client, sSteamID64, cvarName);
 		KickClient(client, "Cvar '%s' protected/missing/invalid!", cvarName);
 	}*/
+
+	if (result) // not found
+	{
+		return;
+	}
 
 	float fCvarVal = StringToFloat(cvarValue);
 	int clsetting_index = value;
@@ -399,7 +405,7 @@ void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryR
 	{
 		if (clsetting.CLSE_action <= CLSA_Kick) 
 		{
-			LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Kicked from server, bad cvar value. Min(%d): %f Max(%d): %f", \
+			LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Kicked from server, bad cvar value. Min(%d): %f Max(%d): %f", \
 								client, sSteamID64, cvarName, fCvarVal, clsetting.CLSE_hasMin, \
 									clsetting.CLSE_min, clsetting.CLSE_hasMax, clsetting.CLSE_max);
 
@@ -423,13 +429,13 @@ void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryR
 		else if (clsetting.CLSE_action == CLSA_Log) 
 		{
 
-			LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Has bad cvar value. Min(%d): %f Max(%d): %f", \
+			LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Has bad cvar value. Min(%d): %f Max(%d): %f", \
 								client, sSteamID64, cvarName, fCvarVal, clsetting.CLSE_hasMin, \
 									clsetting.CLSE_min, clsetting.CLSE_hasMax, clsetting.CLSE_max);
 		}
 		else if (clsetting.CLSE_action > 1) 
 		{
-			LogToFile(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Banned from server, bad cvar value. Min(%d): %f Max(%d): %f", \
+			LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Banned from server, bad cvar value. Min(%d): %f Max(%d): %f", \
 								client, sSteamID64, cvarName, fCvarVal, clsetting.CLSE_hasMin, \
 									clsetting.CLSE_min, clsetting.CLSE_hasMax, clsetting.CLSE_max);
 
@@ -454,4 +460,12 @@ void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryR
 			ServerCommand("sm_exbanid %d \"%s\"", clsetting.CLSE_action, sSteamID64);
 		}
 	}
+}
+
+// native void MaterialHack_CheckClients()
+int Native_CheckClients(Handle plugin, int numParams)
+{
+	CreateTimer(0.1, Timer_CheckClients);
+
+	return 0;
 }
