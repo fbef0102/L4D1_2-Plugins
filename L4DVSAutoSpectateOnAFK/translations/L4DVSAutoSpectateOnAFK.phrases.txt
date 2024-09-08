@@ -2,12 +2,14 @@
 // Traditional Chinese by HarryPotter
 // Simplified Chinese by apples1949
 // Russian by berry
+// Spanish by rats4final
 
 "Phrases"
 {
 	"You're spectating. Join any team to play."
 	{
 		"en"	"You're spectating. Join any team to play."
+		"es"	"Estas en modo espectador. Unete a cualquier equipo para jugar."
 		"zho"	"輸入 !join 加入遊戲..."
 		"chi"	"输入 !join 加入游戏..."
 		"ru"	"Вы наблюдатель. Зайдите за любую команду для игры."
@@ -17,6 +19,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"	"[AFK] Inactivity detected!\nYou'll be moved to spectators in {1} seconds!"
+		"es"	"[AFK] Inactivdad detectada!\nSeras movido a los espectadores in {1} segundos!"
 		"zho"	"[AFK] 偵測閒置!\n你將於 {1} 秒後強制旁觀."
 		"chi"	"[AFK] 检测到闲置!\n你将在 {1} 秒后强制旁观."
 		"ru"	"[AFK] Обнаружено бездействие!\nВы будете перемещены в наблюдатели через {1} сек.!"
@@ -25,6 +28,7 @@
 	"[AFK] Inactivity detected! 2"
 	{
 		"en"	"[AFK] Inactivity detected!\nYou'll be moved to spectators as soon as your teammates leave the safe area."
+		"es"	"[AFK] Inactividad detectada!\nSeras movido a los espectadores en cuanto tus compañeros dejen la zona segura."
 		"zho"	"[AFK] 偵測閒置!\n一旦有人離開安全區域你將強制旁觀."
 		"chi"	"[AFK] 检测到闲置!\n一旦有人离开安全区域你将强制旁观."
 		"ru"	"[AFK] Обнаружено бездействие!\nВы будете перемещены в наблюдатели, как только ваши товарищи покинут убежище."
@@ -34,6 +38,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"	"[AFK] Inactivity detected! Join any team to play.\nOtherwise you'll be kicked from server in {1} seconds."
+		"es"	"[AFK] Inactividad detectada! Unete a cualquier equipo para jugar.\nDe otra forma seras kickeado del servidor en {1} segundos."
 		"zho"	"[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n否則你將於 {1} 秒後踢出伺服器."
 		"chi"	"[AFK] 探测旁观闲置! 输入!join加入游戏\n否则你将于 {1} 秒后踢出伺服器."
 		"ru"	"[AFK] Обнаружено бездействие! Зайдите за любую команду для игры.\nВ противном случае вы будете выгнаны с сервера через {1} сек."
@@ -42,6 +47,7 @@
 	"[AFK] Inactivity detected! 4"
 	{
 		"en"	"[AFK] Inactivity detected! Join any team to play.\nOtherwise you'll be kicked from server."
+		"es"	"[AFK] Inactividad detectada! Unete a cualquier equipo para jugar.\nDe otra forma seras kickeado del servidor."
 		"zho"	"[AFK] 偵測旁觀閒置! 輸入!join加入遊戲\n一旦有人離開安全區域你將踢出伺服器."
 		"chi"	"[AFK] 检测到旁观闲置! 输入!join加入游戏\n一旦有人离开安全区域你将踢出服务器."
 		"ru"	"[AFK] Обнаружено бездействие! Зайдите за любую команду для игры.\nВ противном случае вы будете выгнаны с сервера."
@@ -51,6 +57,7 @@
 	{
 		"#format"		"{1:N}"
 		"en"	"[{olive}TS{default}] {lightgreen}{1} have been kicked from server due to inactivity."
+		"es"	"[{olive}TS{default}] {lightgreen}{1} ha sido kickeado del servidor debido a inactividad."
 		"zho"	"[{olive}TS{default}] {lightgreen}{1} 旁觀閒置太久被踢出伺服器."
 		"chi"	"[{olive}TS{default}] {lightgreen}{1} 因旁观闲置太久而被踢出服务器."
 		"ru"	"[{olive}TS{default}] {lightgreen}{1} выгоняется с сервера за бездействие."
@@ -58,7 +65,8 @@
 	}	
 	"afkForceSpectate"
 	{
-		"en"	"[{olive}TS{default}] You has been switched to {lightgreen}Spectators"
+		"en"	"[{olive}TS{default}] You have been switched to {lightgreen}Spectators"
+		"es"	"[{olive}TS{default}] Has sido cambiado a los {lightgreen}Espectadores"
 		"zho"	"[{olive}TS{default}] 你已被轉換到 {lightgreen}旁觀者"
 		"chi"	"[{olive}TS{default}] 你已被转换到 {lightgreen}旁观者"
 		"ru"	"[{olive}TS{default}] Вас перевели в {lightgreen}наблюдатели"
