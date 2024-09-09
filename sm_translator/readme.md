@@ -57,6 +57,9 @@ Translate chat messagesbrowser
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.1h (2024-9-9)
+        * Fixed memory leak
+
     * v1.0h (2024-6-16)
         * Use Google Translation API
         * Add json inc

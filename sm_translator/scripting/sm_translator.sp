@@ -21,7 +21,7 @@
 #include <multicolors>
 #include <json> //https://github.com/clugg/sm-json
 
-#define PLUGIN_VERSION 			"1.0h-2024/6/16"
+#define PLUGIN_VERSION 			"1.1h-2024/9/9"
 #define PLUGIN_NAME			    "sm_translator"
 #define DEBUG 0
 
@@ -97,6 +97,7 @@ void GetCvars()
 public void OnClientPostAdminCheck(int client)
 {
 	if(g_bHasSelectMenu[client]) return;
+	if(IsFakeClient(client)) return;
 
 	CreateTimer(4.0, Timer_ShowMenu, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -260,6 +261,7 @@ Handle CreateRequest(const char source[8], const char target[8], const char inpu
 	//PrintToChatAll("原始語言=%s, 翻譯成語言=%s", source, target);
 
 	Handle request = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, "http://translate.googleapis.com/translate_a/single");
+	SteamWorks_SetHTTPCallbacks(request, Callback_OnHTTPResponse);
 	SteamWorks_SetHTTPRequestGetOrPostParameter(request, "client", "gtx");
 	SteamWorks_SetHTTPRequestGetOrPostParameter(request, "dt", "t");    
 	SteamWorks_SetHTTPRequestGetOrPostParameter(request, "sl", GoogleSourceCode);//from en default, so you might wanna add this param too to modify.
@@ -270,7 +272,6 @@ Handle CreateRequest(const char source[8], const char target[8], const char inpu
 
 
 	SteamWorks_SetHTTPRequestContextValue(request, GetClientUserId(client), other>0?GetClientUserId(other):0);
-	SteamWorks_SetHTTPCallbacks(request, Callback_OnHTTPResponse);
 	return request;
 }
 
@@ -290,16 +291,32 @@ void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccess
 	delete request;
 
 	static char strval[512];
+
 	JSON_Array arr = view_as<JSON_Array>(json_decode(result));
-	if(arr == null) return;
+	if(arr == null)
+	{
+		return;
+	}
 
-	arr = view_as<JSON_Array>(arr.GetObject(0));
-	if(arr == null) return;
+	JSON_Array arr2 = view_as<JSON_Array>(arr.GetObject(0));
+	if(arr2 == null)
+	{
+		json_cleanup_and_delete(arr);
+		return;
+	}
 
-	arr = view_as<JSON_Array>(arr.GetObject(0));
-	if(arr == null) return;
+	JSON_Array arr3 = view_as<JSON_Array>(arr2.GetObject(0));
+	if(arr3 == null)
+	{
+		json_cleanup_and_delete(arr);
+		return;
+	}
 	
-	arr.GetString(0, strval, sizeof(strval));
+	arr3.GetString(0, strval, sizeof(strval));
+
+	// fixed memory leak ( Warning: plugin sm_translator.smx is using more than 100000 handles!)
+	json_cleanup_and_delete(arr);
+	
 
 	int client = GetClientOfUserId(userid);
 
@@ -328,7 +345,7 @@ void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccess
 	}
 }  
 
-stock bool IsValidClient(int client, bool bAllowBots = false, bool bAllowDead = true)
+bool IsValidClient(int client, bool bAllowBots = false, bool bAllowDead = true)
 {
 	if (!(1 <= client <= MaxClients) || !IsClientInGame(client) || (IsFakeClient(client) && !bAllowBots) || IsClientSourceTV(client) || IsClientReplay(client) || (!bAllowDead && !IsPlayerAlive(client)))
 	{
