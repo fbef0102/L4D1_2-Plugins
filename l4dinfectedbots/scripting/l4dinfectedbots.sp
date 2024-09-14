@@ -1,7 +1,7 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.7  (2009-2024)
+* Version	: 2.9.8  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.9.8 (2024-9-14)
+*	   - Fixed real SI player can't see the ladder in coop/realism
 *
 * Version 2.9.7 (2024-8-8)
 *	   - Fixed Special Infected Health
@@ -776,7 +779,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.7"
+#define PLUGIN_VERSION 			"2.9.8"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -2725,13 +2728,26 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 				}
 
 				ChangeClientTeam(client,TEAM_SPECTATOR);*/
+
+				if(g_bL4D2Version)
+				{
+					g_hCvarMPGameMode.ReplicateToClient(client, "versus");
+					if(bDisableSurvivorModelGlow == true)
+					{
+						bDisableSurvivorModelGlow = false;
+						for( int i = 1; i <= MaxClients; i++ )
+						{
+							CreateSurvivorModelGlow(i);
+						}
+					}
+				}
 			}
 			else
 			{
 				//iPlayerTeam[client] = iTeam;
 				if(g_bL4D2Version)
 				{
-					SendConVarValue(client, g_hCvarMPGameMode, g_sCvarMPGameMode);
+					g_hCvarMPGameMode.ReplicateToClient(client, g_sCvarMPGameMode);
 
 					if(bDisableSurvivorModelGlow == false)
 					{

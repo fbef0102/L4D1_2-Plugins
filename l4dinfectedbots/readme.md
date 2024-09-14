@@ -507,6 +507,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.9.8 (2024-9-14)
+		* Fixed real SI player can't see the ladder in coop/realism
+
 	* v2.9.7 (2024-8-8)
 		* Fixed Special Infected Health
 
