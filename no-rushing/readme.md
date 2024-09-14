@@ -30,9 +30,6 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
         // Ignore Incapacitated Survivors?
         no-rushing_ignore_incapacitated "0"
 
-        // Ignore lagging or lost players?
-        no-rushing_ignore_lagging "0"
-
         // Modes: 0=Teleport only, 1=Teleport and kill after reaching limits, 2=Teleport and kick after reaching limits.
         no-rushing_action_rushers "1"
         ```
@@ -125,9 +122,6 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
         // 為1時，擅自離開隊伍的玩家如果是倒地狀態則不懲罰
         no-rushing_ignore_incapacitated "0"
-
-        // 為1時，不懲罰落後的玩家 (在隊伍後面)
-        no-rushing_ignore_lagging "0"
 
         // 如何懲罰擅自離隊的玩家 0=傳送回隊伍, 1=傳送回隊伍並處死 (超過容忍次數), 2傳送回隊伍並踢出遊戲 (超過容忍次數).
         no-rushing_action_rushers "1"

@@ -2,34 +2,35 @@
 {
 	"Lagging Behind"
 	{
-		"#format"			"{1:s},{2:s},{3:s}"
-		"en"				"[{green}No-Rush{default}] {1}Please Please Stay{2} Closer To {3}Your Team!"
-		"zho"				"[{green}No-Rush{default}] {1}請和{3}你的隊伍{2} 待在一起!"
-		"chi"				"[{green}No-Rush{default}] {1}请和{3}你的队伍{2} 待在一起!"
-		"ru"				"[{green}No-Rush{default}] {1}Пожалуйста, оставайтесь{2} ближе к {3}своей команде!"
+		"en"				"[{olive}No-Rush{default}] Please Please Stay{green} Closer To {default}Your Team!"
+		"zho"				"[{olive}No-Rush{default}] 請和{green}你的隊伍{default} 待在一起!"
+		"chi"				"[{olive}No-Rush{default}] 请和{green}你的队伍{default} 待在一起!"
+		"ru"				"[{olive}No-Rush{default}] Пожалуйста, оставайтесь{green} ближе к {default}своей команде!"
 	}
+	
 	"Rushing Notice"
 	{
-		"#format"			"{1:s},{2:s}"
-		"en"				"[{green}No-Rush{default}] {1}Please Go Back! {2}I'm Warning You!"
-		"zho"				"[{green}No-Rush{default}] {1}請回返倖存者隊伍勿跑圖! {2}警告你!"
-		"chi"				"[{green}No-Rush{default}] {1}請回返生还者队伍勿跑圖! {2}警告你!"
-		"ru"				"[{green}No-Rush{default}] {1}Вернитесь! {2}Вы были предупреждены!"
+		"en"				"[{olive}No-Rush{default}] Please Go Back! {green}I'm Warning You!"
+		"zho"				"[{olive}No-Rush{default}] 請回返倖存者隊伍勿跑圖! {green}警告你!"
+		"chi"				"[{olive}No-Rush{default}] 請回返生还者队伍勿跑圖! {green}警告你!"
+		"ru"				"[{olive}No-Rush{default}] Вернитесь! {green}Вы были предупреждены!"
 	}
+	
 	"Rushing Warning"
 	{
-		"#format"			"{1:s},{2:s},{3:s},{4:s},{5:s},{6:i},{7:i}"
-		"en"				"[{green}No-Rush{default}] {1}Rushing {2}Is Prohibited! Trials: {3}{6} {4}/ {5}{7}"
-		"zho"				"[{green}No-Rush{default}] {1}跑圖{2} 是禁止的! 次數上限: {3}{6} {4}/ {5}{7}"
-		"chi"				"[{green}No-Rush{default}] {1}跑图{2} 是禁止的! 次数上限: {3}{6} {4}/ {5}{7}"
-		"ru"				"[{green}No-Rush{default}] {2}Не {1}спешите! Попыток: {3}{6} {4}/ {5}{7}"
+		"#format"			"{1:i},{2:i}"
+		"en"				"[{olive}No-Rush{default}] {green}Rushing{default} Is Prohibited! Trials: {olive}{1}/{2}"
+		"zho"				"[{olive}No-Rush{default}] {green}跑圖{default} 是禁止的! 次數上限: {olive}{1}/{2}"
+		"chi"				"[{olive}No-Rush{default}] {green}跑图{default} 是禁止的! 次数上限: {olive}{1}/{2}"
+		"ru"				"[{olive}No-Rush{default}] {green}Не{default} спешите! Попыток: {olive}{1}/{2}"
 	}
+	
 	"Rushing Violation"
 	{
-		"#format"			"{1:s},{2:s},{3:s},{4:s}"
-		"en"				"[{green}No-Rush{default}] {1}{4} {2}Was Punished {3}For Rushing! (That's What You Get!)"
-		"zho"				"[{green}No-Rush{default}] {1}{4} {2}被懲罰 {3}其跑圖行為! (That's What You Get!)"
-		"chi"				"[{green}No-Rush{default}] {1}{4} {2}被惩罚 {3}其跑图行为! (That's What You Get!)"
-		"ru"				"[{green}No-Rush{default}] {1}{4} {2}получает наказание {3}за спешку! (Вот тебе!)"
+		"#format"			"{1:s}"
+		"en"				"[{olive}No-Rush{default}] {blue}{1}{default} Was Punished {green}For Rushing! (That's What You Get!)"
+		"zho"				"[{olive}No-Rush{default}] {blue}{1}{default} 被懲罰 {green}其跑圖行為! (That's What You Get!)"
+		"chi"				"[{olive}No-Rush{default}] {blue}{1}{default} 被惩罚 {green}其跑图行为! (That's What You Get!)"
+		"ru"				"[{olive}No-Rush{default}] {blue}{1}{default} получает наказание {green}за спешку! (Вот тебе!)"
 	}
 }
