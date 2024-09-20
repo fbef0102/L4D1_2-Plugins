@@ -185,22 +185,11 @@ void ReadItem(char[] buffer){
 		strcopy(mediatype,255,"Model");
 		downloadfiles=true;
 	}
-	else if(len >= 2 && buffer[0] == '/' && buffer[1] == '/'){
+	else if(strlen(buffer) == 0 || strncmp(buffer, "//", 2, false) == 0)
+	{
 		//Comment
-		if(StrContains(buffer,"//") >= 0){
-			ReplaceString(buffer,255,"//","");
-		}
-		if(strcmp(buffer,map,true) == 0){
-			downloadfiles=true;
-		}
-		else if(strcmp(buffer,"Any",false) == 0){
-			downloadfiles=true;
-		}
-		else{
-			downloadfiles=false;
-		}
 	}
-	else if (strcmp(buffer,"",false) != 0 && FileExists(buffer))
+	else if (FileExists(buffer))
 	{
 		if(downloadfiles){
 			AddFileToDownloadsTable(buffer);
@@ -262,10 +251,12 @@ void ReadItemSimple(char[] buffer){
 		buffer[--len] = '\0';
 	
 	TrimString(buffer);
-	if(len >= 2 && buffer[0] == '/' && buffer[1] == '/'){
+
+	if(strlen(buffer) == 0 || strncmp(buffer, "//", 2, false) == 0)
+	{
 		//Comment
 	}
-	else if (strcmp(buffer,"",false) != 0 && FileExists(buffer))
+	else if (FileExists(buffer))
 	{
 		AddFileToDownloadsTable(buffer);
 	}

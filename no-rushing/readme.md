@@ -55,10 +55,10 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
                 "Notice_Rushing_Distance"		"0.15" 
                 
                 // [0.00~1.00] Teleport rusher back to team after reaching this distance
-                "Warning_Distance"				"0.2"
+                "Teleport_Rushing_Distance"				"0.2"
                 
                 // [0.00~1.00] Teleport player back to team if player is behind team and reach this distance
-                "Behind_Distance"				"0.31"
+                "Teleport_Behind_Distance"				"0.31"
                 
                 // Only teleport player back to team if far away range from team (To prevent nav bug)
                 "Range_Distance"				"600.0"
@@ -144,10 +144,10 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
                 "Notice_Rushing_Distance"		"0.15" 
                 
                 // [0.00~1.00] 往前離開隊伍超過20%路程會傳送回隊伍中
-                "Warning_Distance"				"0.2"
+                "Teleport_Rushing_Distance"				"0.2"
                 
                 // [0.00~1.00] 落後隊伍於後方並且超過31%路程會傳送回隊伍中
-                "Behind_Distance"				"0.31"
+                "Teleport_Behind_Distance"				"0.31"
                 
                 // 與隊伍超過此距離才會傳送玩家並懲罰 (避免隔牆 nav bug)
                 "Range_Distance"				"600.0"

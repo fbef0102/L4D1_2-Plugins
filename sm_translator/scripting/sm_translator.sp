@@ -21,7 +21,7 @@
 #include <multicolors>
 #include <json> //https://github.com/clugg/sm-json
 
-#define PLUGIN_VERSION 			"1.1h-2024/9/9"
+#define PLUGIN_VERSION 			"1.2h-2024/9/20"
 #define PLUGIN_NAME			    "sm_translator"
 #define DEBUG 0
 
@@ -37,8 +37,8 @@ public Plugin myinfo =
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
 
-ConVar g_hCvarEnable;
-bool g_bCvarEnable;
+ConVar g_hCvarEnable, g_hCvarDefault;
+bool g_bCvarEnable, g_bCvarDefault;
 
 char ServerLang[3];
 char ServerCompleteLang[32];
@@ -57,15 +57,17 @@ public void OnPluginStart()
 	LoadTranslations("sm_translator.phrases.txt");
 
 	g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarDefault 		= CreateConVar( PLUGIN_NAME ... "_default",       "0",   "When new player connects, 0=Display menu to ask if player 'yes' or 'no', 1=Auto enable translator for player + Don't display menu", CVAR_FLAGS, true, 0.0, true, 1.0);
 	CreateConVar(                       PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true,                PLUGIN_NAME);
 
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarDefault.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_disconnect",      Event_PlayerDisconnect); //換圖不會觸發該事件
 
-	RegConsoleCmd("sm_translator", Command_Translator);
+	RegConsoleCmd("sm_translator", Command_Translator, "");
 
 	g_smCodeToGoogle = new StringMap();
 	g_smCodeToGoogle.SetString("zho", "zh-TW");
@@ -73,10 +75,7 @@ public void OnPluginStart()
 
 	for(int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && !IsFakeClient(i))
-		{
-			OnClientPostAdminCheck(i);
-		}
+		g_bTranslator[i] = g_bCvarDefault;
 	}
 }
 
@@ -89,7 +88,8 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 
 void GetCvars()
 {
-    g_bCvarEnable = g_hCvarEnable.BoolValue;
+	g_bCvarEnable = g_hCvarEnable.BoolValue;
+	g_bCvarDefault = g_hCvarDefault.BoolValue;
 }
 
 // Sourcemod API Forward-------------------------------
@@ -98,6 +98,7 @@ public void OnClientPostAdminCheck(int client)
 {
 	if(g_bHasSelectMenu[client]) return;
 	if(IsFakeClient(client)) return;
+	if(g_bCvarDefault) return;
 
 	CreateTimer(4.0, Timer_ShowMenu, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -117,38 +118,45 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 	if (strlen(buffer) <= 0) return;
 	
-	int ClientLanguage;
-	ClientLanguage = GetClientLanguage(client);
-	static char sServerLanguage[8], sSl[8], sTl[8];
-	GetLanguageInfo(GetServerLanguage(), sServerLanguage, sizeof(sServerLanguage)); // get Foreign language
-	GetLanguageInfo(ClientLanguage, sSl, sizeof(sSl)); // get Foreign language
+	int iClientLanguage, iTargetLanguage, iServerLanguage;
+	iClientLanguage = GetClientLanguage(client);
+	static char sServerLanguage[8], sSourceLanguage[8], sTargetLanguage[8];
+	iServerLanguage = GetServerLanguage();
+	GetLanguageInfo(iServerLanguage, sServerLanguage, sizeof(sServerLanguage)); // get Server language
+	GetLanguageInfo(iClientLanguage, sSourceLanguage, sizeof(sSourceLanguage)); // get client language
 	
-	// Foreign
-	if(strcmp(sServerLanguage, sSl, false) != 0)
+	// Foreign language
+	if(iServerLanguage != iClientLanguage)
 	{
-		Handle request = CreateRequest(sSl, sServerLanguage, buffer, client, 0);
+		Handle request = CreateRequest(sSourceLanguage, sServerLanguage, buffer, client, 0);
 		SteamWorks_SendHTTPRequest(request);
 		
 		for(int i = 1; i <= MaxClients; i++)
 		{
-			if(IsClientInGame(i) && !IsFakeClient(i) && i != client && ClientLanguage != GetClientLanguage(i))
+			if(i != client && IsClientInGame(i) && !IsFakeClient(i))
 			{	
-				GetLanguageInfo(GetClientLanguage(i), sTl, sizeof(sTl)); // get Foreign language
-				Handle request2 = CreateRequest(sSl, sTl, buffer, i, client); // Translate not Foreign msg to Foreign player
+				iTargetLanguage = GetClientLanguage(i);
+				if(iClientLanguage == iTargetLanguage) continue;
+
+				GetLanguageInfo(iTargetLanguage, sTargetLanguage, sizeof(sTargetLanguage)); // get Target language
+				Handle request2 = CreateRequest(sSourceLanguage, sTargetLanguage, buffer, i, client); // Translate Foreign msg to other player
 				SteamWorks_SendHTTPRequest(request2);
 			}
 		}
 	}
-	else // Not foreign
+	else // Match server language
 	{
 		C_PrintToChatEx(client, client, "{teamcolor}%N {%T}{default}: %s", client, "translated for others", client, buffer);
 
 		for(int i = 1; i <= MaxClients; i++)
 		{
-			if(IsClientInGame(i) && !IsFakeClient(i) && i != client)
+			if(i != client && IsClientInGame(i) && !IsFakeClient(i))
 			{
-				GetLanguageInfo(GetClientLanguage(i), sTl, sizeof(sTl)); // get Foreign language
-				Handle request = CreateRequest(sServerLanguage, sTl, buffer, i, client); // Translate not Foreign msg to Foreign player
+				iTargetLanguage = GetClientLanguage(i);
+				if(iClientLanguage == iTargetLanguage) continue;
+
+				GetLanguageInfo(iTargetLanguage, sTargetLanguage, sizeof(sTargetLanguage)); // get Target language
+				Handle request = CreateRequest(sServerLanguage, sTargetLanguage, buffer, i, client); // Translate msg to other player
 				SteamWorks_SendHTTPRequest(request);
 			}
 		}
@@ -172,7 +180,7 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	if(client == 0 || !IsClientInGame(client))
 		return;
 
-	g_bTranslator[client] = false;
+	g_bTranslator[client] = g_bCvarDefault;
 	g_bHasSelectMenu[client] = false;
 }
 
@@ -217,7 +225,7 @@ int Menu_select(Menu menu, MenuAction action, int client, int param)
 		char selection[128];
 		menu.GetItem(param, selection, sizeof(selection));
 		
-		if (StrEqual(selection, "yes"))g_bTranslator[client] = true;
+		if (StrEqual(selection, "yes")) g_bTranslator[client] = true;
 		else g_bTranslator[client] = false;
 
 		g_bHasSelectMenu[client] = true;

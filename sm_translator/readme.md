@@ -1,5 +1,5 @@
 # Description | 內容
-Translate chat messagesbrowser
+Translate chat message via Google API
 
 * Video | 影片展示
 <br/>None
@@ -11,11 +11,12 @@ Translate chat messagesbrowser
 
 * <details><summary>How does it work?</summary>
 
-	* Display menu when join server 
+	* Display menu when new player joins server 
         -> Choose "Yes, translate my words to other player" 
         -> Your chat messages will be translated into other player depends on steam language
     * You can define the official server language on ```addons/sourcemod/configs/core.cfg``` -> "ServerLang" keyvalue.
     * The translation is using Google Translation API
+        * May not working if Google is blocked in your Country/Region
 </details>
 
 * Require | 必要安裝
@@ -29,6 +30,9 @@ Translate chat messagesbrowser
         ```php
         // 0=Plugin off, 1=Plugin on.
         sm_translator_enable "1"
+
+        // When new player connects, 0=Display menu to ask if player 'yes' or 'no', 1=Auto enable translator for player + Don't display menu
+        sm_translator_default "0"
         ```
 </details>
 
@@ -57,6 +61,9 @@ Translate chat messagesbrowser
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.2h (2024-9-20)
+        * Update cvars
+
     * v1.1h (2024-9-9)
         * Fixed memory leak
 
@@ -78,7 +85,7 @@ Translate chat messagesbrowser
 
 * 原理
     * 進入伺服器之後顯示選單 -> 選擇"好..." -> 你打字聊天的內容會自動翻譯給其他玩家 (根據他們的steam平台設置的語言)
-    * 伺服器語言設置位於 ```addons/sourcemod/configs/core.cfg``` -> "ServerLang" 參數
+    * 伺服器語言預設是英文，可於 ```addons/sourcemod/configs/core.cfg``` 設置 -> "ServerLang" 參數
 
 * 注意事項
     * 使用的是Google提供的API翻譯，所以可能翻譯得不正確
@@ -90,6 +97,9 @@ Translate chat messagesbrowser
         ```php
         // 1=開啟插件. 0=關閉插件
         sm_translator_enable "1"
+
+        // 當玩家近來伺服器時, 0=彈出選單詢問玩家是否自動翻譯, 1=自動幫玩家翻譯 + 不彈出選單
+        sm_translator_default "0"
         ```
 </details>
 
