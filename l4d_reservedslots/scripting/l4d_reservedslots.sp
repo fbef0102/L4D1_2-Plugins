@@ -37,7 +37,7 @@ ConVar L4dtoolzExtension, sv_visiblemaxplayers;
 
 ConVar g_hCvarReservedSlots, g_hAccess, g_hHideSlots;
 int g_iCvarReservedSlots;
-char g_sAccessAcclvl[16];
+char g_sAccessAcclvl[AdminFlags_TOTAL];
 bool g_bHideSlots;
 
 bool 
@@ -69,11 +69,11 @@ public void OnAllPluginsLoaded()
 {
     L4dtoolzExtension = FindConVar("sv_maxplayers");
     if(L4dtoolzExtension == null)
-        SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases");
+        SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/fbef0102/l4dtoolz");
 
     sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
     if(sv_visiblemaxplayers == null)
-        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\". Go to install L4dtoolz: https://github.com/Accelerator74/l4dtoolz/releases");
+        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\". Go to install L4dtoolz: https://github.com/fbef0102/l4dtoolz");
 
     g_iCfgMaxPlayers = L4dtoolzExtension.IntValue;
     L4dtoolzExtension.AddChangeHook(ConVarChanged_OfficialCvars);
@@ -83,8 +83,8 @@ bool bOnPluginEnd = false;
 public void OnPluginEnd()
 {
     bOnPluginEnd = true;
-    L4dtoolzExtension.SetInt(g_iCfgMaxPlayers);
-    sv_visiblemaxplayers.SetInt(g_iCfgMaxPlayers);
+    //L4dtoolzExtension.SetInt(g_iCfgMaxPlayers);
+    //sv_visiblemaxplayers.SetInt(g_iCfgMaxPlayers);
 }
 
 public void OnMapStart()
@@ -239,7 +239,7 @@ void SetHiddenSlots()
 
     if(g_iCfgMaxPlayers > 0 && g_iCvarReservedSlots > 0)
     {
-        int iFinalSlot = (g_iCfgMaxPlayers + g_iCvarReservedSlots >= 30) ? 30 : g_iCfgMaxPlayers + g_iCvarReservedSlots;
+        int iFinalSlot = (g_iCfgMaxPlayers + g_iCvarReservedSlots >= 31) ? 31 : g_iCfgMaxPlayers + g_iCvarReservedSlots;
 
         L4dtoolzExtension.SetInt( iFinalSlot );
         if (g_bHideSlots)

@@ -13,7 +13,7 @@ Translate chat message via Google API
 
 	* Display menu when new player joins server 
         -> Choose "Yes, translate my words to other player" 
-        -> Your chat messages will be translated into other player depends on steam language
+        -> Your chat messages will be translated into other player depends on their steam language
     * You can define the official server language on ```addons/sourcemod/configs/core.cfg``` -> "ServerLang" keyvalue.
     * The translation is using Google Translation API
         * May not working if Google is blocked in your Country/Region
@@ -61,6 +61,11 @@ Translate chat message via Google API
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.4h (2024-9-22)
+        * Block chat translation if different team
+        * Update translation
+
+    * v1.3h (2024-9-21)
     * v1.2h (2024-9-20)
         * Update cvars
 

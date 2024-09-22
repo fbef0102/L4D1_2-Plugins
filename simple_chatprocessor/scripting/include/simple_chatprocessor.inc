@@ -104,7 +104,8 @@ forward Action OnChatMessage2(int originalAuthor, int &author, ArrayList recipie
 
 /**
  * Called after all OnChatMessage2 forwards have been fired and the message is being broadcast.
- *
+ * @remarks This forward will not trigger if the relative pre-hook forward has been blocked with Plugin_Stop
+
  * NOTES:
  * Use MAXLENGTH_  constants above for formating the strings
  * Do not rely on the recipients handle to exist beyond the forward

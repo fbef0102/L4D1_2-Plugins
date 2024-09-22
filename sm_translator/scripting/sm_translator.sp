@@ -21,7 +21,7 @@
 #include <multicolors>
 #include <json> //https://github.com/clugg/sm-json
 
-#define PLUGIN_VERSION 			"1.2h-2024/9/20"
+#define PLUGIN_VERSION 			"1.4h-2024/9/22"
 #define PLUGIN_NAME			    "sm_translator"
 #define DEBUG 0
 
@@ -34,13 +34,20 @@ public Plugin myinfo =
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
+bool bLate;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	bLate = late;
+	return APLRes_Success;
+}
+
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
 
 ConVar g_hCvarEnable, g_hCvarDefault;
 bool g_bCvarEnable, g_bCvarDefault;
 
-char ServerLang[3];
+char ServerLang[8];
 char ServerCompleteLang[32];
 
 bool 
@@ -52,7 +59,7 @@ StringMap
 
 public void OnPluginStart()
 {
-	GetLanguageInfo(GetServerLanguage(), ServerLang, 3, ServerCompleteLang, 32);
+	GetLanguageInfo(GetServerLanguage(), ServerLang, sizeof(ServerLang), ServerCompleteLang, sizeof(ServerCompleteLang));
 
 	LoadTranslations("sm_translator.phrases.txt");
 
@@ -65,7 +72,7 @@ public void OnPluginStart()
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarDefault.AddChangeHook(ConVarChanged_Cvars);
 
-	HookEvent("player_disconnect",      Event_PlayerDisconnect); //換圖不會觸發該事件
+	HookEvent("player_connect", 		Event_PlayerConnect); //換圖不會觸發該事件
 
 	RegConsoleCmd("sm_translator", Command_Translator, "");
 
@@ -73,10 +80,21 @@ public void OnPluginStart()
 	g_smCodeToGoogle.SetString("zho", "zh-TW");
 	g_smCodeToGoogle.SetString("chi", "zh-CN");
 
-	for(int i = 1; i <= MaxClients; i++)
+	if(bLate)
 	{
-		g_bTranslator[i] = g_bCvarDefault;
+		LateLoad();
 	}
+}
+
+void LateLoad()
+{
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        if (!IsClientInGame(client))
+            continue;
+
+        OnClientPostAdminCheck(client);
+    }
 }
 
 // Cvars-------------------------------
@@ -93,6 +111,21 @@ void GetCvars()
 }
 
 // Sourcemod API Forward-------------------------------
+
+bool g_bFirst = true;
+public void OnConfigsExecuted()
+{
+	GetCvars();
+	if(g_bFirst)
+	{
+		g_bFirst = false;
+		for(int i = 0; i <= MaxClients; i++)
+		{
+			g_bTranslator[i] = g_bCvarDefault;
+			g_bHasSelectMenu[i] = false;
+		}
+	}
+}
 
 public void OnClientPostAdminCheck(int client)
 {
@@ -117,6 +150,13 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	StripQuotes(buffer);
 
 	if (strlen(buffer) <= 0) return;
+
+	bool bTeamChat = false;
+	if (strcmp(command, "say_team") == 0)
+	{
+		bTeamChat = true;
+	}
+	int iClientTeam = GetClientTeam(client);
 	
 	int iClientLanguage, iTargetLanguage, iServerLanguage;
 	iClientLanguage = GetClientLanguage(client);
@@ -128,37 +168,48 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	// Foreign language
 	if(iServerLanguage != iClientLanguage)
 	{
-		Handle request = CreateRequest(sSourceLanguage, sServerLanguage, buffer, client, 0);
+		Handle request = CreateRequest(sSourceLanguage, sServerLanguage, buffer, client, 0, bTeamChat);
 		SteamWorks_SendHTTPRequest(request);
 		
-		for(int i = 1; i <= MaxClients; i++)
+		for(int player = 1; player <= MaxClients; player++)
 		{
-			if(i != client && IsClientInGame(i) && !IsFakeClient(i))
-			{	
-				iTargetLanguage = GetClientLanguage(i);
-				if(iClientLanguage == iTargetLanguage) continue;
+			if(player == client) continue;
+			if(!IsClientInGame(player)) continue;
+			if(IsFakeClient(player)) continue;
+			if(bTeamChat && GetClientTeam(player) != iClientTeam) continue;
 
-				GetLanguageInfo(iTargetLanguage, sTargetLanguage, sizeof(sTargetLanguage)); // get Target language
-				Handle request2 = CreateRequest(sSourceLanguage, sTargetLanguage, buffer, i, client); // Translate Foreign msg to other player
-				SteamWorks_SendHTTPRequest(request2);
-			}
+			iTargetLanguage = GetClientLanguage(player);
+			if(iClientLanguage == iTargetLanguage) continue;
+
+			GetLanguageInfo(iTargetLanguage, sTargetLanguage, sizeof(sTargetLanguage)); // get Target language
+			Handle request2 = CreateRequest(sSourceLanguage, sTargetLanguage, buffer, player, client, bTeamChat); // Translate Foreign msg to other player
+			SteamWorks_SendHTTPRequest(request2);
 		}
 	}
 	else // Match server language
 	{
-		C_PrintToChatEx(client, client, "{teamcolor}%N {%T}{default}: %s", client, "translated for others", client, buffer);
-
-		for(int i = 1; i <= MaxClients; i++)
+		if(bTeamChat)
 		{
-			if(i != client && IsClientInGame(i) && !IsFakeClient(i))
-			{
-				iTargetLanguage = GetClientLanguage(i);
-				if(iClientLanguage == iTargetLanguage) continue;
+			C_PrintToChatEx(client, client, "(%T) {teamcolor}%N {%T}{default}: %s", "Team", client, client, "translated for others", client, buffer);
+		}
+		else
+		{
+			C_PrintToChatEx(client, client, "{teamcolor}%N {%T}{default}: %s", client, "translated for others", client, buffer);
+		}
 
-				GetLanguageInfo(iTargetLanguage, sTargetLanguage, sizeof(sTargetLanguage)); // get Target language
-				Handle request = CreateRequest(sServerLanguage, sTargetLanguage, buffer, i, client); // Translate msg to other player
-				SteamWorks_SendHTTPRequest(request);
-			}
+		for(int player = 1; player <= MaxClients; player++)
+		{
+			if(player == client) continue;
+			if(!IsClientInGame(player)) continue;
+			if(IsFakeClient(player)) continue;
+			if(bTeamChat && GetClientTeam(player) != iClientTeam) continue;
+			iTargetLanguage = GetClientLanguage(player);
+
+			if(iClientLanguage == iTargetLanguage) continue;
+
+			GetLanguageInfo(iTargetLanguage, sTargetLanguage, sizeof(sTargetLanguage)); // get Target language
+			Handle request = CreateRequest(sServerLanguage, sTargetLanguage, buffer, player, client, bTeamChat); // Translate msg to other player
+			SteamWorks_SendHTTPRequest(request);
 		}
 	}
 }
@@ -174,17 +225,22 @@ Action Command_Translator(int client, int args)
 
 // Event-------------------------------
 
-void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerConnect(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	if(client == 0 || !IsClientInGame(client))
-		return;
-
-	g_bTranslator[client] = g_bCvarDefault;
-	g_bHasSelectMenu[client] = false;
+	CreateTimer(2.0, Timer_OnClientConnected, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE);
 }
 
 // Timer-------------------------------
+
+Action Timer_OnClientConnected(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if (!client || !IsClientConnected(client) || IsFakeClient(client)) return Plugin_Continue;
+
+	g_bTranslator[client] = g_bCvarDefault;
+	g_bHasSelectMenu[client] = false;
+	return Plugin_Continue;
+}
 
 Action Timer_ShowMenu(Handle timer, int userid)
 {
@@ -205,12 +261,13 @@ Action Timer_ShowMenu(Handle timer, int userid)
 
 void DoMenu(int client)
 {
-	char temp[128];
+	static char temp[128], clientLang[8], clientLangFull[128];
 	
 	Menu menu = new Menu(Menu_select);
 	menu.SetTitle("%T", "This server have a translation plugin so you can talk in your own language and it will be translated to others.Use translator?",client);
 	
-	Format(temp, sizeof(temp), "%T", "Yes, translate my word to other players",client);
+	GetLanguageInfo(GetClientLanguage(client), clientLang, sizeof(clientLang), clientLangFull, sizeof(clientLangFull));
+	Format(temp, sizeof(temp), "%T (%s)", "Yes, translate my word to other players", client, clientLangFull);
 	menu.AddItem("yes", temp);
 	
 	Format(temp, sizeof(temp), "%T (%s)","No, I want to use chat in the official server language by my own", client, ServerCompleteLang);
@@ -241,7 +298,7 @@ int Menu_select(Menu menu, MenuAction action, int client, int param)
 
 // HTTP-------------------------------
 
-Handle CreateRequest(const char source[8], const char target[8], const char input[255], int client, int other = 0)
+Handle CreateRequest(const char source[8], const char target[8], const char input[255], int client, int other = 0, bool bTeamChat = false)
 {
 	static char GoogleSourceCode[8], GoogleTargetCode[8];
 	if(g_smCodeToGoogle.ContainsKey(source))
@@ -278,16 +335,19 @@ Handle CreateRequest(const char source[8], const char target[8], const char inpu
 	//final url would be something like this  https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=es&q=hello
 	//response example [[["Hola","hello",null,null,10]],null,"en",null,null,null,null,[]]  so we need to parse json on Callback_OnHTTPResponse >  JSON.parse(response)[0][0][0] = Hola
 
-
-	SteamWorks_SetHTTPRequestContextValue(request, GetClientUserId(client), other>0?GetClientUserId(other):0);
+	DataPack hPack = new DataPack();
+	hPack.WriteCell( other>0 ? GetClientUserId(other) : 0);
+	hPack.WriteCell(bTeamChat);
+	SteamWorks_SetHTTPRequestContextValue(request, GetClientUserId(client), hPack);
 	return request;
 }
 
-void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccessful, EHTTPStatusCode eStatusCode, int userid, int other)
+void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccessful, EHTTPStatusCode eStatusCode, int userid, DataPack hPack)
 {
 	if (!bRequestSuccessful || eStatusCode != k_EHTTPStatusCode200OK)
 	{        
 		delete request;
+		delete hPack;
 		return;
 	}
 
@@ -297,6 +357,11 @@ void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccess
 	char[] result = new char[iBufferSize];
 	SteamWorks_GetHTTPResponseBodyData(request, result, iBufferSize);
 	delete request;
+
+	hPack.Reset();
+	int other = hPack.ReadCell();
+	bool bTeamChat = hPack.ReadCell();
+	delete hPack;
 
 	static char strval[512];
 
@@ -336,20 +401,34 @@ void Callback_OnHTTPResponse(Handle request, bool bFailure, bool bRequestSuccess
 	if(other == 0)
 	{
 		//PrintToChatAll("To Server Language: %s", strval);
-		C_PrintToChatEx(client, client, "{teamcolor}%N {%T}{default}: %s", client, "translated for others", client, strval);
+		if(bTeamChat)
+		{
+			C_PrintToChatEx(client, client, "(%T) {teamcolor}%N {%T}{default}: %s", "Team", client, client, "translated for others", client, strval);
+		}
+		else
+		{
+			C_PrintToChatEx(client, client, "{teamcolor}%N {%T}{default}: %s", client, "translated for others", client, strval);
+		}
 	}
 	else
 	{
 		//PrintToChatAll("To Other Player %N Language: %s", client, strval);
 
-		int i = GetClientOfUserId(other);
+		int source = GetClientOfUserId(other);
 
-		if (!i || !IsClientInGame(i))
+		if (!source || !IsClientInGame(source))
 		{
 			return;
 		}
 		
-		C_PrintToChatEx(client, client, "{teamcolor}%N {%T}{default}: %s", i, "translated for you", client, strval);
+		if(bTeamChat)
+		{
+			C_PrintToChatEx(client, source, "(%T) {teamcolor}%N {%T}{default}: %s", "Team", client, source, "translated for you", client, strval);
+		}
+		else
+		{	
+			C_PrintToChatEx(client, source, "{teamcolor}%N {%T}{default}: %s", source, "translated for you", client, strval);
+		}
 	}
 }  
 

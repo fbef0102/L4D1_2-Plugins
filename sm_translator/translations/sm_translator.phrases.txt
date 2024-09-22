@@ -92,7 +92,7 @@
 		"sv"		"Skriv in chat !translator för att öppna igen den här menyn"
 		"th"		"พิมพ์ข้อความ !translator เพื่อเปิดเมนูนี้อีกครั้ง"
 		"tr"		"Bu menüyü tekrar açmak için sohbete !translator yaz"
-		"zho"		"聊天框輸入 !translator 可以再次打開選單"
+		"zho"		"聊天框輸入 !translator 可以再次打開菜單"
 		"chi"		"聊天框输入 !translator 可以再次打开菜单"
 	}
 	"translated for others"
@@ -154,5 +154,12 @@
 		"th"		"แปลให้คุณ"
 		"zho"		"為你翻譯"
 		"chi"		"为你翻译"
+	}
+	
+	"Team"
+	{
+		"en"		"Team"
+		"zho"		"隊伍"
+		"chi"		"队伍"
 	}
 }
