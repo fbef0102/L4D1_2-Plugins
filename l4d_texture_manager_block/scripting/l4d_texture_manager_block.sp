@@ -26,6 +26,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
+static const float CLIENT_CHECK_INTERVAL = 3.5;
+
 #define CONFIG_FILE		        "configs/l4d_texture_manager_block.cfg"
 #define LOG_FILE		        "logs/l4d_texture_manager_block.log"
 
@@ -80,7 +82,7 @@ public void OnConfigsExecuted()
 	RequestFrame(NextFrame_ParseList);
 
 	delete ClientSettingsCheckTimer;
-	ClientSettingsCheckTimer = CreateTimer(2.5, Timer_CheckClients, _, TIMER_REPEAT);
+	ClientSettingsCheckTimer = CreateTimer(CLIENT_CHECK_INTERVAL, Timer_CheckClients, _, TIMER_REPEAT);
 }
 
 // Command-------------------------------
@@ -199,7 +201,7 @@ Action ServerCMD_reloadWhiteList(int args)
 	RequestFrame(NextFrame_ParseList);
 
 	delete ClientSettingsCheckTimer;
-	ClientSettingsCheckTimer = CreateTimer(2.5, Timer_CheckClients, _, TIMER_REPEAT);
+	ClientSettingsCheckTimer = CreateTimer(CLIENT_CHECK_INTERVAL, Timer_CheckClients, _, TIMER_REPEAT);
 
 	return Plugin_Handled;
 }
@@ -380,17 +382,11 @@ void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryR
 
 	if(!IsClientInGame(client)) return;
 
-	static char sSteamID64[32];
-	GetClientAuthId(client, AuthId_SteamID64, sSteamID64, sizeof(sSteamID64));
-
-	/*if (result)
-	{
-		LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: Not Found]: Kicked from server, Couldn't retrieve cvar value", client, sSteamID64, cvarName);
-		KickClient(client, "Cvar '%s' protected/missing/invalid!", cvarName);
-	}*/
-
 	if (result) // not found
 	{
+		//LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: Not Found]: Kicked from server, Couldn't retrieve cvar value", client, sSteamID64, cvarName);
+		//KickClient(client, "Cvar '%s' protected/missing/invalid!", cvarName);
+
 		return;
 	}
 
@@ -403,6 +399,9 @@ void _EnforceCliSettings_QueryReply(QueryCookie cookie, int client, ConVarQueryR
 		|| (clsetting.CLSE_hasMax && fCvarVal > clsetting.CLSE_max)
 	) 
 	{
+		static char sSteamID64[32];
+		GetClientAuthId(client, AuthId_SteamID64, sSteamID64, sizeof(sSteamID64));
+
 		if (clsetting.CLSE_action <= CLSA_Kick) 
 		{
 			LogToFileEx(g_sPath, "[Name: %N | STEAMID: %s | %s: %f]: Kicked from server, bad cvar value. Min(%d): %f Max(%d): %f", \
