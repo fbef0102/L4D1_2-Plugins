@@ -116,9 +116,13 @@ Unable to call valve vote if player does not have access
 * <details><summary>Changelog | 版本日誌</summary>
 
     ```php
-    //cravenge @ 2011
+    //McFlurry @ 2011
     //HarryPotter @ 2024
     ```
+    * v1.2h (2024-9-30)
+        * Fixed vote not working if player using "callvote" in game console
+        * Update translation
+
     * v1.1h (2024-2-7)
         * Fixed kick immunity not working
 

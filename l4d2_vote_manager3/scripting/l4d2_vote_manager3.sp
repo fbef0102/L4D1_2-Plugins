@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <multicolors>
 #include <builtinvotes>
-#define PLUGIN_VERSION          "1.1h-2024/2/7"
+#define PLUGIN_VERSION          "1.2h-2024/9/30"
 #define PLUGIN_NAME			    "l4d2_vote_manager3"
 
 public Plugin myinfo =
@@ -17,16 +17,19 @@ public Plugin myinfo =
 }
 
 bool g_bL4D2Version;
+int ZC_Tank;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     EngineVersion test = GetEngineVersion();
 
     if( test == Engine_Left4Dead )
     {
+        ZC_Tank = 5;
         g_bL4D2Version = false;
     }
     else if( test == Engine_Left4Dead2 )
     {
+        ZC_Tank = 8;
         g_bL4D2Version = true;
     }
     else
@@ -75,9 +78,9 @@ ConVar g_hCvarCooldownMode, g_hCvarVoteCooldown, g_hCvarTankImmunity, g_hCvarRes
 int g_iCvarCooldownMode, g_iCvarLog;
 float g_fCvarVoteCooldown;
 bool g_bCvarTankImmunity, g_bCvarRespectImmunity;
-char g_sCvarVetoFlag[16], g_sCvarPassFlag[16], g_sCvarCDImmunityFlag[16], g_sCvarNotifyFlag[16], 
-    g_sCvarReturnLobbyFlag[16], g_sCvarRestartGameFlag[16], g_sCvarChangeDifficultyFlag[16], g_sCvarChangeMissionFlag[16], g_sCvarChangeChapterFlag[16],
-    g_sCvarChangeAllTalkFlag[16], g_sCvarKickPlayerFlag[16], g_sCvarKickImmunityFlag[16];
+char g_sCvarVetoFlag[AdminFlags_TOTAL], g_sCvarPassFlag[AdminFlags_TOTAL], g_sCvarCDImmunityFlag[AdminFlags_TOTAL], g_sCvarNotifyFlag[AdminFlags_TOTAL], 
+    g_sCvarReturnLobbyFlag[AdminFlags_TOTAL], g_sCvarRestartGameFlag[AdminFlags_TOTAL], g_sCvarChangeDifficultyFlag[AdminFlags_TOTAL], g_sCvarChangeMissionFlag[AdminFlags_TOTAL], g_sCvarChangeChapterFlag[AdminFlags_TOTAL],
+    g_sCvarChangeAllTalkFlag[AdminFlags_TOTAL], g_sCvarKickPlayerFlag[AdminFlags_TOTAL], g_sCvarKickImmunityFlag[AdminFlags_TOTAL];
 
 int VoteStatus;
 char sCaller[32];
@@ -218,16 +221,6 @@ public void OnClientDisconnect(int client)
     iVote[client] = Voted_CantVote;
 }
 
-Action TransitionCheck(Handle Timer, any userid)
-{
-    int client = GetClientOfUserId(userid);
-    if(client == 0)
-    {
-        iNextVote[client] == 0.0;
-    }
-    return Plugin_Stop;
-}
-
 Action VoteAction(int client, const char[] command, int argc)
 {
     if(client == 0) return Plugin_Handled;
@@ -253,98 +246,85 @@ Action VoteAction(int client, const char[] command, int argc)
 
 Action VoteStart(int client, const char[] command, int argc)
 {
-    if(GetServerClientCount(true) == 0 || client == 0 || IsFakeClient(client)) return Plugin_Handled; //prevent votes while server is empty or if server tries calling vote
+    if(GetServerClientCount(true) == 0 || client == 0 || IsFakeClient(client)) return Plugin_Continue; //prevent votes while server is empty or if server tries calling vote
+    
+    if(argc <= 0)
+    {
+        return Plugin_Continue;
+    }
+
     if(!IsNewBuiltinVoteAllowed())
     {
         CPrintToChat(client, "%s %T", MSGTAG, "NotAllowed", client);
         return Plugin_Handled;
     }
     
-    if(argc >= 1)
+    float flEngineTime = GetEngineTime();
+    GetCmdArg(1, sIssue, sizeof(sIssue));
+    if(argc == 2) GetCmdArg(2, sOption, sizeof(sOption));
+    VoteStringsToLower();
+    Format(sCaller, sizeof(sCaller), "%N", client);
+
+    if(!IsValidVoteType(sIssue))
     {
-        float flEngineTime = GetEngineTime();
-        GetCmdArg(1, sIssue, sizeof(sIssue));
-        if(argc == 2) GetCmdArg(2, sOption, sizeof(sOption));
-        VoteStringsToLower();
-        Format(sCaller, sizeof(sCaller), "%N", client);
+        static char steam64[MAX_AUTHID_LENGTH];
+        GetClientAuthId(client, AuthId_SteamID64, steam64, sizeof(steam64));
 
-        if(!IsValidVoteType(sIssue))
+        LogVoteManager("%T", "Client Exploit Attempt", LANG_SERVER, client, steam64, sIssue);
+
+        VoteLogAction(client, -1, "'%L' (Steam ID: %s) call invalid vote exploit attempted (Votetype: '%s')", client, steam64, sIssue);
+        return Plugin_Continue;
+    }
+
+    if( (HasAccess(client, g_sCvarCDImmunityFlag) || iNextVote[client] <= flEngineTime) && VoteStatus == VOTE_NONE)
+    {
+        if(flEngineTime-flLastVote <= 5.5) //minimum time that is required by the voting system itself before another vote can be called
         {
-            static char steam64[MAX_AUTHID_LENGTH];
-            GetClientAuthId(client, AuthId_SteamID64, steam64, sizeof(steam64));
+            return Plugin_Handled;
+        }
 
-            LogVoteManager("%T", "Client Exploit Attempt", LANG_SERVER, client, steam64, sIssue);
+        if(ClientHasVoteAccess(client, sIssue))
+        {
+            if(StrEqual(sIssue, "kick", false))
+            {
+                return ClientCanKick(client, sOption);
+            }
 
-            VoteLogAction(client, -1, "'%L' (Steam ID: %s) call invalid vote exploit attempted (Votetype: '%s')", client, steam64, sIssue);
+            DataPack hPack = new DataPack();
+            hPack.WriteCell(argc);
+            hPack.WriteCell(GetClientUserId(client));
+            RequestFrame(NextFrame_CallVote, hPack);
+
             return Plugin_Continue;
-        }
-
-        if( (HasAccess(client, g_sCvarCDImmunityFlag) || iNextVote[client] <= flEngineTime) && VoteStatus == VOTE_NONE)
-        {
-            if(flEngineTime-flLastVote <= 5.5) //minimum time that is required by the voting system itself before another vote can be called
-            {
-                return Plugin_Handled;
-            }
-
-            if(ClientHasVoteAccess(client, sIssue))
-            {
-                if(StrEqual(sIssue, "kick", false))
-                {
-                    return ClientCanKick(client, sOption);
-                }
-                else
-                {
-                    if(argc == 2)
-                    {
-                        LogVoteManager("%T", "Vote Called 2 Arguments", LANG_SERVER, sCaller, sIssue, sOption);
-                        VoteManagerNotify(client, "%s %t", MSGTAG, "Vote Called 2 Arguments", sCaller, sIssue, sOption);
-                        VoteLogAction(client, -1, "'%L' callvote (issue '%s') (option '%s')", client, sIssue, sOption);
-                    }
-                    else
-                    {
-                        LogVoteManager("%T", "Vote Called", LANG_SERVER, sCaller, sIssue);
-                        VoteManagerNotify(client, "%s %t", MSGTAG, "Vote Called", sCaller, sIssue);
-                        VoteLogAction(client, -1, "'%L' callvote (issue '%s')", client, sIssue);
-                    }
-                }
-                VoteManagerPrepareVoters(0);
-                VoteManagerHandleCooldown(client);
-
-                VoteStatus = VOTE_POLLING;
-                flLastVote = flEngineTime;
-
-                return Plugin_Continue;
-            }
-            else
-            {
-                LogVoteManager("%T", "No Vote Access", LANG_SERVER, sCaller, sIssue);
-                VoteManagerNotify(client, "%s %t", MSGTAG, "No Vote Access", sCaller, sIssue);
-                VoteLogAction(client, -1, "'%L' callvote denied (reason 'no access')", client);
-                ClearVoteStrings();
-                return Plugin_Handled;
-            }
-        }
-        else if(IfVoteIsInPOLLING())
-        {
-            CPrintToChat(client, "%s %T", MSGTAG, "Conflict", client);
-            VoteLogAction(client, -1, "'%L' callvote denied (reason 'vote already called')", client);
-            ClearVoteStrings();
-            return Plugin_Handled;
-        }
-        else if(iNextVote[client] > flEngineTime)
-        {
-            CPrintToChat(client, "%s %T", MSGTAG, "Wait", client, RoundToNearest(iNextVote[client]-flEngineTime));
-            VoteLogAction(client, -1, "'%L' callvote denied (reason 'timeout')", client);
-            ClearVoteStrings();
-            return Plugin_Handled;
         }
         else
         {
+            LogVoteManager("%T", "No Vote Access", LANG_SERVER, sCaller, sIssue);
+            VoteManagerNotify(client, "%s %t", MSGTAG, "No Vote Access", sCaller, sIssue);
+            VoteLogAction(client, -1, "'%L' callvote denied (reason 'no access')", client);
             ClearVoteStrings();
             return Plugin_Handled;
         }
     }
-    return Plugin_Handled; //if it wasn't handled up there I would start panicking
+    else if(IfVoteIsInPOLLING())
+    {
+        CPrintToChat(client, "%s %T", MSGTAG, "Conflict", client);
+        VoteLogAction(client, -1, "'%L' callvote denied (reason 'vote already called')", client);
+        ClearVoteStrings();
+        return Plugin_Handled;
+    }
+    else if(iNextVote[client] > flEngineTime)
+    {
+        CPrintToChat(client, "%s %T", MSGTAG, "Wait", client, RoundToNearest(iNextVote[client]-flEngineTime));
+        VoteLogAction(client, -1, "'%L' callvote denied (reason 'timeout')", client);
+        ClearVoteStrings();
+        return Plugin_Handled;
+    }
+    else
+    {
+        ClearVoteStrings();
+        return Plugin_Handled;
+    }
 }
 
 Action VotePass(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, bool reliable, bool init)
@@ -451,6 +431,70 @@ Action Command_VotePassvote(int client, int args)
     }
 }
 
+Action TransitionCheck(Handle Timer, any userid)
+{
+    int client = GetClientOfUserId(userid);
+    if(client == 0)
+    {
+        iNextVote[client] == 0.0;
+    }
+    return Plugin_Stop;
+}
+
+void NextFrame_KickVote(DataPack hPack)
+{
+    hPack.Reset();
+    int client  = GetClientOfUserId(hPack.ReadCell());
+    int target  = GetClientOfUserId(hPack.ReadCell());
+    int cTeam   = hPack.ReadCell();
+    delete hPack;
+
+    if(!client || !IsClientInGame(client)) return;
+    if(!target || !IsClientInGame(target)) return;
+    if(!IsBuiltinVoteInProgress()) return;
+
+    LogVoteManager("%T", "Kick Vote", LANG_SERVER, client, target);
+    VoteManagerNotify(client, "%s %t", MSGTAG, "Kick Vote", client, target);
+    VoteLogAction(client, -1, "'%L' callvote kick started (kickee: '%L')", client, target);
+    
+    VoteManagerPrepareVoters(cTeam);
+    VoteManagerHandleCooldown(client);
+
+    VoteStatus = VOTE_POLLING;
+    flLastVote = GetEngineTime();
+}
+
+void NextFrame_CallVote(DataPack hPack)
+{
+    hPack.Reset();
+    int argc    = hPack.ReadCell();
+    int client  = GetClientOfUserId(hPack.ReadCell());
+    delete hPack;
+
+    if(!client || !IsClientInGame(client)) return;
+    if(!IsBuiltinVoteInProgress()) return;
+
+    if(argc == 2)
+    {
+        LogVoteManager("%T", "Vote Called 2 Arguments", LANG_SERVER, sCaller, sIssue, sOption);
+        VoteManagerNotify(client, "%s %t", MSGTAG, "Vote Called 2 Arguments", sCaller, sIssue, sOption);
+        VoteLogAction(client, -1, "'%L' callvote (issue '%s') (option '%s')", client, sIssue, sOption);
+    }
+    else
+    {
+        LogVoteManager("%T", "Vote Called", LANG_SERVER, sCaller, sIssue);
+        VoteManagerNotify(client, "%s %t", MSGTAG, "Vote Called", sCaller, sIssue);
+        VoteLogAction(client, -1, "'%L' callvote (issue '%s')", client, sIssue);
+    }
+
+    VoteManagerPrepareVoters(0);
+    VoteManagerHandleCooldown(client);
+
+    VoteStatus = VOTE_POLLING;
+    flLastVote = GetEngineTime();
+}
+
+
 bool ClientHasVoteAccess(int client, const char[] vote_sIssue)
 {
     if( strcmp(vote_sIssue, "returntolobby", false) == 0 )
@@ -514,15 +558,17 @@ Action ClientCanKick(int client, const char[] userid)
         VoteManagerNotify(client, "%s %t", MSGTAG, "Invalid Kick Userid", client, userid);
         VoteLogAction(client, -1, "'%L' callvote kick denied (reason: 'invalid userid<%d>')", client, StringToInt(userid));
         ClearVoteStrings();
+
         return Plugin_Handled;
     }
 
-    if(g_bCvarTankImmunity && IsPlayerAlive(target) && cTeam == 3 && GetEntProp(target, Prop_Send, "m_zombieClass") == 8)
+    if(g_bCvarTankImmunity && IsPlayerAlive(target) && cTeam == 3 && GetEntProp(target, Prop_Send, "m_zombieClass") == ZC_Tank)
     {
         LogVoteManager("%T", "Tank Immune Response", LANG_SERVER, client, target);
         VoteManagerNotify(client, "%s %t", MSGTAG, "Tank Immune Response", client, target);
         VoteLogAction(client, -1, "'%L' callvote kick denied (reason: '%L has tank immunity')", client, target);
         ClearVoteStrings();
+
         return Plugin_Handled;
     }
 
@@ -532,6 +578,7 @@ Action ClientCanKick(int client, const char[] userid)
         VoteManagerNotify(client, "%s %t", MSGTAG, "Spectator Response", client, target);
         VoteLogAction(client, -1, "'%L' callvote kick denied (reason: 'spectators have no kick access')", client);
         ClearVoteStrings();
+
         return Plugin_Handled;
     }
 
@@ -546,6 +593,7 @@ Action ClientCanKick(int client, const char[] userid)
             VoteManagerNotify(client, "%s %t", MSGTAG, "Kick Vote Call Failed", client, target);
             VoteLogAction(client, -1, "'%L' callvote kick denied (reason: '%L has higher immunity')", client, target);
             ClearVoteStrings();
+            
             return Plugin_Handled;
         }
     }
@@ -556,16 +604,16 @@ Action ClientCanKick(int client, const char[] userid)
         VoteManagerNotify(client, "%s %t", MSGTAG, "Kick Immunity", client, target);
         VoteLogAction(client, -1, "'%L' callvote kick denied (reason: '%L has kick vote immunity')", client, target);
         ClearVoteStrings();
+
         return Plugin_Handled;
     }
 
-    LogVoteManager("%T", "Kick Vote", LANG_SERVER, client, target);
-    VoteManagerNotify(client, "%s %t", MSGTAG, "Kick Vote", client, target);
-    VoteLogAction(client, -1, "'%L' callvote kick started (kickee: '%L')", client, target);
-    VoteManagerPrepareVoters(cTeam);
-    VoteManagerHandleCooldown(client);
-    VoteStatus = VOTE_POLLING;
-    flLastVote = GetEngineTime();
+    DataPack hPack = new DataPack();
+    hPack.WriteCell(GetClientUserId(client));
+    hPack.WriteCell(GetClientUserId(target));
+    hPack.WriteCell(cTeam);
+    RequestFrame(NextFrame_KickVote, hPack);
+
     return Plugin_Continue;
 }
 
@@ -777,18 +825,18 @@ bool IfVoteIsInPOLLING()
     }
 }
 
-bool HasAccess(int client, char[] g_sAcclvl)
+bool HasAccess(int client, char[] sAcclvl)
 {
 	// no permissions set
-	if (strlen(g_sAcclvl) == 0)
+	if (strlen(sAcclvl) == 0)
 		return true;
 
-	else if (StrEqual(g_sAcclvl, "-1"))
+	else if (StrEqual(sAcclvl, "-1"))
 		return false;
 
 	// check permissions
 	int flag = GetUserFlagBits(client);
-	if ( flag & ReadFlagString(g_sAcclvl) || flag & ADMFLAG_ROOT )
+	if ( flag & ReadFlagString(sAcclvl) || flag & ADMFLAG_ROOT )
 	{
 		return true;
 	}

@@ -141,8 +141,9 @@
 	{
 		"#format"	"{1:N},{2:s}"
 		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against userid {green}{2}{default}! Reason: {green}invalid player!"
-		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象: {green}{2}{default}! 原因: {green}玩家不存在!"
-		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象: {green}{2}{default}! 原因: {green}玩家不存在!"
+		"en"		"{olive}{1}{default} was prevented from starting a Kick vote against userid {green}{2}{default} ! Reason: {green}invalid player!"
+		"zho"		"{olive}{1}{default} 被阻擋發起踢人投票, 對象UserId: {green}{2}{default}! 原因: {green}玩家不存在!"
+		"chi"		"{olive}{1}{default} 被阻挡发起踢人投票, 对象UserId: {green}{2}{default}! 原因: {green}玩家不存在!"
 		"ru"		"{olive}{1}{default} не удалось начать голосование за изгнание IDпольз. {green}{2}{default}! Причина: {green}недействительный игрок!"
 	}
 	
@@ -181,4 +182,5 @@
 		"chi"		"目前无法发起新投票!"
 		"ru"		"Нельзя начать новое голосование сейчас!"
 	}
+}	
 }	
