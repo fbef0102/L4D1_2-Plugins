@@ -7,7 +7,7 @@
 
 public Plugin myinfo =
 {
-	name = "L4D auto restart",
+	name = "[L4D1/2] auto restart",
 	author = "Harry Potter, HatsuneImagin",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
 	version = PLUGIN_VERSION,
@@ -90,7 +90,7 @@ public void OnConfigsExecuted()
 		if(CheckPlayerInGame(0) == false) //沒有玩家在伺服器中
 		{
 			delete COLD_DOWN_Timer;
-			COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN);
+			COLD_DOWN_Timer = CreateTimer(20.0, Timer_COLD_DOWN);
 		}
 	}
 
@@ -147,11 +147,11 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 		g_bNoOneInServer = true;
 
 		delete COLD_DOWN_Timer;
-		COLD_DOWN_Timer = CreateTimer(15.0, COLD_DOWN);
+		COLD_DOWN_Timer = CreateTimer(15.0, Timer_COLD_DOWN);
 	}
 }
 
-Action COLD_DOWN(Handle timer, any client)
+Action Timer_COLD_DOWN(Handle timer, any client)
 {
 	if(CheckPlayerInGame(0)) //有玩家在伺服器中
 	{
@@ -162,7 +162,7 @@ Action COLD_DOWN(Handle timer, any client)
 	
 	if(CheckPlayerConnectingSV()) //沒有玩家在伺服器但是有玩家正在連線
 	{
-		COLD_DOWN_Timer = CreateTimer(20.0, COLD_DOWN); //重新計時
+		COLD_DOWN_Timer = CreateTimer(20.0, Timer_COLD_DOWN); //重新計時
 		return Plugin_Continue;
 	}
 	
@@ -259,5 +259,6 @@ Action ServerCmd_map(int client, const char[] command, int argc)
 {
 	g_bCmdMap = true;
 
+	delete COLD_DOWN_Timer;
 	return Plugin_Continue;
 }

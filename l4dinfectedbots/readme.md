@@ -1076,9 +1076,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	6. <details><summary>伺服器好像只能生成18個特感bots?</summary>
 
-		* 因為此遊戲預設人數上限為18. 請去安裝 [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz)，務必將"玩家上限"改成31
+		* 因為此遊戲預設人數上限為18. 請去安裝 [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz)，務必將"客戶端人數上限"改成31
 		<br/>![zho/l4dinfectedbots_4](image/zho/l4dinfectedbots_4.jpg)
-		* 最高只能到31玩家上限 (在問就自己去當valve員工)
+		* 最高只能到31客戶端人數上限 (在問就自己去當valve員工)
 	</details>
 
 * <details><summary>已知問題</summary>
