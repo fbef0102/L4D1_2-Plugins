@@ -191,6 +191,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 禁止玩家頻繁使用角色雷達語音
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2, sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
     * 修復切換陣營之後會導致倖存者死亡或倒地的Bug (官方的bug)
+* <b>[l4d_unreservelobby](/l4d_unreservelobby)</b>: Removes lobby reservation when server is full or empty
+    * 移除伺服器的大廳人數限制，簡單講就是解鎖伺服器，讓第九位以上的玩家透過IP或伺服器瀏覽加入伺服器
+* <b>[l4d_heartbeat](/l4d_heartbeat)</b>: Fixes survivor_max_incapacitated_count cvar increased values reverting black and white screen.
+    * 可用指令調整倖存者有多條生命與黑白狀態
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

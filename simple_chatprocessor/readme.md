@@ -7,6 +7,16 @@ Process chat and allows other plugins to manipulate chat.
 * Image | 圖示
 <br/>None
 
+* <details><summary>How does it work?</summary>
+
+	* Provides global forward for chat messages allowing other plugins to manipulate the display of chat messages such as
+		* Change chat colors
+		* Change player name
+		* Change message
+		* Change targets who can see the message
+	* You don't have to install this plugin unless other plugins require this
+</details>
+
 * Require | 必要安裝
 <br/>None
 
@@ -97,11 +107,12 @@ Process chat and allows other plugins to manipulate chat.
 輔助插件，控制玩家在聊天窗口輸入的文字與顏色
 
 * 原理
-	* 這插件只是一個輔助插件，能夠攔截玩家在聊天窗口輸入的文字
+	* 這插件只是一個輔助插件，能夠讓其他的插件攔截玩家在聊天窗口輸入的文字，譬如
+		* 改變聊天玩家的名子
+		* 改變訊息文字
+		* 改變文字顏色
+		* 改變接收到聊天的對象
 	* 等其他插件需要的時候再安裝
-
-* 功能
-	* 改變聊天中的名子、文字、顏色、接收對象
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
