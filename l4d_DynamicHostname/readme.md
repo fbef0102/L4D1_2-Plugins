@@ -70,7 +70,7 @@ Server name with txt file (Support any language)
 
 * 原理
 	* 伺服器房名只能寫英文，裝上這個插件之後，伺服器房名可以寫中文
-    * 文件```configs\hostname\server_hostname.txt```是預設的房名
+    * 文件[configs\hostname\server_hostname.txt](configs\hostname\server_hostname.txt)是預設的房名
 
 * <details><summary>改房名步驟</summary>
 

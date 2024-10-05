@@ -42,7 +42,7 @@ SM File/Folder Downloader and Precacher
 
 * <details><summary>Data Example</summary>
 
-	* ```configs\sm_downloader\downloads.ini```, this is normal downloader configuration
+	* [configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini), this is normal downloader configuration
 		```php
 		//Don't modify or remove the Comment Lines ( // )
 		//Can not download .VPK files 
@@ -62,7 +62,7 @@ SM File/Folder Downloader and Precacher
 		models/parachute/parachute_green.mdl
 		```
 
-	* ```configs\sm_downloader\downloads_simple.ini```, this is simple downloader configuration (Download Only No Precache)
+	* [configs\sm_downloader\downloads_simple.ini](addons\sourcemod\configs\sm_downloader\downloads_simple.ini), this is simple downloader configuration (Download Only No Precache)
 		```php
 		path/anymap.ext
 		path/anymap2.ext
@@ -76,7 +76,7 @@ SM File/Folder Downloader and Precacher
 		models/parachute/parachute_green.mdl
 		```
 
-	> __Note__ If you don't know which file to use, just enable and use ```configs\sm_downloader\downloads.ini```
+	> __Note__ If you don't know which file should use, just enable and use [configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini)
 </details>
 
 * <details><summary>How to make the client download custom files</summary>
@@ -158,7 +158,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 
 * <details><summary>Data設定範例</summary>
 
-	* configs\sm_downloader\downloads.ini, 這是正常版的檔案下載設定文件
+	* [configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini), 這是正常版的檔案下載設定文件
 		```php
 		//不要移除任何原有的符號 ( // )
 		//不能傳輸.vpk檔案
@@ -178,7 +178,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		models/parachute/parachute_green.mdl
 		```
 
-	* configs\sm_downloader\downloads_simple.ini, 這是簡單版的檔案下載設定文件 (只下載不預緩存)
+	* [configs\sm_downloader\downloads_simple.ini](addons\sourcemod\configs\sm_downloader\downloads_simple.ini), 這是簡單版的檔案下載設定文件 (只下載不預緩存)
 		```php
 		path/anymap.ext
 		path/anymap2.ext
@@ -192,7 +192,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		models/parachute/parachute_green.mdl
 		```
 
-	> __Note__ 如果你不知道這兩設定文件有捨差別又是在幹嗎, 建議你一律使用```configs\sm_downloader\downloads.ini```
+	> __Note__ 如果你不知道這兩設定文件有捨差別, 建議你一律使用[configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini)
 </details>
 
 * <details><summary>玩家如何下載檔案?</summary>

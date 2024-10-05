@@ -39,7 +39,7 @@ Display advertisements
 
 * <details><summary>Example Config</summary>
 
-	* configs\advertisements.txt
+	* [configs\advertisements.txt](configs\advertisements.txt)
 		```php
 		// Types
 		// -----
@@ -109,7 +109,7 @@ Display advertisements
 	* 可設置廣告音效
 
 * 文件設定
-	* configs\advertisements.txt
+	* [configs\advertisements.txt](configs\advertisements.txt)
 		```php
 		// 中文說明
 		// -----

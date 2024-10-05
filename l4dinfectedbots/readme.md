@@ -88,7 +88,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Data Config</summary>
 
-	* All settings are in ```data\l4dinfectedbots``` folder
+	* All settings are in [data/l4dinfectedbots](data/l4dinfectedbots) folder
 		* Run coop mode => plugin reads ```coop.cfg```
 		* Run versus mode => plugin reads```versus.cfg```
 		* Run survival  mode => plugin reads```survival .cfg```
@@ -684,7 +684,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>文件設定範例</summary>
 
-	* 所有功能設置都在 ```data\l4dinfectedbots``` 資料夾裡
+	* 所有功能設置都在 [data/l4dinfectedbots](data/l4dinfectedbots) 資料夾裡
 		* 當前模式是戰役 => 插件讀取```coop.cfg```
 		* 當前模式是對抗 => 插件讀取```versus.cfg```
 		* 當前模式是生存 => 插件讀取```survival.cfg```

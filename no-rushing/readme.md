@@ -42,7 +42,7 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
 * <details><summary>Data Config</summary>
 
-    * configs\no-rushing.cfg
+    * [configs\no-rushing.cfg](configs\no-rushing.cfg)
         ```php
         "no-rushing"
         {
@@ -131,7 +131,7 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
 * <details><summary>文件設定範例</summary>
 
-    * configs\no-rushing.cfg
+    * [configs\no-rushing.cfg](configs\no-rushing.cfg)
         ```php
         "no-rushing"
         {

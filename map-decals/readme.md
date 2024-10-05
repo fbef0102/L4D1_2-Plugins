@@ -68,16 +68,16 @@ Allows admins to place any decals into the map that are defined in the the confi
 
 * <details><summary>Data Example</summary>
 
-	* configs\map-decals\decal.cfg
-	```php
-	"Decals"
-	{
-		"decalname" //<-Name whatever you want
+	* [configs\map-decals\decals.cfg](addons\sourcemod\configs\map-decals\decals.cfg)
+		```php
+		"Decals"
 		{
-			"path"	"decals/TS_SERVER/TS_base" //<--decal file path, relative to the /materials/ folder
-		}
-	}	
-	```
+			"decalname" //<-Name whatever you want
+			{
+				"path"	"decals/TS_SERVER/TS_base" //<--decal file path, relative to the /materials/ folder
+			}
+		}	
+		```
 </details>
 
 * <details><summary>How do I add a new decal</summary>
@@ -97,7 +97,7 @@ Allows admins to place any decals into the map that are defined in the the confi
     		* If L4D1, ```Left 4 Dead Dedicated Server\left4dead```
     		* If L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2```
 		* Copy YOUR vtf files to the materials/decals/TS_SERVER directory, at least they should be in materials, otherwise it won't work. Edit your .vmt file with a text editor if neccesary, to change the path to the .vmt file.
-		* Add the path of the decal to the main config file "addons\sourcemod\configs\map-decals\decal.cfg". The path has to be put relative to the materials folder, and without the file extension.
+		* Add the path of the decal to the main config file [addons\sourcemod\configs\map-decals\decals.cfg](addons\sourcemod\configs\map-decals\decals.cfg). The path has to be put relative to the materials folder, and without the file extension.
 		* Prepare your content-server for FastDL, if you don't know what "FastDL" is, please google it
 
 	3. Setup server to work with downloadable content
@@ -223,16 +223,16 @@ Allows admins to place any decals into the map that are defined in the the confi
 
 * <details><summary>Data設定範例</summary>
 
-	* configs\map-decals\decal.cfg
-	```php
-	"Decals"
-	{
-		"decalname" //<-為這個塗鴉命名，可隨便取，不要中文
+	* [configs\map-decals\decals.cfg](addons\sourcemod\configs\map-decals\decals.cfg)
+		```php
+		"Decals"
 		{
-			"path"	"decals/TS_SERVER/TS_base" //<-圖片路徑，路徑必須相對於"materials"資料夾，不需要寫上副檔名，不要中文
-		}
-	}	
-	```
+			"decalname" //<-為這個塗鴉命名，可隨便取，不要中文
+			{
+				"path"	"decals/TS_SERVER/TS_base" //<-圖片路徑，路徑必須相對於"materials"資料夾，不需要寫上副檔名，不要中文
+			}
+		}	
+		```
 </details>
 
 * <details><summary>如何添加新塗鴉</summary>
@@ -254,7 +254,7 @@ Allows admins to place any decals into the map that are defined in the the confi
     		* 如果你是 L4D1，```Left 4 Dead Dedicated Server\left4dead```
     		* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server\left4dead2```
 		* 將你的vtf文件複製到materials/decals/TS_SERVER目錄下，至少應該在materials裡面，否則不行。如果需要，請使用文本編輯器編輯 .vmt 文件，以更改 .vmt 文件的路徑。
-		* 將塗鴉的路徑添加到主配置文件"addons\sourcemod\configs\map-decals\decal.cfg"。路徑必須相對於materials資料夾，不需要寫上副檔名。
+		* 將塗鴉的路徑添加到主配置文件[addons\sourcemod\configs\map-decals\decals.cfg](addons\sourcemod\configs\map-decals\decals.cfg)。路徑必須相對於materials資料夾，不需要寫上副檔名。
 		* 準備你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
 		
 	3. 設置伺服器以處理可下載的內容

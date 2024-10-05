@@ -8,6 +8,12 @@ Announces hunter pounces to the entire server, and save record to data/pounce_da
 	* Hunter High Pounce notify and Top 5 pouncers (高撲提示與前五名)
     <br/>![pounce_database_1](image/pounce_database_1.jpg)
 
+* <details><summary>How does it work?</summary>
+
+	* When hunter player does 25 high pounce damage, announces to the entire server
+	* And save record to [data/pounce_database.txt](data/pounce_database.txt)
+</details>
+
 * Require | 必要安裝
 <br/>None
 
@@ -68,7 +74,7 @@ Announces hunter pounces to the entire server, and save record to data/pounce_da
 	* 當玩家被高撲顯示提示與前五名排名
 	* 高撲Bot不會生效
 	* 倖存者隊伍有四位以上的真人玩家才會生效
-	* 高撲的數量與統計會寫入```data\pounce_database.txt```，因此就算重開服也不會重置統計
+	* 高撲的數量與統計會寫入[data/pounce_database.txt](data/pounce_database.txt)，因此就算重開服也不會重置統計
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

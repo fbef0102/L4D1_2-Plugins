@@ -86,7 +86,7 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>Data Config</summary>
   
-	* data/mapinfo.txt
+	* [data/mapinfo.txt](data/mapinfo.txt)
 		```php
 		"MapInfo"
 		{
@@ -255,7 +255,7 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>文件設定範例</summary>
   
-	* data/mapinfo.txt
+	* [data/mapinfo.txt](data/mapinfo.txt)
 		```php
 		"MapInfo"
 		{

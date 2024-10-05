@@ -22,7 +22,7 @@ Displays chat advertisements when specified text is said in player chat.
 
 * <details><summary>Data Config</summary>
 
-	* configs/chat_responses.cfg
+	* [configs\chat_responses.txt](configs\chat_responses.txt)
 		```php
         "ChatResponses"
         {
@@ -62,7 +62,7 @@ Displays chat advertisements when specified text is said in player chat.
 
 * <details><summary>文件設定範例</summary>
 
-	* configs/chat_responses.cfg
+	* [configs\chat_responses.txt](configs\chat_responses.txt)
 		```php
         "ChatResponses"
         {

@@ -1,5 +1,5 @@
 # Description | 內容
-Announce hunter skeet to the entire server, and save record to data/skeet_database.tx
+Announce hunter skeet to the entire server, and save record to data/skeet_database.txt
 
 * Video | 影片展示
 <br/>None
@@ -7,6 +7,12 @@ Announce hunter skeet to the entire server, and save record to data/skeet_databa
 * Image | 圖示
 	* Hunter Skeet notify and Top 5 Skeeters (一槍秒殺Hunter的提示與前五名)
     <br/>![skeet_database_1](image/skeet_database_1.jpg)
+
+* <details><summary>How does it work?</summary>
+
+	* When player skeets hunter in one shot, announces to the entire server
+	* And save record to [data/skeet_database.txt](data/skeet_database.txt)
+</details>
 
 * Require | 必要安裝
 <br/>None
@@ -74,7 +80,7 @@ Announce hunter skeet to the entire server, and save record to data/skeet_databa
 	* 當真人Hunter飛撲過程中被玩家一槍秒殺的時候，顯示提示與前五名排名
 	* Hunter Bot不會生效
 	* 倖存者隊伍有四位以上的真人玩家才會生效
-	* 秒殺的數量與統計會寫入```data\skeet_database.txt```，因此就算重開服也不會重置統計
+	* 秒殺的數量與統計會寫入[data/skeet_database.txt](data/skeet_database.txt)，因此就算重開服也不會重置統計
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

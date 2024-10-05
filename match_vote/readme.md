@@ -44,7 +44,7 @@ Type !match/!load/!mode to vote a new mode
 
 * <details><summary>Data Config</summary>
 
-    * ```configs/matchmodes.cfg```
+    * [configs/matchmodes.txt](addons/sourcemod/configs/matchmodes.txt)
         ```php
         "Settings"
         {
@@ -135,7 +135,7 @@ Type !match/!load/!mode to vote a new mode
 
 * <details><summary>Data設定範例</summary>
 
-    * ```configs/matchmodes.cfg```
+    * [configs/matchmodes.txt](addons/sourcemod/configs/matchmodes.txt)
         ```php
         "Settings"
         {

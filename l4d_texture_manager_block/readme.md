@@ -11,7 +11,7 @@ Kicks out clients who are potentially attempting to enable mathack
 
 * <details><summary>How does it work?</summary>
 
-    * Kick players if they try to modify the cvars in ```configs\l4d_texture_manager_block.cfg```
+    * Kick players if they try to modify the cvars in [configs\l4d_texture_manager_block.cfg](configs\l4d_texture_manager_block.cfg)
         * Add more cvars if you want
     * Record hackers in ```sourcempd\logs\l4d_texture_manager_block.log```
 </details>
@@ -44,7 +44,7 @@ Kicks out clients who are potentially attempting to enable mathack
 
 * <details><summary>Data Config</summary>
 
-	* ```configs/l4d_texture_manager_block.cfg```
+	* [configs/l4d_texture_manager_block.cfg](configs/l4d_texture_manager_block.cfg)
 		```php
         // <cvar> cvar name
         // <action> 0=Kick clients, 1=Record only, in log file(sourcemod/logs/l4d_texture_manager_block.log), Other value: Ban minutes
@@ -88,7 +88,7 @@ Kicks out clients who are potentially attempting to enable mathack
 
 * 原理
     * 幫玩家檢測指令，如有發現試圖使用或超出範圍將踢出伺服器
-    * 檢測的指令表位於```configs\l4d_texture_manager_block.cfg```
+    * 檢測的指令表位於[configs\l4d_texture_manager_block.cfg](configs\l4d_texture_manager_block.cfg)
         * 如你有發現更多作弊指令想新增檢測，請自行增加
     * 紀錄文件於```sourcempd\logs\l4d_texture_manager_block.log```
 
@@ -112,7 +112,7 @@ Kicks out clients who are potentially attempting to enable mathack
 
 * <details><summary>文件設定範例</summary>
 
-	* ```configs/l4d_texture_manager_block.cfg```
+	* [configs/l4d_texture_manager_block.cfg](configs/l4d_texture_manager_block.cfg)
 		```php
         // <cvar> 指令名稱
         // <hasMin> 1=檢查最小值, 0=不檢查最小值

@@ -16,7 +16,7 @@ Gag & Mute & Ban - Ex
         * ```sm_exban``` to ban player
         * ```sm_exgag``` to gag player (Unable to type any words in chatbox)
         * ```sm_exmute``` to mute player (Unable to use microphone)
-    * The database of players with gag & mute & ban: ```data/gagmutebanex.txt```
+    * The database of players with gag & mute & ban: [data/gagmutebanex.txt](data/gagmutebanex.txt)
         * Before ban timeout, player still got banned even if he rejoins server
         * Before gag/mute timeout, player still got gag or mute even if he rejoins server
     * Records all actions about gag & mute & ban: ```logs/GagMuteBan.log```
@@ -83,7 +83,7 @@ Gag & Mute & Ban - Ex
     * The database of players with gag & mute & ban
     * 🟥 DO NOT Modify this file unless you know what you are doing
     * [Search Steam64 ID](https://steamid.xyz/), [Unix Timestamp](https://www.unixtimestamp.com/)
-	* ```data/gagmutebanex.txt```
+	* [data/gagmutebanex.txt](data/gagmutebanex.txt)
 		```php
         "gagmuteban"
         {
@@ -118,7 +118,7 @@ Gag & Mute & Ban - Ex
         * unban - ```sm_unban <steamid>```
         * ungag - ```sm_ungag <target>```
         * unmute - ```sm_unmute <target>```
-        * If the above cvars didn't work, modify file ```data/gagmutebanex.txt``` => Search Player's Steam64 ID => delete => save file => restart server
+        * If the above cvars didn't work, modify file [data/gagmutebanex.txt](data/gagmutebanex.txt) => Search Player's Steam64 ID => delete => save file => restart server
 </details>
 
 * Apply to | 適用於
@@ -172,7 +172,7 @@ Gag & Mute & Ban - Ex
         * ```sm_exban``` 封鎖玩家
         * ```sm_exgag``` 禁言玩家 (不能打字發言)
         * ```sm_exmute``` 禁音玩家 (不能用麥克風發出聲音)
-    * 封鎖/禁音/禁言 的玩家資料將儲存於: ```data/gagmutebanex.txt```
+    * 封鎖/禁音/禁言 的玩家資料將儲存於: [data/gagmutebanex.txt](data/gagmutebanex.txt)
         * 封鎖時間到之前，下次玩家進入伺服器依然被封鎖
         * 禁言/禁音時間到之前，下次玩家進入伺服器依然被禁言/禁音
     * 所有封鎖/禁音/禁言紀錄將保存在 ```logs/GagMuteBan.log```
@@ -236,7 +236,7 @@ Gag & Mute & Ban - Ex
     * 封鎖/禁音/禁言 的玩家資料
     * 🟥 不要修改此文件除非你知道這是在幹嗎
     * [找出玩家的Steam64 ID](https://steamid.xyz/), [Unix Timestamp轉換為時間](https://www.unixtimestamp.com/)
-	* ```data/gagmutebanex.txt```
+	* [data/gagmutebanex.txt](data/gagmutebanex.txt)
 		```php
         "gagmuteban"
         {
@@ -272,5 +272,5 @@ Gag & Mute & Ban - Ex
         * 解除封鎖 - ```sm_unban <steamid>```
         * 解除禁言 - ```sm_ungag <target>```
         * 解除禁音 - ```sm_unmute <target>```
-        * 如果以上方法無效，請自行修改檔案 ```data/gagmutebanex.txt``` => 尋找玩家的Steam ID64 => 刪除 => 儲存 => 重啟
+        * 如果以上方法無效，請自行修改檔案 [data/gagmutebanex.txt](data/gagmutebanex.txt) => 尋找玩家的Steam ID64 => 刪除 => 儲存 => 重啟
 </details>

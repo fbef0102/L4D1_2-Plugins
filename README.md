@@ -124,9 +124,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復Source引擎的bug，看不見spritetrail物件的發光效果
 * <b>[l4d_kickloadstuckers](/l4d_kickloadstuckers)</b>: Kicks Clients that get stuck in server connecting state
     * 踢出卡Loading連線中的玩家
-* <b>[pounce_database](/pounce_database)</b>: Top Pounce Announce (Data Support)
+* <b>[pounce_database](/pounce_database)</b>: Top Hunter Pounce Announce (Data Support)
     * 統計高撲的數量與顯示前五名高撲的大佬 (支援文件儲存)
-* <b>[skeet_database](/skeet_database)</b>: Top Skeet Announce (Data Support)
+* <b>[skeet_database](/skeet_database)</b>: Top Skeet Hunter Announce (Data Support)
     * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度

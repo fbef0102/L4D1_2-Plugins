@@ -13,7 +13,7 @@ In-game Help Menu (Support Translation)
 
 * <details><summary>Data & Translation Example</summary>
 
-	* configs/helpmenu.cfg
+	* [configs/helpmenu.cfg](configs/helpmenu.cfg)
 		```php
 		"Help"
 		{
@@ -42,7 +42,7 @@ In-game Help Menu (Support Translation)
 		}
 		```
 
-	* translations/helpmenu.phrases.txt
+	* [translations/helpmenu.phrases.txt](translations/helpmenu.phrases.txt)
 		```php
 		"Phrases"
 		{
@@ -179,7 +179,7 @@ In-game Help Menu (Support Translation)
 
 * <details><summary>文件設定 範例</summary>
 
-	* 選單配置: configs/helpmenu.cfg
+	* 選單配置: [configs/helpmenu.cfg](configs/helpmenu.cfg)
 		```php
 		"Help"
 		{
@@ -208,7 +208,7 @@ In-game Help Menu (Support Translation)
 		}
 		```
 
-	* 翻譯文件: translations/helpmenu.phrases.txt
+	* 翻譯文件: [translations/helpmenu.phrases.txt](translations/helpmenu.phrases.txt)
 		```php
 		"Phrases"
 		{
