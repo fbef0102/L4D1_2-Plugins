@@ -115,6 +115,9 @@ int
 float 
 	g_fTempHealth[MAXPLAYERS+1];
 
+StringMap 
+	g_smIgnoreClassName;
+
 public void OnPluginStart()
 {
 	GameDataWrapper gamedata = new GameDataWrapper("anti_friendly_fire");
@@ -163,6 +166,9 @@ public void OnPluginStart()
 
 	HookEvent("player_hurt", Event_Hurt);
 	//HookEvent("player_incapacitated_start", Event_IncapacitatedStart);
+
+	g_smIgnoreClassName = new StringMap();
+	g_smIgnoreClassName.SetValue("insect_swarm", true); // Vomitjar Puddle Spit: https://forums.alliedmods.net/showthread.php?p=2789012
 
 	if(g_bLate)
 	{
@@ -379,19 +385,21 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 {
 	if (g_bEnable == false || g_bGod == true ) return MRES_Ignored;
 
-	int attacker, inflictor;
+	int attacker, inflictor, damagetype;
 	float damage;
 	if(g_bL4D2Version)
 	{
 		attacker 	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D2::m_hAttacker *4, ObjectValueType_Ehandle);
 		inflictor 	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D2::m_hInflictor *4, ObjectValueType_Ehandle);
-		damage 	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D2::m_flDamage *4, ObjectValueType_Float);
+		damage 		= hParams.GetObjectVar(1, CTakeDamageInfo_L4D2::m_flDamage *4, ObjectValueType_Float);
+		damagetype	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D2::m_bitsDamageType *4, ObjectValueType_Int);
 	}
 	else
 	{
 		attacker 	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D1::m_hAttacker *4, ObjectValueType_Ehandle);
 		inflictor 	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D1::m_hInflictor *4, ObjectValueType_Ehandle);
-		damage 	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D1::m_flDamage *4, ObjectValueType_Float);
+		damage 		= hParams.GetObjectVar(1, CTakeDamageInfo_L4D1::m_flDamage *4, ObjectValueType_Float);
+		damagetype	= hParams.GetObjectVar(1, CTakeDamageInfo_L4D1::m_bitsDamageType *4, ObjectValueType_Int);
 	}
 
 	if (damage <= 0.0 ||
@@ -411,18 +419,19 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 		static char WeaponName[CLASSNAME_LENGTH];
 		GetEntityClassname(inflictor, WeaponName, sizeof(WeaponName));
 		//PrintToChatAll("WeaponName: %s", WeaponName);	
+		if(g_smIgnoreClassName.ContainsKey(WeaponName) == true) return MRES_Ignored;
 
-		if(IsPipeBombExplode_OnTakeDamage(WeaponName)) 
-		{
-			bIsSpecialWeapon = true;
-			if(g_bPipeBombDisable == false) return MRES_Ignored;
-		}
-		else if(IsFire(WeaponName) || IsFireworkcrate(WeaponName))
+		if( (damagetype & DMG_BURN) && !(damagetype & DMG_BULLET) )
 		{
 			bIsSpecialWeapon = true;
 			if(g_bFireDisable== false) return MRES_Ignored;
 		}
-		else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
+		else if(strncmp(WeaponName, "pipe_bomb_projectile", 20, false) == 0) 
+		{
+			bIsSpecialWeapon = true;
+			if(g_bPipeBombDisable == false) return MRES_Ignored;
+		}
+		else if(g_bL4D2Version && strncmp(WeaponName, "grenade_launcher_projectile", 27, false) == 0 ) 
 		{
 			if(g_bGLDisable == false) return MRES_Ignored;
 		}
@@ -457,6 +466,7 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int damage = event.GetInt("dmg_health");
+	int damagetype = event.GetInt("type");
 	if(attacker == victim || 
 	!IsClientAndInGame(attacker) || 
 	!IsClientAndInGame(victim) || 
@@ -466,23 +476,23 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 	damage <= 0 ||
 	damage <= g_iDamageShield) { return; }
 	
-	
 	static char WeaponName[CLASSNAME_LENGTH];
 	event.GetString("weapon", WeaponName, sizeof(WeaponName));
 	//PrintToChatAll("victim: %N, attacker:%N , WeaponName: %s, damage: %d", victim, attacker, WeaponName, damage);
+	if(g_smIgnoreClassName.ContainsKey(WeaponName) == true) return;
 	
 	bool bIsSpecialWeapon = false;
-	if(IsPipeBombExplode(WeaponName)) 
-	{
-		bIsSpecialWeapon = true;
-		if(g_bPipeBombDisable == false) return;
-	}
-	else if(IsFire(WeaponName) || IsFireworkcrate(WeaponName))
+	if( (damagetype & DMG_BURN) && !(damagetype & DMG_BULLET) )
 	{
 		bIsSpecialWeapon = true;
 		if(g_bFireDisable== false) return;
 	}
-	else if(g_bL4D2Version && IsGLExplode(WeaponName)) 
+	else if(strncmp(WeaponName, "pipe_bomb", 20, false) == 0) 
+	{
+		bIsSpecialWeapon = true;
+		if(g_bPipeBombDisable == false) return;
+	}
+	else if(g_bL4D2Version && strncmp(WeaponName, "grenade_launcher_projectile", 27, false) == 0 ) 
 	{
 		//bIsSpecialWeapon = true;
 		if(g_bGLDisable == false) return;
@@ -549,31 +559,6 @@ bool IsClientAndInGame(int client)
 	}
 	return false;
 }
-
-bool IsFire(char[] classname)
-{
-	return strcmp(classname, "inferno") == 0 || strcmp(classname, "entityflame") == 0;
-} 
-
-bool IsPipeBombExplode(char[] classname)
-{
-	return StrEqual(classname, "pipe_bomb");
-} 
-
-bool IsPipeBombExplode_OnTakeDamage(char[] classname)
-{
-	return StrEqual(classname, "pipe_bomb_projectile");
-} 
-
-bool IsGLExplode(char[] classname)
-{
-	return StrEqual(classname, "grenade_launcher_projectile");
-} 
-
-bool IsFireworkcrate(char[] classname)
-{
-	return StrEqual(classname, "fire_cracker_blast");
-} 
 
 bool IsClientInGodFrame( int client )
 {
