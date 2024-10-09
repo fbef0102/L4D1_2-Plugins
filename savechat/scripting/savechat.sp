@@ -83,7 +83,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 	if(client < 0 || client > MaxClients)
 		return Plugin_Continue;
 
-	if (client > 0 && BaseComm_IsClientGagged(client) == true) //this client has been gagged
+	if (client > 0 && IsClientInGame(client) && BaseComm_IsClientGagged(client) == true) //this client has been gagged
 		return Plugin_Continue;	
 
 	if (strcmp(command, "say_team") == 0)

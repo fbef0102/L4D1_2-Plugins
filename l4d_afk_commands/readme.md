@@ -204,6 +204,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.3 (2024-10-9)
+		* Block team switch when QueuedPummel
+
 	* v5.2 (2024-4-30)
 		* Update translation
 

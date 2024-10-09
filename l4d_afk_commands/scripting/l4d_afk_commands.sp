@@ -67,7 +67,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.2-2024/4/30"
+#define PLUGIN_VERSION 		"5.3-2024/10/9"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -113,10 +113,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 static const char WITCH_NAME[]		= "witch";
 
-#define STEAMID_SIZE 		32
 #define L4D_TEAM_NAME(%1) (%1 == 2 ? "Survivors" : (%1 == 3 ? "Infected" : (%1 == 1 ? "Spectators" : "Unknown")))
-const int ARRAY_TEAM = 1;
-const int ARRAY_COUNT = 2;
 #define MODEL_CRATE				"models/props_junk/explosive_box001.mdl"
 #define MODEL_GASCAN			"models/props_junk/gascan001a.mdl"
 #define MODEL_BARREL			"models/props_industrial/barrel_fuel.mdl"
@@ -143,16 +140,18 @@ bool g_bHasLeftSafeRoom, g_bGameTeamSwitchBlock;
 
 //arraylist
 ArrayList 
-	g_alClientSwitchTeam,
 	g_alClientAttackedByWitch[MAXPLAYERS+1], 	//每個玩家被多少個witch攻擊
 	g_alClientThrowable[MAXPLAYERS+1], 			//每個玩家所投擲的投擲物entity
 	g_alClientGrenade[MAXPLAYERS+1]; 			//每個玩家所發射的榴彈entity
 
+StringMap
+	g_smClientSwitchTeam; 			//玩家曾經待的隊伍 (1: 旁觀者, 2: 活著的倖存者, 3: 感染者)
+
 //timer
 int g_iRoundStart, g_iPlayerSpawn;
-Handle PlayerLeftStartTimer, CountDownTimer;
+Handle PlayerLeftStartTimer, CountDownTimer,
+	g_hInCoolDownTimer[MAXPLAYERS+1];//是否還有換隊冷卻時間
 
-bool InCoolDownTime[MAXPLAYERS+1] = {false};//是否還有換隊冷卻時間
 bool bClientJoinedTeam[MAXPLAYERS+1] = {false}; //在冷卻時間是否嘗試加入
 float g_iSpectatePenaltTime[MAXPLAYERS+1] ;//各自的冷卻時間
 float fBreakPropTime[MAXPLAYERS+1] ;//點燃火瓶、汽油或油桶的時間
@@ -276,7 +275,7 @@ public void OnPluginStart()
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("break_prop",	Event_BreakProp,		EventHookMode_Pre);
 
-	g_alClientSwitchTeam = new ArrayList(ByteCountToCells(STEAMID_SIZE));
+	g_smClientSwitchTeam = new StringMap();
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -311,7 +310,7 @@ public void OnPluginEnd()
 	ResetTimer();
 	ClearDefault();
 	
-	delete g_alClientSwitchTeam;
+	delete g_smClientSwitchTeam;
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		delete g_alClientAttackedByWitch[i];
@@ -334,8 +333,7 @@ public void OnLibraryRemoved(const char[] name)
 
 public void OnMapStart()
 {
-	delete g_alClientSwitchTeam;
-	g_alClientSwitchTeam = new ArrayList(ByteCountToCells(STEAMID_SIZE));
+
 }
 
 public void OnMapEnd()
@@ -343,6 +341,8 @@ public void OnMapEnd()
 	ResetClient();
 	ResetTimer();
 	ClearDefault();
+
+	g_smClientSwitchTeam.Clear();
 }
 
 Action Command_SwapTo(int client, int args)
@@ -464,21 +464,6 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	g_alClientAttackedByWitch[victim] = new ArrayList();
 	g_alClientThrowable[victim] = new ArrayList();
 	g_alClientGrenade[victim] = new ArrayList();
-
-	if((g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0) && IsClientInGame(victim) && !IsFakeClient(victim) && GetClientTeam(victim) == 2)
-	{
-		char steamID[STEAMID_SIZE];
-		GetClientAuthId(victim, AuthId_Steam2,steamID, STEAMID_SIZE);
-		int index = g_alClientSwitchTeam.FindString(steamID);
-		if (index == -1) {
-			g_alClientSwitchTeam.PushString(steamID);
-			g_alClientSwitchTeam.Push(4);
-		}
-		else
-		{
-			g_alClientSwitchTeam.Set(index + ARRAY_TEAM, 4);
-		}			
-	}
 }
 
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
@@ -489,11 +474,10 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 
 	int userid = event.GetInt("userid");
 	int player = GetClientOfUserId(userid);
-	if(player > 0 && player <=MaxClients && IsClientInGame(player) && !IsFakeClient(player))
+	if(player > 0 && player <= MaxClients && IsClientInGame(player) && !IsFakeClient(player))
 	{
 		if (GetClientTeam(player) == 2)
 		{
-			CreateTimer(2.0,checksurvivorspawn, userid);
 			ClientJoinSurvivorTime[player] = GetEngineTime();
 		}
 		else if (GetClientTeam(player) == 3)
@@ -521,27 +505,6 @@ void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
 			if(g_fBreakPropCooldown > 0.0) fBreakPropTime[client] = GetEngineTime() + g_fBreakPropCooldown;
 		}
 	}
-}
-
-Action checksurvivorspawn(Handle timer, int client)
-{
-	client = GetClientOfUserId(client);
-	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0 && client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
-	{
-		char steamID[STEAMID_SIZE];
-		GetClientAuthId(client, AuthId_Steam2,steamID, STEAMID_SIZE);
-		int index = g_alClientSwitchTeam.FindString(steamID);
-		if (index == -1) {
-			g_alClientSwitchTeam.PushString(steamID);
-			g_alClientSwitchTeam.Push(2);
-		}
-		else
-		{
-			g_alClientSwitchTeam.Set(index + ARRAY_TEAM, 2);
-		}			
-	}
-
-	return Plugin_Continue;
 }
 
 public void OnClientPutInServer(int client)
@@ -692,9 +655,8 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
-	for (int i = 0; i < (g_alClientSwitchTeam.Length / ARRAY_COUNT); i++) {
-		g_alClientSwitchTeam.Set( (i * ARRAY_COUNT) + ARRAY_TEAM, 0);
-	}
+	delete g_smClientSwitchTeam;
+	g_smClientSwitchTeam = new StringMap();
 	
 	ResetClient();
 
@@ -751,9 +713,22 @@ Action Timer_CountDown(Handle timer)
 	if(g_iCountDownTime <= 0) 
 	{
 		g_bGameTeamSwitchBlock = true;
+
+		static char steamID[32];
+		for(int client = 1; client <= MaxClients; client++)
+		{
+			if(!IsClientInGame(client)) continue;
+			if(IsFakeClient(client)) continue;
+			if(GetClientTeam(client) <= 1) continue;
+
+			GetClientAuthId(client, AuthId_SteamID64, steamID, sizeof(steamID));
+			g_smClientSwitchTeam.SetValue(steamID, GetClientTeam(client));
+		}
+
 		CountDownTimer = null;
 		return Plugin_Stop;
 	}
+
 	g_iCountDownTime--;
 	return Plugin_Continue;
 }
@@ -764,7 +739,7 @@ void ResetClient(int client = -1)
 	{
 		for(int i = 1; i <= MaxClients; i++)
 		{	
-			InCoolDownTime[i] = false;
+			delete g_hInCoolDownTimer[i];
 			bClientJoinedTeam[i] = false;
 			clientteam[i] = 0;
 			fBreakPropTime[i] = 0.0;
@@ -784,7 +759,7 @@ void ResetClient(int client = -1)
 	}	
 	else
 	{
-		InCoolDownTime[client] = false;
+		delete g_hInCoolDownTimer[client];
 		bClientJoinedTeam[client] = false;
 		clientteam[client] = 0;
 		fBreakPropTime[client] = 0.0;
@@ -1384,7 +1359,7 @@ Action CommandListener_SpecNext(int client, char[] command, int argc)
 		{
 			if(HasAccess(client, g_sImmuneAcclvl))return Plugin_Continue;
 
-			if(InCoolDownTime[client])
+			if(g_hInCoolDownTimer[client] != null)
 			{
 				bClientJoinedTeam[client] = true;
 				PrintHintText(client, "%T", "Idle Wait" , client, g_iSpectatePenaltTime[client]);
@@ -1459,7 +1434,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 
 	int team = GetClientTeam(client);
 
-	if(InCoolDownTime[client])
+	if(g_hInCoolDownTimer[client] != null)
 	{
 		bClientJoinedTeam[client] = true;
 		CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
@@ -1548,12 +1523,16 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 
 void StartChangeTeamCoolDown(int client)
 {
-	if( InCoolDownTime[client] || g_bHasLeftSafeRoom == false || HasAccess(client, g_sImmuneAcclvl)) return;
+	if( IsFakeClient(client) 
+	|| g_bHasLeftSafeRoom == false 
+	|| g_hInCoolDownTimer[client] != null
+	|| HasAccess(client, g_sImmuneAcclvl)) return;
+	
 	if(g_fCoolTime > 0.0)
 	{
-		InCoolDownTime[client] = true;
 		g_iSpectatePenaltTime[client] = g_fCoolTime;
-		CreateTimer(0.25, Timer_CanJoin, client, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		delete g_hInCoolDownTimer[client];
+		g_hInCoolDownTimer[client] = CreateTimer(0.25, Timer_CanJoin, client, TIMER_REPEAT);
 	}
 }
 
@@ -1580,42 +1559,29 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 
 	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0)
 	{
-		if(newteam != 1)
+		if(newteam >= 2)
 		{
-			char steamID[STEAMID_SIZE];
-			GetClientAuthId(client, AuthId_Steam2, steamID, STEAMID_SIZE);
-			int index = g_alClientSwitchTeam.FindString(steamID);
-			if (index == -1) {
-				g_alClientSwitchTeam.PushString(steamID);
-				g_alClientSwitchTeam.Push(newteam);
-			}
-			else
+			static char steamID[32];
+			GetClientAuthId(client, AuthId_SteamID64, steamID, sizeof(steamID));
+
+			int oldteam;
+			if(g_smClientSwitchTeam.GetValue(steamID, oldteam) == true)
 			{
-				int oldteam = g_alClientSwitchTeam.Get(index + ARRAY_TEAM);
-				if(!g_bHasLeftSafeRoom || oldteam == 0)
-					g_alClientSwitchTeam.Set(index + ARRAY_TEAM, newteam);
-				else
+				//PrintToChatAll("%N newteam: %d, oldteam: %d",client,newteam,oldteam);
+				if(newteam != oldteam)
 				{
-					//PrintToChatAll("%N newteam: %d, oldteam: %d",client,newteam,oldteam);
-					if(newteam != oldteam)
-					{
-						if(g_bDeadSurvivorBlock && oldteam == 4 && !(newteam == 2 && !IsPlayerAlive(client)) ) //player survivor death
-						{
-							ChangeClientTeam(client,1);
-							CPrintToChat(client,"[{olive}TS{default}] %T","You are a dead survivor",client);
-						}
-						else if(oldteam != 4)
-						{
-							ChangeClientTeam(client,1);
-							CPrintToChat(client,"[{olive}TS{default}] %T","Go Back Your Team",client,(oldteam == 2) ? "Survivor" : "Infected");
-						}
-					}
+					ChangeClientTeam(client,1);
+					CPrintToChat(client,"[{olive}TS{default}] %T","Go Back Your Team",client,(oldteam == 3) ? "Infected" : "Survivor");
+					
+					return Plugin_Continue;
 				}
-			}		
+			}
+
+			g_smClientSwitchTeam.SetValue(steamID, newteam);
 		}
 	}
 	
-	if(g_bHasLeftSafeRoom && InCoolDownTime[client]) return Plugin_Continue;
+	if(g_bHasLeftSafeRoom && g_hInCoolDownTimer[client] != null) return Plugin_Continue;
 	
 	//PrintToChatAll("client: %N change Team: %d newteam:%d",client,newteam,clientteam[client]);
 	if(newteam != clientteam[client])
@@ -1631,19 +1597,18 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 
 Action Timer_CanJoin(Handle timer, int client)
 {
-	if (!InCoolDownTime[client] || 
-	!IsClientInGame(client) || 
-	IsFakeClient(client))//if client disconnected or is fake client or take a break on player bot
+	if (!IsClientInGame(client))
 	{
-		InCoolDownTime[client] = false;
+		g_hInCoolDownTimer[client] = null;
 		return Plugin_Stop;
 	}
 
+	int team = GetClientTeam(client);
 	
 	if (g_iSpectatePenaltTime[client] != 0)
 	{
 		g_iSpectatePenaltTime[client]-=0.25;
-		if(GetClientTeam(client)!=clientteam[client])
+		if(team >= 2 && team != clientteam[client])
 		{	
 			bClientJoinedTeam[client] = true;
 			CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
@@ -1653,19 +1618,20 @@ Action Timer_CanJoin(Handle timer, int client)
 	}
 	else if (g_iSpectatePenaltTime[client] <= 0)
 	{
-		if(GetClientTeam(client)!=clientteam[client])
+		if(team >= 2 && team != clientteam[client])
 		{	
 			bClientJoinedTeam[client] = true;
 			CPrintToChat(client, "[{olive}TS{default}]] %T","Please wait",client, g_iSpectatePenaltTime[client]);
-			ChangeClientTeam(client, 1);clientteam[client]=1;
+			ChangeClientTeam(client, 1); clientteam[client]=1;
 		}
 		if (bClientJoinedTeam[client])
 		{
 			PrintHintText(client, "%T","You can change team now.",client);	//only print this hint text to the spectator if he tried to join team, and got swapped before
 		}
-		InCoolDownTime[client] = false;
+
 		bClientJoinedTeam[client] = false;
 		g_iSpectatePenaltTime[client] = g_fCoolTime;
+		g_hInCoolDownTimer[client] = null;
 		return Plugin_Stop;
 	}
 	
@@ -1691,6 +1657,13 @@ int GetInfectedAttacker(int client)
 		{
 			return attacker;
 		}
+
+		attacker = L4D2_GetQueuedPummelAttacker(client);
+		if(attacker > 0)
+		{
+			return attacker;
+		}
+
 		/* Jockey */
 		attacker = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
 		if (attacker > 0)
@@ -1730,6 +1703,12 @@ int GetSurvivorVictim(int client)
 		}
 
 		victim = GetEntPropEnt(client, Prop_Send, "m_carryVictim");
+		if (victim > 0)
+		{
+			return victim;
+		}
+
+		victim = L4D2_GetQueuedPummelVictim(client);
 		if (victim > 0)
 		{
 			return victim;
