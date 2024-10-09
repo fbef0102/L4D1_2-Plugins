@@ -39,19 +39,20 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		11. Team is unbalance in Versus/Scavenge Mode.
 		12. Getting up or staggering animation.
 		13. Firing the grenade launcher
-	* Start all 'block' limits once survivor has left the saferoom or survival/scavenge begins
+		14. Covered with bile
+	* 🟥 Start all 'block' limits once survivor has left the saferoom or survival/scavenge begins
 </details>
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	3. Optional - [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Versus_對抗模式/l4d_team_unscramble)
+	3. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
 
 * <details><summary>ConVar</summary>
 
 	* cfg/sourcemod/l4d_afk_commands.cfg
 		```php
-		// Cold Down Time in seconds a player can not change team gain after he switches team. (0=off)
+		// Cold Down Time in seconds a player can not change team again after switches team. (0=off)
 		l4d_afk_commands_changeteam_cooltime_block "10.0"
 
 		// If 1, Dead Survivor player can not switch team.
@@ -60,21 +61,24 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// Player can not switch team after players have left stat safe area for at least x seconds (0=off).
 		l4d_afk_commands_during_game_seconds_block "0"
 
-		// If 1, Player can not change team when he is capped by secial infected.
+		// If 1, Player can not change team while capped by special infected.
 		l4d_afk_commands_infected_attack_block "1"
 
-		// If 1, Player can not change team when he startle witch r being attacked by witch.
+		// If 1, Player can not change team if startles witch or while being attacked by witch.
 		l4d_afk_commands_witch_attack_block "1"
 
 		// Allow alive survivor player suicide by using '!zs' afte joining survivor team for at least X seconds. 
 		// 0=Disable !zs
 		l4d_afk_commands_suicide_allow_second "30.0"
 
-		// If 1, Player can not change team when he is reloading te weapon.
+		// If 1, Player can not change team while reloading the weapon.
 		l4d_afk_commands_weapon_reload_block "1"
 
-		// If 1, Player can not change team while he is getting upor staggering.
+		// If 1, Player can not change team while getting up or staggering.
 		l4d_afk_commands_getup_stagger_block "1"
+
+		// If 1, Player can not change team while covered in bile.
+		l4d_afk_commands_get_vomit_block "1"
 
 		// If 1, Player can not change team after throwing molotov, pipe bomb or boomer juice. (0=off).
 		l4d_afk_commands_throwable_block "1"
@@ -94,10 +98,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// If 1, Block player from using 'sb_takecontrol' command in console.
 		l4d_afk_commands_takecontrol_block "1"
 
-		// If 1, Infected player can not change team when he has pouced/ridden/charged/smoked a survivor.
+		// If 1, Infected player can not change team while pouncing/ridding/charging/pulling a survivor.
 		l4d_afk_commands_infected_cap_block "1"
 
-		// Cold Down Time in seconds an infected player can not chage team after he is spawned as a special infected. (0=off).
+		// Cold Down Time in seconds an infected player can not change team after spawned alive (Not ghost, 0=off).
 		l4d_afk_commands_infected_spawn_cooltime_block "10.0"
 		
 		// Players with these flags have immune to all 'block' limit(Empty = Everyone, -1: Nobody)
@@ -202,7 +206,18 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 	```
 </details>
 
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble): Puts players on the right team after map/campaign change and provides API.
+		* 換圖或者換關卡之後，將玩家還原到上次所在的隊伍
+</details>
+
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v5.4 (2024-10-10)
+		* Block team switch when survivor is coverd with bile
+		* Update translation
+		* Update cvars
 
 	* v5.3 (2024-10-9)
 		* Block team switch when QueuedPummel
@@ -287,9 +302,6 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		4. 控制台輸入```sb_takecontrol <Nick|Ellis|Rochelle|Coach|Bill|Zoey|Francis|Louis>```
 		<br/>![l4d_afk_commands_3](image/zho/l4d_afk_commands_4.jpg)
 	* 盡量不要安裝其他也有換隊指令的插件，否則換隊衝突後果自負
-	* 遊戲開始之後所有關於切換隊伍的限制才會生效
-		* 離開安全區域
-		* 生存模式計時開始
 	* 有以下情況不能使用命令換隊，否則強制旁觀
 		1. 嚇到Witch或者Witch正在攻擊你
 		2. 被特感抓住的期間
@@ -304,6 +316,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		11. 對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊
 		12. 起身或硬直狀態中禁止換隊
 		13. 玩家發射榴彈期間禁止換隊
+		14. 膽汁淋在身上 (防止略過被噴的綠色螢幕)
+	* 🟥 遊戲開始之後所有關於切換隊伍的限制才會生效
+		* 離開安全區域
+		* 生存模式計時開始
 </details>
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
@@ -334,6 +350,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 		// 為1時，起身或硬直狀態中禁止換隊
 		l4d_afk_commands_getup_stagger_block "1"
+
+		// 為1時，倖存者被膽汁淋在身上時禁止換隊
+		l4d_afk_commands_get_vomit_block "1"
 
 		// 為1時，倖存者投擲火瓶、土製炸彈、膽汁瓶期間禁止換隊
 		l4d_afk_commands_throwable_block "1"

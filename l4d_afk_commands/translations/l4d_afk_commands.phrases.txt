@@ -359,4 +359,10 @@
 		"zho"			"請等待 {1} 秒遊玩倖存者."
 		"chi"			"请等待 {1} 秒游玩幸存者."
 	}
+	"Bile Block"
+	{
+		"en" 	"Can not change team while covered in bile!"
+		"zho" 	"被膽汁淋在身上時禁止換隊"
+		"chi" 	"被胆汁淋在身上时禁止换队"
+	}
 }

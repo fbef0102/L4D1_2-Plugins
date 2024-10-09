@@ -14,6 +14,7 @@
 * 11.對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊 (防止一方的玩家數量過多)
 * 12.起身或硬直狀態中禁止換隊 (防止略過硬直狀態)
 * 13.玩家發射榴彈期間禁止換隊 (防止友傷bug、防止Witch失去目標)
+* 14. 膽汁淋在身上 (防止略過被噴的綠色螢幕)
 *
 * Admin 功能
 * 1.管理員可以強制玩家更換隊伍 "sm_swapto <player> <team>"
@@ -67,7 +68,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.3-2024/10/9"
+#define PLUGIN_VERSION 		"5.4-2024/10/10"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -80,9 +81,14 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
+#include <actions>
 
 #undef REQUIRE_PLUGIN
-#tryinclude <unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_team_unscramble/scripting/include/unscramble.inc
+#tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
+
+#if !defined _l4d_team_unscramble_included
+	native bool l4d_team_unscramble_IsUnscrambled();
+#endif
 
 public Plugin myinfo =
 {
@@ -93,7 +99,7 @@ public Plugin myinfo =
 	url = PLUGIN_URL
 };
 
-bool g_bLateLoad, g_bL4D2Version, g_Use_r2comp_unscramble = false;
+bool g_bLateLoad, g_bL4D2Version, g_bUnscramble = false;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -106,6 +112,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
+
+	MarkNativeAsOptional("l4d_team_unscramble_IsUnscrambled");
 
 	g_bLateLoad = late;
 	return APLRes_Success;
@@ -121,6 +129,7 @@ static const char WITCH_NAME[]		= "witch";
 ConVar g_hZMaxPlayerZombies;
 
 ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSeconds, g_hWeaponReloadBlock, g_hGetUpStaggerBlock, 
+	g_hGetVomitBlock,
 	g_hInfectedCapBlock, g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmuneAccess,
 	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
 	g_hObsCommandAccess,
@@ -131,7 +140,7 @@ ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSe
 char g_sImmuneAcclvl[AdminFlags_TOTAL], g_sSpecCommandAccesslvl[AdminFlags_TOTAL], g_sInfCommandAccesslvl[AdminFlags_TOTAL], 
 	g_sSurCommandAccesslvl[AdminFlags_TOTAL], g_sObsCommandAccesslvl[AdminFlags_TOTAL];
 bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpStaggerBlock, g_bThrowableBlock, g_bGrenadeBlock,
-	g_bInfectedAttackBlock, g_bInfectedCapBlock,
+	g_bInfectedAttackBlock, g_bGetVomitBlock, g_bInfectedCapBlock,
 	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance;
 float g_fBreakPropCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
 int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies, g_iVSUnBalanceLimit;
@@ -211,22 +220,23 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_observe", TurnClientToObserver, "Switch team to fully an observer.");
 
 	g_hZMaxPlayerZombies = 		FindConVar("z_max_player_zombies");
-	g_hCoolTime = 				CreateConVar("l4d_afk_commands_changeteam_cooltime_block", 		"10.0", "Cold Down Time in seconds a player can not change team again after he switches team. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	g_hCoolTime = 				CreateConVar("l4d_afk_commands_changeteam_cooltime_block", 		"10.0", "Cold Down Time in seconds a player can not change team again after switches team. (0=off)", FCVAR_NOTIFY, true, 0.0);
 	g_hDeadSurvivorBlock = 		CreateConVar("l4d_afk_commands_deadplayer_block", 				"1", 	"If 1, Dead Survivor player can not switch team.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGameTimeBlock = 			CreateConVar("l4d_afk_commands_during_game_seconds_block", 		"0", 	"Player can not switch team after players have left start safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedAttackBlock = 	CreateConVar("l4d_afk_commands_infected_attack_block", 			"1", 	"If 1, Player can not change team when he is capped by special infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hWitchAttackBlock = 		CreateConVar("l4d_afk_commands_witch_attack_block", 			"1", 	"If 1, Player can not change team when he startle witch or being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedAttackBlock = 	CreateConVar("l4d_afk_commands_infected_attack_block", 			"1", 	"If 1, Player can not change team while capped by special infected.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hWitchAttackBlock = 		CreateConVar("l4d_afk_commands_witch_attack_block", 			"1", 	"If 1, Player can not change team if startles witch or while being attacked by witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hSurvivorSuicideSeconds = CreateConVar("l4d_afk_commands_suicide_allow_second", 			"30.0", "Allow alive survivor player suicide by using '!zs' after joining survivor team for at least X seconds.\n0=Disable !zs", FCVAR_NOTIFY, true, 0.0);
-	g_hWeaponReloadBlock = 		CreateConVar("l4d_afk_commands_weapon_reload_block", 			"1", 	"If 1, Player can not change team when he is reloading the weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hGetUpStaggerBlock = 		CreateConVar("l4d_afk_commands_getup_stagger_block", 			"1", 	"If 1, Player can not change team while he is getting up or staggering.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hWeaponReloadBlock = 		CreateConVar("l4d_afk_commands_weapon_reload_block", 			"1", 	"If 1, Player can not change team while reloading the weapon.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hGetUpStaggerBlock = 		CreateConVar("l4d_afk_commands_getup_stagger_block", 			"1", 	"If 1, Player can not change team while getting up or staggering.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hGetVomitBlock 	= 		CreateConVar("l4d_afk_commands_get_vomit_block", 				"1", 	"If 1, Player can not change team while covered in bile.", FCVAR_NOTIFY, true, 0.0);
 	g_hThrowableBlock = 		CreateConVar("l4d_afk_commands_throwable_block", 				"1", 	"If 1, Player can not change team after throwing molotov, pipe bomb or boomer juice. (0=off).", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGrenadeBlock = 			CreateConVar("l4d_afk_commands_grenade_block", 					"1", 	"(L4D2) If 1, Player can not change team after firing the grenade launcher (0=off).", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hBreakPropCooldown = 		CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", 		"15.0", "Cold Down Time in seconds a player can not change team after ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hWPressMBlock = 			CreateConVar("l4d_afk_commands_pressM_block", 					"1", 	"If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeABreakBlock = 		CreateConVar("l4d_afk_commands_takeabreak_block", 				"0", 	"If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeControlBlock = 		CreateConVar("l4d_afk_commands_takecontrol_block", 				"1", 	"If 1, Block player from using 'sb_takecontrol' command in console.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedCapBlock = 		CreateConVar("l4d_afk_commands_infected_cap_block", 			"1", 	"If 1, Infected player can not change team when he has pounced/ridden/charged/smoked a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedSpawnCooldown = 	CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", 	"10.0", "Cold Down Time in seconds an infected player can not change team after he is spawned as a special infected. (0=off).", FCVAR_NOTIFY, true, 0.0);
+	g_hInfectedCapBlock = 		CreateConVar("l4d_afk_commands_infected_cap_block", 			"1", 	"If 1, Infected player can not change team while pouncing/ridding/charging/pulling a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedSpawnCooldown = 	CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", 	"10.0", "Cold Down Time in seconds an infected player can not change team after spawned alive (Not ghost, 0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hImmuneAccess = 			CreateConVar("l4d_afk_commands_immune_block_flag", 				"-1", 	"Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hSpecCommandAccess = 		CreateConVar("l4d_afk_commands_spec_access_flag", 				"", 	"Players with these flags have access to use command to spectator team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hInfCommandAccess = 		CreateConVar("l4d_afk_commands_infected_access_flag", 			"", 	"Players with these flags have access to use command to infected team. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
@@ -245,6 +255,7 @@ public void OnPluginStart()
 	g_hSurvivorSuicideSeconds.AddChangeHook(ConVarChanged_Cvars);
 	g_hWeaponReloadBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hGetUpStaggerBlock.AddChangeHook(ConVarChanged_Cvars);
+	g_hGetVomitBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedCapBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hWPressMBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hTakeControlBlock.AddChangeHook(ConVarChanged_Cvars);
@@ -274,6 +285,7 @@ public void OnPluginStart()
 	HookEvent("player_team", Event_PlayerChangeTeam);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("break_prop",	Event_BreakProp,		EventHookMode_Pre);
+	HookEvent("witch_killed",            Event_Witchkilled);
 
 	g_smClientSwitchTeam = new StringMap();
 
@@ -300,8 +312,7 @@ public void OnPluginStart()
 
 public void OnAllPluginsLoaded()
 {
-	g_Use_r2comp_unscramble = LibraryExists("r2comp_unscramble");
-
+	g_bUnscramble = LibraryExists("l4d_team_unscramble");
 }
 
 public void OnPluginEnd()
@@ -321,14 +332,14 @@ public void OnPluginEnd()
 
 public void OnLibraryAdded(const char[] name)
 {
-	if(StrEqual(name, "r2comp_unscramble"))
-		g_Use_r2comp_unscramble = true;
+	if(StrEqual(name, "l4d_team_unscramble"))
+		g_bUnscramble = true;
 }
 
 public void OnLibraryRemoved(const char[] name)
 {
-	if(StrEqual(name, "r2comp_unscramble"))
-		g_Use_r2comp_unscramble = false;
+	if(StrEqual(name, "l4d_team_unscramble"))
+		g_bUnscramble = false;
 }
 
 public void OnMapStart()
@@ -507,6 +518,14 @@ void Event_BreakProp(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
+void Event_Witchkilled(Event event, const char[] name, bool dontBroadcast)
+{
+	int iWitch = event.GetInt("witchid");
+	if(iWitch <= MaxClients ) return;
+
+	RemoveWitchAttack(iWitch);
+}
+
 public void OnClientPutInServer(int client)
 {
 	ResetClient(client);
@@ -530,16 +549,19 @@ Action OnTakeDamage(int victim, int &attacker, int  &inflictor, float &damage, i
 
 void OnTakeDamageWitchPost(int witch, int attacker, int inflictor, float damage, int damagetype)
 {
+	if( !IsValidEntity(witch) 
+		|| GetEntProp(witch, Prop_Data, "m_iHealth") <= 0 ) return;
+
 	if(attacker > 0 && attacker <= MaxClients && 
 		IsClientInGame(attacker) && 
 		!IsFakeClient(attacker) &&
 		GetClientTeam(attacker) == 2 && 
 		IsPlayerAlive(attacker))
 	{
-		if( damagetype & DMG_BLAST )
-		{
-			AddWitchAttack(witch, attacker);
-		}
+		int curTaget = FindWitchCurrentTarget(witch);
+		if(curTaget <= 0) return;
+
+		AddWitchAttack(witch, curTaget);
 	}
 }
 
@@ -633,6 +655,7 @@ void GetCvars()
 	g_fSurvivorSuicideSeconds = g_hSurvivorSuicideSeconds.FloatValue;
 	g_bWeaponReloadBlock = g_hWeaponReloadBlock.BoolValue;
 	g_bGetUpStaggerBlock = g_hGetUpStaggerBlock.BoolValue;
+	g_bGetVomitBlock = g_hGetVomitBlock.BoolValue;
 	g_bInfectedCapBlock = g_hInfectedCapBlock.BoolValue;
 	g_bPressMBlock = g_hWPressMBlock.BoolValue;
 	g_bTakeABreakBlock = g_hTakeABreakBlock.BoolValue;
@@ -1502,18 +1525,24 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 			PrintHintText(client, "%T", "Get Up Stagger Block", client);
 			return false;
 		}
+
+		if (g_bGetVomitBlock && IsPlayerAlive(client) && IsClientGetVomit(client))
+		{
+			PrintHintText(client, "%T", "Bile Block", client);
+			return false;
+		}
 	}
 	else if(team == 3)
 	{
 		if(GetSurvivorVictim(client)!= -1 && g_bInfectedCapBlock == true)
 		{
-			PrintHintText(client, "%T","Infected Cap Block",client);
+			PrintHintText(client, "%T", "Infected Cap Block",client);
 			return false;
 		}
 
 		if( g_fInfectedSpawnCooldown > 0.0 && (fInfectedSpawnTime[client] - GetEngineTime() > 0.0) && IsPlayerAlive(client) && !IsPlayerGhost(client))
 		{
-			PrintHintText(client, "%T","Can not change team after Spawn as a special infected",client);
+			PrintHintText(client, "%T", "Can not change team after Spawn as a special infected",client);
 			return false;	
 		}
 	}
@@ -1638,6 +1667,21 @@ Action Timer_CanJoin(Handle timer, int client)
 	
 	return Plugin_Continue;
 }
+
+// Left4Dhooks API-----
+
+public void L4D2_OnStagger_Post(int client, int source)
+{
+	if(!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
+	if(!IsWitch(source)) return;
+
+	int curTaget = FindWitchCurrentTarget(source);
+	if(curTaget <= 0) return;
+
+	AddWitchAttack(source, curTaget);
+}
+
+// Others-----
 
 int GetInfectedAttacker(int client)
 {
@@ -1770,8 +1814,10 @@ void AddWitchAttack(int witchid, int client)
 void RemoveWitchAttack(int witchid)
 {
 	int index, ref = EntIndexToEntRef(witchid);
-	for (int client = 1; client <= MaxClients; client++) {
-		if ( (index = g_alClientAttackedByWitch[client].FindValue(ref)) != -1 ) {
+	for (int client = 1; client <= MaxClients; client++) 
+	{
+		if ( (index = g_alClientAttackedByWitch[client].FindValue(ref)) != -1 ) 
+		{
 			g_alClientAttackedByWitch[client].Erase(index);
 		}
 	}
@@ -1869,7 +1915,7 @@ bool IsPlayerGhost (int client)
 
 bool Is_AFK_COMMAND_Block()
 {
-	if(g_Use_r2comp_unscramble == true && R2comp_IsUnscrambled() == false) return true;
+	if(g_bUnscramble == true && l4d_team_unscramble_IsUnscrambled() == false) return true;
 	
 	return false;
 }
@@ -2085,7 +2131,8 @@ void ClearDefault()
 	g_iPlayerSpawn = 0;
 }
 
-bool IsGettingUpOrStumble(int client) {
+bool IsGettingUpOrStumble(int client) 
+{
 	int Activity;
 
 	if(g_bL4D2Version)
@@ -2114,6 +2161,14 @@ bool IsGettingUpOrStumble(int client) {
 			case L4D2_ACT_TERROR_HIT_BY_CHARGER, // 524, 525, 526: flung by a nearby Charger impact
 				L4D2_ACT_TERROR_IDLE_FALL_FROM_CHARGERHIT: 
 				return true;
+
+			case L4D2_ACT_TERROR_INCAP_TO_STAND: // 697, revive from incap or death
+			{
+				if(!L4D_IsPlayerIncapacitated(client)) // 被電擊器救起來
+				{
+					return true;
+				}
+			}
 		}
 	}
 	else
@@ -2141,12 +2196,17 @@ bool IsGettingUpOrStumble(int client) {
 	return false;
 }
 
-public void L4D2_OnStagger_Post(int client, int source)
+bool IsClientGetVomit(int client)
 {
-	if(!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
-	if(!IsWitch(source)) return;
+	// m_itTimer 
+	// -> (0) m_duration
+	// -> (1) m_timestamp
+	if(GetEntPropFloat(client, Prop_Send, "m_itTimer", 1) > GetGameTime())
+	{
+		return true;
+	}
 
-	AddWitchAttack(source, client);
+	return false;
 }
 
 bool IsWitch(int entity)
@@ -2159,4 +2219,30 @@ bool IsWitch(int entity)
     }
 
     return false;
+}
+
+int FindWitchCurrentTarget(int witch)
+{
+	if (IsValidEdict(witch))
+	{
+		BehaviorAction action = ActionsManager.GetAction(witch, "WitchAttack");
+		if (action != INVALID_ACTION)
+		{
+			int ehndl = action.Get(52);
+			static int iOffs_m_hHarasser = -1;
+			if(iOffs_m_hHarasser == -1) iOffs_m_hHarasser = FindSendPropInfo("Witch", "m_rage") + 20;
+			
+			int temp = GetEntData(witch, iOffs_m_hHarasser);
+			SetEntData(witch, iOffs_m_hHarasser, ehndl);
+			int target = GetEntDataEnt2(witch, iOffs_m_hHarasser);
+			SetEntData(witch, iOffs_m_hHarasser, temp);
+
+			if (target != -1 && IsClientInGame(target))
+				return target;
+			else
+				return -1;
+		}
+	}
+
+	return -1;
 }
