@@ -183,8 +183,8 @@ Allows additional survivor players in server when 5+ player joins the server
 		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
 	2. [l4d_afk_commands](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_afk_commands): Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
 		> 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
-	3. [l4d2_auto_add_zombie](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d2_auto_add_zombie): Adjust common infecteds/hordes/mobs depends on 5+ survivors in server
-		> 隨著玩家人數越多，殭屍/屍潮 數量越來越多
+	3. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
+		> 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
 	4. [l4d_more_supply](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Survivor_%E4%BA%BA%E9%A1%9E/l4d_more_supply): Player can take an item on the map multi times depends on 5+ survivors in server
 		> 隨著玩家人數越多，地圖上的資源可以重複拿很多次
 </details>
