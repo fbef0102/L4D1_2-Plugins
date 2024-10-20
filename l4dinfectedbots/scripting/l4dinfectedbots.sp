@@ -6010,7 +6010,7 @@ int GenerateIndex()
 	float[] IntervalEnds = new float[NUM_INFECTED];
 	for(int i = 0; i < NUM_INFECTED; i++)
 	{
-		if(g_iSpawnCounts[i] < g_ePluginSettings.m_iSpawnWeight[i] && g_hSpawnColdDownTimer[i] == null)
+		if(g_iSpawnCounts[i] < g_ePluginSettings.m_iSpawnLimit[i] && g_hSpawnColdDownTimer[i] == null)
 		{
 			if(g_ePluginSettings.m_bScaleWeights)
 				TempSpawnWeights[i] = (g_ePluginSettings.m_iSpawnLimit[i] - g_iSpawnCounts[i]) * g_ePluginSettings.m_iSpawnWeight[i];
@@ -6036,13 +6036,13 @@ int GenerateIndex()
 		}
 	}
 	
-	float r = GetRandomFloat(0.0, 1.0); //selector r must be within the ith interval for i to be selected
+	float random = GetRandomFloat(0.0, 1.0); //selector r must be within the ith interval for i to be selected
 	for (int i = 0; i < NUM_INFECTED; i++)
 	{
 		//negative and 0 weights are ignored
 		if (TempSpawnWeights[i] <= 0) continue;
 		//r is not within the ith interval
-		if (IntervalEnds[i] < r) continue;
+		if (IntervalEnds[i] < random) continue;
 		//selected index i because r is within ith interval
 		return i;
 	}
