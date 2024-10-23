@@ -30,6 +30,14 @@ Fixes survivor_max_incapacitated_count cvar increased values reverting black and
 	None
 </details>
 
+* <details><summary>Related Official ConVar</summary>
+
+	```php
+	// How many times you can be incapacitated instead of killed (default: 2)
+	sm_cvar survivor_max_incapacitated_count 2
+	```
+</details>
+
 * <details><summary>API | 串接</summary>
 
 	```php
@@ -76,4 +84,13 @@ Fixes survivor_max_incapacitated_count cvar increased values reverting black and
 		// 0=關閉插件, 1=啟動插件
 		l4d_heartbeat_enable "1"
 		```
+</details>
+
+* <details><summary>相關的官方指令中文介紹 (點我展開)</summary>
+
+	```php
+	// 倖存者死亡之前可以倒地多少次? (預設: 2)
+	// 倒地超過該次數即為黑白狀態
+	sm_cvar survivor_max_incapacitated_count 2
+	```
 </details>

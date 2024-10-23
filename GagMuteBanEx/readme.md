@@ -123,7 +123,9 @@ Gag & Mute & Ban - Ex
 
 * Apply to | 適用於
     ```
+    L4D1
     L4D2
+    Any source game
     ```
 
 * <details><summary>Translation Support | 支援翻譯</summary>
@@ -137,6 +139,9 @@ Gag & Mute & Ban - Ex
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.2h (2024-10-23)
+        * Support L4D1 or any other source game
 
     * v1.1h (2024-2-28)
         * Compatible with SourceBan++

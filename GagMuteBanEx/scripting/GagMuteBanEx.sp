@@ -30,20 +30,12 @@ public Plugin myinfo =
 	name = "GagMuteBanEx",
 	author = "HarryPotter",
 	description = "Gag & Mute & Ban - Ex",
-	version = "1.1h-2024/2/28",
+	version = "1.2h-2024/10/23",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	EngineVersion test = GetEngineVersion();
-
-	if( test != Engine_Left4Dead2 )
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
-		return APLRes_SilentFailure;
-	}
-
 	MarkNativeAsOptional("SourceComms_SetClientMute");
 	MarkNativeAsOptional("SourceComms_SetClientGag");
 	MarkNativeAsOptional("SourceComms_GetClientMuteType");
@@ -68,7 +60,7 @@ bool g_bCvarBanAllow, g_bCvarMuteAllow, g_bCvarGagAllow,
 	g_bCvarServerVoice, g_bCvarServerChat;
 
 int g_iMinutes[MAXPLAYERS+1];
-char g_sImmueAcclvl[16];
+char g_sImmueAcclvl[AdminFlags_TOTAL];
 bool 
 	g_bHasNotify[MAXPLAYERS+1];
 

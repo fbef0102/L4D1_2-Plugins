@@ -43,38 +43,10 @@ SM File/Folder Downloader and Precacher
 * <details><summary>Data Example</summary>
 
 	* [configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini), this is normal downloader configuration
-		```php
-		//Don't modify or remove the Comment Lines ( // )
-		//Can not download .VPK files 
-		//Files (Download Only No Precache)
-		path/anymap.ext
-		path/anymap2.ext
-
-		//Decal Files (Download and Precache)
-		materials/decals/anymap.vmt
-		materials/decals/anymap.vtf
-
-		//Sound Files (Download and Precache)
-		sound/misc/Anymap.wav
-		sound/misc/Anymap3.wav
-
-		//Model Files (Download and Precache)
-		models/parachute/parachute_green.mdl
-		```
+		> Click [here](addons\sourcemod\configs\sm_downloader\downloads_example(範例).ini) to view example
 
 	* [configs\sm_downloader\downloads_simple.ini](addons\sourcemod\configs\sm_downloader\downloads_simple.ini), this is simple downloader configuration (Download Only No Precache)
-		```php
-		path/anymap.ext
-		path/anymap2.ext
-
-		materials/decals/anymap.vmt
-		materials/decals/anymap.vtf
-
-		sound/misc/Anymap.wav
-		sound/misc/Anymap3.wav
-
-		models/parachute/parachute_green.mdl
-		```
+		> Click [here](addons\sourcemod\configs\sm_downloader\downloads_simple_example(範例).ini) to view example
 
 	> __Note__ If you don't know which file should use, just enable and use [configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini)
 </details>
@@ -159,38 +131,10 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 * <details><summary>Data設定範例</summary>
 
 	* [configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini), 這是正常版的檔案下載設定文件
-		```php
-		//不要移除任何原有的符號 ( // )
-		//不能傳輸.vpk檔案
-		//Files (只下載不預緩存)
-		path/anymap.ext
-		path/anymap2.ext
-
-		//Decal Files (下載並預緩存)
-		materials/decals/anymap.vmt
-		materials/decals/anymap.vtf
-
-		//Sound Files (下載並預緩存)
-		sound/misc/Anymap.wav
-		sound/misc/Anymap3.wav
-
-		//Model Files (下載並預緩存)
-		models/parachute/parachute_green.mdl
-		```
+		> 點擊[這裡](addons\sourcemod\configs\sm_downloader\downloads_example(範例).ini)查看範例
 
 	* [configs\sm_downloader\downloads_simple.ini](addons\sourcemod\configs\sm_downloader\downloads_simple.ini), 這是簡單版的檔案下載設定文件 (只下載不預緩存)
-		```php
-		path/anymap.ext
-		path/anymap2.ext
-
-		materials/decals/anymap.vmt
-		materials/decals/anymap.vtf
-
-		sound/misc/Anymap.wav
-		sound/misc/Anymap3.wav
-
-		models/parachute/parachute_green.mdl
-		```
+		> 點擊[這裡](addons\sourcemod\configs\sm_downloader\downloads_simple_example(範例).ini)查看範例
 
 	> __Note__ 如果你不知道這兩設定文件有捨差別, 建議你一律使用[configs\sm_downloader\downloads.ini](addons\sourcemod\configs\sm_downloader\downloads.ini)
 </details>
