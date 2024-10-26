@@ -92,7 +92,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 使用指令顯示人類目前的路程
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue after map loading.
     * 解決換圖之後沒有任何倖存者Bot的問題
-* <b>[lockdown_system-l4d2](/lockdown_system-l4d2)</b>: Locks Saferoom Door Until Someone Opens It.
+* <b>[lockdown_system_l4d](/lockdown_system_l4d)</b>: Locks Saferoom Door Until Someone Opens It.
     * 倖存者必須等待時間到並合力對抗屍潮與Tank才能打開終點安全門
 * <b>[pounceannounce](/pounceannounce)</b>: Announces hunter pounces to the entire server
     * 顯示Hunter造成的高撲傷害與高撲距離

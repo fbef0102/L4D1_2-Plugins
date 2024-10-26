@@ -182,6 +182,8 @@ Action OnTimedKick(Handle timer, any userid)
 
 bool IsServerFull(int client)
 {
+    if(g_iCfgMaxPlayers <= 0) return false;
+    
     int current = 1; //client
     int iAccessClient = 0;
 

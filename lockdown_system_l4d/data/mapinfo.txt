@@ -1,0 +1,46 @@
+"MapInfo"
+{
+	"c1m3_mall" // map name 地圖名稱
+	{	
+		// Numbers of tanks to spawn during opening door in this maps
+		// 大門開啟期間，生成Tank的數量 (沒有寫則預設是1)
+		"lockdown_system_l4d_opening_tank" "2" 
+	}
+	
+	"c10m3_ranchhouse" // map name 地圖名稱
+	{
+		// 1=disable plugin in this map
+		// 1=在這張地圖關閉此插件 (沒有寫則自動開啟此插件)
+		"lockdown_system_l4d_off" "1" 
+	}
+	
+	"l4d_smalltown03_ranchhouse"
+	{
+		"lockdown_system_l4d_off" "1"
+	}
+	
+	"l4d_vs_smalltown03_ranchhouse"
+	{
+		"lockdown_system_l4d_off" "1"
+	}
+	
+	"l4d_reverse_hos03_sewers"
+	{
+		"lockdown_system_l4d_off" "1"
+	}
+	
+	"l4d2_stadium4_city2"
+	{
+		"lockdown_system_l4d_off" "1"
+	}
+	
+	"l4d_fairview10_church"
+	{
+		"lockdown_system_l4d_off" "1"
+	}
+	
+	"l4d2_wanli01"
+	{
+		"lockdown_system_l4d_off" "1"
+	}
+}

@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.0h-2024/10/3"
+#define PLUGIN_VERSION			"1.1h-2024/10/26"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -39,44 +39,66 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define CVAR_FLAGS			FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
 
-#define UNRESERVE_DEBUG 0
-#define UNRESERVE_DEBUG_LOG 0
-
-#define L4D_MAXCLIENTS MaxClients
-#define L4D_MAXCLIENTS_PLUS1 (L4D_MAXCLIENTS + 1)
-
 #define L4D_MAXHUMANS_LOBBY_VERSUS 8
 #define L4D_MAXHUMANS_LOBBY_OTHER 4
 
-ConVar g_hCvarUnreserveFull, g_hCvarUnreserveEmpty;
+ConVar sv_allow_lobby_connect_only;
+int sv_allow_lobby_connect_only_default;
+
+ConVar g_hCvarUnreserveFull, g_hCvarUnreserveEmpty, g_hCvarUnreserveTrigger;
 bool g_bCvarUnreserveFull, g_bCvarUnreserveEmpty;
+int g_iCvarUnreserveTrigger;
 
+bool 
+	g_bFirstMap,
+	g_bFirstLoadedConfigs,
+	g_bIsServerUnreserved;
 
-Handle COLD_DOWN_Timer;
-
-bool g_bCmdMap;
+Handle
+	COLD_DOWN_Timer;
 
 public void OnPluginStart()
 {
-	LoadTranslations("common.phrases");
+	sv_allow_lobby_connect_only = FindConVar("sv_allow_lobby_connect_only")
+	sv_allow_lobby_connect_only.AddChangeHook(ConVarChanged_sv_allow_lobby_connect_only);
 
 	g_hCvarUnreserveFull 	= CreateConVar( PLUGIN_NAME ... "_full",		"1", "Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarUnreserveEmpty 	= CreateConVar( PLUGIN_NAME ... "_empty", 		"1", "Automatically unreserve server after all playes have disconnected", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarUnreserveTrigger = CreateConVar( PLUGIN_NAME ... "_trigger", 	"0", "When player number reaches the following number, the server unreserves.\n0 = 8 in versus/scavenge, 4 in coop/survival/realism.\n>0 = Any number greater than zero.", CVAR_FLAGS, true, 0.0, true, 8.0);
 	CreateConVar(           			    PLUGIN_NAME ... "_version",     PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true, PLUGIN_NAME);
 
 	GetCvars();
 	g_hCvarUnreserveFull.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarUnreserveEmpty.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarUnreserveTrigger.AddChangeHook(ConVarChanged_Cvars);
 
-	HookEvent("player_disconnect", Event_PlayerDisconnect);
+	HookEvent("player_disconnect", 		Event_PlayerDisconnect);
 
 	RegAdminCmd("sm_unreserve", Command_Unreserve, ADMFLAG_ROOT, "sm_unreserve - manually force removes the lobby reservation");
 
-	AddCommandListener(ServerCmd_map, "map");
+	g_bFirstMap = true;
+	g_bFirstLoadedConfigs = true;
+	
 }
 
 // Cvars-------------------------------
+
+void ConVarChanged_sv_allow_lobby_connect_only(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	if(g_bIsServerUnreserved)
+	{
+		if(!L4D_LobbyIsReserved())
+		{
+			//大廳狀態: unreserved, 須將sv_allow_lobby_connect_only設置為0
+			SetAllowLobby(0);
+		}
+		else
+		{
+			g_bIsServerUnreserved = false;
+		}
+	}
+}
 
 void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
@@ -85,8 +107,9 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 
 void GetCvars()
 {
-    g_bCvarUnreserveFull = g_hCvarUnreserveFull.BoolValue;
-    g_bCvarUnreserveEmpty = g_hCvarUnreserveEmpty.BoolValue;
+	g_bCvarUnreserveFull = g_hCvarUnreserveFull.BoolValue;
+	g_bCvarUnreserveEmpty = g_hCvarUnreserveEmpty.BoolValue;
+	g_iCvarUnreserveTrigger = g_hCvarUnreserveTrigger.IntValue;
 }
 
 // Sourcemod API Forward-------------------------------
@@ -98,27 +121,32 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-	GetCvars();
+	if(g_bFirstLoadedConfigs)
+	{
+		sv_allow_lobby_connect_only_default = sv_allow_lobby_connect_only.IntValue;
+		g_bFirstLoadedConfigs = false;
+	}
 
-	if(!g_bCmdMap) return;
-
-	if(CheckIfPlayerInServer(0) == false) //沒有玩家在伺服器中
+	if(!g_bFirstMap)
 	{
 		delete COLD_DOWN_Timer;
-		COLD_DOWN_Timer = CreateTimer(15.0, Timer_COLD_DOWN);
+		COLD_DOWN_Timer = CreateTimer(10.0, Timer_COLD_DOWN);
 	}
+
+	g_bFirstMap = false;
 }
 
 public void OnClientPutInServer(int client)
 {
 	if(IsFakeClient(client)) return;
-	delete COLD_DOWN_Timer;
 
 	if(g_bCvarUnreserveFull && L4D_LobbyIsReserved() && IsServerLobbyFull())
 	{
-		PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Full)");
+		//PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Full)");
 		PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Full)");
 		L4D_LobbyUnreserve();
+		SetAllowLobby(0);
+		g_bIsServerUnreserved = true;
 	}
 }
 
@@ -129,13 +157,16 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if(!client || IsFakeClient(client)) return;
 
-	if(!CheckIfPlayerInServer(client)) //檢查是否還有玩家以外的人還在伺服器
+	if(CheckIfPlayerInServer(client) == false) //檢查是否還有玩家以外的人還在伺服器
 	{
-		if(L4D_LobbyIsReserved())
+		delete COLD_DOWN_Timer;
+		if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
 		{
-			//PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
+			PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
 			L4D_LobbyUnreserve();
 		}
+		g_bIsServerUnreserved = false;
+		SetAllowLobby(sv_allow_lobby_connect_only_default);
 	}
 }
 
@@ -148,9 +179,11 @@ Action Command_Unreserve(int client, int args)
 		ReplyToCommand(client, "[SM] Server is already unreserved.");
 	}
 
-	L4D_LobbyUnreserve();
 	PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(sm_unreserve)");
 	PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(sm_unreserve)");
+	L4D_LobbyUnreserve();
+	SetAllowLobby(0);
+	g_bIsServerUnreserved = true;
 
 	return Plugin_Handled;
 }
@@ -161,30 +194,36 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 {
 	COLD_DOWN_Timer = null;
 
-	if(!g_bCvarUnreserveEmpty)
-	{
-		return Plugin_Continue;
-	}
-
 	if(CheckIfPlayerInServer(0)) //有玩家在伺服器中
 	{
 		return Plugin_Continue;
 	}
 
-	if(L4D_LobbyIsReserved())
+	if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
 	{
-		//PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
+		PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
 		L4D_LobbyUnreserve();
 	}
+	g_bIsServerUnreserved = false;
+	SetAllowLobby(sv_allow_lobby_connect_only_default);
 
 	return Plugin_Continue;
 }
 
 // Others-------------------------------
 
+void SetAllowLobby(int value) 
+{
+	sv_allow_lobby_connect_only.IntValue = value;
+}
+
 int IsServerLobbyFull()
 {
 	int humans = GetHumanCount();
+	if(g_iCvarUnreserveTrigger > 0)
+	{
+		return humans >= g_iCvarUnreserveTrigger;
+	}
 
 	if(L4D_HasPlayerControlledZombies())
 	{
@@ -205,7 +244,7 @@ int GetHumanCount()
 	int humans = 0;
 
 	int i;
-	for(i = 1; i < L4D_MAXCLIENTS_PLUS1; i++)
+	for(i = 1; i <= MaxClients; i++)
 	{
 		if(IsClientInGameHuman(i))
 		{
@@ -223,13 +262,4 @@ bool CheckIfPlayerInServer(int client)
 			return true;
 
 	return false;
-}
-
-//從大廳匹配觸發map
-Action ServerCmd_map(int client, const char[] command, int argc)
-{
-	g_bCmdMap = true;
-
-	delete COLD_DOWN_Timer;
-	return Plugin_Continue;
 }

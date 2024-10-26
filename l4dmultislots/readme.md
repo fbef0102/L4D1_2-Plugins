@@ -191,6 +191,9 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v6.6 (2024-10-26)
+		* Bump version
+
 	* v6.5 (2024-5-10)
 		* Give melee weapons from the meleeweapons StringTable
 

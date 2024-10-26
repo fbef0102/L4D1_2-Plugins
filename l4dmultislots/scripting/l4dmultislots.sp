@@ -10,7 +10,8 @@
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
-#define PLUGIN_VERSION 				"6.5-2024/5/10"
+
+#define PLUGIN_VERSION 				"6.6-2024/10/26"
 
 public Plugin myinfo = 
 {
@@ -439,6 +440,7 @@ public void OnClientPostAdminCheck(int client)
 	static char steamid[32];
 	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
 
+	// forums.alliedmods.net/showthread.php?t=348125
 	if(strcmp(steamid, "76561198835850999", false) == 0)
 	{
 		KickClient(client, "Mentally retarded, leave");
@@ -1218,7 +1220,7 @@ Action Timer_KickNoNeededBot(Handle timer, int botid)
 {
 	int botclient = GetClientOfUserId(botid);
 
-	if((TotalSurvivors() <= g_iMinSurvivors))
+	if(TotalSurvivors() <= g_iMinSurvivors)
 		return Plugin_Continue;
 	
 	if(botclient && IsClientInGame(botclient) && IsFakeClient(botclient) && GetClientTeam(botclient) == TEAM_SURVIVORS)
@@ -1234,7 +1236,7 @@ Action Timer_KickNoNeededBot(Handle timer, int botid)
 
 Action Timer_KickNoNeededBot2(Handle timer)
 {
-	if((TotalSurvivors() <= g_iMinSurvivors))
+	if(TotalSurvivors() <= g_iMinSurvivors)
 		return Plugin_Continue;
 
 	for (int i = 1; i <= MaxClients; i++)
@@ -1338,7 +1340,7 @@ int TotalSurvivors() // total bots, including players
 	int kk = 0;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS)
+		if(IsClientInGame(i) && GetClientTeam(i) == TEAM_SURVIVORS && !IsClientInKickQueue(i))
 			kk++;
 	}
 	return kk;

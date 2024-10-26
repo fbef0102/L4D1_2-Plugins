@@ -12,17 +12,9 @@
 #include <multicolors>
 #include <left4dhooks>
 #include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
-#define PLUGIN_VERSION "5.9-2024/5/1"
+#define PLUGIN_VERSION "6.0-2024/10/26"
 
 GlobalForward g_hForwardOpenSafeRoomFinish;
-/**
-* @brief Called when saferoom door is completely opened
-*
-* @param sKeyMan    client name who opened the saferoom door.
-*
-* @noreturn
-* forward void L4D2_OnLockDownOpenDoorFinish(const char[] sKeyMan);
-*/
 
 bool g_bL4D2Version;
 static char sSpawnCommand[32];
@@ -49,7 +41,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 	
-	g_hForwardOpenSafeRoomFinish	= new GlobalForward("L4D2_OnLockDownOpenDoorFinish", ET_Ignore, Param_String);
+	g_hForwardOpenSafeRoomFinish	= new GlobalForward("L4DLockDownSystem_OnOpenDoorFinish", ET_Ignore, Param_String);
+	RegPluginLibrary("lockdown_system_l4d");
+
 	return APLRes_Success; 
 }
 
@@ -98,32 +92,32 @@ static KeyValues
 
 public void OnPluginStart()
 {
-	LoadTranslations("lockdown_system-l4d2_b.phrases");
+	LoadTranslations("lockdown_system_l4d.phrases");
 
 	sb_unstick = FindConVar("sb_unstick");
 	
-	lsAnnounce 					= CreateConVar( "lockdown_system-l4d2_announce", 							"1", 			"If 1, Enable saferoom door status Announcements", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsAntiFarmDuration	 		= CreateConVar( "lockdown_system-l4d2_anti-farm_duration", 					"50", 			"Duration Of Anti-Farm, locks door if tank is on the field", FCVAR_NOTIFY, true, 0.0);
-	lsDuration 					= CreateConVar( "lockdown_system-l4d2_duration", 							"100", 			"Duration Of end saferoom door opening", FCVAR_NOTIFY, true, 0.0);
-	lsMobs 						= CreateConVar( "lockdown_system-l4d2_mobs", 								"5", 			"Number Of horde mobs to spawn (-1=Infinite horde, 0=Off)", FCVAR_NOTIFY, true, -1.0, true, 15.0);
-	lsTankDemolitionBefore 		= CreateConVar( "lockdown_system-l4d2_tank_demolition_before", 				"1", 			"If 1, Enable Tank Demolition, server will spawn tank before door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsTankDemolitionAfter 		= CreateConVar( "lockdown_system-l4d2_tank_demolition_after", 				"1", 			"If 1, Enable Tank Demolition, server will spawn tank after door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsType 						= CreateConVar( "lockdown_system-l4d2_type", 								"0", 			"Door Lockdown Type: 0=Random, 1=Improved (opening slowly), 2=Default", FCVAR_NOTIFY, true, 0.0, true, 2.0);
-	lsMinSurvivorPercent 		= CreateConVar( "lockdown_system-l4d2_percentage_survivors_near_saferoom", 	"50", 			"What percentage of the ALIVE survivors must assemble near the saferoom door before open. (0=off)", FCVAR_NOTIFY, true, 0.0, true, 100.0);
-	lsHint 						= CreateConVar(	"lockdown_system-l4d2_spam_hint", 							"1", 			"If 1, Display a message showing who opened or closed the saferoom door.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsGetInLimit 				= CreateConVar( "lockdown_system-l4d2_outside_slay_duration", 				"60", 			"After end saferoom door is opened, slay players who are not inside saferoom in seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
-	lsDoorOpeningTeleport 		= CreateConVar( "lockdown_system-l4d2_teleport", 							"1", 			"0=Off. 1=Teleport common, special infected if they touch the door inside saferoom when door is opening. (prevent spawning and be stuck inside the saferoom, only works if Lockdown Type is 2)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsDoorOpeningTankInterval 	= CreateConVar( "lockdown_system-l4d2_opening_tank_interval", 				"50", 			"Time Interval to spawn a tank when door is opening (0=off)", FCVAR_NOTIFY, true, 0.0);
-	lsDoorBotDisable 			= CreateConVar( "lockdown_system-l4d2_spam_bot_disable", 					"1", 			"If 1, prevent AI survivor from opening and closing the door.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	lsPreventDoorSpamDuration 	= CreateConVar("lockdown_system-l4d2_prevent_spam_duration", 				"3.0", 			"How many seconds to lock after opening and closing the saferoom door.", FCVAR_NOTIFY, true, 0.0);
+	lsAnnounce 					= CreateConVar( "lockdown_system_l4d_announce", 							"1", 			"If 1, Enable saferoom door status Announcements", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsAntiFarmDuration	 		= CreateConVar( "lockdown_system_l4d_anti-farm_duration", 					"50", 			"Duration Of Anti-Farm, locks door if tank is on the field", FCVAR_NOTIFY, true, 0.0);
+	lsDuration 					= CreateConVar( "lockdown_system_l4d_duration", 							"100", 			"Duration Of end saferoom door opening", FCVAR_NOTIFY, true, 0.0);
+	lsMobs 						= CreateConVar( "lockdown_system_l4d_mobs", 								"5", 			"Number Of horde mobs to spawn (-1=Infinite horde, 0=Off)", FCVAR_NOTIFY, true, -1.0, true, 15.0);
+	lsTankDemolitionBefore 		= CreateConVar( "lockdown_system_l4d_tank_demolition_before", 				"1", 			"If 1, Enable Tank Demolition, server will spawn tank before door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsTankDemolitionAfter 		= CreateConVar( "lockdown_system_l4d_tank_demolition_after", 				"1", 			"If 1, Enable Tank Demolition, server will spawn tank after door open ", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsType 						= CreateConVar( "lockdown_system_l4d_type", 								"0", 			"Door Lockdown Type: 0=Random, 1=Improved (opening slowly), 2=Default", FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	lsMinSurvivorPercent 		= CreateConVar( "lockdown_system_l4d_percentage_survivors_near_saferoom", 	"50", 			"What percentage of the ALIVE survivors must assemble near the saferoom door before open. (0=off)", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	lsHint 						= CreateConVar(	"lockdown_system_l4d_spam_hint", 							"1", 			"If 1, Display a message showing who opened or closed the saferoom door.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsGetInLimit 				= CreateConVar( "lockdown_system_l4d_outside_slay_duration", 				"60", 			"After end saferoom door is opened, slay players who are not inside saferoom in seconds. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	lsDoorOpeningTeleport 		= CreateConVar( "lockdown_system_l4d_teleport", 							"1", 			"0=Off. 1=Teleport common, special infected if they touch the door inside saferoom when door is opening. (prevent spawning and be stuck inside the saferoom, only works if cvar _type is 2)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsDoorOpeningTankInterval 	= CreateConVar( "lockdown_system_l4d_opening_tank_interval", 				"50", 			"Time Interval to spawn a tank when door is opening (0=off)", FCVAR_NOTIFY, true, 0.0);
+	lsDoorBotDisable 			= CreateConVar( "lockdown_system_l4d_spam_bot_disable", 					"1", 			"If 1, prevent AI survivor from opening and closing the door.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	lsPreventDoorSpamDuration 	= CreateConVar( "lockdown_system_l4d_prevent_spam_duration", 				"3.0", 			"How many seconds to lock after opening and closing the saferoom door.", FCVAR_NOTIFY, true, 0.0);
 	if(g_bL4D2Version)
 	{
-		lsDoorLockColor 		= CreateConVar(	"lockdown_system-l4d2_lock_glow_color",						"255 0 0",		"The default glow color for saferoom door when lock. Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.", FCVAR_NOTIFY );
-		lsDoorUnlockColor 		= CreateConVar( "lockdown_system-l4d2_unlock_glow_color",					"200 200 200",	"The default glow color for saferoom door when unlock. Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.", FCVAR_NOTIFY );
-		lsDoorGlowRange 		= CreateConVar( "lockdown_system-l4d2_glow_range", 							"550", 			"The default value for saferoom door glow range.", FCVAR_NOTIFY, true, 0.0);
+		lsDoorLockColor 		= CreateConVar(	"lockdown_system_l4d_lock_glow_color",						"255 0 0",		"The default glow color for saferoom door when lock. Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.", FCVAR_NOTIFY );
+		lsDoorUnlockColor 		= CreateConVar( "lockdown_system_l4d_unlock_glow_color",					"200 200 200",	"The default glow color for saferoom door when unlock. Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.", FCVAR_NOTIFY );
+		lsDoorGlowRange 		= CreateConVar( "lockdown_system_l4d_glow_range", 							"550", 			"The default value for saferoom door glow range.", FCVAR_NOTIFY, true, 0.0);
 	}
-	lsDoorOpenChance 			= CreateConVar( "lockdown_system-l4d2_open_chance",							"2",			"After saferoom door is opened, how many chance can the survivors open the door. (0=Can't open door after close, -1=No limit)", FCVAR_NOTIFY );
-	lsCountDownHintType 		= CreateConVar( "lockdown_system-l4d2_count_hint_type", 					"2", 			"Change how Count Down Timer Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	lsDoorOpenChance 			= CreateConVar( "lockdown_system_l4d_open_chance",							"2",			"After saferoom door is opened, how many chance can the survivors open the door. (0=Can't open door after close, -1=No limit)", FCVAR_NOTIFY );
+	lsCountDownHintType 		= CreateConVar( "lockdown_system_l4d_count_hint_type", 						"2", 			"Change how Count Down Timer Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 
 	GetCvars();
 	lsAnnounce.AddChangeHook(OnLSCVarsChanged);
@@ -159,7 +153,7 @@ public void OnPluginStart()
 
 	HookEvent("player_spawn", Event_TankSpawn);
 
-	AutoExecConfig(true, "lockdown_system-l4d2");
+	AutoExecConfig(true, "lockdown_system_l4d");
 }
 
 public void OnPluginEnd()
@@ -201,12 +195,12 @@ public void OnMapStart()
 
 	if (g_hMapInfoData.JumpToKey(sCurrentMap)) 
 	{
-		if (g_hMapInfoData.GetNum("lockdown_system-l4d2_off", 0) == 1)
+		if (g_hMapInfoData.GetNum("lockdown_system_l4d_off", 0) == 1)
 		{
 			g_bMapOff = true;
 		}
 
-		g_iMapOpeningTanks = g_hMapInfoData.GetNum("lockdown_system-l4d2_opening_tank", 1);
+		g_iMapOpeningTanks = g_hMapInfoData.GetNum("lockdown_system_l4d_opening_tank", 1);
 	}
 
 	if (!g_bMapOff)
@@ -439,7 +433,7 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 
 		if(g_bIsSafeRoomOpen == true && iDoorOpenChance == 0)
 		{
-			PrintHintText(client, "[TS] %T", "No Chance", client);
+			PrintHintText(client, "%T", "No Chance", client);
 			return Plugin_Handled;
 		}
 		
@@ -468,7 +462,7 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 				iParam = RoundToCeil(iMinSurvivorPercent / 100.0 * iParam);
 				if(iReached < iParam)
 				{
-					PrintHintText(client, "[TS] %T", "SurvivorReached", client, iReached, iParam);
+					PrintHintText(client, "%T", "SurvivorReached", client, iReached, iParam);
 					return Plugin_Handled;
 				}
 
@@ -499,7 +493,7 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 					iSystemTime = iAntiFarmDuration;
 					g_bStartLockDown = true;
 					
-					PrintHintText(client, "[TS] %T", "Tank is still alive", client);
+					PrintHintText(client, "%T", "Tank is still alive", client);
 					EmitSoundToAll("doors/latchlocked2.wav", door, SNDCHAN_AUTO);
 
 					GetClientAbsOrigin(client, fFirstUserOrigin);
@@ -591,13 +585,13 @@ Action CheckAntiFarm(Handle timer, any entity)
 	{
 		case 0: {/*nothing*/}
 		case 1: {
-			PrintToChatAll("[ANTI-FARM] %t", "Tank is still alive, or wait", iSystemTime);
+			PrintToChatAll("%t", "Tank is still alive, or wait", iSystemTime);
 		}
 		case 2: {
-			PrintHintTextToAll("[ANTI-FARM] %t", "Tank is still alive, or wait", iSystemTime);
+			PrintHintTextToAll("%t", "Tank is still alive, or wait", iSystemTime);
 		}
 		case 3: {
-			PrintCenterTextAll("[ANTI-FARM] %t", "Tank is still alive, or wait", iSystemTime);
+			PrintCenterTextAll("%t", "Tank is still alive, or wait", iSystemTime);
 		}
 	}
 	
@@ -643,11 +637,11 @@ Action LockdownOpening(Handle timer, any entity)
 			
 			EmitSoundToAll("level/highscore.wav", entity, SNDCHAN_AUTO, SNDLEVEL_RAIDSIREN, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_LOW, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 
-			if(blsHint) CPrintToChatAll("{default}[{olive}TS{default}]{green} <{olive}%s{green}>{default} %t", sKeyMan, "open the door already");
+			if(blsHint) CPrintToChatAll("%t", "open the door already", sKeyMan);
 			if(bAnnounce)
 			{
 				PrintHintTextToAll("%t","Door is opened! GET IN!!");
-				if(g_iDoorOpenChance >= 0) CPrintToChatAll("{default}[{olive}TS{default}] %t", "Chance", iDoorOpenChance - 1);
+				if(g_iDoorOpenChance >= 0) CPrintToChatAll("%t", "Chance", iDoorOpenChance - 1);
 			}
 			CreateTimer(5.0, LaunchTankDemolition, _, TIMER_FLAG_NO_MAPCHANGE);
 			CreateTimer(5.0, LaunchSlayTimer, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -666,13 +660,13 @@ Action LockdownOpening(Handle timer, any entity)
 	{
 		case 0: {/*nothing*/}
 		case 1: {
-			PrintToChatAll("[LOCKDOWN] %t", "Lockdown in seconds", iSystemTime);
+			PrintToChatAll("%t", "Lockdown in seconds", iSystemTime);
 		}
 		case 2: {
-			PrintHintTextToAll("[LOCKDOWN] %t", "Lockdown in seconds", iSystemTime);
+			PrintHintTextToAll("%t", "Lockdown in seconds", iSystemTime);
 		}
 		case 3: {
-			PrintCenterTextAll("[LOCKDOWN] %t", "Lockdown in seconds", iSystemTime);
+			PrintCenterTextAll("%t", "Lockdown in seconds", iSystemTime);
 		}
 	}
 	
@@ -710,7 +704,7 @@ Action LaunchTankDemolition(Handle timer)
 	ExecuteSpawn(true, 5);
 	if (bAnnounce)
 	{
-		CPrintToChatAll("{default}[{olive}TS{default}] %t","Tanks are coming");
+		CPrintToChatAll("%t","Tanks are coming");
 	}
 	
 	return Plugin_Continue;
@@ -736,13 +730,13 @@ Action AntiPussy(Handle timer)
 	{
 		case 0: {/*nothing*/}
 		case 1: {
-			PrintToChatAll("[LOCKDOWN] %t", "Slay in seconds", iSystemTime);
+			PrintToChatAll("%t", "Slay in seconds", iSystemTime);
 		}
 		case 2: {
-			PrintHintTextToAll("[LOCKDOWN] %t", "Slay in seconds", iSystemTime);
+			PrintHintTextToAll("%t", "Slay in seconds", iSystemTime);
 		}
 		case 3: {
-			PrintCenterTextAll("[LOCKDOWN] %t", "Slay in seconds", iSystemTime);
+			PrintCenterTextAll("%t", "Slay in seconds", iSystemTime);
 		}
 	}
 	
@@ -751,7 +745,7 @@ Action AntiPussy(Handle timer)
 		//AcceptEntityInput(g_iEndCheckpointDoor, "Close");
 		//AcceptEntityInput(g_iEndCheckpointDoor, "ForceClosed");
 
-		if(bAnnounce) CPrintToChatAll("{default}[{olive}TS{default}] %t","Outside Slay");
+		if(bAnnounce) CPrintToChatAll("%t","Outside Slay");
 		
 		CreateTimer(2.5, _AntiPussy, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		return Plugin_Stop;
@@ -771,7 +765,7 @@ Action _AntiPussy(Handle timer)
 		{
 			ForcePlayerSuicide(i);
 			if(bAnnounce) {
-				PrintHintText(i, "[TS] %T", "You have been executed for outside the saferoom!", i);
+				PrintHintText(i, "%T", "You have been executed for outside the saferoom!", i);
 			}
 		}
 	}
@@ -888,7 +882,7 @@ void OnDoorAntiSpam(const char[] output, int caller, int activator, float delay)
 	
 	if(strcmp(output, "OnFullyClosed") == 0 && g_bIsSafeRoomOpen && g_iDoorOpenChance >= 0)
 	{
-		CPrintToChatAll("{default}[{olive}TS{default}] %t", "Chance Left", --iDoorOpenChance);
+		CPrintToChatAll("%t", "Chance Left", --iDoorOpenChance);
 		if(iDoorOpenChance == 0) return;
 	}
 
@@ -1140,8 +1134,8 @@ void DoorPrint(Event event, bool open)
 		int client = GetClientOfUserId(event.GetInt("userid"));
 		if( client && IsClientInGame(client) && GetClientTeam(client) == 2)
 		{
-			if(open) CPrintToChatAll("{default}[{olive}TS{default}]{green} ---{olive}%N{green}---{default} %t", client, "someone opens the door");
-			else CPrintToChatAll("{default}[{olive}TS{default}]{green} ---{olive}%N{green}---{default} %t", client, "someone closes the door");
+			if(open) CPrintToChatAll("%t", "someone opens the door", client);
+			else CPrintToChatAll("%t", "someone closes the door", client);
 		}
 	}
 }

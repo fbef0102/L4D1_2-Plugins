@@ -1,0 +1,128 @@
+"Phrases"
+{
+	"Tank is still alive"
+	{
+		"en"			"[TS] Tank is still alive, kill tank first!"
+		"ru"			"[TS] Танк всё ещё жив, сначала убейте его!"
+		"zho"			"[TS] Tank還活著，請先殺了Tank!"
+		"chi"			"[TS] 坦克还活着，请先杀了坦克!"
+		"es"			"[TS] ¡MATA AL TANK PRIMERO!"
+	}	
+	"Tank is still alive, or wait"
+	{
+		"#format"		"{1:d}"
+		"en"			"[ANTI-FARM] Tank is still alive, kill tank first! Or wait {1} seconds"
+		"ru"			"[ANTI-FARM] Танк всё ещё жив, сначала убейте его или подождите {1} сек."
+		"zho"			"[ANTI-FARM] Tank還活著，請先殺了Tank!\n否則等待 {1} 秒!"
+		"chi"			"[ANTI-FARM] 坦克还活着，请先杀了坦克!\n否则等待 {1} 秒!"
+		"es"			"[ANTI-FARM] ¡MATAR AL TANK O ESPERAR {1} SEGUNDOS!"
+	}	
+	"Door is opened! GET IN!!"
+	{
+		"en"			"!!Door is opened! GET IN!!"
+		"ru"			"!!Дверь открыта! БЫСТРЕЕ ВНУТРЬ!!"
+		"zho"			"!!安全門已開啟!! 大家趕快進去!!"
+		"chi"			"!!安全门已开启!! 大家赶快进去!!"
+		"es"			"!!¡PUERTA ABIERTA! ¡ENTRA!!"
+	}	
+	"open the door already"
+	{
+		"#format"		"{1:s}"
+		"en"			"[{olive}TS{default}]{green} <{olive}{1}{green}>{default} opened the door"
+		"ru"			"[{olive}TS{default}]{green} <{olive}{1}{green}>{default} открывает дверь"
+		"zho"			"[{olive}TS{default}]{green} <{olive}{1}{green}>{default} 打開了 安全室大門!"
+		"chi"			"[{olive}TS{default}]{green} <{olive}{1}{green}>{default} 打开了 安全室大门!"
+		"es"			"[{olive}TS{default}]{green} <{olive}{1}{green}>{default} ABRIO LA PUERTA"
+	}
+	"Lockdown in seconds"
+	{
+		"#format"		"{1:d}"
+		"en"			"[LOCKDOWN] Door open in {1} seconds"
+		"ru"			"[LOCKDOWN] Дверь откроется через {1} сек."
+		"zho"			"[LOCKDOWN] 開門倒數 {1} 秒!"
+		"chi"			"[LOCKDOWN] 开门倒数 {1} 秒!"
+		"es"			"[LOCKDOWN] !LA PUERTA SE ABRE EN {1} SEGUNDOS!"
+	}
+	"Tanks are coming"
+	{
+		"en"			"[{olive}TS{default}] {green}Tanks {default}are coming!!"
+		"ru"			"[{olive}TS{default}] {green}Танки {default}идут!!"
+		"zho"			"[{olive}TS{default}] {green}Tank {default}大軍壓境!!"
+		"chi"			"[{olive}TS{default}] {green}坦克 {default}大军压境!!"
+		"es"			"[{olive}TS{default}] EL TANK ¡ESTA CERCA!"
+	}
+	"Slay in seconds"
+	{
+		"#format"		"{1:d}"
+		"en"			"[LOCKDOWN] Saferoom outside dead in {1} seconds"
+		"ru"			"[LOCKDOWN] Все,кто снаружи убежища,будут мертвы через {1} сек."
+		"zho"			"[LOCKDOWN] 安全室門外死亡倒數 {1} 秒!"
+		"chi"			"[LOCKDOWN] 安全室门外死亡倒数 {1} 秒!"
+		"es"			"[LOCKDOWN] PUERTA ABIERTA, ENTRA O MORIRAS EN {1} SEGUNDOS"
+	}
+	"Outside Slay"
+	{
+		"en"			"[{olive}TS{default}] {olive}Players outside the saferoom will be {green}killed{default}!"
+		"ru"			"[{olive}TS{default}] {olive}Игроки, находящиеся за пределами убежища, будут {green}убиты{default}!"
+		"zho"			"[{olive}TS{default}] {olive}室外區域的玩家將{green}處以死刑{default}!"
+		"chi"			"[{olive}TS{default}] {olive}室外区域的玩家将{green}处以死刑{default}!"
+		"es"			"[{olive}TS{default}] ¡JUGADORES FUERA DEL REFUGIO SERAN ASESINADOS!"
+	}
+	"You have been executed for outside the saferoom!"
+	{
+		"en"			"[TS] You have been killed for outside the saferoom!"
+		"ru"			"[TS] Вы были убиты за выход за пределы убежища!"
+		"zho"			"[TS] 你位於安全門外，處以死刑!!"
+		"chi"			"[TS] 你位于安全门外，处以死刑!!"
+		"es"			"[TS] ¡HAS SIDO ASESINADO POR ESTAR FUERA DE REFUGIO!"
+	}
+	"someone opens the door"
+	{
+		"#format"		"{1:N}"
+		"en"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} opens the door"
+		"ru"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} открывает дверь"
+		"zho"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} 打開 安全門!"
+		"chi"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} 打开 安全门!"
+		"es"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} ABRE LA PUERTA"
+	}
+	"someone closes the door"
+	{
+		"#format"		"{1:N}"
+		"en"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} closes the door"
+		"ru"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} закрывает дверь"
+		"zho"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} 關閉 安全門!"
+		"chi"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} 关闭 安全门!"
+		"es"			"[{olive}TS{default}]{green} ---{olive}{1}{green}---{default} CERRO LA PUERTA"
+	}
+	"Chance"
+	{
+		"#format"		"{1:d}"
+		"en"			"[{olive}TS{default}] The survivors have only {green}{1}{default} chance(s) to open the safe room door"
+		"ru"			"[{olive}TS{default}] У выживших осталось шансов на открытие двери убежища: {green}{1}"
+		"zho"			"[{olive}TS{default}] 倖存者只有 {green}{1}{default} 次機會打開安全室大門!"
+		"chi"			"[{olive}TS{default}] 生还者只有 {green}{1}{default} 次机会打开安全室大门!"
+	}
+	"Chance Left"
+	{
+		"#format"		"{1:d}"
+		"en"			"[{olive}TS{default}] The survivors have {green}{1}{default} chance(s) left to open the door"
+		"ru"			"[{olive}TS{default}] У выживших осталось шансов на открытие двери: {green}{1}{default}"
+		"zho"			"[{olive}TS{default}] 倖存者剩餘 {green}{1}{default} 次機會打開大門!"
+		"chi"			"[{olive}TS{default}] 生还者剩余 {green}{1}{default} 次机会打开大门!"
+	}
+	"No Chance"
+	{
+		"en"			"[TS] Chance to open the door have run out!!"
+		"ru"			"[TS] Шанс открыть дверь исчерпан!!"
+		"zho"			"[TS] 打開大門的機會已用完!!"
+		"chi"			"[TS] 打开大门的机会已用完!!"
+	}
+	"SurvivorReached"
+	{
+		"#format"		"{1:d},{2:d}"
+		"en"			"[TS] {1} survivors have reached near the end saferoom door ({2} required)"
+		"ru"			"[TS] {1} выживших под конец добрались до двери убежища (Требуется: {2})"
+		"zho"			"[TS] {1} 名倖存者已到達安全門附近 (需要{2}名)"
+		"chi"			"[TS] {1} 名生还者已到达安全门附近 (需要{2}名)"
+	}
+}

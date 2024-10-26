@@ -1329,7 +1329,7 @@ void CleanUpStateAndMusic(int client)
 
 //-------------------------------lockdown_system-l4d2_b API Forward-------------------------------
 
-public void L4D2_OnLockDownOpenDoorFinish(const char[] sKeyMan)
+public void L4DLockDownSystem_OnOpenDoorFinish(const char[] sKeyMan)
 {
 	g_bIsOpenSafeRoom = true;
 }

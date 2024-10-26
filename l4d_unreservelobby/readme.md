@@ -22,9 +22,11 @@ Removes lobby reservation when server is full or empty
 		1. Removes lobby reservation once server is full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
 			* New players is allowed to join the server, they can connect via the console or server browser
 			* It won't restore back lobby reservation
+			* Set ```sv_allow_lobby_connect_only 0```
 		2. Removes lobby reservation once all players have disconnected
 			* Players can connect from a lobby again
 			* It won't restore back lobby reservation
+			* Set ```sv_allow_lobby_connect_only``` back to default
 	* In short, if you want multi slots server, must install
 		1. This l4d_unreservelobby plugin
 		2. And **l4dtoolz** (see Require below)
@@ -43,6 +45,11 @@ Removes lobby reservation when server is full or empty
 
 		// Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)
 		l4d_unreservelobby_full "1"
+
+		// When player number reaches the following number, the server unreserves.
+		// 0 = 8 in versus/scavenge, 4 in coop/survival/realis.
+		// >0 = Any number greater than zero.
+		l4d_unreservelobby_trigger "0"
 		```
 </details>
 
@@ -61,6 +68,10 @@ Removes lobby reservation when server is full or empty
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.1h (2024-10-26)
+		* Add ```sv_allow_lobby_connect_only 0``` when unreserved
+		* Update cvars
 
 	* v1.0h (2024-10-3)
 		* Remake code, convert code to latest syntax
@@ -85,10 +96,13 @@ Removes lobby reservation when server is full or empty
 			* 無法從大廳匹配到伺服器
 
 	* (裝插件之後)
-		1. 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)，自動移除動態大廳reserved cookie，不再恢復
+		1. 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)
+			* 自動移除動態大廳reserved cookie，不再恢復
+			* 設置指令```sv_allow_lobby_connect_only 0```
 			* 其他玩家可透過IP直連或是伺服器瀏覽加入遊戲
 		2. 當伺服器所有玩家離開沒人時，自動移除大廳reserved cookie，不再恢復
 			* 玩家可以再次從大廳匹配到伺服器
+			* 指令 ```sv_allow_lobby_connect_only``` 恢復預設
 
 	* 總結白話講: 當你想開多人伺服器時，需要安裝
 		1. 此插件
@@ -110,7 +124,6 @@ Removes lobby reservation when server is full or empty
 	* 什麼是大廳reserved cookie?
 		1. 中文是預定的餅乾(X)，類似去飯店預設房間，已經被訂走的房間無法給其他人入住
 		2. 不用想太多這名詞，直接看有無大廳reserved cookie的差別
-		3. 詳細功能依然有很多未解之謎，問就是Valve的鍋，我們吃瓜就好
 
 	* 有大廳reserved cookie時
 		1. 模式滿人時 (對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家均不能再加入伺服器，即使伺服器設置30個位子依然無法加入
@@ -139,8 +152,8 @@ Removes lobby reservation when server is full or empty
 
 	* 何時會有大廳reserved cookie?
 		1. 設置指令```sv_allow_lobby_connect_only 1```，且第一位玩家透過以下方式加入伺服器
-			* 直連
-			* 從伺服器瀏覽加入
+			* 直連```connect```
+			* 從```openserverbrowser列表```或```steam群組伺服器```瀏覽加入
 			* 大廳匹配
 
 		2. 設置指令```sv_allow_lobby_connect_only 0```，且第一位玩家透過以下方式加入伺服器
@@ -149,7 +162,10 @@ Removes lobby reservation when server is full or empty
 	* 怎麼知道伺服器有大廳reserved cookie?
 		1. 遊戲控制台或伺服器後台輸入```status```，如果看到reserved xxxxx，那就是有，反之亦然
 
-	> 以上如有錯誤，歡迎聯繫告知
+	* ```sv_allow_lobby_connect_only```與大廳之間的關係圖, [圖來源: Hatsune-Imagine/l4d2-plugins/l4d2_unreservelobby](https://github.com/Hatsune-Imagine/l4d2-plugins/tree/main/l4d2_unreservelobby)
+	<br/>![l4d_unreservelobby_2](image/l4d_unreservelobby_2.jpg)
+
+	> 詳細功能依然有很多未解之謎，問就是Valve的鍋，我們吃瓜就好
 </details>
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
@@ -161,6 +177,11 @@ Removes lobby reservation when server is full or empty
 
 		// 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)，自動移除動態大廳reserved cookie
 		l4d_unreservelobby_full "1"
+
+		// 當伺服器內玩家人數達到以下數值, 則移除動態大廳reserved cookie.
+		// 0 = 對抗/清道夫下8人, 戰役/生存/寫實下4人
+		// >0 = 任何大於0的自定義人數
+		l4d_unreservelobby_trigger "0"
 		```
 </details>
 
