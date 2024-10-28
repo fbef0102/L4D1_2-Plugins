@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define SM_DOWNLOADER_VERSION		"2.0-2023/12/6"
+#define SM_DOWNLOADER_VERSION		"2.1-2024/10/28"
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 
 ConVar g_enabled=null;
@@ -14,9 +14,6 @@ ConVar g_normal=null;
 ConVar g_file=null;
 ConVar g_file_simple=null;
 
-char map[256];
-bool downloadfiles=true;
-char mediatype[256];
 int downloadtype;
 
 public Plugin myinfo = 
@@ -30,46 +27,57 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_simple = CreateConVar("sm_downloader_simple", "0", "If 1, Enable simple downloader file.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_normal = CreateConVar("sm_downloader_normal", "1", "If 1, Enable normal downloader file.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_enabled = CreateConVar("sm_downloader_enabled", "1", "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_file = CreateConVar("sm_downloader_config", "configs/sm_downloader/downloads.ini", "(Download & Precache) Full path of the normal downloader configuration to load. \nIE: configs/sm_downloader/downloads.ini", CVAR_FLAGS);
-	g_file_simple = CreateConVar("sm_simple_downloader_config", "configs/sm_downloader/downloads_simple.ini", "(Download Only No Precache) Full path of the simple downloader configuration to load. \nIE: configs/sm_downloader/downloads_simple.ini", CVAR_FLAGS);
+	g_enabled 		= CreateConVar("sm_downloader_enabled", 		"1", "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_normal 		= CreateConVar("sm_downloader_normal_enable", 	"1", "If 1, Enable normal downloader file. (Download & Precache)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_simple 		= CreateConVar("sm_downloader_simple_enable", 	"0", "If 1, Enable simple downloader file. (Download Only No Precache)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_file 			= CreateConVar("sm_downloader_normal_config", 	"configs/sm_downloader/downloads_normal.ini", 	"(Download & Precache) Full path of the normal downloader configuration to load. \nIE: configs/sm_downloader/downloads.ini", CVAR_FLAGS);
+	g_file_simple 	= CreateConVar("sm_downloader_simple_config", 	"configs/sm_downloader/downloads_simple.ini", 	"(Download Only No Precache) Full path of the simple downloader configuration to load. \nIE: configs/sm_downloader/downloads_simple.ini", CVAR_FLAGS);
+	AutoExecConfig(true, "sm_downloader");
 	
 	g_file.AddChangeHook(OnCvarFileChange_control);
 	g_file_simple.AddChangeHook(OnCvarFileSimpleChange_control);
 
-	AutoExecConfig(true, "sm_downloader");
 }
 
 void OnCvarFileChange_control(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if(g_enabled.BoolValue){
-		if(g_normal.BoolValue) ReadDownloads();
+	if(g_enabled.BoolValue)
+	{
+		if(g_normal.BoolValue) ReadDownloadsNormal();
 	}
 }
 
 void OnCvarFileSimpleChange_control(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	if(g_enabled.BoolValue){
+	if(g_enabled.BoolValue)
+	{
 		if(g_simple.BoolValue) ReadDownloadsSimple();
 	}
 }
 
+bool g_bMapStarted;
 public void OnMapStart() 
 {
-	if(g_enabled.BoolValue){
-		if(g_normal.BoolValue) ReadDownloads();
+	g_bMapStarted = true;
+	//if(g_enabled.BoolValue){
+	//	if(g_normal.BoolValue) ReadDownloadsNormal();
+	//	if(g_simple.BoolValue) ReadDownloadsSimple();
+	//}
+}
+
+public void OnMapEnd()
+{
+	g_bMapStarted = false;
+}
+
+public void OnConfigsExecuted()
+{	
+	if(g_enabled.BoolValue)
+	{
+		if(g_normal.BoolValue) ReadDownloadsNormal();
 		if(g_simple.BoolValue) ReadDownloadsSimple();
 	}
 }
-/*
-public void OnConfigsExecuted(){	
-	if(g_enabled.BoolValue){
-		if(g_normal.BoolValue) ReadDownloads();
-		if(g_simple.BoolValue) ReadDownloadsSimple();
-	}
-}*/
 
 void ReadFileFolder(char[] path){
 	Handle dirh = null;
@@ -99,9 +107,9 @@ void ReadFileFolder(char[] path){
 				StrCat(tmp_path,255,buffer);
 				if(type == FileType_File){
 					if(downloadtype == 1){
-						ReadItem(tmp_path);
+						ReadItemNormal(tmp_path);
 					}
-					else{
+					else if(downloadtype == 2){
 						ReadItemSimple(tmp_path);
 					}
 				}
@@ -113,9 +121,9 @@ void ReadFileFolder(char[] path){
 	}
 	else{
 		if(downloadtype == 1){
-			ReadItem(path);
+			ReadItemNormal(path);
 		}
-		else{
+		else if(downloadtype == 2){
 			ReadItemSimple(path);
 		}
 	}
@@ -123,7 +131,9 @@ void ReadFileFolder(char[] path){
 	delete dirh;
 }
 
-void ReadDownloads(){
+void ReadDownloadsNormal()
+{
+	if(!g_bMapStarted) return;
 
 	char sConVarPath[PLATFORM_MAX_PATH];
 	g_file.GetString(sConVarPath, sizeof(sConVarPath));
@@ -133,16 +143,15 @@ void ReadDownloads(){
 
 	if (!FileExists(file)) {
 		SetFailState("Normal Downloader Configuration Not Found: %s", file);
+		return;
 	}
 
 	Handle fileh = OpenFile(file, "r");
+	if(fileh == null) return;
 	char buffer[256];
 	downloadtype = 1;
 	int len;
 
-	GetCurrentMap(map,255);
-
-	if(fileh == null) return;
 	while (ReadFileLine(fileh, buffer, sizeof(buffer)))
 	{	
 		len = strlen(buffer);
@@ -151,9 +160,8 @@ void ReadDownloads(){
 
 		TrimString(buffer);
 
-		if(strcmp(buffer,"",false) != 0){
+		if(strlen(buffer) > 0)
 			ReadFileFolder(buffer);
-		}
 		
 		if (IsEndOfFile(fileh))
 			break;
@@ -162,27 +170,29 @@ void ReadDownloads(){
 	delete fileh;
 }
 
-void ReadItem(char[] buffer){
+void ReadItemNormal(char[] buffer){
 	int len = strlen(buffer);
 	if (buffer[len-1] == '\n')
 		buffer[--len] = '\0';
 	
+	char mediatype[256];
+	bool downloadfiles;
+
 	TrimString(buffer);
-	
 	if(StrContains(buffer,"//Files (Download Only No Precache)",true) >= 0){
-		strcopy(mediatype,255,"File");
+		mediatype = "File";
 		downloadfiles=true;
 	}
 	else if(StrContains(buffer,"//Decal Files (Download and Precache)",true) >= 0){
-		strcopy(mediatype,255,"Decal");
+		mediatype = "Decal";
 		downloadfiles=true;
 	}
 	else if(StrContains(buffer,"//Sound Files (Download and Precache)",true) >= 0){
-		strcopy(mediatype,255,"Sound");
+		mediatype = "Sound";
 		downloadfiles=true;
 	}
 	else if(StrContains(buffer,"//Model Files (Download and Precache)",true) >= 0){
-		strcopy(mediatype,255,"Model");
+		mediatype = "Model";
 		downloadfiles=true;
 	}
 	else if(strlen(buffer) == 0 || strncmp(buffer, "//", 2, false) == 0)
@@ -194,21 +204,26 @@ void ReadItem(char[] buffer){
 		if(downloadfiles){
 			AddFileToDownloadsTable(buffer);
 			
-			if(StrContains(mediatype,"Decal",true) >= 0){
+			if(strncmp(mediatype,"Decal", 5, false) == 0)
+			{
 				PrecacheDecal(buffer,true);
 			}
-			else if(StrContains(mediatype,"Sound",true) >= 0){
+			else if(strncmp(mediatype,"Sound", 5, false) == 0)
+			{
 				ReplaceStringEx(buffer, len, "sound/", "", -1, -1, false);
 				PrecacheSound(buffer,true);
 			}
-			else if(StrContains(mediatype,"Model",true) >= 0){
+			else if(strncmp(mediatype,"Model", 5, false) == 0)
+			{
 				PrecacheModel(buffer,true);
 			}
 		}
 	}
 }
 
-void ReadDownloadsSimple(){
+void ReadDownloadsSimple()
+{
+	if(!g_bMapStarted) return;
 
 	char sConVarPath[PLATFORM_MAX_PATH];
 	g_file_simple.GetString(sConVarPath, sizeof(sConVarPath));
@@ -218,14 +233,16 @@ void ReadDownloadsSimple(){
 	
 	if (!FileExists(file)) {
 		SetFailState("Simple Downloader Configuration Not Found: %s", file);
+		return;
 	}
 
 	Handle fileh = OpenFile(file, "r");
+	if(fileh == null) return;
+
 	char buffer[256];
 	downloadtype = 2;
 	int len;
-	
-	if(fileh == null) return;
+
 	while (ReadFileLine(fileh, buffer, sizeof(buffer)))
 	{
 		len = strlen(buffer);
@@ -234,9 +251,8 @@ void ReadDownloadsSimple(){
 
 		TrimString(buffer);
 
-		if(strcmp(buffer,"",false) != 0){
+		if( strlen(buffer) > 0)
 			ReadFileFolder(buffer);
-		}
 		
 		if (IsEndOfFile(fileh))
 			break;

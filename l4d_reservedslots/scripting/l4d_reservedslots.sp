@@ -69,11 +69,11 @@ public void OnAllPluginsLoaded()
 {
     L4dtoolzExtension = FindConVar("sv_maxplayers");
     if(L4dtoolzExtension == null)
-        SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/fbef0102/l4dtoolz");
+        SetFailState("Could not find ConVar \"sv_maxplayers\". Go to install L4dtoolz: https://github.com/accelerator74/l4dtoolz/releases");
 
     sv_visiblemaxplayers = FindConVar("sv_visiblemaxplayers");
     if(sv_visiblemaxplayers == null)
-        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\". Go to install L4dtoolz: https://github.com/fbef0102/l4dtoolz");
+        SetFailState("Could not find ConVar \"sv_visiblemaxplayers\". Go to install L4dtoolz: https://github.com/accelerator74/l4dtoolz/releases");
 
     g_iCfgMaxPlayers = L4dtoolzExtension.IntValue;
     L4dtoolzExtension.AddChangeHook(ConVarChanged_OfficialCvars);

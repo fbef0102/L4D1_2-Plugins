@@ -260,7 +260,8 @@ void OnLSCVarsChanged_lsDuration(ConVar cvar, const char[] sOldValue, const char
 			return;
 		}
 		
-		SetEntPropFloat(g_iEndCheckpointDoor, Prop_Data, "m_flSpeed", 89.0 / float(iDuration));
+		if(iDuration > 0) SetEntPropFloat(g_iEndCheckpointDoor, Prop_Data, "m_flSpeed", 89.0 / float(iDuration));
+		else SetEntPropFloat(g_iEndCheckpointDoor, Prop_Data, "m_flSpeed", fDoorSpeed);
 	}
 }
 
@@ -927,7 +928,7 @@ void ControlDoor(int entity, int iOperation)
 			AcceptEntityInput(entity, "Close");
 			if (iType == 1)
 			{
-				SetEntPropFloat(entity, Prop_Data, "m_flSpeed", 89.0 / float(iDuration));
+				if(iDuration > 0) SetEntPropFloat(entity, Prop_Data, "m_flSpeed", 89.0 / float(iDuration));
 			}
 			AcceptEntityInput(entity, "Lock");
 			if (iType != 1)
