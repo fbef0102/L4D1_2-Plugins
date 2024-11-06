@@ -119,13 +119,13 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	* **Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over) (Adm require: ADMFLAG_KICK)**
 		```php
-		sm_muladdbot
+		sm_muladdbot <number>
 		```
 </details>
 
 * <details><summary>Conflicts</summary>
 
-	* DO NOT modify cvar ```survivor_limit``` value in your cfg
+	* DO NOT modify cvar ```survivor_limit``` value in your cfg.
 	* If you have one of following plugins, please delete
 		1. [bebop - additional coop players (20+ players possible)](https://forums.alliedmods.net/showthread.php?t=110210)
 		2. [SuperVersus](https://forums.alliedmods.net/showthread.php?p=830069)
@@ -190,6 +190,9 @@ Allows additional survivor players in server when 5+ player joins the server
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v6.7 (2024-11-6)
+		* Update cmds
 
 	* v6.6 (2024-10-26)
 		* Bump version
@@ -371,13 +374,13 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	* **管理員新增一個倖存者Bot (這個Bot不會被踢出伺服器直到有玩家取代) (權限: ADMFLAG_KICK)**
 		```php
-		sm_muladdbot
+		sm_muladdbot <數字>
 		```
 </details>
 
 * <details><summary>衝突</summary>
 
-	* 請不要修改指令值 ```survivor_limit```，否則第五位以上的玩家可能會生在起始安全區域
+	* 請不要修改指令值 ```survivor_limit```
 	* 如果有以下的插件請刪除
 		1. [bebop - additional coop players (20+ players possible)](https://forums.alliedmods.net/showthread.php?t=110210)
 		2. [SuperVersus](https://forums.alliedmods.net/showthread.php?p=830069)

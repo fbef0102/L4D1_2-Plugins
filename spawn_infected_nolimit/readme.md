@@ -47,10 +47,10 @@ Spawn special infected without the director limits!
 
 * <details><summary>API | 串接</summary>
 
-	```php
-	Registers a library name: spawn_infected_nolimit
-	```
-	* ```scripting\include\spawn_infected_nolimit.inc```
+	* [spawn_infected_nolimit.inc](scripting\include\spawn_infected_nolimit.inc)
+		```php
+		library name: spawn_infected_nolimit
+		```
 </details>
 
 * Apply to | 適用於

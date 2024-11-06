@@ -48,10 +48,10 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>API | 串接</summary>
 
-	```php
-	Registers a library name: l4d_drop
-	```
-	* ```scripting\include\l4d_drop.inc```
+	* [l4d_drop.inc](scripting\include\l4d_drop.inc)
+		```php
+		library name: l4d_drop
+		```
 </details>
 
 * Apply to | 適用於

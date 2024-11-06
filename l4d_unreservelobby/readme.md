@@ -1,5 +1,5 @@
 # Description | 內容
-Removes lobby reservation when server is full or empty
+Removes lobby reservation when server is full, allow 9+ players to join server
 
 > __Note__ 
 <br/>🟥Dedicated Server Only
@@ -85,7 +85,7 @@ Removes lobby reservation when server is full or empty
 
 - - - -
 # 中文說明
-移除伺服器的大廳人數限制，簡單講就是解鎖伺服器，讓第九位以上的玩家透過IP或伺服器瀏覽加入伺服器
+移除伺服器的大廳人數限制，簡單講就是解鎖伺服器，讓第九位以上的玩家可以加入伺服器
 
 * <details><summary>原理</summary>
 

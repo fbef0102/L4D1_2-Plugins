@@ -92,10 +92,10 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>API | 串接</summary>
 
-	```php
-	Registers a library name: lockdown_system_l4d
-	```
-	* ```scripting\include\lockdown_system_l4d.inc```
+    * [lockdown_system_l4d.inc](scripting\include\lockdown_system_l4d.inc)
+        ```php
+        library name: lockdown_system_l4d
+        ```
 </details>
 
 * Apply to | 適用於

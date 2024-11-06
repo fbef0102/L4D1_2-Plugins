@@ -37,7 +37,7 @@ Makes AI Hunter take damage like human SI while pouncing.
 * <details><summary>API | 串接</summary>
 
 	```php
-	Registers a library name: l4d_ai_hunter_skeet_dmg_fix
+	library name: l4d_ai_hunter_skeet_dmg_fix
 	```
 </details>
 

@@ -11,7 +11,7 @@
 #undef REQUIRE_PLUGIN
 #include <CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"6.6-2024/10/26"
+#define PLUGIN_VERSION 				"6.7-2024/11/6"
 
 public Plugin myinfo = 
 {
@@ -240,7 +240,7 @@ public void OnPluginStart()
 	HookEvent("finale_vehicle_leaving", finale_vehicle_leaving); //救援載具離開之時  (沒有觸發round_end)
 	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
-	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_KICK, "Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over)");
+	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_KICK, "Usage: sm_muladdbot <number> - Attempt to add a survivor bot (will not be kicked by this plugin until someone takes over)");
 	RegConsoleCmd("sm_join", JoinTeam, "Attempt to join Survivors");
 	RegConsoleCmd("sm_js", JoinTeam, "Attempt to join Survivors");
 
@@ -368,31 +368,76 @@ void SetOfficialSurvivorLimit()
 	survivor_limit.SetInt(g_iMinSurvivors);
 }
 
-////////////////////////////////////
-// Callbacks
-////////////////////////////////////
 Action ADMAddBot(int client, int args)
 {
-	if(client == 0)
-		return Plugin_Continue;
-	
-	if(SpawnFakeClient(true) == true)
+	if (client == 0)
 	{
-		PrintToChat(client, "%T", "A surviving Bot was added.", client);
+		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
+	}
+
+	if (GetClientCount(false) >= MaxClients)
+	{
+		ReplyToCommand(client, "Not enough server slots, try again later");
+		return Plugin_Handled;
+	}
+
+	if(args <= 0)
+	{
+		if(SpawnFakeClient(true) == true)
+		{
+			PrintToChat(client, "%T", "A surviving Bot was added.", client);
+		}
+		else
+		{
+			PrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
+		}
 	}
 	else
 	{
-		PrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
+		int botsadd = GetCmdArgInt(1);
+		int serverslots_left = MaxClients - GetClientCount(false);
+		for(int i = 1; i <= botsadd && i <= serverslots_left ; i++)
+		{
+			CreateTimer(0.1*i, Timer_ADMAddBot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		}
 	}
-	
+
 	return Plugin_Handled;
 }
 
+Action Timer_ADMAddBot(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client))
+	{
+		if(SpawnFakeClient(true) == true)
+		{
+			PrintToChat(client, "%T", "A surviving Bot was added.", client);
+		}
+		else
+		{
+			PrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
+		}
+	}
+	else
+	{
+		SpawnFakeClient(true);
+	}
+
+	return Plugin_Continue;
+}
 
 Action JoinTeam(int client,int args)
 {
-	if(!client || !IsClientInGame(client))
+	if (client == 0)
+	{
+		PrintToServer("[TS] This command cannot be used by server.");
 		return Plugin_Handled;
+	}
+
+	if(!IsClientInGame(client))
+		return Plugin_Continue;
 
 	if(g_bCvar_JoinCommandBlock == true)
 		return Plugin_Handled;
@@ -405,13 +450,10 @@ Action JoinTeam(int client,int args)
 	{
 		CreateTimer(0.15, JoinTeam_ColdDown, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
-	
+
 	return Plugin_Handled;
 }
 
-////////////////////////////////////
-// Events
-////////////////////////////////////
 public void OnClientPutInServer(int client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
@@ -1389,6 +1431,9 @@ bool SpawnFakeClient(bool bAdmBot = false)
 	if(iAliveSurvivor == 0)
 		return false;
 		
+	if (GetClientCount(false) >= MaxClients)
+		return false;
+
 	// create fakeclient
 	int fakeclient = CreateSurvivorBot();
 	

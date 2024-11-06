@@ -40,10 +40,10 @@ Fixes survivor_max_incapacitated_count cvar increased values reverting black and
 
 * <details><summary>API | 串接</summary>
 
-	```php
-	Registers a library name: l4d_heartbeat
-	```
-	* ```scripting\include\l4d_heartbeat.inc```
+	* [l4d_heartbeat.inc](scripting\include\l4d_heartbeat.inc)
+		```php
+		library name: l4d_heartbeat
+		```
 </details>
 
 * Apply to | 適用於

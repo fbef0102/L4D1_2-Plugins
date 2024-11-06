@@ -39,10 +39,10 @@ Process chat and allows other plugins to manipulate chat.
 
 * <details><summary>API | 串接</summary>
 
-	```php
-	Registers a library name: simple_chatprocessor
-	```
-	* ```scripting\include\simple_chatprocessor.inc```
+	* [simple_chatprocessor.inc](scripting\include\simple_chatprocessor.inc)
+		```php
+		library name: simple_chatprocessor
+		```
 </details>
 
 * Apply to | 適用於
