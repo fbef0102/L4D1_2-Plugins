@@ -85,7 +85,7 @@ void OnMapStart_JoinMsg()
 	}
 }
 
-stock void OnPostAdminCheck_JoinMsg(const char[] steamId)
+void OnPostAdminCheck_Sound()
 {
 	char soundfile[SOUNDFILE_PATH_LEN];
 	
@@ -101,7 +101,7 @@ stock void OnPostAdminCheck_JoinMsg(const char[] steamId)
 	}
 }
 
-void OnClientDisconnect_JoinMsg()
+void OnClientDisconnect_Sound()
 {
 	char soundfile[SOUNDFILE_PATH_LEN];
 	

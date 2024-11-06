@@ -1,41 +1,41 @@
+// {PLAYERNAME}: 玩家名稱
+// {STEAMID}: 玩家steam id
+// {PLAYERCOUNTRY}: 玩家的國家
+// {PLAYERCOUNTRYSHORT}: 玩家的國家短代號
+// {PLAYERCOUNTRYSHORT3}: 玩家的國家短代號(多一些代號)
+// {PLAYERCITY}: 玩家的城市
+// {PLAYERREGION}: 玩家的地區(省,州)
+// {PLAYERIP}: 玩家IP
+// {PLAYERTYPE}: 玩家是否為管理員
+
+// {default}: 白色
+// {green}: 橘色
+// {olive}: 綠色
+// {lightgreen}: 淺綠色
+// {red}: 紅色 - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+// {blue}: 藍色 - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
+// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
+
+// {PLAYERNAME}: player name
+// {STEAMID}: player STEAMID
+// {PLAYERCOUNTRY}: player country name
+// {PLAYERCOUNTRYSHORT}: player country short name
+// {PLAYERCOUNTRYSHORT3}: player country another short name
+// {PLAYERCITY}: player city name
+// {PLAYERREGION}: player region name
+// {PLAYERIP}: player IP
+// {PLAYERTYPE}: player is Adm or not
+
+// {default}: white
+// {green}: orange
+// {olive}: green
+// {lightgreen}: lightgreen
+// {red}: red - There must be at least one player or bot in infected team，or red will turn into {green} color
+// {blue}: blue - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
+// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
+
 "CountryShow"
 {
-	// {PLAYERNAME}: 玩家名稱
-	// {STEAMID}: 玩家steam id
-	// {PLAYERCOUNTRY}: 玩家的國家
-	// {PLAYERCOUNTRYSHORT}: 玩家的國家短代號
-	// {PLAYERCOUNTRYSHORT3}: 玩家的國家短代號(多一些代號)
-	// {PLAYERCITY}: 玩家的城市
-	// {PLAYERREGION}: 玩家的地區(省,州)
-	// {PLAYERIP}: 玩家IP
-	// {PLAYERTYPE}: 玩家是否為管理員
-
-	// {default}: 白色
-	// {green}: 橘色
-	// {olive}: 綠色
-	// {lightgreen}: 淺綠色
-	// {red}: 紅色 - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
-	// {blue}: 藍色 - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
-	// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
-
-	// {PLAYERNAME}: player name
-	// {STEAMID}: player STEAMID
-	// {PLAYERCOUNTRY}: player country name
-	// {PLAYERCOUNTRYSHORT}: player country short name
-	// {PLAYERCOUNTRYSHORT3}: player country another short name
-	// {PLAYERCITY}: player city name
-	// {PLAYERREGION}: player region name
-	// {PLAYERIP}: player IP
-	// {PLAYERTYPE}: player is Adm or not
-	
-	// {default}: white
-	// {green}: orange
-	// {olive}: green
-	// {lightgreen}: lightgreen
-	// {red}: red - There must be at least one player or bot in infected team，or red will turn into {green} color
-	// {blue}: blue - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
-	// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
-
 	//除了管理員外所有人會看到的句子
 	//display message to everyone (Non-admin)
 	"messages"

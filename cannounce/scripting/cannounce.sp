@@ -32,7 +32,7 @@
 #include <adminmenu>
 #include <multicolors>
 
-#define VERSION "2.0"
+#define VERSION "2.1-204/11/7"
 
 /*****************************************************************
 
@@ -44,7 +44,7 @@
 Handle hTopMenu = null;
 char g_filesettings[128];
 
-ConVar g_CvarConnectDisplayType = null;
+ConVar g_hCvarDisplayAdmin;
 /*****************************************************************
 
 
@@ -56,6 +56,25 @@ ConVar g_CvarConnectDisplayType = null;
 #include "cannounce/joinmsg.sp"
 #include "cannounce/geolist.sp"
 #include "cannounce/suppress.sp"
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test != Engine_Left4Dead && test == Engine_Left4Dead2 )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+
+	if( !IsDedicatedServer() )
+	{
+		strcopy(error, err_max, "Get a dedicated server. This plugin does not work on Listen servers.");
+		return APLRes_SilentFailure;
+	}
+
+	return APLRes_Success; 
+}
 
 
 /*****************************************************************
@@ -90,7 +109,7 @@ public void OnPluginStart()
 	
 	CreateConVar("sm_cannounce_version", VERSION, "Connect announce replacement", FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
 
-	g_CvarConnectDisplayType = CreateConVar("sm_ca_connectdisplaytype", "1", "[1|0] if 1 then displays connect message after admin check and allows the {PLAYERTYPE} placeholder. If 0 displays connect message on client auth (earlier) and disables the {PLAYERTYPE} placeholder");
+	g_hCvarDisplayAdmin = CreateConVar("sm_ca_display_admin", "1", "If 1, Display if player is admin on connect/disconnect message (allows the {PLAYERTYPE} placeholder)");
 	
 	BuildPath(Path_SM, g_filesettings, 128, "data/cannounce_settings.txt");
 	
@@ -131,34 +150,13 @@ public void OnMapStart()
 	OnMapStart_JoinMsg();
 }
 
-public void OnClientAuthorized(client, const String:auth[])
-{
-	if( g_CvarConnectDisplayType.IntValue == 0 )
-	{
-		if( !IsFakeClient(client) && GetClientCount(true) <= MaxClients )
-		{
-			OnPostAdminCheck_CountryShow(client);
-		
-			OnPostAdminCheck_JoinMsg(auth);
-		}
-	}
-}
-
 public void OnClientPostAdminCheck(client)
 {
-	char auth[32];
-	
-	if( g_CvarConnectDisplayType.IntValue == 1 )
+	if( !IsFakeClient(client) && GetClientCount(true) <= MaxClients )
 	{
-		GetClientAuthId( client, AuthId_Steam2, auth, sizeof(auth) );
-		
-		if( !IsFakeClient(client) && GetClientCount(true) <= MaxClients )
-		{
-			OnPostAdminCheck_CountryShow(client);
-		
-			OnPostAdminCheck_JoinMsg(auth);
-		}
-	}	
+		OnPostAdminCheck_CountryShow(client);
+		OnPostAdminCheck_Sound();
+	}
 }
 
 public void OnPluginEnd()
@@ -208,8 +206,7 @@ public Action event_PlayerDisconnect(Event event, char[] name, bool dontBroadcas
 	if( client && !IsFakeClient(client) && !dontBroadcast )
 	{
 		event_PlayerDisc_CountryShow(event, name, dontBroadcast);
-		
-		OnClientDisconnect_JoinMsg();
+		OnClientDisconnect_Sound();
 	}
 	
 	
@@ -453,7 +450,7 @@ void GetFormattedMessage( char rawmsg[301], int client,char[] outbuffer, int out
 			ReplaceString(rawmsg, sizeof(rawmsg), "{PLAYERIP}", ip);
 		}
 		
-		if( StrContains(rawmsg, "{PLAYERTYPE}") != -1 && g_CvarConnectDisplayType.IntValue == 1  )
+		if( StrContains(rawmsg, "{PLAYERTYPE}") != -1 && g_hCvarDisplayAdmin.BoolValue  )
 		{
 			aid = GetUserAdmin( client );
 			

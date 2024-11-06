@@ -26,8 +26,8 @@ Replacement of default player connection message, allows for custom connection m
 
 	* cfg\sourcemod\cannounce.cfg
 		```php
-		// [1|0] if 1 then displays connect message after admin check and allows the {PLAYERTYPE} placeholder. If 0 displays connect message on client auth (earlier) and disables the {PLAYERTYPE} placeholder
-		sm_ca_connectdisplaytype "1"
+		// If 1, Display if player is admin on connect/disconnect message (allows the {PLAYERTYPE} placeholder)
+		sm_ca_display_admin "1"
 
 		// shows standard player connected message
 		sm_ca_showstandard "0"
@@ -68,39 +68,8 @@ Replacement of default player connection message, allows for custom connection m
 
 * <details><summary>Data Example</summary>
 
-	* data\cannounce_settings.txt
-		```php
-		"CountryShow"
-		{
-			// {PLAYERNAME}: player name
-			// {STEAMID}: player STEAMID
-			// {PLAYERCOUNTRY}: player country name
-			// {PLAYERCOUNTRYSHORT}: player country short name
-			// {PLAYERCOUNTRYSHORT3}: player country another short name
-			// {PLAYERCITY}: player city name
-			// {PLAYERREGION}: player region name
-			// {PLAYERIP}: player IP
-			// {PLAYERTYPE}: player is Adm or not
-
-			// {default}: white
-			// {green}: orange
-			// {olive}: green
-			// {lightgreen}: lightgreen
-			// {red}: red - There must be at least one player or bot in infected team，or red will turn into {green} color
-			// {blue}: blue - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
-			// Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
-			"messages" //display message to everyone (Non-admin)
-			{
-				"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) {olive}<ID:{STEAMID}>"
-				"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) {olive}<ID:{STEAMID}>"
-			}
-			"messages_admin" //only display message to adm
-			{
-				"playerjoin"		"{default}[{olive}TS{default}] {blue}Player {green}{PLAYERNAME} {blue}connected{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-				"playerdisc"		"{default}[{olive}TS{default}] {red}Player {green}{PLAYERNAME} {red}disconnected{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-			}
-		}
-		```
+	* [data\cannounce_settings.txt](data\cannounce_settings.txt)
+		> Manual in this file, click for more details...
 </details>
 
 * Apply to | 適用於
@@ -126,6 +95,10 @@ Replacement of default player connection message, allows for custom connection m
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v2.1 (2024-11-7)
+		* Update sm 1.12
+		* Update cvars
 
 	* v2.0 (2022-12-1)
         * Remove GeoIPCity (GeoIP2 is now included with SourceMod 1.11.6703.)
@@ -155,7 +128,7 @@ Replacement of default player connection message, allows for custom connection m
 	* cfg\sourcemod\cannounce.cfg
 		```php
 		// 為1時，顯示該玩家是否為管理員 (data文件必須寫入{PLAYERTYPE})
-		sm_ca_connectdisplaytype "1"
+		sm_ca_display_admin "1"
 
 		// 為1時，玩家連線進來伺服器時，顯示遊戲內建的訊息
 		sm_ca_showstandard "0"
@@ -192,39 +165,8 @@ Replacement of default player connection message, allows for custom connection m
 
 * <details><summary>Data設定範例</summary>
 
-	* data\cannounce_settings.txt
-		```php
-		"CountryShow"
-		{
-			// {PLAYERNAME}: 玩家名稱
-			// {STEAMID}: 玩家steam id
-			// {PLAYERCOUNTRY}: 玩家的國家
-			// {PLAYERCOUNTRYSHORT}: 玩家的國家短代號
-			// {PLAYERCOUNTRYSHORT3}: 玩家的國家短代號(多一些代號)
-			// {PLAYERCITY}: 玩家的城市
-			// {PLAYERREGION}: 玩家的地區(省,州)
-			// {PLAYERIP}: 玩家IP
-			// {PLAYERTYPE}: 玩家是否為管理員
-
-			// {default}: 白色
-			// {green}: 橘色
-			// {olive}: 綠色
-			// {lightgreen}: 淺綠色
-			// {red}: 紅色 - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
-			// {blue}: 藍色 - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
-			// {lightgreen}, {red}, {blue}，這三種顏色的其中兩種不可出現在同一句話裡
-			"messages" //除了管理員外所有人會看到的
-			{
-				"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default})"
-				"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default})"
-			}
-			"messages_admin" //管理員會看到的
-			{
-				"playerjoin"		"{default}[{olive}TS{default}] {blue}玩家 {green}{PLAYERNAME} {blue}來了{default}. ({green}{PLAYERCOUNTRY}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-				"playerdisc"		"{default}[{olive}TS{default}] {red}玩家 {green}{PLAYERNAME} {red}跑了{default}. ({green}{DISC_REASON}{default}) IP: {green}{PLAYERIP}{default} {olive}<ID:{STEAMID}>"
-			}
-		}
-		```
+	* [data\cannounce_settings.txt](data\cannounce_settings.txt)
+		> 內有中文說明，可點擊查看
 </details>
 
 

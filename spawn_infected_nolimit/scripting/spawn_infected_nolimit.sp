@@ -218,7 +218,7 @@ public void OnMapStart()
 
 }
 
-Action Command_SpawnMenu(int client, any args)
+Action Command_SpawnMenu(int client, int args)
 {
 	if (client == 0)  
 	{ 
@@ -276,7 +276,7 @@ int SpawnMenu_Handler(Handle menu, MenuAction action, int client, int param)
 	return 0;
 }
 
-Action Command_Spawn(int client, any args)
+Action Command_Spawn(int client, int args)
 {
 	if (!IsValidClient(client))
 	{
