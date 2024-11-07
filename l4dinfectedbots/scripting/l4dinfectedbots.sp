@@ -1,7 +1,7 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.8  (2009-2024)
+* Version	: 2.9.9  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 2.9.9 (2024-11-08)
+*	   - Fixed ghost tank bug in non-versus mode if real player in infected team
+*	   - Fixed double tank bug in non-versus mode if real player in infected team
 *
 * Version 2.9.8 (2024-9-14)
 *	   - Fixed real SI player can't see the ladder in coop/realism
@@ -303,7 +307,7 @@
 *	   - check infected team max slots limit for players when player changes team to infected team in coop/realism/survival.
 *	   - deleted TankFrustStop.
 *	   - added player ghost check when tank player frustrated.
-*	   - fixed Ghost TankBugFix in coop/realism.
+*	   - fixed Ghost GhostTankBugFix in coop/realism.
 *	   - updated gamedata, add signature "NextBotCreatePlayerBot<Tank>"
 *
 * Version 2.2.7
@@ -779,7 +783,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.8"
+#define PLUGIN_VERSION 			"2.9.9-2024/11/8"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -1173,7 +1177,7 @@ void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 		for( int i = 1; i <= MaxClients; i++ )
 		{
 			RemoveSurvivorModelGlow(i);
-			if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, g_hCvarMPGameMode, g_sCvarMPGameMode);
+			if(IsClientInGame(i) && !IsFakeClient(i)) g_hCvarMPGameMode.ReplicateToClient(i, g_sCvarMPGameMode);
 		}
 	}
 
@@ -1196,7 +1200,7 @@ void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 			for( int i = 1; i <= MaxClients; i++ )
 			{
 				CreateSurvivorModelGlow(i);
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == TEAM_INFECTED) SendConVarValue(i, g_hCvarMPGameMode, "versus");
+				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == TEAM_INFECTED) g_hCvarMPGameMode.ReplicateToClient(i, "versus");
 			}
 		}
 	}
@@ -1274,7 +1278,7 @@ void CoopVersus_SettingsChanged()
 				bDisableSurvivorModelGlow = true;
 				for( int i = 1; i <= MaxClients; i++ )
 				{
-					if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, g_hCvarMPGameMode, g_sCvarMPGameMode);
+					if(IsClientInGame(i) && !IsFakeClient(i)) g_hCvarMPGameMode.ReplicateToClient(i, g_sCvarMPGameMode);
 					RemoveSurvivorModelGlow(i);
 				}
 			}
@@ -2268,7 +2272,7 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
 	// If client is valid
-	if (!client || !IsClientInGame(client)) return;
+	if (!client || !IsClientInGame(client) || !IsPlayerAlive(client)) return;
 
 	if(b_HasRoundStarted && g_iPlayerSpawn == 0)
 	{
@@ -2276,56 +2280,54 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	g_iPlayerSpawn = 1;
 
-	if(GetClientTeam(client) == TEAM_SURVIVOR)
+	switch(GetClientTeam(client))
 	{
-		RemoveSurvivorModelGlow(client);
-		CreateTimer(0.3, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
-		delete DisplayTimer;
-		DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
-	}
-
-	if (GetClientTeam(client) != TEAM_INFECTED)
-		return;
-
-	if (IsPlayerTank(client))
-	{
-		char clientname[256];
-		GetClientName(client, clientname, sizeof(clientname));
-		if (L4D_HasPlayerControlledZombies() == false && IsFakeClient(client) && RealPlayersOnInfected() && StrContains(clientname, "Bot", false) == -1)
+		case TEAM_SURVIVOR:
 		{
-			CreateTimer(0.1, TankBugFix, userid, TIMER_FLAG_NO_MAPCHANGE);
+			RemoveSurvivorModelGlow(client);
+			CreateTimer(0.3, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
+			delete DisplayTimer;
+			DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
 		}
-		if (g_bLeftSaveRoom)
+		case TEAM_INFECTED:
 		{
-			#if DEBUG
-			LogMessage("Tank Event Triggered");
-			#endif
-
-			if (L4D_HasPlayerControlledZombies() == false)
+			if (IsFakeClient(client))
 			{
-				if (IsFakeClient(client) && RealPlayersOnInfected())
+				if(IsPlayerTank(client))
 				{
-					if ( (!AreTherePlayersWhoAreNotTanks() && g_ePluginSettings.m_bCoopTankPlayable && StrContains(clientname, "Bot", false) == -1) || (!g_ePluginSettings.m_bCoopTankPlayable && StrContains(clientname, "Bot", false) == -1) )
+					if(L4D_HasPlayerControlledZombies() == false && g_ePluginSettings.m_bCoopTankPlayable)
 					{
-						CreateTimer(0.1, TankBugFix, userid, TIMER_FLAG_NO_MAPCHANGE);
-					}
-					else if (g_ePluginSettings.m_bCoopTankPlayable && AreTherePlayersWhoAreNotTanks())
-					{
-						CreateTimer(0.5, TankSpawner, userid, TIMER_FLAG_NO_MAPCHANGE);
-						CreateTimer(1.0, kickbot, userid, TIMER_FLAG_NO_MAPCHANGE);
+						if (g_bLeftSaveRoom && AreTherePlayersWhoAreNotTanks())
+						{
+							CreateTimer(0.5, Timer_ReplaceAITank, userid, TIMER_FLAG_NO_MAPCHANGE);
+							CreateTimer(1.0, kickbot, userid, TIMER_FLAG_NO_MAPCHANGE);
+						}
 					}
 				}
+				else
+				{
+					delete FightOrDieTimer[client];
+					FightOrDieTimer[client] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, client);
+				}
+			}
+			else
+			{
+				// Turn on Flashlight for Infected player
+				TurnFlashlightOn(client);
 			}
 		}
 	}
-	else if (IsFakeClient(client))
+}
+
+// Try to fix ghost tank bug
+public Action L4D_OnTryOfferingTankBot(int tank_index, bool &enterStasis)
+{
+	if(L4D_HasPlayerControlledZombies() == false && tank_index && IsClientInGame(tank_index) && IsFakeClient(tank_index))
 	{
-		delete FightOrDieTimer[client];
-		FightOrDieTimer[client] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, client);
+		return Plugin_Handled;
 	}
 
-	// Turn on Flashlight for Infected player
-	TurnFlashlightOn(client);
+	return Plugin_Continue;
 }
 
 Action DisposeOfCowards(Handle timer, int coward)
@@ -2709,7 +2711,7 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 					{
 						if(g_bL4D2Version)
 						{
-							SendConVarValue(client, g_hCvarMPGameMode, "versus");
+							g_hCvarMPGameMode.ReplicateToClient(client, "versus");
 							if(bDisableSurvivorModelGlow == true)
 							{
 								bDisableSurvivorModelGlow = false;
@@ -3313,29 +3315,23 @@ Action KickWitch_Timer(Handle timer, int ref)
 
 	return Plugin_Continue;
 }
-// The main Tank code, it allows a player to take over the tank when if allowed, and adds additional tanks if the tanks per spawn cvar was set.
-Action TankSpawner(Handle timer, int tank)
+Action Timer_ReplaceAITank(Handle timer, int tank)
 {
 	if( g_bCvarAllow == false)
 	{
 		return Plugin_Continue;
 	}
 
-	#if DEBUG
-	LogMessage("Tank Spawner Triggred");
-	#endif
+	tank = GetClientOfUserId(tank);
+	if (!tank || !IsClientInGame(tank) || GetClientTeam(tank) != TEAM_INFECTED || !IsPlayerAlive(tank)) 
+		return Plugin_Continue;
+
+	bool tankonfire;
+	if (GetEntProp(tank, Prop_Data, "m_fFlags") & FL_ONFIRE)
+		tankonfire = true;
+
 	int Index[9];
 	int IndexCount = 0;
-	bool tankonfire;
-
-	tank = GetClientOfUserId(tank);
-	if (tank && IsClientInGame(tank))
-	{
-		if (GetEntProp(tank, Prop_Data, "m_fFlags") & FL_ONFIRE && IsPlayerAlive(tank))
-			tankonfire = true;
-	}
-	else return Plugin_Continue;
-
 	for (int t=1;t<=MaxClients;t++)
 	{
 		// We check if player is in game
@@ -3472,49 +3468,6 @@ public void L4D_OnEnterGhostState(int client)
 		else
 			CreateTimer(0.2, Timer_InfectedKillSelf, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
-}
-
-Action TankBugFix(Handle timer, int client)
-{
-	#if DEBUG
-	LogMessage("Tank BugFix Triggred");
-	#endif
-	client = GetClientOfUserId(client);
-
-	if (client && IsClientInGame(client) && IsFakeClient(client) && GetClientTeam(client) == 3)
-	{
-		int lifestate = GetEntData(client, FindSendPropInfo("CTerrorPlayer", "m_lifeState"));
-		if (lifestate == 0)
-		{
-			int bot = SDKCall(hCreateTank, "Tank Bot"); //召喚坦克
-			if (bot > 0 && IsValidClient(bot))
-			{
-				#if DEBUG
-					PrintToChatAll("[TS] Ghost BugFix");
-				#endif
-				ChangeClientTeam(bot, TEAM_INFECTED);
-				//SDKCall(hRoundRespawn, bot);
-				SetEntProp(bot, Prop_Send, "m_usSolidFlags", 16);
-				SetEntProp(bot, Prop_Send, "movetype", 2);
-				SetEntProp(bot, Prop_Send, "deadflag", 0);
-				SetEntProp(bot, Prop_Send, "m_lifeState", 0);
-				//SetEntProp(bot, Prop_Send, "m_fFlags", 129);
-				SetEntProp(bot, Prop_Send, "m_iObserverMode", 0);
-				SetEntProp(bot, Prop_Send, "m_iPlayerState", 0);
-				SetEntProp(bot, Prop_Send, "m_zombieState", 0);
-				DispatchSpawn(bot);
-				ActivateEntity(bot);
-
-				float Origin[3], Angles[3];
-				GetClientAbsOrigin(client, Origin);
-				GetClientAbsAngles(client, Angles);
-				KickClient(client);
-				TeleportEntity(bot, Origin, Angles, NULL_VECTOR); //移動到相同位置
-			}
-		}
-	}
-
-	return Plugin_Continue;
 }
 
 // This event serves to make sure the bots spawn at the start of the finale event. The director disallows spawning until the survivors have started the event, so this was
@@ -4206,7 +4159,7 @@ public void OnPluginEnd()
 	if(g_bL4D2Version)
 	{
 		for( int i = 1; i <= MaxClients; i++ )
-			if(IsClientInGame(i) && !IsFakeClient(i)) SendConVarValue(i, g_hCvarMPGameMode, g_sCvarMPGameMode);
+			if(IsClientInGame(i) && !IsFakeClient(i)) g_hCvarMPGameMode.ReplicateToClient(i, g_sCvarMPGameMode);
 	}
 }
 
@@ -6299,6 +6252,14 @@ public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 		//PrintToServer("ChargerLimit %d", retVal);
 		return Plugin_Handled;
 	}
+	/*
+	// 註解原因: 影響到導演生成的tank包括: 地圖固定tank, 對抗生成的tank
+	else if(strcmp(sKey, "TankLimit", false) == 0 || strcmp(sKey, "cm_TankLimit", false) == 0) {
+
+		retVal = g_ePluginSettings.m_iSpawnLimit[SI_TANK];
+		//PrintToServer("TankLimit %d", retVal);
+		return Plugin_Handled;
+	}*/
 	else if(strcmp(sKey, "MaxSpecials", false) == 0 || strcmp(sKey, "cm_MaxSpecials", false) == 0 // Maximum number of Director spawned Special Infected allowed to be in play simultaneously.
 		|| strcmp(sKey, "cm_BaseSpecialLimit", false) == 0) { // Controls the default max limits of all the Special Infected. Overridden by individual special limits.
 

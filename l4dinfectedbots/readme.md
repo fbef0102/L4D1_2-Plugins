@@ -89,97 +89,13 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 * <details><summary>Data Config</summary>
 
 	* All settings are in [data/l4dinfectedbots](data/l4dinfectedbots) folder
+		> Manual in this file, click for more details...
 		* Run coop mode => plugin reads ```coop.cfg```
 		* Run versus mode => plugin reads```versus.cfg```
 		* Run survival  mode => plugin reads```survival .cfg```
 		* Run scavenge mode => plugin reads```scavenge.cfg```
 		* Run realism mode => plugin reads```realism.cfg```
 		* Run mutation gamemode => plugin reads```xxxx.cfg``` (```xxxx``` = mutation name)
-		```php
-		"l4dinfectedbots"
-		{
-			// Global settings
-			"default"
-			{
-				"announce_enable"   "1"
-
-				"smoker_limit"      "2"
-				"boomer_limit"      "2"
-				"hunter_limit"      "2"
-				"spitter_limit"     "2"
-				"jockey_limit"      "2"
-				"charger_limit"     "2"
-				"max_specials"      "4"
-
-				"spawn_time_max"        "60.0"
-				"spawn_time_min"        "40.0"
-				"life"                  "30.0"
-				"initial_spawn_time"    "10.0"
-
-				"smoker_weight"      "100"
-				"boomer_weight"      "80"
-				"hunter_weight"      "100"
-				"spitter_weight"     "80"
-				"jockey_weight"      "100"
-				"charger_weight"     "100"
-				"scale_weights"      "1"
-
-				"smoker_health"      "250"
-				"boomer_health"      "50"
-				"hunter_health"      "250"
-				"spitter_health"     "100"
-				"jockey_health"      "325"
-				"charger_health"     "600"
-
-				"tank_limit"                "1"
-				"tank_spawn_probability"    "5"
-				"tank_health"               "4000"
-				"tank_spawn_final"          "0"
-
-				"witch_max_limit"           "4"
-				"witch_spawn_time_max"      "120.0"
-				"witch_spawn_time_min"      "90.0"
-				"witch_life"                "200.0"
-				"witch_spawn_final"         "0"
-
-				"common_limit"          "30"
-
-				"spawn_same_frame"                       "0"
-				"spawn_time_increase_on_human_infected"  "3.0"
-				"spawn_safe_zone"                        "0"
-				"spawn_where_method"                     "0"
-				"spawn_range_min"                        "350"
-				"spawn_disable_bots"              		 "0"
-				"tank_disable_spawn"                     "0"
-				"coordination"                           "0"
-
-				"coop_versus_enable"            "0"
-				"coop_versus_spawn_time_max"    "35.0"
-				"coop_versus_spawn_time_min"    "25.0"
-				"coop_versus_tank_playable"     "0"
-				"coop_versus_announce"          "1"
-				"coop_versus_human_limit"       "1"
-				"coop_versus_join_access"       "z"
-				"coop_versus_human_light"       "1"
-				"coop_versus_human_ghost"       "1"
-				"coop_versus_cool_down"       	"60.0"
-			}
-		}
-
-		// When there are only 1 alive survivor in server
-		"1"
-		{
-			...
-		}
-
-		// When there are only 2 alive survivors in server
-		"2"
-		{
-			...
-		}
-
-		// And so on....
-		```
 </details>
 
 * How to set the correct settings in data config ?
@@ -507,6 +423,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.9.9 (2024-11-8)
+		* Fixed ghost tank bug in non-versus mode if real player in infected team
+		* Fixed double tank bug in non-versus mode if real player in infected team
+
 	* v2.9.8 (2024-9-14)
 		* Fixed real SI player can't see the ladder in coop/realism
 
@@ -685,97 +605,13 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 * <details><summary>文件設定範例</summary>
 
 	* 所有功能設置都在 [data/l4dinfectedbots](data/l4dinfectedbots) 資料夾裡
+		> 內有中文說明，可點擊查看
 		* 當前模式是戰役 => 插件讀取```coop.cfg```
 		* 當前模式是對抗 => 插件讀取```versus.cfg```
 		* 當前模式是生存 => 插件讀取```survival.cfg```
 		* 當前模式是清道夫 => 插件讀取```scavenge.cfg```
 		* 當前模式是寫實 => 插件讀取```realism.cfg```
 		* 其他模式 => 插件讀取```xxxx.cfg``` (```xxxx``` = 遊戲模式名稱或突變模式名稱)
-		```php
-		"l4dinfectedbots"
-		{
-			// 預設設置
-			"default"
-			{
-				"announce_enable"   "1"
-
-				"smoker_limit"      "2"
-				"boomer_limit"      "2"
-				"hunter_limit"      "2"
-				"spitter_limit"     "2"
-				"jockey_limit"      "2"
-				"charger_limit"     "2"
-				"max_specials"      "4"
-
-				"spawn_time_max"        "60.0"
-				"spawn_time_min"        "40.0"
-				"life"                  "30.0"
-				"initial_spawn_time"    "10.0"
-
-				"smoker_weight"      "100"
-				"boomer_weight"      "80"
-				"hunter_weight"      "100"
-				"spitter_weight"     "80"
-				"jockey_weight"      "100"
-				"charger_weight"     "100"
-				"scale_weights"      "1"
-
-				"smoker_health"      "250"
-				"boomer_health"      "50"
-				"hunter_health"      "250"
-				"spitter_health"     "100"
-				"jockey_health"      "325"
-				"charger_health"     "600"
-
-				"tank_limit"                "1"
-				"tank_spawn_probability"    "5"
-				"tank_health"               "4000"
-				"tank_spawn_final"          "0"
-
-				"witch_max_limit"           "4"
-				"witch_spawn_time_max"      "120.0"
-				"witch_spawn_time_min"      "90.0"
-				"witch_life"                "200.0"
-				"witch_spawn_final"         "0"
-
-				"common_limit"          "30"
-
-				"spawn_same_frame"                       "0"
-				"spawn_time_increase_on_human_infected"  "3.0"
-				"spawn_safe_zone"                        "0"
-				"spawn_where_method"                     "0"
-				"spawn_range_min"                        "350"
-				"spawn_disable_bots"              		 "0"
-				"tank_disable_spawn"                     "0"
-				"coordination"                           "0"
-
-				"coop_versus_enable"            "0"
-				"coop_versus_spawn_time_max"    "35.0"
-				"coop_versus_spawn_time_min"    "25.0"
-				"coop_versus_tank_playable"     "0"
-				"coop_versus_announce"          "1"
-				"coop_versus_human_limit"       "1"
-				"coop_versus_join_access"       "z"
-				"coop_versus_human_light"       "1"
-				"coop_versus_human_ghost"       "1"
-				"coop_versus_cool_down"       	"60.0"
-			}
-		}
-
-		// 當伺服器只有一名活著倖存者時，讀取以下設置
-		"1"
-		{
-			...
-		}
-
-		// 當伺服器只有兩名活著倖存者時，讀取以下設置
-		"2"
-		{
-			...
-		}
-
-		// 以下類推
-		```
 </details>
 
 * 如何設置文件正確的數值?
