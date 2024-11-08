@@ -59,14 +59,6 @@ ConVar g_hCvarDisplayAdmin;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
-	EngineVersion test = GetEngineVersion();
-	
-	if( test != Engine_Left4Dead && test == Engine_Left4Dead2 )
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-		return APLRes_SilentFailure;
-	}
-
 	if( !IsDedicatedServer() )
 	{
 		strcopy(error, err_max, "Get a dedicated server. This plugin does not work on Listen servers.");

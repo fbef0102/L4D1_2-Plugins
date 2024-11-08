@@ -76,6 +76,7 @@ Replacement of default player connection message, allows for custom connection m
 	```
 	L4D1
 	L4D2
+	Any
 	```
 
 * <details><summary>Translation Support | 支援翻譯</summary>
