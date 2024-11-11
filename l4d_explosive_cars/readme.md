@@ -47,7 +47,7 @@ Cars explode after they take some damage
 		// If 1, cars get damaged by another car's explosion
 		l4d_explosive_cars_explosion_damage "1"
 
-		// If 1, Display outline glow of car's health
+		// (L4D2) If 1, Display outline glow of car's health
 		l4d_explosive_cars_health_outline "1"
 
 		// (L4D2) Which method to send survivor flying by car.
@@ -70,10 +70,9 @@ Cars explode after they take some damage
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//honorcode23 @ 2010-2011
-	//HarryPotter @ 2021-2024
-	```
+	* v2.5 (2024-11-11)
+		* Fixed not working in l4d1
+
 	* v2.4 (2024-8-5)
 		* Add outline glow of car's health
 		* Delete invisible fire
@@ -147,7 +146,7 @@ Cars explode after they take some damage
 		// 為1時，車子爆炸後也會對周圍的車子產生連鎖爆炸效應
 		l4d_explosive_cars_explosion_damage "1"
 
-		// 為1時，車子光圈顯示血量狀態 (黃->紅)
+		// (L4D2)  為1時，車子光圈顯示血量狀態 (黃->紅)
 		l4d_explosive_cars_health_outline "1"
 
 		// (L4D2) 選擇倖存者被車子爆炸炸飛的方式

@@ -96,7 +96,7 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
     * v1.7 (2023-2-10)
         * Remake code
         * Replace l4d2direct with left4dhooks
-        * Rremove l4d_stock.inc
+        * Remove l4d_stock.inc
 
     * v1.0
         * [Original Plugin by cravenge](https://forums.alliedmods.net/showthread.php?p=2411516)

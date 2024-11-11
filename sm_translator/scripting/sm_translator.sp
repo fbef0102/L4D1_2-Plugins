@@ -79,11 +79,6 @@ public void OnPluginStart()
 	g_smCodeToGoogle = new StringMap();
 	g_smCodeToGoogle.SetString("zho", "zh-TW");
 	g_smCodeToGoogle.SetString("chi", "zh-CN");
-
-	if(bLate)
-	{
-		LateLoad();
-	}
 }
 
 void LateLoad()
@@ -119,6 +114,11 @@ public void OnConfigsExecuted()
 	if(g_bFirst)
 	{
 		g_bFirst = false;
+		if(bLate)
+		{
+			LateLoad();
+		}
+
 		for(int i = 0; i <= MaxClients; i++)
 		{
 			g_bTranslator[i] = g_bCvarDefault;
