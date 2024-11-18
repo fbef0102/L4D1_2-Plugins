@@ -27,7 +27,7 @@ Server name with txt file (Support any language)
 
 * <details><summary>How to Modify Server Host Name</summary>
 
-    1. Install and launch server, file ```configs\hostname\server_hostname_xxxxx.txt``` will be auto-generated
+    1. Install and launch server, file ```configs/hostname/server_hostname_xxxxx.txt``` will be auto-generated
         * ```xxxxx``` is server port
     2. Modify file
         ```php
@@ -70,11 +70,11 @@ Server name with txt file (Support any language)
 
 * 原理
 	* 伺服器房名只能寫英文，裝上這個插件之後，伺服器房名可以寫中文
-    * 文件[configs\hostname\server_hostname.txt](configs\hostname\server_hostname.txt)是預設的房名
+    * 文件[configs/hostname/server_hostname.txt](configs/hostname/server_hostname.txt)是預設的房名
 
 * <details><summary>改房名步驟</summary>
 
-    1. 安裝插件後啟動伺服器，會自動產生文件 ```configs\hostname\server_hostname_xxxxxx.txt```
+    1. 安裝插件後啟動伺服器，會自動產生文件 ```configs/hostname/server_hostname_xxxxxx.txt```
         * ```xxxxx```是伺服器的端口，也就是port
     
     2. 請打開並輸入房名 (可以寫中文)

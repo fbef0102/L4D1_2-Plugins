@@ -46,11 +46,11 @@ SM File/Folder Downloader and Precacher
 
 * <details><summary>Data Example</summary>
 
-	* [configs\sm_downloader\downloads_normal.ini](addons\sourcemod\configs\sm_downloader\downloads_normal.ini), this is normal downloader configuration
-		> Click [here](addons\sourcemod\configs\sm_downloader\downloads_normal_example(範例).ini) to view example
+	* [configs/sm_downloader/downloads_normal.ini](addons/sourcemod/configs/sm_downloader/downloads_normal.ini), this is normal downloader configuration
+		> Click [here](addons/sourcemod/configs/sm_downloader/downloads_normal_example(範例).ini) to view example
 
-	* [configs\sm_downloader\downloads_simple.ini](addons\sourcemod\configs\sm_downloader\downloads_simple.ini), this is simple downloader configuration (Download Only No Precache)
-		> Click [here](addons\sourcemod\configs\sm_downloader\downloads_simple_example(範例).ini) to view example
+	* [configs/sm_downloader/downloads_simple.ini](addons/sourcemod/configs/sm_downloader/downloads_simple.ini), this is simple downloader configuration (Download Only No Precache)
+		> Click [here](addons/sourcemod/configs/sm_downloader/downloads_simple_example(範例).ini) to view example
 
 	> __Note__ If you don't know which file should use, just enable and use **normal downloader configuration**
 </details>
@@ -60,9 +60,9 @@ SM File/Folder Downloader and Precacher
 	1. Preparation of custom files
 		* Prepare your custom files.
 		* Put them in your game folder
-			* If L4D1, ```Left 4 Dead Dedicated Server\left4dead```
-			* If L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2```
-		* Add the path of each files to the downloader configuration "configs\sm_downloader\downloads_normal.ini" or "configs\sm_downloader\downloads_simple.ini". 
+			* If L4D1, ```Left 4 Dead Dedicated Server/left4dead```
+			* If L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2```
+		* Add the path of each files to the downloader configuration "configs/sm_downloader/downloads_normal.ini" or "configs/sm_downloader/downloads_simple.ini". 
 			* If L4D1, the path has to be put relative to the "left4dead" folder, and with the file extension.
 			* If L4D2, the path has to be put relative to the "left4dead2" folder, and with the file extension.
 		* Prepare [your content-server for FastDL](https://developer.valvesoftware.com/wiki/FastDL), if you don't know what "FastDL" is, please google it
@@ -85,8 +85,8 @@ SM File/Folder Downloader and Precacher
 			* If you are L4D1, ```your-content-server.com/game/left4dead/```
 			* If you are L4D2, ```your-content-server.com/game/left4dead2/```
 		* Upload all your custom files to your game server
-			* If you are L4D1, ```Left 4 Dead Dedicated Server\left4dead```
-			* If you are L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2```
+			* If you are L4D1, ```Left 4 Dead Dedicated Server/left4dead```
+			* If you are L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2```
 
 	4. Start the server and test
 		* Launch your game, Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All
@@ -162,11 +162,11 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 
 * <details><summary>Data設定範例</summary>
 
-	* [configs\sm_downloader\downloads_normal.ini](addons\sourcemod\configs\sm_downloader\downloads_normal.ini), 這是正常版的檔案下載設定文件 (下載並緩存)
-		> 點擊[這裡](addons\sourcemod\configs\sm_downloader\downloads_normal_example(範例).ini)查看範例
+	* [configs/sm_downloader/downloads_normal.ini](addons/ourcemod/configs/sm_downloader/downloads_normal.ini), 這是正常版的檔案下載設定文件 (下載並緩存)
+		> 點擊[這裡](addons/sourcemod/configs/sm_downloader/downloads_normal_example(範例).ini)查看範例
 
-	* [configs\sm_downloader\downloads_simple.ini](addons\sourcemod\configs\sm_downloader\downloads_simple.ini), 這是簡單版的檔案下載設定文件 (只下載不預緩存)
-		> 點擊[這裡](addons\sourcemod\configs\sm_downloader\downloads_simple_example(範例).ini)查看範例
+	* [configs/sm_downloader/downloads_simple.ini](addons/sourcemod/configs/sm_downloader/downloads_simple.ini), 這是簡單版的檔案下載設定文件 (只下載不預緩存)
+		> 點擊[這裡](addons/sourcemod/configs/sm_downloader/downloads_simple_example(範例).ini)查看範例
 
 	> __Note__ 如果你不知道這兩設定文件有捨差別, 建議你一律使用正常版的檔案下載設定文件(下載並緩存)
 </details>
@@ -179,9 +179,9 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 			* 確保沒有文件有空格或特殊字符，如“長破折號”(–) 等。
 			* 不能有中文
 		* 將它們放在遊戲伺服器資料夾中
-			* 如果你是 L4D1，```Left 4 Dead Dedicated Server\left4dead```
-			* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server\left4dead2```
-		* 將每個檔案的路徑添加到檔案下載設定文件"configs\sm_downloader\downloads_normal.ini"或"configs\sm_downloader\downloads_simple.ini"。
+			* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead```
+			* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2```
+		* 將每個檔案的路徑添加到檔案下載設定文件"configs/sm_downloader/downloads_normal.ini"或"configs/sm_downloader/downloads_simple.ini"。
 			* 如果你是 L4D1，路徑必須相對於"left4dead" 資料夾，必須要寫上副檔名。
 			* 如果你是 L4D2，路徑必須相對於"left4dead2" 資料夾，必須要寫上副檔名。
 		* 準備好你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
@@ -204,8 +204,8 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 			* 如果你是 L4D1，```your-content-server.com/game/left4dead/```
 			* 如果你是 L4D2，```your-content-server.com/game/left4dead2/```
 		* 所有自製的檔案複製到您的遊戲伺服器資料夾上。
-			* 如果你是 L4D1，```Left 4 Dead Dedicated Server\left4dead```
-			* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server\left4dead2```
+			* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead```
+			* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2```
 		
 	4. 啟動伺服器並測試
 		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許

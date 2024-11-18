@@ -444,7 +444,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* Add smoker, boomer, hunter, spitter, jockey, charger health in data
 
 	* v2.9.3 (2024-2-23)
-		* You can choose to load different data config instead of xxxx.cfg (xxxx = gamemode or mutation name) in data\l4dinfectedbots folder
+		* You can choose to load different data config instead of xxxx.cfg (xxxx = gamemode or mutation name) in data/l4dinfectedbots folder
 		* pdate Data Config
 		* Update Translation
 		* Update Cvars

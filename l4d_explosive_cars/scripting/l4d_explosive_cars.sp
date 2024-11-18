@@ -5,7 +5,7 @@
 #include <sdkhooks>
 #include <left4dhooks>
 
-#define GETVERSION "2.4-2024/8/4"
+#define GETVERSION "2.5-2024/11/11"
 #define ARRAY_SIZE 2048
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn entity when it's index is above this
 #define EXLOPDE_INTERVAL 6.0

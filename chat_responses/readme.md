@@ -22,17 +22,8 @@ Displays chat advertisements when specified text is said in player chat.
 
 * <details><summary>Data Config</summary>
 
-	* [configs\chat_responses.txt](configs\chat_responses.txt)
-		```php
-        "ChatResponses"
-        {
-            "OP" // specified text is said in player chat.
-            {
-                // Displays message
-                "text"		"{olive}Server OP is Harry"
-            }
-        }
-		```
+    * [configs/chat_responses.txt](configs/chat_responses.txt)
+        > Manual in this file, click for more details...
 </details>
 
 * Apply to | 適用於
@@ -49,8 +40,8 @@ Displays chat advertisements when specified text is said in player chat.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.1 (2023-12-21)
-		* Optimize code and improve performance
+    * v1.1 (2023-12-21)
+        * Optimize code and improve performance
 </details>
 
 - - - -
@@ -62,16 +53,7 @@ Displays chat advertisements when specified text is said in player chat.
 
 * <details><summary>文件設定範例</summary>
 
-	* [configs\chat_responses.txt](configs\chat_responses.txt)
-		```php
-        "ChatResponses"
-        {
-            "OP" // 玩家在聊天框輸入特地文字
-            {
-                // 伺服器會顯示訊息
-                "text"		"{olive}Server OP is Harry"
-            }
-        }
-		```
+    * [configs/chat_responses.txt](configs/chat_responses.txt)
+        > 內有中文說明，可點擊查看
 </details>
 

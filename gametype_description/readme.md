@@ -25,11 +25,8 @@ Allows changing of displayed game type in server browser
 
 * <details><summary>How to Modify Game description</summary>
 
-    1. Modify file: [configs\gametype_description.cfg](configs\gametype_description.cfg)
-        ```php
-        Harry Crazy Mod
-        ```
-    2. The ame description will change on map change or server restart
+    1. Modify file: [configs/gametype_description.cfg](configs/gametype_description.cfg)
+    2. The game description will change on map change or server restart
 </details>
 
 * Apply to | 適用於
@@ -56,9 +53,6 @@ Allows changing of displayed game type in server browser
 
 * <details><summary>改遊戲欄資訊步驟</summary>
 
-    1. 請打開文件[configs\gametype_description.cfg](configs\gametype_description.cfg)並更改 (可以寫中文)
-        ```php
-        Harry 瘋狂模式
-        ```
+    1. 請打開文件[configs/gametype_description.cfg](configs/gametype_description.cfg)並更改 (可以寫中文)
     2. 等待伺服器重啟或換圖
 </details>

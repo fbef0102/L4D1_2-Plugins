@@ -37,38 +37,10 @@ Display advertisements
 		```
 </details>
 
-* <details><summary>Example Config</summary>
+* <details><summary>Data Config</summary>
 
-	* [configs\advertisements.txt](configs\advertisements.txt)
-		```php
-		// Types
-		// -----
-		// center: Center message
-		// chat: Chat message
-		// hint: Hint message
-		// menu: Menu message
-		//
-		// -----
-		//	Following named colors are supported in L4D1/L4D2:
-		//	 - {default}	(white color)
-		//	 - {green}		(olive color)
-		//	 - {olive}		(green color)
-		//	 - {lightgreen}	(light green color)
-		//	 - {red}		(red color) - There must be at least one player or bot in infected team，or red will turn into {green} color
-		//	 - {blue}		(blue color) - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
-		//	 Warning: {lightgreen}、{red}、{blue}, 2 of 3 colors can not be used at the same sentence
-		"Advertisements"
-		{
-			"1"
-			{
-				"chat"			"{olive}Type !votes{lightgreen}: kick、change map、restartmap"
-			}
-			"2"
-			{
-				"chat"			"{lightgreen}Weclome to join our Steam Group or Discord Channel"
-			}
-		}
-		```
+	* [configs/advertisements.txt](configs/advertisements.txt)
+		> Manual in this file, click for more details...
 </details>
 
 * Apply to | 適用於
@@ -108,35 +80,8 @@ Display advertisements
 	* 可設置廣告顯示間隔
 	* 可設置廣告音效
 
-* 文件設定
-	* [configs\advertisements.txt](configs\advertisements.txt)
-		```php
-		// 中文說明
-		// -----
-		// center: 廣告文字顯示於螢幕中央
-		// chat: 廣告文字顯示於聊天框
-		// hint: 廣告文字顯示於螢幕下方黑底白字框
-		// menu: 廣告文字顯示於Menu選單
-		//
-		// -----
-		//	以下顏色只支援於 L4D1/L4D2:
-		//	 - {default}	(白色)
-		//	 - {green}		(橘色)
-		//	 - {olive}		(綠色)
-		//	 - {lightgreen}	(淺綠色)
-		//	 - {red}		(紅色) - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
-		//	 - {blue}		(藍色) - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
-		//	 注意事項: 藍色、紅色、淺綠色，這三種顏色的其中兩種不可出現在同一句話裡
-		//
-		"Advertisements"
-		{
-			"1"
-			{
-				"chat"			"{olive}!votes {lightgreen}投票選單: 踢人、換圖、重新關卡"
-			}
-			"2"
-			{
-				"chat"			"{lightgreen}歡迎加入Steam群組、官方FB社團、Discord頻道"
-			}
-		}
-		```
+* <details><summary>文件設定範例</summary>
+
+	* [configs/advertisements.txt](configs/advertisements.txt)
+		> 內有中文說明，可點擊查看
+</details>

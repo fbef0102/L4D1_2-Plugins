@@ -21,8 +21,12 @@
 
 "ChatResponses"
 {
+	// specified text is said in player chat.
+	// 玩家在聊天框輸入特地文字
 	"OP"
 	{
+		// Displays message to the player on chatbox
+		// 顯示訊息給玩家 (聊天框)
 		"text"		"{olive}Server OP is Harry"
 	}
 	

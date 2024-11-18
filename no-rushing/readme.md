@@ -42,31 +42,8 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
 * <details><summary>Data Config</summary>
 
-    * [configs\no-rushing.cfg](configs\no-rushing.cfg)
-        ```php
-        "no-rushing"
-        {
-            "c12m4_barn" // map name
-            {
-                // 1=Enable plugin, 0=Disable plguin in this map
-                "Enable"	"1"
-                
-                // [0.00~1.00] Warn rushers if they reached this distance (No teleportations, just warnings.)
-                "Notice_Rushing_Distance"		"0.15" 
-                
-                // [0.00~1.00] Teleport rusher back to team after reaching this distance
-                "Teleport_Rushing_Distance"				"0.2"
-                
-                // [0.00~1.00] Teleport player back to team if player is behind team and reach this distance
-                "Teleport_Behind_Distance"				"0.31"
-                
-                // Only teleport player back to team if far away range from team (To prevent nav bug)
-                "Range_Distance"				"600.0"
-            }
-
-            ...
-        }
-        ```
+    * [configs/no-rushing.cfg](configs/no-rushing.cfg)
+        > Manual in this file, click for more details...
 </details>
 
 * <details><summary>Translation Support | 支援翻譯</summary>
@@ -131,29 +108,6 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
 * <details><summary>文件設定範例</summary>
 
-    * [configs\no-rushing.cfg](configs\no-rushing.cfg)
-        ```php
-        "no-rushing"
-        {
-            "c12m4_barn" //地圖名
-            {
-                // 1=在這張地圖開啟插件, 0=在這張地圖關閉插件
-                "Enable"	"1"
-                
-                // [0.00~1.00] 往前離開隊伍超過15%路程會警告
-                "Notice_Rushing_Distance"		"0.15" 
-                
-                // [0.00~1.00] 往前離開隊伍超過20%路程會傳送回隊伍中
-                "Teleport_Rushing_Distance"				"0.2"
-                
-                // [0.00~1.00] 落後隊伍於後方並且超過31%路程會傳送回隊伍中
-                "Teleport_Behind_Distance"				"0.31"
-                
-                // 與隊伍超過此距離才會傳送玩家並懲罰 (避免隔牆 nav bug)
-                "Range_Distance"				"600.0"
-            }
-
-            ...
-        }
-        ```
+    * [configs/no-rushing.cfg](configs/no-rushing.cfg)
+        > 內有中文說明，可點擊查看
 </details>

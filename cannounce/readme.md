@@ -68,7 +68,7 @@ Replacement of default player connection message, allows for custom connection m
 
 * <details><summary>Data Example</summary>
 
-	* [data\cannounce_settings.txt](data\cannounce_settings.txt)
+	* [data/cannounce_settings.txt](data/cannounce_settings.txt)
 		> Manual in this file, click for more details...
 </details>
 
@@ -166,7 +166,7 @@ Replacement of default player connection message, allows for custom connection m
 
 * <details><summary>Data設定範例</summary>
 
-	* [data\cannounce_settings.txt](data\cannounce_settings.txt)
+	* [data/cannounce_settings.txt](data/cannounce_settings.txt)
 		> 內有中文說明，可點擊查看
 </details>
 

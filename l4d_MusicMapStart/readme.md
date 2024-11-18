@@ -75,10 +75,11 @@ Download and play custom music in game
 
 * <details><summary>Data Example</summary>
 
-	* data\music_mapstart.txt
+	* [addons/sourcemod/data/music_mapstart.txt](addons/sourcemod/data/music_mapstart.txt)
 		```php
-		TS_SERVER/SLAM_DUNK.mp3 TAG- SLAM_DUNK //TS_SERVER/SLAM_DUNK.mp3 is the path of the MP3, relative to "sound" folder. SLAM_DUNK is the song Name whatever you want
-		TS_SERVER/Super_Mario.mp3 TAG- Super_Mario
+		// "TS_SERVER/SLAM_DUNK.mp3" is the path of the MP3, relative to "sound" folder.
+		// "SLAM_DUNK" is the song Name whatever you want
+		TS_SERVER/SLAM_DUNK.mp3 TAG- SLAM_DUNK
 		```
 </details>
 
@@ -98,10 +99,10 @@ Download and play custom music in game
 	2. Preparation the list
 		* Download all files(addons and sound).
 		* Put them in your game folder
-    		* If L4D1, ```Left 4 Dead Dedicated Server\left4dead```
-    		* If L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2```
+    		* If L4D1, ```Left 4 Dead Dedicated Server/left4dead```
+    		* If L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2```
 		* Copy YOUR MP3 files to sound/TS_SERVER folder.
-		* Add the path of the MP3 to the main config file "addons\sourcemod\data\music_mapstart.txt". The path has to be put relative to the sound folder.
+		* Add the path of the MP3 to the main config file "addons/sourcemod/data/music_mapstart.txt". The path has to be put relative to the sound folder.
 		* Prepare your content-server for FastDL, if you don't know what "FastDL" is, please google it
 
 	3. Setup server to work with downloadable content
@@ -122,11 +123,11 @@ Download and play custom music in game
 			* If you are L4D1, ```your-content-server.com/game/left4dead/sound/``` 
 			* If you are L4D2, ```your-content-server.com/game/left4dead2/sound/```
 		* Upload "sound" folder to your game server.
-    		* If you are L4D1, ```Left 4 Dead Dedicated Server\left4dead\sound\```
-    		* If you are L4D2, ```Left 4 Dead 2 Dedicated Server\left4dead2\sound\```
+    		* If you are L4D1, ```Left 4 Dead Dedicated Server/left4dead/sound/```
+    		* If you are L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2/sound/```
 		* Upload "sound" folder to your client's game folder (for test).
-    		* If you are L4D1, ```left 4 dead\left4dead\sound\```
-    		* If you are L4D2, ```Left 4 Dead 2\left4dead2\sound\```
+    		* If you are L4D1, ```left 4 dead/left4dead/sound/```
+    		* If you are L4D2, ```Left 4 Dead 2/left4dead2/sound/```
 
 	5. Start the server and test
 		* Launch your game, Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All
@@ -245,10 +246,11 @@ Download and play custom music in game
 
 * <details><summary>Data設定範例</summary>
 	
-	* data\music_mapstart.txt
+	* [addons/sourcemod/data/music_mapstart.txt](addons/sourcemod/data/music_mapstart.txt)
 		```php
-		TS_SERVER/SLAM_DUNK.mp3 TAG- 灌籃高手 //TS_SERVER/SLAM_DUNK.mp3 是MP3檔案路徑，不能有中文，相對於 "sound" 資料夾。灌籃高手 是歌曲名，可自己命名寫中文
-		TS_SERVER/Super_Mario.mp3 TAG- 超級瑪利歐
+		// "TS_SERVER/SLAM_DUNK.mp3" 是MP3檔案路徑，不能有中文，相對於 "sound" 資料夾
+		// "灌籃高手" 是歌曲名，可自己命名寫中文
+		TS_SERVER/SLAM_DUNK.mp3 TAG- 灌籃高手
 		```
 </details>
 
@@ -269,9 +271,9 @@ Download and play custom music in game
 
 	2. 準備清單
 		* 下載所有文件（插件和聲音）。
-		* 將它們放在正確的資料夾中（"Left 4 Dead Dedicated Server\left4dead"或"Left 4 Dead 2 Dedicated Server\left4dead2"資料夾，具體取決於您的遊戲）。
+		* 將它們放在正確的資料夾中（"Left 4 Dead Dedicated Server/left4dead"或"Left 4 Dead 2 Dedicated Server/left4dead2"資料夾，具體取決於您的遊戲）。
 		* 將您的 MP3 文件複製到 sound/TS_SERVER 資料夾。
-		* 將音樂檔案的路徑添加到主配置文件"addons\sourcemod\data\music_mapstart.txt"。路徑必須相對於sound資料夾，需寫上副檔名。
+		* 將音樂檔案的路徑添加到主配置文件"addons/sourcemod/data/music_mapstart.txt"。路徑必須相對於sound資料夾，需寫上副檔名。
 		* 準備你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
 
 	3. 設置服務器以處理可下載的內容
@@ -292,11 +294,11 @@ Download and play custom music in game
 			* 如果你是 L4D1，```your-content-server.com/game/left4dead/sound/```
 			* 如果你是 L4D2，```your-content-server.com/game/left4dead2/sound/```
 		* 將"sound" 資料夾上傳到您的遊戲伺服器資料夾。
-    		* 如果你是 L4D1，```Left 4 Dead Dedicated Server\left4dead\sound\```
-    		* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server\left4dead2\sound\```
+    		* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead/sound/```
+    		* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2/sound/```
 		* 將"sound" 資料夾上傳到您的遊戲資料夾（用於測試）。
-    		* 如果你是 L4D1，```left 4 dead\left4dead\sound\```
-    		* 如果你是 L4D2，```Left 4 Dead 2\left4dead2\sound\```
+    		* 如果你是 L4D1，```left 4 dead/left4dead/sound/```
+    		* 如果你是 L4D2，```Left 4 Dead 2/left4dead2/sound/```
 
 	5. 啟動服務器並測試
 		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許
