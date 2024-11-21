@@ -1,9 +1,9 @@
 # Description | 內容
 Replacement of default player connection message, allows for custom connection messages
 
-> __Note__ <br/>
-🟥Dedicated Server Only<br/>
-🟥只能安裝在Dedicated Server
+> __Note__ 
+<br/>🟥Dedicated Server Only
+<br/>🟥只能安裝在Dedicated Server
 
 * Video | 影片展示
 <br/>None
@@ -76,7 +76,7 @@ Replacement of default player connection message, allows for custom connection m
 	```
 	L4D1
 	L4D2
-	Any
+	Any Source Game
 	```
 
 * <details><summary>Translation Support | 支援翻譯</summary>

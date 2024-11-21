@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define SM_DOWNLOADER_VERSION		"2.1-2024/10/28"
+#define SM_DOWNLOADER_VERSION		"2.2-2024/11/21"
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 
 ConVar g_enabled=null;
@@ -14,7 +14,23 @@ ConVar g_normal=null;
 ConVar g_file=null;
 ConVar g_file_simple=null;
 
-int downloadtype;
+enum EDownloadType
+{
+	eNormal = 1,
+	eSimple = 2,
+}
+
+EDownloadType g_eDownloadType;
+
+enum EMediaFile
+{
+	eUnknown 	= 0,
+	eFile 		= 1,
+	eDecal 		= 2,
+	eSound 		= 3,
+	eModel 		= 4,
+}
+EMediaFile g_eMediaFile;
 
 public Plugin myinfo = 
 {
@@ -106,10 +122,10 @@ void ReadFileFolder(char[] path){
 				StrCat(tmp_path,255,"/");
 				StrCat(tmp_path,255,buffer);
 				if(type == FileType_File){
-					if(downloadtype == 1){
+					if(g_eDownloadType == eNormal){
 						ReadItemNormal(tmp_path);
 					}
-					else if(downloadtype == 2){
+					else if(g_eDownloadType == eSimple){
 						ReadItemSimple(tmp_path);
 					}
 				}
@@ -120,10 +136,10 @@ void ReadFileFolder(char[] path){
 		}
 	}
 	else{
-		if(downloadtype == 1){
+		if(g_eDownloadType == eNormal){
 			ReadItemNormal(path);
 		}
-		else if(downloadtype == 2){
+		else if(g_eDownloadType == eSimple){
 			ReadItemSimple(path);
 		}
 	}
@@ -134,6 +150,8 @@ void ReadFileFolder(char[] path){
 void ReadDownloadsNormal()
 {
 	if(!g_bMapStarted) return;
+
+	g_eMediaFile = eUnknown;
 
 	char sConVarPath[PLATFORM_MAX_PATH];
 	g_file.GetString(sConVarPath, sizeof(sConVarPath));
@@ -149,7 +167,7 @@ void ReadDownloadsNormal()
 	Handle fileh = OpenFile(file, "r");
 	if(fileh == null) return;
 	char buffer[256];
-	downloadtype = 1;
+	g_eDownloadType = eNormal;
 	int len;
 
 	while (ReadFileLine(fileh, buffer, sizeof(buffer)))
@@ -174,26 +192,19 @@ void ReadItemNormal(char[] buffer){
 	int len = strlen(buffer);
 	if (buffer[len-1] == '\n')
 		buffer[--len] = '\0';
-	
-	char mediatype[256];
-	bool downloadfiles;
 
 	TrimString(buffer);
 	if(StrContains(buffer,"//Files (Download Only No Precache)",true) >= 0){
-		mediatype = "File";
-		downloadfiles=true;
+		g_eMediaFile = eFile;
 	}
 	else if(StrContains(buffer,"//Decal Files (Download and Precache)",true) >= 0){
-		mediatype = "Decal";
-		downloadfiles=true;
+		g_eMediaFile = eDecal;
 	}
 	else if(StrContains(buffer,"//Sound Files (Download and Precache)",true) >= 0){
-		mediatype = "Sound";
-		downloadfiles=true;
+		g_eMediaFile = eSound;
 	}
 	else if(StrContains(buffer,"//Model Files (Download and Precache)",true) >= 0){
-		mediatype = "Model";
-		downloadfiles=true;
+		g_eMediaFile = eModel;
 	}
 	else if(strlen(buffer) == 0 || strncmp(buffer, "//", 2, false) == 0)
 	{
@@ -201,19 +212,20 @@ void ReadItemNormal(char[] buffer){
 	}
 	else if (FileExists(buffer))
 	{
-		if(downloadfiles){
+		if(g_eMediaFile != eUnknown)
+		{
 			AddFileToDownloadsTable(buffer);
 			
-			if(strncmp(mediatype,"Decal", 5, false) == 0)
+			if(g_eMediaFile == eDecal)
 			{
 				PrecacheDecal(buffer,true);
 			}
-			else if(strncmp(mediatype,"Sound", 5, false) == 0)
+			else if(g_eMediaFile == eSound)
 			{
 				ReplaceStringEx(buffer, len, "sound/", "", -1, -1, false);
 				PrecacheSound(buffer,true);
 			}
-			else if(strncmp(mediatype,"Model", 5, false) == 0)
+			else if(g_eMediaFile == eModel)
 			{
 				PrecacheModel(buffer,true);
 			}
@@ -240,7 +252,7 @@ void ReadDownloadsSimple()
 	if(fileh == null) return;
 
 	char buffer[256];
-	downloadtype = 2;
+	g_eDownloadType = eSimple;
 	int len;
 
 	while (ReadFileLine(fileh, buffer, sizeof(buffer)))
@@ -277,47 +289,3 @@ void ReadItemSimple(char[] buffer){
 		AddFileToDownloadsTable(buffer);
 	}
 }
-
-/*
-public void OnClientConnected(int client)
-{  
-  if(IsClientConnected(client)&&!IsClientInGame(client)&&!IsFakeClient(client))
- 	CreateTimer(6.0,TimerShowMessage,client);
-}
-
-Action TimerShowMessage(Handle timer, any client)
-{
-  if((IsClientConnected(client)&&IsClientInGame(client)&&!IsFakeClient(client))||!IsClientConnected(client))
-	return Plugin_Handled;
-  ReplyToCommand(client,"===========================================");
-  ReplyToCommand(client,"=   服务器下载需要的文件，请耐心等待...   =");
-  ReplyToCommand(client,"=   Downloading files，please wait...     =");
-  ReplyToCommand(client,"===========================================");
-  
-  CreateTimer(3.0,TimerShowMessage2,client,TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-  return Plugin_Handled;
-
-}
-
-Action TimerShowMessage2(Handle timer,any client)
-{
-  if(!IsClientConnected(client))
-	return Plugin_Stop;
-  
-  if(IsClientConnected(client)&&IsClientInGame(client)&&!IsFakeClient(client))
-  {
-	ReplyToCommand(client,"===========================================");
-	ReplyToCommand(client,"=   服务器下载完成，正在進入伺服器...     =");
-	ReplyToCommand(client,"=   Downloading finished，conneting...    =");
-	ReplyToCommand(client,"===========================================");
-	return Plugin_Stop;
-  }
-
-  ReplyToCommand(client,"===========================================");
-  ReplyToCommand(client,"=   服务器下载需要的文件，请耐心等待...   =");
-  ReplyToCommand(client,"=   Downloading files，please wait...     =");
-  ReplyToCommand(client,"===========================================");
-  
-  return Plugin_Continue;
-}
-*/

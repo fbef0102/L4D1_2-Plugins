@@ -32,7 +32,7 @@
 #include <adminmenu>
 #include <multicolors>
 
-#define VERSION "2.1-204/11/7"
+#define VERSION "2.1-2024/11/7"
 
 /*****************************************************************
 

@@ -102,9 +102,13 @@ SM File/Folder Downloader and Precacher
 	```
 	L4D1
 	L4D2
+	Any Source Game
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v2.2 (2024-11-21)
+		* Fix downloads_normal.ini not working
 
 	* v2.1 (2024-10-28)
 		* Update cvars
