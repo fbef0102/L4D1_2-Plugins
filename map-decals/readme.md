@@ -12,7 +12,7 @@ Allows admins to place any decals into the map that are defined in the the confi
 <br/>None
 
 * Notice
-	* 🟥 Prepare your content-server for FastDL, othersie this plugin will not work
+	* 🟥 Prepare [your content-server for FastDL](https://developer.valvesoftware.com/wiki/FastDL), othersie this plugin will not work
 	* If you don't know what "FastDL" is, please google it
 
 * <details><summary>ConVar | 指令</summary>
@@ -77,9 +77,9 @@ Allows admins to place any decals into the map that are defined in the the confi
 	1. Preparation of vmt/vtf files
 		* Tool - [VTFEdit](https://nemstools.github.io/pages/VTFLib-Download.html)
 		* Valve Developer Community - [Decals](http://developer.valvesoftware.com/wiki/Decals)
-		* file names
+		* File names
 			* Ensure no file has space or special characters like "long dash" (–) or so.
-		* file size
+		* File size
 			* Next, it is recommended every file will not be > 5 MB. in size (to improve download speed).
 			* To decrease the size, Compress .vtf to .vtf.bz2 [file archiver 7-Zip Portable](https://portableapps.com/apps/utilities/7-zip_portable)
 
@@ -88,28 +88,28 @@ Allows admins to place any decals into the map that are defined in the the confi
 		* Put them in your game folder
     		* If L4D1, ```Left 4 Dead Dedicated Server/left4dead```
     		* If L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2```
-		* Copy YOUR vtf files to the materials/decals/TS_SERVER directory, at least they should be in materials, otherwise it won't work. Edit your .vmt file with a text editor if neccesary, to change the path to the .vmt file.
+		* Copy YOUR vtf files to the ```materials/decals/TS_SERVER``` directory, at least they should be in materials, otherwise it won't work. Edit your .vmt file with a text editor if neccesary, to change the path to the .vmt file.
 		* Add the path of the decal to the main config file [addons/sourcemod/configs/map-decals/decals.cfg](addons/sourcemod/configs/map-decals/decals.cfg). The path has to be put relative to the materials folder, and without the file extension.
 		* Prepare your content-server for FastDL, if you don't know what "FastDL" is, please google it
 
 	3. Setup server to work with downloadable content
-		* ConVars in your cfg/server.cfg should be:
+		* Write down in your ```cfg/server.cfg```:
 			* If you are L4D1
 			```php
 			sm_cvar sv_allowdownload "1"
-			sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead/"
+			sm_cvar sv_downloadurl "http://your-content-server.com/left4dead/"
 			```
 			* If you are L4D2
 			```php
 			sm_cvar sv_allowdownload "1"
-			sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2/"	
+			sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2/"	
 			```
 
 	4. Uploading files to server.
 		* Upload "materials" folder to content-server
-			* If you are L4D1, ```your-content-server.com/game/left4dead/materials/``` 
-			* If you are L4D2, ```your-content-server.com/game/left4dead2/materials/```
-		* Upload "materials" folder to your game server.
+			* If you are L4D1, ```your-content-server.com/left4dead/materials/``` 
+			* If you are L4D2, ```your-content-server.com/left4dead2/materials/```
+		* Upload "materials" folder to your dedicated server.
     		* If you are L4D1, ```Left 4 Dead Dedicated Server/left4dead/materials/```
     		* If you are L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2/materials/```
 		* Upload "materials" folder to your client's game folder (for test).
@@ -124,6 +124,9 @@ Allows admins to place any decals into the map that are defined in the the confi
 		* say !savedecal to save a Decal to the config whilst aiming at it, "!savedecal all" saves all Decals (on current Map), "!savedecal [id]" saves a Decal by id, "!savedecal [last]" saves last painted Decal, "!savedecal [name]" saves all Decals by decalname (on current Map)
 		* The decals will be saved to configs/map-decals/maps/XXXXXX.cfg (XXXXXX is map name)
 		* Restart map to see if the Decal is already on the wall
+	
+	6. Players should download custom vtf/vmt files when connecting to your server
+		<br/>![map-decals_4](image/map-decals_4.jpg)
 </details>
 
 * Apply to | 適用於
@@ -160,7 +163,7 @@ Allows admins to place any decals into the map that are defined in the the confi
 
 * 原理
     * 在地圖的牆壁上放置海報並儲存，所有玩家都能看到
-	* 🟥 需自備網空且支援FastDL，上傳vmt/vtf文件，客戶端才能下載檔案 (不知道什麼是FastDL請自行Google)
+	* 🟥 需[自備網空且支援FastDL](https://developer.valvesoftware.com/wiki/Zh/FastDL)，上傳vmt/vtf文件，客戶端才能下載檔案 (不知道什麼是FastDL請自行Google)
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -233,32 +236,32 @@ Allows admins to place any decals into the map that are defined in the the confi
 			* 要減小大小，將 .vtf 壓縮為 .vtf.bz2 [文件歸檔程序 7-Zip Portable](https://portableapps.com/apps/utilities/7-zip_portable)
 		
 	2. 準備清單
-		* 下載所有文件（插件和材料）。
-		* 將它們放在遊戲伺服器資料夾中
+		* 下載所有文件（addons和materials資料夾）。
+		* 將它們放在伺服器資料夾中
     		* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead```
     		* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2```
 		* 將你的vtf文件複製到materials/decals/TS_SERVER目錄下，至少應該在materials裡面，否則不行。如果需要，請使用文本編輯器編輯 .vmt 文件，以更改 .vmt 文件的路徑。
-		* 將塗鴉的路徑添加到主配置文件[addons/sourcemod/configs/map-decals/decals.cfg](addons\/ourcemod/configs/map-decals/decals.cfg)。路徑必須相對於materials資料夾，不需要寫上副檔名。
-		* 準備你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
+		* 將塗鴉的路徑添加到主配置文件[addons/sourcemod/configs/map-decals/decals.cfg](addons/sourcemod/configs/map-decals/decals.cfg)。路徑必須相對於materials資料夾，不需要寫上副檔名。
+		* 準備[你的網空並可以支援FastDL](https://developer.valvesoftware.com/wiki/Zh/FastDL), 不知道什麼是FastDL請自行Google
 		
 	3. 設置伺服器以處理可下載的內容
-		* 寫入以下內容到cfg/server.cfg
+		* 寫入以下內容到```cfg/server.cfg```
 			* 如果你是 L4D1
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead/"
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead/"
 				```
 			* 如果你是 L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2/"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2/"	
 				```
 		
 	4. 上傳文件到伺服器。
 		* 將"materials"資料夾上傳到網空伺服器
-			* 如果你是 L4D1，```your-content-server.com/game/left4dead/materials/```
-			* 如果你是 L4D2，```your-content-server.com/game/left4dead2/materials/```
-		* 將"materials"資料夾複製到您的遊戲伺服器資料夾。
+			* 如果你是 L4D1，```your-content-server.com/left4dead/materials/```
+			* 如果你是 L4D2，```your-content-server.com/left4dead2/materials/```
+		* 將"materials"資料夾複製到您的伺服器資料夾。
     		* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead/materials/```
     		* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2/materials/```
 		* 將"materials"資料夾上傳到您的遊戲資料夾（用於測試）。
@@ -269,8 +272,11 @@ Allows admins to place any decals into the map that are defined in the the confi
 		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許
 		<br/>![zho/map-decals_0](image/zho/map-decals_0.jpg)
 		* 連線到伺服器
-		* 瞄準牆壁並使用 !paintdecal <decalname> 打上你剛才在decal.cfg文件裡取的命名
-		* 現在您可以使用 !savedecal 將瞄準的現存塗鴉保存到配置中
-		* 保存配置位於 configs/map-decals/maps/XXXXXX.cfg (XXXXXX 是地圖名)
+		* 瞄準牆壁並使用 ```!paintdecal <decalname>``` 打上你剛才在decal.cfg文件裡取的命名
+		* 現在您可以使用 ```!savedecal``` 將瞄準的現存塗鴉保存到配置中
+		* 保存配置位於 ```configs/map-decals/maps/XXXXXX.cfg``` (XXXXXX 是地圖名)
 		* 重啟地圖，查看塗鴉是否已經在牆壁上
+
+	6. 玩家加入伺服器時，會自動下載自製的vmt/vtf文件
+		<br/>![map-decals_4](image/map-decals_4.jpg)
 </details>

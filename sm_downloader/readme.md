@@ -7,13 +7,13 @@ SM File/Folder Downloader and Precacher
 
 * Image | 圖示
 	* client connecting server and downloading custom files (玩家連線伺服器時下載自製的檔案)
-	<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
+	<br/>![sm_downloader_image](image/sm_downloader_image.jpg)
 
 * Require | 必要安裝
 <br/>None
 
 * Notice
-	* 🟥 Prepare your content-server for FastDL, othersie this plugin will not work
+	* 🟥 Prepare [your content-server for FastDL](https://developer.valvesoftware.com/wiki/FastDL), othersie this plugin will not work
 	* If you don't know what "FastDL" is, please google it
 
 * <details><summary>ConVar | 指令</summary>
@@ -59,43 +59,48 @@ SM File/Folder Downloader and Precacher
 
 	1. Preparation of custom files
 		* Prepare your custom files.
-		* Put them in your game folder
+		* Put them in your server folder
 			* If L4D1, ```Left 4 Dead Dedicated Server/left4dead```
 			* If L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2```
-		* Add the path of each files to the downloader configuration "configs/sm_downloader/downloads_normal.ini" or "configs/sm_downloader/downloads_simple.ini". 
+		* Add the path of each files to the downloader configuration ```addons/sourcemod/configs/sm_downloader/downloads_normal.ini``` or ```addons/sourcemod/configs/sm_downloader/downloads_simple.ini```. 
 			* If L4D1, the path has to be put relative to the "left4dead" folder, and with the file extension.
 			* If L4D2, the path has to be put relative to the "left4dead2" folder, and with the file extension.
 		* Prepare [your content-server for FastDL](https://developer.valvesoftware.com/wiki/FastDL), if you don't know what "FastDL" is, please google it
+		* Allow HTTP(Port 80), not HTTPPS
 
 	2. Setup server to work with downloadable content
-		* ConVars in your cfg/server.cfg should be:
+		* Write down in your ```cfg/server.cfg```:
 			* If you are L4D1
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead/"
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead/"
 				```
 			* If you are L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2/"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2/"	
 				```
+		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
 
 	3. Uploading files to server.
 		* Upload all your custom files to content-server
-			* If you are L4D1, ```your-content-server.com/game/left4dead/```
-			* If you are L4D2, ```your-content-server.com/game/left4dead2/```
-		* Upload all your custom files to your game server
+			* If you are L4D1, ```your-content-server.com/left4dead/```
+			* If you are L4D2, ```your-content-server.com/left4dead2/```
+		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+
+		* Upload all your custom files to your dedicated server
 			* If you are L4D1, ```Left 4 Dead Dedicated Server/left4dead```
 			* If you are L4D2, ```Left 4 Dead 2 Dedicated Server/left4dead2```
+		<br/>![sm_downloader_3](image/sm_downloader_3.jpg)
 
 	4. Start the server and test
 		* Launch your game, Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All
 		<br/>![sm_downloader_0](image/sm_downloader_0.jpg)
 		* Connect to server. 
-		* Open console to see if the game is downloading files from server
-		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
-		* Browse your game folder, check files are already there.
-		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+		* Open console to see if the game is downloading custom files
+		<br/>![sm_downloader_4](image/sm_downloader_4.jpg)
+		* Browse your game folder, check if files are there, done.
+		<br/>![sm_downloader_5](image/sm_downloader_5.jpg)
 </details>
 
 * Apply to | 適用於
@@ -182,41 +187,45 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		* 文件名
 			* 確保沒有文件有空格或特殊字符，如“長破折號”(–) 等。
 			* 不能有中文
-		* 將它們放在遊戲伺服器資料夾中
+		* 將它們放在伺服器資料夾中
 			* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead```
 			* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2```
-		* 將每個檔案的路徑添加到檔案下載設定文件"configs/sm_downloader/downloads_normal.ini"或"configs/sm_downloader/downloads_simple.ini"。
+		* 將每個檔案的路徑添加到檔案下載設定文件```addons/sourcemod/configs/sm_downloader/downloads_normal.ini```或```addons/sourcemod/configs/sm_downloader/downloads_simple.ini```。
 			* 如果你是 L4D1，路徑必須相對於"left4dead" 資料夾，必須要寫上副檔名。
 			* 如果你是 L4D2，路徑必須相對於"left4dead2" 資料夾，必須要寫上副檔名。
-		* 準備好你的網空並可以支援FastDL, 不知道什麼是FastDL請自行Google
+		* 準備好[你的網空並可以支援FastDL](https://developer.valvesoftware.com/wiki/Zh/FastDL), 不知道什麼是FastDL請自行Google
 		
 	2. 設置伺服器以處理可下載的內容
 		* 寫入以下內容到cfg/server.cfg
 			* 如果你是 L4D1
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead/"
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead/"
 				```
 			* 如果你是 L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/game/left4dead2/"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2/"	
 				```
-		
+		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
+
 	3. 上傳文件到伺服器
 		* 所有自製的檔案上傳到網空伺服器。
-			* 如果你是 L4D1，```your-content-server.com/game/left4dead/```
-			* 如果你是 L4D2，```your-content-server.com/game/left4dead2/```
+			* 如果你是 L4D1，```your-content-server.com/left4dead/```
+			* 如果你是 L4D2，```your-content-server.com/left4dead2/```
+		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+
 		* 所有自製的檔案複製到您的遊戲伺服器資料夾上。
 			* 如果你是 L4D1，```Left 4 Dead Dedicated Server/left4dead```
 			* 如果你是 L4D2，```Left 4 Dead 2 Dedicated Server/left4dead2```
+		<br/>![sm_downloader_3](image/sm_downloader_3.jpg)
 		
 	4. 啟動伺服器並測試
 		* 打開你的遊戲，選項->多人連線->自訂伺服器內容->全部允許
 		<br/>![zho/sm_downloader_0](image/zho/sm_downloader_0.jpg)
 		* 連線到伺服器
 		* 打開控制台查看是否下載自製的檔案 (此處圖片顯示正在下載音樂)
-		<br/>![sm_downloader_1](image/sm_downloader_1.jpg)
+		<br/>![sm_downloader_4](image/sm_downloader_4.jpg)
 		* 再去你的遊戲資料夾查看檔案是否已經下載 
-		<br/>![sm_downloader_2](image/sm_downloader_2.jpg)
+		<br/>![sm_downloader_5](image/sm_downloader_5.jpg)
 </details>

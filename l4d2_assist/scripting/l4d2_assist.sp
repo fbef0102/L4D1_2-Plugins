@@ -7,7 +7,7 @@
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.3-2023/9/27"
+#define PLUGIN_VERSION "2.4-2024/11/24"
 
 #define L4D_TEAM_SURVIVOR 2
 #define L4D_TEAM_INFECTED 3
@@ -26,10 +26,9 @@ char Temp4[] = ")";
 char Temp5[] = "\x05";
 char Temp6[] = "\x01";
 int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
-bool g_bDied[MAXPLAYERS+1]; //tank already dead
+bool g_bTankDied[MAXPLAYERS+1]; //tank already dead
 int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
 int g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
-bool g_bAnnounceWitchDamage[MAXENTITIES+1];
 bool g_bTankOnly;
 int ZC_TANK;
 
@@ -257,12 +256,10 @@ void OnGamemode(const char[] output, int caller, int activator, float delay)
 // ====================================================================================================
 void HookEvents()
 {
-	HookEvent("player_hurt", Event_Player_Hurt);
+	HookEvent("player_hurt", Event_PlayerHurt);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
 	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("player_incapacitated", Event_PlayerIncapacitated);
-	HookEvent("witch_spawn", Event_WitchSpawn);
 	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
@@ -271,35 +268,14 @@ void HookEvents()
 
 void UnhookEvents()
 {
-	UnhookEvent("player_hurt", Event_Player_Hurt);
+	UnhookEvent("player_hurt", Event_PlayerHurt);
 	UnhookEvent("player_spawn", Event_PlayerSpawn);
 	UnhookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
 	UnhookEvent("player_death", Event_PlayerDeath);
-	UnhookEvent("player_incapacitated", Event_PlayerIncapacitated);
-	UnhookEvent("witch_spawn", Event_WitchSpawn);
 	UnhookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 	UnhookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	UnhookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	UnhookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
-}
-
-void Event_PlayerIncapacitated(Event event, const char[] name, bool dontBroadcast) 
-{
-	int victim = GetClientOfUserId(event.GetInt("userid"));
-	int witchid = event.GetInt("attackerentid");
-	if (!IsWitch(witchid)||
-	g_bAnnounceWitchDamage[witchid]					// Prevent double print on witch incapping 2 players (rare)
-	) return;
-
-	if(!victim || !IsClientInGame(victim)) return;
-	
-	int health = GetEntityHealth(witchid);
-	if (health < 0) health = 0;
-	
-	CPrintToChatAll("[{olive}TS{default}] %t", "Witch_Health", health);
-	CPrintToChatAll("[{olive}TS{default}] %t", "Witch_Incap", victim);
-
-	g_bAnnounceWitchDamage[witchid] = true;
 }
 
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
@@ -307,61 +283,58 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	ResetPlugin();
 }
 
-void Event_Player_Hurt(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast) 
 {
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int damageDone = g_iSIHealth[victim] - event.GetInt("health");
 	if(damageDone <= 0) return;
 	
-	if (0 < victim && victim <= MaxClients && IsClientInGame(victim))
+	if (0 < victim && victim <= MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == L4D_TEAM_INFECTED)
 	{
-		if( GetClientTeam(victim) == L4D_TEAM_INFECTED )
+		if (GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
 		{
-			if (GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
+			if( g_bTankDied[victim] || g_iSIHealth[victim] - damageDone < 0) //坦克死亡動畫或是散彈槍重複計算
 			{
-				if( g_bDied[victim] || g_iSIHealth[victim] - damageDone < 0) //坦克死亡動畫或是散彈槍重複計算
-				{
-					return;
-				}
-				
-				if( GetEntProp(victim, Prop_Send, "m_isIncapacitated") ) //坦克死掉播放動畫，即使是玩家造成傷害，attacker還是0
-				{
-					g_bDied[victim] = true;
-					return;
-				}
-				
-				if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
-				{
-					//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d, g_bDied[victim]: %d", g_iSIHealth[victim], damageDone, g_bDied[victim]);
-					if(!g_bDied[victim]) g_iDamage[attacker][victim] += damageDone;
-				}
-				else
-				{
-					static char weapon[64];
-					event.GetString("weapon", weapon, sizeof(weapon));
-					if( g_bDied[victim] && strlen(weapon) == 0 ) return;
-
-					//PrintToChatAll("Tank: %d - type: %d, weapon: %s", victim, event.GetInt("type"), weapon);
-					g_iOtherDamage[victim] += damageDone;
-				}
+				return;
+			}
+			
+			if( GetEntProp(victim, Prop_Send, "m_isIncapacitated") ) //坦克死掉播放動畫，即使是玩家造成傷害，attacker還是0
+			{
+				g_bTankDied[victim] = true;
+				return;
+			}
+			
+			if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
+			{
+				//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d, g_bTankDied[victim]: %d", g_iSIHealth[victim], damageDone, g_bTankDied[victim]);
+				g_iDamage[attacker][victim] += damageDone;
 			}
 			else
 			{
-				//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d", g_iSIHealth[victim], damageDone);
-				if( g_iSIHealth[victim] - damageDone <= 0) //超過最後血量
-				{
-					damageDone = g_iSIHealth[victim];
-				}
+				static char weapon[64];
+				event.GetString("weapon", weapon, sizeof(weapon));
+				if( g_bTankDied[victim] && strlen(weapon) == 0 ) return;
 
-				if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
-				{
-					g_iDamage[attacker][victim] += damageDone;
-				}
-				else
-				{
-					g_iOtherDamage[victim] += damageDone;
-				}
+				//PrintToChatAll("Tank: %d - type: %d, weapon: %s", victim, event.GetInt("type"), weapon);
+				g_iOtherDamage[victim] += damageDone;
+			}
+		}
+		else
+		{
+			//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d", g_iSIHealth[victim], damageDone);
+			if( g_iSIHealth[victim] - damageDone <= 0) //超過最後血量
+			{
+				damageDone = g_iSIHealth[victim];
+			}
+
+			if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
+			{
+				g_iDamage[attacker][victim] += damageDone;
+			}
+			else
+			{
+				g_iOtherDamage[victim] += damageDone;
 			}
 		}
 	}
@@ -375,7 +348,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		
 	if(client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
 	{
-		g_bDied[client] = false;
+		g_bTankDied[client] = false;
 		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
 		for( int i = 1; i <= MaxClients; i++ ) g_iDamage[i][client] = 0;
 		g_iOtherDamage[client] = 0;
@@ -387,9 +360,7 @@ void Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast)
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	
-	if(!victim || !IsClientInGame(victim)) return;
-
-	if(GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
+	if(!victim || !IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
 
 	if (attacker && IsClientInGame(attacker))
 	{
@@ -414,21 +385,6 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	
 	if(!victim || !IsClientInGame(victim)) return;
-	
-	if (attacker == 0)
-	{
-		int witchid = event.GetInt("attackerentid");
-		if (IsWitch(witchid) && g_bAnnounceWitchDamage[witchid] == false && GetClientTeam(victim) == L4D_TEAM_SURVIVOR)  // Prevent double print on witch incapping 2 players (rare)
-		{
-			int health = GetEntityHealth(witchid);
-			if (health < 0) health = 0;
-
-			CPrintToChatAll("{default}[{olive}TS{default}] %t", "Witch_Health", health);
-			CPrintToChatAll("{default}[{olive}TS{default}] %t", "Witch_Kill", victim);
-			g_bAnnounceWitchDamage[witchid] = true;
-			return;
-		}
-	}
 
 	if(GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
 	
@@ -473,12 +429,6 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	ClearDmgSI(victim);
 }
 
-void Event_WitchSpawn(Event event, const char[] name, bool dontBroadcast) 
-{
-	int witchid = event.GetInt("witchid");
-	g_bAnnounceWitchDamage[witchid] = false;
-}
-
 void ResetPlugin()
 {
 	for (int i = 0; i <= MaxClients; i++)
@@ -496,21 +446,4 @@ void ClearDmgSI(int victim)
 	{
 		g_iDamage[i][victim] = 0;
 	}
-}
-
-public int GetEntityHealth(int client)
-{
-	return GetEntProp(client, Prop_Data, "m_iHealth");
-}
-
-bool IsWitch(int entity)
-{
-    if (entity > MaxClients && IsValidEntity(entity))
-    {
-        char strClassName[64];
-        GetEntityClassname(entity, strClassName, sizeof(strClassName));
-        return strcmp(strClassName, "witch", false) == 0;
-    }
-	
-    return false;
 }

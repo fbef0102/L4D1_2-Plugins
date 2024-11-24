@@ -1,29 +1,5 @@
 "Phrases"
 {
-	"Witch_Health"
-	{
-		"en"		"{green}Witch{default} had {green}%d{default} health remaining."
-		"zho"		"{green}Witch{default} 還剩餘 {green}%d{default} 血量."
-		"chi"		"{green}Witch{default} 还剩余 {green}%d{default} 血量."
-                "ru"		"У {green}ведьмы{default} оставалось {green}%d{default} ед. здоровья."
-		"hu"		"{green}Boszorkának{default} még {green}%d{default} életereje volt."		
-	}
-	"Witch_Incap"
-	{
-		"en"		"{green}Witch{olive} crowned {lightgreen}%N{default}."
-		"zho"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 擊☆殺{default}."
-		"chi"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 击☆杀{default}."
-		"ru"		"{green}Ведьма{olive} увенчалась с {lightgreen}%N{default}."
-		"hu"		"{green}Boszorka{olive} egy ütéssel megölte {lightgreen}%N{default}."		
-	}
-	"Witch_Kill"
-	{
-		"en"		"{green}Witch{olive} crowned {lightgreen}%N{default}."
-		"zho"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 擊☆殺{default}."
-		"chi"		"{lightgreen}%N{default} 反被 {green}Witch{olive} 击☆杀{default}."
-		"ru"		"{green}Ведьма{olive} увенчалась с {lightgreen}%N{default}."
-		"hu"		"{green}Boszorkát{olive} egy lövéssel megölte {lightgreen}%N{default}."		
-	}
 	"DMG"
 	{
 		"en"		"dmg"
