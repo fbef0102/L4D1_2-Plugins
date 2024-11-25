@@ -1,0 +1,61 @@
+"Games"
+{
+	"left4dead"
+	{
+		"Offsets"
+		{
+			// Search string "No loading area for rescue vehicle found!"
+			"TerrorNavMesh::m_pRescueVehicleDepthArea"
+			{
+				"linux"			"1460"
+				"windows"		"1460"
+			}
+		}
+		
+		"Signatures"
+		{
+			/**
+			 * CBaseTrigger::IsTouching(CBaseEntity *)
+			 *
+			 * How to find on Windows:
+			 * 1. Search for the "PlayerOutsideCheckpoint" string.
+			 * 2. The string can only be found in "InfoChangelevel::OnCheckpointDoorClosed".
+			 * 3. Click on the first function call in "InfoChangelevel::OnCheckpointDoorClosed".
+			 * 4. Click on the last function call in that function.
+			 * 5. This function should be the second function call in that function.
+			 **/
+			"CBaseTrigger::IsTouching"
+			{
+				"library"	"server"
+				"linux"		"@_ZN12CBaseTrigger10IsTouchingEP11CBaseEntity"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x85\x2A\x74\x2A\x8B\x2A\x8B\x2A\x2A\xFF\x2A\x8B\x2A\x89\x2A\x2A\x2A\xEB\x2A\xC7\x44\x2A\x2A\x2A\x2A\x2A\x2A\x8D\x2A\x2A\x2A\x51\x8D\x8E"
+						/* ? ? ? ? ? ? ? 85 ? 74 ? 8B ? 8B ? ? FF ? 8B ? 89 ? ? ? EB ? C7 44 ? ? ? ? ? ? 8D ? ? ? 51 8D 8E */
+			}
+		}
+	}
+
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			// Search string "Found rescue trigger"
+			"TerrorNavMesh::m_pRescueVehicleDepthArea"
+			{
+				"linux"			"1540"
+				"windows"		"1544"
+			}
+		}
+		
+		"Signatures"
+		{
+			/* CBaseTrigger::IsTouching(CBaseTrigger *__hidden this, CBaseEntity *) */
+			"CBaseTrigger::IsTouching"
+			{
+				"library"	"server"
+				"linux"		"@_ZN12CBaseTrigger10IsTouchingEP11CBaseEntity"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x85\x2A\x74\x2A\x8B\x2A\x8B\x2A\x2A\xFF\x2A\x8B\x2A\x89\x2A\x2A\xEB\x2A\xC7\x45\x2A\x2A\x2A\x2A\x2A\x8D\x2A\x2A\x51\x8D\x8E\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x33"
+				/* ? ? ? ? ? ? 8B ? ? 85 ? 74 ? 8B ? 8B ? ? FF ? 8B ? 89 ? ? EB ? C7 45 ? ? ? ? ? 8D ? ? 51 8D 8E ? ? ? ? E8 ? ? ? ? 33 */
+			}
+		}
+	}
+}

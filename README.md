@@ -195,7 +195,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 移除伺服器的大廳人數限制，簡單講就是解鎖伺服器，讓第九位以上的玩家可以加入伺服器
 * <b>[l4d_heartbeat](/l4d_heartbeat)</b>: Fixes survivor_max_incapacitated_count cvar increased values reverting black and white screen.
     * 可用指令調整倖存者有多條生命與黑白狀態
-
+* <b>[l4d_rescue_vehicle_leave_timer](/l4d_rescue_vehicle_leave_timer)</b>: When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him
+    * 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境
