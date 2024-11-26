@@ -304,6 +304,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 				g_bTankDied[victim] = true;
 				return;
 			}
+
+			g_iSIHealth[victim] = event.GetInt("health");
 			
 			if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
 			{
@@ -328,6 +330,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 				damageDone = g_iSIHealth[victim];
 			}
 
+			g_iSIHealth[victim] = event.GetInt("health");
+
 			if( 0 < attacker <= MaxClients && IsClientInGame(attacker))
 			{
 				g_iDamage[attacker][victim] += damageDone;
@@ -338,8 +342,6 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 			}
 		}
 	}
-
-	g_iSIHealth[victim] = event.GetInt("health");
 }
 
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
