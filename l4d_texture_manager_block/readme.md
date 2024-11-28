@@ -50,8 +50,7 @@ Kicks out clients who are potentially attempting to enable mathack
 
 * Apply to | 適用於
     ```
-    L4D1
-    L4D2
+    Any Source Game
     ```
 
 * <details><summary>Changelog | 版本日誌</summary>
