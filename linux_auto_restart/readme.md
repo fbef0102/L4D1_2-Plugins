@@ -1,5 +1,5 @@
 # Description | 內容
-Restart server when the last player disconnects from the server.
+Make server restart (Force crash) when the last player disconnects from the server
 
 * Video | 影片展示
 <br/>None
@@ -34,6 +34,7 @@ Restart server when the last player disconnects from the server.
 	```
 	L4D1
 	L4D2
+	Any Source Game
 	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
@@ -44,6 +45,7 @@ Restart server when the last player disconnects from the server.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.2 (2024-11-30)
 	* v3.1 (2024-10-26)
 		* Optimize Code
 		

@@ -2,26 +2,25 @@
 #pragma newdecls required
 #include <sourcemod>
 #include <regex>
-#define PLUGIN_VERSION			"3.1-2024/10/26"
+#define PLUGIN_VERSION			"3.2-2024/11/30"
 #define DEBUG 0
 
 public Plugin myinfo =
 {
-	name = "[L4D1/2] auto restart",
+	name = "[L4D1/L4D2/Any] auto restart",
 	author = "Harry Potter, HatsuneImagin",
 	description = "make server restart (Force crash) when the last player disconnects from the server",
 	version = PLUGIN_VERSION,
 	url	= "https://steamcommunity.com/profiles/76561198026784913"
 };
 
+bool g_bGameL4D;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	EngineVersion test = GetEngineVersion();
-
-	if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
+	if(test == Engine_Left4Dead || test == Engine_Left4Dead2)
 	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-		return APLRes_SilentFailure;
+		g_bGameL4D = true;
 	}
 
 	return APLRes_Success;
@@ -43,8 +42,11 @@ char
 
 public void OnPluginStart()
 {
-	g_hConVarHibernate = FindConVar("sv_hibernate_when_empty");
-	g_hConVarHibernate.AddChangeHook(ConVarChanged_Hibernate);
+	if(g_bGameL4D)
+	{
+		g_hConVarHibernate = FindConVar("sv_hibernate_when_empty");
+		g_hConVarHibernate.AddChangeHook(ConVarChanged_Hibernate);
+	}
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);	
 
@@ -103,7 +105,10 @@ public void OnClientConnected(int client)
 
 	if(!g_bAnyoneConnectedBefore)
 	{
-		g_hConVarHibernate.SetBool(false);
+		if(g_bGameL4D)
+		{
+			g_hConVarHibernate.SetBool(false);
+		}
 	}
 
 	g_bAnyoneConnectedBefore = true;
@@ -134,10 +139,26 @@ Action Cmd_RestartServer(int client, int args)
 
 void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(!client || IsFakeClient(client) /*|| (IsClientConnected(client) && !IsClientInGame(client))*/) return;
+	// event.GetBool("bot") always return false in l4d1/2
+	if(event.GetBool("bot")) return;
 
-	if(!CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
+	static char networkid[32];
+	event.GetString("networkid", networkid, sizeof(networkid));
+	// "networkid" is "BOT" is fake client
+	if(strcmp(networkid, "BOT", false) == 0) return;
+
+	int userid = event.GetInt("userid");
+	int client = GetClientOfUserId(userid);
+	if(userid > 0 && client == 0 && !CheckPlayerInGame(0)) //player leaves during map change
+	{
+		g_bNoOneInServer = true;
+
+		delete COLD_DOWN_Timer;
+		COLD_DOWN_Timer = CreateTimer(15.0, Timer_COLD_DOWN);
+		return;
+	}
+
+	if(client && !IsFakeClient(client) && !CheckPlayerInGame(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
 		g_bNoOneInServer = true;
 
@@ -174,11 +195,21 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 
 Action Timer_RestartServer(Handle timer)
 {
-	SetCommandFlags("crash", GetCommandFlags("crash") &~ FCVAR_CHEAT);
-	ServerCommand("crash");
+	if(g_bGameL4D)
+	{
+		SetCommandFlags("crash", GetCommandFlags("crash") &~ FCVAR_CHEAT);
+		ServerCommand("crash");
+	}
+	else
+	{
+		SetCommandFlags("crash", GetCommandFlags("crash") &~ FCVAR_CHEAT);
+		ServerCommand("crash");
 
-	//SetCommandFlags("sv_crash", GetCommandFlags("sv_crash") &~ FCVAR_CHEAT);
-	//ServerCommand("sv_crash");//crash server, make linux auto restart server
+		SetCommandFlags("sv_crash", GetCommandFlags("sv_crash") &~ FCVAR_CHEAT);
+		ServerCommand("sv_crash");
+
+		ServerCommand("_restart");
+	}
 
 	return Plugin_Continue;
 }
@@ -252,6 +283,8 @@ bool CheckPlayerConnectingSV()
 //從大廳匹配觸發map
 Action ServerCmd_map(int client, const char[] command, int argc)
 {
+	if(!g_bGameL4D) return Plugin_Continue;
+
 	g_bCmdMap = true;
 	g_hConVarHibernate.SetBool(false);
 

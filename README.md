@@ -98,7 +98,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 顯示Hunter造成的高撲傷害與高撲距離
 * <b>[l4d_meteor_hunter](/l4d_meteor_hunter)</b>: Hunter high pounces cause meteor strike
     * Hunter的高撲造成核彈衝擊波
-* <b>[linux_auto_restart](/linux_auto_restart)</b>: Restart server when the last player disconnects from the server.
+* <b>[linux_auto_restart](/linux_auto_restart)</b>: Make server restart (Force crash) when the last player disconnects from the server
     * 最後一位玩家離開伺服器之後自動關閉Server並重啟
 * <b>[l4d_sm_respawn](/l4d_sm_respawn)</b>: Allows players to be respawned by admin.
     * 管理員能夠復活死去的玩家
