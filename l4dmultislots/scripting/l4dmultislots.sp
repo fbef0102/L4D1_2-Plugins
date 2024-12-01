@@ -240,7 +240,7 @@ public void OnPluginStart()
 	HookEvent("finale_vehicle_leaving", finale_vehicle_leaving); //救援載具離開之時  (沒有觸發round_end)
 	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
-	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_KICK, "Usage: sm_muladdbot <number> - Attempt to add a survivor bot (will not be kicked by this plugin until someone takes over)");
+	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_ROOT, "Usage: sm_muladdbot <number> - Attempt to add a survivor bot (will not be kicked by this plugin until someone takes over)");
 	RegConsoleCmd("sm_join", JoinTeam, "Attempt to join Survivors");
 	RegConsoleCmd("sm_js", JoinTeam, "Attempt to join Survivors");
 
@@ -273,8 +273,6 @@ public void OnPluginEnd()
 	delete g_hSteamIDs;
 	ClearDefault();
 	ResetTimer();
-
-	survivor_limit.RestoreDefault();
 }
 
 public void OnMapStart()
