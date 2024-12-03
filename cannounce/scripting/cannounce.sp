@@ -32,7 +32,7 @@
 #include <adminmenu>
 #include <multicolors>
 
-#define VERSION "2.1-2024/11/7"
+#define VERSION "2.2-2024/12/3"
 
 /*****************************************************************
 
@@ -133,22 +133,38 @@ public void OnPluginStart()
 }
 
 public void OnMapStart()
-{
-		
-	//precahce and set downloads for sounds files for all players
-	LoadSoundFilesAll();
-	
-	
+{	
 	OnMapStart_JoinMsg();
+}
+
+public void OnMapEnd()
+{
+	OnMapEnd_JoinMsg();
+}
+
+public void OnConfigsExecuted()
+{
+	OnConfigsExecuted_JoinMsg();
 }
 
 public void OnClientPostAdminCheck(client)
 {
-	if( !IsFakeClient(client) && GetClientCount(true) <= MaxClients )
+	if( !IsFakeClient(client) )
+	{
+		CreateTimer(5.0, Timer_OnClientPostAdminCheck, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
+}
+
+Action Timer_OnClientPostAdminCheck(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client))
 	{
 		OnPostAdminCheck_CountryShow(client);
 		OnPostAdminCheck_Sound();
 	}
+
+	return Plugin_Continue;
 }
 
 public void OnPluginEnd()
@@ -191,18 +207,17 @@ public void OnLibraryRemoved(const char[] name)
 
 
 ****************************************************************/
-public Action event_PlayerDisconnect(Event event, char[] name, bool dontBroadcast)
+void event_PlayerDisconnect(Event event, char[] name, bool dontBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
 	if( client && !IsFakeClient(client) && !dontBroadcast )
 	{
-		event_PlayerDisc_CountryShow(event, name, dontBroadcast);
+		event_PlayerDisc_CountryShow(event);
 		OnClientDisconnect_Sound();
 	}
 	
-	
-	return event_PlayerDisconnect_Suppress( event, name, dontBroadcast );
+	event_PlayerDisconnect_Suppress( event );
 }
 
 

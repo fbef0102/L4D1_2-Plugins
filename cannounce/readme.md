@@ -38,11 +38,8 @@ Replacement of default player connection message, allows for custom connection m
 		// Plays a specified (sm_ca_playsoundfile) sound on player connect
 		sm_ca_playsound "1"
 
-		// Sound to play on player discconnect if sm_ca_playdiscsound = 1
-		sm_ca_playdiscsoundfile "ambient\alarms\perimeter_alarm.wav"
-
-		// Time to ignore all player join sounds on a map load
-		sm_ca_mapstartnosound "30.0"
+		// Sound to play on player connect if sm_ca_playsound = 1
+		sm_ca_playsoundfile "ambient/alarms/klaxon1.wav"
 
 		// shows standard player discconnected message
 		sm_ca_showstandarddisc "0"
@@ -53,8 +50,11 @@ Replacement of default player connection message, allows for custom connection m
 		// Plays a specified (sm_ca_playdiscsoundfile) sound on player discconnect
 		sm_ca_playdiscsound "0"
 
-		// Sound to play on player connect if sm_ca_playsound = 1
-		sm_ca_playsoundfile "ambient\alarms\klaxon1.wav"
+		// Sound to play on player discconnect if sm_ca_playdiscsound = 1
+		sm_ca_playdiscsoundfile "ui/beep_error01.wav"
+
+		// Time to ignore all player join/disconnect sounds on a map load
+		sm_ca_mapstartnosound "30.0"
 
 		// displays a different enhanced message to admin players (ADMFLAG_GENERIC)
 		sm_ca_showenhancedadmins "1"
@@ -97,8 +97,8 @@ Replacement of default player connection message, allows for custom connection m
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.2 (2024-12-3)
 	* v2.1 (2024-11-7)
-		* Update sm 1.12
 		* Update cvars
 
 	* v2.0 (2022-12-1)
@@ -141,10 +141,7 @@ Replacement of default player connection message, allows for custom connection m
 		sm_ca_playsound "1"
 
 		// 玩家連線進來伺服器時所播放的音效 (路徑相對於sound資料夾)
-		sm_ca_playdiscsoundfile "ambient\alarms\perimeter_alarm.wav"
-
-		// 地圖載入後30秒內 不要播放連線音效
-		sm_ca_mapstartnosound "30.0"
+		sm_ca_playsoundfile "ambient/alarms/klaxon1.wav"
 
 		// 為1時，玩家離開伺服器時，顯示遊戲內建的訊息
 		sm_ca_showstandarddisc "0"
@@ -156,7 +153,10 @@ Replacement of default player connection message, allows for custom connection m
 		sm_ca_playdiscsound "0"
 
 		// 玩家離開伺服器時所播放的音效 (路徑相對於sound資料夾)
-		sm_ca_playsoundfile "ambient\alarms\klaxon1.wav"
+		sm_ca_playdiscsoundfile "ui/beep_error01.wav"
+
+		// 地圖載入後30秒內 不要播放連線與離開音效
+		sm_ca_mapstartnosound "30.0"
 
 		// 為1時，給管理員顯示不同的玩家訊息 (權限所需: ADMFLAG_GENERIC)
 		// (譬如只有管理員能看到玩家的IP與Steam ID)

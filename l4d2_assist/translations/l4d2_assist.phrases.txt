@@ -18,10 +18,10 @@
 	}
 	"Assist"
 	{
-		"en"		"|| Assist: %s."
-		"zho"		"|| 協助: %s."
-		"chi"		"|| 协助: %s."
-		"ru"		"|| Помощь: %s."
-		"hu"		"|| Asszisztált: %s."		
+		"en"		"|| Assist: %s"
+		"zho"		"|| 協助: %s"
+		"chi"		"|| 协助: %s"
+		"ru"		"|| Помощь: %s"
+		"hu"		"|| Asszisztált: %s"		
 	}
 }

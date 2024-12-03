@@ -7,30 +7,7 @@
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.4-2024/11/24"
-
-#define L4D_TEAM_SURVIVOR 2
-#define L4D_TEAM_INFECTED 3
-
-#define MAXENTITIES 2048
-#define CVAR_FLAGS			FCVAR_NOTIFY
-
-ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
-ConVar g_hTankOnly;
-ConVar g_hCvarMPGameMode;
-
-
-char Temp2[] = ", ";
-char Temp3[] = "(";
-char Temp4[] = ")";
-char Temp5[] = "\x05";
-char Temp6[] = "\x01";
-int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
-bool g_bTankDied[MAXPLAYERS+1]; //tank already dead
-int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
-int g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
-bool g_bTankOnly;
-int ZC_TANK;
+#define PLUGIN_VERSION "2.5-2024/12/03"
 
 public Plugin myinfo = 
 {
@@ -41,17 +18,20 @@ public Plugin myinfo =
 	url = "http://forums.alliedmods.net/showthread.php?t=123811"
 }
 
-bool bLate;
+bool bLate, g_bL4D2Version;
+int ZC_TANK;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 	
 	if( test == Engine_Left4Dead )
 	{
+		g_bL4D2Version = false;
 		ZC_TANK = 5;
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
+		g_bL4D2Version = true;
 		ZC_TANK = 8;
 	}
 	else
@@ -64,15 +44,41 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
+#define L4D_TEAM_SURVIVOR 2
+#define L4D_TEAM_INFECTED 3
+
+#define MAXENTITIES 2048
+#define CVAR_FLAGS			FCVAR_NOTIFY
+
+ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, 
+	g_hCvarInfectedFlag, g_hCvarDisplayNum;
+ConVar g_hCvarMPGameMode;
+int g_iCvarInfectedFlag, g_iCvarDisplayNum;
+
+
+char Temp2[] = ", ";
+char Temp3[] = "(";
+char Temp4[] = ")";
+char Temp5[] = "\x05";
+char Temp6[] = "\x01";
+int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
+bool g_bTankDied[MAXPLAYERS+1]; //tank already dead
+int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
+int g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
+
 public void OnPluginStart()
 {
 	LoadTranslations("l4d2_assist.phrases");
 	
-	g_hCvarAllow = 		CreateConVar(	"sm_assist_enable", 		"1", 			"If 1, Enables this plugin.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarModes =		CreateConVar(	"sm_assist_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
-	g_hCvarModesOff =	CreateConVar(	"sm_assist_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
-	g_hCvarModesTog =	CreateConVar(	"sm_assist_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
-	g_hTankOnly = 		CreateConVar(	"sm_assist_tank_only", 		"0", 			"If 1, only show Damage done to Tank.",CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarAllow = 			CreateConVar(	"sm_assist_enable", 		"1", 			"If 1, Enables this plugin.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarModes =			CreateConVar(	"sm_assist_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
+	g_hCvarModesOff =		CreateConVar(	"sm_assist_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
+	g_hCvarModesTog =		CreateConVar(	"sm_assist_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
+	if(g_bL4D2Version)
+		g_hCvarInfectedFlag = 	CreateConVar(	"sm_assist_infected_flag", 	"127", 		"Which zombie class should report damage on death, 0=None, 1=Smoker, =Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together.",CVAR_FLAGS, true, 0.0, true, 127.0);
+	else
+		g_hCvarInfectedFlag = 	CreateConVar(	"sm_assist_infected_flag", 	"15", 		"Which zombie class should report damage on death, 0=None, 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank. Add numbers together.",CVAR_FLAGS, true, 0.0, true, 15.0);
+	g_hCvarDisplayNum 	= 		CreateConVar(	"sm_assist_display_num", 	"2", 		"How many players displayed on assist message each line", CVAR_FLAGS, true, 1.0);
 	AutoExecConfig(true, "l4d2_assist");
 
 
@@ -82,7 +88,8 @@ public void OnPluginStart()
 	g_hCvarModes.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesOff.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
-	g_hTankOnly.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarInfectedFlag.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarDisplayNum.AddChangeHook(ConVarChanged_Cvars);
 
 	if(bLate)
 	{
@@ -156,7 +163,8 @@ void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newV
 
 void GetCvars()
 {
-	g_bTankOnly = g_hTankOnly.BoolValue;
+	g_iCvarInfectedFlag = g_hCvarInfectedFlag.IntValue;
+	g_iCvarDisplayNum = g_hCvarDisplayNum.IntValue;
 }
 
 bool g_bCvarAllow;
@@ -392,39 +400,92 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	
 	if (attacker && IsClientInGame(attacker) && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
 	{
-		if(GetEntProp(victim, Prop_Send, "m_zombieClass") != ZC_TANK)
+		int class = GetEntProp(victim, Prop_Send, "m_zombieClass");
+		if( (g_bL4D2Version && class == ZC_TANK) || (!g_bL4D2Version && class == ZC_TANK))  // tank
 		{
-			if(g_bTankOnly == true)
-			{
-				ClearDmgSI(victim);
-				return;
-			}
+			--class;
+		}	
+
+		if( class <= 0 || class > 7 || !((1 << (class-1)) & g_iCvarInfectedFlag) )
+		{
+			ClearDmgSI(victim);
+			return;
 		}
 		
 		char MsgAssist[512];
-		bool start = true;
-		bool AssistFlag = false;
+		bool start = true, firstline = true;
 		char sName[MAX_NAME_LENGTH], sTempMessage[64];
+		int count;
+
+		CPrintToChatAll("%t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
+		bool next = false;
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (i != attacker && IsClientInGame(i) && GetClientTeam(i) == L4D_TEAM_SURVIVOR && g_iDamage[i][victim] > 0)
 			{
-				AssistFlag = true;
+				count++;
 				
-				if(start == false)
+				if(start == false && count >= 2)
 					StrCat(MsgAssist, sizeof(MsgAssist), Temp2);
 				
 				GetClientName(i, sName, sizeof(sName));
 				FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s %s%i %t%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],"DMG",Temp4);
 				StrCat(MsgAssist, sizeof(MsgAssist), sTempMessage);
 				start = false;
+
+				if(count % g_iCvarDisplayNum == 0)
+				{
+					FormatEx(MsgAssist, sizeof(MsgAssist), "%s", MsgAssist);
+					next = false;
+					for(int j = i+1; j <= MaxClients; j++)
+					{
+						if (j != attacker && IsClientInGame(j) && GetClientTeam(j) == L4D_TEAM_SURVIVOR && g_iDamage[j][victim] > 0)
+						{
+							next = true;
+							break;
+						}
+					}
+
+					if(firstline)
+					{
+						if(next)
+						{
+							CPrintToChatAll("{olive}{default} %t,", "Assist", MsgAssist);
+						}
+						else
+						{
+							CPrintToChatAll("{olive}{default} %t.", "Assist", MsgAssist);
+						}
+						firstline = false;
+					}
+					else
+					{
+						if(next)
+						{
+							CPrintToChatAll("{olive}{default} %s,", MsgAssist);
+						}
+						else
+						{
+							CPrintToChatAll("{olive}{default} %s.", MsgAssist);
+						}
+					}
+
+					MsgAssist[0] = '\0';
+					count = 0;
+				}
 			}
 		}
-		
-		CPrintToChatAll("[{olive}TS{default}] %t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
-		if (AssistFlag == true) 
+
+		if(count > 0)
 		{
-			CPrintToChatAll("{olive}{default} %t", "Assist", MsgAssist);
+			if(firstline)
+			{
+				CPrintToChatAll("{olive}{default} %t.", "Assist", MsgAssist);
+			}
+			else
+			{
+				CPrintToChatAll("{olive}{default} %s.", MsgAssist);
+			}
 		}
 	}
 	

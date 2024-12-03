@@ -86,25 +86,10 @@ public Action event_PlayerConnect(Event event, char[] name, bool dontBroadcast)
 }
 
 
-public Action event_PlayerDisconnect_Suppress(Event event, char[] name, bool dontBroadcast)
+void event_PlayerDisconnect_Suppress(Event event)
 {
-    if (!dontBroadcast && !g_CvarShowDisonnectionMsg.BoolValue)
+    if (!g_CvarShowDisonnectionMsg.BoolValue)
     {
-        char clientName[33], networkID[22], reason[65];
-        event.GetString("name", clientName, sizeof(clientName));
-        event.GetString("networkid", networkID, sizeof(networkID));
-        event.GetString("reason", reason, sizeof(reason));
-
-        Event newEvent = CreateEvent("player_disconnect", true);
-        newEvent.SetInt("userid", GetEventInt(event, "userid"));
-        newEvent.SetString("reason", reason);
-        newEvent.SetString("name", clientName);        
-        newEvent.SetString("networkid", networkID);
-
-        FireEvent(newEvent, true);
-
-        return Plugin_Handled;
+        event.BroadcastDisabled = true; // 聊天框: 玩家離開遊戲
     }
-
-    return Plugin_Continue;
 }
