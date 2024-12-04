@@ -48,6 +48,9 @@ When a Survivor dies, will respawn after a period of time.
 		// If 1, disable respawning while the final escape starts (rescue vehicle ready)
 		l4d_survivorrespawn_disable_rescue_escape "1"
 
+		// If 1, display message to All when someone has been auto-respawned
+		l4d_survivorrespawn_msg_enable "1"
+
 		// (L4D2) First slot weapon for repawn Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)
 		// GL = Grenade Launcher
 		// Rand T3 = M60 or Grenade Launcher
@@ -122,8 +125,11 @@ When a Survivor dies, will respawn after a period of time.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.2 (2024-12-4)
+		* Update cvars
+
 	* v4.1 (2024-5-10)
-		* Give melee weapons from the meleeweapons StringTable
+		* Give random melee weapons
 
 	* v4.0 (2024-3-5)
 		* Update Translation
@@ -198,6 +204,9 @@ When a Survivor dies, will respawn after a period of time.
 
 		// 為1時，救援載具來臨之後不能再復活
 		l4d_survivorrespawn_disable_rescue_escape "1"
+
+		// 為1時，當有人自動復活時，顯示訊息給所有玩家
+		l4d_survivorrespawn_msg_enable "1"
 
 		// (L4D2) 復活後給予的主武器 (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=隨機T1武器, 19=隨機T2武器, 20=隨機T3武器, 0=關閉)
 		// GL = 榴彈發射器

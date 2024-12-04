@@ -8,7 +8,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION 			"4.1-2024/5/10"
+#define PLUGIN_VERSION 			"4.1-2024/12/4"
 
 public Plugin myinfo = 
 {
@@ -43,13 +43,13 @@ public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_ma
 
 ConVar g_hCvarEnable, hCvar_EnableHuman, hCvar_EnableBots, hCvar_RespawnRespect, 
 	hCvar_RespawnLimit, hCvar_RespawnTimeout, hCvar_RespawnHP, hCvar_RespawnBuffHP, hCvar_BotReplaced, 
-	hCvar_InvincibleTime, hCvar_EscapeDisable, 
+	hCvar_InvincibleTime, hCvar_EscapeDisable, hCvar_MsgEnable,
 	FirstWeapon, SecondWeapon, ThirdWeapon, FourthWeapon, FifthWeapon;
 
 bool g_bCvarEnable, g_bEnableHuman, g_bEnableBots, g_bEnablesRespawnLimit;
 int g_iRespawnLimit, g_iRespawnTimeout,
 	g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon;
-bool g_bEscapeDisable;
+bool g_bEscapeDisable, g_bCvar_MsgEnable;
 float g_fInvincibleTime, g_fRespawnTimeout;
 
 bool bRescuable[ MAXPLAYERS + 1 ] = {false};
@@ -167,6 +167,7 @@ public void OnPluginStart()
 	hCvar_BotReplaced 		= CreateConVar("l4d_survivorrespawn_botreplaced", 			"1", 	"Respawn bots if is dead in case of using Take Over.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 		"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
 	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", 	"If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_MsgEnable 		= CreateConVar("l4d_survivorrespawn_msg_enable", 			"1", 	"If 1, display message to All when someone has been auto-respawned",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	if ( g_bL4D2Version ) {
 		FirstWeapon 		= CreateConVar("l4d_survivorrespawn_firstweapon", 		"1", 	"First slot weapon for repawn Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)", FCVAR_NOTIFY, true, 0.0, true, 20.0);
@@ -191,6 +192,7 @@ public void OnPluginStart()
 	hCvar_RespawnTimeout.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_InvincibleTime.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EscapeDisable.AddChangeHook(ConVarChanged_Cvars);
+	hCvar_MsgEnable.AddChangeHook(ConVarChanged_Cvars);
 	FirstWeapon.AddChangeHook(ConVarChanged_Cvars);
 	SecondWeapon.AddChangeHook(ConVarChanged_Cvars);
 	ThirdWeapon.AddChangeHook(ConVarChanged_Cvars);
@@ -285,6 +287,7 @@ void GetCvars()
 	g_fRespawnTimeout = hCvar_RespawnTimeout.FloatValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
 	g_bEscapeDisable = hCvar_EscapeDisable.BoolValue;
+	g_bCvar_MsgEnable = hCvar_MsgEnable.BoolValue;
 
 	g_iFirstWeapon = FirstWeapon.IntValue;
 	g_iSecondWeapon = SecondWeapon.IntValue;
@@ -726,9 +729,13 @@ Action Timer_Respawn( Handle hTimer, any client )
 	if ( IsValidClient( client ) )
 	{
 		if(!IsPlayerAlive( client ))
+		{
 			RespawnTarget( client );
+		}
 		else
-			CPrintToChatAll( "%t", "Not Needed To Respawn", client );
+		{
+			//CPrintToChatAll( "%t", "Not Needed To Respawn", client );
+		}
 	}
 	
 	return Plugin_Continue;
@@ -805,7 +812,7 @@ void RespawnTarget_Crosshair( int client, int target )
 	
 	CreateTimer( 1.0, Timer_LoadStatDelayed, GetClientUserId( target ), TIMER_FLAG_NO_MAPCHANGE );
 	
-	CPrintToChatAll( "%t", "Respawned", sPlayerName );
+	if(g_bCvar_MsgEnable) CPrintToChatAll( "%t", "Respawned", sPlayerName );
 	if(g_fInvincibleTime > 0.0)
 	{
 		clinetReSpawnTime[target] = GetEngineTime() + g_fInvincibleTime;
@@ -848,7 +855,7 @@ void RespawnTarget( int client )
 	
 	CreateTimer( 1.0, Timer_LoadStatDelayed, GetClientUserId( client ), TIMER_FLAG_NO_MAPCHANGE );
 	
-	CPrintToChatAll( "%t", "Respawned", sPlayerName );
+	if(g_bCvar_MsgEnable) CPrintToChatAll( "%t", "Respawned", sPlayerName );
 	if(g_fInvincibleTime > 0.0)
 	{
 		clinetReSpawnTime[client] = GetEngineTime() + g_fInvincibleTime;

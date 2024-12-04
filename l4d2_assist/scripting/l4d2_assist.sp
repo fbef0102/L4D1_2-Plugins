@@ -429,7 +429,7 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 					StrCat(MsgAssist, sizeof(MsgAssist), Temp2);
 				
 				GetClientName(i, sName, sizeof(sName));
-				FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s %s%i %t%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],"DMG",Temp4);
+				FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s %s%i %T%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],"DMG", LANG_SERVER, Temp4);
 				StrCat(MsgAssist, sizeof(MsgAssist), sTempMessage);
 				start = false;
 
