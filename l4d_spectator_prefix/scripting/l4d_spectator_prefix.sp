@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "Spectator Prefix",
 	author = "Nana & Harry Potter",
 	description = "when player in spec team, add prefix",
-	version = "1.3-2024/1/13",
+	version = "1.4-2024/12/6",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -211,30 +211,27 @@ Action PlayerNameCheck(Handle timer,any client)
 	int team = GetClientTeam(client);
 	
 	//PrintToChatAll("client: %N - %d",client,team);
-	if (IsClientAndInGame(client) && !IsFakeClient(client))
+	char sOldname[256], sNewname[256];
+	GetClientName(client, sOldname, sizeof(sOldname));
+	if (team == TEAM_SPECTATOR)
 	{
-		char sOldname[256], sNewname[256];
-		GetClientName(client, sOldname, sizeof(sOldname));
-		if (team == TEAM_SPECTATOR)
+		if(!CheckClientHasPreFix(sOldname))
 		{
-			if(!CheckClientHasPreFix(sOldname))
-			{
-				Format(sNewname, sizeof(sNewname), "%s%s", g_sPrefixType, sOldname);
-				CS_SetClientName(client, sNewname);
-				
-				//PrintToChatAll("sNewname: %s",sNewname);
-			}
+			Format(sNewname, sizeof(sNewname), "%s%s", g_sPrefixType, sOldname);
+			CS_SetClientName(client, sNewname);
+			
+			//PrintToChatAll("sNewname: %s",sNewname);
 		}
-		else
+	}
+	else
+	{
+		if(CheckClientHasPreFix(sOldname))
 		{
-			if(CheckClientHasPreFix(sOldname))
-			{
-				ReplaceString(sOldname, sizeof(sOldname), g_sPrefixType, "", true);
-				strcopy(sNewname,sizeof(sOldname),sOldname);
-				CS_SetClientName(client, sNewname);
-				
-				//PrintToChatAll("sNewname: %s",sNewname);
-			}
+			ReplaceString(sOldname, sizeof(sOldname), g_sPrefixType, "", true);
+			strcopy(sNewname,sizeof(sOldname),sOldname);
+			CS_SetClientName(client, sNewname);
+			
+			//PrintToChatAll("sNewname: %s",sNewname);
 		}
 	}
 	
@@ -266,38 +263,13 @@ bool CheckClientHasPreFix(const char[] sOldname)
 	return true;
 }
 
-stock void CS_SetClientName(int client, const char[] name, bool silent=false)
+void CS_SetClientName(int client, const char[] name)
 {
     char oldname[MAX_NAME_LENGTH];
     GetClientName(client, oldname, sizeof(oldname));
 
     SetClientInfo(client, "name", name);
     SetEntPropString(client, Prop_Data, "m_szNetname", name);
-
-    Event event = CreateEvent("player_changename");
-
-    if (event != null)
-    {
-        event.SetInt("userid", GetClientUserId(client));
-        event.SetString("oldname", oldname);
-        event.SetString("newname", name);
-        event.Fire();
-    }
-
-    if (silent)
-        return;
-    
-    Handle msg = StartMessageAll("SayText2");
-
-    if (msg != null)
-    {
-        BfWriteByte(msg, client);
-        BfWriteByte(msg, true);
-        BfWriteString(msg, "#Cstrike_Name_Change");
-        BfWriteString(msg, oldname);
-        BfWriteString(msg, name);
-        EndMessage();
-    }
 }
 
 void AddAllClientPrefix()
