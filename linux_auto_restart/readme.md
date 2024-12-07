@@ -45,6 +45,7 @@ Make server restart (Force crash) when the last player disconnects from the serv
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.3 (2024-12-7)
 	* v3.2 (2024-11-30)
 	* v3.1 (2024-10-26)
 		* Optimize Code

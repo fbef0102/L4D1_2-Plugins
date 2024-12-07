@@ -12,9 +12,15 @@ Translate chat message via Google API
 * <details><summary>How does it work?</summary>
 
 	* Display menu when new player joins server 
-        -> Choose "Yes, translate my words to other player" 
-        -> Your chat messages will be translated into other player depends on their steam language
-    * You can define the official server language on ```addons/sourcemod/configs/core.cfg``` -> "ServerLang" keyvalue.
+        * -> Choose "Yes, translate my words to other player" 
+        * -> Your chat messages will be translated into other player
+    * Your words will be
+        * Translated into server language (English), only you will see
+        * Translated into other player depends on their steam language (Chinese, Russian...)
+    * You can define the server language on ```addons/sourcemod/configs/core.cfg```
+        ```
+        "ServerLang"    "en"
+        ```
     * The translation is using Google Translation API
         * May not working if Google is blocked in your Country/Region
 </details>
@@ -90,7 +96,13 @@ Translate chat message via Google API
 
 * 原理
     * 進入伺服器之後顯示選單 -> 選擇"好..." -> 你打字聊天的內容會自動翻譯給其他玩家 (根據他們的steam平台設置的語言)
-    * 伺服器語言預設是英文，可於 ```addons/sourcemod/configs/core.cfg``` 設置 -> "ServerLang" 參數
+    * 插件將玩家的語言 (中文)
+        * 翻譯成伺服器語言 (英文) 給自己看
+        * 翻譯給其他玩家 (法文, 德文, ...之類)
+    * 伺服器語言預設是英文，可於 ```addons/sourcemod/configs/core.cfg``` 設置
+        ```
+        "ServerLang"    "en"
+        ```
 
 * 注意事項
     * 使用的是Google提供的API翻譯，所以可能翻譯得不正確

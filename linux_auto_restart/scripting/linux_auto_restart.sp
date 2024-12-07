@@ -2,7 +2,7 @@
 #pragma newdecls required
 #include <sourcemod>
 #include <regex>
-#define PLUGIN_VERSION			"3.2-2024/11/30"
+#define PLUGIN_VERSION			"3.3-2024/12/7"
 #define DEBUG 0
 
 public Plugin myinfo =
@@ -176,12 +176,6 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 		return Plugin_Continue;
 	}
 	
-	if(CheckPlayerConnectingSV()) //沒有玩家在伺服器但是有玩家正在連線
-	{
-		COLD_DOWN_Timer = CreateTimer(20.0, Timer_COLD_DOWN); //重新計時
-		return Plugin_Continue;
-	}
-	
 	LogToFileEx(g_sPath, "Last one player left the server, Restart server now");
 	PrintToServer("Last one player left the server, Restart server now");
 
@@ -265,17 +259,22 @@ void UnloadAccelerator()
 bool CheckPlayerInGame(int client)
 {
 	for (int i = 1; i <= MaxClients; i++)
-		if(IsClientInGame(i) && !IsFakeClient(i) && i!=client)
-			return true;
-
-	return false;
-}
-
-bool CheckPlayerConnectingSV()
-{
-	for (int i = 1; i <= MaxClients; i++)
-		if(IsClientConnected(i) && !IsClientInGame(i) && !IsFakeClient(i))
-			return true;
+	{
+		if(IsClientConnected(i) && !IsFakeClient(i) && i!=client)
+		{
+			if(IsClientInGame(i))
+			{
+				return true;
+			}
+			else
+			{
+				// 幽靈人口: 有client, IsClientConnected: true, IsClientInGame: false, userid: -1
+				// 幽靈人口常發生於換圖時離線，踢不掉，status看不到
+				int userid = GetClientUserId(i);
+				if(userid > 0) return true;
+			}
+		}
+	}
 
 	return false;
 }
