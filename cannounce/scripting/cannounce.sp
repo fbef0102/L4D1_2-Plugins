@@ -253,7 +253,16 @@ void PrintFormattedMessageToAll( char rawmsg[301], int client )
 	
 	GetFormattedMessage( rawmsg, client, message, sizeof(message) );
 	
-	C_PrintToChatAll( "%s", message );
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if( !IsClientInGame(i) ) continue;
+		if( IsFakeClient(i) )
+		{
+			if(!IsClientSourceTV(i)) continue;
+		}
+
+		C_PrintToChat(i, "%s", message);
+	}
 
 	C_LogMessage(message);
 }
@@ -266,10 +275,17 @@ void PrintFormattedMessageToAdmins(char rawmsg[301], int client )
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if( IsClientInGame(i) && CheckCommandAccess( i, "", ADMFLAG_GENERIC, true ) )
+		if( !IsClientInGame(i) ) continue;
+		if( IsFakeClient(i) )
 		{
-			C_PrintToChat(i, "%s", message);
+			if(!IsClientSourceTV(i)) continue;
 		}
+		else
+		{
+			if(!CheckCommandAccess( i, "", ADMFLAG_GENERIC, true )) continue;
+		}
+
+		C_PrintToChat(i, "%s", message);
 	}
 
 	C_LogMessage(message, "MsgToAdmins");
@@ -283,10 +299,11 @@ void PrintFormattedMsgToNonAdmins( char rawmsg[301], int client )
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if( IsClientInGame(i) && !CheckCommandAccess( i, "", ADMFLAG_GENERIC, true ) )
-		{
-			C_PrintToChat(i, "%s", message);
-		}
+		if( !IsClientInGame(i) ) continue;
+		if( IsFakeClient(i) ) continue;
+		if(CheckCommandAccess( i, "", ADMFLAG_GENERIC, true )) continue;
+
+		C_PrintToChat(i, "%s", message);
 	}
 	//C_LogMessage(message, "MsgToNonAdmins");
 }
