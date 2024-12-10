@@ -98,6 +98,7 @@ SM File/Folder Downloader and Precacher
 		<br/>![sm_downloader_0](image/sm_downloader_0.jpg)
 		* Connect to server. 
 		* Open console to see if the game is downloading custom files
+			* Note: It does not display in l4d1
 		<br/>![sm_downloader_4](image/sm_downloader_4.jpg)
 		* Browse your game folder, check if files are there, done.
 		<br/>![sm_downloader_5](image/sm_downloader_5.jpg)
@@ -225,6 +226,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		<br/>![zho/sm_downloader_0](image/zho/sm_downloader_0.jpg)
 		* 連線到伺服器
 		* 打開控制台查看是否下載自製的檔案 (此處圖片顯示正在下載音樂)
+			* 註: L4D1 不會顯示
 		<br/>![sm_downloader_4](image/sm_downloader_4.jpg)
 		* 再去你的遊戲資料夾查看檔案是否已經下載 
 		<br/>![sm_downloader_5](image/sm_downloader_5.jpg)
