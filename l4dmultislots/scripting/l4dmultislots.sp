@@ -8,8 +8,7 @@
 #include <sdktools>
 #include <multicolors>
 #include <left4dhooks>
-#undef REQUIRE_PLUGIN
-#include <CreateSurvivorBot>
+#include <l4d_CreateSurvivorBot>
 
 #define PLUGIN_VERSION 				"6.7-2024/11/6"
 

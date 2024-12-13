@@ -82,7 +82,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * L4D1/2 真寫實模式 (沒有光圈與介面)
 * <b>[L4DVSAutoSpectateOnAFK](/L4DVSAutoSpectateOnAFK)</b>: Forces survivors and infected to spectate if they're AFK after certain time.
     * 當有玩家AFK一段時間，強制將玩家旁觀並踢出伺服器
-* <b>[spawn_infected_nolimit](/spawn_infected_nolimit)</b>: Spawn special infected without the director limits!
+* <b>[spawn_infected_nolimit](/spawn_infected_nolimit)</b>: Provide natives, spawn special infected without the director limits!
     * 輔助插件，不受數量與遊戲限制生成特感
 * <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
     * 管理員可以強制暫停遊戲，也只有管理員能解除暫停
@@ -197,6 +197,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 可用指令調整倖存者有多條生命與黑白狀態
 * <b>[l4d_rescue_vehicle_leave_timer](/l4d_rescue_vehicle_leave_timer)</b>: When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him
     * 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
+* <b>[l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)</b>: Provides CreateSurvivorBot Native, spawn survivor bots without limit.
+    * 輔助插件，不受遊戲限制生成倖存者Bots
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境

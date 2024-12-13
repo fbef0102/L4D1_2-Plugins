@@ -1,5 +1,5 @@
 # Description | 內容
-Spawn special infected without the director limits!
+Provide natives, spawn special infected without the director limits!
 
 * Video | 影片展示
 <br/>None
