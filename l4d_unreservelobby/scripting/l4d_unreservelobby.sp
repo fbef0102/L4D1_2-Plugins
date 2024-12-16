@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.1h-2024/10/26"
+#define PLUGIN_VERSION			"1.2h-2024/12/17"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -136,7 +136,7 @@ public void OnConfigsExecuted()
 	g_bFirstMap = false;
 }
 
-public void OnClientPutInServer(int client)
+public void OnClientConnected(int client)
 {
 	if(IsFakeClient(client)) return;
 
@@ -154,10 +154,29 @@ public void OnClientPutInServer(int client)
 
 void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(!client || IsFakeClient(client)) return;
+	// event.GetBool("bot") always return false in l4d1/2
+	if(event.GetBool("bot")) return;
 
-	if(CheckIfPlayerInServer(client) == false) //檢查是否還有玩家以外的人還在伺服器
+	static char networkid[32];
+	event.GetString("networkid", networkid, sizeof(networkid));
+	// "networkid" is "BOT" is fake client
+	if(strcmp(networkid, "BOT", false) == 0) return;
+
+	int userid = event.GetInt("userid");
+	int client = GetClientOfUserId(userid);
+	if(userid > 0 && client == 0 && !CheckIfPlayerInServer(0)) //player leaves during map change
+	{
+		delete COLD_DOWN_Timer;
+		if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
+		{
+			PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
+			L4D_LobbyUnreserve();
+		}
+		g_bIsServerUnreserved = false;
+		SetAllowLobby(sv_allow_lobby_connect_only_default);
+	}
+
+	if(client && !IsFakeClient(client) && !CheckIfPlayerInServer(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
 		delete COLD_DOWN_Timer;
 		if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
@@ -233,10 +252,9 @@ int IsServerLobbyFull()
 	return humans >= L4D_MAXHUMANS_LOBBY_OTHER;
 }
 
-//client is in-game and not a bot
-bool IsClientInGameHuman(int client)
+bool IsClientConnectHuman(int client)
 {
-	return IsClientInGame(client) && !IsFakeClient(client);
+	return IsClientConnected(client) && !IsFakeClient(client);
 }
 
 int GetHumanCount()
@@ -246,7 +264,7 @@ int GetHumanCount()
 	int i;
 	for(i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGameHuman(i))
+		if(IsClientConnectHuman(i))
 		{
 			humans++
 		}
