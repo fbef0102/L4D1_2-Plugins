@@ -169,10 +169,11 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_COLD_DOWN(Handle timer, any client)
 {
+	COLD_DOWN_Timer = null;
+
 	if(CheckPlayerInGame(0)) //有玩家在伺服器中
 	{
 		g_bNoOneInServer = false;
-		COLD_DOWN_Timer = null;
 		return Plugin_Continue;
 	}
 	
@@ -183,7 +184,6 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 
 	CreateTimer(0.1, Timer_RestartServer);
 
-	COLD_DOWN_Timer = null;
 	return Plugin_Continue;
 }
 
