@@ -805,18 +805,6 @@ void InitDoor()
 	if( g_iEndCheckpointDoor == -1 )
 	{
 		g_iEndCheckpointDoor = FindEndSafeRoomDoor();
-		return;
-	}
-	else
-	{
-		char sModelName[128];
-		GetEntPropString(g_iEndCheckpointDoor, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
-		if( strcmp(sModelName, MODEL_START_SAFEROOM_DOOR_1, false) == 0 ||
-			strcmp(sModelName, MODEL_START_SAFEROOM_DOOR_2, false) == 0 ||
-			strcmp(sModelName, MODEL_START_SAFEROOM_DOOR_3, false) == 0) //抓錯安全門
-		{
-			g_iEndCheckpointDoor = FindEndSafeRoomDoor();
-		}
 	}
 
 	if(g_iEndCheckpointDoor == -1)
@@ -848,17 +836,10 @@ void InitDoor()
 		{
 			g_iStartCheckpointDoor = FindStartSafeRoomDoor();
 		}
-		else
-		{
-			char sModelName[128];
-			GetEntPropString(g_iStartCheckpointDoor, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
-			if( strcmp(sModelName,MODEL_END_SAFEROOM_DOOR_1, false) == 0 ||
-				strcmp(sModelName,MODEL_END_SAFEROOM_DOOR_2, false) == 0 ||
-				strcmp(sModelName,MODEL_END_SAFEROOM_DOOR_3, false) == 0) //抓錯安全門
-			{
-				g_iStartCheckpointDoor = FindStartSafeRoomDoor();
-			}
-		}
+	}
+	else
+	{
+		g_iStartCheckpointDoor = FindStartSafeRoomDoor();
 	}
 
 	if( g_iStartCheckpointDoor == -1 ) 

@@ -199,6 +199,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
 * <b>[l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)</b>: Provides CreateSurvivorBot Native, spawn survivor bots without limit.
     * 輔助插件，不受遊戲限制生成倖存者Bots
+* <b>[Enhanced_Throwables](/Enhanced_Throwables)</b>: Adds dynamic Light to held and thrown pipe bombs and molotovs
+    * 土製炸彈與火瓶有動態光源特效
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境
