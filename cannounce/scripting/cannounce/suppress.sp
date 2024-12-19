@@ -40,7 +40,12 @@ void SetupSuppress()
 //For the newer event player_connect_client
 public Action event_PlayerConnectClient(Event event, char[] name, bool dontBroadcast)
 {
-    if (!dontBroadcast && !g_CvarShowConnectionMsg.BoolValue)
+    if (!g_CvarShowConnectionMsg.BoolValue)
+    {
+        event.BroadcastDisabled = true;
+    }
+
+    /*if (!dontBroadcast && !g_CvarShowConnectionMsg.BoolValue)
     {
         char clientName[33],networkID[22];
         event.GetString("name", clientName, sizeof(clientName));
@@ -55,7 +60,7 @@ public Action event_PlayerConnectClient(Event event, char[] name, bool dontBroad
         FireEvent(newEvent, true);
 
         return Plugin_Handled;
-    }
+    }*/
 
     return Plugin_Continue;
 }
@@ -63,7 +68,12 @@ public Action event_PlayerConnectClient(Event event, char[] name, bool dontBroad
 //For the older event player_connect
 public Action event_PlayerConnect(Event event, char[] name, bool dontBroadcast)
 {
-    if (!dontBroadcast && !g_CvarShowConnectionMsg.BoolValue)
+    if (!g_CvarShowConnectionMsg.BoolValue)
+    {
+        event.BroadcastDisabled = true;
+    }
+
+    /*if (!dontBroadcast && !g_CvarShowConnectionMsg.BoolValue)
     {
         char clientName[33], networkID[22], address[32];
         event.GetString("name", clientName, sizeof(clientName));
@@ -80,7 +90,7 @@ public Action event_PlayerConnect(Event event, char[] name, bool dontBroadcast)
         FireEvent(newEvent, true);
 
         return Plugin_Handled;
-    }
+    }*/
 
     return Plugin_Continue;
 }
