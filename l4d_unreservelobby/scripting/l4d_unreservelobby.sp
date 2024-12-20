@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.2h-2024/12/17"
+#define PLUGIN_VERSION			"1.3h-2024/12/20"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -164,28 +164,16 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
-	if(userid > 0 && client == 0 && !CheckIfPlayerInServer(0)) //player leaves during map change
+	if(userid > 0 && client == 0 && !CheckIfPlayerInServer(0)) //player leaves during map change, 此時抓不到任何玩家在連線中, 最好等待數秒後再確定一次
 	{
 		delete COLD_DOWN_Timer;
-		if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
-		{
-			PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
-			L4D_LobbyUnreserve();
-		}
-		g_bIsServerUnreserved = false;
-		SetAllowLobby(sv_allow_lobby_connect_only_default);
+		COLD_DOWN_Timer = CreateTimer(3.0, Timer_COLD_DOWN);
 	}
 
 	if(client && !IsFakeClient(client) && !CheckIfPlayerInServer(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
 		delete COLD_DOWN_Timer;
-		if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
-		{
-			PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx(Empty)");
-			L4D_LobbyUnreserve();
-		}
-		g_bIsServerUnreserved = false;
-		SetAllowLobby(sv_allow_lobby_connect_only_default);
+		COLD_DOWN_Timer = CreateTimer(3.0, Timer_COLD_DOWN);
 	}
 }
 

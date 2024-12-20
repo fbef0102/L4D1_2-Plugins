@@ -69,6 +69,7 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.3h (2024-12-20)
 	* v1.2h (2024-12-17)
 		* Fixed unreserved delay error
 
