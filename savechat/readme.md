@@ -12,7 +12,7 @@ Records player chat messages to a file
 
 * <details><summary>Related | 相關插件</summary>
 
-    1. [sm_regexfilter](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/sm_regexfilter): Filter dirty words via Regular Expressions
+    1. [sm_regexfilter](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Source_插件/Anti_Griefer_防惡意路人/sm_regexfilter): Filter dirty words via Regular Expressions
         * 禁詞表，任何人打字說出髒話或敏感詞彙，字詞會被屏蔽、玩家禁言並處死，網路並非法外之地
 </details>
 

@@ -59,7 +59,7 @@ Create a survivor bot in game + Teleport player
 
 * <details><summary>Similar Plugin | 相似插件</summary>
 
-	1. [l4d_teleport_call](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_插件/Survivor_人類/l4d_teleport_call): Teleport Call Menu
+	1. [l4d_teleport_call](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_人類/l4d_teleport_call): Teleport Call Menu
 		> 呼叫傳送功能選單，能傳送玩家到起點、終點、救援區域
 </details>
 

@@ -10,8 +10,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
 
 # Plugins
 > __Note__  
-> **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**<br/>
-> **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin#l4d12-plugin-list--l4d1%E5%92%8C2%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8)**
+> **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**<br/>
+> **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
 * <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
@@ -130,8 +130,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
-* <b>[simple_chatprocessor](/simple_chatprocessor)</b>: Process chat and allows other plugins to manipulate chat.
-    * 輔助插件，控制玩家在聊天窗口輸入的文字與顏色
 * <b>[match_vote](/match_vote)</b>: Type !match/!load/!mode to vote a new mode
     * 輸入!match/!load/!mode投票執行cfg文件，用於更換模式或玩法
 * <b>[l4d1_block_player_swim](/l4d1_block_player_swim)</b>: Disable the 'water hopping' spam in l4d1.
