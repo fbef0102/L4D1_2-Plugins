@@ -34,9 +34,9 @@ Print survivor progress in flow percents
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [versusbosses_ifier](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/versusbosses_ifier): Sets a tank and witch spawn point on every map in versus + Makes Versus Boss Spawns obey cvars
+	1. [versusbosses_ifier](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/versusbosses_ifier): Sets a tank and witch spawn point on every map in versus + Makes Versus Boss Spawns obey cvars
 		> 對抗模式下每一張地圖挑選隨機路程生成一隻Tank與一個Witch
-	2. [coopbosses_ifier](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/versusbosses_ifier): Sets a tank and witch spawn point on every map in coop mode
+	2. [coopbosses_ifier](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/versusbosses_ifier): Sets a tank and witch spawn point on every map in coop mode
 		> 戰役模式下每一張地圖挑選隨機路程生成一隻Tank與一個Witch
 </details>
 

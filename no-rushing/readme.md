@@ -58,7 +58,7 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-    1. [l4d_together](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Plugin_%E6%8F%92%E4%BB%B6/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/l4d_together/readme.md): A simple anti - runner system , punish the runner by spawn SI behind her.
+    1. [l4d_together](https://github.com/fbef0102/Game-Private_Plugin/blob/main/L4D_插件/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/l4d_together/readme.md): A simple anti - runner system , punish the runner by spawn SI behind her.
         * 離隊伍太遠的玩家，特感代替月亮懲罰你
 </details>
 

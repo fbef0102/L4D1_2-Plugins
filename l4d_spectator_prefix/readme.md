@@ -44,7 +44,7 @@ when player in spec team, add prefix
 
 * <details><summary>Related Plugin | 相關插件</summary>
 	
-	1. [l4d_name_prefix_game](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_name_prefix_game): Set Prefix Name based on team, character, infected class
+	1. [l4d_name_prefix_game](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_name_prefix_game): Set Prefix Name based on team, character, infected class
     	* 根據玩家的狀態與所在隊伍在名字前面增加前輟
 </details>
 

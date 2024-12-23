@@ -87,7 +87,7 @@ Shows a laser for straight-flying fired projectiles
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_dynamic_muzzle_flash](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Real_Realism_%E7%9C%9F%E5%AF%AB%E5%AF%A6%E6%A8%A1%E5%BC%8F/l4d_dynamic_muzzle_flash): Adds dynamic muzzle flash to gunfire
+	1. [l4d_dynamic_muzzle_flash](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Real_Realism_%E7%9C%9F%E5%AF%AB%E5%AF%A6%E6%A8%A1%E5%BC%8F/l4d_dynamic_muzzle_flash): Adds dynamic muzzle flash to gunfire
     	* 槍口增加逼真的閃光
 </details>
 
@@ -104,7 +104,7 @@ Shows a laser for straight-flying fired projectiles
 	* v0.3 (2022-12-5)
         * Remake Code
 		* Add Cvars to enable random colors
-		* Support [Ready up plugin](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup), enable laser tag during ready-up
+		* Support [Ready up plugin](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup), enable laser tag during ready-up
 
 	* v0.2 (2021-8-29)
         * [Original Plugin by Whosat](https://forums.alliedmods.net/showthread.php?t=129050)

@@ -60,7 +60,7 @@ Show damage done to S.I. by survivors
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_witch_dmg_report](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_dmg_report): Displays how much damage done to witch on witch death + display health remaining when witch kills or incaps the survivor.
+	1. [l4d_witch_dmg_report](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_dmg_report): Displays how much damage done to witch on witch death + display health remaining when witch kills or incaps the survivor.
 		> Witch死亡時，顯示對Witch造成傷害統計表 + Witch抓傷或抓死人時，顯示剩餘血量
 </details>
 

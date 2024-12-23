@@ -61,7 +61,7 @@ Hunter high pounces cause meteor strike
 
 	1. [pounceannounce](/pounceannounce): Announces hunter pounces to the entire server
 		> 顯示Hunter造成的高撲傷害與高撲距離
-	2. [l4d_hunter_destructive](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Hunter_Hunter/l4d_hunter_destructive): Allows for unique Hunter abilities to the destructive beast.
+	2. [l4d_hunter_destructive](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Hunter_Hunter/l4d_hunter_destructive): Allows for unique Hunter abilities to the destructive beast.
 		> 增強Hunter，賦予多種超能力成為毀滅性的野獸
 </details>
 

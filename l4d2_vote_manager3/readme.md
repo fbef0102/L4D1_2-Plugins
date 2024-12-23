@@ -107,9 +107,9 @@ Unable to call valve vote if player does not have access
 
 * <details><summary>Related | 相關插件</summary>
 
-    1. [l4d_vote_block](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_vote_block): Unable to call valve vote depending on gamemode and difficulty.
+    1. [l4d_vote_block](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_vote_block): Unable to call valve vote depending on gamemode and difficulty.
         > 根據遊戲模式和難度禁止使用Esc->發起投票
-    2. [kickthevoter](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/kickthevoter): Make It So The Person Calling The Vote Gets Kicked!
+    2. [kickthevoter](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/kickthevoter): Make It So The Person Calling The Vote Gets Kicked!
         > 使用Esc->發起投票的人將會被反踢出去伺服器
 </details>
 

@@ -208,7 +208,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble): Puts players on the right team after map/campaign change and provides API.
+	1. [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble): Puts players on the right team after map/campaign change and provides API.
 		* 換圖或者換關卡之後，將玩家還原到上次所在的隊伍
 </details>
 

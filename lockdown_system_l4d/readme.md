@@ -106,13 +106,13 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>Related | 相關插件</summary>
 
-    1. [end_safedoor_teleport](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Special_Infected_%E7%89%B9%E6%84%9F/end_safedoor_teleport): Teleport ci/si/tank outside the end saferoom if they spawn inside
+    1. [end_safedoor_teleport](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/end_safedoor_teleport): Teleport ci/si/tank outside the end saferoom if they spawn inside
         * 如果 普通感染者/特感/Tank 生在終點安全室裡面，則將他們傳送到門前 (避免卡在終點安全室裡面)
     
     2. [l4d_rescue_vehicle_leave_timer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_rescue_vehicle_leave_timer): When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him
         * 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
     
-    3. [antisaferoomdooropen](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Survivor_%E4%BA%BA%E9%A1%9E/antisaferoomdooropen): Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
+    3. [antisaferoomdooropen](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_%E4%BA%BA%E9%A1%9E/antisaferoomdooropen): Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass
         * 起始安全室的安全門將會鎖住直到時間結束 + 沒有安全門的關卡一旦離開安全區域會傳送回起始安全區域
     
     4. [Saferoom Lock Scavenge by Earendil](https://forums.alliedmods.net/showthread.php?p=2750321): Players must complete a small scavenge event to unlock the saferoom

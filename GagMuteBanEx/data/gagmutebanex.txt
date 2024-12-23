@@ -1,9 +1,0 @@
-"gagmuteban"
-{
-	"xxxxxxxxxxxx"
-	{
-		"Name"		"死亡筆記本-真話心臟病"
-		"gag"		"1704357320"
-		"mute"		"1730709422"
-	}
-}

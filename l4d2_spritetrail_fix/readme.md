@@ -24,7 +24,7 @@ Fixes the invisible spritetrails entity
 <br/>None
 
 * Related Plugin | 相關插件
-	1. [l4d_player_spritetrail](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Fun_%E5%A8%9B%E6%A8%82/l4d_player_spritetrail): l4d player tail effect (use env_spritetrail)
+	1. [l4d_player_spritetrail](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Fun_%E5%A8%9B%E6%A8%82/l4d_player_spritetrail): l4d player tail effect (use env_spritetrail)
 		> 玩家走路，會有尾巴特效 (使用物件: env_spritetrail)
 
 * <details><summary>ConVar | 指令</summary>

@@ -119,7 +119,7 @@ Provides the ability to fly to Tanks and special effects.
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-    1. [l4d_tracerock](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Nothing_Impossible_%E7%84%A1%E7%90%86%E6%94%B9%E9%80%A0%E7%89%88/l4d_tracerock): Tank's rock will trace survivor until hit something.
+    1. [l4d_tracerock](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Nothing_Impossible_%E7%84%A1%E7%90%86%E6%94%B9%E9%80%A0%E7%89%88/l4d_tracerock): Tank's rock will trace survivor until hit something.
         > Tank的石頭自動追蹤倖存者
 </details>
 

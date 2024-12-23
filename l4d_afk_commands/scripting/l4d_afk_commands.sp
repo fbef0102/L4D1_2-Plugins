@@ -84,7 +84,7 @@
 #include <actions>
 
 #undef REQUIRE_PLUGIN
-#tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
+#tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
 
 #if !defined _l4d_team_unscramble_included
 	native bool l4d_team_unscramble_IsUnscrambled();

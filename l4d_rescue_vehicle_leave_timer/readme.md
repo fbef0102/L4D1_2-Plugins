@@ -77,10 +77,10 @@ When rescue vehicle arrived and a timer will display how many time left before v
     1. [lockdown_system-l4d2](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/lockdown_system-l4d2): Locks Saferoom Door Until Someone Opens It.
         > 倖存者必須等待時間到並合力對抗屍潮與Tank才能打開終點安全門
 
-    2. [l4d2_final_rescue_arrive_time](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Map_%E9%97%9C%E5%8D%A1/l4d2_final_rescue_arrive_time): Increase the finale rescue time, survivors must hold up until time passed
+    2. [l4d2_final_rescue_arrive_time](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Map_%E9%97%9C%E5%8D%A1/l4d2_final_rescue_arrive_time): Increase the finale rescue time, survivors must hold up until time passed
         > 增加最後救援的防守時間，倖存者必須等待時間結束，救援載具才會來臨
 
-    3. [l4d_elevator_getin_timer](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Plugin_%E6%8F%92%E4%BB%B6/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/l4d_elevator_getin_timer): When someone presses the elevator button or enters the CEDA Trailer, a timer will display how many time left. If a player is not inside the evelator/CEDA Trailer, slay him
+    3. [l4d_elevator_getin_timer](https://github.com/fbef0102/Game-Private_Plugin/blob/main/L4D_插件/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/l4d_elevator_getin_timer): When someone presses the elevator button or enters the CEDA Trailer, a timer will display how many time left. If a player is not inside the evelator/CEDA Trailer, slay him
         > 當有人按下電梯按鈕或是進入CEDA大拖車時，開始倒數計時，未在時間內進入電梯或CEDA大拖車的玩家將處死
 </details>
 

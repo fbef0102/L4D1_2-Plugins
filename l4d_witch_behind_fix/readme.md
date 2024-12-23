@@ -35,7 +35,7 @@ The witch turns back if nearby survivor scares her behind
 	2. [witch_target_override](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/witch_target_override): Change target when the witch incapacitates or kills victim + witch auto follows survivors
 		> Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 
-	3. [l4d_witch_stagger_block](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_stagger_block): Block Witch stumble by Weapons/Shove/Explosive Bullet/Pipebomb/....
+	3. [l4d_witch_stagger_block](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_stagger_block): Block Witch stumble by Weapons/Shove/Explosive Bullet/Pipebomb/....
 		> Witch 不會被狙擊槍/高爆子彈/土製炸彈... 震退
 </details>
 

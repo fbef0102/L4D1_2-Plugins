@@ -23,7 +23,7 @@ Provide natives, spawn special infected without the director limits!
 		> Tank不扔石頭而是扔出特感/Tank/Witch/車子
 	2. [l4d_together](https://github.com/fbef0102/Game-Private_Plugin/tree/main/l4d_together): A simple anti - runner system , punish the runner by spawn SI behind her.
 		> 離隊伍太遠的玩家，特感代替月亮懲罰你
-	3. [l4d_tank_spawn](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Tank_%E5%9D%A6%E5%85%8B/l4d_tank_spawn): Spawn multi Tanks on the map and final rescue
+	3. [l4d_tank_spawn](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Tank_%E5%9D%A6%E5%85%8B/l4d_tank_spawn): Spawn multi Tanks on the map and final rescue
 		> 一個關卡中或救援期間生成多隻Tank，對抗模式也適用
 </details>
 

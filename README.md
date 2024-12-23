@@ -12,16 +12,12 @@ Help server to record, make server more fun, and more useful plugins for adm.
 > __Note__  
 > **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**<br/>
 > **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
-* <b>[games](/games)</b>: Let's play a game, Duel 決鬥!!.
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
-* <b>[lerptracker](/lerptracker)</b>: Keep track of players' lerp settings
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
     * 擊殺殭屍與特殊感染者統計
-* <b>[server_loader](/server_loader)</b>: Executes cfg file on server startup
-    * 開服只執行一次的cfg檔案
 * <b>[clear_weapon_drop](/clear_weapon_drop)</b>: Remove drop weapon + remove upgradepack when used
     * 如果一段時間後沒有人撿起掉落的武器與物品，則自動移除
 * <b>[no-rushing](/no-rushing)</b>: Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
@@ -40,10 +36,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 開槍會有子彈光線
 * <b>[anti-friendly_fire](/anti-friendly_fire)</b>: shoot your teammate = shoot yourself.
     * 隊友黑槍會反彈友傷
-* <b>[cannounce](/cannounce)</b>: Replacement of default player connection message, allows for custom connection messages
-    * 顯示玩家進來遊戲或離開遊戲的提示訊息 (IP、國家、Steam ID 等等)
-* <b>[helpmenu](/helpmenu)</b>: In-game Help Menu (Support Translation)
-    * 輸入!helpmenu顯示選單，用來幫助玩家瞭解你的伺服器內容
 * <b>[l4d_afk_commands](/l4d_afk_commands)</b>: Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.),but no abuse.
     * 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 * <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
@@ -68,8 +60,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 特感死亡時顯示人類造成的傷害統計
 * <b>[l4dffannounce](/l4dffannounce)</b>: Adds Friendly Fire Announcements (who kills teammates).
     * 顯示誰他馬TK我
-* <b>[map-decals](/map-decals)</b>: Allows admins to place any decals into the map that are defined in the the config and save them permanently for each map.
-    * 允許管理員將任何塗鴉放置在配置中定義的地圖中，並為每個地圖永久保存它們
 * <b>[sm_downloader](/sm_downloader)</b>: SM File/Folder Downloader and Precacher
     * SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 * <b>[tank_witch_spawn_notify](/tank_witch_spawn_notify)</b>: When the tank and witch spawns, it announces itself in chat by making a sound
@@ -86,8 +76,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 輔助插件，不受數量與遊戲限制生成特感
 * <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
     * 管理員可以強制暫停遊戲，也只有管理員能解除暫停
-* <b>[lfd_noTeamSay](/lfd_noTeamSay)</b>: Redirecting all 'say_team' messages to 'say'
-    * 沒有團隊聊天頻道只有公開聊天頻道
 * <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
     * 使用指令顯示人類目前的路程
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue after map loading.
@@ -98,8 +86,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 顯示Hunter造成的高撲傷害與高撲距離
 * <b>[l4d_meteor_hunter](/l4d_meteor_hunter)</b>: Hunter high pounces cause meteor strike
     * Hunter的高撲造成核彈衝擊波
-* <b>[linux_auto_restart](/linux_auto_restart)</b>: Make server restart (Force crash) when the last player disconnects from the server
-    * 最後一位玩家離開伺服器之後自動關閉Server並重啟
 * <b>[l4d_sm_respawn](/l4d_sm_respawn)</b>: Allows players to be respawned by admin.
     * 管理員能夠復活死去的玩家
 * <b>[l4d_tankhelper](/l4d_tankhelper)</b>: Tanks throw Tank/S.I./Witch/Hittable instead of rock
@@ -108,16 +94,12 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 顯示誰是豬隊友 (譬如推Tank拍死隊友、Boomer炸到Tank、Hunter跳樓自殺、Charger著火死亡等等)
 * <b>[Survivor_Respawn](/Survivor_Respawn)</b>: When a Survivor dies, will respawn after a period of time.
     * 當人類玩家死亡時，過一段時間自動復活
-* <b>[advertisements](/advertisements)</b>: Display advertisements
-    * 廣告&公告欄插件，每隔一段時間於聊天框自動顯示一段公告內容
 * <b>[l4d_DynamicHostname](/l4d_DynamicHostname)</b>: Server name with txt file (Support any language)
     * 伺服器房名可以寫中文的插件
 * <b>[l4d_revive_reload_interrupt](/l4d_revive_reload_interrupt)</b>: Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
     * 解決裝子彈的時候拯救隊友會卡彈的問題 (存在超過十年的Bug)
 * <b>[hp_tank_show](/hp_tank_show)</b>: Shows a sprite at the tank head that goes from green to red based on its HP
     * Tank頭上顯示血量狀態
-* <b>[l4d_texture_manager_block](/l4d_texture_manager_block)</b>: Kicks out clients who are potentially attempting to enable mathack
-    * 遊戲中頻繁檢測每一位玩家並踢出試圖使用作弊指令的客戶
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
     * 修復Source引擎的踩頭跳躍bug
 * <b>[l4d2_spritetrail_fix](/l4d2_spritetrail_fix)</b>: Fixed the final stage get stucked
@@ -130,8 +112,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
-* <b>[match_vote](/match_vote)</b>: Type !match/!load/!mode to vote a new mode
-    * 輸入!match/!load/!mode投票執行cfg文件，用於更換模式或玩法
 * <b>[l4d1_block_player_swim](/l4d1_block_player_swim)</b>: Disable the 'water hopping' spam in l4d1.
     * 修復L4D1遊戲的Bug: 水上游泳
 * <b>[l4d1_weapon_limits](/l4d1_weapon_limits)</b>: Maximum of each L4D1 weapons the survivors can pick up
@@ -150,14 +130,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 救援開始之後，所有人重力變低，可以跳很高
 * <b>[gamemode-based_configs](/gamemode-based_configs)</b>: Allows for custom settings for each gamemode and mutatuion.
     * 根據遊戲模式或突變模式執行不同的cfg文件
-* <b>[GagMuteBanEx](/GagMuteBanEx)</b>: Gag & Mute & Ban - Ex
-    * 封鎖/禁音/禁言-強化版
 * <b>[l4d_mix](/l4d_mix)</b>: L4D1/2 Mix
     * 對抗模式中，投票選雙方隊長，雙方隊長再選隊員
 * <b>[l4d_flying_tank](/l4d_flying_tank)</b>: Provides the ability to fly to Tanks and special effects.
     * Tank化身鋼鐵人，可以自由飛行
-* <b>[chat_responses](/chat_responses)</b>: Displays chat advertisements when specified text is said in player chat.
-    * 玩家在聊天框輸入特地文字，伺服器會顯示廣告或提示
 * <b>[admin_hp](/admin_hp)</b>: Adm type !hp to set survivor team full health.
     * 管理員輸入!hp 可以回滿所有倖存者的血量
 * <b>[l4d2_vote_manager3](/l4d2_vote_manager3)</b>: Unable to call valve vote if player does not have access
@@ -170,14 +146,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復一些武器的 weapon_*.txt 參數沒有作用
 * <b>[l4d2_spec_stays_spec](/l4d2_spec_stays_spec)</b>: Spectator will stay as spectators on mapchange/new round.
     * 上一回合是旁觀者的玩家, 下一回合開始時繼續待在旁觀者 (避免被自動切換到人類/特感隊伍)
-* <b>[bequiet](/bequiet)</b>: Please be Quiet! Block unnecessary chat or announcement.
-    * 阻擋一些非必要提示的訊息在聊天框 (指令更改、名字更改)
 * <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
     * 修復子彈擊中與伺服器運算相差 1 tick的延遲
 * <b>[gametype_description](/gametype_description)</b>: Allows changing of displayed game type in server browser
     * 更改伺服器的遊戲欄資訊
-* <b>[sm_translator](/sm_translator)</b>: Translate chat message via Google API
-    * 翻譯你的句子給其他玩家 (玩家對應的語言)
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
     * 當真人玩家死亡時，自動取代另一個有空閒的Bot繼續遊玩倖存者
 * <b>[l4dafkfix_deadbot](/l4dafkfix_deadbot)</b>: Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
@@ -207,6 +179,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 
 # Others
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>: L4D2 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
+* <b>[Sourcemod-Plugins](https://github.com/fbef0102/Sourcemod-Plugins)</b>: Plugins for most source engine games.
 * <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
 * <b>[L4D2-Server4Dead](https://github.com/fbef0102/L4D2-Server4Dead)</b>: Setup your own L4D2 Servers.
 * <b>[Game-Private_Plugin](https://github.com/fbef0102/Game-Private_Plugin)</b>: Private Plugin List.

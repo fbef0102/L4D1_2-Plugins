@@ -51,7 +51,7 @@ L4D1/2 Mix
 
 	1. [readyup](/L4D_插件/Server_伺服器/readyup): Ready Plugin
 		* 所有玩家準備才能開始遊戲的插件
-	2. [l4d_teamshuffle](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_teamshuffle): Allows teamshuffles by voting or admin-forced before round starts.
+	2. [l4d_teamshuffle](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_teamshuffle): Allows teamshuffles by voting or admin-forced before round starts.
 		* 輸入!shuffle，打散玩家並隨機分配隊伍
 </details>
 
