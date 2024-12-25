@@ -1,0 +1,31 @@
+//Get pretty good looking short map name, you can just ignore
+//取得比較漂亮的地圖名稱, 不寫也沒差
+
+"Mixmap Map Names"
+{
+	"l4d_vs_hospital01_apartment"			"No Mercy 01 - apartment"
+	"l4d_vs_hospital02_subway"				"No Mercy 02 - subway"
+	"l4d_vs_hospital03_sewers"				"No Mercy 03 - sewers"
+	"l4d_vs_hospital04_interior"			"No Mercy 04 - interior"
+	"l4d_vs_hospital05_rooftop"				"No Mercy 05 - rooftop"
+	"l4d_vs_smalltown01_caves"				"Death Toll 01 - caves"
+	"l4d_vs_smalltown02_drainage"			"Death Toll 02 - drainage"
+	"l4d_vs_smalltown03_ranchhouse"			"Death Toll 03 - ranchhouse"
+	"l4d_vs_smalltown04_mainstreet"			"Death Toll 04 - mainstreet"
+	"l4d_vs_smalltown05_houseboat"			"Death Toll 05 - houseboat"
+	"l4d_vs_airport01_greenhouse"			"Dead Air 01 - greenhouse"
+	"l4d_vs_airport02_offices"				"Dead Air 02 - offices"
+	"l4d_vs_airport03_garage"				"Dead Air 03 - garage"
+	"l4d_vs_airport04_terminal"				"Dead Air 04 - terminal"
+	"l4d_vs_airport05_runway"				"Dead Air 05 - runway"
+	"l4d_vs_farm01_hilltop"					"Blood Harvest 01 - hilltop"
+	"l4d_vs_farm02_traintunnel"				"Blood Harvest 02 - traintunnel"
+	"l4d_vs_farm03_bridge"					"Blood Harvest 02 - bridge"
+	"l4d_vs_farm04_barn"					"Blood Harvest 04 - barn"
+	"l4d_vs_farm05_cornfield"				"Blood Harvest 05 - cornfield"
+	"l4d_garage01_alleys"					"Crash Course 01 - alleys"
+	"l4d_garage02_lots"						"Crash Course 02 - lots"
+	"l4d_river01_docks"						"The Sacrifice 01 - docks"
+	"l4d_river02_barge"						"The Sacrifice 02 - barge"
+	"l4d_river03_port"						"The Sacrifice 03 - port"
+}

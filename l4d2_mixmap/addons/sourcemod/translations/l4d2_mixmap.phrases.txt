@@ -1,0 +1,209 @@
+"Phrases"
+{
+	"Auto_Show_Maplist"
+	{
+		"en"		"{olive}<Mixmap>{default}Using Mixmap plugin (show maplist {orange}!mixmaplist{default})."
+		"zho" 		"{olive}<Mixmap>{default}正在使用Mixmap插件, 每一關隨機挑選（地圖一覽指令 {orange}!mixmaplist{default})。"
+		"chi"		"{olive}<Mixmap>{default}正在使用Mixmap插件, 每一关随机挑选（地图一览指令 {orange}!mixmaplist{default})。"
+	}
+
+	"Differ_Abort"
+	{
+		"en"		"{olive}<Mixmap>{default}Current map differs from disigned mix map list，abort……"
+		"zho"		"{olive}<Mixmap>{default}當前地圖與預先挑選的地圖表不一致，插件中止…"
+		"chi"		"{olive}<Mixmap>{default}当前地图与预先挑选的地图表不一致，插件中止……"
+	}
+
+	"Show_Next_Map"
+	{
+		"#format"	"{1:s}"
+		"en"		"{olive}<Mixmap>{default}Changing next map: {1}"
+		"zho"		"{olive}<Mixmap>{default}切換下一張地圖: {1}"
+		"chi"		"{olive}<Mixmap>{default}切换下一张地图: {1}"
+	}	
+	
+	"Show_Next_Map (Secret)"
+	{
+		"#format"	"{1:t}"
+		"en"		"{olive}<Mixmap>{default}Changing next map: {1}"
+		"zho"		"{olive}<Mixmap>{default}切換下一張地圖: {1}"
+		"chi"		"{olive}<Mixmap>{default}切换下一张地图: {1}"
+	}
+
+	"Already_Start_Admin"
+	{
+		"en"		"{olive}<Mixmap>{default}Plugin already starts, type !fstopmixmap first if need to restart."
+		"zho"		"{olive}<Mixmap>{default}插件已經啟用，如需重新啟用請先輸入 !fstopmixmap 中止。"
+		"chi"		"{olive}<Mixmap>{default}插件已经启用，如需重新启用请先输入 !fstopmixmap 中止。"
+	}
+
+	"Force_Start"
+	{
+		"en"		"{olive}<Mixmap>{default}Admin {teamcolor}%N {default}forces to start Mixmap, {orange}Map Pool: %s"
+		"zho"		"{olive}<Mixmap>{default}管理者 {teamcolor}%N {default}強制啟用Mixmap, {orange}地圖池: %s"
+		"chi"		"{olive}<Mixmap>{default}管理员 {teamcolor}%N {default}强制启用Mixmap, {orange}地图池: %s"
+	}
+
+	"Manualmixmap_Syntax"
+	{
+		"en"		"Syntax: !manualmixmap <map1> <map2> <map3> <...>"
+		"zho"		"使用方式: !manualmixmap <map1> <map2> <map3> <...>"
+		"chi"		"用法: !manualmixmap <map1> <map2> <map3> <...>"
+	}
+
+	"Invalid_Cfg"
+	{
+		"en"		"{olive}<Mixmap>{default}Invalid map pool！"
+		"zho"		"{olive}<Mixmap>{default}無效地圖池！"
+		"chi"		"{olive}<Mixmap>{default}无效地图池！"
+	}
+
+	"Not_Start"
+	{
+		"en"		"{olive}<Mixmap>{default}Plugin did not start, no need to stop."
+		"zho"		"{olive}<Mixmap>{default}插件尚未啟用，無需中止。"
+		"chi"		"{olive}<Mixmap>{default}插件尚未启用，无需中止。"
+	}
+
+	"Vote_Stop"
+	{
+		"en"		"{olive}<Mixmap>{default}Player {teamcolor}%N{default} initiates a vote to stop Mixmap."
+		"zho"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 發起投票關閉Mixmap。"
+		"chi"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 发起投票关闭Mixmap。"
+	}
+
+	"Vote_Blocked"
+	{
+		"en"		"[SM] Can't call new vote, try again later!"
+		"zho"		"[SM] 無法發起新投票, 請稍後再試"
+		"chi"		"[SM] 无法发起新投票, 请稍后再试"
+	}
+
+	"Vote_Progress_delay"
+	{
+		"en"		"{olive}<Mixmap>{default}There is a vote in progress! Changing map delays {orange}%d{default} seconds! "
+		"zho"		"{olive}<Mixmap>{default}有投票正在進行！地圖切換延遲 {orange}%d{default} 秒！"
+		"chi"		"{olive}<Mixmap>{default}有投票正在进行！地图切换延迟 {orange}%d{default} 秒！ "
+	}
+
+	"Stop_Mixmap"
+	{
+		"en"		"{olive}<Mixmap>{default}Mix Maps initiated, abort……"
+		"zho"		"{olive}<Mixmap>{default}Mixmap已關閉，地圖初始化，插件中止…"
+		"chi"		"{olive}<Mixmap>{default}Mixmap已关闭，地图初始化，插件中止……"
+	}
+
+	"Stop_Mixmap_Admin"
+	{
+		"en"		"{olive}<Mixmap>{default} Admin{teamcolor} %N {default}force-stop Mixmap and Maps initiate，abort……"
+		"zho"		"{olive}<Mixmap>{default} 管理員{teamcolor} %N {default}強制關閉Mixmap，地圖初始化，插件中止…"
+		"chi"		"{olive}<Mixmap>{default} 管理员{teamcolor} %N {default}强制关闭Mixmap，地图初始化，插件中止……"
+	}
+
+	"Start_Mixmap"
+	{
+		"en"		"{olive}<Mixmap>{default}Player {teamcolor}%N{default} initiates a vote to start Mixmap, {orange}Map Pool: %s"
+		"zho"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 發起投票啟用Mixmap，{orange}地圖池: %s"
+		"chi"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 发起投票启用Mixmap，{orange}地图池: %s"
+	}
+
+	"Show_Maplist_Not_Start"
+	{
+		"en"		"{olive}<Mixmap>{default}Plugin did not start, there is no maplist."
+		"zho"		"{olive}<Mixmap>{default}插件未啟用，沒有隨機地圖列表。"
+		"chi"		"{olive}<Mixmap>{default}插件未启用，没有随机地图列表。"
+	}
+	
+	"Show_Maplist_Cmd"
+	{
+		"en"		"{olive}Show maplist {orange}!mixmaplist {default}| {olive}Abort Cmd{orange} !stopmixmap"
+		"zho"		"{olive}地圖一覽指令 {orange}!mixmaplist {default}| {olive}中止指令{orange} !stopmixmap"
+		"chi"		"{olive}地图一览指令 {orange}!mixmaplist {default}| {olive}中止指令{orange} !stopmixmap"
+	}
+
+	"Select_Maps_Succeed"
+	{
+		"en"		"{olive}<Mixmap>{default}Selecting maps randomly succeeds."
+		"zho"		"{olive}<Mixmap>{default}地圖已成功隨機抽取！"
+		"chi"		"{olive}<Mixmap>{default}地图已成功随机抽取！"
+	}
+
+	"Change_Map_First"
+	{
+		"en"		"{olive}<Mixmap>{default}Changing map after{orange} %d {default}seconds."
+		"zho"		"{olive}<Mixmap>{default}將在{orange} %d {default}秒後開始切換地圖。"
+		"chi"		"{olive}<Mixmap>{default}将在{orange} %d {default}秒后开始切换地图。"
+	}
+	"AllMaps_Official"
+	{
+		"en"		"{orange}[-----list of all official maps-----]"
+		"zho"		"{orange}[-----所有官方地圖代碼列表-----]"
+		"chi"		"{orange}[-----所有官方地图代码列表-----]"
+	}
+	"AllMaps_Usage"
+	{
+		"en"		"{orange}Usage: {default}!manualmixmap <map1> <map2>..."
+		"zho"		"{orange}用法：{default}!manualmixmap <地圖1> <地圖2>......"
+		"chi"		"{orange}用法：{default}!manualmixmap <地图1> <地图2>......"
+	}
+	"Fail_Load_Preset"
+	{
+		"en"		"{olive}<Mixmap>{default}Failed to load preset!"
+		"zho"		"{olive}<Mixmap>{default}地圖組未成功載入！"
+		"chi"		"{olive}<Mixmap>{default}地图组未成功加载！"
+	}
+	"Maps_Not_Match_Rank"
+	{
+		"en"		"{olive}<Mixmap>{default}Preset has {orange}improper tagranks{default}: the number of maps to be played does not match the highest rank. Should have N+1 tagranks for highest rank N."
+		"zho"		"{olive}<Mixmap>{default}地圖組的{orange}標籤有誤{default}：設定的地圖數量和標籤數量不一致。當標籤最大值為N+1時，地圖數量應為N。"
+		"chi"		"{olive}<Mixmap>{default}地图组的{orange}标签有误{default}：设定的地图数量和标签数量不一致。当标签最大值为N+1时，地图数量应为N。"
+	}
+	"Cvote_Title"
+	{
+		"en"		"Start a Mixmap? (%s)"
+		"zho"		"啟用Mixmap插件？（%s）"
+		"chi"		"启用Mixmap插件？（%s）"
+	}
+	"Cvote_Title_Off"
+	{
+		"en"		"Stop a Mixmap? "
+		"zho"		"中止Mixmap插件？"
+		"chi"		"中止Mixmap插件？"
+	}
+	"Cexec_Title"
+	{
+		"en"		"Selecting maps randomly……"
+		"zho"		"即將隨機抽取地圖…"
+		"chi"		"即将随机抽取地图……"
+	}
+	"Stop Mixmap"
+	{
+		"en"		"Stop Mixmap……"
+		"zho"		"插件已停止Mixmap…"
+		"chi"		"插件已停止Mixmap…"
+	}
+	"Maplist_Title"
+	{
+		"en"		"{olive}[-------- Maplist --------]"
+		"zho"		"{olive}[-------- 地圖列表 --------]"
+		"chi"		"{olive}[-------- 地图列表 --------]"
+	}
+	"Secret"
+	{
+		"en"		"Secret"
+		"zho"		"地圖保密"
+		"chi"		"地图保密"
+	}
+	"Spectator Blocked"
+	{
+		"en"		"Spectator can not call vote"
+		"zho"		"旁觀者不能投票"
+		"chi"		"旁观者不能投票"
+	}	
+	"Round is live"
+	{
+		"en"		"You can't call this vote once round is live"
+		"zho"		"只有在準備階段才能發起投票"
+		"chi"		"只有在准备阶段才能发起投票"
+	}
+}

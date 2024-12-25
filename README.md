@@ -171,6 +171,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 輔助插件，不受遊戲限制生成倖存者Bots
 * <b>[Enhanced_Throwables](/Enhanced_Throwables)</b>: Adds dynamic Light to held and thrown pipe bombs and molotovs
     * 土製炸彈與火瓶有動態光源特效
+* <b>[l4d2_mixmap](/l4d2_mixmap)</b>: Randomly select five maps for versus/coop/realism. Adding for fun
+    * 隨機抽取五個關卡組成一張地圖，適用於戰役/對抗/寫實，依一定順序切換地圖來進行遊戲，增加遊戲的趣味性
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境
