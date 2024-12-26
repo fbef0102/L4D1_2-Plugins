@@ -1,13 +1,16 @@
 # Description | 內容
 Allows additional survivor players in server when 5+ player joins the server
 
-* Video | 影片展示
-<br>None
-
 * Image | 圖示
 	* 8+ Survivors join server to play (生成5位以上的倖存者大亂鬥)
 	<br/>![l4dmultislots_1](image/l4dmultislots_1.jpg)
 	<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>How does it work?</summary>
 
@@ -15,8 +18,6 @@ Allows additional survivor players in server when 5+ player joins the server
 	* (Versus/Scavenge) the plugin won't spawn bots for new playersm they must type ```!join``` in versus/scavenge.
 	* (Versus/Scavenge) Check team balance when player tries to use 'Join Survivors' command to join survivor team 
 </details>
-
-
 
 * Require
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 survivors and server slots limit
@@ -92,18 +93,13 @@ Allows additional survivor players in server when 5+ player joins the server
 		// If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)
 		l4d_multislots_finale_extra_first_aid "1"
 
-		// If 1, when same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player)
-		// Take effect after survivor has left safe zone
+		// When same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot.
+		// 0=Always spawn alive bot for same player, 1=Take effect after survivor has left safe zone, 2=Just Dead
 		l4d_multislots_no_second_free_spawn "0"
 
 		// Invincible time after new 5+ Survivor spawn by this plugin. (0=off)
 		// Take effect after survivor has left safe zone
 		l4d_multislots_respawn_invincibletime "3.0"
-
-		// How to join the game for new player.
-		// 0: Old method. Spawn an alive bot first -> new player takes over.
-		// 1: Switch new player to survivor team (dead state) -> player respawns.
-		l4d_multislots_join_survior_method "0"
 
 		// If 1, Block 'Join Survivors' commands (sm_join, sm_js)
 		l4d_multislots_join_command_block "0"
@@ -125,7 +121,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		sm_js
 		```
 
-	* **Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over) (Adm require: ADMFLAG_KICK)**
+	* **Attempt to add a survivor bot (this bot will not be kicked by this plugin until someone takes over) (Adm require: ADMFLAG_ROOT)**
 		```php
 		sm_muladdbot <number>
 		```
@@ -165,12 +161,6 @@ Allows additional survivor players in server when 5+ player joins the server
 		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
 	</details>
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
 * <details><summary>Translation Support | 支援翻譯</summary>
 
 	```
@@ -199,6 +189,11 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v6.8 (2024-12-26)
+		* Update cmds
+		* Update cvars
+		* Remake code how bot spawns and player takes over
+		
 	* v6.7 (2024-11-6)
 		* Update cmds
 
@@ -346,16 +341,12 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
 		l4d_multislots_finale_extra_first_aid "1"
 
-		// 為1時，當倖存者Bot被此插件踢出遊戲時刪除身上的所有武器與物資. (0=關閉)
+		// 當玩家已經當過倖存者並嘗試第二次重新加入倖存者時，給他一個死亡Bot
+		// 0=永遠給活著的bot, 1=只有當倖存者離開安全室才會給死亡bot, 2=無論何時都給死亡Bot
 		l4d_multislots_no_second_free_spawn "0"
 
 		// 當此插件產生一個倖存者Bot時，有3.0秒的無敵時間不會受到任何傷害. (0=關閉)
 		l4d_multislots_respawn_invincibletime "3.0"
-
-		// 如何為新玩家生成倖存者Bot?
-		// 0: 先產生一個倖存者Bot -> 再給新玩家取代
-		// 1: 把新玩家轉換到倖存者死亡狀態 -> 再復活新玩家
-		l4d_multislots_join_survior_method "0"
 
 		// 為1時，禁止所有人使用插件的命令嘗試加入倖存者陣營. (sm_join, sm_js)
 		l4d_multislots_join_command_block "0"
@@ -377,7 +368,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		sm_js
 		```
 
-	* **管理員新增一個倖存者Bot (這個Bot不會被踢出伺服器直到有玩家取代) (權限: ADMFLAG_KICK)**
+	* **管理員新增一個倖存者Bot (這個Bot不會被踢出伺服器直到有玩家取代) (權限: ADMFLAG_ROOT)**
 		```php
 		sm_muladdbot <數字>
 		```

@@ -15,7 +15,7 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 	* Type ```!mixmap``` or ```!mixmap <xxxxx>``` to vote to start a mixmap
 	* After vote passed, the plugin will randomly select five maps from map pool -> switch to first mix map.
 	* (Versus) After second round ends, switch to next mix map
-	* (Coop/Realism) After survivors have made it on end safe room, switch to next mix map
+	* (Coop/Realism) After survivors have made it to end safe room, switch to next mix map
 		* 🟥 The weapons, items and health will not be saved to next mix map in Coop/Realism mode, don't ask.
 	* To stop mix map, type ```!stopmixmap```
 	* If L4D2, Add mix map pool you want in [cfg/l4d2_mixmap/l4d2](cfg/l4d2_mixmap/l4d2)

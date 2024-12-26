@@ -268,7 +268,7 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-	GetMeleeTable();
+	if(g_bL4D2Version) GetMeleeTable();
 }
 
 void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -891,9 +891,6 @@ void SetHealth( int client )
 
 void GiveItems(int client) // give client weapon
 {
-	int flags = GetCommandFlags("give");
-	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
-	
 	int iRandom = g_iSecondWeapon;
 	if(g_bL4D2Version && iRandom == 5) iRandom = GetRandomInt(1,4);
 		
@@ -901,24 +898,27 @@ void GiveItems(int client) // give client weapon
 	{
 		case 1:
 		{
-			FakeClientCommand( client, "give pistol" );
-			FakeClientCommand( client, "give pistol" );
+			GivePlayerItem( client, "weapon_pistol" );
+			GivePlayerItem( client, "weapon_pistol" );
 		}
-		case 2: FakeClientCommand(client, "give pistol_magnum");
-		case 3: FakeClientCommand(client, "give chainsaw");
+		case 2: GivePlayerItem(client, "weapon_pistol_magnum");
+		case 3: GivePlayerItem(client, "weapon_chainsaw");
 		case 4: 
 		{
-			int entity = CreateEntityByName("weapon_melee");
-			if (CheckIfEntitySafe( entity ) == false)
-				return;
-
-			DispatchKeyValue(entity, "solid", "6");
-			DispatchKeyValue(entity, "melee_script_name", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
-			DispatchSpawn(entity);
-			EquipPlayerWeapon(client, entity);
+			if(g_bL4D2Version)
+			{
+				int entity = CreateEntityByName("weapon_melee");
+				if (CheckIfEntitySafe( entity ))
+				{
+					DispatchKeyValue(entity, "solid", "6");
+					DispatchKeyValue(entity, "melee_script_name", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
+					DispatchSpawn(entity);
+					EquipPlayerWeapon(client, entity);
+				}
+			}
 		}
 		default: {
-			FakeClientCommand( client, "give pistol" );
+			GivePlayerItem( client, "weapon_pistol" );
 		}
 	}
 
@@ -931,23 +931,23 @@ void GiveItems(int client) // give client weapon
 		
 		switch ( iRandom )
 		{
-			case 1: FakeClientCommand(client, "give autoshotgun");
-			case 2: FakeClientCommand(client, "give shotgun_spas");
-			case 3: FakeClientCommand(client, "give rifle");
-			case 4: FakeClientCommand(client, "give rifle_desert");
-			case 5: FakeClientCommand(client, "give rifle_ak47");
-			case 6: FakeClientCommand(client, "give rifle_sg552");
-			case 7: FakeClientCommand(client, "give sniper_military");
-			case 8: FakeClientCommand(client, "give sniper_awp");
-			case 9: FakeClientCommand(client, "give sniper_scout");
-			case 10: FakeClientCommand(client, "give hunting_rifle");
-			case 11: FakeClientCommand(client, "give rifle_m60");
-			case 12: FakeClientCommand(client, "give grenade_launcher");
-			case 13: FakeClientCommand(client, "give smg");
-			case 14: FakeClientCommand(client, "give smg_silenced");
-			case 15: FakeClientCommand(client, "give smg_mp5");
-			case 16: FakeClientCommand(client, "give pumpshotgun");
-			case 17: FakeClientCommand(client, "give shotgun_chrome");
+			case 1: GivePlayerItem(client, "weapon_autoshotgun");
+			case 2: GivePlayerItem(client, "weapon_shotgun_spas");
+			case 3: GivePlayerItem(client, "weapon_rifle");
+			case 4: GivePlayerItem(client, "weapon_rifle_desert");
+			case 5: GivePlayerItem(client, "weapon_rifle_ak47");
+			case 6: GivePlayerItem(client, "weapon_rifle_sg552");
+			case 7: GivePlayerItem(client, "weapon_sniper_military");
+			case 8: GivePlayerItem(client, "weapon_sniper_awp");
+			case 9: GivePlayerItem(client, "weapon_sniper_scout");
+			case 10: GivePlayerItem(client, "weapon_hunting_rifle");
+			case 11: GivePlayerItem(client, "weapon_rifle_m60");
+			case 12: GivePlayerItem(client, "weapon_grenade_launcher");
+			case 13: GivePlayerItem(client, "weapon_smg");
+			case 14: GivePlayerItem(client, "weapon_smg_silenced");
+			case 15: GivePlayerItem(client, "weapon_smg_mp5");
+			case 16: GivePlayerItem(client, "weapon_pumpshotgun");
+			case 17: GivePlayerItem(client, "weapon_shotgun_chrome");
 			default: {}//nothing
 		}
 	}
@@ -958,11 +958,11 @@ void GiveItems(int client) // give client weapon
 		
 		switch ( iRandom )
 		{
-			case 1: FakeClientCommand( client, "give autoshotgun" );
-			case 2: FakeClientCommand( client, "give rifle" );
-			case 3: FakeClientCommand( client, "give hunting_rifle" );
-			case 4: FakeClientCommand( client, "give smg" );
-			case 5: FakeClientCommand( client, "give pumpshotgun" );
+			case 1: GivePlayerItem(client, "weapon_autoshotgun");
+			case 2: GivePlayerItem(client, "weapon_rifle");
+			case 3: GivePlayerItem(client, "weapon_hunting_rifle");
+			case 4: GivePlayerItem(client, "weapon_smg");
+			case 5: GivePlayerItem(client, "weapon_pumpshotgun");
 			default: {}//nothing
 		}
 	}
@@ -973,9 +973,9 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: FakeClientCommand( client, "give molotov" );
-		case 2: FakeClientCommand( client, "give pipe_bomb" );
-		case 3: FakeClientCommand( client, "give vomitjar" );
+		case 1: GivePlayerItem(client, "weapon_molotov");
+		case 2: GivePlayerItem(client, "weapon_pipe_bomb");
+		case 3: GivePlayerItem(client, "weapon_vomitjar");
 		default: {}//nothing
 	}
 	
@@ -985,10 +985,10 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: FakeClientCommand( client, "give first_aid_kit" );
-		case 2: FakeClientCommand( client, "give defibrillator" );
-		case 3: FakeClientCommand( client, "give weapon_upgradepack_incendiary" );
-		case 4: FakeClientCommand( client, "give weapon_upgradepack_explosive" );
+		case 1: GivePlayerItem(client, "weapon_first_aid_kit");
+		case 2: GivePlayerItem(client, "weapon_defibrillator");
+		case 3: GivePlayerItem(client, "weapon_upgradepack_incendiary");
+		case 4: GivePlayerItem(client, "weapon_upgradepack_explosive");
 		default: {}//nothing
 	}
 	
@@ -997,12 +997,10 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: FakeClientCommand( client, "give pain_pills" );
-		case 2: FakeClientCommand( client, "give adrenaline" );
+		case 1: GivePlayerItem(client, "weapon_pain_pills");
+		case 2: GivePlayerItem(client, "weapon_adrenaline");
 		default: {}//nothing
 	}
-	
-	SetCommandFlags( "give", flags);
 }
 
 void Teleport( int client, int telcient) // Get the position coordinates of any active living player
