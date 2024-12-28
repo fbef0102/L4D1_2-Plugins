@@ -5,11 +5,14 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 <br/>🟥Dedicated Server Only
 <br/>🟥只能安裝在Dedicated Server
 
-* Video | 影片展示
-<br/>None
-
 * Image | 圖示
 <br/>![l4d_unreservelobby_1](image/l4d_unreservelobby_1.jpg)
+
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>How does it work?</summary>
 
@@ -19,13 +22,13 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		2. If server is lobby reserved and empty (No one in server)
 			* Unable to connect server from lobby
 	* (After)
-		1. Removes lobby reservation once server is full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
+		1. Automatically removes lobby reservation once server is full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
 			* New players is allowed to join the server, they can connect via the console or server browser
-			* It won't restore back lobby reservation
 			* Set ```sv_allow_lobby_connect_only 0```
-		2. Removes lobby reservation once all players have disconnected
+		2. Automatically restores the lobby reservation when there is a vacancy
+			* Send ```heartbeat``` to steam master, not guarantee match system is still working well
+		3. Automatically Removes lobby reservation once all players have disconnected
 			* Players can connect from a lobby again
-			* It won't restore back lobby reservation
 			* Set ```sv_allow_lobby_connect_only``` back to default
 	* In short, if you want multi slots server, must install
 		1. This l4d_unreservelobby plugin
@@ -61,13 +64,10 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		```
 </details>
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.4h (2024-12-28)
+		* Update cvars
 
 	* v1.3h (2024-12-20)
 	* v1.2h (2024-12-17)
@@ -101,10 +101,13 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 	* (裝插件之後)
 		1. 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)
-			* 自動移除動態大廳reserved cookie，不再恢復
+			* 自動移除動態大廳reserved cookie
 			* 設置指令```sv_allow_lobby_connect_only 0```
 			* 其他玩家可透過IP直連或是伺服器瀏覽加入遊戲
-		2. 當伺服器所有玩家離開沒人時，自動移除大廳reserved cookie，不再恢復
+		2. 當伺服器總人數還有位子時(對抗/清道夫: 低於8人, 戰役/生存/寫實: 低於4人)
+			* 恢復動態大廳reserved cookie
+			* 傳送命令 ```heartbeat``` 給Steam master，不保證大廳匹配機制還能持續運作
+		3. 當伺服器所有玩家離開沒人時，自動移除大廳reserved cookie，不再恢復
 			* 玩家可以再次從大廳匹配到伺服器
 			* 指令 ```sv_allow_lobby_connect_only``` 恢復預設
 

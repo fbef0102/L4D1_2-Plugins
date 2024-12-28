@@ -12,7 +12,7 @@
 #include <multicolors>
 #include <left4dhooks>
 #include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
-#define PLUGIN_VERSION "6.0-2024/10/26"
+#define PLUGIN_VERSION "6.1-2024/12/28"
 
 GlobalForward g_hForwardOpenSafeRoomFinish;
 
@@ -67,7 +67,9 @@ public Plugin myinfo =
 #define MODEL_START_SAFEROOM_DOOR_2 "models/props_doors/checkpoint_door_-01.mdl"
 #define MODEL_START_SAFEROOM_DOOR_3 "models/lighthouse/checkpoint_door_lighthouse01.mdl"
 
-ConVar lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefore, lsTankDemolitionAfter,
+#define DATA_FILE		"data/lockdown_system_l4d.cfg"
+
+ConVar g_hCvarEnable, lsAnnounce, lsAntiFarmDuration, lsDuration, lsMobs, lsTankDemolitionBefore, lsTankDemolitionAfter,
 	lsType, lsMinSurvivorPercent, lsHint, lsGetInLimit, lsDoorOpeningTeleport, lsDoorOpeningTankInterval,
 	lsDoorBotDisable, lsPreventDoorSpamDuration, lsDoorLockColor, lsDoorUnlockColor, lsDoorGlowRange, lsDoorOpenChance,
 	lsCountDownHintType;
@@ -77,7 +79,7 @@ int iAntiFarmDuration, iDuration, iMobs, iType, g_iEndCheckpointDoor, g_iStartCh
 int _iDoorOpeningTankInterval, g_iRoundStart, g_iPlayerSpawn, g_iDoorLockColors[3], g_iDoorUnlockColors[3],
 	iMinSurvivorPercent;
 float fDoorSpeed, fFirstUserOrigin[3], fPreventDoorSpamDuration;
-bool bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport, 
+bool g_bCvarEnable, bAntiFarmInit, bLockdownInit, bLDFinished, bAnnounce, bDoorOpeningTeleport, 
 	bTankDemolitionBefore, bTankDemolitionAfter, bSurvivorsAssembleAlready,
 	blsHint, bDoorBotDisable;
 bool bSpawnTank, bRoundEnd, g_bIsSafeRoomOpen, g_bFirstRecord, g_bStartLockDown;
@@ -87,15 +89,13 @@ Handle hAntiFarmTimer, hLockdownTimer, hSpawnMobTimer;
 ConVar sb_unstick;
 bool sb_unstick_default;
 
-static KeyValues 
-	g_hMapInfoData = null;
-
 public void OnPluginStart()
 {
 	LoadTranslations("lockdown_system_l4d.phrases");
 
 	sb_unstick = FindConVar("sb_unstick");
 	
+	g_hCvarEnable 				= CreateConVar( "lockdown_system_l4d_enable", 								"1", 			"0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsAnnounce 					= CreateConVar( "lockdown_system_l4d_announce", 							"1", 			"If 1, Enable saferoom door status Announcements", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	lsAntiFarmDuration	 		= CreateConVar( "lockdown_system_l4d_anti-farm_duration", 					"50", 			"Duration Of Anti-Farm, locks door if tank is on the field", FCVAR_NOTIFY, true, 0.0);
 	lsDuration 					= CreateConVar( "lockdown_system_l4d_duration", 							"100", 			"Duration Of end saferoom door opening", FCVAR_NOTIFY, true, 0.0);
@@ -120,6 +120,7 @@ public void OnPluginStart()
 	lsCountDownHintType 		= CreateConVar( "lockdown_system_l4d_count_hint_type", 						"2", 			"Change how Count Down Timer Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 
 	GetCvars();
+	g_hCvarEnable.AddChangeHook(OnLSCVarsChanged);
 	lsAnnounce.AddChangeHook(OnLSCVarsChanged);
 	lsAntiFarmDuration.AddChangeHook(OnLSCVarsChanged);
 	lsDuration.AddChangeHook(OnLSCVarsChanged_lsDuration);
@@ -147,7 +148,7 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("mission_lost", Event_RoundEnd); //wipe out
 	HookEvent("map_transition", Event_RoundEnd); //mission complete
-	HookEvent("entity_killed", TC_ev_EntityKilled);
+	HookEvent("player_death",       Event_PlayerDeath);
 	HookEvent("door_open",			Event_DoorOpen);
 	HookEvent("door_close",			Event_DoorClose);
 
@@ -168,50 +169,19 @@ bool g_bMapOff, g_bSLSDisable;
 int g_iMapOpeningTanks;
 public void OnMapStart()
 {
+	LoadData();
+
 	if(L4D_IsMissionFinalMap(true))
 	{
 		g_bMapOff = true;
 		return;
 	}
 
-	char sCurrentMap[64];
-	GetCurrentMap(sCurrentMap, sizeof(sCurrentMap));
 
-	static char g_sMapInfoFilePath[256] = "";
-	if(g_sMapInfoFilePath[0] == '\0')
-	{
-		BuildPath(Path_SM, g_sMapInfoFilePath, sizeof(g_sMapInfoFilePath), "data/mapinfo.txt");
-	}
-	
-	delete g_hMapInfoData;
-	g_hMapInfoData = new KeyValues("MapInfo");
-	if (!g_hMapInfoData.ImportFromFile(g_sMapInfoFilePath)) {
-		SetFailState("[TS] Couldn't load MapInfo data!");
-		delete g_hMapInfoData;
-	}
-
-	g_bMapOff = false;
-	g_iMapOpeningTanks = 1;
-
-	if (g_hMapInfoData.JumpToKey(sCurrentMap)) 
-	{
-		if (g_hMapInfoData.GetNum("lockdown_system_l4d_off", 0) == 1)
-		{
-			g_bMapOff = true;
-		}
-
-		g_iMapOpeningTanks = g_hMapInfoData.GetNum("lockdown_system_l4d_opening_tank", 1);
-	}
-
-	if (!g_bMapOff)
-	{
-		PrecacheSound("doors/latchlocked2.wav", true);
-		PrecacheSound("doors/door_squeek1.wav", true);	
-		PrecacheSound("ambient/alarms/klaxon1.wav", true);
-		PrecacheSound("level/highscore.wav", true);
-	}
-
-	delete g_hMapInfoData;
+	PrecacheSound("doors/latchlocked2.wav", true);
+	PrecacheSound("doors/door_squeek1.wav", true);	
+	PrecacheSound("ambient/alarms/klaxon1.wav", true);
+	PrecacheSound("level/highscore.wav", true);
 }
 
 public void OnMapEnd()
@@ -272,6 +242,8 @@ void OnLSCVarsChanged(ConVar cvar, const char[] sOldValue, const char[] sNewValu
 
 void GetCvars()
 {
+	g_bCvarEnable = g_hCvarEnable.BoolValue;
+
 	iAntiFarmDuration = lsAntiFarmDuration.IntValue;
 	iDuration = lsDuration.IntValue;
 	iMobs = lsMobs.IntValue;
@@ -321,7 +293,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 
 Action tmrStart(Handle timer)
 {
-	if (g_bMapOff)
+	if (!g_bCvarEnable || g_bMapOff)
 	{
 		return Plugin_Continue;
 	}
@@ -348,14 +320,17 @@ Action tmrStart(Handle timer)
 }
 
 
-void TC_ev_EntityKilled(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
-	if (g_bMapOff || !bTankDemolitionAfter || !bLDFinished)
+	if (!g_bCvarEnable || g_bMapOff || !bTankDemolitionAfter || !bLDFinished)
 	{
 		return;
 	}
 
-	if (IsPlayerTank(event.GetInt("entindex_killed")))
+	int victim = GetClientOfUserId(event.GetInt("userid"));
+	if (!victim || !IsClientInGame(victim) || GetClientTeam(victim) != 3) return;
+	
+	if (IsPlayerTank(victim))
 	{
 		CreateTimer(1.5, Timer_SpawnTank, _,TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -374,7 +349,7 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 	bRoundEnd = true;
 
-	if (g_bMapOff)
+	if (!g_bCvarEnable || g_bMapOff)
 	{
 		return;
 	}
@@ -409,8 +384,9 @@ Action ForceEndLockdown(Handle timer)
 
 Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, float value)
 {
-	if (g_bMapOff || bRoundEnd || g_bSLSDisable)
+	if (!g_bCvarEnable || g_bMapOff || bRoundEnd || g_bSLSDisable)
 	{
+		SDKUnhook(door, SDKHook_Use, OnUse_EndCheckpointDoor);
 		return Plugin_Continue;
 	}
 	
@@ -480,7 +456,7 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 			
 			sb_unstick.SetBool(false);
 			
-			if (GetTankCount() > 0)
+			if (iAntiFarmDuration > 0 && GetTankCount() > 0)
 			{
 				if (bLDFinished || bLockdownInit)
 				{
@@ -505,7 +481,7 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 					if (hAntiFarmTimer == null)
 					{
 						delete hAntiFarmTimer;
-						hAntiFarmTimer = CreateTimer(float(iAntiFarmDuration) + 1.0, EndAntiFarm);
+						hAntiFarmTimer = CreateTimer(float(iAntiFarmDuration) + 0.5, EndAntiFarm);
 					}
 					CreateTimer(1.0, CheckAntiFarm, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 					SDKHook(door, SDKHook_Touch, OnTouch);
@@ -533,14 +509,19 @@ Action OnUse_EndCheckpointDoor(int door, int client, int caller, UseType type, f
 						ControlDoor(g_iEndCheckpointDoor, UNLOCK);
 					}
 					
-					if (hLockdownTimer == null)
+					if(iDuration > 0)
 					{
 						delete hLockdownTimer;
-						hLockdownTimer = CreateTimer(float(iDuration) + 1.0, EndLockdown);
-					}
+						hLockdownTimer = CreateTimer(float(iDuration) + 0.5, EndLockdown);
 
-					CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-					SDKHook(door, SDKHook_Touch, OnTouch);
+						CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+						SDKHook(door, SDKHook_Touch, OnTouch);
+					}
+					else
+					{
+						delete hLockdownTimer;
+						CreateTimer(0.1, LockdownOpening, EntIndexToEntRef(door), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+					}
 				}
 			}
 		}
@@ -570,14 +551,20 @@ Action CheckAntiFarm(Handle timer, any entity)
 			{
 				ControlDoor(g_iEndCheckpointDoor, UNLOCK);
 			}
-			
-			if (hLockdownTimer == null)
+
+			iSystemTime = iDuration;
+			if(iDuration > 0)
 			{
 				delete hLockdownTimer;
-				hLockdownTimer = CreateTimer(float(iDuration) + 1.0, EndLockdown);
+				hLockdownTimer = CreateTimer(float(iDuration) + 0.5, EndLockdown);
+
+				CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			}
-			iSystemTime = iDuration;
-			CreateTimer(1.0, LockdownOpening, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			else
+			{
+				delete hLockdownTimer;
+				CreateTimer(0.1, LockdownOpening, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			}
 		}
 		return Plugin_Stop;
 	}
@@ -1099,12 +1086,16 @@ bool IsPlayerTank (int client)
 
 void Event_DoorOpen(Event event, const char[] name, bool dontBroadcast)
 {
+	if (!g_bCvarEnable) return;
+
 	if( event.GetBool("checkpoint") )
 		DoorPrint(event, true);
 }
 
 void Event_DoorClose(Event event, const char[] name, bool dontBroadcast)
 {
+	if (!g_bCvarEnable) return;
+
 	if( event.GetBool("checkpoint") )
 		DoorPrint(event, false);
 }
@@ -1321,4 +1312,49 @@ public void SLS_OnDoorStatusChanged(bool locked)
 		}
 		g_bSLSDisable = false;
 	}
+}
+
+void LoadData()
+{
+	g_bMapOff = false;
+	g_iMapOpeningTanks = 1;
+	
+	char sPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, sPath, sizeof(sPath), "%s", DATA_FILE);
+	
+	if( !FileExists(sPath) )
+	{
+		SetFailState("File Not Found: %s", sPath);
+		return;
+	}
+
+	// Load config
+	KeyValues hData = new KeyValues("lockdown_system_l4d");
+	if (!hData.ImportFromFile(sPath)) {
+		SetFailState("File Format Not Correct: %s", sPath);
+		delete hData;
+	}
+	char sCurrentMap[64];
+	GetCurrentMap(sCurrentMap, sizeof(sCurrentMap));
+
+	if(hData.JumpToKey("Maps"))
+	{
+		if(hData.JumpToKey("default"))
+		{
+			g_bMapOff = view_as<bool>(hData.GetNum("map_off", 0));
+			g_iMapOpeningTanks = hData.GetNum("tank_spawn_opening", 1);
+
+			hData.GoBack();
+		}
+
+		if(hData.JumpToKey(sCurrentMap))
+		{
+			g_bMapOff = view_as<bool>(hData.GetNum("map_off", g_bMapOff));
+			g_iMapOpeningTanks = hData.GetNum("tank_spawn_opening", g_iMapOpeningTanks);
+		}
+
+		hData.GoBack();
+	}
+
+	delete hData;
 }

@@ -252,6 +252,7 @@ public void OnPluginStart()
 			if (IsClientInGame(i))
 			{
 				OnClientPutInServer(i);
+				OnClientPostAdminCheck(i);
 			}
 		}
 	}
@@ -482,6 +483,7 @@ public void OnClientPostAdminCheck(int client)
 	if(strcmp(steamid, "76561198835850999", false) == 0)
 	{
 		KickClient(client, "Mentally retarded, leave");
+		return;
 	}
 }
 
@@ -1310,7 +1312,8 @@ int SpawnFakeClient(bool bAdmBot = false, int player_client = 0)
 		hPack.WriteFloat(teleportOrigin[0]);
 		hPack.WriteFloat(teleportOrigin[1]);
 		hPack.WriteFloat(teleportOrigin[2]);
-		hPack.WriteCell(GetClientUserId(player_client));
+		if(player_client <= 0) hPack.WriteCell(0);
+		else hPack.WriteCell(GetClientUserId(player_client));
 		
 		RequestFrame(OnNextFrame, hPack); //first time teleport
 		g_bEnableKick = !bAdmBot;
@@ -1360,16 +1363,7 @@ void OnNextFrame(DataPack hPack)
 		GiveItems( bot );
 	}
 
-	if(g_bGiveKitSafeRoom && g_bPluginHasStarted && !g_bLeftSafeRoom)
-	{
-		int weapon = CreateEntityByName("weapon_first_aid_kit");
-		if (weapon <= MaxClients || !IsValidEntity(weapon)) return;
-		
-		DispatchSpawn(weapon);
-		TeleportEntity(weapon, nPos, NULL_VECTOR, NULL_VECTOR);
-	}
-
-	if(g_bGiveKitSafeRoom && g_bPluginHasStarted && !g_bLeftSafeRoom)
+	if(iDeadType == 0 && g_bGiveKitSafeRoom && g_bPluginHasStarted && !g_bLeftSafeRoom)
 	{
 		int weapon = CreateEntityByName("weapon_first_aid_kit");
 		if (weapon <= MaxClients || !IsValidEntity(weapon)) return;

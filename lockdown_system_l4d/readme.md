@@ -11,6 +11,12 @@ Locks Saferoom Door Until Someone Opens It.
     * Close Saferoom Door (關閉終點安全門)
     <br/>![lockdown_system_l4d_3](image/lockdown_system_l4d_3.jpg)
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
@@ -20,6 +26,9 @@ Locks Saferoom Door Until Someone Opens It.
 
     * cfg/sourcemod/lockdown_system_l4d.cfg
         ```php
+        // 0=Plugin off, 1=Plugin on.
+        lockdown_system_l4d_enable "1"
+
         // If 1, Enable saferoom door status Announcements
         lockdown_system_l4d_announce "1"
 
@@ -86,7 +95,7 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>Data Config</summary>
 
-    * [data/mapinfo.txt](data/mapinfo.txt)
+    * [data/lockdown_system_l4d.cfg](data/lockdown_system_l4d.cfg)
         > Manual in this file, click for more details...
 </details>
 
@@ -97,12 +106,6 @@ Locks Saferoom Door Until Someone Opens It.
         library name: lockdown_system_l4d
         ```
 </details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Related | 相關插件</summary>
 
@@ -120,6 +123,10 @@ Locks Saferoom Door Until Someone Opens It.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v6.1 (2024-12-28)
+        * Update cvars
+        * Update data file
 
     * v6.0 (2024-10-26)
         * Add API
@@ -179,6 +186,9 @@ Locks Saferoom Door Until Someone Opens It.
 
     * cfg/sourcemod/lockdown_system_l4d.cfg
         ```php
+        // 0=關閉插件, 1=啟動插件
+        lockdown_system_l4d_enable "1"
+
         // 為1時, 顯示終點安全室大門的狀態
         lockdown_system_l4d_announce "1"
 
@@ -240,6 +250,6 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>文件設定範例</summary>
 
-    * [data/mapinfo.txt](data/mapinfo.txt)
+    * [data/lockdown_system_l4d.cfg](data/lockdown_system_l4d.cfg)
         > 內有中文說明，可點擊查看
 </details>
