@@ -16,7 +16,7 @@
 #include <builtinvotes> //https://github.com/fbef0102/Game-Private_Plugin/releases/tag/builtinvotes
 #undef REQUIRE_PLUGIN
 #tryinclude <readyup>
-//#tryinclude <l4d2_playstats>
+#tryinclude <l4d2_map_transitions>
 
 #if !defined _readyup_included_
 	native bool EditFooterStringAtIndex(int index, const char[] string);
@@ -110,18 +110,12 @@ bool g_bMapsetInitialized;
 int g_iMapsPlayed;
 int g_iMapCount;
 
-int
-	g_iPointsTeam_A = 0,
-	g_iPointsTeam_B = 0;
-
-bool 	g_bCMapTransitioned = false,
-		g_bServerForceStart = false;
+bool 	
+	g_bServerForceStart = false;
 
 Handle g_hCountDownTimer;
-Handle g_hCMapSetCampaignScores;
 
 bool 
-	g_ReadyUpAvailable, 
 	g_bRoundIsLive, 
 	g_bReadyUpFooterAdded,
 	g_bDifferAbort;
@@ -143,7 +137,6 @@ int
 
 public void OnPluginStart() 
 {
-	LoadSDK();
 	LoadTranslations("l4d2_mixmap.phrases");
 
 	g_cvNextMapPrint	= CreateConVar("l4d2mm_nextmap_print",		"1",	"If 1, show what the next map will be", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -164,7 +157,7 @@ public void OnPluginStart()
 	RegAdminCmd( "sm_fstopmixmap",	StopMixmap, ADMFLAG_ROOT, "Force stop a mixmap ;强制中止mixmap，并初始化地图列表");
 
 	//Midcommand 插件启用后可使用的指令
-	RegConsoleCmd( "sm_mixmaplist", MixMaplist, "Show the map list; 展示mixmap最终抽取出的地图列表");
+	RegConsoleCmd( "sm_mixmaplist", MixMaplist, "Show the mix map list; 展示mixmap最终抽取出的地图列表");
 	//RegAdminCmd( "sm_allmap", ShowAllMaps, ADMFLAG_ROOT, "Show all official maps code; 展示所有官方地图的地图代码");
 	//RegAdminCmd( "sm_allmaps", ShowAllMaps, ADMFLAG_ROOT, "Show all official maps code; 展示所有官方地图的地图代码");
 
@@ -181,6 +174,9 @@ public void OnPluginStart()
 	PluginStartInit();
 	
 }
+
+bool 
+	g_ReadyUpAvailable;
 
 public void OnAllPluginsLoaded()
 {
@@ -229,12 +225,6 @@ public void OnMapStart()
 		PrecacheSound("ui/menu_enter05.wav");
 		PrecacheSound("ui/beep_synthtone01.wav");
 		PrecacheSound("ui/beep_error01.wav");
-	}
-
-	if (g_bCMapTransitioned) 
-	{
-		CreateTimer(1.0, Timer_OnMapStartDelay); //Clients have issues connecting if team swap happens exactly on map start, so we delay it
-		g_bCMapTransitioned = false;
 	}
 
 	ServerCommand("sm_nextmap ''");
@@ -841,46 +831,6 @@ Action Timed_NextMapInfo(Handle timer)
 	return Plugin_Continue;
 }
 
-Action Timed_SpeicalChangeMap(Handle timer)
-{
-	if(g_bL4D2Version && L4D_HasPlayerControlledZombies())
-	{
-		if(g_iMapsPlayed -1 < 0) return Plugin_Continue;
-		
-		char sMapName_New[BUF_SZ], sMapName_Old[BUF_SZ];
-		g_hArrayMapOrder.GetString(g_iMapsPlayed, sMapName_New, BUF_SZ);
-		g_hArrayMapOrder.GetString(g_iMapsPlayed - 1, sMapName_Old, BUF_SZ);
-
-		if ((StrEqual(sMapName_Old, "c6m2_bedlam") && !StrEqual(sMapName_New, "c7m1_docks")) || (StrEqual(sMapName_Old, "c9m2_lots") && !StrEqual(sMapName_New, "c14m1_junkyard")))
-		{
-			g_iPointsTeam_A = L4D2Direct_GetVSCampaignScore(0);
-			g_iPointsTeam_B = L4D2Direct_GetVSCampaignScore(1);
-			g_bCMapTransitioned = true;
-			CreateTimer(9.0, Timed_Gotomap, _, TIMER_FLAG_NO_MAPCHANGE);	//this command must set ahead of the l4d2_map_transition plugin setting. Otherwise the map will be c7m1_docks/c14m1_junkyard after c6m2_bedlam/c9m2_lots
-		}
-		else if ((!StrEqual(sMapName_Old, "c6m2_bedlam") && StrEqual(sMapName_New, "c7m1_docks")) || (!StrEqual(sMapName_Old, "c9m2_lots") && StrEqual(sMapName_New, "c14m1_junkyard")))
-		{
-			g_iPointsTeam_A = L4D2Direct_GetVSCampaignScore(0);
-			g_iPointsTeam_B = L4D2Direct_GetVSCampaignScore(1);
-			
-			g_bCMapTransitioned = true;
-			CreateTimer(10.0, Timed_Gotomap, _, TIMER_FLAG_NO_MAPCHANGE);	//this command must set ahead of the l4d2_map_transition plugin setting. Otherwise the map will be c7m1_docks/c14m1_junkyard after c6m2_bedlam/c9m2_lots
-		}
-	}
-
-	return Plugin_Continue;
-}
-
-Action Timed_Gotomap(Handle timer)
-{
-	char sMapName_New[BUF_SZ];
-	g_hArrayMapOrder.GetString(g_iMapsPlayed, sMapName_New, BUF_SZ);
-	
-	GotoMap(sMapName_New, true);
-	
-	return Plugin_Continue;
-}
-
 Action Timed_ContinueMixmap(Handle timer)
 {
 	ServerCommand("sm_fmixmap %s", cfg_exec);
@@ -976,13 +926,6 @@ Action Timer_FindInfoChangelevel(Handle timer)
 	{
 		GetEntPropString(ent, Prop_Data, "m_landmarkName", g_slandmarkName, sizeof(g_slandmarkName)); 
 	}
-
-	return Plugin_Continue;
-}
-
-Action Timer_OnMapStartDelay(Handle hTimer)
-{
-	SetScores();
 
 	return Plugin_Continue;
 }
@@ -1160,23 +1103,6 @@ void SelectRandomMap()
 	g_hCountDownTimer = CreateTimer(g_bServerForceStart ? 5.0 : 10.0, Timed_GiveThemTimeToReadTheMapList);	//Alternative for remixmap
 }
 
-void SetScores()
-{
-	if(!L4D_HasPlayerControlledZombies()) return;
-
-	//If team B is winning, swap teams. Does not change how scores are set
-	if (g_bL4D2Version && g_iPointsTeam_A < g_iPointsTeam_B) {
-		L4D2_SwapTeams();
-	}
-
-	//Set scores on scoreboard
-	SDKCall(g_hCMapSetCampaignScores, g_iPointsTeam_A, g_iPointsTeam_B);
-
-	//Set actual scores
-	L4D2Direct_SetVSCampaignScore(0, g_iPointsTeam_A);
-	L4D2Direct_SetVSCampaignScore(1, g_iPointsTeam_B);
-}
-
 void GotoNextMap(bool force = false) 
 {
 	char sMapName[BUF_SZ];
@@ -1197,43 +1123,6 @@ void GotoMap(const char[] sMapName, bool force = false)
 	// 戰役模式中使用sm_nextmap，自動換到指定的關卡，但會有bots不見的問題
 	ServerCommand("sm_nextmap %s", sMapName);
 } 
-
-void LoadSDK()
-{
-	Handle hGameData;
-	
-	if(g_bL4D2Version)
-	{
-		hGameData = LoadGameConfigFile(LEFT4FRAMEWORK_GAMEDATA_L4D2);
-		if (hGameData == null) {
-			SetFailState("Could not load gamedata/%s.txt", LEFT4FRAMEWORK_GAMEDATA_L4D2);
-			return;
-		}
-	}
-	else
-	{
-		hGameData = LoadGameConfigFile(LEFT4FRAMEWORK_GAMEDATA_L4D1);
-		if (hGameData == null) {
-			SetFailState("Could not load gamedata/%s.txt", LEFT4FRAMEWORK_GAMEDATA_L4D1);
-			return;
-		}
-	}
-
-	StartPrepSDKCall(SDKCall_GameRules);
-	if (!PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, SECTION_NAME)) {
-		SetFailState("Function '%s' not found.", SECTION_NAME);
-	}
-
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	g_hCMapSetCampaignScores = EndPrepSDKCall();
-
-	if (g_hCMapSetCampaignScores == null) {
-		SetFailState("Function '%s' found, but something went wrong.", SECTION_NAME);
-	}
-
-	delete hGameData;
-}
 
 void PluginStartInit() 
 {
@@ -1388,7 +1277,6 @@ public void L4D2_OnEndVersusModeRound_Post()
 			{
 				GotoNextMap(false);
 				CreateTimer(5.0, Timed_NextMapInfo, _, TIMER_FLAG_NO_MAPCHANGE);
-				CreateTimer(5.0, Timed_SpeicalChangeMap, _, TIMER_FLAG_NO_MAPCHANGE);
 				return;
 			}
 
@@ -1406,4 +1294,14 @@ public void L4D2_OnEndVersusModeRound_Post()
 public void OnRoundIsLive() 
 {
 	g_bRoundIsLive = true;
+}
+
+public Action l4d2_map_transitions_OnChangeNextMap_Pre(const char[] sNextMapName)
+{
+	if (g_bMapsetInitialized)
+	{
+		return Plugin_Handled;
+	}
+
+	return Plugin_Continue;
 }

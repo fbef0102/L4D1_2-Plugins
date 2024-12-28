@@ -206,7 +206,7 @@ void event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 		return;
 	}
 	
-	if( client && !IsFakeClient(client) && !dontBroadcast )
+	if( client && !IsFakeClient(client) )
 	{
 		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 		
