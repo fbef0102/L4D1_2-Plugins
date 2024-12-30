@@ -1,0 +1,92 @@
+"Games"
+{
+	"#default"
+	{
+		"Offsets"
+		{
+			"OS"
+			{
+				"windows"	"0"
+				"linux"		"1"
+			}
+		}
+	}
+		
+	"left4dead"
+	{
+		"Functions"
+		{
+			"ForEachPlayer<SurvivorsInSafeArea>"
+			{
+				"signature"		"ForEachPlayer<SurvivorsInSafeArea>"
+				"callconv"		"cdecl"
+				"return"		"bool"
+				"arguments"
+				{
+					"SurvivorsInSafeArea &"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
+
+			"SurvivorsInSafeArea::operator()"
+			{
+				"signature"		"SurvivorsInSafeArea::operator()"
+				"callconv"		"thiscall"
+				"return"		"bool"
+				"this"			"ignore"
+				"arguments"
+				{
+					"CBasePlayer *"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+		}
+
+		"Signatures"
+		{
+			"ForEachPlayer<SurvivorsInSafeArea>"
+			{
+				"library"	"server"
+				"linux"		"@_Z13ForEachPlayerI19SurvivorsInSafeAreaEbRT_"
+			}
+
+			"SurvivorsInSafeArea::operator()"
+			{
+				"library"	"server"
+				"windows"	"\x56\x57\x8B\x7C\x24\x0C\x8B\x07\x8B\x90\x00\x01\x00\x00\x8B\xF1\x8B\xCF\xFF\xD2\x84\xC0\x74\x2A\x8B\xCF"
+							/* 56 57 8B 7C 24 0C 8B 07 8B 90 00 01 00 00 8B F1 8B CF FF D2 84 C0 74 ? 8B CF */
+			}
+		}
+	}
+
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"CheckForSurvivorsLeavingSafeArea"
+			{
+				"signature"		"CDirector::CheckForSurvivorsLeavingSafeArea"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"ignore"
+			}
+		}
+
+		"Signatures"
+		{
+
+			/* 怎么找win签名:(How To Find Win Signature:)
+               搜字符串"player_left_safe_area"可以得到一个函数A，这个函数A有3条被引用的信息，其中两条引用函数内有字符串，最后一条引用函数内没有任何字符串，那么就是这最后一个函数*/
+			"CDirector::CheckForSurvivorsLeavingSafeArea"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CDirector32CheckForSurvivorsLeavingSafeAreaEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x30\x53\x56\x8B\xF1\x33\xDB"
+			}
+		}
+	}
+}

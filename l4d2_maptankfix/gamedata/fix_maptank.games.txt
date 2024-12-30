@@ -1,0 +1,49 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"L4DD::ZombieManager::SpawnSpecial"
+			{
+				"signature"		"ZombieManager::SpawnSpecial"
+				"callconv"		"thiscall"
+				"return"		"cbaseentity"
+				"this"			"ignore"
+				"arguments"
+				{
+					"a1"
+					{
+						"type"	"int"
+					}
+					"a2"
+					{
+						"type"	"vectorptr"
+					}
+					"a3"
+					{
+						"type"	"vectorptr"
+					}
+				}
+			}
+
+		}
+		"Offsets"
+		{
+			"AcceptInput"
+			{
+				"windows"	"44"
+				"linux"		"45"
+			}
+		}
+		"Signatures"
+        {
+            "ZombieManager::SpawnSpecial"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13ZombieManager12SpawnSpecialE15ZombieClassTypeRK6VectorRK6QAngle"
+				"windows"	"\x55\x8B\xEC\x53\x8B\x5D\x08\x8D\x43\xFF\x56"
+			}
+        }
+	}
+} 

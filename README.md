@@ -173,6 +173,12 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 土製炸彈與火瓶有動態光源特效
 * <b>[l4d2_mixmap](/l4d2_mixmap)</b>: Randomly select five maps for versus/coop/realism. Adding for fun
     * 隨機抽取五個關卡組成一張地圖，適用於戰役/對抗/寫實，依一定順序切換地圖來進行遊戲，增加遊戲的趣味性
+* <b>[l4d2_transition_info_fix](/l4d2_transition_info_fix)</b>: Fix issues after map transitioned, transition info is still retaining when changed new map by other ways.
+    * 修復中途換地圖的時候(譬如使用Changelevel指令)，會遺留上次的過關保存設定，導致滅團後倖存者被傳送到安全室之外或死亡
+* <b>[l4d2_maptankfix](/l4d2_maptankfix)</b>: Fix issues where customized map tank does not spawn, cause the map process break 
+    * 防止地圖自帶的機關Tank因為人數不夠問題​​無法刷新而造成卡關
+* <b>[l4d_start_safe_area](/l4d_start_safe_area)</b>: Add Custom safe area for any map on start
+    * 遊戲開局時，強制將出生點周圍區域判定為安全區，以確保玩家安全
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

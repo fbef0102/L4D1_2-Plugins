@@ -10,9 +10,6 @@
 #define		SYMBOL_LEFT		'('
 #define		SYMBOL_RIGHT	')'
 
-ConVar g_hHostName, g_hModeName, hostport;
-char g_sModeName[64], sHostport[10];
-
 public Plugin myinfo = 
 {
 	name = "L4D Dynamic Host Name",
@@ -22,6 +19,11 @@ public Plugin myinfo =
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
+ConVar g_hHostName, g_hModeName, hostport;
+char g_sModeName[64], sHostport[10];
+
+bool g_bBlockHook;
+
 public void OnPluginStart()
 {
 	g_hHostName	= FindConVar("hostname");
@@ -30,8 +32,18 @@ public void OnPluginStart()
 	g_hModeName = CreateConVar("l4d_current_mode", "", "League notice displayed on server name", FCVAR_SPONLY | FCVAR_NOTIFY);
 
 	GetCvars();
+	g_hHostName.AddChangeHook(ConVarChanged_HostNameCvars);
 	hostport.AddChangeHook(ConVarChanged_Cvars);
 	g_hModeName.AddChangeHook(ConVarChanged_Cvars);
+
+	ChangeServerName();
+}
+
+void ConVarChanged_HostNameCvars(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	if(g_bBlockHook) return;
+
+	GetCvars();
 
 	ChangeServerName();
 }
@@ -49,8 +61,17 @@ void GetCvars()
 	g_hModeName.GetString(g_sModeName, sizeof(g_sModeName));
 }
 
+public void OnConfigsExecuted()
+{
+	GetCvars();
+
+	ChangeServerName();
+}
+
 void ChangeServerName()
 {
+	g_bBlockHook = true;
+
 	static char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath),"configs/hostname/server_hostname_%s.txt", sHostport);
 	
@@ -85,8 +106,10 @@ void ChangeServerName()
 			FormatEx(sNewName, sizeof(sNewName), "%s%c%s%c", readData, SYMBOL_LEFT, g_sModeName, SYMBOL_RIGHT);
 		
 		g_hHostName.SetString(sNewName);
-		LogMessage("%s New server name \"%s\"", DN_TAG, sNewName);
+		//LogMessage("%s New server name \"%s\"", DN_TAG, sNewName);
 	}
 
 	file.Close();
+
+	g_bBlockHook = false;
 }
