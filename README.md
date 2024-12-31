@@ -179,6 +179,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 防止地圖自帶的機關Tank因為人數不夠問題​​無法刷新而造成卡關
 * <b>[l4d_start_safe_area](/l4d_start_safe_area)</b>: Add Custom safe area for any map on start
     * 遊戲開局時，強制將出生點周圍區域判定為安全區，以確保玩家安全
+* <b>[l4d_fastdl_delay_downloader](/l4d_fastdl_delay_downloader)</b>: Downloading fastdl custom files only when map change/transition
+    * 只有在換圖或過關時，才讓玩家下載Fastdl自製的檔案
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

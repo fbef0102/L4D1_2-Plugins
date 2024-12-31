@@ -1660,10 +1660,6 @@ void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
 				CreateTimer(0.2, Timer_InfectedKillSelf, userid, TIMER_FLAG_NO_MAPCHANGE);
 			}
 		}
-		if(g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce)
-		{
-			CreateTimer(10.0, AnnounceJoinInfected, userid, TIMER_FLAG_NO_MAPCHANGE);
-		}
 	}
 
 	PlayerHasEnteredStart[client] = true;
@@ -1985,6 +1981,11 @@ public void OnClientPutInServer(int client)
 	if (IsFakeClient(client))
 		return;
 
+	if(g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce)
+	{
+		CreateTimer(10.0, AnnounceJoinInfected, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
+
 	//iPlayerTeam[client] = 1;
 }
 
@@ -2252,10 +2253,10 @@ Action Console_Timer(int client, int args)
 
 Action AnnounceJoinInfected(Handle timer, int client)
 {
-	client = GetClientOfUserId(client);
-	if (client && IsClientInGame(client) && !IsFakeClient(client))
+	if (g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce && L4D_HasPlayerControlledZombies() == false)
 	{
-		if (g_ePluginSettings.m_bCoopVersusEnable && g_ePluginSettings.m_bCoopVersusAnnounce && L4D_HasPlayerControlledZombies() == false)
+		client = GetClientOfUserId(client);
+		if (client && IsClientInGame(client) && !IsFakeClient(client) && HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
 		{
 			CPrintToChat(client,"[{olive}TS{default}] %T","Join infected team in coop/survival/realism",client);
 			CPrintToChat(client,"%T","Join survivor team",client);

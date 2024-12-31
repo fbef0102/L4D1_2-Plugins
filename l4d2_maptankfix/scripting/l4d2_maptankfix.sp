@@ -4,6 +4,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <dhooks>
+#include <left4dhooks>
 
 #define DEBUG		   0
 #define PLUGIN_VERSION "1.2-2024/12/30"
@@ -12,6 +13,8 @@
 bool			 g_bTankFix;
 ArrayList 		 g_aEntList;
 ConVar			 g_Onoff;
+bool	g_bBlockHook = true;
+ 
 
 DynamicHook	g_hdAcceptInput;
 DHookSetup	g_hSpecialSpawn;
@@ -26,7 +29,6 @@ public Plugin myinfo =
 };
 
 int ZOMBIECLASS_TANK;
-static char sSpawnCommand[32];
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	EngineVersion test = GetEngineVersion();
@@ -34,7 +36,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	if( test == Engine_Left4Dead2 )
 	{
 		ZOMBIECLASS_TANK = 8;
-		sSpawnCommand = "z_spawn_old";
 	}
 	else
 	{
@@ -150,7 +151,7 @@ MRESReturn AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
 #if DEBUG
 	LogMessage("Detour Get Input");
 #endif
-	if (g_bTankFix == false || FindValueInList(pThis)) return MRES_Ignored;
+	if (g_bTankFix == false || g_bBlockHook) return MRES_Ignored;
 	//if (GetClientCount(false) < MaxClients) return MRES_Ignored;
 
 #if DEBUG
@@ -164,9 +165,11 @@ MRESReturn AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
 #if DEBUG
 		LogMessage("Detour info_zombie_spawn Respawn");
 #endif
-		//PushValueInList(pThis);
-		//ReleaseSlotFromSpecial(pThis);
-		CreateTimer(0.1, CheckIfSpawnSucess, EntIndexToEntRef(pThis));
+		
+		DataPack hPack;
+		CreateTimer(0.1, CheckIfSpawnSucess, hPack);
+		hPack.WriteCell(pThis);
+		hPack.WriteCell(EntIndexToEntRef(pThis));
 	}
 
 	if (StrEqual(szEntityName, "commentary_zombie_spawner"))
@@ -178,9 +181,10 @@ MRESReturn AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
 #if DEBUG
 			LogMessage("Detour commentary_zombie_spawner Respawn");
 #endif
-			//PushValueInList(pThis);
-			//ReleaseSlotFromSpecial(pThis);
-			CreateTimer(0.1, CheckIfSpawnSucess, EntIndexToEntRef(pThis));
+			DataPack hPack;
+			CreateTimer(0.1, CheckIfSpawnSucess, hPack);
+			hPack.WriteCell(pThis);
+			hPack.WriteCell(EntIndexToEntRef(pThis));
 		}
 	}
 	return MRES_Ignored;
@@ -189,7 +193,7 @@ MRESReturn AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
 // tank重生期间禁止新特感刷新
 MRESReturn SpecialSpawnDetour(DHookReturn hReturn, DHookParam hParams)
 {
-	if (g_bTankFix == false || IsListNull()) return MRES_Ignored;
+	if (g_bTankFix == false || IsListNull() || g_bBlockHook) return MRES_Ignored;
 	int var1;
 	var1 = DHookGetParam(hParams, 1);
 	if (var1 != ZOMBIECLASS_TANK)
@@ -204,74 +208,86 @@ MRESReturn SpecialSpawnDetour(DHookReturn hReturn, DHookParam hParams)
 	return MRES_Ignored;
 }
 
-Action CheckIfSpawnSucess(Handle timer, int iEnt)
+Action CheckIfSpawnSucess(Handle timer, DataPack hPack)
 {
-	iEnt = EntRefToEntIndex(iEnt);
-	if(iEnt == INVALID_ENT_REFERENCE) return Plugin_Continue;
+	hPack.Reset();
+	int iIndex = hPack.ReadCell();
+	int iEnt = EntRefToEntIndex(hPack.ReadCell());
 
-	for (int client = 1; client <= MaxClients; client++)
+	if(iEnt == INVALID_ENT_REFERENCE)
 	{
-		if (IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client))
+		RemoveValueFromList(iIndex);
+		return Plugin_Continue;
+	}
+
+	int client = GetTankInGame();
+	if(client > 0)
+	{
+		float vPos[3], cPos[3];
+		GetEntPropVector(client, Prop_Send, "m_vecAbsOrigin", vPos);
+		GetEntPropVector(iEnt, Prop_Send, "m_vecAbsOrigin", cPos);
+		if (GetVectorDistance(vPos, cPos, true) <= 100.0 * 100.0)
 		{
-			int class = GetEntProp(client, Prop_Send, "m_zombieClass");
-			if (class == ZOMBIECLASS_TANK)
+			RemoveValueFromList(iEnt);
+			return Plugin_Continue;
+		}
+	}
+
+	if(GiveHumanSpecialTank(iEnt) == true)
+	{
+		return Plugin_Continue;
+	}
+
+	PushValueInList(iEnt);
+	TryReleaseSlotFromSpecial();
+
+	DataPack hPack2;
+	CreateDataTimer(0.1, LaterSpawnTank, hPack2);
+	hPack2.WriteCell(iEnt);
+	hPack2.WriteCell(EntIndexToEntRef(iEnt));
+
+	return Plugin_Continue;
+}
+
+bool GiveHumanSpecialTank(int iEnt)
+{
+	// 隨機找到一個死亡的真人特感玩家，將他變成Tank
+	float cPos[3];
+	GetEntPropVector(iEnt, Prop_Send, "m_vecAbsOrigin", cPos);
+
+	int iClientCount, iClients[MAXPLAYERS+1];
+	for (int human = 1; human <= MaxClients; human++)
+	{
+		if (IsClientInGame(human) && GetClientTeam(human) == 3 && !IsFakeClient(human))
+		{
+			if (!IsPlayerAlive(human))
 			{
-				float vPos[3], cPos[3];
-				GetEntPropVector(client, Prop_Send, "m_vecOrigin", vPos);
-				GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", cPos);
-				if (GetVectorDistance(vPos, cPos, true) <= 100.0 * 100.0)
-				{
-					CreateTimer(0.1, LaterRemoveArray, iEnt);
-					return Plugin_Continue;
-				}
+				iClients[iClientCount++] = human;
 			}
 		}
 	}
 
-	PushValueInList(iEnt);
-	ReleaseSlotFromSpecial(iEnt);
-	CreateTimer(0.1, LaterSpawnTank, EntIndexToEntRef(iEnt));
-	return Plugin_Continue;
-}
-
-// 刷克
-Action LaterSpawnTank(Handle timer, int iEnt)
-{
-	iEnt = EntRefToEntIndex(iEnt);
-	if(iEnt == INVALID_ENT_REFERENCE) return Plugin_Continue;
-
-	char class[56];
-	GetEntityClassname(iEnt, class, sizeof(class));
-	if (StrEqual(class, "info_zombie_spawn"))
+	if(iClientCount > 0)
 	{
-		AcceptEntityInput(iEnt, "SpawnZombie");
+		int human = iClients[GetRandomInt(0, iClientCount - 1)];
+		L4D_State_Transition(human, STATE_OBSERVER_MODE);
+		L4D_BecomeGhost(human);
+		L4D_SetClass(human, ZOMBIECLASS_TANK);
+		TeleportEntity(human, cPos, NULL_VECTOR, NULL_VECTOR);	
+		L4D_MaterializeFromGhost(human);
+		if(IsPlayerAlive(human))
+		{
+			return true;
+		}
 	}
-	else
-	{
-		SetVariantString("tank");
-		AcceptEntityInput(iEnt, "SpawnZombie");
-	}
-	#if DEBUG
-		LogMessage("ResPawn Sucess");
-	#endif
 
-	CreateTimer(0.1, CheckIfSpawnSucess, EntIndexToEntRef(iEnt));
-	return Plugin_Continue;
-}
-
-// 解除刷特封锁
-Action LaterRemoveArray(Handle timer, int iEnt)
-{
-#if DEBUG
-	LogMessage("Plugins Process End");
-#endif
-	RemoveValueFromList(iEnt);
-	return Plugin_Continue;
+	return false;
 }
 
 // 腾出槽位
-void ReleaseSlotFromSpecial(int iEnt)
+void TryReleaseSlotFromSpecial()
 {
+	bool g_bHasSlot = false;
 	//PrintToChatAll("Start Release Slot From Special");
 
 	// 隨機踢走一個死亡的AI特感 (spitter除外)
@@ -283,69 +299,86 @@ void ReleaseSlotFromSpecial(int iEnt)
 			if (class != 4 && !IsPlayerAlive(client))
 			{
 				KickClient(client);
-				return;
-			}
-		}
-	}
-
-	// 隨機找到一個死亡的真人特感玩家，將他變成Tank
-
-	float cPos[3];
-	GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", cPos);
-	bool bHasSlot = false;
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client) && GetClientTeam(client) == 3 && !IsFakeClient(client))
-		{
-			if (!IsPlayerAlive(client))
-			{
-				CheatCommand(client, sSpawnCommand, "Tank", "auto");
-
-				for(int i = 1; i <= MaxClients; i++)
-				{
-					if (IsClientInGame(i) && GetClientTeam(i) == 3 && !IsFakeClient(i)
-						&& IsPlayerAlive(i) && GetEntProp(i, Prop_Send, "m_zombieClass") == ZOMBIECLASS_TANK)
-					{
-						TeleportEntity(i, cPos);
-						bHasSlot = true;
-						break;
-					}
-				}
-
+				g_bHasSlot = true;
 				break;
 			}
 		}
 	}
 
-	if(bHasSlot) return;
-
 	// 隨機踢走一個沒有控人的活著AI特感 (spitter與tank除外)
-	for (int client = 1; client <= MaxClients; client++)
+	if(g_bHasSlot == false)
 	{
-		if (IsValidSpecialsBot(client))
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			int class = GetEntProp(client, Prop_Send, "m_zombieClass");
-			if (class < ZOMBIECLASS_TANK && L4D_GetPinnedSurvivor(client) <= 0)
+			if (IsValidSpecialsBot(client))
 			{
-				KickClient(client);
-				return;
+				int class = GetEntProp(client, Prop_Send, "m_zombieClass");
+				if (class < ZOMBIECLASS_TANK && L4D_GetPinnedSurvivor(client) <= 0)
+				{
+					KickClient(client);
+					g_bHasSlot = true;
+					break;
+				}
 			}
 		}
 	}
 
 	// 隨機踢走一個AI特感，無論死活 (tank除外)
-	for (int client = 1; client <= MaxClients; client++)
+	if(g_bHasSlot == false)
 	{
-		if (IsValidSpecialsBot(client))
+		for (int client = 1; client <= MaxClients; client++)
 		{
-			int class = GetEntProp(client, Prop_Send, "m_zombieClass");
-			if (class < ZOMBIECLASS_TANK)
+			if (IsValidSpecialsBot(client))
 			{
-				KickClient(client);
-				return;
+				int class = GetEntProp(client, Prop_Send, "m_zombieClass");
+				if (class < ZOMBIECLASS_TANK)
+				{
+					KickClient(client);
+					g_bHasSlot = true;
+					break;
+				}
 			}
 		}
 	}
+}
+
+// 刷克
+Action LaterSpawnTank(Handle timer, DataPack hPack)
+{
+	hPack.Reset();
+	int iIndex = hPack.ReadCell();
+	int iEnt = EntRefToEntIndex(hPack.ReadCell());
+
+	if(iEnt == INVALID_ENT_REFERENCE)
+	{
+		RemoveValueFromList(iIndex);
+		return Plugin_Continue;
+	}
+
+	g_bBlockHook = true;
+
+	char class[56];
+	GetEntityClassname(iEnt, class, sizeof(class));
+	if (StrEqual(class, "info_zombie_spawn"))
+	{
+		AcceptEntityInput(iEnt, "SpawnZombie");
+	}
+	else // if (StrEqual(class, "commentary_zombie_spawner"))
+	{
+		SetVariantString("tank");
+		AcceptEntityInput(iEnt, "SpawnZombie");
+	}
+	#if DEBUG
+		LogMessage("ResPawn Sucess");
+	#endif
+
+	DataPack hPack2;
+	CreateTimer(0.1, CheckIfSpawnSucess, hPack2);
+	hPack2.WriteCell(iEnt);
+	hPack2.WriteCell(EntIndexToEntRef(iEnt));
+
+	g_bBlockHook = false;
+	return Plugin_Continue;
 }
 
 // 以下函数为一些内部使用函数
@@ -366,11 +399,6 @@ void RemoveValueFromList(int value)
 	if(index >= 0) g_aEntList.Erase(index);
 }
 
-bool FindValueInList(int value)
-{
-	return g_aEntList.FindValue(value) >= 0;
-}
-
 bool IsListNull()
 {
 	return g_aEntList.Length == 0;
@@ -381,38 +409,19 @@ bool IsValidEntityIndex(int entity)
     return (MaxClients+1 <= entity <= GetMaxEntities());
 }
 
-int L4D_GetPinnedSurvivor(int client)
+int GetTankInGame()
 {
-	int class = GetEntProp(client, Prop_Send, "m_zombieClass");
-	int victim;
-
-	switch( class )
+	for (int client = 1; client <= MaxClients; client++)
 	{
-		case 1:		victim = GetEntPropEnt(client, Prop_Send, "m_tongueVictim");
-		case 3:		victim = GetEntPropEnt(client, Prop_Send, "m_pounceVictim");
-		case 5:		victim = GetEntPropEnt(client, Prop_Send, "m_jockeyVictim");
-		case 6:
+		if (IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client))
 		{
-			victim = GetEntPropEnt(client, Prop_Send, "m_pummelVictim");
-			if( victim < 1 ) victim = GetEntPropEnt(client, Prop_Send, "m_carryVictim");
+			int class = GetEntProp(client, Prop_Send, "m_zombieClass");
+			if (class == ZOMBIECLASS_TANK)
+			{
+				return client;
+			}
 		}
 	}
 
-	if( victim > 0 )
-		return victim;
-
 	return 0;
-}
-
-void CheatCommand(int client, const char[] command, const char[] arguments = "", const char[] param2 = "")
-{
-	if(client == 0) return;
-
-	int userFlags = GetUserFlagBits(client);
-	SetUserFlagBits(client, ADMFLAG_ROOT);
-	int flags = GetCommandFlags(command);
-	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
-	FakeClientCommand(client, "%s %s %s", command, arguments, param2);
-	SetCommandFlags(command, flags);
-	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
 }

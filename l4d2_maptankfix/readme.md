@@ -19,7 +19,7 @@ Fix issues where customized map tank does not spawn, cause the map process break
 </details>
 
 * Require | 必要安裝
-<br>None
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
 * <details><summary>Changelog | 版本日誌</summary>
 

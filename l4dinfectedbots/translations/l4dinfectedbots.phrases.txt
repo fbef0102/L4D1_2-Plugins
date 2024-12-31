@@ -187,13 +187,6 @@
 		"zho"			"禁止抓住人類期間自殺!"
 		"chi"			"禁止抓住人类期间自杀!"
 	}
-	"Join infected team in coop/survival/realism(adm only)"
-	{
-		"en"			"Type {green}!ji{default} to join infected team. (Adm only)"
-		"ru"			"Введите {green}!ji{default} для присоединения к команде заражённых. (Админ)"
-		"zho"			"聊天視窗輸入 {green}!ji{default} 加入感染者(只限管理員)"
-		"chi"			"聊天窗输入 {green}!ji{default} 加入感染者(只限管理员)"
-	}
 	"Join infected team in coop/survival/realism"
 	{
 		"en"			"Type {green}!ji{default} to join infected team."
