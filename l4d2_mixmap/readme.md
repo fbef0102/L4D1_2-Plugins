@@ -181,7 +181,7 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
+* <details><summary>命令中文介紹 (點我展開)</summary>
 
 	* **投票啟用Mixmap**
 		```php
@@ -191,8 +191,8 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		sm_mixmap
 
 		// 載入 'xxxx' 地圖池
-		// (l4d2) execute cfg/l4d2_mixmap/l4d2/xxxx.cfg
-		// (l4d1) execute cfg/l4d2_mixmap/l4d1/xxxx.cfg
+		// (l4d2) cfg/l4d2_mixmap/l4d2/xxxx.cfg
+		// (l4d1) cfg/l4d2_mixmap/l4d1/xxxx.cfg
 		sm_mixmap <xxxx>
 		```
 
@@ -223,8 +223,8 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		sm_fmixmap
 
 		// 載入 'xxxx' 地圖池
-		// (l4d2) execute cfg/l4d2_mixmap/l4d2/xxxx.cfg
-		// (l4d1) execute cfg/l4d2_mixmap/l4d1/xxxx.cfg
+		// (l4d2) cfg/l4d2_mixmap/l4d2/xxxx.cfg
+		// (l4d1) cfg/l4d2_mixmap/l4d1/xxxx.cfg
 		sm_fmixmap <xxxx>
 		```
 

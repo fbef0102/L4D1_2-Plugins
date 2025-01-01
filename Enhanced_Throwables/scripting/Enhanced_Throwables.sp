@@ -124,11 +124,8 @@ public Action HandheldSoundHook(int iClients[64], int &iNumClients, char sSample
 	if(!IsValidEntity(iEntity))
 		return Plugin_Continue;
 	
-	char sClassname[32];
-	
+	static char sClassname[32];
 	GetEntityClassname(iEntity, sClassname, sizeof(sClassname));
-	if(!StrEqual(sClassname, "pipe_bomb_projectile") && !StrEqual(sClassname, "molotov_projectile"))
-		return Plugin_Continue;
 	
 	switch(sClassname[0])
 	{
@@ -159,6 +156,10 @@ public Action HandheldSoundHook(int iClients[64], int &iNumClients, char sSample
 			//EntityGetPosition(iEntity, fPos);
 			//TeleportEntity(iEntity, fPos, NULL_VECTOR, NULL_VECTOR);
 			EntitySetParent(iLight, iEntity);
+		}
+		default:
+		{
+			return Plugin_Continue;
 		}
 	}
 	
@@ -249,7 +250,6 @@ int CreateLight(int iEntity, EnumHandheld iHandheld=EnumHandheld_None)
 	
 	float fPos[3];
 	EntityGetPosition(iEntity, fPos);
-	
 	TeleportEntity(iLight, fPos, NULL_VECTOR, NULL_VECTOR);
 	
 	if(iEntity <= MaxClients)// should block the error on olderversion on error parent attachment
@@ -276,6 +276,8 @@ int CreateLight(int iEntity, EnumHandheld iHandheld=EnumHandheld_None)
 			default:
 			{
 				//EntitySetParentAttachment(iLight, iEntity, "survivor_light");
+				EntitySetParentAttachment(iLight, iEntity, "armR_T");
+				TeleportEntity(iLight, view_as<float>( {8.0, 18.0, 0.0 } ), view_as<float>( { -20.0, 100.0, 0.0 }), NULL_VECTOR);
 			}
 		}
 	}
