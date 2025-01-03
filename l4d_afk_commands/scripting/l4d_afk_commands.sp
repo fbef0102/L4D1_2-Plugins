@@ -68,7 +68,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.4-2024/10/10"
+#define PLUGIN_VERSION 		"5.5-2025/1/3"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -84,7 +84,7 @@
 #include <actions>
 
 #undef REQUIRE_PLUGIN
-#tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
+#tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
 
 #if !defined _l4d_team_unscramble_included
 	native bool l4d_team_unscramble_IsUnscrambled();
@@ -1634,25 +1634,42 @@ Action Timer_CanJoin(Handle timer, int client)
 
 	int team = GetClientTeam(client);
 	
-	if (g_iSpectatePenaltTime[client] != 0)
+	g_iSpectatePenaltTime[client]-=0.25;
+	if (g_iSpectatePenaltTime[client] > 0)
 	{
-		g_iSpectatePenaltTime[client]-=0.25;
-		if(team >= 2 && team != clientteam[client])
+		if(team != clientteam[client])
 		{	
-			bClientJoinedTeam[client] = true;
-			CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
-			ChangeClientTeam(client, 1);clientteam[client]=1;
-			return Plugin_Continue;
+			if(team == 2 && IsPlayerAlive(team))
+			{
+				bClientJoinedTeam[client] = true;
+				CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+
+				if(L4D_HasPlayerControlledZombies())
+				{
+					ChangeClientTeam(client, 1);
+				}
+				else
+				{
+					L4D_GoAwayFromKeyboard(client);
+				}
+				clientteam[client]=1;
+
+				return Plugin_Continue;
+			}
+			else if(team == 3)
+			{
+				bClientJoinedTeam[client] = true;
+				CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+
+				ChangeClientTeam(client, 1);
+				clientteam[client]=1;
+
+				return Plugin_Continue;
+			}
 		}
 	}
-	else if (g_iSpectatePenaltTime[client] <= 0)
+	else
 	{
-		if(team >= 2 && team != clientteam[client])
-		{	
-			bClientJoinedTeam[client] = true;
-			CPrintToChat(client, "[{olive}TS{default}]] %T","Please wait",client, g_iSpectatePenaltTime[client]);
-			ChangeClientTeam(client, 1); clientteam[client]=1;
-		}
 		if (bClientJoinedTeam[client])
 		{
 			PrintHintText(client, "%T","You can change team now.",client);	//only print this hint text to the spectator if he tried to join team, and got swapped before

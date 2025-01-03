@@ -5,12 +5,11 @@
 #include <dhooks>
 
 #undef REQUIRE_PLUGIN
-//#include <left4dhooks>
 #tryinclude <readyup>
 
 #define DEBUG		   	0
 #define PLUGIN_NAME		"l4d_start_safe_area"
-#define PLUGIN_VERSION 	"1.0h-2024/12/30"
+#define PLUGIN_VERSION 	"1.1h-2025/1/3"
 
 public Plugin myinfo =
 {
@@ -77,7 +76,8 @@ int
 bool 
 	g_bEnable,
 	g_bGameOSIsLinux,
-	g_bHasLeftCustomSafeArea;
+	g_bHasLeftCustomSafeArea,
+	g_bCreateBeam;
 
 Handle
 	g_hStartTimer,
@@ -137,7 +137,6 @@ public void OnPluginStart()
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //1. all survivors make it to saferoom in and server is about to change next level in coop mode (does not trigger round_end), 2. all survivors make it to saferoom in versus
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
-
 }
 
 // Sourcemod API Forward-------------------------------
@@ -189,6 +188,7 @@ void LoadData()
 	{
 		g_bEnable = view_as<bool>(hFile.GetNum("enable", 1));
 		g_fSafeDistance = hFile.GetFloat("distance", 250.0);
+		g_bCreateBeam = view_as<bool>(hFile.GetNum("beam_ring", 1));
 
 		hFile.GoBack();
 	}
@@ -200,6 +200,7 @@ void LoadData()
 	{
 		g_bEnable = view_as<bool>(hFile.GetNum("enable", g_bEnable));
 		g_fSafeDistance = hFile.GetFloat("distance", g_fSafeDistance);
+		g_bCreateBeam = view_as<bool>(hFile.GetNum("beam_ring", g_bCreateBeam));
 
 		hFile.GoBack();
 	}
@@ -217,7 +218,7 @@ void LoadData()
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
-		CreateTimer(0.01, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iRoundStart = 1;
 
 	g_bHasLeftCustomSafeArea = false;
@@ -226,7 +227,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
-		CreateTimer(0.01, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Timer_PluginStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iPlayerSpawn = 1;	
 }
 
@@ -267,16 +268,19 @@ Action DelayTelepAndGetStartArea(Handle timer, int client)
 		if (viewEnt != -1)
 			return Plugin_Continue;
 
-		AcceptEntityInput(i, "DisableLedgeHang");
-		CheatCommand(i, "warp_to_start_area");
+		//AcceptEntityInput(i, "DisableLedgeHang");
+		//CheatCommand(i, "warp_to_start_area");
 
 		GetClientAbsOrigin(i, center_point);
 		center_point[2] += 50.0;
 		//LogError("%N,  %.1f %.1f %.1f", i, center_point[0], center_point[1], center_point[2]);
 		g_hStartTimer = CreateTimer(0.1, CheckAnyOneLeftSafeArea, _, TIMER_REPEAT);
 
-		delete g_hRingTimer;
-		g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
+		if(g_bCreateBeam)
+		{
+			delete g_hRingTimer;
+			g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
+		}
 
 		return Plugin_Stop;
 	}
@@ -320,9 +324,9 @@ Action CheckAnyOneLeftSafeArea(Handle timer)
 				g_bHasLeftCustomSafeArea = true;
 				//LogError("g_bHasLeftCustomSafeArea = true");
 
+				g_hStartTimer = null;
 				delete g_hRingTimer;
 
-				g_hStartTimer = null;
 				return Plugin_Stop;
 			}
 		}
@@ -345,13 +349,15 @@ MRESReturn Detour_DirectorJudgeSafeArea(DHookReturn hReturn, DHookParam hParams)
 {
 	if (!g_bEnable || g_bHasLeftCustomSafeArea) return MRES_Ignored;
 
+	//PrintToChatAll("Detour_DirectorJudgeSafeArea");
+
 	hReturn.Value = 0;
 	return MRES_Supercede;
 }
 
 // Function-------------------------------
 
-void CheatCommand(int client, const char[] cmd)
+stock void CheatCommand(int client, const char[] cmd)
 {
 	int flags = GetCommandFlags(cmd);
 	int bits  = GetUserFlagBits(client);
@@ -359,7 +365,7 @@ void CheatCommand(int client, const char[] cmd)
 	SetCommandFlags(cmd, flags & ~FCVAR_CHEAT);
 	FakeClientCommand(client, cmd);
 	SetCommandFlags(cmd, flags);
-	SetUserFlagBits(client, bits);
+	if(IsClientConnected(client)) SetUserFlagBits(client, bits);
 }
 
 void ClearDefault()
@@ -374,21 +380,19 @@ void ResetTimer()
 	delete g_hRingTimer;
 }
 
-// API---------
-
-/*
-public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client)
-{
-	LogError("L4D_OnFirstSurvivorLeftSafeArea_Post: %N", client);
-}
-*/
-
-public void OnRoundIsLive()
+void GameStart()
 {
 	g_bHasLeftCustomSafeArea = true;
 
 	delete g_hRingTimer;
 	delete g_hStartTimer;
+}
+
+// API---------
+
+public void OnRoundIsLive()
+{
+	GameStart();
 }
 
 // Native------------
@@ -402,10 +406,7 @@ int Native_HasAnySurvivorLeftSafeArea(Handle plugin, int numParams)
 // native int L4DSSArea_RemoveCustomSafeArea();
 int Native_RemoveCustomSafeArea(Handle plugin, int numParams)
 {
-	g_bHasLeftCustomSafeArea = true;
-
-	delete g_hRingTimer;
-	delete g_hStartTimer;
+	GameStart();
 
 	return 0;
 }
