@@ -181,6 +181,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 遊戲開局時，強制將出生點周圍區域判定為安全區，以確保玩家安全
 * <b>[l4d_fastdl_delay_downloader](/l4d_fastdl_delay_downloader)</b>: Downloading fastdl custom files only when map change/transition
     * 只有在換圖或過關時，才讓玩家下載Fastdl自製的檔案
+* <b>[physics_object_pushfix](/physics_object_pushfix)</b>: Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pushed when players walk into them
+    * 修復玩家走路就能推擠地上物品或土製炸彈
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

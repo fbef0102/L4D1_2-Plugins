@@ -1,0 +1,53 @@
+"Games"
+{
+	"#default"
+	{
+		"Functions"
+		{
+			"MovePropAway"
+			{
+				"signature"		"MovePropAway"
+				"callconv"		"cdecl"
+				"return"		"bool"
+				"this"			"ignore"
+				"arguments"
+				{
+					"PhysicsProp"
+					{
+						"type"	"cbaseentity"
+					}
+					"TerrorPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+		}
+	}
+	"left4dead2"
+	{
+		"Signatures"
+		{
+			"MovePropAway"
+			{
+				"library"		"server"
+				"linux"			"@_Z12MovePropAwayP11CBaseEntityP11CBasePlayer"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x48\x53\x56\x8B\x75\x08"
+								/* 55 8B EC 83 EC 48 53 56 8B 75 08 */
+			}
+		}
+	}
+	"left4dead"
+	{
+		"Signatures"
+		{
+			"MovePropAway"
+			{
+				"library"		"server"
+				"linux"			"@_Z12MovePropAwayP11CBaseEntityP11CBasePlayer"
+				"windows"		"\x2A\x2A\x2A\x2A\x2A\x2A\x8B\x74\x24\x58\x8B\x06\x8B\x90\x8C\x02\x00\x00"
+								/* ? ? ? ? ? ? 8B 74 24 58 8B 06 8B 90 8C 02 00 00 */
+			}
+		}
+	}
+}
