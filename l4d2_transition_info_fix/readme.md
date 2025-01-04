@@ -15,7 +15,7 @@ Fix issues after map transitioned, transition info is still retaining when chang
 
 * <details><summary>Known Issue</summary>
 
-	1. If a player disconnects form server when map change, server loading second map too long and everyone in the server stuck in this situation
+	1. If a player disconnects from server when map change, server loading second map too long and everyone in the server stuck in this situation
 		* To this Bug, write down the following cvars in cfg/server.cfg
 			```php
 			// Duration (in seconds) to wait for survivors to transition across changelevels (default: 120)

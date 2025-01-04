@@ -214,6 +214,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v5.5 (2025-1-3)
+		* Don't force player to be spectator if player is dead survivor while cool down
+
 	* v5.4 (2024-10-10)
 		* Block team switch when survivor is coverd with bile
 		* Update translation

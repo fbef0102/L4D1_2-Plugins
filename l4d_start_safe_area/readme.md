@@ -23,8 +23,8 @@ Add Custom safe area for any map on start
 </details>
 
 * Require | 必要安裝
-<br>None
-
+<br/>None
+	
 * <details><summary>API | 串接</summary>
 
 	* [l4d_start_safe_area.inc](scripting\include\l4d_start_safe_area.inc)
@@ -42,6 +42,9 @@ Add Custom safe area for any map on start
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.1h (2025-1-3)
+		* Updata data
 
 	* v1.0h (2024-12-30)
 		* Remake code
