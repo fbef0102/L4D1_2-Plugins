@@ -381,11 +381,11 @@ Action ADMAddBot(int client, int args)
 	{
 		if(SpawnFakeClient(true, 0) > 0)
 		{
-			PrintToChat(client, "%T", "A surviving Bot was added.", client);
+			CPrintToChat(client, "%T", "A surviving Bot was added.", client);
 		}
 		else
 		{
-			PrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
+			CPrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
 		}
 	}
 	else
@@ -408,11 +408,11 @@ Action Timer_ADMAddBot(Handle timer, int client)
 	{
 		if(SpawnFakeClient(true, 0) > 0)
 		{
-			PrintToChat(client, "%T", "A surviving Bot was added.", client);
+			CPrintToChat(client, "%T", "A surviving Bot was added.", client);
 		}
 		else
 		{
-			PrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
+			CPrintToChat(client, "%T", "Impossible to generate a bot at the moment.", client);
 		}
 	}
 	else
