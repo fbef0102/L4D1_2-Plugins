@@ -369,7 +369,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	5. <details><summary>Disable infected bots spawning on the field.</summary>
 
 		```php
-		// 1 = Disable infected bots spawning. Only allow humam infected players to spawn (does not disable witch spawn and not affect director spawn)
+		// 1 = Disable infected bots spawning. Only allow human infected players to spawn (does not disable witch spawn and not affect director spawn)
 		"spawn_disable_bots"  "1"
 	</details>
 
@@ -422,6 +422,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.0.0 (2025-1-7)
+		* Fixed SI bots still spawn when tank is on the field in l4d1
 
 	* v2.9.9 (2024-11-8)
 		* Fixed ghost tank bug in non-versus mode if real player in infected team

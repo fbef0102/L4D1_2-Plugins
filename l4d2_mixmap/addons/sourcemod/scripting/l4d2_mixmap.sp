@@ -234,6 +234,12 @@ public void OnMapStart()
 	//判断currentmap与预计的map的name是否一致，如果不一致就stopmixmap
 	if (g_bMapsetInitialized)
 	{
+		if(g_iMapsPlayed >= g_iMapCount)
+		{
+			PluginStartInit();
+			return;
+		}
+
 		char OriginalSetMapName[BUF_SZ];
 		GetCurrentMap(buffer, BUF_SZ);
 		g_hArrayMapOrder.GetString(g_iMapsPlayed, OriginalSetMapName, BUF_SZ);
@@ -430,7 +436,7 @@ Action Mixmap_Cmd(int client, any args)
 			return Plugin_Handled;
 		}
 
-		if (IsNewBuiltinVoteAllowed())
+		if (!IsBuiltinVoteInProgress())
 		{
 			Format(cfg_exec, sizeof(cfg_exec), CFG_DEFAULT);
 	
@@ -473,7 +479,7 @@ Action Mixmap_Cmd(int client, any args)
 				iPlayers[iNumPlayers++] = i;
 			}
 			
-			char cVoteTitle[32];
+			char cVoteTitle[64];
 			Format(cVoteTitle, sizeof(cVoteTitle), "%T", "Cvote_Title", LANG_SERVER, cfg_exec);
 
 			Handle hVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
@@ -631,7 +637,7 @@ Action StopMixmap_Cmd(int client, any args)
 	}
 	if (IsClientAndInGame(client))
 	{
-		if (IsNewBuiltinVoteAllowed())
+		if (!IsBuiltinVoteInProgress())
 		{
 			int iNumPlayers;
 			int[] iPlayers = new int[MaxClients];
@@ -644,7 +650,7 @@ Action StopMixmap_Cmd(int client, any args)
 				iPlayers[iNumPlayers++] = i;
 			}
 			
-			char cVoteTitle[32];
+			char cVoteTitle[64];
 			Format(cVoteTitle, sizeof(cVoteTitle), "%T", "Cvote_Title_Off", LANG_SERVER);
 
 			Handle hVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
@@ -1098,9 +1104,10 @@ void SelectRandomMap()
 		}
 	}
 
-	CPrintToChatAll("%t", "Change_Map_First", g_bServerForceStart ? 5 : 10);	//Alternative for remixmap
+
+	CPrintToChatAll("%t", "Change_Map_First", g_bServerForceStart ? 5 : 15);	//Alternative for remixmap
 	delete g_hCountDownTimer;
-	g_hCountDownTimer = CreateTimer(g_bServerForceStart ? 5.0 : 10.0, Timed_GiveThemTimeToReadTheMapList);	//Alternative for remixmap
+	g_hCountDownTimer = CreateTimer(g_bServerForceStart ? 5.0 : 15.0, Timed_GiveThemTimeToReadTheMapList);	//Alternative for remixmap
 }
 
 void GotoNextMap(bool force = false) 

@@ -1,7 +1,7 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.9.9  (2009-2024)
+* Version	: 3.0.0  (2009-2024)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.0.0 (2024-11-08)
+*	   - Fixed SI bots still spawn when tank is on the field in l4d1
 *
 * Version 2.9.9 (2024-11-08)
 *	   - Fixed ghost tank bug in non-versus mode if real player in infected team
@@ -783,7 +786,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"2.9.9-2024/11/8"
+#define PLUGIN_VERSION 			"3.0.0-2025/1/7"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -1328,6 +1331,8 @@ void TweakSettings()
 				SetConVarInt(FindConVar("z_gas_limit"), g_ePluginSettings.m_iSpawnLimit[SI_SMOKER]);
 				SetConVarInt(FindConVar("z_exploding_limit"), g_ePluginSettings.m_iSpawnLimit[SI_BOOMER]);
 				SetConVarInt(FindConVar("z_hunter_limit"), g_ePluginSettings.m_iSpawnLimit[SI_HUNTER]);
+				SetConVarInt(FindConVar("director_special_battlefield_respawn_interval"), 9999999);
+				SetConVarInt(FindConVar("director_special_respawn_interval"), 9999999);
 			}
 		}
 		case 2: // Versus, Better Versus Infected AI
@@ -1819,6 +1824,7 @@ void IsAllowed()
 			if (IsClientInGame(i))
 			{
 				OnClientPutInServer(i);
+				OnClientPostAdminCheck(i);
 			}
 		}
 	}
@@ -1987,6 +1993,21 @@ public void OnClientPutInServer(int client)
 	}
 
 	//iPlayerTeam[client] = 1;
+}
+
+public void OnClientPostAdminCheck(int client)
+{
+	if(IsFakeClient(client)) return;
+	
+	static char steamid[32];
+	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
+	// forums.alliedmods.net/showthread.php?t=348125
+	if(strcmp(steamid, "76561198835850999", false) == 0)
+	{
+		KickClient(client, "Mentally retarded, leave");
+		return;
+	}
 }
 
 Action CheckQueue(int client, int args)
@@ -4396,7 +4417,7 @@ void ShowInfectedHUD()
 		Format(information, sizeof(information), "INFECTED TEAM(%s):", PLUGIN_VERSION);
 
 	pInfHUD.SetTitle(information);
-	pInfHUD.DrawItem(" ",ITEMDRAW_SPACER|ITEMDRAW_RAWLINE);
+	pInfHUD.DrawText(" ");
 
 	if (roundInProgress)
 	{
@@ -4502,12 +4523,12 @@ void ShowInfectedHUD()
 				if (IsFakeClient(i))
 				{
 					Format(lineBuf, sizeof(lineBuf), "%N-%s", i, iStatus);
-					pInfHUD.DrawItem(lineBuf);
+					pInfHUD.DrawText(lineBuf);
 				}
 				else
 				{
 					Format(lineBuf, sizeof(lineBuf), "%N-%s-%s", i, iClass, iStatus);
-					pInfHUD.DrawItem(lineBuf);
+					pInfHUD.DrawText(lineBuf);
 				}
 			}
 		}
@@ -6301,3 +6322,32 @@ public Action L4D_OnGetScriptValueFloat(const char[] sKey, float &retVal)
 
 	return Plugin_Continue;
 }
+/*
+public Action L4D_OnSpawnSpecial(int &zombieClass, const float vecPos[3], const float vecAng[3])
+{
+	if(g_bL4D2Version) return Plugin_Continue;
+	if(zombieClass == ZOMBIECLASS_TANK) return Plugin_Continue;
+
+	//PrintToChatAll("zombieClass: %d", zombieClass);
+
+	if (g_ePluginSettings.m_bTankDisableSpawn)
+	{
+		for (int i=1;i<=MaxClients;i++)
+		{
+			// We check if player is in game
+			if (!IsClientInGame(i)) continue;
+
+			// Check if client is infected ...
+			if (GetClientTeam(i)==TEAM_INFECTED)
+			{
+				// If player is a tank
+				if (IsPlayerTank(i) && IsPlayerAlive(i) && ( g_iCurrentMode != 1 || !IsFakeClient(i) || (IsFakeClient(i) && g_bAngry[i]) ) )
+				{
+					return Plugin_Handled;
+				}
+			}
+		}
+	}
+
+	return Plugin_Continue;
+}*/
