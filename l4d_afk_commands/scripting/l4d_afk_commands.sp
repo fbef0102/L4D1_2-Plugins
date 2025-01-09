@@ -807,6 +807,8 @@ Action TurnClientToSpectate(int client, int argCount)
 		PrintToServer("[TS] command cannot be used by server.");
 		return Plugin_Handled;
 	}
+
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 	
 	int iTeam = GetClientTeam(client);
 	if (iTeam == 1 && IsClientIdle(client))
@@ -814,7 +816,7 @@ Action TurnClientToSpectate(int client, int argCount)
 		PrintHintText(client, "%T","Idle",client);
 		return Plugin_Handled;
 	}
-	
+
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
 	if(HasAccess(client, g_sSpecCommandAccesslvl) == false)
@@ -867,6 +869,8 @@ Action TurnClientToObserver(int client, int args)
 	}
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
+
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 	
 	if(HasAccess(client, g_sObsCommandAccesslvl) == false)
 	{
@@ -912,6 +916,8 @@ Action TurnClientToSurvivors(int client, int args)
 		PrintToServer("[TS] command cannot be used by server.");
 		return Plugin_Handled;
 	}
+
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 
 	int team = GetClientTeam(client);
 	if (team == 2)			//if client is survivor
@@ -1039,6 +1045,8 @@ Action TurnClientToInfected(int client, int args)
 	{
 		return Plugin_Handled;
 	}
+
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 
 	int team = GetClientTeam(client);
 	if (team == 3)			//if client is Infected
@@ -1184,7 +1192,7 @@ Action jointeam(int client, int args) //press m (jointeam)
 		return Plugin_Handled;
 	}
 
-	if(!IsClientInGame(client)) return Plugin_Continue;
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 
 	if(args > 2) return Plugin_Handled;
@@ -1271,7 +1279,7 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 		return Plugin_Handled;
 	}
 
-	if(!IsClientInGame(client)) return Plugin_Continue;
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 
 	if (GetClientTeam(client) == 1)
 	{
@@ -1337,7 +1345,7 @@ Action sb_takecontrol(int client, int args) //sb_takecontrol
 		return Plugin_Handled;
 	}
 
-	if(!IsClientInGame(client)) return Plugin_Continue;
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 
 	if(args > 1) return Plugin_Handled;
