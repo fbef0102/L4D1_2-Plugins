@@ -1,0 +1,38 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"CTerrorGameRules::CalculateSurvivalMultiplier"
+			{
+				"signature"		"CTerrorGameRules::CalculateSurvivalMultiplier"
+				"callconv"		"thiscall" // 為了能使用this必須寫thiscall
+				"return"		"void" // 回傳值沒用
+				"this"			"address" // CTerrorGameRules *this
+				"arguments" //參數
+				{
+					"a2" //第一個參數, 此自取
+					{
+						// bool a2
+						"type"	"bool"
+					}
+				}
+			}
+		}
+		
+		"Signatures"
+		{
+			"CTerrorGameRules::CalculateSurvivalMultiplier"
+			{
+				"library"    "server"
+				"linux"        "@_ZN16CTerrorGameRules27CalculateSurvivalMultiplierEb"
+				"windows"    "\x55\x8B\xEC\x83\xEC\x08\x80\x7D\x08\x00\x53"
+				//string: 'versus_match_finished'
+				//Signature for sub_102DDF90:
+				//55 8B EC 83 EC 08 80 7D 08 00 53 
+				
+			}
+		}
+	}
+}

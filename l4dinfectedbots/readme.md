@@ -354,7 +354,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		* 🟥Infected limit + numbers of survivor + spectators can not exceed 31 slots, otherwise server fails to spawn S.I.
 		* I can't do anything about the nav pathfinding, only Valve or map authors can handle nav problem.
-		* Recommand to install [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)
+		* Recommand to install [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351) and [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024)
 	</details>
 
 	4. <details><summary>Count players including dead</summary>
@@ -411,13 +411,15 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> 創造5位以上倖存者遊玩伺服器
 	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
 		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
-	3. [Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
+	3. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
 		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	4. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
+	4. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
+		> 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
+	5. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-	5. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
+	6. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
 		> 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
-	6. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+	7. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
 		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
@@ -875,7 +877,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* 原因一：地圖故意作者為之，為了怕人類滅團所以停止特感生成一段時間，常發生在三方圖開啟地圖機關的時候或者開啟最終章救援無線電之前
 			* 解決方式法一：去跟地圖作者抱怨
 			* 解決方式法二：自己修改地圖vscript
-			* 解決方式法三：推薦安裝[Zombie Spawn Fix](https://forums.alliedmods.net/showthread.php?t=333351)，修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
+			* 解決方式法三：推薦安裝[zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351)與[l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024)，修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 		2. 原因二：地圖問題，找不到附近的地形特感，常發生在NAV沒有做好的爛圖或是人類已經抵達地圖終點，譬如死亡都心第一關人類抵達終點安全室的附近
 			* 解決方式法一：去跟地圖作者抱怨
 			* 解決方式法二：自己修改地圖的NAV
@@ -923,8 +925,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 * <details><summary>已知問題</summary>
 
 	1. 在戰役/寫實下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候
-		> 如果要修正請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+		> 請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
 	
 	2. 在戰役/寫實下，特感玩家扮演第二隻救援Tank時，救援載具會直接來臨
-		> 如果要修正請安裝[l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
+		> 請安裝[l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
 </details>

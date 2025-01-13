@@ -1,0 +1,17 @@
+﻿"Phrases"
+{
+	"Release (C)"
+	{
+		"#format"		"{1:.1f}"
+		"en"		"[{olive}TS{default}] Can't use {red}attack1{default} and {red}attack2{default} for {green}{1}s{default} after release victim!!"
+		"zho"		"[{olive}TS{default}] 你釋放了倖存者，{green}{1}秒內不能 {red}攻擊{default} 或 {red}抓人{default} !!"
+		"chi"		"[{olive}TS{default}] 你释放了生还者，{green}{1}秒内不能 {red}攻击{default} 或 {red}抓人{default} !!"
+	}
+	"Release"
+	{
+		"#format"		"{1:.1f}"
+		"en"		"[TS] Can't use attack1 and attack2 for {1}s after release victim!!"
+		"zho"		"[TS] 你釋放了倖存者，{1}秒內不能攻擊與抓人!!"
+		"chi"		"[TS] 你释放了生还者，{1}秒内不能攻击与抓人!!"
+	}
+}
