@@ -44,8 +44,8 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	g_enabled 		= CreateConVar("sm_downloader_enabled", 		"1", "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_normal 		= CreateConVar("sm_downloader_normal_enable", 	"1", "If 1, Enable normal downloader file. (Download & Precache)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_simple 		= CreateConVar("sm_downloader_simple_enable", 	"0", "If 1, Enable simple downloader file. (Download Only No Precache)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_normal 		= CreateConVar("sm_downloader_normal_enable", 	"0", "If 1, Enable normal downloader file. (Download & Precache)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_simple 		= CreateConVar("sm_downloader_simple_enable", 	"1", "If 1, Enable simple downloader file. (Download Only No Precache)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_file 			= CreateConVar("sm_downloader_normal_config", 	"configs/sm_downloader/downloads_normal.ini", 	"(Download & Precache) Full path of the normal downloader configuration to load. \nIE: configs/sm_downloader/downloads.ini", CVAR_FLAGS);
 	g_file_simple 	= CreateConVar("sm_downloader_simple_config", 	"configs/sm_downloader/downloads_simple.ini", 	"(Download Only No Precache) Full path of the simple downloader configuration to load. \nIE: configs/sm_downloader/downloads_simple.ini", CVAR_FLAGS);
 	AutoExecConfig(true, "sm_downloader");

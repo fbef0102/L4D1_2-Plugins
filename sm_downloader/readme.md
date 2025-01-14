@@ -24,10 +24,10 @@ SM File/Folder Downloader and Precacher
 		sm_downloader_enabled "1"
 
 		// If 1, Enable normal downloader file (Download & Precache)
-		sm_downloader_normal_enable "1"
+		sm_downloader_normal_enable "0"
 
 		// If 1, Enable simple downloader file. (Download Only No Precache)
-		sm_downloader_simple_enable "0"
+		sm_downloader_simple_enable "1"
 
 		// (Download & Precache) Full path of the normal downloader configuration to load. 
 		// IE: configs/sm_downloader/downloads_normal.ini
@@ -52,7 +52,7 @@ SM File/Folder Downloader and Precacher
 	* [configs/sm_downloader/downloads_simple.ini](addons/sourcemod/configs/sm_downloader/downloads_simple.ini), this is simple downloader configuration (Download Only No Precache)
 		> Click [here](addons/sourcemod/configs/sm_downloader/downloads_simple_example(範例).ini) to view example
 
-	> __Note__ If you don't know which file should use, just enable and use **normal downloader configuration**
+	> __Note__ If you don't know which file should use, just enable and use **downloads_simple.ini**
 </details>
 
 * <details><summary>How to make the client download custom files</summary>
@@ -155,10 +155,10 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 		sm_downloader_enabled "1"
 
 		// 為1時，啟用正常版的檔案下載設定文件 (下載並緩存)
-		sm_downloader_normal_enable "1"
+		sm_downloader_normal_enable "0"
 
 		//  為1時，啟用簡單版的檔案下載設定文件 (只下載不預緩存)
-		sm_downloader_simple_enable "0"
+		sm_downloader_simple_enable "1"
 
 		// (下載並緩存) 設定正常版下載的文件檔案路徑
 		// IE: configs/sm_downloader/downloads_normal.ini
@@ -178,7 +178,7 @@ SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 	* [configs/sm_downloader/downloads_simple.ini](addons/sourcemod/configs/sm_downloader/downloads_simple.ini), 這是簡單版的檔案下載設定文件 (只下載不預緩存)
 		> 點擊[這裡](addons/sourcemod/configs/sm_downloader/downloads_simple_example(範例).ini)查看範例
 
-	> __Note__ 如果你不知道這兩設定文件有捨差別, 建議你一律使用正常版的檔案下載設定文件(下載並緩存)
+	> __Note__ 如果你不知道這兩設定文件有捨差別, 建議你一律使用downloads_simple.ini
 </details>
 
 * <details><summary>玩家如何下載檔案?</summary>
