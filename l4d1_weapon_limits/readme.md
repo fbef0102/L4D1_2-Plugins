@@ -1,12 +1,6 @@
 # Description | 內容
 Maximum of each L4D1 weapons the survivors can pick up
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
 * Apply to | 適用於
     ```
     L4D1
@@ -42,11 +36,6 @@ Maximum of each L4D1 weapons the survivors can pick up
         // Maximum of smgs the survivors can pick up. [-1:No limit]
         l4d1_weapon_limitssmg "3"
 		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
 </details>
 
 - - - -

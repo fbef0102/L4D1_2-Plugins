@@ -10,8 +10,8 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 * Apply to | 適用於
 	```
-	L4D1
-	L4D2
+	L4D1 Dedicated Server
+	L4D2 Dedicated Server
 	```
 
 * <details><summary>How does it work?</summary>
