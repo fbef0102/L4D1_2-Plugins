@@ -1,9 +1,6 @@
 # Description | 內容
 Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 
-* Video | 影片展示
-<br>None
-
 * Image | 圖示
 	* Spawn infected bots without limit 
 	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
@@ -11,95 +8,40 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	* Join infected team and play in coop/survival/realism mode. (在戰役/寫實/生存模式下加入特感陣營)
 	<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
 
+* Apply to | 適用於
+	```
+	L4D1 coop/versus/survival
+	L4D2 coop/versus/realism/survival/scavenge + all mutation modes
+	```
+
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* <details><summary>ConVar | 指令</summary>
+* <details><summary>Recommand Install | 推薦安裝</summary>
 
-	* cfg/sourcemod/l4dinfectedbots.cfg
-		```php
-		// 0=Plugin off, 1=Plugin on.
-		l4d_infectedbots_allow "1"
-
-		// Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).
-		l4d_infectedbots_modes ""
-
-		// Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).
-		l4d_infectedbots_modes_off ""
-
-		// Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.
-		l4d_infectedbots_modes_tog "0"
-
-		// Toggle whether Infected HUD is active or not.
-		l4d_infectedbots_infhud_enable "1"
-
-		// Toggle whether Infected HUD announces itself to clients.
-		l4d_infectedbots_infhud_announce "1"
-
-		// If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge.
-		// Enable this also allow game to continue with survivor bots
-		l4d_infectedbots_versus_coop "0"
-
-		// Disable sm_zss command in these gamemode (0: None, 1: coop/realism, 2: versus/scavenge, 4: survival, add numbers together)
-		l4d_infectedbots_sm_zss_disable_gamemode "6"
-
-		// If 1, including dead players when count the number of survivors.
-		l4d_infectedbots_calculate_including_dead "0"
-
-		// Which xxxx.cfg file should this plugin read for settings in data/l4dinfectedbots folder (Ex: "custom_tanks" = reads 'data/l4dinfectedbots/custom_tanks.cfg')
-		// Empty=By default, reads data/l4dinfectedbots/xxxx.cfg (xxxx = gamemode or mutation name).
-		l4d_infectedbots_read_data ""
-		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-	
-	* **(Coop/Realism/Survival only) Join Infected**
-		```php
-		sm_ji
-		```
-
-	* **(Coop/Realism/Survival only) Join Survivors**
-		```php
-		sm_js
-		```
-
-	* **(Infected only) Toggle HUD on/off for themselves**
-		```php
-		sm_infhud
-		```
-
-	* **(Infected only) suicide infected player himself (If infected get stuck or something)**
-		```php
-		sm_zss
-		```
-
-	* **Control special zombies spawn timer (Adm Required: ADMFLAG_ROOT)**
-		```php
-		sm_timer
-		```
-
-	* **Control max special zombies limit (Adm Required: ADMFLAG_ROOT)**
-		```php
-		sm_zlimit
-		```
-</details>
-
-* <details><summary>Data Config</summary>
-
-	* All settings are in [data/l4dinfectedbots](data/l4dinfectedbots) folder
-		> Manual in this file, click for more details...
-		* Run coop mode => plugin reads ```coop.cfg```
-		* Run versus mode => plugin reads```versus.cfg```
-		* Run survival  mode => plugin reads```survival .cfg```
-		* Run scavenge mode => plugin reads```scavenge.cfg```
-		* Run realism mode => plugin reads```realism.cfg```
-		* Run mutation gamemode => plugin reads```xxxx.cfg``` (```xxxx``` = mutation name)
+	1. [SIPool](https://forums.alliedmods.net/showthread.php?t=349615): A Client Pool for SI Bots, used to avoid lots of CreateFakeClient() operation
+		* 插件适用于有需要大量且频繁的特感刷新玩法的服务器，主要目的是提升服务器性能
+	2. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): Aim to improve performance when spawn SI
+		* 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
+	3. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
+		* 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
 </details>
 
 * How to set the correct settings in data config ?
-	1. <details><summary>Adjust special infected limit</summary>
+	1. <details><summary>Write Data Config</summary>
+
+		* All settings are in [data/l4dinfectedbots](data/l4dinfectedbots) folder
+			> Manual in this file, click for more details...
+			* Run coop mode => plugin reads ```coop.cfg```
+			* Run versus mode => plugin reads```versus.cfg```
+			* Run survival  mode => plugin reads```survival .cfg```
+			* Run scavenge mode => plugin reads```scavenge.cfg```
+			* Run realism mode => plugin reads```realism.cfg```
+			* Run mutation gamemode => plugin reads```xxxx.cfg``` (```xxxx``` = mutation name)
+	</details>
+
+	2. <details><summary>Adjust special infected limit</summary>
 
 		The 6 infected limit [Smoker, Boomer, Hunter, Spitter, Jockey, Charger] combined together must equal or exceed ```max_specials```
 		* For example
@@ -144,7 +86,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		<br/>🟥Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
 	</details>
 
-	2. <details><summary>Adjust special infected spawn time</summary>
+	3. <details><summary>Adjust special infected spawn time</summary>
 
 		* AI Infected spawn time
 			```php
@@ -199,7 +141,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				```
 	</details>
 
-	3. <details><summary>Adjust Tank limit</summary>
+	4. <details><summary>Adjust Tank limit</summary>
 
 		```php
 		// Sets the tank limit (Does not affect director tank)
@@ -213,7 +155,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	4. <details><summary>Adjust SI/Tank health</summary>
+	5. <details><summary>Adjust SI/Tank health</summary>
 
 		```php
 		// Set SI Health (0=Don't modify SI health)
@@ -229,7 +171,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	5. <details><summary>Adjust common infected limit</summary>
+	6. <details><summary>Adjust common infected limit</summary>
 
 		```php
 		// Set zombie common limit. (override official convar "z_common_limit", 0=No commons, -1=Off)
@@ -237,7 +179,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	6. <details><summary>Play infected team in coop/survival/realism</summary>
+	7. <details><summary>Play infected team in coop/survival/realism</summary>
 
 		```php
 		// 1 = players can join the infected team in coop/survival/realism
@@ -263,7 +205,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	7. <details><summary>Spawn range (Coop/Realism only)</summary>
+	8. <details><summary>Spawn range (Coop/Realism only)</summary>
 
 		```php
 		// The minimum of spawn range for infected. (default: 550, coop/realism only)
@@ -277,7 +219,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	8. <details><summary>Spawn Infected together</summary>
+	9. <details><summary>Spawn Infected together</summary>
 
 		```php
 		// 1 = Bots will only spawn when all other bot spawn timers are at zero.
@@ -288,7 +230,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	9. <details><summary>Set Weight of Special Infected</summary>
+	10. <details><summary>Set Weight of Special Infected</summary>
 
 		* Increase chance to spawn specific special infected, For example
 			```php
@@ -309,7 +251,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	10. <details><summary>Adjust Witch limit and spawn time</summary>
+	11. <details><summary>Adjust Witch limit and spawn time</summary>
 
 		```php
 		// Sets the limit for witches spawned by the plugin (does not affect director witches)
@@ -389,11 +331,76 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> Install [l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
 </details>
 
-* Apply to | 適用於
-	```
-	L4D1 coop/versus/survival
-	L4D2 coop/versus/realism/survival/scavenge + all mutation modes
-	```
+* <details><summary>ConVar | 指令</summary>
+
+	* cfg/sourcemod/l4dinfectedbots.cfg
+		```php
+		// 0=Plugin off, 1=Plugin on.
+		l4d_infectedbots_allow "1"
+
+		// Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).
+		l4d_infectedbots_modes ""
+
+		// Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).
+		l4d_infectedbots_modes_off ""
+
+		// Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.
+		l4d_infectedbots_modes_tog "0"
+
+		// Toggle whether Infected HUD is active or not.
+		l4d_infectedbots_infhud_enable "1"
+
+		// Toggle whether Infected HUD announces itself to clients.
+		l4d_infectedbots_infhud_announce "1"
+
+		// If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge.
+		// Enable this also allow game to continue with survivor bots
+		l4d_infectedbots_versus_coop "0"
+
+		// Disable sm_zss command in these gamemode (0: None, 1: coop/realism, 2: versus/scavenge, 4: survival, add numbers together)
+		l4d_infectedbots_sm_zss_disable_gamemode "6"
+
+		// If 1, including dead players when count the number of survivors.
+		l4d_infectedbots_calculate_including_dead "0"
+
+		// Which xxxx.cfg file should this plugin read for settings in data/l4dinfectedbots folder (Ex: "custom_tanks" = reads 'data/l4dinfectedbots/custom_tanks.cfg')
+		// Empty=By default, reads data/l4dinfectedbots/xxxx.cfg (xxxx = gamemode or mutation name).
+		l4d_infectedbots_read_data ""
+		```
+</details>
+
+* <details><summary>Command | 命令</summary>
+	
+	* **(Coop/Realism/Survival only) Join Infected**
+		```php
+		sm_ji
+		```
+
+	* **(Coop/Realism/Survival only) Join Survivors**
+		```php
+		sm_js
+		```
+
+	* **(Infected only) Toggle HUD on/off for themselves**
+		```php
+		sm_infhud
+		```
+
+	* **(Infected only) suicide infected player himself (If infected get stuck or something)**
+		```php
+		sm_zss
+		```
+
+	* **Control special zombies spawn timer (Adm Required: ADMFLAG_ROOT)**
+		```php
+		sm_timer
+		```
+
+	* **Control max special zombies limit (Adm Required: ADMFLAG_ROOT)**
+		```php
+		sm_zlimit
+		```
+</details>
 
 * <details><summary>Translation Support | 支援翻譯</summary>
 
@@ -411,19 +418,18 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> 創造5位以上倖存者遊玩伺服器
 	2. [AI_HardSI](https://github.com/fbef0102/L4D2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
 		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
-	3. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): To Fixed Special Inected and Player Zombie spawning failures in some cases
-		> 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	4. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
-		> 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
-	5. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
+	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-	6. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
+	4. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
 		> 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
-	7. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+	5. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
 		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.0.1 (2025-1-18)
+		* Support SIPool
 
 	* v3.0.0 (2025-1-7)
 		* Fixed SI bots still spawn when tank is on the field in l4d1
@@ -537,90 +543,20 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	* 解鎖特感隊伍的人數上限，可以加入第五位以上的特感真人玩家，達成對抗 10 VS 10 玩法
 	* **支援所有模式包括突變模式**
 
-* <details><summary>指令中文介紹 (點我展開)</summary>
-
-		```php
-		// 0=關閉插件, 1=開啓插件
-		l4d_infectedbots_allow "1"
-
-		// 什麼模式下啟動此插件, 逗號區隔 (無空白). (留白 = 所有模式)
-		l4d_infectedbots_modes ""
-
-		// 什麼模式下關閉此插件, 逗號區隔 (無空白). (留白 = 無)
-		l4d_infectedbots_modes_off ""
-
-		// 什麼模式下啟動此插件. 0=所有模式, 1=戰役, 2=生存, 4=對抗, 8=清道夫. 請將數字相加起來
-		l4d_infectedbots_modes_tog "0"
-
-		// 1=感染者玩家開啓HUD
-		l4d_infectedbots_infhud_enable "1"
-
-		// 1=提示感染者玩家如何開啓HUD
-		l4d_infectedbots_infhud_announce "1"
-
-		// 如果爲1，則在對抗/清道夫模式中，強迫所有玩家加入到感染者
-		// 開啟此指令，即使都是倖存者Bot，會強制遊戲繼續進行
-		l4d_infectedbots_versus_coop "0"
-
-		// 在哪些遊戲模式中禁止感染者玩家使用sm_zss自殺 (0: 無, 1: 戰役/寫實, 2: 對抗/清道夫, 4: 生存, 請將數字相加)
-		l4d_infectedbots_sm_zss_disable_gamemode "6"
-
-		// 為1，計算倖存者數量時也包含死亡的倖存者
-		l4d_infectedbots_calculate_including_dead "0"
-
-		// 自訂此插件位於data/l4dinfectedbots資料夾想要讀取的文件名稱 (譬如: "custom_tanks"，此插件讀取 'data/l4dinfectedbots/custom_tanks.cfg')
-		// 留白=插件預設讀取data/l4dinfectedbots/xxxx.cfg (xxxx = 遊戲模式名稱或突變模式名稱).
-		l4d_infectedbots_read_data ""
-		```
-</details>
-
-* <details><summary>命令中文介紹 (點我展開)</summary>
-	
-	* **(僅限戰役/寫實/倖存者) 加入到感染者陣營**
-		```php
-		sm_ji
-		```
-
-	* **(僅限戰役/寫實/倖存者) 加入到倖存者陣營**
-		```php
-		sm_js
-		```
-
-	* **(僅限感染者玩家) 開關感染者HUD**
-		```php
-		sm_infhud
-		```
-
-	* **(僅限感染者玩家) 感染者玩家自殺 (讓感染者卡住時可以死亡)**
-		```php
-		sm_zss
-		```
-
-	* **設置特感的生成時間 (權限: ADMFLAG_ROOT)**
-		```php
-		sm_timer
-		```
-
-	* **設置場上特感的數量上限 (權限: ADMFLAG_ROOT)**
-		```php
-		sm_zlimit
-		```
-</details>
-
-* <details><summary>文件設定範例</summary>
-
-	* 所有功能設置都在 [data/l4dinfectedbots](data/l4dinfectedbots) 資料夾裡
-		> 內有中文說明，可點擊查看
-		* 當前模式是戰役 => 插件讀取```coop.cfg```
-		* 當前模式是對抗 => 插件讀取```versus.cfg```
-		* 當前模式是生存 => 插件讀取```survival.cfg```
-		* 當前模式是清道夫 => 插件讀取```scavenge.cfg```
-		* 當前模式是寫實 => 插件讀取```realism.cfg```
-		* 其他模式 => 插件讀取```xxxx.cfg``` (```xxxx``` = 遊戲模式名稱或突變模式名稱)
-</details>
-
 * 如何設置文件正確的數值?
-	1. <details><summary>設置特感生成數量上限</summary>
+	1. <details><summary>文件設定範例</summary>
+
+		* 所有功能設置都在 [data/l4dinfectedbots](data/l4dinfectedbots) 資料夾裡
+			> 內有中文說明，可點擊查看
+			* 當前模式是戰役 => 插件讀取```coop.cfg```
+			* 當前模式是對抗 => 插件讀取```versus.cfg```
+			* 當前模式是生存 => 插件讀取```survival.cfg```
+			* 當前模式是清道夫 => 插件讀取```scavenge.cfg```
+			* 當前模式是寫實 => 插件讀取```realism.cfg```
+			* 其他模式 => 插件讀取```xxxx.cfg``` (```xxxx``` = 遊戲模式名稱或突變模式名稱)
+	</details>
+
+	2. <details><summary>設置特感生成數量上限</summary>
 
 		必須讓6個特感數量[Smoker, Boomer, Hunter, Spitter, Jockey, Charger]的值加起來超過```"max_specials"```
 		* For example
@@ -665,7 +601,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		<br/>🟥警告!!! 特感數量 + 倖存者數量 + 旁觀者數量不得超過32，否則伺服器會變得很卡且無法生成特感 (因為此遊戲只能容納32個)
 	</details>
 
-	2. <details><summary>調整特感生成時間</summary>
+	3. <details><summary>調整特感生成時間</summary>
 
 		* AI 特感復活時間
 			```php
@@ -720,7 +656,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 				```
 	</details>
 
-	3. <details><summary>調整Tank生成數量上限</summary>
+	4. <details><summary>調整Tank生成數量上限</summary>
 
 		```php
 		// 設置Tank上限 (不影響導演系統生成tank)
@@ -734,7 +670,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	4. <details><summary>調整特感與Tank血量</summary>
+	5. <details><summary>調整特感與Tank血量</summary>
 
 		```php
 		// 設置特感血量 (0=不修改血量)
@@ -750,7 +686,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	5. <details><summary>調整普通感染者的數量上限</summary>
+	6. <details><summary>調整普通感染者的數量上限</summary>
 
 		```php
 		// 設置普通感染者的數量上限 (覆蓋官方指令 "z_common_limit", 0=場上無普通殭屍, -1=不修改)
@@ -758,7 +694,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	6. <details><summary>在戰役/倖存者/寫實模式下成為感染者</summary>
+	7. <details><summary>在戰役/倖存者/寫實模式下成為感染者</summary>
 
 		```php
 		// 1 = 玩家可以在戰役/寫實/生存模式中加入感染者 (!ji加入感染者，!js加入倖存者)"
@@ -783,7 +719,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	7. <details><summary>特感生成距離 (僅限戰役/寫實)</summary>
+	8. <details><summary>特感生成距離 (僅限戰役/寫實)</summary>
 
 		```php
 		// 特感生成的最小距離 (默認: 550, 僅戰役/寫實)
@@ -797,7 +733,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	8. <details><summary>一次性生成全部特感</summary>
+	9. <details><summary>一次性生成全部特感</summary>
 
 		```php
 		// 1 = 感染者需要等待其他感染者復活時間到才能一起生成
@@ -808,7 +744,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	9. <details><summary>設置特感的權重</summary>
+	10. <details><summary>設置特感的權重</summary>
 
 		* 增減特感的權重, 譬如
 			```php
@@ -830,7 +766,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	10. <details><summary>調整Witch生成數量與生成時間</summary>
+	11. <details><summary>調整Witch生成數量與生成時間</summary>
 
 		```php
 		// 插件可生成witch的最大數量 （不影響導演生成的witch）
@@ -929,4 +865,74 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	
 	2. 在戰役/寫實下，特感玩家扮演第二隻救援Tank時，救援載具會直接來臨
 		> 請安裝[l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
+</details>
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+		```php
+		// 0=關閉插件, 1=開啓插件
+		l4d_infectedbots_allow "1"
+
+		// 什麼模式下啟動此插件, 逗號區隔 (無空白). (留白 = 所有模式)
+		l4d_infectedbots_modes ""
+
+		// 什麼模式下關閉此插件, 逗號區隔 (無空白). (留白 = 無)
+		l4d_infectedbots_modes_off ""
+
+		// 什麼模式下啟動此插件. 0=所有模式, 1=戰役, 2=生存, 4=對抗, 8=清道夫. 請將數字相加起來
+		l4d_infectedbots_modes_tog "0"
+
+		// 1=感染者玩家開啓HUD
+		l4d_infectedbots_infhud_enable "1"
+
+		// 1=提示感染者玩家如何開啓HUD
+		l4d_infectedbots_infhud_announce "1"
+
+		// 如果爲1，則在對抗/清道夫模式中，強迫所有玩家加入到感染者
+		// 開啟此指令，即使都是倖存者Bot，會強制遊戲繼續進行
+		l4d_infectedbots_versus_coop "0"
+
+		// 在哪些遊戲模式中禁止感染者玩家使用sm_zss自殺 (0: 無, 1: 戰役/寫實, 2: 對抗/清道夫, 4: 生存, 請將數字相加)
+		l4d_infectedbots_sm_zss_disable_gamemode "6"
+
+		// 為1，計算倖存者數量時也包含死亡的倖存者
+		l4d_infectedbots_calculate_including_dead "0"
+
+		// 自訂此插件位於data/l4dinfectedbots資料夾想要讀取的文件名稱 (譬如: "custom_tanks"，此插件讀取 'data/l4dinfectedbots/custom_tanks.cfg')
+		// 留白=插件預設讀取data/l4dinfectedbots/xxxx.cfg (xxxx = 遊戲模式名稱或突變模式名稱).
+		l4d_infectedbots_read_data ""
+		```
+</details>
+
+* <details><summary>命令中文介紹 (點我展開)</summary>
+	
+	* **(僅限戰役/寫實/倖存者) 加入到感染者陣營**
+		```php
+		sm_ji
+		```
+
+	* **(僅限戰役/寫實/倖存者) 加入到倖存者陣營**
+		```php
+		sm_js
+		```
+
+	* **(僅限感染者玩家) 開關感染者HUD**
+		```php
+		sm_infhud
+		```
+
+	* **(僅限感染者玩家) 感染者玩家自殺 (讓感染者卡住時可以死亡)**
+		```php
+		sm_zss
+		```
+
+	* **設置特感的生成時間 (權限: ADMFLAG_ROOT)**
+		```php
+		sm_timer
+		```
+
+	* **設置場上特感的數量上限 (權限: ADMFLAG_ROOT)**
+		```php
+		sm_zlimit
+		```
 </details>

@@ -1,14 +1,17 @@
 //此插件0.1秒後設置Tank與特感血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.0  (2009-2024)
+* Version	: 3.0.1  (2009-2025)
 * Game		: Left 4 Dead 1 & 2
-* Author	: djromero (SkyDavid, David) and MI 5 and Harry Potter
+* Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
 *
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
-* REQUIRE	: left4dhooks  (https://forums.alliedmods.net/showthread.php?p=2684862)
+* REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.0.1 (2025-1-18)
+*	   - Support SIPool: https://forums.alliedmods.net/showthread.php?t=346270
 *
 * Version 3.0.0 (2024-11-08)
 *	   - Fixed SI bots still spawn when tank is on the field in l4d1
@@ -784,9 +787,11 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
+#undef REQUIRE_PLUGIN
+#tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.0-2025/1/7"
+#define PLUGIN_VERSION 			"3.0.1-2025/1/18"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -812,7 +817,6 @@ int SI_JOCKEY = 4;
 int SI_CHARGER = 5;
 int SI_TANK = 6;
 
-#define MAXENTITIES 2048
 #define SUICIDE_TIME 10
 // Infected models
 #define MODEL_SMOKER "models/infected/smoker.mdl"
@@ -824,6 +828,9 @@ int SI_TANK = 6;
 #define MODEL_TANK "models/infected/hulk.mdl"
 #define ZOMBIESPAWN_Attempts 7
 #define IGNITE_TIME 3600.0
+
+#define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
 // l4d1/2 value
 int ZOMBIECLASS_TANK;
@@ -1021,6 +1028,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
+	RegPluginLibrary("l4dinfectedbots");
+
 	return APLRes_Success;
 }
 
@@ -1122,6 +1131,90 @@ public void OnPluginStart()
 
 	//Autoconfig for plugin
 	AutoExecConfig(true, PLUGIN_NAME);
+}
+
+public void OnPluginEnd()
+{
+	for( int i = 1; i <= MaxClients; i++ )
+	{
+		RemoveSurvivorModelGlow(i);
+		DeleteLight(i);
+	}
+
+	if (g_bL4D2Version)
+	{
+		ResetConVar(FindConVar("survival_max_smokers"), true, true);
+		ResetConVar(FindConVar("survival_max_boomers"), true, true);
+		ResetConVar(FindConVar("survival_max_hunters"), true, true);
+		ResetConVar(FindConVar("survival_max_spitters"), true, true);
+		ResetConVar(FindConVar("survival_max_jockeys"), true, true);
+		ResetConVar(FindConVar("survival_max_chargers"), true, true);
+		ResetConVar(FindConVar("survival_max_specials"), true, true);
+		ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
+		ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
+		ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
+
+		ResetConVar(FindConVar("z_smoker_limit"), true, true);
+		ResetConVar(FindConVar("z_boomer_limit"), true, true);
+		ResetConVar(FindConVar("z_hunter_limit"), true, true);
+		ResetConVar(FindConVar("z_spitter_limit"), true, true);
+		ResetConVar(FindConVar("z_jockey_limit"), true, true);
+		ResetConVar(FindConVar("z_charger_limit"), true, true);
+	}
+	else
+	{
+		ResetConVar(FindConVar("holdout_max_smokers"), true, true);
+		ResetConVar(FindConVar("holdout_max_boomers"), true, true);
+		ResetConVar(FindConVar("holdout_max_hunters"), true, true);
+		ResetConVar(FindConVar("holdout_max_specials"), true, true);
+		ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
+		ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
+
+		ResetConVar(FindConVar("z_gas_limit"), true, true);
+		ResetConVar(FindConVar("z_exploding_limit"), true, true);
+		ResetConVar(FindConVar("z_hunter_limit"), true, true);
+	}
+	ResetConVar(FindConVar("z_spawn_safety_range"), true, true);
+	if(g_bL4D2Version)
+	{
+		ResetConVar(director_allow_infected_bots, true, true);
+	}
+	if(g_ePluginSettings.m_iCommonLimit >= 0) ResetConVar(h_common_limit_cvar, true, true);
+	
+	g_bSomeCvarChanged = true;
+	vs_max_team_switches.SetInt(vs_max_team_switches_default);
+	if (!g_bL4D2Version)
+	{
+		sb_all_bot_team.SetBool(sb_all_bot_team_default);
+	}
+	else
+	{
+		sb_all_bot_game.SetBool(sb_all_bot_game_default);
+		allow_all_bot_survivor_team.SetBool(allow_all_bot_survivor_team_default);
+	}
+	g_bSomeCvarChanged = false;
+
+	if(g_bL4D2Version)
+	{
+		for( int i = 1; i <= MaxClients; i++ )
+			if(IsClientInGame(i) && !IsFakeClient(i)) g_hCvarMPGameMode.ReplicateToClient(i, g_sCvarMPGameMode);
+	}
+}
+
+bool g_bSIPoolAvailable;
+public void OnAllPluginsLoaded()
+{
+	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (strcmp(name, "si_pool_plus") == 0) g_bSIPoolAvailable = false;
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "si_pool_plus")) g_bSIPoolAvailable = true;
 }
 
 void ConVarChanged_OfficialCvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -1997,7 +2090,8 @@ public void OnClientPutInServer(int client)
 
 public void OnClientPostAdminCheck(int client)
 {
-	if(IsFakeClient(client)) return;
+	if(IsFakeClient(client)) 
+		return;
 	
 	static char steamid[32];
 	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
@@ -2354,10 +2448,11 @@ public Action L4D_OnTryOfferingTankBot(int tank_index, bool &enterStasis)
 
 Action DisposeOfCowards(Handle timer, int coward)
 {
+	FightOrDieTimer[coward] = null;
+
 	if( g_bCvarAllow == false)
 	{
-		FightOrDieTimer[coward] = null;
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
 	if (coward && IsClientInGame(coward) && IsFakeClient(coward) && GetClientTeam(coward) == TEAM_INFECTED && !IsPlayerTank(coward) && IsPlayerAlive(coward))
@@ -2365,17 +2460,24 @@ Action DisposeOfCowards(Handle timer, int coward)
 		// Check to see if the infected can be seen by the survivors. If so, kill the timer and make a new one.
 		if (CanBeSeenBySurvivors(coward) || IsTooClose(coward, g_ePluginSettings.m_fSpawnRangeMin) || L4D_GetSurvivorVictim(coward) > 0)
 		{
-			FightOrDieTimer[coward] = null;
 			FightOrDieTimer[coward] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, coward);
 			return Plugin_Continue;
 		}
 		else
 		{
-			CreateTimer(0.1, kickbot, GetClientUserId(coward), TIMER_FLAG_NO_MAPCHANGE);
+			if(g_bL4D2Version && g_bSIPoolAvailable)
+			{
+				ForcePlayerSuicide(coward);
+			}
+			else
+			{
+				CreateTimer(0.1, kickbot, GetClientUserId(coward), TIMER_FLAG_NO_MAPCHANGE);
+			}
+
 			//PrintToChatAll("[TS] Kicked bot %N for not attacking", coward);
 		}
 	}
-	FightOrDieTimer[coward] = null;
+
 	return Plugin_Continue;
 }
 
@@ -2491,8 +2593,10 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	// This fixes the spawns when the spawn timer is set to 5 or below and fixes the spitter spit glitch
-	if (IsFakeClient(client) && !IsPlayerSpitter(client))
+	if (g_bL4D2Version && !g_bSIPoolAvailable && IsFakeClient(client) && !IsPlayerSpitter(client))
+	{
 		CreateTimer(1.0, kickbot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	}
 
 	if (!clientGreeted[client] && g_bAnnounce)
 	{
@@ -3200,14 +3304,16 @@ void CountPlayersInServer()
 	InfectedBotCount = 0;
 	InfectedRealCount = 0;
 	InfectedRealQueue = 0;
-	//SurvivorCount = GetSurvivorsInServer();
-	//SpectatorCount = GetSpectatorsAndConnectInServer();
-	AllPlayerCount = GetAllPlayersInServer();
+	AllPlayerCount = 0;
 
 	// First we count the ammount of infected real players and bots
 	for (int i=1;i<=MaxClients;i++)
 	{
-		// We check if player is in game
+		if(IsClientConnected(i))
+		{
+			AllPlayerCount++;
+		}
+
 		if (!IsClientInGame(i)) continue;
 
 		// Check if client is infected ...
@@ -3216,7 +3322,7 @@ void CountPlayersInServer()
 			// If player is a bot ...
 			if (IsFakeClient(i))
 			{
-				InfectedBotCount++;
+				if(IsPlayerAlive(i)) InfectedBotCount++;
 			}
 			else
 			{
@@ -3934,9 +4040,8 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	}
 	else
 	{
-		if(IsValidClient(bot))
+		if(bSpawnSuccessful)
 		{
-			bSpawnSuccessful = true;
 			ChangeClientTeam(bot, TEAM_INFECTED);
 			SetEntProp(bot, Prop_Send, "m_usSolidFlags", 16);
 			SetEntProp(bot, Prop_Send, "movetype", 2);
@@ -3948,6 +4053,10 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 			DispatchSpawn(bot);
 			ActivateEntity(bot);
 			TeleportEntity(bot, vecPos, NULL_VECTOR, NULL_VECTOR); //移動到相同位置
+		}
+		else
+		{
+			//LogError("spawn failed");
 		}
 
 		if(!g_bIsCoordination) 
@@ -4113,76 +4222,6 @@ int  FindBotToTakeOver()
 		}
 	}
 	return 0;
-}
-
-public void OnPluginEnd()
-{
-	g_iPlayerSpawn = 0;
-
-	for( int i = 1; i <= MaxClients; i++ )
-	{
-		RemoveSurvivorModelGlow(i);
-		DeleteLight(i);
-	}
-
-	if (g_bL4D2Version)
-	{
-		ResetConVar(FindConVar("survival_max_smokers"), true, true);
-		ResetConVar(FindConVar("survival_max_boomers"), true, true);
-		ResetConVar(FindConVar("survival_max_hunters"), true, true);
-		ResetConVar(FindConVar("survival_max_spitters"), true, true);
-		ResetConVar(FindConVar("survival_max_jockeys"), true, true);
-		ResetConVar(FindConVar("survival_max_chargers"), true, true);
-		ResetConVar(FindConVar("survival_max_specials"), true, true);
-		ResetConVar(FindConVar("survival_special_limit_increase"), true, true);
-		ResetConVar(FindConVar("survival_special_spawn_interval"), true, true);
-		ResetConVar(FindConVar("survival_special_stage_interval"), true, true);
-
-		ResetConVar(FindConVar("z_smoker_limit"), true, true);
-		ResetConVar(FindConVar("z_boomer_limit"), true, true);
-		ResetConVar(FindConVar("z_hunter_limit"), true, true);
-		ResetConVar(FindConVar("z_spitter_limit"), true, true);
-		ResetConVar(FindConVar("z_jockey_limit"), true, true);
-		ResetConVar(FindConVar("z_charger_limit"), true, true);
-	}
-	else
-	{
-		ResetConVar(FindConVar("holdout_max_smokers"), true, true);
-		ResetConVar(FindConVar("holdout_max_boomers"), true, true);
-		ResetConVar(FindConVar("holdout_max_hunters"), true, true);
-		ResetConVar(FindConVar("holdout_max_specials"), true, true);
-		ResetConVar(FindConVar("holdout_special_spawn_interval"), true, true);
-		ResetConVar(FindConVar("holdout_special_stage_interval"), true, true);
-
-		ResetConVar(FindConVar("z_gas_limit"), true, true);
-		ResetConVar(FindConVar("z_exploding_limit"), true, true);
-		ResetConVar(FindConVar("z_hunter_limit"), true, true);
-	}
-	ResetConVar(FindConVar("z_spawn_safety_range"), true, true);
-	if(g_bL4D2Version)
-	{
-		ResetConVar(director_allow_infected_bots, true, true);
-	}
-	if(g_ePluginSettings.m_iCommonLimit >= 0) ResetConVar(h_common_limit_cvar, true, true);
-	
-	g_bSomeCvarChanged = true;
-	vs_max_team_switches.SetInt(vs_max_team_switches_default);
-	if (!g_bL4D2Version)
-	{
-		sb_all_bot_team.SetBool(sb_all_bot_team_default);
-	}
-	else
-	{
-		sb_all_bot_game.SetBool(sb_all_bot_game_default);
-		allow_all_bot_survivor_team.SetBool(allow_all_bot_survivor_team_default);
-	}
-	g_bSomeCvarChanged = false;
-
-	if(g_bL4D2Version)
-	{
-		for( int i = 1; i <= MaxClients; i++ )
-			if(IsClientInGame(i) && !IsFakeClient(i)) g_hCvarMPGameMode.ReplicateToClient(i, g_sCvarMPGameMode);
-	}
 }
 
 int Menu_InfHUDPanel(Menu menu, MenuAction action, int param1, int param2) { return 0; }
@@ -4865,9 +4904,8 @@ void DeleteEntity(int entity)
 int MakeLightDynamic(const float vOrigin[3], const float vAngles[3], int client)
 {
 	int entity = CreateEntityByName("light_dynamic");
-	if( entity == -1)
+	if (CheckIfEntitySafe( entity ) == false)
 	{
-		LogError("Failed to create 'light_dynamic'");
 		return 0;
 	}
 
@@ -5160,7 +5198,7 @@ void CreateSurvivorModelGlow(int client)
 
 	// Spawn dynamic prop entity
 	int entity = CreateEntityByName("prop_dynamic_ornament");
-	if (entity == -1) return;
+	if (CheckIfEntitySafe( entity ) == false) return;
 
 	// Set new fake model
 	SetEntityModel(entity, sModelName);
@@ -6045,18 +6083,16 @@ int GetSurvivorsInServer()
 	return count;
 }
 
-int GetAllPlayersInServer()
+bool CheckIfEntitySafe(int entity)
 {
-	int count = 0;
-	for(int i = 1; i <= MaxClients; i++)
-	{
-		if(IsClientConnected(i))
-		{
-			count++;
-		}
-	}
+	if(entity == -1) return false;
 
-	return count;
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
 }
 
 void LoadData()
