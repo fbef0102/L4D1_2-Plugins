@@ -1,14 +1,18 @@
 # Description | 內容
 Show damage done to S.I. by survivors
 
-* Video | 影片展示
-<br/>None
-
 * Image | 圖示
 	<br/>![l4d2_assist_1](image/l4d2_assist_1.jpg)  
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
 * Require | 必要安裝
-	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -36,17 +40,6 @@ Show damage done to S.I. by survivors
 		sm_assist_display_num "2"
 		```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Translation Support | 支援翻譯</summary>
 

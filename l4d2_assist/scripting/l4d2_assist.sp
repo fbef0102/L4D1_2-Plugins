@@ -5,6 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <sdktools>
+#include <left4dhooks>
 #include <multicolors>
 
 #define PLUGIN_VERSION "2.5-2024/12/03"
@@ -65,6 +66,7 @@ int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.
 bool g_bTankDied[MAXPLAYERS+1]; //tank already dead
 int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
 int g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
+bool g_bReplaceNewTank[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
@@ -266,24 +268,26 @@ void HookEvents()
 {
 	HookEvent("player_hurt", Event_PlayerHurt);
 	HookEvent("player_spawn", Event_PlayerSpawn);
-	HookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("player_bot_replace", 	Event_BotReplacePlayer);
+	HookEvent("bot_player_replace",     Event_PlayerReplaceBot);
 }
 
 void UnhookEvents()
 {
 	UnhookEvent("player_hurt", Event_PlayerHurt);
 	UnhookEvent("player_spawn", Event_PlayerSpawn);
-	UnhookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
 	UnhookEvent("player_death", Event_PlayerDeath);
 	UnhookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 	UnhookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	UnhookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	UnhookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
+	UnhookEvent("player_bot_replace", 	Event_BotReplacePlayer);
+	UnhookEvent("bot_player_replace",     Event_PlayerReplaceBot);
 }
 
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
@@ -358,6 +362,8 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		
 	if(client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
 	{
+		if(g_bReplaceNewTank[client]) return;
+
 		g_bTankDied[client] = false;
 		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
 		for( int i = 1; i <= MaxClients; i++ ) g_iDamage[i][client] = 0;
@@ -365,7 +371,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-void Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast) 
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -382,114 +388,158 @@ void Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast)
 		{
 			g_iDamage[attacker][victim] += g_iSIHealth[victim];
 		}
+
+		if (GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
+		{
+			int class = GetEntProp(victim, Prop_Send, "m_zombieClass");
+			if( (g_bL4D2Version && class == ZC_TANK) || (!g_bL4D2Version && class == ZC_TANK))  // tank
+			{
+				--class;
+			}	
+
+			if( class <= 0 || class > 7 || !((1 << (class-1)) & g_iCvarInfectedFlag) )
+			{
+				ClearDmgSI(victim);
+				return;
+			}
+			
+			char MsgAssist[512];
+			bool start = true, firstline = true;
+			char sName[MAX_NAME_LENGTH], sTempMessage[64];
+			int count;
+
+			CPrintToChatAll("%t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
+			bool next = false;
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (i != attacker && IsClientInGame(i) && GetClientTeam(i) == L4D_TEAM_SURVIVOR && g_iDamage[i][victim] > 0)
+				{
+					count++;
+					
+					if(start == false && count >= 2)
+						StrCat(MsgAssist, sizeof(MsgAssist), Temp2);
+					
+					GetClientName(i, sName, sizeof(sName));
+					FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s %s%i %T%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],"DMG", LANG_SERVER, Temp4);
+					StrCat(MsgAssist, sizeof(MsgAssist), sTempMessage);
+					start = false;
+
+					if(count % g_iCvarDisplayNum == 0)
+					{
+						FormatEx(MsgAssist, sizeof(MsgAssist), "%s", MsgAssist);
+						next = false;
+						for(int j = i+1; j <= MaxClients; j++)
+						{
+							if (j != attacker && IsClientInGame(j) && GetClientTeam(j) == L4D_TEAM_SURVIVOR && g_iDamage[j][victim] > 0)
+							{
+								next = true;
+								break;
+							}
+						}
+
+						if(firstline)
+						{
+							if(next)
+							{
+								CPrintToChatAll("{olive}{default} %t,", "Assist", MsgAssist);
+							}
+							else
+							{
+								CPrintToChatAll("{olive}{default} %t.", "Assist", MsgAssist);
+							}
+							firstline = false;
+						}
+						else
+						{
+							if(next)
+							{
+								CPrintToChatAll("{olive}{default} %s,", MsgAssist);
+							}
+							else
+							{
+								CPrintToChatAll("{olive}{default} %s.", MsgAssist);
+							}
+						}
+
+						MsgAssist[0] = '\0';
+						count = 0;
+					}
+				}
+			}
+
+			if(count > 0)
+			{
+				if(firstline)
+				{
+					CPrintToChatAll("{olive}{default} %t.", "Assist", MsgAssist);
+				}
+				else
+				{
+					CPrintToChatAll("{olive}{default} %s.", MsgAssist);
+				}
+			}
+		}
 	}
 	else
 	{
 		g_iOtherDamage[victim] += g_iSIHealth[victim];
 	}
+
+	ClearDmgSI(victim);
 }
 
-void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
+void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 {
-	int victim = GetClientOfUserId(event.GetInt("userid"));
-	int attacker = GetClientOfUserId(event.GetInt("attacker"));
-	
-	if(!victim || !IsClientInGame(victim)) return;
+	int bot = GetClientOfUserId(event.GetInt("bot"));
+	int player = GetClientOfUserId(event.GetInt("player"));
 
-	if(GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
-	
-	if (attacker && IsClientInGame(attacker) && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
+	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && GetClientTeam(bot) == L4D_TEAM_INFECTED && GetEntProp(bot, Prop_Send, "m_zombieClass") == ZC_TANK 
+		&& player > 0 && player <= MaxClients && IsClientInGame(player)) 
 	{
-		int class = GetEntProp(victim, Prop_Send, "m_zombieClass");
-		if( (g_bL4D2Version && class == ZC_TANK) || (!g_bL4D2Version && class == ZC_TANK))  // tank
-		{
-			--class;
-		}	
-
-		if( class <= 0 || class > 7 || !((1 << (class-1)) & g_iCvarInfectedFlag) )
-		{
-			ClearDmgSI(victim);
-			return;
-		}
-		
-		char MsgAssist[512];
-		bool start = true, firstline = true;
-		char sName[MAX_NAME_LENGTH], sTempMessage[64];
-		int count;
-
-		CPrintToChatAll("%t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
-		bool next = false;
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (i != attacker && IsClientInGame(i) && GetClientTeam(i) == L4D_TEAM_SURVIVOR && g_iDamage[i][victim] > 0)
-			{
-				count++;
-				
-				if(start == false && count >= 2)
-					StrCat(MsgAssist, sizeof(MsgAssist), Temp2);
-				
-				GetClientName(i, sName, sizeof(sName));
-				FormatEx(sTempMessage, sizeof(sTempMessage), "%s%s%s %s%i %T%s", Temp5,sName,Temp6,Temp3,g_iDamage[i][victim],"DMG", LANG_SERVER, Temp4);
-				StrCat(MsgAssist, sizeof(MsgAssist), sTempMessage);
-				start = false;
-
-				if(count % g_iCvarDisplayNum == 0)
-				{
-					FormatEx(MsgAssist, sizeof(MsgAssist), "%s", MsgAssist);
-					next = false;
-					for(int j = i+1; j <= MaxClients; j++)
-					{
-						if (j != attacker && IsClientInGame(j) && GetClientTeam(j) == L4D_TEAM_SURVIVOR && g_iDamage[j][victim] > 0)
-						{
-							next = true;
-							break;
-						}
-					}
-
-					if(firstline)
-					{
-						if(next)
-						{
-							CPrintToChatAll("{olive}{default} %t,", "Assist", MsgAssist);
-						}
-						else
-						{
-							CPrintToChatAll("{olive}{default} %t.", "Assist", MsgAssist);
-						}
-						firstline = false;
-					}
-					else
-					{
-						if(next)
-						{
-							CPrintToChatAll("{olive}{default} %s,", MsgAssist);
-						}
-						else
-						{
-							CPrintToChatAll("{olive}{default} %s.", MsgAssist);
-						}
-					}
-
-					MsgAssist[0] = '\0';
-					count = 0;
-				}
-			}
-		}
-
-		if(count > 0)
-		{
-			if(firstline)
-			{
-				CPrintToChatAll("{olive}{default} %t.", "Assist", MsgAssist);
-			}
-			else
-			{
-				CPrintToChatAll("{olive}{default} %s.", MsgAssist);
-			}
-		}
+		ReplaceData(player, bot);
 	}
+}
+
+void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
+{
+	int bot = GetClientOfUserId(event.GetInt("bot"));
+	int player = GetClientOfUserId(event.GetInt("player"));
 	
-	ClearDmgSI(victim);
+	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) 
+		&& player > 0 && player <= MaxClients && IsClientInGame(player) && GetClientTeam(player) == L4D_TEAM_INFECTED && GetEntProp(player, Prop_Send, "m_zombieClass") == ZC_TANK) 
+	{
+		ReplaceData(bot, player);
+	}
+}
+
+public void L4D_OnReplaceTank(int tank, int newtank)
+{
+	g_bReplaceNewTank[newtank] = true;
+	RequestFrame(NextFrame_ReplaceData, newtank);
+	
+	if(tank == newtank)
+	{
+		return;
+	}
+
+	ReplaceData(tank, newtank);
+}
+
+void ReplaceData(int tank, int newtank)
+{
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		g_iDamage[i][newtank] = g_iDamage[i][tank]; g_iDamage[i][tank] = 0;
+	}
+
+	g_bTankDied[newtank] = g_bTankDied[tank]; g_bTankDied[tank] = false;
+	g_iSIHealth[newtank] = g_iSIHealth[tank]; g_iSIHealth[tank] = 0;
+	g_iOtherDamage[newtank] = g_iOtherDamage[tank]; g_iOtherDamage[tank] = 0;
+}
+
+void NextFrame_ReplaceData(int client)
+{
+	g_bReplaceNewTank[client] = false;
 }
 
 void ResetPlugin()
