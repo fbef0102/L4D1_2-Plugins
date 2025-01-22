@@ -1,0 +1,39 @@
+"Games"
+{
+	"left4dead2" 
+	{
+		"MemPatches"
+		{
+			"Charger::OnTakeDamage::m_flDamage"
+			{
+				"signature"		"Charger::OnTakeDamage"
+
+				"linux"
+				{
+					"offset"	"B6h"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+				
+				"windows"
+				{
+					"offset"	"1Eh"
+					"verify"	"\x74"
+					"patch"		"\xEB"
+				}
+			}
+		}
+
+		"Signatures"
+		{
+			/* Charger::OnTakeDamage(Charger *__hidden this, const CTakeDamageInfo *) */
+			"Charger::OnTakeDamage"
+			{
+				"library"	"server"
+				"linux"		"@_ZN7Charger12OnTakeDamageERK15CTakeDamageInfo"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x83\x2A\x2A\x56\x8B\x2A\x50\x8D\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B"
+				/* ? ? ? ? ? ? 83 ? ? 56 8B ? 50 8D ? ? E8 ? ? ? ? 8B */
+			}
+		}
+	}
+}

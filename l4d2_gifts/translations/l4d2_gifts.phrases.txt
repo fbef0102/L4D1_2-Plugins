@@ -1,0 +1,573 @@
+"Phrases"
+{
+	"Got Gift (C)"
+	{
+		"#format"		"{1:N},{2:T}"
+		"en"			"{blue}{1}{default} got gift + {green}{2}{default}!"
+		"es"			"{blue}{1}{default} obtuvo un regalo + {green}{2}{default}!"
+		"zho"			"{blue}{1}{default} 取得禮物 + {green}{2}{default}!"
+		"chi"			"{blue}{1}{default} 取得礼物 + {green}{2}{default}!"
+		"ru"			"{blue}{1}{default} получил подарок + {green}{2}{default}!"
+	}
+
+	"Got Gift (CS)"
+	{
+		"#format"		"{1:N},{2:s}"
+		"en"			"{blue}{1}{default} got gift + {green}{2}{default}!"
+		"es"			"{blue}{1}{default} obtuvo un regalo + {green}{2}{default}!"
+		"zho"			"{blue}{1}{default} 取得禮物 + {green}{2}{default}!"
+		"chi"			"{blue}{1}{default} 取得礼物 + {green}{2}{default}!"
+		"ru"			"{blue}{1}{default} получил подарок + {green}{2}{default}!"
+	}
+
+	"Got Gift"
+	{
+		"#format"		"{1:N},{2:T}"
+		"en"			"{1} got gift + {2}!"
+		"es"			"{1} obtuvo un regalo + {2}!"
+		"zho"			"{1} 取得禮物 + {2}!"
+		"chi"			"{1} 取得礼物 + {2}!"
+		"ru"			"{1} получил подарок + {2}!"
+	}
+
+	"Got Gift (S)"
+	{
+		"#format"		"{1:N},{2:s}"
+		"en"			"{1} got gift + {2}!"
+		"es"			"{1} obtuvo un regalo + {2}!"
+		"zho"			"{1} 取得禮物 + {2}!"
+		"chi"			"{1} 取得礼物 + {2}!"
+		"ru"			"{1} получил подарок + {2}!"
+	}
+
+	"Got Gift (+hp) (C)"
+	{
+		"#format"		"{1:N},{2:d}"
+		"en"			"{blue}{1}{default} got gift + {green}{2} HP{default}!"
+		"zho"			"{blue}{1}{default} 取得禮物 + {green}{2} HP{default}!"
+		"chi"			"{blue}{1}{default} 取得礼物 + {green}{2} HP{default}!"
+		"ru"			"{blue}{1}{default} получил здоровье + {green}{2} HP{default}!"
+	}
+
+	"Got Gift (+hp)"
+	{
+		"#format"		"{1:N},{2:d}"
+		"en"			"{1} got gift + {2} HP!"
+		"zho"			"{1} 取得禮物 + {2} HP!"
+		"chi"			"{1} 取得礼物 + {2} HP!"
+		"ru"			"{1} получил здоровье + {2} HP!"
+	}
+
+	"Got Gift (-hp) (C)"
+	{
+		"#format"		"{1:N},{2:d}"
+		"en"			"{blue}{1}{default} got bad gift - {green}{2} HP{default}!"
+		"zho"			"{blue}{1}{default} 取得壞禮物 - {green}{2} HP{default}!"
+		"chi"			"{blue}{1}{default} 取得坏礼物 - {green}{2} HP{default}!"
+		"ru"			"{blue}{1}{default} потерял здоровье {green}{2} HP{default}!"
+	}
+
+	"Got Gift (-hp)"
+	{
+		"#format"		"{1:N},{2:d}"
+		"en"			"{1} got bad gift - {2} HP!"
+		"zho"			"{1} 取得壞禮物 - {2} HP!"
+		"chi"			"{1} 取得坏礼物 - {2} HP!"
+		"ru"			"{1} потерял здоровье {2} HP!"
+	}
+	
+	"Infected Got Gift (C)"
+	{
+		"#format"		"{1:N},{2:d}"
+		"en"			"{red}{1}{default}{default} got gift + {green}{2} HP{default}!"
+		"zho"			"{red}{1}{default} 取得禮物 + {green}{2} HP{default}!"
+		"chi"			"{red}{1}{default} 取得礼物 + {green}{2} HP{default}!"
+		"ru"			"{red}{1}{default} Получил Здоровье {green}{2} HP{default}!"
+	}
+
+	"Infected Got Gift"
+	{
+		"#format"		"{1:N},{2:d}"
+		"en"			"{1} got gift + {2} HP!"
+		"zho"			"{1} 取得禮物 + {2} HP!"
+		"chi"			"{1} 取得礼物 + {2} HP!"
+		"ru"			"{1} Получил Здоровье {2} HP!"
+	}
+
+
+	"Pistol"
+	{
+		"en"	"Pistol"
+		"pt"	"Pistola"
+		"zho"	"手槍"
+		"chi"	"手枪"
+		"es"	"Pistola"
+		"ru"	"Пистолеты"
+	}
+	"Magnum"
+	{
+		"en"	"Magnum"
+		"pt"	"Magnum"
+		"zho"	"沙漠之鷹"
+		"chi"	"沙漠之鹰"
+		"es"	"Magnum"
+		"ru"	"Магнум"
+	}
+	"Pumpshotgun"
+	{
+		"en"	"Pumpshotgun"
+		"pt"	"Pumpshotgun"
+		"zho"	"木製霰彈槍"
+		"chi"	"木制霰弹枪"
+		"es"	"Escopeta de bomba"
+		"ru"	"Помп.Дробовик"
+	}
+	"Chrome Shotgun"
+	{
+		"en"	"Chrome Shotgun"
+		"pt"	"Chrome Shotgun"
+		"zho"	"鐵製霰彈槍"
+		"chi"	"铁制霰弹枪"
+		"es"	"Escopeta cromada"
+		"ru"	"Хром.Дробовик"
+	}
+	"Smg"
+	{
+		"en"	"Smg"
+		"pt"	"Smg"
+		"zho"	"機槍"
+		"chi"	"机枪"
+		"es"	"Smg"
+		"ru"	"UZI"
+	}
+	"Silenced Smg"
+	{
+		"en"	"Silenced Smg"
+		"pt"	"Silenced Smg"
+		"zho"	"消音機槍"
+		"chi"	"消音机枪"
+		"es"	"Smg silenciador"
+		"ru"	"MAC-10"
+	}
+	"MP5"
+	{
+		"en"	"MP5"
+		"pt"	"MP5"
+		"zho"	"MP5衝鋒槍"
+		"chi"	"MP5冲锋枪"
+		"es"	"MP5"
+		"ru"	"МP5"
+	}
+	"Rifle"
+	{
+		"en"	"Rifle"
+		"pt"	"Rifle"
+		"zho"	"步槍"
+		"chi"	"步枪"
+		"es"	"Rifle"
+		"ru"	"М16"
+	}
+	"AK47"
+	{
+		"en"	"AK47"
+		"pt"	"AK47"
+		"zho"	"AK47"
+		"chi"	"AK47"
+		"es"	"Rifle AK47"
+		"ru"	"AK47"
+	}
+	"Desert Rifle"
+	{
+		"en"	"Desert Rifle"
+		"pt"	"Desert Rifle"
+		"zho"	"三連發步槍"
+		"chi"	"三连发步枪"
+		"es"	"Rifle del desierto"
+		"ru"	"SCAR"
+	}
+	"SG552"
+	{
+		"en"	"CSS SG552"
+		"pt"	"CSS SG552"
+		"zho"	"SG552步槍"
+		"chi"	"SG552步枪"
+		"es"	"Rifle CSS SG552"
+		"ru"	"SG552"
+	}
+	"Spas Shotgun"
+	{
+		"en"	"Spas Shotgun"
+		"pt"	"Spas Shotgun"
+		"zho"	"戰鬥霰彈槍"
+		"chi"	"战斗霰弹枪"
+		"es"	"Escopeta Spas"
+		"ru"	"SPAS12"
+	}
+	"Autoshotgun"
+	{
+		"en"	"Autoshotgun"
+		"pt"	"Autoshotgun"
+		"zho"	"連發霰彈槍"
+		"chi"	"连发霰弹枪"
+		"es"	"Escopeta automática"
+		"ru"	"Автодробовик"
+	}
+	"Hunting Rifle"
+	{
+		"en"	"Hunting Rifle"
+		"pt"	"Hunting Rifle"
+		"zho"	"獵槍"
+		"chi"	"猎枪"
+		"es"	"Rifle de caza"
+		"ru"	"Снайп.Hunting"
+	}
+	"Military Sniper"
+	{
+		"en"	"Military Sniper"
+		"pt"	"Military Sniper"
+		"zho"	"軍用狙擊槍"
+		"chi"	"军用狙击枪"
+		"es"	"Francotirador militar"
+		"ru"	"Снайп.Millitary"
+	}
+	"SCOUT"
+	{
+		"en"	"CSS SCOUT"
+		"pt"	"CSS SCOUT"
+		"zho"	"SCOUT狙擊槍"
+		"chi"	"SCOUT狙击枪"
+		"es"	"CSS SCOUT"
+		"ru"	"Scout"
+	}
+	"AWP"
+	{
+		"en"	"AWP"
+		"pt"	"AWP"
+		"zho"	"AWP"
+		"chi"	"AWP"
+		"es"	"AWP"
+		"ru"	"AWP"
+	}
+	"Grenade Launcher"
+	{
+		"en"	"Grenade Launcher"
+		"pt"	"Lançador de Granadas"
+		"zho"	"榴彈發射器"
+		"chi"	"榴弹发射器"
+		"es"	"Lanzagranadas"
+		"ru"	"Гранатомёт"
+	}
+	"M60 Machine Gun"
+	{
+		"en"	"M60 Machine Gun"
+		"pt"	"M60 Machine Gun"
+		"zho"	"殲滅者 M60"
+		"chi"	"毁灭者 M60"
+		"es"	"Rifle M60"
+		"ru"	"M60"
+	}
+	"Chainsaw"
+	{
+		"en"	"Chainsaw"
+		"pt"	"Moto Serra"
+		"zho"	"奪魂鋸"
+		"chi"	"电锯"
+		"es"	"Motosierra"
+		"ru"	"Бензопила"
+	}
+	"Baseball Bat"
+	{
+		"en"	"Baseball Bat"
+		"pt"	"Taco de Baseball"
+		"zho"	"球棒"
+		"chi"	"球棒"
+		"es"	"Bate de béisbol"
+		"ru"	"Бейсбольная бита"
+	}
+	"Cricket Bat"
+	{
+		"en"	"Cricket Bat"
+		"pt"	"Bastão de Cricket"
+		"zho"	"板球拍"
+		"chi"	"板球拍"
+		"es"	"Bate de cricket"
+		"ru"	"Крикетная бита"
+	}
+	"Crowbar"
+	{
+		"en"	"Crowbar"
+		"pt"	"Pé de Cabra"
+		"zho"	"鐵撬"
+		"chi"	"铁撬"
+		"es"	"Palanca"
+		"ru"	"Фомка"
+	}
+	"Electric Guitar"
+	{
+		"en"	"Electric Guitar"
+		"pt"	"Guitarra Elétrica"
+		"zho"	"電吉他"
+		"chi"	"電吉他"
+		"es"	"Guitarra eléctrica"
+		"ru"	"Электрогитара"
+	}
+	"Fire Axe"
+	{
+		"en"	"Fire Axe"
+		"pt"	"Machado"
+		"zho"	"斧頭"
+		"chi"	"斧头"
+		"es"	"Hacha contra incendios"
+		"ru"	"Топор"
+	}
+	"Frying Pan"
+	{
+		"en"	"Frying Pan"
+		"pt"	"Frigideira"
+		"zho"	"平底鍋"
+		"chi"	"平底锅"
+		"es"	"Sartén"
+		"ru"	"Сковорода"
+	}
+	"Katana"
+	{
+		"en"	"Katana"
+		"pt"	"Katana"
+		"zho"	"武士刀"
+		"chi"	"武士刀"
+		"es"	"Katana"
+		"ru"	"Катана"
+	}
+	"Machete"
+	{
+		"en"	"Machete"
+		"pt"	"Machete"
+		"zho"	"開山刀"
+		"chi"	"开山刀"
+		"es"	"Machete"
+		"ru"	"Мачете"
+	}
+	"Tonfa"
+	{
+		"en"	"Tonfa"
+		"pt"	"Bastão Policial"
+		"zho"	"警棍"
+		"chi"	"警棍"
+		"es"	"Tonfa"
+		"ru"	"Полицейская дубинка"
+	}
+	"Golf Club"
+	{
+		"en"	"Golf Club"
+		"pt"	"Taco de Golf"
+		"zho"	"高爾夫球棒"
+		"chi"	"高尔夫球棒"
+		"es"	"Palo de golf"
+		"ru"	"Клюшка для гольфа"
+	}
+	"Knife"
+	{
+		"en"	"Knife"
+		"pt"	"Faca CS"
+		"zho"	"小刀"
+		"chi"	"小刀"
+		"es"	"Cuchillo"
+		"ru"	"Нож"
+	}
+	"Pitchfork"
+	{
+		"en"	"Pitchfork"
+		"pt"	"Forcado"
+		"zho"	"草叉"
+		"chi"	"草叉"
+		"es"	"Horca"
+		"ru"	"Вилы"
+	}
+	"Shovel"
+	{
+		"en"	"Shovel"
+		"pt"	"Pá"
+		"zho"	"鐵鏟"
+		"chi"	"铁铲"
+		"es"	"Pala"
+		"ru"	"Лопата"
+	}
+	"Defibrillator"
+	{
+		"en"	"Defibrillator"
+		"pt"	"Defibrilador"
+		"zho"	"電擊器"
+		"chi"	"电击器"
+		"es"	"Desfibrilador"
+		"ru"	"Дефибриллятор"
+	}
+	"First Aid Kit"
+	{
+		"en"	"First Aid Kit"
+		"pt"	"Kit Médico"
+		"zho"	"治療包"
+		"chi"	"治疗包"
+		"es"	"Botiquin"
+		"ru"	"Аптечка"
+	}
+	"Pain Pill"
+	{
+		"en"	"Pain Pill"
+		"pt"	"Pílulas"
+		"zho"	"止痛藥丸"
+		"chi"	"止痛药丸"
+		"es"	"Pildoras"
+		"ru"	"Таблетки"
+	}
+	"Adrenaline"
+	{
+		"en"	"Adrenaline"
+		"pt"	"Adrenalina"
+		"zho"	"腎上腺素"
+		"chi"	"肾上腺素"
+		"es"	"Adrenalina"
+		"ru"	"Адреналин"
+	}
+	"Pipe Bomb"
+	{
+		"en"	"Pipe Bomb"
+		"pt"	"Pipe Bomb"
+		"zho"	"土製炸彈"
+		"chi"	"土制炸弹"
+		"es"	"Bomba de tubo"
+		"ru"	"Пайп бомба"
+	}
+	"Molotov"
+	{
+		"en"	"Molotov"
+		"pt"	"Molotov"
+		"zho"	"火瓶"
+		"chi"	"火瓶"
+		"es"	"Molotov"
+		"ru"	"Молотов"
+	}
+	"Vomitjar"
+	{
+		"en"	"Vomitjar"
+		"pt"	"Jarra de Vômito"
+		"zho"	"膽汁"
+		"chi"	"胆汁"
+		"es"	"Frasco de vomito"
+		"ru"	"Банка блевоты"
+	}
+	"Ammo"
+	{
+		"en"	"Ammo"
+		"pt"	"Munição"
+		"zho"	"彈藥補給"
+		"chi"	"弹药补给"
+		"es"	"Municion"
+		"ru"	"Патроны"
+	}
+	"Laser Sight"
+	{
+		"en"	"Laser Sight"
+		"pt"	"Mira Laser"
+		"zho"	"雷射裝置"
+		"chi"	"镭射装置"
+		"es"	"Miras laser"
+		"ru"	"Лазерный прицел"
+	}
+	"Incendiary Ammo"
+	{
+		"en"	"Incendiary Ammo"
+		"pt"	"Munição Incendiária"
+		"zho"	"火焰子彈"
+		"chi"	"火焰子弹"
+		"es"	"Munición incendiaria"
+		"ru"	"Зажигательные патроны"
+	}
+	"Explosive Ammo"
+	{
+		"en"	"Explosive Ammo"
+		"pt"	"Munição Explosiva"
+		"zho"	"高爆子彈"
+		"chi"	"高爆子弹"
+		"es"	"Munición explosiva"
+		"ru"	"Разрывные патроны"
+	}
+	"Incendiary Pack"
+	{
+		"en"	"Incendiary Pack"
+		"pt"	"Pacote Incendiário"
+		"zho"	"火焰包"
+		"chi"	"火焰包"
+		"es"	"Paquete incendiario"
+		"ru"	"Коробка зажигательных"
+	}
+	"Explosive Pack"
+	{
+		"en"	"Explosive Pack"
+		"pt"	"Pacote Explosivo"
+		"zho"	"高爆彈"
+		"chi"	"高爆弹"
+		"es"	"Paquete explosivo"
+		"ru"	"Коробка разрывных"
+	}
+	"Propane Tank"
+	{
+		"en"	"Propane Tank"
+		"pt"	"Tanque de Propano"
+		"zho"	"瓦斯桶"
+		"chi"	"煤气罐"
+		"es"	"Tanque de propano"
+		"ru"	"Проп.бочка"
+	}
+	"Oxygen Tank"
+	{
+		"en"	"Oxygen Tank"
+		"pt"	"Tanque de Oxigênio"
+		"zho"	"氧氣罐"
+		"chi"	"氧气瓶"
+		"es"	"Tanque de oxígeno"
+		"ru"	"Кислородная бочка"
+	}
+	"Firework Crate"
+	{
+		"en"	"Firework Crate"
+		"pt"	"Fogos de Artifíicio"
+		"zho"	"煙火盒"
+		"chi"	"烟花盒"
+		"es"	"Caja de fuegos artificiales"
+		"ru"	"Фейерверки"
+	}
+	"Gascan"
+	{
+		"en"	"Gascan"
+		"pt"	"Galão de Gasolina"
+		"zho"	"汽油"
+		"chi"	"油桶"
+		"es"	"Lata de gas"
+		"ru"	"Канистра"
+	}
+	"Gnome"
+	{
+		"en"	"Gnome"
+		"pt"	"Gnomo"
+		"zho"	"治療小矮人"
+		"chi"	"治愈小侏儒"
+		"es"	"Gnomo"
+		"ru"	"Гном"
+	}
+	"Cola Bottles"
+	{
+		"en"	"Cola Bottles"
+		"pt"	"Garrafas de Cola Cola"
+		"zho"	"可樂瓶"
+		"chi"	"可乐瓶"
+		"es"	"Botellas de cola"
+		"ru"	"Ящик колы"
+	}
+	"Empty"
+	{
+		"en"	"Empty (Have a good day)"
+		"zho"	"空(謝謝惠顧)"
+		"chi"	"空(谢谢惠顾)"
+		"ru"	"Пусто (Хорошего дня)"
+	}
+}

@@ -1,0 +1,31 @@
+"Games"
+{
+	"left4dead2" 
+	{
+		"Offsets"
+		{
+			/**
+			 * CTerrorPlayer::OnIncapacitatedAsSurvivor(CTakeDamageInfo const&)
+			 *
+			 * How to find on Windows:
+			 * 1. Search for the "PlayerIncapacitated" string to locate the "CTerrorPlayer::OnIncapacitatedAsSurvivor" function.
+			 * 2. Look for the "weapon_pistol" string which should be a few lines above the "PainLevel:Critical" string.
+			 * 3. There are two function calls above the line where "weapon_pistol" is referenced.
+			 * 4. The variable that is being assigned a value below those two function calls has an offset.
+			 * 5. The offset will be the offset for the hidden melee weapon.
+			 *
+			 * How to find on Linux:
+			 * 1. Locate the function.
+			 * 2. Look for the "weapon_pistol" string which should be a few lines above the "PainLevel:Critical" string.
+			 * 3. There are two function calls above the line where "weapon_pistol" is referenced.
+			 * 4. The variable that is being assigned a value below those two function calls has an offset.
+			 * 5. Multiply the offset by 4 to get the offset for the hidden melee weapon.
+			 **/
+			"CTerrorPlayer::OnIncapacitatedAsSurvivor::m_hHiddenWeapon"	// Found by Psykotikism
+			{
+				"linux"		"16288"
+				"windows"	"16308"
+			}
+		}
+	}
+}

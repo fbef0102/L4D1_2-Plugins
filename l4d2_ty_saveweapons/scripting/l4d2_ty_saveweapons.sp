@@ -1,0 +1,965 @@
+/**
+ * -Relate Valve ConVar-
+ * If true, survivor bots will be used as placeholders for survivors who are still changing levels
+ * If false, prevent bots from moving, changing weapons, using kits while human survivors are still changing levels
+ * need to write down in cfg/server.cfg
+ * 
+ * sm_cvar sb_transition 0 
+ * 
+*/
+#pragma semicolon 1
+#pragma newdecls required
+#include <sourcemod>
+#include <sdktools>
+#include <left4dhooks>
+#include <l4d_heartbeat>
+#define PLUGIN_VERSION			"6.3-2024/10/3"
+#define DEBUG 0
+
+public Plugin myinfo =
+{
+	name = "[L4D2] Save Weapon",
+	author = "MAKS, HarryPotter",
+	description = "L4D2 coop save weapon when map transition if more than 4 players",
+	version = PLUGIN_VERSION,
+	url = "https://steamcommunity.com/profiles/76561198026784913/"
+};
+
+GlobalForward g_hForwardSaveWeaponGive;
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test != Engine_Left4Dead2 )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		return APLRes_SilentFailure;
+	}
+
+	g_hForwardSaveWeaponGive = new GlobalForward("L4D2_OnSaveWeaponHxGiveC", ET_Ignore, Param_Cell);
+	
+	RegPluginLibrary("l4d2_ty_saveweapons");
+
+	return APLRes_Success;
+}
+
+#define	MAX_WEAPONS2		29
+#define GAMEDATA	"l4d2_ty_saveweapons"
+
+static char g_sWeaponModels2[MAX_WEAPONS2][] =
+{
+	"models/w_models/weapons/w_pistol_B.mdl",
+	"models/w_models/weapons/w_desert_eagle.mdl",
+	"models/w_models/weapons/w_rifle_m16a2.mdl",
+	"models/w_models/weapons/w_rifle_ak47.mdl",
+	"models/w_models/weapons/w_rifle_sg552.mdl",
+	"models/w_models/weapons/w_desert_rifle.mdl",
+	"models/w_models/weapons/w_autoshot_m4super.mdl",
+	"models/w_models/weapons/w_shotgun_spas.mdl",
+	"models/w_models/weapons/w_shotgun.mdl",
+	"models/w_models/weapons/w_pumpshotgun_A.mdl",
+	"models/w_models/weapons/w_smg_uzi.mdl",
+	"models/w_models/weapons/w_smg_a.mdl",
+	"models/w_models/weapons/w_smg_mp5.mdl",
+	"models/w_models/weapons/w_sniper_mini14.mdl",
+	"models/w_models/weapons/w_sniper_awp.mdl",
+	"models/w_models/weapons/w_sniper_military.mdl",
+	"models/w_models/weapons/w_sniper_scout.mdl",
+	"models/w_models/weapons/w_m60.mdl",
+	"models/w_models/weapons/w_grenade_launcher.mdl",
+	"models/weapons/melee/w_chainsaw.mdl",
+	"models/w_models/weapons/w_eq_molotov.mdl",
+	"models/w_models/weapons/w_eq_pipebomb.mdl",
+	"models/w_models/weapons/w_eq_bile_flask.mdl",
+	"models/w_models/weapons/w_eq_painpills.mdl",
+	"models/w_models/weapons/w_eq_adrenaline.mdl",
+	"models/w_models/weapons/w_eq_Medkit.mdl",
+	"models/w_models/weapons/w_eq_defibrillator.mdl",
+	"models/w_models/weapons/w_eq_explosive_ammopack.mdl",
+	"models/w_models/weapons/w_eq_incendiary_ammopack.mdl",
+};
+
+static char survivor_names[8][] = { "Nick", "Rochelle", "Coach", "Ellis", "Bill", "Zoey", "Francis", "Louis"};
+static char survivor_models[8][] =
+{
+	"models/survivors/survivor_gambler.mdl",
+	"models/survivors/survivor_producer.mdl",
+	"models/survivors/survivor_coach.mdl",
+	"models/survivors/survivor_mechanic.mdl",
+	"models/survivors/survivor_namvet.mdl",
+	"models/survivors/survivor_teenangst.mdl",
+	"models/survivors/survivor_biker.mdl",
+	"models/survivors/survivor_manager.mdl"
+};
+
+ConVar g_hFullHealth, g_hGameTimeBlock, 
+	g_hSaveBot, g_hSaveHealth, g_hSaveCharacter, g_hCvarReviveHealth, g_hSurvivorMaxInc;
+
+char sg_slot0[MAXPLAYERS+1][64];			/* slot0 weapon */
+char sg_slot1[MAXPLAYERS+1][64];			/* slot1 weapon*/
+char sg_slot2[MAXPLAYERS+1][64];			/* slot2 weapon */
+char sg_slot3[MAXPLAYERS+1][64];			/* slot3 weapon */
+char sg_slot4[MAXPLAYERS+1][64];			/* slot4 weapon */
+int ig_slots0_clip[MAXPLAYERS+1]; 			/* slot0 m_iClip */
+int ig_slots1_clip[MAXPLAYERS+1]; 			/* slot1 m_iClip */
+int ig_slots0_upgrade_bit[MAXPLAYERS+1]; 	/* slot0 m_upgradeBitVec */
+int ig_slots0_upgraded_ammo[MAXPLAYERS+1]; 	/* slot0 m_nUpgradedPrimaryAmmoLoaded */
+int ig_slots0_skin[MAXPLAYERS+1]; 			/* slot0 m_nSkin */
+int ig_slots1_skin[MAXPLAYERS+1]; 			/* slot1 m_nSkin */
+int ig_slots0_ammo[MAXPLAYERS+1]; 			/* slot0 ammo */
+bool g_bGiven[MAXPLAYERS+1];				/* client is already stored */
+bool g_bRecorded[MAXPLAYERS+1];				/* client is recorded to save */
+bool g_bSlot1_IsMelee[MAXPLAYERS+1];		/* slot1 is melee */
+
+enum Enum_Health
+{
+	iHealth,
+	iHealthTemp,
+	iHealthTime,
+	iReviveCount,
+	iGoingToDie,
+	iThirdStrike,
+	iHealthMAX,
+	
+}
+int 	g_iHealthInfo[MAXPLAYERS+1][view_as<int>(iHealthMAX)]; 	//client health
+int 	g_iProp[MAXPLAYERS+1]; 									//client character index
+char 	g_sModelInfo[MAXPLAYERS+1][64]; 						//client character model
+
+bool g_bGiveWeaponBlock, g_bMapTransition;
+int g_iOffsetAmmo, g_iPrimaryAmmoType, g_iCountDownTime;	
+Handle PlayerLeftStartTimer = null, CountDownTimer = null;
+int g_iReviveTempHealth;
+
+static char g_sMeleeClass[16][32];
+static int g_iMeleeClassCount;
+
+int
+	g_iOff_m_hHiddenWeapon;
+
+public void OnPluginStart()
+{
+	GameData hGameData = new GameData(GAMEDATA);
+	if (!hGameData)
+		SetFailState("Failed to load \"%s.txt\" gamedata.", GAMEDATA);
+
+	g_iOff_m_hHiddenWeapon = hGameData.GetOffset("CTerrorPlayer::OnIncapacitatedAsSurvivor::m_hHiddenWeapon");
+	if (g_iOff_m_hHiddenWeapon == -1)
+		SetFailState("Failed to find offset: CTerrorPlayer::OnIncapacitatedAsSurvivor::m_hHiddenWeapon");
+	
+	delete hGameData;
+
+	g_iOffsetAmmo = FindSendPropInfo("CTerrorPlayer", "m_iAmmo");
+	g_iPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+
+	g_hCvarReviveHealth = FindConVar("survivor_revive_health");
+	g_hSurvivorMaxInc = FindConVar("survivor_max_incapacitated_count");
+
+	g_hFullHealth = 	CreateConVar("l4d2_ty_saveweapons_health", "0", "If 1, restore 100 full health when end of chapter.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hGameTimeBlock = 	CreateConVar("l4d2_ty_saveweapons_game_seconds_block", "60", "Do not restore weapons and health after survivors have left start safe area for at least x seconds. (0=Always restore)", FCVAR_NOTIFY, true, 0.0);
+	g_hSaveBot = 		CreateConVar("l4d2_ty_saveweapons_save_bot", "1", "If 1, save weapons and health for bots as well.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSaveHealth = 	CreateConVar("l4d2_ty_saveweapons_save_health",	"1", "If 1, save health and restore. (can save >100 hp)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSaveCharacter = 	CreateConVar("l4d2_ty_saveweapons_save_character",	"0", "If 1, save character model and restore.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	
+	AutoExecConfig(true,	"l4d2_ty_saveweapons");
+	
+	GetCvars();
+	g_hCvarReviveHealth.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorMaxInc.AddChangeHook(ConVarChanged_Cvars);
+	
+	g_hFullHealth.AddChangeHook(ConVarChanged_Cvars);
+	g_hGameTimeBlock.AddChangeHook(ConVarChanged_Cvars);
+	g_hSaveBot.AddChangeHook(ConVarChanged_Cvars);
+	g_hSaveHealth.AddChangeHook(ConVarChanged_Cvars);
+	g_hSaveCharacter.AddChangeHook(ConVarChanged_Cvars);
+	
+	
+	HookEvent("round_start",  			Event_RoundStart,	 	EventHookMode_PostNoCopy);
+	HookEvent("player_spawn", 			Event_PlayerSpawn, 		EventHookMode_PostNoCopy);
+	HookEvent("round_end",				Event_RoundEnd,			EventHookMode_PostNoCopy);
+	HookEvent("map_transition", 		Event_RoundEnd,			EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
+	HookEvent("mission_lost", 			Event_RoundEnd,			EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
+	HookEvent("finale_vehicle_leaving", Event_RoundEnd,			EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("map_transition", 		Event_MapTransition, 	EventHookMode_PostNoCopy);
+	HookEvent("player_bot_replace", 	evtBotReplacedPlayer);
+
+	HxCleaningAll();
+}
+
+public void OnAllPluginsLoaded()
+{
+	if( LibraryExists("l4d_heartbeat") == false )
+	{
+		SetFailState("You are failed at installing!\n" ...
+		"Heartbeat (Revive Fix - Post Revive Options) plugin must be installed first!\n" ...
+		"See: https://forums.alliedmods.net/showthread.php?t=322132");
+	}
+}
+
+public void OnPluginEnd()
+{
+	ResetPlugin();
+	ResetTimer();
+}
+
+public void OnMapStart()
+{
+	if (L4D_IsFirstMapInScenario())
+	{
+		HxCleaningAll();
+	}
+	
+	for( int i = 0; i < MAX_WEAPONS2; i++ )
+	{
+		PrecacheModel(g_sWeaponModels2[i], true);
+	}
+	
+	for( int i = 0; i < 8; i++ )
+	{
+		PrecacheModel(survivor_models[i], true);
+	}
+
+	CreateTimer(1.0, Timer_GetMeleeTable, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public void OnMapEnd()
+{
+	ResetPlugin();
+	ResetTimer();
+
+	if(g_bMapTransition == false)
+	{
+		HxCleaningAll();
+	}
+}
+
+void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+{
+	GetCvars();
+}
+
+int g_iGameTimeBlock;
+bool g_bFullhealth, g_bSaveBot, g_bSaveHealth, g_bSaveCharacter;
+void GetCvars()
+{
+	g_bFullhealth = g_hFullHealth.BoolValue;
+	g_iGameTimeBlock = g_hGameTimeBlock.IntValue;
+	g_bSaveBot = g_hSaveBot.BoolValue;
+	g_bSaveHealth = g_hSaveHealth.BoolValue;
+	g_bSaveCharacter = g_hSaveCharacter.BoolValue;
+	g_iReviveTempHealth = g_hCvarReviveHealth.IntValue;
+}
+
+public void OnClientPutInServer(int client)
+{
+	if (L4D2_IsGenericCooperativeMode() && IsClientInGame(client) && g_bGiveWeaponBlock == false)
+	{
+		CreateTimer(0.4, HxTimerRestore, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+	}
+}
+
+Action HxTimerRestore(Handle timer, int userid)
+{
+	if(g_bGiveWeaponBlock) return Plugin_Stop;
+
+	int client = GetClientOfUserId(userid);
+	if (client && IsClientInGame(client))
+	{
+		if(g_bGiven[client]) return Plugin_Stop;
+
+		int iTeam = GetClientTeam(client);
+		bool fakebot = IsFakeClient(client);
+		if (iTeam == 2)
+		{
+			if (IsPlayerAlive(client))
+			{
+				if(fakebot && !g_bSaveBot) return Plugin_Stop;
+				if(fakebot && HasIdlePlayer(client)) return Plugin_Continue;
+
+				HxGiveC(client);
+				return Plugin_Stop;
+			}
+		}
+		else if(iTeam == 3 || iTeam == 4) //just in case
+		{
+			if (fakebot || IsPlayerAlive(client))
+			{
+				return Plugin_Stop;
+			}
+		}
+		
+		if(iTeam == 1 && fakebot) 
+			return Plugin_Stop;
+
+		return Plugin_Continue;
+	}
+
+	return Plugin_Stop;
+}
+
+
+int g_iRoundStart, g_iPlayerSpawn;
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	for( int i = 1; i <= MaxClients; i++) g_bGiven[i] = false;
+	g_bGiveWeaponBlock = false;
+
+	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
+		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iRoundStart = 1;
+}
+
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
+	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
+		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_iPlayerSpawn = 1;
+}
+
+Action tmrStart(Handle timer)
+{
+	ResetPlugin();
+
+	g_bMapTransition = false;
+	if (L4D2_IsGenericCooperativeMode())
+	{
+		for (int i = 1; i <= MaxClients; i++)
+		{
+			if (IsClientInGame(i))
+			{
+				CreateTimer(0.1, HxTimerRestore, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+			}
+		}
+	}
+
+	delete PlayerLeftStartTimer;
+	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	
+	return Plugin_Continue;
+}
+
+Action Timer_PlayerLeftStart(Handle Timer)
+{
+	if (L4D_HasAnySurvivorLeftSafeArea())
+	{
+		g_iCountDownTime = g_iGameTimeBlock;
+		if(g_iCountDownTime > 0)
+		{
+			delete CountDownTimer;
+			CountDownTimer = CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT);
+		}
+
+		PlayerLeftStartTimer = null;
+		return Plugin_Stop;
+	}
+	return Plugin_Continue; 
+}
+
+Action Timer_CountDown(Handle timer)
+{
+	if(g_iCountDownTime <= 0) 
+	{
+		g_bGiveWeaponBlock = true;
+		CountDownTimer = null;
+		return Plugin_Stop;
+	}
+	g_iCountDownTime--;
+	return Plugin_Continue;
+}
+
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
+{
+	ResetPlugin();
+	ResetTimer();
+}
+
+void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
+{
+	g_bMapTransition = true;
+	if (L4D2_IsGenericCooperativeMode())
+	{
+		if (g_bFullhealth)
+		{
+			for (int client = 1; client <= MaxClients; client++)
+			{
+				if (IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
+				{
+					if (L4D_IsPlayerIncapacitated(client))
+					{
+						if(L4D2_GetInfectedAttacker(client) < 0) //沒被控
+						{
+							CheatCommand(client, "give", "health");
+							SetEntProp(client, Prop_Send, "m_iHealth", 100, 1);
+							SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
+							SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
+						}
+						else //被控
+						{
+							SetEntProp(client, Prop_Send, "m_isIncapacitated", 0);	
+							SetEntProp(client, Prop_Send, "m_iHealth", 100, 1);
+							SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
+							SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
+						}
+					}
+					else
+					{
+						if(GetEntProp(client, Prop_Send, "m_iHealth") + RoundToNearest( GetEntPropFloat(client, Prop_Send, "m_healthBuffer") ) < 100)
+						{
+							CheatCommand(client, "give", "health");
+							SetEntProp(client, Prop_Send, "m_iHealth", 100, 1);
+							SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
+							SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
+						}
+					}
+
+					/*SetEntProp(client, Prop_Send, "m_currentReviveCount", 0);
+					SetEntProp(client, Prop_Send, "m_isGoingToDie", 0);
+					SetEntProp(client, Prop_Send, "m_bIsOnThirdStrike", 0);
+					
+					// Disable heart beat sound
+					StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+					StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+					StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+					StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");*/
+				}
+			}
+		}
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (!IsClientInGame(client)) continue;
+
+			if (GetClientTeam(client) == 1 && !IsFakeClient(client))
+			{
+				if (IsClientIdle(client))
+				{
+					L4D_TakeOverBot(client);
+				}
+			}
+		}
+
+		CreateTimer(1.5, Timer_Event_MapTransition, _, TIMER_FLAG_NO_MAPCHANGE); //delay is necessary for waiting all afk human players to take over bot or slot 2 throwable weapon is gone
+	}
+}
+
+Action Timer_Event_MapTransition(Handle timer)
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		HxCleaning(i);
+		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		{
+			if(IsFakeClient(i) && !g_bSaveBot) continue;
+				
+			HxSaveC(i);
+		}
+	}
+	
+	return Plugin_Continue;
+}
+
+void evtBotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
+{
+	int bot = GetClientOfUserId(event.GetInt("bot"));
+	if(bot && IsClientInGame(bot) && GetClientTeam(bot) == 2 && IsPlayerAlive(bot)) g_bGiven[bot] = true;
+}
+
+void HxGiveC(int client)
+{
+	if(g_bRecorded[client] == false || g_bGiven[client] == true) return;
+	g_bGiven[client] = true;
+
+	// Update model & props
+	if(g_bSaveCharacter)
+	{
+		SetEntProp(client, Prop_Send, "m_survivorCharacter", g_iProp[client]);  
+		SetEntityModel(client, g_sModelInfo[client]);
+		if (IsFakeClient(client))		// if bot, replace name
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				if (StrEqual(g_sModelInfo[client], survivor_models[i])) SetClientInfo(client, "name", survivor_names[i]);
+			}
+		}
+	}
+	
+	// Restore health
+	if (g_bSaveHealth)
+	{
+		if (GetEntProp(client, Prop_Send, "m_isIncapacitated") == 1) SetEntProp(client, Prop_Send, "m_isIncapacitated", 0);	
+
+		
+		SetEntProp(client, Prop_Send, "m_iHealth", g_iHealthInfo[client][iHealth], 1);
+		SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 1.0*g_iHealthInfo[client][iHealthTemp]);
+		SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime() - 1.0*g_iHealthInfo[client][iHealthTime]);
+		
+		/*
+		SetEntProp(client, Prop_Send, "m_currentReviveCount", g_iHealthInfo[client][iReviveCount]);
+		SetEntProp(client, Prop_Send, "m_isGoingToDie", g_iHealthInfo[client][iGoingToDie]);
+		SetEntProp(client, Prop_Send, "m_bIsOnThirdStrike", g_iHealthInfo[client][iThirdStrike]);
+
+		// Disable heart beat sound if not B&W
+		if (!g_iHealthInfo[client][iThirdStrike])
+		{
+			StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+			StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+			StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+			StopSound(client, SNDCHAN_STATIC, "player/heartbeatloop.wav");
+		}
+		*/
+
+		Heartbeat_SetRevives(client, g_iHealthInfo[client][iReviveCount]);
+	}
+	
+	int iSlot0;
+	int iSlot1;
+	int iSlot2;
+	int iSlot3;
+	int iSlot4;
+		
+	iSlot0 = GetPlayerWeaponSlot(client, 0);
+	iSlot1 = GetPlayerWeaponSlot(client, 1);
+	iSlot2 = GetPlayerWeaponSlot(client, 2);
+	iSlot3 = GetPlayerWeaponSlot(client, 3);
+	iSlot4 = GetPlayerWeaponSlot(client, 4);
+	
+	if (sg_slot0[client][0] != '\0' || sg_slot1[client][0] != '\0' || 
+		sg_slot2[client][0] != '\0' || sg_slot3[client][0] != '\0' ||
+		sg_slot4[client][0] != '\0') {
+		if (iSlot0 > MaxClients) HxRemoveWeapon(client, iSlot0);
+		if (iSlot1 > MaxClients) HxRemoveWeapon(client, iSlot1);
+		if (iSlot2 > MaxClients) HxRemoveWeapon(client, iSlot2);
+		if (iSlot3 > MaxClients) HxRemoveWeapon(client, iSlot3);
+		if (iSlot4 > MaxClients) HxRemoveWeapon(client, iSlot4);
+	}
+
+	int weapon;
+	bool IsIncap = L4D_IsPlayerIncapacitated(client) && !L4D_IsPlayerHangingFromLedge(client);
+	if (sg_slot1[client][0] != '\0')
+	{
+		if(g_bSlot1_IsMelee[client] == true)
+		{
+			weapon = HxCreateWeapon("weapon_melee", sg_slot1[client]);
+			if (weapon != -1)
+			{
+				SetEntProp(weapon, Prop_Send, "m_nSkin", ig_slots1_skin[client]);
+				if(IsIncap)
+				{
+					int pistol = CreateEntityByName("weapon_pistol");
+					DispatchSpawn(pistol);
+					SetEntProp(pistol, Prop_Send, "m_iClip1", 0);
+					AcceptEntityInput(pistol, "Use", client);
+
+					SetEntDataEnt2(client, g_iOff_m_hHiddenWeapon, weapon);
+				}
+				else
+				{
+					EquipPlayerWeapon(client, weapon);
+				}
+			}
+		}
+		else
+		{
+			if (strcmp(sg_slot1[client], "dual_pistol", false) == 0)
+			{
+				weapon = HxCreateWeapon("weapon_pistol");
+				if (weapon != -1)
+				{
+					AcceptEntityInput(weapon, "Use", client);
+					int weapon2 = HxCreateWeapon("weapon_pistol");
+					if (weapon2 != -1)
+					{
+						AcceptEntityInput(weapon2, "Use", client);
+						SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots1_clip[client]);
+					}
+				}
+			}
+			else if (strcmp(sg_slot1[client], "weapon_pistol", false) == 0)
+			{
+				weapon = HxCreateWeapon("weapon_pistol");
+				if (weapon != -1)
+				{
+					SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots1_clip[client]);
+					EquipPlayerWeapon(client, weapon);
+				}
+			}
+			else if (strcmp(sg_slot1[client], "weapon_chainsaw", false) == 0)
+			{
+				weapon = HxCreateWeapon(sg_slot1[client]);
+				if (weapon != -1)
+				{
+					SetEntProp(weapon, Prop_Send, "m_nSkin", ig_slots1_skin[client]);
+					SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots1_clip[client]);
+					if(IsIncap)
+					{
+						int pistol = CreateEntityByName("weapon_pistol");
+						DispatchSpawn(pistol);
+						SetEntProp(pistol, Prop_Send, "m_iClip1", 0);
+						AcceptEntityInput(pistol, "Use", client);
+
+						SetEntDataEnt2(client, g_iOff_m_hHiddenWeapon, weapon);
+					}
+					else
+					{
+						EquipPlayerWeapon(client, weapon);
+					}
+				}
+			}
+			else if (strcmp(sg_slot1[client], "weapon_pistol_magnum", false) == 0)
+			{
+				weapon = HxCreateWeapon(sg_slot1[client]);
+				if (weapon != -1)
+				{
+					SetEntProp(weapon, Prop_Send, "m_nSkin", ig_slots1_skin[client]);
+					SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots1_clip[client]);
+					EquipPlayerWeapon(client, weapon);
+				}
+			}
+		}
+	}
+
+	if (sg_slot0[client][0] != '\0')
+	{
+		weapon = HxCreateWeapon(sg_slot0[client]);
+		if (weapon != -1)
+		{
+			EquipPlayerWeapon(client, weapon);
+			SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots0_clip[client]);
+			SetEntProp(weapon, Prop_Send, "m_upgradeBitVec", ig_slots0_upgrade_bit[client]);
+			SetEntProp(weapon, Prop_Send, "m_nUpgradedPrimaryAmmoLoaded", ig_slots0_upgraded_ammo[client]);
+			SetEntProp(weapon, Prop_Send, "m_nSkin", ig_slots0_skin[client]);
+			GetOrSetPlayerAmmo(client, weapon, ig_slots0_ammo[client]);
+		}
+	}
+
+	if (sg_slot2[client][0] != '\0')
+	{
+		weapon = HxCreateWeapon(sg_slot2[client]);
+		if (weapon != -1) EquipPlayerWeapon(client, weapon);
+	}
+	if (sg_slot3[client][0] != '\0')
+	{
+		weapon = HxCreateWeapon(sg_slot3[client]);
+		if (weapon != -1) EquipPlayerWeapon(client, weapon);
+	}
+	if (sg_slot4[client][0] != '\0')
+	{
+		weapon = HxCreateWeapon(sg_slot4[client]);
+		if (weapon != -1) EquipPlayerWeapon(client, weapon);
+	}
+
+	Call_StartForward(g_hForwardSaveWeaponGive);
+	Call_PushCell(client);
+	Call_Finish();
+}
+
+void HxRemoveWeapon(int client, int entity)
+{
+	if (RemovePlayerItem(client, entity))
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+}
+
+void HxSaveC(int client)
+{
+	g_bRecorded[client] = true;
+	
+	int iSlot0;
+	int iSlot1;
+	int iSlot2;
+	int iSlot3;
+	int iSlot4;
+
+	if(g_bSaveCharacter)
+	{
+		// Store model
+		GetClientModel(client, g_sModelInfo[client], sizeof(g_sModelInfo[]));
+		
+		// Store prop
+		g_iProp[client] = GetEntProp(client, Prop_Send, "m_survivorCharacter");
+	}
+	
+	if (g_bSaveHealth)
+	{
+		// Save health
+		if (GetEntProp(client, Prop_Send, "m_isIncapacitated") == 1) 
+		{
+			g_iHealthInfo[client][iHealth]      =  1;	
+			g_iHealthInfo[client][iHealthTemp]  =  g_iReviveTempHealth;
+			g_iHealthInfo[client][iHealthTime]  =  0;
+			//g_iHealthInfo[client][iGoingToDie]  =  1;
+			//g_iHealthInfo[client][iReviveCount] =  GetEntProp(client, Prop_Send, "m_currentReviveCount") + 1;
+			//g_iHealthInfo[client][iThirdStrike] =  g_iHealthInfo[client][iReviveCount] >= g_iSurvivorMaxInc ? 1 : 0;
+			g_iHealthInfo[client][iReviveCount] = Heartbeat_GetRevives(client);
+		}
+		else 
+		{
+			g_iHealthInfo[client][iHealth]		= GetEntProp(client, Prop_Send, "m_iHealth");
+			g_iHealthInfo[client][iHealthTemp]	= RoundToNearest( GetEntPropFloat(client, Prop_Send, "m_healthBuffer") );
+			g_iHealthInfo[client][iHealthTime]  = RoundToNearest( GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime") );
+			//g_iHealthInfo[client][iGoingToDie]  = GetEntProp(client, Prop_Send, "m_isGoingToDie");
+			//g_iHealthInfo[client][iReviveCount] = GetEntProp(client, Prop_Send, "m_currentReviveCount");
+			//g_iHealthInfo[client][iThirdStrike] = GetEntProp(client, Prop_Send, "m_bIsOnThirdStrike");
+			g_iHealthInfo[client][iReviveCount] = Heartbeat_GetRevives(client);
+		}
+	}
+	
+	iSlot0 = GetPlayerWeaponSlot(client, 0);
+
+	if(L4D_IsPlayerIncapacitated(client) && !L4D_IsPlayerHangingFromLedge(client))
+	{
+		iSlot1 = GetEntDataEnt2(client, g_iOff_m_hHiddenWeapon);
+	}
+	if(iSlot1 <= MaxClients || !IsValidEntity(iSlot1))
+	{
+		iSlot1 = GetPlayerWeaponSlot(client, 1);
+	}
+
+	iSlot2 = GetPlayerWeaponSlot(client, 2);
+	iSlot3 = GetPlayerWeaponSlot(client, 3);
+	iSlot4 = GetPlayerWeaponSlot(client, 4);
+
+	if (iSlot0 > MaxClients)
+	{
+		GetEntityClassname(iSlot0, sg_slot0[client], sizeof(sg_slot0[]));
+		ig_slots0_clip[client] = GetEntProp(iSlot0, Prop_Send, "m_iClip1");
+		ig_slots0_upgrade_bit[client] = GetEntProp(iSlot0, Prop_Send, "m_upgradeBitVec");
+		ig_slots0_upgraded_ammo[client] = GetEntProp(iSlot0, Prop_Send, "m_nUpgradedPrimaryAmmoLoaded");
+		ig_slots0_skin[client] = GetEntProp(iSlot0, Prop_Send, "m_nSkin");
+		ig_slots0_ammo[client] = GetOrSetPlayerAmmo(client, iSlot0);
+	}
+	if (iSlot1 > MaxClients)
+	{
+		HxGetSlot1(client, iSlot1);
+		ig_slots1_skin[client] = GetEntProp(iSlot1, Prop_Send, "m_nSkin");
+	}
+	if (iSlot2 > MaxClients && GetOrSetPlayerAmmo(client, iSlot2) > 0)
+	{
+		GetEntityClassname(iSlot2, sg_slot2[client], sizeof(sg_slot2[]));
+	}
+	if (iSlot3 > MaxClients)
+	{
+		GetEntityClassname(iSlot3, sg_slot3[client], sizeof(sg_slot3[]));
+	}
+	if (iSlot4 > MaxClients)
+	{
+		GetEntityClassname(iSlot4, sg_slot4[client], sizeof(sg_slot4[]));
+	}
+}
+
+void HxCleaning(int client)
+{
+	ig_slots0_clip[client] = 0;
+	ig_slots1_clip[client] = 0;
+	ig_slots0_upgrade_bit[client] = 0;
+	ig_slots0_upgraded_ammo[client] = 0;
+	ig_slots0_skin[client] = 0;
+	ig_slots1_skin[client] = 0;
+	ig_slots0_ammo[client] = 0;
+
+	sg_slot0[client][0] = '\0';
+	sg_slot1[client][0] = '\0';
+	sg_slot2[client][0] = '\0';
+	sg_slot3[client][0] = '\0';
+	sg_slot4[client][0] = '\0';
+	
+	g_iHealthInfo[client][iHealth] = 100;
+	g_iHealthInfo[client][iHealthTemp] = 0;
+	g_iHealthInfo[client][iHealthTime] = 0;
+	g_iHealthInfo[client][iReviveCount] = 0;
+	g_iHealthInfo[client][iGoingToDie] = 0;
+	g_iHealthInfo[client][iThirdStrike] = 0;
+	
+	g_iProp[client] = 0;
+	g_sModelInfo[client][0] = '\0';
+	
+	g_bRecorded[client] = false;
+	g_bSlot1_IsMelee[client] = false;
+}
+
+int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
+{
+	int offset = GetEntData(iWeapon, g_iPrimaryAmmoType) * 4; // Thanks to "Root" or whoever for this method of not hard-coding offsets: https://github.com/zadroot/AmmoManager/blob/master/scripting/ammo_manager.sp
+
+	if( offset )
+	{
+		if( iAmmo != -1 ) SetEntData(client, g_iOffsetAmmo + offset, iAmmo);
+		else
+		{
+			int ammo = GetEntData(client, g_iOffsetAmmo + offset);
+			return ammo >= 999 ? 999 : ammo;
+		}
+	}
+
+	return 0;
+}
+
+void HxGetSlot1(int client, int iSlot1)
+{
+	char wep_name[64]; wep_name[0] = '\0';
+	GetEntityClassname(iSlot1, wep_name, sizeof(wep_name));
+	if (strcmp(wep_name, "weapon_melee") == 0) //support custom melee
+	{
+		int meleeWeaponId = GetEntProp(iSlot1, Prop_Send, "m_hMeleeWeaponInfo");
+		if(meleeWeaponId < 0 && meleeWeaponId > g_iMeleeClassCount) return;
+
+		strcopy(wep_name, sizeof(wep_name), g_sMeleeClass[meleeWeaponId]);
+		g_bSlot1_IsMelee[client] = true;
+	}
+	else
+	{
+		g_bSlot1_IsMelee[client]= false;
+		if (strcmp(wep_name, "weapon_pistol") == 0 && 
+		GetEntProp(iSlot1, Prop_Send, "m_isDualWielding") > 0) //dual pistol
+		{
+			strcopy(wep_name, sizeof(wep_name), "dual_pistol");
+			ig_slots1_clip[client] = GetEntProp(iSlot1, Prop_Send, "m_iClip1");
+		}
+		
+		if (strcmp(wep_name, "weapon_chainsaw", false) == 0 
+			|| strcmp(wep_name, "weapon_pistol", false) == 0
+			|| strcmp(wep_name, "weapon_pistol_magnum", false) == 0)
+		{
+			ig_slots1_clip[client] = GetEntProp(iSlot1, Prop_Send, "m_iClip1");
+		}
+	}
+	
+	if (wep_name[0] != '\0')
+	{
+		strcopy(sg_slot1[client], sizeof(sg_slot1[]), wep_name);
+	}
+}
+
+/*
+void HxFakeCHEAT(int client, const char[] sCmd, const char[] sArg)
+{
+	int iFlags = GetCommandFlags(sCmd);
+	SetCommandFlags(sCmd, iFlags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s", sCmd, sArg);
+	SetCommandFlags(sCmd, iFlags);
+}
+*/
+
+int HxCreateWeapon(const char[] class_name, const char[] melee_name = "")
+{
+	int weapon = -1;
+	if(strcmp(class_name, "weapon_melee") == 0)
+	{
+		weapon = CreateEntityByName(class_name);
+		if (!RealValidEntity(weapon)) weapon = -1;
+		else
+		{
+			DispatchKeyValue(weapon, "solid", "6");
+			DispatchKeyValue(weapon, "melee_script_name", melee_name);
+			DispatchSpawn(weapon);
+		}
+	}
+	else
+	{
+		char wep_str[128];
+		strcopy(wep_str, sizeof(wep_str), class_name);
+		if (strncmp(wep_str, "weapon_", 7, false) != 0)
+		{
+			Format(wep_str, sizeof(wep_str), "weapon_%s", wep_str);
+		}
+		
+		weapon = CreateEntityByName(wep_str);
+		if (!RealValidEntity(weapon)) weapon = -1;
+		else DispatchSpawn(weapon);
+	}
+	
+	return weapon;
+}
+
+bool RealValidEntity(int entity)
+{
+	if (entity <= MaxClients || !IsValidEntity(entity)) return false;
+	return true;
+}
+
+void ResetPlugin()
+{
+	g_iRoundStart = 0;
+	g_iPlayerSpawn = 0;
+}
+
+void ResetTimer()
+{
+	delete PlayerLeftStartTimer;
+	delete CountDownTimer;
+}
+
+void HxCleaningAll()
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		HxCleaning(i);
+	}
+}
+
+bool HasIdlePlayer(int bot)
+{
+	if(HasEntProp(bot, Prop_Send, "m_humanSpectatorUserID"))
+	{
+		if(GetEntProp(bot, Prop_Send, "m_humanSpectatorUserID") > 0)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+Action Timer_GetMeleeTable(Handle timer)
+{
+	GetMeleeClasses();
+	return Plugin_Continue;
+}
+
+//credit spirit12 for auto melee detection
+void GetMeleeClasses()
+{
+	int MeleeStringTable = FindStringTable( "MeleeWeapons" );
+	g_iMeleeClassCount = GetStringTableNumStrings( MeleeStringTable );
+	
+	int len = sizeof(g_sMeleeClass[]);
+	
+	for( int i = 0; i < g_iMeleeClassCount; i++ )
+	{
+		ReadStringTable( MeleeStringTable, i, g_sMeleeClass[i], len );
+		#if DEBUG
+			char sMap[64];
+			GetCurrentMap(sMap, sizeof(sMap));
+			LogMessage( "[%s] Function::GetMeleeClasses - Getting melee classes: %s", sMap, g_sMeleeClass[i]);
+		#endif
+	}	
+}
+
+bool IsClientIdle(int client)
+{
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == 1 && IsPlayerAlive(i))
+		{
+			if(HasEntProp(i, Prop_Send, "m_humanSpectatorUserID"))
+			{
+				if(GetClientOfUserId(GetEntProp(i, Prop_Send, "m_humanSpectatorUserID")) == client)
+						return true;
+			}
+		}
+	}
+	return false;
+}
+
+void CheatCommand(int client, const char[] command, const char[] argument1 = "", const char[] argument2 = "")
+{
+	int userFlags = GetUserFlagBits(client);
+	SetUserFlagBits(client, ADMFLAG_ROOT);
+	int flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s %s", command, argument1, argument2);
+	SetCommandFlags(command, flags);
+	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
+}

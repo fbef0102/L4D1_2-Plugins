@@ -1,0 +1,24 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			// found on CBaseUpgradeItem::Use
+			//
+			//.text:008C4543                 call    _ZN16CBaseUpgradeItem20MarkAsUsedBySurvivorE21SurvivorCharacterType ; CBaseUpgradeItem::MarkAsUsedBySurvivor(SurvivorCharacterType)
+			//.text:008C4548                 mov     eax, [edi+1440h]
+			//.text:008C454E                 sub     eax, 1
+			//.text:008C4551                 mov     [edi+1440h], eax
+
+			"m_iUpgradePackCanUseCount"
+			{
+				"windows"	"5188"
+				"linux"		"5196"
+			}
+
+		}
+	}
+       
+}
+

@@ -1,0 +1,555 @@
+"Phrases"
+{
+	"Announce_Vocalize_ITEM (C)"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"({green}Item{default}) {olive}{1}{default}: {2}"
+		"zho"		"({green}物品{default}) {olive}{1}{default}: {2}"
+		"chi"		"({green}物品{default}) {olive}{1}{default}: {2}"
+	}
+
+	"Announce_Vocalize_ITEM"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"(Item) {1}: {2}"
+		"zho"		"(物品) {1}: {2}"
+		"chi"		"(物品) {1}: {2}"
+	}
+
+	"Announce_Vocalize_INFECTED (C)"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"({green}Infected{default}) {olive}{1}{default}: {red}{2}"
+		"zho"		"({green}特感{default}) {olive}{1}{default}: {red}{2}"
+		"chi"		"({green}特感{default}) {olive}{1}{default}: {red}{2}"
+	}
+
+	"Announce_Vocalize_INFECTED"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"(Infected) {1}: {2}"
+		"zho"		"(特感) {1}: {2}"
+		"chi"		"(特感) {1}: {2}"
+	}
+
+	"Announce_Vocalize_SURVIVOR (C)"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"({green}Survivor{default}) {olive}{1}{default}: {Blue}{2}"
+		"zho"		"({green}倖存者{default}) {olive}{1}{default}: {Blue}{2}"
+		"chi"		"({green}生还者{default}) {olive}{1}{default}: {Blue}{2}"
+	}
+
+	"Announce_Vocalize_SURVIVOR"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"(Survivor) {1}: {2}"
+		"zho"		"(倖存者) {1}: {2}"
+		"chi"		"(生还者) {1}: {2}"
+	}	
+	
+	"MARKED_SURVIVOR_BY (C)"
+	{
+		"#format"	"{1:N}"
+		"en"		"[{green}Marker{default}] You were marked by {olive}{1}"
+		"zho"		"[{green}Marker{default}] 你被 {olive}{1} 標記"
+		"chi"		"[{green}Marker{default}] 你被 {olive}{1} 标记"
+	}
+
+	"MARKED_SURVIVOR_BY"
+	{
+		"#format"	"{1:N}"
+		"en"		"[Marker] You were marked by {1}"
+		"zho"		"[Marker] 你被 {1} 標記"
+		"chi"		"[Marker] 你被 {1} 标记"
+	}
+
+	"Announce_Spot_Marker (C)"
+	{
+		"#format"	"{1:N}"
+		"en"		"({green}Spot{default}) {olive}{1}{default} marked a position"
+		"zho"		"({green}標記{default}) {olive}{1}{default} 標記了一個位置"
+		"chi"		"({green}标记{default}) {olive}{1}{default} 标记了一个位置"
+	}
+
+	"Announce_Spot_Marker"
+	{
+		"#format"	"{1:N}"
+		"en"		"(Spot) {1} marked a position"
+		"zho"		"(標記) {1} 標記了一個位置"
+		"chi"		"(标记) {1} 标记了一个位置"
+	}
+
+	"Spot_Maker"
+	{
+		//不能翻譯的句子
+		//因爲Spot_Maker是一個Entity，只能設定一個caption内容
+		//因此只能根據伺服器語言全局顯示(LANG_SERVER)，或者根據創建標記的玩家游戲語言全局顯示(client)
+		"#format"	"{1:N}"
+		"en"		"{1} Marked Here"
+		"zho"		"{1} 標記了這裡"
+		"chi"		"{1} 标记了这里"
+	}
+
+	"Melee"
+	{
+		"en"		"Melee!"
+		"zho"		"近戰!"
+		"chi"		"近战!"
+	}
+
+	"Weapons"
+	{
+		"en"		"Weapons!"
+		"zho"		"武器!"
+		"chi"		"武器!"
+	}
+
+	"First_Aid_Kit"
+	{
+		"en"			"First Aid Kit!"
+		"zho"			"醫療包!"
+		"chi"			"医疗包!"
+	}
+
+	"Defibrillator"
+	{
+		"en"			"Defibrillator!"
+		"zho"			"電擊器!"
+		"chi"			"除颤器!"
+	}
+
+	"Pain_Pills"
+	{
+		"en"			"Pain Pills!"
+		"zho"			"止痛藥!"
+		"chi"			"止痛药!"
+	}
+
+	"Adrenaline"
+	{
+		"en"			"Adrenaline!"
+		"zho"			"腎上腺素!"
+		"chi"			"肾上腺素!"
+	}
+
+	"Bile_Bomb"
+	{
+		"en"			"Bile Bomb!"
+		"zho"			"膽汁瓶!"
+		"chi"			"胆汁瓶!"
+	}
+
+	"Molotov"
+	{
+		"en"			"Molotov!"
+		"zho"			"火瓶!"
+		"chi"			"燃烧瓶!"
+	}
+
+	"Pipe_Bomb"
+	{
+		"en"			"Pipe Bomb!"
+		"zho"			"土製炸彈!"
+		"chi"			"管状手雷!"
+	}
+
+	"Laser_Sight"
+	{
+		"en"			"Laser Sight!"
+		"zho"			"雷射裝置!"
+		"chi"			"激光瞄准器!"
+	}
+
+	"Incendiary_UpgradePack"
+	{
+		"en"			"Incendiary UpgradePack!"
+		"zho"			"火焰彈藥包!"
+		"chi"			"燃烧弹药包!"
+	}
+
+	"Explosive_UpgradePack"
+	{
+		"en"			"Explosive UpgradePack!"
+		"zho"			"高爆彈藥包!"
+		"chi"			"高爆弹药包!"
+	}
+
+	"Ammo"
+	{
+		"en"			"Ammo!"
+		"zho"			"子彈堆!"
+		"chi"			"子弹堆!"
+	}
+
+	"Chainsaw"
+	{
+		"en"			"Chainsaw!"
+		"zho"			"電鋸!"
+		"chi"			"电锯!"
+	}
+
+	"Pistol"
+	{
+		"en"			"Pistol!"
+		"zho"			"手槍!"
+		"chi"			"手枪!"
+	}
+
+	"Magnum"
+	{
+		"en"			"Magnum!"
+		"zho"			"麥格農!"
+		"chi"			"马格南!"
+	}
+
+	"Pump_Shotgun"
+	{
+		"en"			"Pump Shotgun!"
+		"zho"			"木製霰彈槍!"
+		"chi"			"泵动霰弹枪!"
+	}
+
+	"Shotgun_Chrome"
+	{
+		"en"			"Shotgun Chrome!"
+		"zho"			"鐵製霰彈槍!"
+		"chi"			"铬管霰弹枪!"
+	}
+
+	"Uzi"
+	{
+		"en"			"Uzi!"
+		"zho"			"UZI衝鋒槍!"
+		"chi"			"UZI冲锋枪!"
+	}
+
+	"Silenced_Smg"
+	{
+		"en"			"Silenced Smg!"
+		"zho"			"SMG衝鋒槍!"
+		"chi"			"SMG冲锋枪!"
+	}
+
+	"MP5"
+	{
+		"en"			"MP5!"
+		"zho"			"MP5!"
+		"chi"			"MP5冲锋枪!"
+	}
+
+	"Rifle"
+	{
+		"en"			"Rifle!"
+		"zho"			"M16步槍!"
+		"chi"			"M16步枪!"
+	}
+
+	"SG552"
+	{
+		"en"			"SG552!"
+		"zho"			"SG552步槍!"
+		"chi"			"SG552步枪!"
+	}
+
+	"AK47"
+	{
+		"en"			"AK47!"
+		"zho"			"AK47!"
+		"chi"			"AK47步枪!"
+	}
+
+	"Desert_Rifle"
+	{
+		"en"			"Desert Rifle!"
+		"zho"			"SCAR步槍!"
+		"chi"			"SCAR步枪!"
+	}
+
+	"Shotgun_Spas"
+	{
+		"en"			"Shotgun Spas!"
+		"zho"			"SPAS連發霰彈槍!"
+		"chi"			"SPAS霰弹枪!"
+	}
+
+	"Auto_Shotgun"
+	{
+		"en"			"Auto Shotgun!"
+		"zho"			"自動連發霰彈槍!"
+		"chi"			"M1014霰弹枪!"
+	}
+
+	"Hunting_Rifle"
+	{
+		"en"			"Hunting Rifle!"
+		"zho"			"獵槍!"
+		"chi"			"狩猎狙击步枪!"
+	}
+
+	"Military_Sniper"
+	{
+		"en"			"Military Sniper!"
+		"zho"			"軍用狙擊槍!"
+		"chi"			"军用狙击步枪!"
+	}
+
+	"Scout"
+	{
+		"en"			"Scout!"
+		"zho"			"Scout!"
+		"chi"			"侦察狙击步枪!"
+	}
+
+	"AWP"
+	{
+		"en"			"AWP!"
+		"zho"			"AWP!"
+		"chi"			"AWP狙击步枪!"
+	}
+
+	"Grenade_Launcher"
+	{
+		"en"			"Grenade Launcher!"
+		"zho"			"榴彈發射器!"
+		"chi"			"榴弹发射器!"
+	}
+
+	"M60"
+	{
+		"en"			"M60!"
+		"zho"			"M60機關槍!"
+		"chi"			"M60机枪!"
+	}
+
+	"Gas_Can"
+	{
+		"en"			"Gas Can!"
+		"zho"			"汽油桶!"
+		"chi"			"汽油桶!"
+	}
+
+	"Firework"
+	{
+		"en"			"Firework!"
+		"zho"			"煙火盒!"
+		"chi"			"烟花盒!"
+	}
+
+	"Propane_Tank"
+	{
+		"en"			"Propane Tank!"
+		"zho"			"瓦斯罐!"
+		"chi"			"丙烷罐!"
+	}
+
+	"Oxygen_Tank"
+	{
+		"en"			"Oxygen Tank!"
+		"zho"			"氧氣罐!"
+		"chi"			"氧气罐!"
+	}
+
+	"Gnome"
+	{
+		"en"			"Gnome!"
+		"zho"			"精靈小矮人!"
+		"chi"			"侏儒!"
+	}
+
+	"Cola"
+	{
+		"en"			"Cola!"
+		"zho"			"可樂!"
+		"chi"			"可乐!"
+	}
+
+	"50_Cal_Machine_Gun"
+	{
+		"en"			".50 Cal Machine Gun!"
+		"zho"			".50口徑固定機槍!"
+		"chi"			".50口径固定机枪!"
+	}
+
+	"Minigun"
+	{
+		"en"			"Minigun!"
+		"zho"			"迷你砲固定機槍!"
+		"chi"			"加特林固定机枪!"
+	}
+
+	"Explosive_Ammo"
+	{
+		"en"			"Explosive Ammo!"
+		"zho"			"高爆子彈!"
+		"chi"			"高爆弹药!"
+	}
+
+	"Incendiary_Ammo"
+	{
+		"en"			"Incendiary Ammo!"
+		"zho"			"燃燒子彈!"
+		"chi"			"燃烧弹药!"
+	}
+
+	"Knife"
+	{
+		"en"			"Knife!"
+		"zho"			"小刀!"
+		"chi"			"小刀!"
+	}
+
+	"Baseball_Bat"
+	{
+		"en"			"Baseball Bat!"
+		"zho"			"球棒!"
+		"chi"			"棒球棍!"
+	}
+
+	"Cricket_Bat"
+	{
+		"en"			"Cricket Bat!"
+		"zho"			"板球拍!"
+		"chi"			"板球棍!"
+	}
+
+	"Crowbar"
+	{
+		"en"			"Crowbar!"
+		"zho"			"鐵撬!"
+		"chi"			"撬棍!"
+	}
+
+	"Electric_Guitar"
+	{
+		"en"			"Electric Guitar!"
+		"zho"			"電吉他!"
+		"chi"			"电吉他!"
+	}
+
+	"Fireaxe"
+	{
+		"en"			"Fireaxe!"
+		"zho"			"消防斧!"
+		"chi"			"消防斧!"
+	}
+
+	"Frying_Pan"
+	{
+		"en"			"Frying Pan!"
+		"zho"			"平底鍋!"
+		"chi"			"平底锅!"
+	}
+
+	"Katana"
+	{
+		"en"			"Katana!"
+		"zho"			"武士刀!"
+		"chi"			"武士刀!"
+	}
+
+	"Machete"
+	{
+		"en"			"Machete!"
+		"zho"			"開山刀!"
+		"chi"			"砍刀!"
+	}
+
+	"Nightstick"
+	{
+		"en"			"Nightstick!"
+		"zho"			"警棍!"
+		"chi"			"警棍!"
+	}
+
+	"Golf_Club"
+	{
+		"en"			"Golf Club!"
+		"zho"			"高爾夫球棍!"
+		"chi"			"高尔夫球棍!"
+	}
+
+	"Pitchfork"
+	{
+		"en"			"Pitchfork!"
+		"zho"			"草叉!"
+		"chi"			"干草叉!"
+	}
+
+	"Shovel"
+	{
+		"en"			"Shovel!"
+		"zho"			"鏟子!"
+		"chi"			"铲子!"
+	}
+
+	"Boomer"
+	{
+		"en"			"Boomer!"
+		"zho"			"Boomer!"
+		"chi"			"Boomer!"
+	}
+
+	"Spitter"
+	{
+		"en"			"Spitter!"
+		"zho"			"Spitter!"
+		"chi"			"Spitter!"
+	}
+
+	"Smoker"
+	{
+		"en"			"Smoker!"
+		"zho"			"Smoker!"
+		"chi"			"Smoker!"
+	}
+
+	"Hunter"
+	{
+		"en"			"Hunter!"
+		"zho"			"Hunter!"
+		"chi"			"Hunter!"
+	}
+
+	"Jockey"
+	{
+		"en"			"Jockey!"
+		"zho"			"Jockey!"
+		"chi"			"Jockey!"
+	}
+
+	"Charger"
+	{
+		"en"			"Charger!"
+		"zho"			"Charger!"
+		"chi"			"Charger!"
+	}
+
+	"Tank"
+	{
+		"en"			"Tank!"
+		"zho"			"Tank!"
+		"chi"			"Tank!"
+	}
+
+	"Witch"
+	{
+		"en"			"Witch!"
+		"zho"			"Witch!"
+		"chi"			"Witch!"
+	}
+
+	"Witch_Bride"
+	{
+		"en"			"Witch Bride!"
+		"zho"			"新娘 Witch!"
+		"chi"			"Witch Bride!"
+	}	
+	
+	"Unknown Infected"
+	{
+		"en"			"Unknown Infected"
+		"zho"			"未知的特感!"
+		"chi"			"未知的特感!"
+	}
+}

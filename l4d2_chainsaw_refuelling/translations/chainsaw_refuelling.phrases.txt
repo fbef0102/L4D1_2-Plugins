@@ -1,0 +1,47 @@
+﻿"Phrases"
+{
+	"Information"
+	{
+		"en"	"[Hint]"
+		"chi"	"[电锯加油]"
+		"zho"	"[電鋸加油]"
+		"da"	"[Tip]"
+		"de"	"[Tipp]"
+		"es"	"[Nota]"
+		"pl"	"[Podpowiedź]"
+		"ru"	"[Информация]"
+	}
+	"Refuelling"
+	{
+		"en"	"You can refuel a chainsaws, aim for it and press MOUSE1 while carrying a gascan"
+		"chi"	"你可使用汽油桶保持电锯燃料 (拿起汽油桶对准电锯按左键)"
+		"zho"	"你可使用汽油桶灌滿電鋸油量 (拿起汽油桶對準電鋸按左鍵)"
+		"da"	"Du kan genopfylde en motorsav der ligger på jorden eller hvis en på dit hold holder den, sigt mod den og tryk på mouse1 mens du holder en benzindunk"
+		"de"	"Man kann die Kettensäge mit Benzin nachtanken, mit Tank in der Hand auf Säge zielen und 'Schiessen' drücken"
+		"es"	"Puedes rellenar una motosierra, apunta sobre ella y pulsa RATON1 mientras llevas una lata de gasolina"
+		"pl"	"Możesz napełnić piłę łancuchową, wyceluj w nią i naciśnij MOUSE1 trzymając karnister"
+		"ru"	"Вы можете заправить бензопилу с помощью канистры, нажав MOUSE1 возле нее"
+	}
+	"Full"
+	{
+		"en"	"Chainsaw tank is already full"
+		"chi"	"电锯燃料已满"
+		"zho"	"電鋸油量已滿"
+		"da"	"Motorsaven er allerede fyldt"
+		"de"	"Kettensäge ist vollgetankt"
+		"es"	"El depósito de la motosierra está lleno"
+		"pl"	"Zbiornik piły łancuchowej jest już pełny"
+		"ru"	"Бензопила уже полностью заправлена"
+	}
+	"Drop"
+	{
+		"en"	"You can drop a chainsaw by pressing the reload button"
+		"chi"	"你可按 换子弹键(R) 放下电锯"
+		"zho"	"你可按 換彈鍵(R) 放下電鋸"
+		"da"	"Du kan smide en motorsav på reload knappen"
+		"de"	"Man kann die Kettensäge fallenlassen - drück NACHLADEN"
+		"es"	"Puedes soltar una motosierra pulsando el botón de recargar"
+		"pl"	"Możesz upuścić piłę łancuchową naciskając przycisk przeładowania"
+		"ru"	"Вы можете выбросить бензопилу, нажав клавишу перезарядки"
+	}
+}

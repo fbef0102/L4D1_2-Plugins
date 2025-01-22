@@ -1,0 +1,10 @@
+"Phrases"
+{
+	"Supply_Drop"
+	{
+		"en"			"A Supply Box has arrived!"
+		"zho"			"在地圖上出現了補給箱!!"
+		"chi"			"强化武器补给箱已到达！ ！"
+		"ru"			"Прибыл ящик с припасами!"
+	}
+}

@@ -1,24 +1,69 @@
 # Description | 內容
 Remove weapon dropped by survivor or uncommon infected + remove upgrade pack when deployed
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
 
+* <details><summary>How does it work?</summary>
+
+	* When weapons/items dropped by survivor or by uncommon infected.
+		* If no one pick up weapons or items, they will be removed after the certain time passed
+		* Will not remove Scavenge Gascan/cola/gnome.
+	* When surivior deployed upgrade packs on the gound.
+		* They will be removed after the certain time passed
+	* Modify weapon/item delete list
+		* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
+</details>
+
+* Require | 必要安裝
+<br/>None
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_drop](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_drop): Allows players to drop the weapon they are holding
+		> 玩家可自行丟棄手中的武器
+</details>
+
+* <details><summary>ConVar | 指令</summary>
+
+	* cfg/sourcemod/clear_weapon_drop.cfg
+		```php
+		// Time in seconds to remove weapon after dropped by survivor. (0=off)
+		sm_drop_clear_survivor_weapon_time "60"
+
+		// Time in seconds to remove weapon after dropped by uncommon infected. (0=off)
+		sm_drop_clear_infected_weapon_time "180"
+
+		// Time in seconds to remove upgrade pack after deployed on the ground. (0=off)
+		sm_drop_clear_ground_upgrade_pack_time "60"
+
+		// If 1, remove gnome after dropped by survivor.
+		sm_drop_clear_survivor_weapon_gnome "0"
+
+		// If 1, remove cola bottles after dropped by survivor.
+		sm_drop_clear_survivor_weapon_cola_bottles "0"
+		```
+</details>
+
+* <details><summary>API | 串接</summary>
+
+	```c
+	/**
+	* @brief Remove weapon if no one picks up after a short time. (time depending on the convar you set)
+	*
+	* @param weapon        weapon index to be removed
+	*
+	* @return              nothing
+	*/
+	native void Timer_Delete_Weapon(int weapon);
+	```
+</details>
+
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//AK978 @ 2019
-	//Harry @ 2021-2023
-	```
 	* v3.1 (2023-5-10)
 		* Will not remove Scavenge Gascan.
 		* Optimize code and improve performance
@@ -38,56 +83,6 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 		* [Original Plugin by AK978](https://forums.alliedmods.net/showthread.php?p=2638375)
 </details>
 
-* Require | 必要安裝
-<br/>None
-
-* Related Plugin | 相關插件
-	1. [l4d_drop](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_drop): Allows players to drop the weapon they are holding
-		> 玩家可自行丟棄手中的武器
-
-* <details><summary>ConVar | 指令</summary>
-
-	* cfg\sourcemod\clear_weapon_drop.cfg
-		```php
-		// Time in seconds to remove upgrade pack after deployed on the ground. (0=off)
-		sm_drop_clear_ground_upgrade_pack_time "60"
-
-		// Time in seconds to remove weapon after dropped by uncommon infected. (0=off)
-		sm_drop_clear_infected_weapon_time "180"
-
-		// If 1, remove cola bottles after dropped by survivor.
-		sm_drop_clear_survivor_weapon_cola_bottles "0"
-
-		// If 1, remove gnome after dropped by survivor.
-		sm_drop_clear_survivor_weapon_gnome "0"
-
-		// Time in seconds to remove weapon after dropped by survivor. (0=off)
-		sm_drop_clear_survivor_weapon_time "60"
-		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* <details><summary>API | 串接</summary>
-
-	```c
-	/**
-	* @brief Remove weapon if no one picks up after a short time. (time depending on the convar you set)
-	*
-	* @param weapon        weapon index to be removed
-	*
-	* @return              nothing
-	*/
-	native void Timer_Delete_Weapon(int weapon);
-	```
-</details>
-
-* Modify weapon delete list
-	* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
-
 - - - -
 # 中文說明
 如果一段時間後沒有人撿起掉落的武器與物品，則自動移除
@@ -105,12 +100,28 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 * 用意在哪?
 	* 避免伺服器塞滿過多的武器與物品導致崩潰 (伺服器實體物件空間不足)
-    * 適合用在很多RPG或頻繁生出武器與物品的伺服器
+    * 適合用於很多RPG或頻繁生出武器與物品的伺服器
 
-* 功能
-    * 可設置刪除時間
-	* 是否刪除可樂瓶
-	* 是否刪除精靈小矮人
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/clear_weapon_drop.cfg
+		```php
+		// 人類從手上掉落物器或物品時，一段時間過後如果沒有人撿起或者使用將自動移除 (0=不移除)
+		sm_drop_clear_survivor_weapon_time "60"
+
+		// 當特殊一般感染者掉落武器或物品時，一段時間過後如果沒有人撿起或者使用將自動移除 (0=不移除)
+		sm_drop_clear_infected_weapon_time "180"
+
+		// 人類放置燃燒彈包與高爆彈包於地上. X秒之後移除 (0=不移除)
+		sm_drop_clear_ground_upgrade_pack_time "60"
+
+		// 為1時，刪除掉落的精靈小矮人
+		sm_drop_clear_survivor_weapon_gnome "0"
+
+		// 為1時，刪除掉落的可樂瓶
+		sm_drop_clear_survivor_weapon_cola_bottles "0"
+		```
+</details>
 
 * 修改武器與物品刪除的列表
 	* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
