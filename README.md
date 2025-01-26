@@ -150,8 +150,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復一些武器的 weapon_*.txt 參數沒有作用
 * <b>[l4d2_spec_stays_spec](/l4d2_spec_stays_spec)</b>: Spectator will stay as spectators on mapchange/new round.
     * 上一回合是旁觀者的玩家, 下一回合開始時繼續待在旁觀者 (避免被自動切換到人類/特感隊伍)
-* <b>[firebulletsfix](/firebulletsfix)</b>: Fixes shooting/bullet displacement by 1 tick problems so you can accurately hit by moving.
-    * 修復子彈擊中與伺服器運算相差 1 tick的延遲
 * <b>[gametype_description](/gametype_description)</b>: Allows changing of displayed game type in server browser
     * 更改伺服器的遊戲欄資訊
 * <b>[_AutoTakeOver](/_AutoTakeOver)</b>: Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor

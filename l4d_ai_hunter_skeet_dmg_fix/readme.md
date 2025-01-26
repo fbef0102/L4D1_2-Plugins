@@ -53,7 +53,7 @@ Makes AI Hunter take damage like human SI while pouncing.
 	* write down the following cvars in cfg/server.cfg
 		```php
 		// Taking this much damage interrupts a pounce attempt (default: 150)
-		// Taking this much damage while pouncing wiil get you skeeted and die (No matter how much health left you have)
+		// Taking this much damage while pouncing will get you skeeted and die (No matter how much health left you have)
 		sm_cvar z_pounce_damage_interrupt "150"
 		```
 </details>

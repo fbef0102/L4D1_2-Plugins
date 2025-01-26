@@ -85,7 +85,7 @@ Improves the AI behaviour of special infected
             hunter_pounce_max_loft_angle 0
 
             // AI + Human Hunter skeet damage (Default: 50)
-            // Taking this much damage while pouncing wiil get you skeeted and die (No matter how much health left you have)
+            // Taking this much damage while pouncing will get you skeeted and die (No matter how much health left you have)
             z_pounce_damage_interrupt 150
             ```
 
