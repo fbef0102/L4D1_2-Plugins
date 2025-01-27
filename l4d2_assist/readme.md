@@ -59,6 +59,9 @@ Show damage done to S.I. by survivors
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.6 (2025-1-27)
+		* Fixed incorrect damage if killing smoker while pull
+
 	* v2.5 (2024-12-3)
 		* Update cvars
 

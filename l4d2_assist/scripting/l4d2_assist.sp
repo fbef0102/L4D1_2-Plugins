@@ -8,12 +8,12 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.5-2024/12/03"
+#define PLUGIN_VERSION "2.6-2025/1/27"
 
 public Plugin myinfo = 
 {
 	name = "L4D1/2 Assistance System",
-	author = "[E]c & Max Chu, SilverS & ViRaGisTe & HarryPotter",
+	author = "[E]c & Max Chu & ViRaGisTe & HarryPotter",
 	description = "Show assists made by survivors",
 	version = PLUGIN_VERSION,
 	url = "http://forums.alliedmods.net/showthread.php?t=123811"
@@ -48,6 +48,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define L4D_TEAM_SURVIVOR 2
 #define L4D_TEAM_INFECTED 3
 
+#define ZC_SMOKER		1
+
 #define MAXENTITIES 2048
 #define CVAR_FLAGS			FCVAR_NOTIFY
 
@@ -62,11 +64,14 @@ char Temp3[] = "(";
 char Temp4[] = ")";
 char Temp5[] = "\x05";
 char Temp6[] = "\x01";
-int g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store dmg to S.I.
-bool g_bTankDied[MAXPLAYERS+1]; //tank already dead
-int g_iSIHealth[MAXPLAYERS+1]; //S.I last hp before damage hurt
-int g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
-bool g_bReplaceNewTank[MAXPLAYERS+1];
+int 
+	g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1], //Used to temporarily store dmg to S.I.
+	g_iSIHealth[MAXPLAYERS+1], //S.I last hp before damage hurt
+	g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
+
+bool g_bTankDied[MAXPLAYERS+1], //tank already dead
+	g_bReplaceNewTank[MAXPLAYERS+1], //tank was replaced
+	g_bSmokerTakeDamageAlive[MAXPLAYERS+1]; //smoker OnTakeDamageAlive
 
 public void OnPluginStart()
 {
@@ -136,18 +141,39 @@ Action OnTakeDamageAlive(int client, int &attacker, int &inflictor, float &damag
 { 
 	if(GetClientTeam(client) == L4D_TEAM_INFECTED && IsPlayerAlive(client))
 	{
-		if (GetEntProp(client, Prop_Send, "m_zombieClass") == ZC_TANK && GetEntProp(client, Prop_Send, "m_isIncapacitated"))
-			return Plugin_Continue;
+		int class = GetEntProp(client, Prop_Send, "m_zombieClass");
+		int health = GetEntProp(client, Prop_Data, "m_iHealth");
+		//PrintToChatAll("client: %d, attacker: %d, health: %d, last health: %d", client, attacker, health, g_iSIHealth[client] );
+		if(class == ZC_TANK)
+		{
+			// Tank死亡動畫時, 為倒地狀態
+			if(GetEntProp(client, Prop_Send, "m_isIncapacitated")) return Plugin_Continue;
+		}
+		else if(class == ZC_SMOKER)
+		{
 
-		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
+			//AI Smoker拉人時被打超過50 (tongue_break_from_damage_amount) 會有二次傷害
+			//OnTakeDamageAlive -> OnTakeDamageAlive(第二次) -> player_hurt -> player_death -> player_hurt
+			if(g_bSmokerTakeDamageAlive[client])
+			{
+				//PrintToChatAll("Same Frame");
+				//Smoker拉人時被打死會有負數血量
+				if(health < 0) health = 0;
+
+				g_iDamage[attacker][client] += g_iSIHealth[client] - health;
+			}
+			else
+			{
+				g_bSmokerTakeDamageAlive[client] = true;
+			}
+		}
+
+		g_iSIHealth[client] = health;
 	}
 
 	return Plugin_Continue;
 }
 
-// ====================================================================================================
-//					CVARS
-// ====================================================================================================
 public void OnConfigsExecuted()
 {
 	IsAllowed();
@@ -336,6 +362,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 		}
 		else
 		{
+			g_bSmokerTakeDamageAlive[victim] = false;
+
 			//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d", g_iSIHealth[victim], damageDone);
 			if( g_iSIHealth[victim] - damageDone <= 0) //超過最後血量
 			{
@@ -375,6 +403,7 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
+	//PrintToChatAll("Event_PlayerDeath: %d %d", attacker, victim);
 	
 	if(!victim || !IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
 
