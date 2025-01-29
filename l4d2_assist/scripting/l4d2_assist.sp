@@ -151,7 +151,6 @@ Action OnTakeDamageAlive(int client, int &attacker, int &inflictor, float &damag
 		}
 		else if(class == ZC_SMOKER)
 		{
-
 			//AI Smoker拉人時被打超過50 (tongue_break_from_damage_amount) 會有二次傷害
 			//OnTakeDamageAlive -> OnTakeDamageAlive(第二次) -> player_hurt -> player_death -> player_hurt
 			if(g_bSmokerTakeDamageAlive[client])
@@ -160,7 +159,7 @@ Action OnTakeDamageAlive(int client, int &attacker, int &inflictor, float &damag
 				//Smoker拉人時被打死會有負數血量
 				if(health < 0) health = 0;
 
-				g_iDamage[attacker][client] += g_iSIHealth[client] - health;
+				if(attacker > 0 && attacker <= MaxClients) g_iDamage[attacker][client] += g_iSIHealth[client] - health;
 			}
 			else
 			{
@@ -326,6 +325,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int damageDone = g_iSIHealth[victim] - event.GetInt("health");
+
+	g_bSmokerTakeDamageAlive[victim] = false;
 	if(damageDone <= 0) return;
 	
 	if (0 < victim && victim <= MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == L4D_TEAM_INFECTED)
@@ -362,8 +363,6 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 		}
 		else
 		{
-			g_bSmokerTakeDamageAlive[victim] = false;
-
 			//PrintToChatAll("g_iSIHealth[victim]: %d, damageDone: %d", g_iSIHealth[victim], damageDone);
 			if( g_iSIHealth[victim] - damageDone <= 0) //超過最後血量
 			{

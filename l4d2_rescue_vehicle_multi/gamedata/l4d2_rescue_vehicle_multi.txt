@@ -4,6 +4,7 @@
 	{
 		"Functions"
 		{
+			//int __cdecl CTerrorGameRules::CalculateSurvivalMultiplier(CTerrorGameRules *this, bool a2)
 			"CTerrorGameRules::CalculateSurvivalMultiplier"
 			{
 				"signature"		"CTerrorGameRules::CalculateSurvivalMultiplier"

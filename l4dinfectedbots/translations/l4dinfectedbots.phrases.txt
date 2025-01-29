@@ -84,23 +84,7 @@
 		"zho"			"特感數量上限已改成 {green}{1}{default}"
 		"chi"			"特感数量上限已改成 {green}{1}{default}"
 	}
-	"Current status1"
-	{
-		"#format"		"{1:d},{2:d},{3:d},{4:d}"
-		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}, Tank Health: {green}{3}{default}, Common Limit: {green}{4}{default}"
-		"ru"			"Живых выживших: {green}{1}{default}, лимит особых заражённых: {green}{2}{default}, здоровье танка: {green}{3}{default}, обычных заражённых: {green}{4}{default}"
-		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}, 殭屍數量: {green}{4}{default}"
-		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}, 僵尸数量: {green}{4}{default}"
-	}
-	"Current status2"
-	{
-		"#format"		"{1:d},{2:d},{3:d}"
-		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}, Common Limit: {green}{3}{default}"
-		"ru"			"Живых выживших: {green}{1}{default}, лимит особых заражённых: {green}{2}{default}, обычных заражённых: {green}{3}{default}"
-		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}, 殭屍數量: {green}{3}{default}"
-		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}, 僵尸数量: {green}{3}{default}"
-	}
-	"Current status3"
+	"Current_status_1"
 	{
 		"#format"		"{1:d},{2:d},{3:d}"
 		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}, Tank Health: {green}{3}{default}"
@@ -108,7 +92,7 @@
 		"zho"			"目前倖存者存活人數: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}"
 		"chi"			"目前生还者存活人数: {green}{1}{default}, 特感上限: {green}{2}{default}, Tank血量: {green}{3}{default}"
 	}
-	"Current status4"
+	"Current_status_2"
 	{
 		"#format"		"{1:d},{2:d}"
 		"en"			"Numbers of Alive Survivor: {green}{1}{default}, Infected Limit: {green}{2}{default}"

@@ -2,9 +2,10 @@
 Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 
 * Image | 圖示
-	* Spawn infected bots without limit 
+	* Spawn infected bots without limit (突破限制生成特感)
 	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
 	<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
+	<br/>![zho/l4dinfectedbots_2](image/zho/l4dinfectedbots_2.jpg)
 	* Join infected team and play in coop/survival/realism mode. (在戰役/寫實/生存模式下加入特感陣營)
 	<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
 
@@ -35,7 +36,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			> Manual in this file, click for more details...
 			* Run coop mode => plugin reads ```coop.cfg```
 			* Run versus mode => plugin reads```versus.cfg```
-			* Run survival  mode => plugin reads```survival .cfg```
+			* Run survival mode => plugin reads```survival.cfg```
 			* Run scavenge mode => plugin reads```scavenge.cfg```
 			* Run realism mode => plugin reads```realism.cfg```
 			* Run mutation gamemode => plugin reads```xxxx.cfg``` (```xxxx``` = mutation name)
@@ -171,15 +172,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	6. <details><summary>Adjust common infected limit</summary>
-
-		```php
-		// Set zombie common limit. (override official convar "z_common_limit", 0=No commons, -1=Off)
-		"common_limit"         "30"
-		```
-	</details>
-
-	7. <details><summary>Play infected team in coop/survival/realism</summary>
+	6. <details><summary>Play infected team in coop/survival/realism</summary>
 
 		```php
 		// 1 = players can join the infected team in coop/survival/realism
@@ -205,7 +198,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	8. <details><summary>Spawn range (Coop/Realism only)</summary>
+	7. <details><summary>Spawn range (Coop/Realism only)</summary>
 
 		```php
 		// The minimum of spawn range for infected. (default: 550, coop/realism only)
@@ -219,7 +212,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	9. <details><summary>Spawn Infected together</summary>
+	8. <details><summary>Spawn Infected together</summary>
 
 		```php
 		// 1 = Bots will only spawn when all other bot spawn timers are at zero.
@@ -230,7 +223,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	10. <details><summary>Set Weight of Special Infected</summary>
+	9. <details><summary>Set Weight of Special Infected</summary>
 
 		* Increase chance to spawn specific special infected, For example
 			```php
@@ -251,7 +244,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	11. <details><summary>Adjust Witch limit and spawn time</summary>
+	10. <details><summary>Adjust Witch limit and spawn time</summary>
 
 		```php
 		// Sets the limit for witches spawned by the plugin (does not affect director witches)
@@ -281,7 +274,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	2. <details><summary>How to turn off flashlights on human infected player in coop/survival/realism ?</summary>
 
-		![image](https://user-images.githubusercontent.com/12229810/209463883-ecf76a44-0da1-4044-81d4-68933d1c09d6.png)
+		![l4dinfectedbots_5](image/l4dinfectedbots_5.jpg)
 		```php
 		// 1 = Attaches red flash light to human infected player in coop/survival/realism. (Make it clear which infected bot is controlled by player)
 		"coop_versus_human_light"   "0"
@@ -291,7 +284,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	3. <details><summary>Couldn't find XXXX Spawn position in 5 tries</summary>
 
 		Special Infected can't spawn sometimes, and server console spamming message
-		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
+		![l4dinfectedbots_6](image/l4dinfectedbots_6.jpg)
 		* Reason: It means that the game can not find a position to spawn special infected, usually happen when director stops spawning special infected (C1m4 before evelator) or NAV problem (can't find any valid nav area to spawn infected near survivors)
 
 		* 🟥Infected limit + numbers of survivor + spectators can not exceed 31 slots, otherwise server fails to spawn S.I.
@@ -317,7 +310,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	6. <details><summary>Only 18 infected bots can spawn in server?</summary>
 
-		* By default, l4d server max player slots is 18. Go install [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz) and set Max. players=31 (Can't increase more)
+		* By default, l4d server max player slots is 18. Go install [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz) and set Max players=31
 		<br/>![l4dinfectedbots_4](image/l4dinfectedbots_4.jpg)
 		* Max. players only up 31 limit (Can't increase more)
 	</details>
@@ -386,17 +379,17 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		sm_infhud
 		```
 
-	* **(Infected only) suicide infected player himself (If infected get stuck or something)**
+	* **(Infected only) Suicide myself (if get stuck or out of map)**
 		```php
 		sm_zss
 		```
 
-	* **Control special zombies spawn timer (Adm Required: ADMFLAG_ROOT)**
+	* **Control special zombies spawn timer until next map or data is reloaded (Adm Required: ADMFLAG_ROOT)**
 		```php
 		sm_timer
 		```
 
-	* **Control max special zombies limit (Adm Required: ADMFLAG_ROOT)**
+	* **Control max special zombies limit until next map or data is reloaded (Adm Required: ADMFLAG_ROOT)**
 		```php
 		sm_zlimit
 		```
@@ -427,6 +420,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.0.2 (2025-1-29)
+		* If root admin use !zlimit or !timer to change zombies limit/spawn timer, keep the change until next map or data is reloaded
+		* Remove common limit
 
 	* v3.0.1 (2025-1-18)
 		* Support SIPool
@@ -686,15 +683,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	6. <details><summary>調整普通感染者的數量上限</summary>
-
-		```php
-		// 設置普通感染者的數量上限 (覆蓋官方指令 "z_common_limit", 0=場上無普通殭屍, -1=不修改)
-		"common_limit"         "30"
-		```
-	</details>
-
-	7. <details><summary>在戰役/倖存者/寫實模式下成為感染者</summary>
+	6. <details><summary>在戰役/倖存者/寫實模式下成為感染者</summary>
 
 		```php
 		// 1 = 玩家可以在戰役/寫實/生存模式中加入感染者 (!ji加入感染者，!js加入倖存者)"
@@ -719,7 +708,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	8. <details><summary>特感生成距離 (僅限戰役/寫實)</summary>
+	7. <details><summary>特感生成距離 (僅限戰役/寫實)</summary>
 
 		```php
 		// 特感生成的最小距離 (默認: 550, 僅戰役/寫實)
@@ -733,7 +722,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	9. <details><summary>一次性生成全部特感</summary>
+	8. <details><summary>一次性生成全部特感</summary>
 
 		```php
 		// 1 = 感染者需要等待其他感染者復活時間到才能一起生成
@@ -744,7 +733,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 	</details>
 
-	10. <details><summary>設置特感的權重</summary>
+	9. <details><summary>設置特感的權重</summary>
 
 		* 增減特感的權重, 譬如
 			```php
@@ -766,7 +755,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			```
 	</details>
 
-	11. <details><summary>調整Witch生成數量與生成時間</summary>
+	10. <details><summary>調整Witch生成數量與生成時間</summary>
 
 		```php
 		// 插件可生成witch的最大數量 （不影響導演生成的witch）
@@ -787,7 +776,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 * Q&A問題
 	1. <details><summary>如何關閉這個消息?</summary>
 
-		![Message](https://user-images.githubusercontent.com/12229810/209463323-5c9336af-1883-4a20-a7f5-7d83d4357587.png)
+		![zho/l4dinfectedbots_2](image/zho/l4dinfectedbots_2.jpg)
 		```php
 		// 1 = 當存活的倖存者數量發生變化時，聊天框提示插件狀態
 		"announce_enable" "0"
@@ -796,7 +785,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	2. <details><summary>在戰役/寫實/生存下如何關閉特感真人玩家的紅色光燈?</summary>
 
-		![image](https://user-images.githubusercontent.com/12229810/209463883-ecf76a44-0da1-4044-81d4-68933d1c09d6.png)
+		![l4dinfectedbots_5](image/l4dinfectedbots_5.jpg)
 		```php
 		// 1 = 真人扮演的感染者，身體會發出紅色的動態光 (戰役/寫實/生存模式)
 		"coop_versus_human_light"   "0"
@@ -806,7 +795,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	3. <details><summary>為什麼有些時候不會有特感生成?</summary>
 
 		* 問題：特感無法生成，然後伺服器後台經常冒出```Couldn't find xxxxx Spawn position in X tries```
-		<br/><img width="406" alt="image" src="https://user-images.githubusercontent.com/12229810/209465301-a816bd24-44d7-4e48-93ac-872857115631.png">
+		![l4dinfectedbots_6](image/l4dinfectedbots_6.jpg)
 
 		* 分析：AI特感與普通感染者生成的範圍是受到限制的，在官方的預設當中，是距離人類550~1500公尺範圍之間找位置復活，如果在這範圍內找不到，那就不會有特感與普通感染者。
 
@@ -926,12 +915,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		sm_zss
 		```
 
-	* **設置特感的生成時間 (權限: ADMFLAG_ROOT)**
+	* **設置特感的生成時間，直到關卡結束或是重新載入data (權限: ADMFLAG_ROOT)**
 		```php
 		sm_timer
 		```
 
-	* **設置場上特感的數量上限 (權限: ADMFLAG_ROOT)**
+	* **設置場上特感的數量上限，直到關卡結束或是重新載入data (權限: ADMFLAG_ROOT)**
 		```php
 		sm_zlimit
 		```
