@@ -3,7 +3,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#define PLUGIN_VERSION			"3.1"
+#define PLUGIN_VERSION			"3.2-2025-1-30"
 #define PLUGIN_NAME			    "clear_weapon_drop"
 #define DEBUG 0
 
@@ -82,7 +82,7 @@ static int 		g_iModel_Tonfa;
 ConVar g_hCvar_ClearSurvivorWeaponTime, g_hCvar_ClearInfectedWeaponTime,
 	g_hCvar_ClearUpradeGroundPackTime, g_hCvar_ClearGnome, g_hCvar_ClearCola;
 
-Handle g_ItemDeleteTimer[MAXENTITIES];
+Handle g_ItemDeleteTimer[MAXENTITIES+1];
 float g_fClearSurvivorWeaponTime, g_fClearInfectedWeaponTime;
 float g_fUpradeGroundPack_Time;
 bool g_bClearGnome, g_bClearCola;
@@ -149,11 +149,7 @@ public void OnPluginStart()
 	AutoExecConfig(true, "clear_weapon_drop");
 	
 	HookEvent("weapon_drop", Event_Weapon_Drop);
-	HookEvent("round_end", Event_Round_End);
-	HookEvent("map_transition", Event_Round_End); //戰役過關到下一關的時候 (沒有觸發round_end)
-	HookEvent("mission_lost", Event_Round_End); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Event_Round_End); //救援載具離開之時  (沒有觸發round_end)
-
+	
 	if (g_bL4D2Version){
 		HookEvent ("upgrade_pack_used",	Event_UpgradePack);
 	}
@@ -174,11 +170,6 @@ public void OnPluginStart()
 			}
 		}
 	}
-}
-
-public void OnPluginEnd()
-{
-	ResetTimer();
 }
 
 void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -217,7 +208,6 @@ public void OnMapStart()
 bool g_bConfigLoaded;
 public void OnMapEnd()
 {
-	ResetTimer();
 	g_bConfigLoaded = false;
 }
 
@@ -239,9 +229,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (!IsValidEntityIndex(entity))
 		return;
 
-	DebugPrint("OnEntityCreated %d-%s", entity, classname);
-
-	delete g_ItemDeleteTimer[entity];
+	//LogError("OnEntityCreated %d-%s", entity, classname);
 
 	bool bTemp;
 	if(g_bL4D2Version && g_fClearInfectedWeaponTime > 0.0)
@@ -281,8 +269,6 @@ public void OnEntityDestroyed(int entity)
 	if (!IsValidEntityIndex(entity))
 		return;
 
-	DebugPrint("OnEntityDestroyed %d", entity);
-
 	delete g_ItemDeleteTimer[entity];
 }
 
@@ -297,11 +283,6 @@ void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
 	SetTimer_DeleteWeapon(entity);
 }
 
-void Event_Round_End(Event event, const char[] name, bool dontBroadcast)
-{
-	ResetTimer();
-}
-
 void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_fUpradeGroundPack_Time == 0.0) return;
@@ -312,7 +293,7 @@ void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast)
 	if(Is_UpgradeGroundPack(entity))
 	{	
 		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(g_fUpradeGroundPack_Time, Timer_KillGroundPackEntity, entity);
+		g_ItemDeleteTimer[entity] = CreateTimer(g_fUpradeGroundPack_Time, Timer_KillGroundPackEntity, EntIndexToEntRef(entity));
 	}
 }
 
@@ -324,7 +305,7 @@ void OnWeaponEquipPost(int client, int weapon)
 	if (!IsValidEntity(weapon))
 		return;
 
-	DebugPrint("%N OnWeaponEquipPost %d", client, weapon);
+	//LogError("%N OnWeaponEquipPost %d", client, weapon);
 	delete g_ItemDeleteTimer[weapon];
 }
 
@@ -347,7 +328,7 @@ void OnNextFrame_ByInfected(int entityRef)
 		if(GetEntProp(weapon, Prop_Send, "m_DroppedByInfectedGender") > 0) //Dropped By Uncommon Infected
 		{
 			delete g_ItemDeleteTimer[weapon];
-			g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, weapon);
+			g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, EntIndexToEntRef(weapon));
 			return;
 		}
 	}
@@ -356,7 +337,7 @@ void OnNextFrame_ByInfected(int entityRef)
 	if(modelIndex == g_iModel_Tonfa) //警棍
 	{
 		delete g_ItemDeleteTimer[weapon];
-		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, weapon);
+		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, EntIndexToEntRef(weapon));
 	}
 }
 
@@ -377,7 +358,7 @@ void OnNextFrame_BySurvivior(int entityRef)
 	if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == -1) // Ignore entities with hammerid -1
 		return;
 
-	if (GetEntPropEnt(weapon, Prop_Data, "m_hOwnerEntity") <= 0) //特殊物品從人類身上掉落或丟出才會有這個值 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
+	if (GetEntPropEnt(weapon, Prop_Data, "m_hOwnerEntity") <= 0) //prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
 		return;
 
 	bool bTemp;
@@ -389,32 +370,31 @@ void OnNextFrame_BySurvivior(int entityRef)
 		(g_bL4D2Version && modelIndex == g_iModel_Gnome && g_bClearGnome))
 	{
 		delete g_ItemDeleteTimer[weapon];
-		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, weapon);
+		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(weapon));
 	}
 }
 
-Action Timer_KillGroundPackEntity(Handle timer, int entity)
+Action Timer_KillGroundPackEntity(Handle timer, int entRef)
 {
-	if(entity > MaxClients && IsValidEntity(entity))
-	{
-		SetEntityRenderFx(entity, RENDERFX_FADE_FAST); //RENDERFX_FADE_SLOW 3.5
-		CreateTimer(1.5, KillEntity, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-	}
+	int entity = EntRefToEntIndex(entRef);
+	if(entity == INVALID_ENT_REFERENCE) return Plugin_Continue;
+
+	SetEntityRenderFx(entity, RENDERFX_FADE_FAST); //RENDERFX_FADE_SLOW 3.5
+	CreateTimer(1.5, KillEntity, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 
 	g_ItemDeleteTimer[entity] = null;
 	return Plugin_Continue;
 }
 
-Action Timer_KillWeapon(Handle timer, int entity)
+Action Timer_KillWeapon(Handle timer, int entRef)
 {
+	int entity = EntRefToEntIndex(entRef);
+	if(entity == INVALID_ENT_REFERENCE) return Plugin_Continue;
+
 	g_ItemDeleteTimer[entity] = null;
-	
-	if(entity > MaxClients && IsValidEntity(entity))
+	if(IsInUse(entity) == false )
 	{
-		if(IsInUse(entity) == false )
-		{
-			RemoveEntity(entity);
-		}
+		RemoveEntity(entity);
 	}
 
 	return Plugin_Continue;
@@ -437,12 +417,12 @@ void SetTimer_DeleteWeapon(int entity)
 	static char sClassName[64];
 	bool bTemp;
 	GetEntityClassname(entity, sClassName, sizeof(sClassName));
-	DebugPrint("SetTimer_DeleteWeapon %d - %s",entity, sClassName);
+	//LogError("SetTimer_DeleteWeapon %d - %s",entity, sClassName);
 
 	if( strncmp(sClassName, "prop_physics", 12, false) == 0 || strncmp(sClassName, "physics_prop", 12, false) == 0)
 	{
 		int modelIndex = GetEntProp(entity, Prop_Send, "m_nModelIndex");
-		DebugPrint("modelIndex - %d", modelIndex);
+		//LogError("modelIndex - %d", modelIndex);
 		if( (modelIndex == g_iModel_Gascan && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_GASCAN, bTemp)) ||
 			(modelIndex == g_iModel_PropaneCanister && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_OXYTANK, bTemp)) || 
 			(modelIndex == g_iModel_OxygenTank && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_PROTANK, bTemp)) || 
@@ -452,7 +432,7 @@ void SetTimer_DeleteWeapon(int entity)
 			if(modelIndex == g_iModel_Gascan && IsScavengeGascan(entity)) return;
 
 			delete g_ItemDeleteTimer[entity];
-			g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, entity);
+			g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(entity));
 		}
 	}
 	else if(g_smItemDeleteList.GetValue(sClassName, bTemp) == true)
@@ -460,21 +440,13 @@ void SetTimer_DeleteWeapon(int entity)
 		if(strcmp(sClassName, CLASSNAME_WEAPON_GASCAN, false) == 0 && IsScavengeGascan(entity)) return;
 
 		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, entity);
+		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(entity));
 	}
 	else if( (g_bClearGnome && strcmp(sClassName, CLASSNAME_WEAPON_GNOME) == 0) ||
 		(g_bClearCola && strcmp(sClassName, CLASSNAME_WEAPON_COLA) == 0) )
 	{
 		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, entity);
-	}
-}
-
-void ResetTimer()
-{
-	for (int entity = 1; entity < MAXENTITIES; entity++)
-	{
-		delete g_ItemDeleteTimer[entity];
+		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(entity));
 	}
 }
 
@@ -504,7 +476,7 @@ bool IsInUse(int entity)
 	
 	/*if(HasEntProp(entity, Prop_Data, "m_hOwnerEntity"))
 	{
-		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity"); //特殊物品從人類身上掉落或丟出才會有這個值 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
+		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity"); //prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
 		if (IsValidClient(client))
 			return true;
 	}*/
@@ -523,7 +495,7 @@ int GetActiveWeapon(int client)
 	int weapon = GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon");
 	if (!IsValidEntityIndex(weapon)) 
 	{
-		return false;
+		return 0;
 	}
 	
 	return weapon;
@@ -543,16 +515,4 @@ bool Is_UpgradeGroundPack(int entity)
 		return true;
 
 	return false;
-}
-
-/* Debug */
-stock void DebugPrint(const char[] Message, any ...)
-{
-    #if DEBUG
-        char DebugBuff[128];
-        VFormat(DebugBuff, sizeof(DebugBuff), Message, 2);
-        PrintToChatAll("%s",DebugBuff);
-        PrintToServer(DebugBuff);
-        LogMessage(DebugBuff);
-    #endif 
 }

@@ -58,7 +58,7 @@ Handle
 	COLD_DOWN_Timer;
 
 char
-	g_sReservationID[20]; //長度被left4dhooks綁死
+	g_sTemporaryReservationID[20]; //長度被left4dhooks綁死
 
 public void OnPluginStart()
 {
@@ -151,7 +151,7 @@ public void OnClientConnected(int client)
 		//PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Full)");
 		//PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Full)");
 
-		L4D_GetLobbyReservation(g_sReservationID, sizeof g_sReservationID);
+		L4D_GetLobbyReservation(g_sTemporaryReservationID, sizeof g_sTemporaryReservationID);
 		L4D_LobbyUnreserve();
 		SetAllowLobby(0);
 		g_bIsServerUnreserved = true;
@@ -189,18 +189,24 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 
 Action Command_Unreserve(int client, int args)
 {
-	g_sReservationID = "";
 	if(!L4D_LobbyIsReserved())
 	{
-		ReplyToCommand(client, "[SM] Server is already unreserved.");
-		return Plugin_Handled;
+		if(strlen(g_sTemporaryReservationID) == 0)
+		{
+			ReplyToCommand(client, "[SM] Server is already unreserved.");
+			return Plugin_Handled;
+		}
+	}
+	else
+	{
+		L4D_LobbyUnreserve();
 	}
 
 	PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (sm_unreserve)");
 	PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (sm_unreserve)");
 
-	L4D_LobbyUnreserve();
-	SetAllowLobby(0);
+	SetAllowLobby(sv_allow_lobby_connect_only_default);
+	g_sTemporaryReservationID = "";
 	g_bIsServerUnreserved = true;
 
 	return Plugin_Handled;
@@ -214,9 +220,9 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 
 	if(CheckIfPlayerInServer(0)) //有玩家在伺服器中
 	{
-		if(g_bCvarUnreserveRestore && g_sReservationID[0] && !L4D_LobbyIsReserved() && !IsServerLobbyFull()) //有空位
+		if(g_bCvarUnreserveRestore && g_sTemporaryReservationID[0] && !L4D_LobbyIsReserved() && !IsServerLobbyFull()) //有空位
 		{
-			L4D_SetLobbyReservation(g_sReservationID);
+			L4D_SetLobbyReservation(g_sTemporaryReservationID);
 			//PrintToServer("[SM] Lobby reservation has been restored by l4dunreservelobby.smx (Has slot)");
 			ServerCommand("heartbeat");
 		}
@@ -227,7 +233,7 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 	if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
 	{
 		PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Empty)");
-		g_sReservationID = "";
+		g_sTemporaryReservationID = "";
 		L4D_LobbyUnreserve();
 	}
 	g_bIsServerUnreserved = false;

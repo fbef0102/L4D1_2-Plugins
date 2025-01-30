@@ -64,6 +64,9 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.2 (2025-1-30)
+		* Optimize code
+
 	* v3.1 (2023-5-10)
 		* Will not remove Scavenge Gascan.
 		* Optimize code and improve performance
