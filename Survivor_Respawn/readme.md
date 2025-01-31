@@ -117,9 +117,9 @@ When a Survivor dies, will respawn after a period of time.
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [MultiSlots Improved](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.
+	1. [MultiSlots Improved](/l4dmultislots): When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.
 		> 創造5位以上倖存者遊玩伺服器
-	2. [Infected Bots Control Improved](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
+	2. [Infected Bots Control Improved](/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
 </details>
 

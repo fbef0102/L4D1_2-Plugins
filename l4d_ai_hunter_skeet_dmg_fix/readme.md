@@ -66,7 +66,7 @@ Makes AI Hunter take damage like human SI while pouncing.
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [charging_takedamage_patch](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/charging_takedamage_patch): Makes AI Charger take damage like human SI while charging.
+	1. [charging_takedamage_patch](/charging_takedamage_patch): Makes AI Charger take damage like human SI while charging.
 		* 移除AI Charger的衝鋒減傷
 </details>
 

@@ -63,7 +63,7 @@ Notifies selected team(s) when someone is on final strike and add glow
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-    1. [l4d_blackandwhite](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_blackandwhite): Notify people when player is black and white.
+    1. [l4d_blackandwhite](/l4d_blackandwhite): Notify people when player is black and white.
         > 顯示誰是黑白狀態，比較少的提示與支援
 </details>
 

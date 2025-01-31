@@ -49,7 +49,7 @@ Adds Friendly Fire Announcements (who kills teammates)
 	1. [l4d_friendly_fire_stats](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_%E4%BA%BA%E9%A1%9E/l4d_friendly_fire_stats): Display all friendly fire dealt and received
 		> 顯示造成與受到的友傷以及兇手，有友傷統計
 
-	2. [anti-friendly_fire](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/anti-friendly_fire): shoot your teammate = shoot yourself
+	2. [anti-friendly_fire](/anti-friendly_fire): shoot your teammate = shoot yourself
 		> 反彈傷害
 
 	3. [anti-friendly_fire_V2](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Anti_Griefer_%E9%98%B2%E6%83%A1%E6%84%8F%E8%B7%AF%E4%BA%BA/anti-friendly_fire_V2): shoot teammate = shoot yourself V2

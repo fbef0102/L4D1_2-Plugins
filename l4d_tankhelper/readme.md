@@ -12,7 +12,7 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
-    3. [spawn_infected_nolimit](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit)
+    3. [spawn_infected_nolimit](/spawn_infected_nolimit)
 
 * <details><summary>ConVar | 指令</summary>
 

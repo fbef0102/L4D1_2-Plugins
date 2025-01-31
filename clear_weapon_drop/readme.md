@@ -23,7 +23,7 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_drop](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_drop): Allows players to drop the weapon they are holding
+	1. [l4d_drop](/l4d_drop): Allows players to drop the weapon they are holding
 		> 玩家可自行丟棄手中的武器
 </details>
 

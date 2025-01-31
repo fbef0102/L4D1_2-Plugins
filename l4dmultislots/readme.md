@@ -23,7 +23,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 survivors and server slots limit
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	4. [l4d_CreateSurvivorBot](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_CreateSurvivorBot)
+	4. [l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -177,9 +177,9 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4dinfectedbots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
+	1. [l4dinfectedbots](/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 		> 多特感生成插件，倖存者人數越多，生成的特感越多，且不受遊戲特感數量限制
-	2. [l4d_afk_commands](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_afk_commands): Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
+	2. [l4d_afk_commands](/l4d_afk_commands): Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
 		> 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
 	3. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
 		> 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
@@ -271,7 +271,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8/README.md#%E5%AE%89%E8%A3%9Dl4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-	4. [l4d_CreateSurvivorBot](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_CreateSurvivorBot)
+	4. [l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

@@ -43,9 +43,9 @@ Downloading fastdl custom files only when map change/transition
 
 * <details><summary>Related | 相關插件</summary>
 
-	1. [sm_downloader](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/sm_downloader): SM File/Folder Downloader and Precacher
+	1. [sm_downloader](/sm_downloader): SM File/Folder Downloader and Precacher
     	* SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
-	2. [l4d_MusicMapStart](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_MusicMapStart): Download and play custom musics
+	2. [l4d_MusicMapStart](/l4d_MusicMapStart): Download and play custom musics
 		* 下載自製音樂
 	3. [map-decals](https://github.com/fbef0102/Sourcemod-Plugins/tree/main/map-decals): Download custom decals
 		* 下載自製的噴漆貼圖

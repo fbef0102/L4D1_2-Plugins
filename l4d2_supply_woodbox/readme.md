@@ -119,10 +119,10 @@ Supply boxes are dropped randomly in the map every certain seconds to provide su
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_cso_zombie_Regeneration](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_cso_zombie_Regeneration): The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.
+	1. [l4d_cso_zombie_Regeneration](/l4d_cso_zombie_Regeneration): The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.
 		* 殭屍變得更強大，他們只要站著不動便可以自癒傷勢　(仿CSO惡靈降世 殭屍技能)
 
-	2. [weapon_csgo_reload](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_weapon_csgo_reload): Weapon Quickswitch Reloading in L4D1+2
+	2. [weapon_csgo_reload](/l4d2_weapon_csgo_reload): Weapon Quickswitch Reloading in L4D1+2
 		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
 
 	3. [l4d2_cso_knockback](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Nothing_Impossible_無理改造版/l4d2_cso_knockback): Weapons and Melees now have knockback power like CSO

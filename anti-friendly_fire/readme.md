@@ -51,7 +51,7 @@ shoot your teammate = shoot yourself
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-    1. [l4dffannounce](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dffannounce): Adds Friendly Fire Announcements (who kills teammates)
+    1. [l4dffannounce](/l4dffannounce): Adds Friendly Fire Announcements (who kills teammates)
         > 顯示誰他馬TK我
 
     2. [l4d_friendly_fire_stats](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_%E4%BA%BA%E9%A1%9E/l4d_friendly_fire_stats): Display all friendly fire dealt and received

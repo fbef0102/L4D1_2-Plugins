@@ -213,7 +213,7 @@ Improves the AI behaviour of special infected
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-    1. [l4dinfectedbots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
+    1. [l4dinfectedbots](/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
         * 生成多特感控制插件
     2. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player to the teammate who is much nearer to survivors.
         * 傳送比較遠的AI特感到靠近倖存者的特感隊友附近

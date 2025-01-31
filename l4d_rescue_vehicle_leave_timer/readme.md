@@ -74,7 +74,7 @@ When rescue vehicle arrived and a timer will display how many time left before v
 
 * <details><summary>Related | 相關插件</summary>
 
-    1. [lockdown_system-l4d2](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/lockdown_system-l4d2): Locks Saferoom Door Until Someone Opens It.
+    1. [lockdown_system-l4d2](/lockdown_system-l4d2): Locks Saferoom Door Until Someone Opens It.
         > 倖存者必須等待時間到並合力對抗屍潮與Tank才能打開終點安全門
 
     2. [l4d2_final_rescue_arrive_time](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Map_%E9%97%9C%E5%8D%A1/l4d2_final_rescue_arrive_time): Increase the finale rescue time, survivors must hold up until time passed

@@ -255,6 +255,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 移除AI Charger的衝鋒減傷
 * <b>[rescue_glow](/rescue_glow)</b>: Fixed sometimes glow is invisible when dead survivors appears in rescue closet
     * 修復有時候救援房間沒有看到倖存者的光圈
+* <b>[l4d2_map_transitions](/l4d2_map_transitions)</b>: Define map transitions to combine campaigns in versus
+    * 對抗模式第二回合結束時從地圖A切換成地圖B
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境

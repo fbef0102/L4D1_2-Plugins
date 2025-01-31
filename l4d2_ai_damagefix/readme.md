@@ -4,7 +4,7 @@ Makes AI SI take (and do) damage like human SI.
 > __Note__ <br/>
 This Plugin has been discontinued, Use 
 <br/>1. [charging_takedamage_patch](/charging_takedamage_patch)
-<br/>2. [l4d_ai_hunter_skeet_dmg_fix](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_ai_hunter_skeet_dmg_fix)
+<br/>2. [l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix)
 
 * <details><summary>How does it work?</summary>
 
@@ -36,7 +36,7 @@ This Plugin has been discontinued, Use
 > __Note__ <br/>
 此插件已停止更新，請使用
 <br/>1. [charging_takedamage_patch](/charging_takedamage_patch)
-<br/>2. [l4d_ai_hunter_skeet_dmg_fix](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_ai_hunter_skeet_dmg_fix)
+<br/>2. [l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix)
 
 * 原理
 	* (裝插件之前) 真人扮演的Hunter在飛撲過程中容易被殺死, 但是AI Hunter不容易被殺死，因為官方故意設置傷害機制不同

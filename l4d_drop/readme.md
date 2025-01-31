@@ -62,7 +62,7 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [drop_secondary](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/drop_secondary): Survivor players will drop their secondary weapon (including melee) when they die
+	1. [drop_secondary](/drop_secondary): Survivor players will drop their secondary weapon (including melee) when they die
 		> 死亡時掉落第二把武器
 </details>
 

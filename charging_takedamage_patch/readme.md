@@ -39,7 +39,7 @@ Makes AI Charger take damage like human SI while charging.
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d_ai_hunter_skeet_dmg_fix](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_ai_hunter_skeet_dmg_fix): Makes AI Hunter take damage like human SI while pouncing.
+	1. [l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix): Makes AI Hunter take damage like human SI while pouncing.
 		* 對AI Hunter(正在飛撲的途中) 造成的傷害數據跟真人玩家一樣
 </details>
 

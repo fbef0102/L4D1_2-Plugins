@@ -13,6 +13,12 @@ Fix issues after map transitioned, transition info is still retaining when chang
 	* This plugin will clear those transition info if no longer is transitioned map.
 </details>
 
+* <details><summary>Recommand Install | 推薦安裝</summary>
+
+	1. [l4d2_fix_changelevel](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_fix_changelevel): Fix issues due to forced changelevel.
+		> 修復手動更換地圖會遇到的問題
+</details>
+
 * <details><summary>Known Issue</summary>
 
 	1. If a player disconnects from server when map change, server loading second map too long and everyone in the server stuck in this situation
@@ -28,12 +34,6 @@ Fix issues after map transitioned, transition info is still retaining when chang
 
 * Require | 必要安裝
 <br>None
-
-* <details><summary>Related Plugin | 相關插件</summary>
-	
-	1. [l4d2_fix_changelevel](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_fix_changelevel): Fix issues due to forced changelevel.
-		> 修復手動更換地圖會遇到的問題
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 

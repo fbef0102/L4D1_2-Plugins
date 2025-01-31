@@ -29,7 +29,7 @@ public Plugin myinfo =
 	name = "[L4D1/L4D2] Mix Map",
 	author = "Bred, Harry",
 	description = "Randomly select five maps for versus/coop/realism. Adding for fun",
-	version = "1.0h-2024/12/25",
+	version = "1.1h-2025/1/31",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mixmap"
 };
 
@@ -261,7 +261,7 @@ public void OnMapStart()
 
 	g_hArrayMapOrder.GetString(g_iMapsPlayed+1, buffer, BUF_SZ);
 
-	CreateTimer(5.0, Timer_FindInfoChangelevel, _, TIMER_FLAG_NO_MAPCHANGE);
+	//CreateTimer(5.0, Timer_FindInfoChangelevel, _, TIMER_FLAG_NO_MAPCHANGE);
 
 	Call_StartForward(g_hForwardNext);
 	Call_PushString(buffer);
@@ -818,8 +818,6 @@ Action Timer_PluginStart(Handle timer)
 
 	if(g_ReadyUpAvailable) UpdateReadyUpFooter(5.5);
 
-	
-
 	return Plugin_Continue;
 }
 
@@ -892,7 +890,7 @@ Action Timer_UpdateReadyUpFooter(Handle timer)
 	return Plugin_Continue;
 }
 
-Action Timer_FindInfoChangelevel(Handle timer)
+stock Action Timer_FindInfoChangelevel(Handle timer)
 {
 	if(L4D_HasPlayerControlledZombies() && strlen(g_slandmarkName) > 0)
 	{
@@ -908,6 +906,7 @@ Action Timer_FindInfoChangelevel(Handle timer)
 			if(info_landmark > MaxClients)
 			{
 				// To prevent server console spam error: Most gross danger! Cannot find Landmark named ｘｘｘｘｘｘ!
+				// (只出現於對抗模式) 伺服器啟動選項有寫-dev, 第二回合倖存者過關後
 				DispatchKeyValueVector(info_landmark, "origin", targetPos);
 				DispatchKeyValue(info_landmark, "targetname", g_slandmarkName);
 				DispatchSpawn(info_landmark);

@@ -20,7 +20,7 @@ Locks Saferoom Door Until Someone Opens It.
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-    3. [spawn_infected_nolimit](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit)
+    3. [spawn_infected_nolimit](/spawn_infected_nolimit)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -112,7 +112,7 @@ Locks Saferoom Door Until Someone Opens It.
     1. [end_safedoor_teleport](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/end_safedoor_teleport): Teleport ci/si/tank outside the end saferoom if they spawn inside
         * 如果 普通感染者/特感/Tank 生在終點安全室裡面，則將他們傳送到門前 (避免卡在終點安全室裡面)
     
-    2. [l4d_rescue_vehicle_leave_timer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_rescue_vehicle_leave_timer): When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him
+    2. [l4d_rescue_vehicle_leave_timer](/l4d_rescue_vehicle_leave_timer): When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him
         * 救援來臨之後，未在時間內上救援載具逃亡的玩家將處死
     
     3. [antisaferoomdooropen](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_%E4%BA%BA%E9%A1%9E/antisaferoomdooropen): Start Saferoom door anti open + teleport survivor back to safe area when leaving out saferoom until certain time pass

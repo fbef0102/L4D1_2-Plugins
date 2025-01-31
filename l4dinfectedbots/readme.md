@@ -407,15 +407,15 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [MultiSlots](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
+	1. [MultiSlots](/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
 		> 創造5位以上倖存者遊玩伺服器
-	2. [AI_HardSI](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/AI_HardSI): Improves the AI behaviour of special infected
+	2. [AI_HardSI](/AI_HardSI): Improves the AI behaviour of special infected
 		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
 	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
 	4. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
 		> 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
-	5. [gamemode-based_configs](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+	5. [gamemode-based_configs](/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
 		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
