@@ -1,5 +1,17 @@
 "Games"
 {
+	"left4dead"
+	{
+		"Offsets"
+		{
+			"AcceptInput"
+			{
+				"windows"	"37"
+				"linux"		"38"
+			}
+		}
+	}
+	
 	"left4dead2"
 	{
 		"Functions"
