@@ -115,11 +115,6 @@ void LateLoad()
     }
 }
 
-public void OnPluginEnd()
-{
-	ResetPlugin();
-}
-
 bool g_bMapStarted;
 public void OnMapStart()
 {
@@ -129,7 +124,6 @@ public void OnMapStart()
 public void OnMapEnd()
 {
 	g_bMapStarted = false;
-	ResetPlugin();
 }
 
 public void OnClientPutInServer(int client)
@@ -294,10 +288,7 @@ void HookEvents()
 	HookEvent("player_hurt", Event_PlayerHurt);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
-	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
-	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("round_start",            Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("player_bot_replace", 	Event_BotReplacePlayer);
 	HookEvent("bot_player_replace",     Event_PlayerReplaceBot);
 }
@@ -307,15 +298,12 @@ void UnhookEvents()
 	UnhookEvent("player_hurt", Event_PlayerHurt);
 	UnhookEvent("player_spawn", Event_PlayerSpawn);
 	UnhookEvent("player_death", Event_PlayerDeath);
-	UnhookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
-	UnhookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
-	UnhookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	UnhookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
+	UnhookEvent("round_start",            Event_RoundStart, EventHookMode_PostNoCopy);
 	UnhookEvent("player_bot_replace", 	Event_BotReplacePlayer);
 	UnhookEvent("bot_player_replace",     Event_PlayerReplaceBot);
 }
 
-void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetPlugin();
 }
@@ -574,6 +562,8 @@ void ResetPlugin()
 {
 	for (int i = 0; i <= MaxClients; i++)
 	{
+		g_bTankDied[i] = false;
+		g_iOtherDamage[i] = 0;
 		for (int j = 1; j <= MaxClients; j++)
 		{
 			g_iDamage[i][j] = 0;
@@ -583,6 +573,8 @@ void ResetPlugin()
 
 void ClearDmgSI(int victim)
 {
+	g_bTankDied[victim] = false;
+	g_iOtherDamage[victim] = 0;
 	for (int i = 0; i <= MaxClients; i++)
 	{
 		g_iDamage[i][victim] = 0;

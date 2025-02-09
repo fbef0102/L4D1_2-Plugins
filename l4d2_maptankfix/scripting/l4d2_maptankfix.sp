@@ -8,17 +8,8 @@
 #include <spawn_infected_nolimit> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/spawn_infected_nolimit
 
 #define DEBUG		   0
-#define PLUGIN_VERSION "1.3-2025/2/7"
+#define PLUGIN_VERSION "1.4-2025/2/9"
 #define GAMEDATA	   "l4d2_maptankfix"
-
-bool			 g_bTankFix;
-ArrayList 		 g_aEntList;
-ConVar			 g_Onoff;
-bool	g_bBlockHook = false;
- 
-
-DynamicHook	g_hdAcceptInput;
-DHookSetup	g_hSpecialSpawn;
 
 public Plugin myinfo =
 {
@@ -54,6 +45,28 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
+ConVar			 g_Onoff;
+bool			 g_bTankFix;
+
+ArrayList 		
+	g_aEntList;
+
+bool	
+	g_bBlockHook,
+	g_bHookTankSpawn;
+
+int 
+	g_iCurrentEntRef;
+ 
+float
+	g_fProtectTime[MAXPLAYERS+1];
+
+DynamicHook	
+	g_hdAcceptInput_Pre, g_hdAcceptInput_Post;
+
+//DHookSetup	
+//	g_hSpecialSpawn;
+
 public void OnPluginStart()
 {
 	g_aEntList = new ArrayList();
@@ -68,21 +81,28 @@ public void OnPluginStart()
 	int offset = GameConfGetOffset(hGameData, "AcceptInput");
 	if (offset == 0) SetFailState("Failed to load \"AcceptInput\", invalid offset.");
 
-	if(g_bL4D2Version)
+	/*if(g_bL4D2Version)
 	{
 		g_hSpecialSpawn = DHookCreateFromConf(hGameData, "L4DD::ZombieManager::SpawnSpecial");
 		if (!g_hSpecialSpawn) SetFailState("Failed to find \"L4DD::ZombieManager::SpawnSpecial\" offset.");
 		if (!DHookEnableDetour(g_hSpecialSpawn, false, SpecialSpawnDetour)) SetFailState("Failed to detour \"L4DD::ZombieManager::SpawnSpecial\".");
 		delete g_hSpecialSpawn;
-	}
+	}*/
 
 	delete hGameData;
-	g_hdAcceptInput = DHookCreate(offset, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, DHook_AcceptInput);
-	DHookAddParam(g_hdAcceptInput, HookParamType_CharPtr);
-	DHookAddParam(g_hdAcceptInput, HookParamType_CBaseEntity);
-	DHookAddParam(g_hdAcceptInput, HookParamType_CBaseEntity);
-	DHookAddParam(g_hdAcceptInput, HookParamType_Object, 20, DHookPass_ByVal | DHookPass_ODTOR | DHookPass_OCTOR | DHookPass_OASSIGNOP);
-	DHookAddParam(g_hdAcceptInput, HookParamType_Int);
+	g_hdAcceptInput_Pre = DHookCreate(offset, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, DHook_AcceptInput_Pre);
+	DHookAddParam(g_hdAcceptInput_Pre, HookParamType_CharPtr);
+	DHookAddParam(g_hdAcceptInput_Pre, HookParamType_CBaseEntity);
+	DHookAddParam(g_hdAcceptInput_Pre, HookParamType_CBaseEntity);
+	DHookAddParam(g_hdAcceptInput_Pre, HookParamType_Object, 20, DHookPass_ByVal | DHookPass_ODTOR | DHookPass_OCTOR | DHookPass_OASSIGNOP);
+	DHookAddParam(g_hdAcceptInput_Pre, HookParamType_Int);
+
+	g_hdAcceptInput_Post = DHookCreate(offset, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, DHook_AcceptInput_Post);
+	DHookAddParam(g_hdAcceptInput_Post, HookParamType_CharPtr);
+	DHookAddParam(g_hdAcceptInput_Post, HookParamType_CBaseEntity);
+	DHookAddParam(g_hdAcceptInput_Post, HookParamType_CBaseEntity);
+	DHookAddParam(g_hdAcceptInput_Post, HookParamType_Object, 20, DHookPass_ByVal | DHookPass_ODTOR | DHookPass_OCTOR | DHookPass_OASSIGNOP);
+	DHookAddParam(g_hdAcceptInput_Post, HookParamType_Int);
 
 	g_Onoff 				= CreateConVar( "l4d2_maptankfix_enable", "1", "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY);
 	AutoExecConfig(true,                	"l4d2_maptankfix");
@@ -90,7 +110,8 @@ public void OnPluginStart()
 	GetCvars();
 	g_Onoff.AddChangeHook(ConVarChanged);
 
-	HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);
+	HookEvent("round_start", 	Event_RoundStart, EventHookMode_PostNoCopy);
+	HookEvent("player_spawn",	Event_PlayerSpawn);
 }
 
 void ConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -135,7 +156,10 @@ void NextFrame_commentary_zombie_spawner(int entity)
 	#if DEBUG
 		LogError("commentary_zombie_spawner Detour: %d", entity);
 	#endif
-	DHookEntity(g_hdAcceptInput, false, entity);
+
+	DHookEntity(g_hdAcceptInput_Pre, false, entity);
+	DHookEntity(g_hdAcceptInput_Post, true, entity);
+	
 }
 
 void NextFrame_info_zombie_spawn(int entity)
@@ -150,7 +174,9 @@ void NextFrame_info_zombie_spawn(int entity)
 		#if DEBUG
 			LogError("info_zombie_spawn Detour: %d", entity);
 		#endif
-		DHookEntity(g_hdAcceptInput, false, entity);
+
+		DHookEntity(g_hdAcceptInput_Pre, false, entity);
+		DHookEntity(g_hdAcceptInput_Post, true, entity);
 	}
 }
 
@@ -160,8 +186,34 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	g_aEntList = new ArrayList();
 }
 
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{ 
+    int client = GetClientOfUserId(event.GetInt("userid"));
+
+    if(client && IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client)
+		&& GetEntProp(client, Prop_Send, "m_zombieClass") == ZOMBIECLASS_TANK)
+    {
+		if(g_bHookTankSpawn)
+		{
+			// 成功活tank
+			#if DEBUG
+				float fPos[3];
+				GetClientAbsOrigin(client, fPos);
+				LogError("New Tank Spawned by SpawnZombie - %.1f %.1f %.1f - %f", client, fPos[0], fPos[1], fPos[2], GetEngineTime());
+			#endif	
+
+			// 保護此tank不會被此插件踢
+			g_fProtectTime[client] = GetEngineTime() + 10.0;
+
+			RemoveValueFromList(g_iCurrentEntRef);
+		}
+
+		g_bHookTankSpawn = true;
+	}
+}
+
 // 如果输入符合
-MRESReturn DHook_AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
+MRESReturn DHook_AcceptInput_Pre(int pThis, DHookReturn hReturn, DHookParam hParams)
 {
 	if (g_bTankFix == false || g_bBlockHook) return MRES_Ignored;
 	// 在l4d1中, 如果特感隊伍已滿 (z_max_player_zombies+1), 無法生成tank
@@ -176,17 +228,21 @@ MRESReturn DHook_AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
 		DHookGetParamString(hParams, 1, sCommand, sizeof(sCommand));
 		if(strcmp(sCommand, "SpawnZombie", false) != 0) return MRES_Ignored;
 
-#if DEBUG
-		LogError("Detour info_zombie_spawn spawn: %d", pThis);
-#endif
-		
+		g_bHookTankSpawn = true;
+
+		g_iCurrentEntRef = EntIndexToEntRef(pThis);
+		PushValueInList(g_iCurrentEntRef);
 		float ePos[3];
 		GetEntPropVector(pThis, Prop_Data, "m_vecAbsOrigin", ePos);
+
 		DataPack hPack;
 		CreateDataTimer(0.1, CheckIfSpawnSucess, hPack);
-		hPack.WriteCell(GetGameTickCount());
-		hPack.WriteCell(EntIndexToEntRef(pThis));
+		hPack.WriteCell(g_iCurrentEntRef);
 		hPack.WriteFloatArray(ePos, sizeof ePos);
+
+		#if DEBUG
+			LogError("Detour_Pre info_zombie_spawn spawn: %d, - %f %f %f, %f", pThis, ePos[0], ePos[1], ePos[2], GetEngineTime());
+		#endif
 	}
 	// https://developer.valvesoftware.com/wiki/Commentary_zombie_spawner
 	else if (StrEqual(szEntityName, "commentary_zombie_spawner"))
@@ -196,24 +252,39 @@ MRESReturn DHook_AcceptInput(int pThis, DHookReturn hReturn, DHookParam hParams)
 
 		char result[64];
 		DHookGetParamObjectPtrString(hParams, 4, 0, ObjectValueType_String, result, sizeof(result));
-		if (strncmp(result, "tank", 4, false) == 0)
-		{
-#if DEBUG
-			LogError("Detour commentary_zombie_spawner spawn: %d", pThis);
-#endif
-			float ePos[3];
-			GetEntPropVector(pThis, Prop_Data, "m_vecAbsOrigin", ePos);
-			DataPack hPack;
-			CreateDataTimer(0.1, CheckIfSpawnSucess, hPack);
-			hPack.WriteCell(GetGameTickCount());
-			hPack.WriteCell(EntIndexToEntRef(pThis));
-			hPack.WriteFloatArray(ePos, sizeof ePos);
-		}
+		if (strncmp(result, "tank", 4, false) != 0) return MRES_Ignored;
+
+		g_bHookTankSpawn = true;
+		
+		g_iCurrentEntRef = EntIndexToEntRef(pThis);
+		PushValueInList(g_iCurrentEntRef);
+		float ePos[3];
+		GetEntPropVector(pThis, Prop_Data, "m_vecAbsOrigin", ePos);
+
+		DataPack hPack;
+		CreateDataTimer(0.1, CheckIfSpawnSucess, hPack);
+		hPack.WriteCell(g_iCurrentEntRef);
+		hPack.WriteFloatArray(ePos, sizeof ePos);
+
+		#if DEBUG
+			LogError("Detour_Pre commentary_zombie_spawner spawn: %d, - %f %f %f, %f", pThis, ePos[0], ePos[1], ePos[2], GetEngineTime());
+		#endif
 	}
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHook_AcceptInput_Post(int pThis, DHookReturn hReturn, DHookParam hParams)
+{
+	if (g_bTankFix == false || g_bBlockHook) return MRES_Ignored;
+
+	g_bHookTankSpawn = false;
+
 	return MRES_Ignored;
 }
 
 // tank重生期间禁止新特感刷新
+/*
 MRESReturn SpecialSpawnDetour(DHookReturn hReturn, DHookParam hParams)
 {
 	if (g_bTankFix == false || IsListNull() || g_bBlockHook) return MRES_Ignored;
@@ -230,40 +301,21 @@ MRESReturn SpecialSpawnDetour(DHookReturn hReturn, DHookParam hParams)
 
 	return MRES_Ignored;
 }
-
+*/
 Action CheckIfSpawnSucess(Handle timer, DataPack hPack)
 {
 	hPack.Reset();
 	float ePos[3];
-	int iIndex = hPack.ReadCell();
 	int ref = hPack.ReadCell();
 	hPack.ReadFloatArray(ePos, sizeof ePos);
 
-	float vPos[3];
-	int class;
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client))
-		{
-			class = GetEntProp(client, Prop_Send, "m_zombieClass");
-			if (class == ZOMBIECLASS_TANK)
-			{
-				GetClientAbsOrigin(client, vPos);
-				if (GetVectorDistance(vPos, ePos, true) <= 100.0 * 100.0)
-				{
-					RemoveValueFromList(iIndex);
-					return Plugin_Continue;
-				}
-			}
-		}
-	}
+	int index = g_aEntList.FindValue(ref);
+	if(index < 0) return Plugin_Continue;
 
-	PushValueInList(iIndex);
 	TryReleaseSlotFromSpecial();
 
 	DataPack hPack2;
 	CreateDataTimer(0.1, LaterSpawnTank, hPack2);
-	hPack2.WriteCell(iIndex);
 	hPack2.WriteCell(ref);
 	hPack2.WriteFloatArray(ePos, sizeof ePos);
 
@@ -276,7 +328,7 @@ bool GiveHumanSpecialTank(float ePos[3])
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int human = 1; human <= MaxClients; human++)
 	{
-		if (IsClientInGame(human) && GetClientTeam(human) == 3 && !IsFakeClient(human))
+		if (IsClientInGame(human) && GetClientTeam(human) == 3 && !IsFakeClient(human) && !IsClientInKickQueue(human))
 		{
 			if (!IsPlayerAlive(human))
 			{
@@ -315,7 +367,7 @@ void TryReleaseSlotFromSpecial()
 	// 隨機踢走一個死亡的AI特感 (spitter除外)
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsValidSpecialsBot(client) && !IsPlayerAlive(client))
+		if (IsValidSpecialsBot(client) && !IsPlayerAlive(client) && !IsClientInKickQueue(client))
 		{
 			class = GetEntProp(client, Prop_Send, "m_zombieClass");
 			if(g_bL4D2Version)
@@ -336,75 +388,73 @@ void TryReleaseSlotFromSpecial()
 		}
 	}
 
-	// 隨機踢走一個沒有控人的活著AI特感 (tank除外)
+	// 隨機處死並踢走一個沒有控人的活著AI特感 (tank除外)
 	if(g_bHasSlot == false)
 	{
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsValidSpecialsBot(client))
+			if (IsValidSpecialsBot(client) && !IsClientInKickQueue(client)
+				&& GetEntProp(client, Prop_Send, "m_zombieClass") < ZOMBIECLASS_TANK 
+				&& L4D_GetPinnedSurvivor(client) <= 0)
 			{
-				class = GetEntProp(client, Prop_Send, "m_zombieClass");
-				if (class < ZOMBIECLASS_TANK && L4D_GetPinnedSurvivor(client) <= 0)
-				{
-					#if DEBUG
-						LogError("Kick: %N", client);
-					#endif
+				#if DEBUG
+					LogError("Kick: %N", client);
+				#endif
 
-					KickClient(client);
-					g_bHasSlot = true;
-					break;
-				}
+				ForcePlayerSuicide(client);
+				KickClient(client);
+				g_bHasSlot = true;
+				break;
 			}
 		}
 	}
 
-	// 隨機踢走一個AI特感，無論死活 (tank除外)
+	// 隨機處死並踢走一個AI特感，無論死活 (tank除外)
 	if(g_bHasSlot == false)
 	{
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsValidSpecialsBot(client))
+			if (IsValidSpecialsBot(client) && !IsClientInKickQueue(client)
+				&& GetEntProp(client, Prop_Send, "m_zombieClass") < ZOMBIECLASS_TANK)
 			{
-				class = GetEntProp(client, Prop_Send, "m_zombieClass");
-				if (class < ZOMBIECLASS_TANK)
+				if(g_bL4D2Version)
 				{
-					if(g_bL4D2Version)
-					{
-						int jockey = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
-						if(jockey != -1)
-							vCheatCommand(jockey, "dismount");
-					}
-
-					#if DEBUG
-						LogError("Kick: %N", client);
-					#endif
-
-					KickClient(client);
-					g_bHasSlot = true;
-					break;
+					int jockey = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
+					if(jockey != -1)
+						vCheatCommand(jockey, "dismount");
 				}
+
+				#if DEBUG
+					LogError("Kick: %N", client);
+				#endif
+
+				ForcePlayerSuicide(client);
+				KickClient(client);
+				g_bHasSlot = true;
+				break;
 			}
 		}
 	}
 
-	// 隨機將一個AI tank踢出伺服器
+	// 隨機處死並踢走一個AI tank
 	if(g_bHasSlot == false)
 	{
+		float now = GetEngineTime();
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsValidSpecialsBot(client))
+			if (IsValidSpecialsBot(client) && !IsClientInKickQueue(client)
+				&& GetEntProp(client, Prop_Send, "m_zombieClass") == ZOMBIECLASS_TANK)
 			{
-				class = GetEntProp(client, Prop_Send, "m_zombieClass");
-				if (class == ZOMBIECLASS_TANK)
-				{
-					#if DEBUG
-						LogError("Kick: %N", client);
-					#endif
+				if(g_fProtectTime[client] > now) continue;
+				
+				#if DEBUG
+					LogError("Kick: %N", client);
+				#endif
 
-					KickClient(client, "for l4d2_maptankfix");
-					g_bHasSlot = true;
-					break;
-				}
+				ForcePlayerSuicide(client);
+				KickClient(client, "for l4d2_maptankfix");
+				g_bHasSlot = true;
+				break;
 			}
 		}
 	}
@@ -415,7 +465,6 @@ Action LaterSpawnTank(Handle timer, DataPack hPack)
 {
 	hPack.Reset();
 	float ePos[3];
-	int iIndex = hPack.ReadCell();
 	int ref = hPack.ReadCell();
 	hPack.ReadFloatArray(ePos, sizeof ePos);
 
@@ -434,49 +483,38 @@ Action LaterSpawnTank(Handle timer, DataPack hPack)
 	}
 	else
 	{
+		GetEntPropVector(ent, Prop_Data, "m_vecAbsOrigin", ePos);
+
 		char classname[64];
 		GetEntityClassname(ent, classname, sizeof(classname));
 		if (StrEqual(classname, "info_zombie_spawn"))
 		{
+			g_bHookTankSpawn = true;
+			g_iCurrentEntRef = ref;
 			AcceptEntityInput(ent, "SpawnZombie");
+			g_bHookTankSpawn = false;
+
+			if(g_aEntList.FindValue(ref) < 0) bHasTank = true;
+
+			if(!bHasTank) bHasTank = GiveHumanSpecialTank(ePos);
+			if(!bHasTank) bHasTank = (NoLimit_CreateInfected("tank", ePos, NULL_VECTOR) > 0);
 		}
 		else if (StrEqual(classname, "commentary_zombie_spawner"))
 		{
+			g_bHookTankSpawn = true;
+			g_iCurrentEntRef = ref;
 			SetVariantString("tank");
 			AcceptEntityInput(ent, "SpawnZombie");
+			g_bHookTankSpawn = false;
+
+			if(g_aEntList.FindValue(ref) < 0) bHasTank = true;
 		}
 		else
 		{
-			RemoveValueFromList(iIndex);
+			RemoveValueFromList(ref);
 
 			g_bBlockHook = false;
 			return Plugin_Continue;
-		}
-
-		float vPos[3];
-		int class;
-		for (int client = 1; client <= MaxClients; client++)
-		{
-			if (IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client))
-			{
-				class = GetEntProp(client, Prop_Send, "m_zombieClass");
-				if (class == ZOMBIECLASS_TANK)
-				{
-					GetClientAbsOrigin(client, vPos);
-					if (GetVectorDistance(vPos, ePos, true) <= 100.0 * 100.0)
-					{
-						bHasTank = true;
-						break;
-					}
-				}
-			}
-		}
-
-		if(!bHasTank) bHasTank = GiveHumanSpecialTank(ePos);
-		
-		if(!bHasTank && !g_bL4D2Version)
-		{
-			bHasTank = (NoLimit_CreateInfected("tank", ePos, NULL_VECTOR) > 0);
 		}
 	}
 
@@ -487,7 +525,7 @@ Action LaterSpawnTank(Handle timer, DataPack hPack)
 		#if DEBUG
 			LogError("Spawn new Tank successful");
 		#endif
-		RemoveValueFromList(iIndex);
+		RemoveValueFromList(ref);
 	}
 	else
 	{
@@ -497,7 +535,6 @@ Action LaterSpawnTank(Handle timer, DataPack hPack)
 
 		DataPack hPack2;
 		CreateDataTimer(0.1, CheckIfSpawnSucess, hPack2);
-		hPack2.WriteCell(iIndex);
 		hPack2.WriteCell(ref);
 		hPack2.WriteFloatArray(ePos, sizeof ePos);
 	}
@@ -513,8 +550,7 @@ bool IsValidSpecialsBot(int client)
 
 void PushValueInList(int value)
 {
-	int index = g_aEntList.FindValue(value);
-	if(index < 0) g_aEntList.Push(value);
+	if(g_aEntList.FindValue(value) < 0) g_aEntList.Push(value);
 }
 
 void RemoveValueFromList(int value)
@@ -523,7 +559,7 @@ void RemoveValueFromList(int value)
 	if(index >= 0) g_aEntList.Erase(index);
 }
 
-bool IsListNull()
+stock bool IsListNull()
 {
 	return g_aEntList.Length == 0;
 }
