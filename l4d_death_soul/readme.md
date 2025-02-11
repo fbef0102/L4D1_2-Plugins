@@ -6,28 +6,20 @@ Soul of the dead survivor flies away to the afterlife
 * Image | 圖示
 	<br/>![l4d_death_soul_1](image/l4d_death_soul_1.gif)
 
-* Require | 必要安裝
-<br/>None
-
-* <details><summary>ConVar | 指令</summary>
-
-	* cfg\sourcemod\l4d_death_soul.cfg
-		```php
-        // 0=Plugin off, 1=Plugin on.
-        l4d_death_soul_allow "1"
-		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* <details><summary>ConVar | 指令</summary>
+
+	* cfg\sourcemod\l4d_death_soul.cfg
+		```php
+		// 0=Plugin off, 1=Plugin on.
+		l4d_death_soul_allow "1"
+		```
+</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
@@ -37,16 +29,15 @@ Soul of the dead survivor flies away to the afterlife
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//Dragokas @ 2019-2021
-	//HarryPotter @ 2022-2023
-	```
+	* v1.1h (2025-2-12)
+		* Fixed crash due to invalid reference
+
 	* v1.0h (2023-7-27)
-        * Remove soul when player changes team.
+		* Remove soul when player changes team.
 		* Remove CPR
 
-	* v1.6
-        * [Original Plugin by Dragokas](https://forums.alliedmods.net/showthread.php?t=319273)
+	* Original & Credit
+		* [Dragokas](https://forums.alliedmods.net/showthread.php?t=319273)
 </details>
 
 - - - -
@@ -54,5 +45,14 @@ Soul of the dead survivor flies away to the afterlife
 人類死亡後，靈魂升天
 
 * 原理
-    * 死亡之後，靈魂出竅
+	* 死亡之後，靈魂出竅
 	* 電擊器救活之後，靈魂回歸本體
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg\sourcemod\l4d_death_soul.cfg
+		```php
+		// 0=關閉插件, 1=啟動插件
+		l4d_death_soul_allow "1"
+		```
+</details>

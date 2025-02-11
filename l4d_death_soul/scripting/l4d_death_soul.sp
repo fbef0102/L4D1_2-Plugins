@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION 		"1.0h-2023/7/27"
+#define PLUGIN_VERSION 		"1.1h-2025/2/12"
 
 /*=======================================================================================
 =========================================================================================
@@ -53,6 +53,9 @@
 #define SF_NOUSERCONTROL    2
 #define SF_PASSABLE         8
 #define SF_UNBLOCKABLE      512
+
+#define MAXENTITIES                   2048
+#define ENTITY_SAFE_LIMIT 2000 
 
 // max. number of simultaneous effects and objects
 // ------------------------------------------------------
@@ -230,7 +233,7 @@ int CreateSoul(int client, float fTimeout = 0.0)
 		if (g_bLeft4dead2)
 		{
 			entity = CreateEntityByName("prop_dynamic_override"); // CDynamicProp
-			if (entity != -1) {
+			if (CheckIfEntitySafe( entity )) {
 				DispatchKeyValue(entity, "targetname", sName);
 				DispatchKeyValue(entity, "spawnflags", "0");
 				DispatchKeyValue(entity, "solid", "0");
@@ -255,7 +258,7 @@ int CreateSoul(int client, float fTimeout = 0.0)
 		}
 		else {
 			entity = CreateEntityByName("prop_glowing_object"); // CPropGlowingObject
-			if (entity != -1) {
+			if (CheckIfEntitySafe(entity)) {
 				DispatchKeyValue(entity, "targetname", sName);
 				DispatchKeyValue(entity, "spawnflags", "0");
 				DispatchKeyValue(entity, "solid", "0");
@@ -294,7 +297,7 @@ void SetAnimation(int entity, char[] sAnimName)
 int CreateRagdollReplacement(int client, float vecOrigin[3])
 {
 	int entity = CreateEntityByName("prop_dynamic_override"); // CDynamicProp
-	if (entity != -1) {
+	if (CheckIfEntitySafe( entity )) {
 		char sModel[PLATFORM_MAX_PATH];
 		GetEntPropString(client, Prop_Data, "m_ModelName", sModel, sizeof(sModel)); // clone model
 		DispatchKeyValue(entity, "spawnflags", "0");
@@ -523,9 +526,9 @@ public void Event_Death(Event event, const char[] name, bool dontBroadcast)
 			CreateFlySoul(target);
 			
 			/* for dissolving entity on the highest point
-			int track = EntRefToEntIndex(g_iTrackClient[target][TRACKS_PER_TRAIN - 1]);
+			int track ;
 			
-			if (track && track != INVALID_ENT_REFERENCE && IsValidEntity(track))
+			if (g_iTrackClient[target][TRACKS_PER_TRAIN - 1] && (track = EntRefToEntIndex(g_iTrackClient[target][TRACKS_PER_TRAIN - 1])) != INVALID_ENT_REFERENCE)
 			{
 				HookSingleEntityOutput(track, "OnPass", Callback_TrainPointPass, true);
 			}
@@ -546,13 +549,12 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	KillSoul(client);
 }
 
-public Action Timer_PlaySound(Handle timer, int UserId) // set increased speed of the train when CPR timeout
+Action Timer_PlaySound(Handle timer, int UserId) // set increased speed of the train when CPR timeout
 {
 	int client = GetClientOfUserId(UserId);
-	if (client != 0) {
-		int soul = EntRefToEntIndex(g_iSoulClient[client]);
-		
-		if (soul && soul != INVALID_ENT_REFERENCE && IsValidEntity(soul))
+	if (client && IsClientInGame(client)) {
+
+		if (g_iSoulClient[client] && EntRefToEntIndex(g_iSoulClient[client]) != INVALID_ENT_REFERENCE)
 		{
 			PlaySoundAmbient(client, false);
 		}
@@ -611,34 +613,34 @@ void OnSurvivorSpawn(int client)
 {
 	if (!g_bCanDiss) return;
 
-	int train = EntRefToEntIndex(g_iTrainClient[client]);
+	int train;
 
-	if (train && train != INVALID_ENT_REFERENCE && IsValidEntity(train))
+	if (g_iTrainClient[client] && (train = EntRefToEntIndex(g_iTrainClient[client])) != INVALID_ENT_REFERENCE)
 	{
 		SetVariantString(FALL_SPEED);
 		AcceptEntityInput(train, "SetSpeedReal");
 		AcceptEntityInput(train, "Reverse");
 	}
 	
-	int track = EntRefToEntIndex(g_iTrackClient[client][0]);
+	int track;
 	
-	if (track && track != INVALID_ENT_REFERENCE && IsValidEntity(track))
+	if (g_iTrackClient[client][0] && (track = EntRefToEntIndex(g_iTrackClient[client][0]))  != INVALID_ENT_REFERENCE)
 	{
 		HookSingleEntityOutput(track, "OnPass", Callback_TrainPointPass, true);
 	}
 	
 	// remove previous effect
-	int effect = EntRefToEntIndex(g_iEffectClient[client]);
+	int effect;
 
-	if (effect && effect != INVALID_ENT_REFERENCE && IsValidEntity(effect))
+	if (g_iEffectClient[client] && (effect = EntRefToEntIndex(g_iEffectClient[client])) != INVALID_ENT_REFERENCE)
 	{
 		AcceptEntityInput(effect, "Kill");
 		g_iEffectClient[client] = 0;
 	}
 	
-	int soul = EntRefToEntIndex(g_iSoulClient[client]);
+	int soul;
 	
-	if (soul && soul != INVALID_ENT_REFERENCE && IsValidEntity(soul))
+	if (g_iSoulClient[client] && (soul = EntRefToEntIndex(g_iSoulClient[client])) != INVALID_ENT_REFERENCE)
 	{
 		SetAnimation(soul, "Idle_Falling");
 	}
@@ -659,9 +661,9 @@ public void Callback_TrainPointPass(const char[] output, int caller, int activat
 		// find client (owner)
 		if (g_iTrackClient[client][0] == iTrackRef) {
 			
-			int soul = EntRefToEntIndex(g_iSoulClient[client]);
+			int soul ;
 			
-			if (soul && soul != INVALID_ENT_REFERENCE && IsValidEntity(soul))
+			if (g_iSoulClient[client] && (soul = EntRefToEntIndex(g_iSoulClient[client])) != INVALID_ENT_REFERENCE)
 			{
 				SpawnEffect(client, soul, "fire_window_glow", FALL_DISSOLVE_DELAY + FALL_DISSOLVE_TIME, 90.0); // fast bright glow
 				
@@ -681,17 +683,17 @@ public Action Timer_TrainSpeed(Handle timer, int UserId) // set increased speed 
 	int client = GetClientOfUserId(UserId);
 	if (client != 0 && g_bCanDiss)
 	{
-		int train = EntRefToEntIndex(g_iTrainClient[client]);
+		int train;
 		
-		if (train && train != INVALID_ENT_REFERENCE && IsValidEntity(train))
+		if (g_iTrainClient[client] && (train = EntRefToEntIndex(g_iTrainClient[client])) != INVALID_ENT_REFERENCE)
 		{
 			SetVariantString(INCREASED_SPEED);
 			AcceptEntityInput(train, "SetSpeedReal");
 		}
 		
-		int soul = EntRefToEntIndex(g_iSoulClient[client]);
+		int soul;
 		
-		if (soul && soul != INVALID_ENT_REFERENCE && IsValidEntity(soul))
+		if (g_iSoulClient[client] && (soul = g_iSoulClient[client]) != INVALID_ENT_REFERENCE)
 		{
 			switch (GetRandomInt(0, 1)) {
 				case 0: {
@@ -712,21 +714,30 @@ public Action Timer_TrainSpeed(Handle timer, int UserId) // set increased speed 
 void DissolveDelayed(int client, int iEntRef, float fTimeout, float dissTime) // delay to let people see animation and bright glow effect
 {
 	if (IsClientInGame(client)) {
-		DataPack dp = new DataPack();
+		DataPack dp;
+		CreateDataTimer(fTimeout, Timer_Dissolve, dp, TIMER_FLAG_NO_MAPCHANGE);
+		dp.WriteCell(client);
 		dp.WriteCell(GetClientUserId(client));
 		dp.WriteCell(iEntRef);
 		dp.WriteFloat(dissTime);
-		CreateTimer(fTimeout, Timer_Dissolve, dp, TIMER_FLAG_NO_MAPCHANGE | TIMER_DATA_HNDL_CLOSE);
 	}
 }
 
-public Action Timer_Dissolve(Handle timer, DataPack dp)
+Action Timer_Dissolve(Handle timer, DataPack dp)
 {
 	dp.Reset();
+	int clientindex = dp.ReadCell();
 	int client = GetClientOfUserId(dp.ReadCell());
 	int soul = EntRefToEntIndex(dp.ReadCell());
 	float dissTime = dp.ReadFloat();
+	if(soul == INVALID_ENT_REFERENCE) return Plugin_Continue;
 	DissolveTarget(soul, dissTime, client);
+
+	if(!client || !IsClientInGame(client))
+	{
+		CreateTimer(dissTime + 0.1, Timer_KillSoul, clientindex, TIMER_FLAG_NO_MAPCHANGE);
+		return Plugin_Continue;
+	}
 
 	return Plugin_Continue;
 }
@@ -794,8 +805,8 @@ void DissolveTarget(int target, float time = 3.0, int client = 0)
 		}
 	}
 	// do not clear objects if player is dead again! - in that case old objects are already cleared by Event_Death
-	if (client != 0	&& (!IsClientInGame(client) || (IsClientInGame(client) && IsPlayerAlive(client)))) {
-		CreateTimer(time + 0.1, Timer_KillSoul, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	if (client && IsClientInGame(client) && IsPlayerAlive(client)) {
+		CreateTimer(time + 0.1, Timer_KillSoul, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	//CreateTimer(5.0, Timer_GetRagdolls);
 }
@@ -814,7 +825,7 @@ public Action Timer_GetRagdolls(Handle timer)
 void FadeRagdoll(int ragdoll = -1, int client = -1)
 {
 	int fader = CreateEntityByName("func_ragdoll_fader");
-	if( fader != -1 )
+	if( CheckIfEntitySafe( fader ) )
 	{
 		if (ragdoll != -1) {
 			float vec[3];
@@ -882,7 +893,7 @@ int CreateFlySoul(int client)
 	if (train != -1)
 	{
 		g_iTrain[idx] = EntIndexToEntRef(train);
-		g_iTrainClient[client] = g_iTrain[idx];
+		g_iTrainClient[client] = EntIndexToEntRef(train);
 	
 		// Create our entity that requires to move
 		soul = CreateSoul(client);
@@ -916,9 +927,8 @@ void SetEntityKillTimer(int ent, float time)
 int CreateTrackTrain( char[] name, char[] firstpath)
 {
 	int ent = CreateEntityByName( "func_tracktrain" ); // CFuncTrackTrain
-	if ( ent < 1 )
+	if ( CheckIfEntitySafe( ent ) )
 	{
-		LogError( "Couldn't create func_tracktrain!" );
 		return -1;
 	}
 	char spawnflags[12];
@@ -948,7 +958,7 @@ int CreateTrackTrain( char[] name, char[] firstpath)
 int CreatePath( char[] name, float pos[3], char[] nexttarget )
 {
 	int ent = CreateEntityByName( "path_track" );
-	if ( ent < 1 )
+	if ( CheckIfEntitySafe(ent) )
 	{
 		LogError( "Couldn't create path_track!" );
 		return -1;
@@ -973,7 +983,7 @@ bool ParentToEntity( int ent, int target )
 int SpawnEffect(int client, int target, char[] sParticleName, float fTimeout, float XRotation)
 {
 	int iEntity = CreateEntityByName("info_particle_system", -1);
-	if (iEntity != -1)
+	if ( CheckIfEntitySafe(iEntity) )
 	{
 		float vLoc[3], vAng[3];
 		
@@ -1127,11 +1137,9 @@ public bool TraceRayNoPlayers(int entity, int mask, any data)
 //					CLEAN & LIMITS
 // ====================================================================================================
 
-public Action Timer_KillSoul (Handle timer, int UserId)
+Action Timer_KillSoul (Handle timer, int client)
 {
-	int client = GetClientOfUserId(UserId);
-	if (client != 0)
-		KillSoul(client);
+	KillSoul(client);
 
 	return Plugin_Continue;
 }
@@ -1140,25 +1148,25 @@ void KillSoul(int client)
 {
 	//if (!g_bCanDiss) return;
 
-	int effect = EntRefToEntIndex(g_iEffectClient[client]);
+	int effect;
 
-	if (effect && effect != INVALID_ENT_REFERENCE && IsValidEntity(effect))
+	if (g_iEffectClient[client] && (effect = EntRefToEntIndex(g_iEffectClient[client])) != INVALID_ENT_REFERENCE)
 	{
 		AcceptEntityInput(effect, "Kill");
 		g_iEffectClient[client] = 0;
 	}
 	
-	int soul = EntRefToEntIndex(g_iSoulClient[client]);
+	int soul;
 	
-	if (soul && soul != INVALID_ENT_REFERENCE && IsValidEntity(soul))
+	if (g_iSoulClient[client] && (soul = g_iSoulClient[client]) != INVALID_ENT_REFERENCE)
 	{
 		AcceptEntityInput(soul, "Kill");
 		g_iSoulClient[client] = 0;
 	}
 	
-	int train = EntRefToEntIndex(g_iTrainClient[client]);
+	int train;
 
-	if (train && train != INVALID_ENT_REFERENCE && IsValidEntity(train))
+	if (g_iTrainClient[client] && (train = EntRefToEntIndex(g_iTrainClient[client])) != INVALID_ENT_REFERENCE)
 	{
 		AcceptEntityInput(train, "Kill");
 		g_iTrainClient[client] = 0;
@@ -1166,9 +1174,8 @@ void KillSoul(int client)
 	
 	int track;
 	for (int i = 0; i < sizeof(g_iTrackClient[]); i++) {
-		track = EntRefToEntIndex(g_iTrackClient[client][i]);
 		
-		if (track && track != INVALID_ENT_REFERENCE && IsValidEntity(track))
+		if (g_iTrackClient[client][i] && (track = EntRefToEntIndex(g_iTrackClient[client][i])) != INVALID_ENT_REFERENCE)
 		{
 			AcceptEntityInput(track, "Kill");
 			g_iTrackClient[client][i] = 0;
@@ -1231,4 +1238,16 @@ int GetTrainIndex()
 		}
 	}
 	return index;
+}
+
+bool CheckIfEntitySafe(int entity)
+{
+	if(entity == -1) return false;
+
+	if(	entity > ENTITY_SAFE_LIMIT)
+	{
+		RemoveEntity(entity);
+		return false;
+	}
+	return true;
 }

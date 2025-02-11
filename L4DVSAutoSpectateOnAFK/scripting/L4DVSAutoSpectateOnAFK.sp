@@ -10,7 +10,7 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <multicolors>
-#define PLUGIN_VERSION "2.5-2024/6/27"
+#define PLUGIN_VERSION "2.6-2025/2/12"
 
 
 // For cvars
@@ -30,7 +30,7 @@ float afkPlayerLastPos[MAXPLAYERS + 1][3];
 float afkPlayerLastEyes[MAXPLAYERS + 1][3];
 bool g_bLeftSafeRoom;
 bool L4D2Version;
-char g_sAccesslvl[16];
+char g_sAccesslvl[AdminFlags_TOTAL];
 int g_iPlayerSpawn, g_iRoundStart;
 Handle PlayerLeftStartTimer, afkCheckThreadTimer;
 
@@ -347,8 +347,13 @@ void afkResetTimers (int client)
 	GetClientEyeAngles(client, afkPlayerLastEyes[client]);
 }
 
+int g_iLastTick;
 Action afkCheckThread(Handle timer)
 {
+	//時間被暫停
+	if(g_iLastTick == GetGameTickCount()) return Plugin_Continue;
+	g_iLastTick = GetGameTickCount();
+
 	float pos[3];
 	float eyes[3];
 	bool isAFK;

@@ -1,9 +1,6 @@
 # Description | 內容
 Forces survivors and infected to spectate if they're AFK after certain time
 
-* Video | 影片展示
-<br/>None
-
 * Image | 圖示
     *  Warn time and spec
         > AFK警告提示並強制旁觀
@@ -11,6 +8,12 @@ Forces survivors and infected to spectate if they're AFK after certain time
     *  Warn time and kick while on spec
         > 旁觀區AFK警告提示並踢出伺服器
         <br/>![L4DVSAutoSpectateOnAFK_2](image/L4DVSAutoSpectateOnAFK_2.jpg)
+
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -52,17 +55,6 @@ Forces survivors and infected to spectate if they're AFK after certain time
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
 * <details><summary>Translation Support | 支援翻譯</summary>
 
     ```
@@ -81,6 +73,9 @@ Forces survivors and infected to spectate if they're AFK after certain time
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.6 (2025-2-12)
+        * Stop timer when game is paused
+        
     * v2.5 (2024-6-27)
         * Update Cvars
 

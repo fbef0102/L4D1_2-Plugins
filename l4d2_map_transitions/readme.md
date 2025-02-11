@@ -14,7 +14,7 @@ Define map transitions to combine campaigns in versus
 		// Change map to c7m1_docks when versus second round ends in c6m2_bedlam
 		sm_add_map_transition c6m2_bedlam c7m1_docks
 
-		// Change map to c9m2_lots when versus second round ends in c14m1_junkyard
+		// Change map to c14m1_junkyard when versus second round ends in c9m2_lots
 		sm_add_map_transition c9m2_lots c14m1_junkyard
 		```
 </details>
@@ -50,7 +50,7 @@ Define map transitions to combine campaigns in versus
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* v1.0h (2025-1-30)
-		* API & Native
+		* Add API & Native
 
 	* Original
 		* [SirPlease/L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_map_transitions.sp)
