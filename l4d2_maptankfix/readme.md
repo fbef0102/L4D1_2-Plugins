@@ -39,6 +39,7 @@ Fix issues where customized map tank does not spawn, cause the map process break
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.5 (2025-2-13)
 	* v1.4 (2025-2-9)
 	* v1.3 (2025-2-7)
 		* Fixed error

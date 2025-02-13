@@ -81,7 +81,9 @@
 #include <sdkhooks>
 #include <multicolors>
 #include <left4dhooks>
+#undef REQUIRE_EXTENSIONS
 #include <actions>
+#define REQUIRE_EXTENSIONS
 
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
@@ -170,8 +172,11 @@ float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float g_fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 
+bool g_bExtensionActions;
 public void OnPluginStart()
 {
+	g_bExtensionActions = LibraryExists("actionslib");
+
 	LoadTranslations("common.phrases");
 	LoadTranslations("l4d_afk_commands.phrases");
 
@@ -1700,10 +1705,17 @@ public void L4D2_OnStagger_Post(int client, int source)
 	if(!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
 	if(!IsWitch(source)) return;
 
-	int curTaget = FindWitchCurrentTarget(source);
-	if(curTaget <= 0) return;
+	if(g_bExtensionActions)
+	{
+		int curTaget = FindWitchCurrentTarget(source);
+		if(curTaget <= 0) return;
 
-	AddWitchAttack(source, curTaget);
+		AddWitchAttack(source, curTaget);
+	}
+	else
+	{
+		AddWitchAttack(source, client);
+	}
 }
 
 // Others-----

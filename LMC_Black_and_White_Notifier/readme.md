@@ -64,7 +64,9 @@ Notifies selected team(s) when someone is on final strike and add glow
 * <details><summary>Related Plugin | 相關插件</summary>
 
     1. [l4d_blackandwhite](/l4d_blackandwhite): Notify people when player is black and white.
-        > 顯示誰是黑白狀態，比較少的提示與支援
+		* 顯示誰是黑白狀態，比較少的提示與支援
+	2. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
+		* 可以自由變成其他角色或NPC的模組
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -79,8 +81,8 @@ Notifies selected team(s) when someone is on final strike and add glow
         * Support Translation
         * Check Last Life every 1.0 second (For people using admin cheats and other stuff that changes survivor health)
     
-    * v2.0.2
-        * [By Lux](https://forums.alliedmods.net/showthread.php?p=2612147)
+    * Original & Credit
+        * [Lux](https://forums.alliedmods.net/showthread.php?t=310235)
 </details>
 
 - - - -
@@ -90,7 +92,6 @@ Notifies selected team(s) when someone is on final strike and add glow
 * 原理
     * 救起玩家之後判定玩家是否為黑白狀態
     * 支援其他恢复玩家血量的插件
-    * [LMC模組是由Lux大佬創建的插件](https://forums.alliedmods.net/showthread.php?t=286987)，可以自由切換角色為任何模組
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

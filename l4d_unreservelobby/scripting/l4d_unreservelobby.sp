@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.4h-2024/12/28"
+#define PLUGIN_VERSION			"1.5h-2025/2/13"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -45,8 +45,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar sv_allow_lobby_connect_only;
 int sv_allow_lobby_connect_only_default;
 
-ConVar g_hCvarUnreserveFull, g_hCvarUnreserveRestore, g_hCvarUnreserveEmpty, g_hCvarUnreserveTrigger;
-bool g_bCvarUnreserveFull, g_bCvarUnreserveRestore, g_bCvarUnreserveEmpty;
+ConVar g_hCvarUnreserveFull, g_hCvarUnreserveRestore, g_hCvarUnreserveTrigger;
+bool g_bCvarUnreserveFull, g_bCvarUnreserveRestore;
 int g_iCvarUnreserveTrigger;
 
 bool 
@@ -67,7 +67,6 @@ public void OnPluginStart()
 
 	g_hCvarUnreserveFull 	= CreateConVar( PLUGIN_NAME ... "_full",		"1", "Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarUnreserveRestore = CreateConVar( PLUGIN_NAME ... "_restore",		"0", "Automatically restores the lobby reservation when there is a vacancy", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarUnreserveEmpty 	= CreateConVar( PLUGIN_NAME ... "_empty", 		"1", "Automatically unreserve server after all playes have disconnected", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarUnreserveTrigger = CreateConVar( PLUGIN_NAME ... "_trigger", 	"0", "When player number reaches the following number, the server unreserves.\n0 = 8 in versus/scavenge, 4 in coop/survival/realism.\n>0 = Any number greater than zero.", CVAR_FLAGS, true, 0.0, true, 8.0);
 	CreateConVar(           			    PLUGIN_NAME ... "_version",     PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true, PLUGIN_NAME);
@@ -75,7 +74,6 @@ public void OnPluginStart()
 	GetCvars();
 	g_hCvarUnreserveFull.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarUnreserveRestore.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarUnreserveEmpty.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarUnreserveTrigger.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_disconnect", 		Event_PlayerDisconnect);
@@ -114,7 +112,6 @@ void GetCvars()
 {
 	g_bCvarUnreserveFull = g_hCvarUnreserveFull.BoolValue;
 	g_bCvarUnreserveRestore = g_hCvarUnreserveRestore.BoolValue;
-	g_bCvarUnreserveEmpty = g_hCvarUnreserveEmpty.BoolValue;
 	g_iCvarUnreserveTrigger = g_hCvarUnreserveTrigger.IntValue;
 }
 
@@ -200,12 +197,12 @@ Action Command_Unreserve(int client, int args)
 	else
 	{
 		L4D_LobbyUnreserve();
+		SetAllowLobby(0);
 	}
 
 	PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (sm_unreserve)");
 	PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (sm_unreserve)");
 
-	SetAllowLobby(sv_allow_lobby_connect_only_default);
 	g_sTemporaryReservationID = "";
 	g_bIsServerUnreserved = true;
 
@@ -222,20 +219,22 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 	{
 		if(g_bCvarUnreserveRestore && g_sTemporaryReservationID[0] && !L4D_LobbyIsReserved() && !IsServerLobbyFull()) //有空位
 		{
-			L4D_SetLobbyReservation(g_sTemporaryReservationID);
 			//PrintToServer("[SM] Lobby reservation has been restored by l4dunreservelobby.smx (Has slot)");
+			L4D_SetLobbyReservation(g_sTemporaryReservationID);
+			g_bIsServerUnreserved = false;
 			ServerCommand("heartbeat");
 		}
 
 		return Plugin_Continue;
 	}
 
-	if(g_bCvarUnreserveEmpty && L4D_LobbyIsReserved())
+	if(L4D_LobbyIsReserved())
 	{
 		PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Empty)");
-		g_sTemporaryReservationID = "";
 		L4D_LobbyUnreserve();
 	}
+
+	g_sTemporaryReservationID = "";
 	g_bIsServerUnreserved = false;
 	SetAllowLobby(sv_allow_lobby_connect_only_default);
 

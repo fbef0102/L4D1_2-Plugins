@@ -43,11 +43,11 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 	* cfg/sourcemod/l4d_unreservelobby.cfg
 		```php
-		// Automatically unreserve server after all playes have disconnected
-		l4d_unreservelobby_empty "1"
-
 		// Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)
 		l4d_unreservelobby_full "1"
+
+		// Automatically restores the lobby reservation when there is a vacancy
+		l4d_unreservelobby_restore "1"
 
 		// When player number reaches the following number, the server unreserves.
 		// 0 = 8 in versus/scavenge, 4 in coop/survival/realis.
@@ -66,6 +66,7 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.5h (2025-2-13)
 	* v1.4h (2024-12-28)
 		* Update cvars
 
@@ -179,11 +180,11 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 	* cfg/sourcemod/l4d_unreservelobby.cfg
 		```php
-		// 當所有玩家離開伺服器且伺服器沒人時，自動移除大廳reserved cookie
-		l4d_unreservelobby_empty "1"
-
 		// 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)，自動移除動態大廳reserved cookie
 		l4d_unreservelobby_full "1"
+
+		// 當伺服器總人數還有位子時(對抗/清道夫: 低於8人, 戰役/生存/寫實: 低於4人)，自動恢復動態大廳reserved cookie
+		l4d_unreservelobby_restore "1"
 
 		// 當伺服器內玩家人數達到以下數值, 則移除動態大廳reserved cookie.
 		// 0 = 對抗/清道夫下8人, 戰役/生存/寫實下4人

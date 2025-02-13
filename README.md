@@ -257,6 +257,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復有時候救援房間沒有看到倖存者的光圈
 * <b>[l4d2_map_transitions](/l4d2_map_transitions)</b>: Define map transitions to combine campaigns in versus
     * 對抗模式第二回合結束時從地圖A切換成地圖B
+* <b>[Luxs-Model-Changer](/Luxs-Model-Changer)</b>: LMC Allows you to use most models with most characters
+    * 可以自由變成其他角色或NPC的模組
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
