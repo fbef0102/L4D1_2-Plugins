@@ -1,0 +1,82 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Functions"
+		{
+			/*
+			"CRifle_Desert::ItemPostFrame"
+			{
+				"signature"		"CRifle_Desert::ItemPostFrame"
+				"callconv"		"thiscall"
+				"return"		"cbaseentity"
+				"this"			"entity"
+			}
+			*/
+			"CRifle_Desert::ItemPostFrame"
+			{
+				"offset"		"CRifle_Desert::ItemPostFrame"
+				"hooktype"		"entity"
+				"return"		"cbaseentity"
+				"this"			"entity"
+			}
+		}
+		"Signatures"
+		{
+			"CTerrorPlayer::IsGettingUp"
+			{
+				"library"	"server"
+				"linux"		"@_ZNK13CTerrorPlayer11IsGettingUpEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x86\x3C\x3F\x00\x00"
+				/* 55 8B EC 51 56 8B F1 8B 86 3C 3F 00 00  */
+				/* search is getting up */
+			}
+
+			// "CRifle_Desert::ItemPostFrame"
+			// {	
+			//	"library"	"server"
+			//	"linux"		"@_ZN13CRifle_Desert13ItemPostFrameEv"
+			//	"windows"	"56 8B F1 E8 ? ? ? ? 85 C0 74 ? 8B 10 8B C8 8B 82 3C 08 00 00"
+			//  \x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x85\xC0\x74\x2A\x8B\x10\x8B\xC8\x8B\x82\x3C\x08\x00\x00
+			// }
+		}
+		"Offsets"
+		{
+			"ScarBrustTime"
+			{
+				"linux"		"0x17f4"
+				"windows"	"0x17f0"
+			}
+			"CRifle_Desert::ItemPostFrame"
+			{
+				"linux" 	"273"
+				"windows"	"272"
+			}
+			"CRifle_Desert::PrimaryAttack"
+			{
+				"linux" 	"283"
+				"windows"	"282"
+			}
+			"CTerrorWeapon::SecondaryAttack"
+			{
+				"linux" 	"284"
+				"windows"	"283"
+			}
+			"CTerrorGun::AbortReload"
+			{
+				"linux" 	"281"
+				"windows"	"280"
+			}
+			"CTerrorGun::FinishReload"
+			{
+				"linux" 	"280"
+				"windows"	"279"
+			}
+			"CTerrorPlayer::CanAttack"
+			{
+				"linux" 	"528"
+				"windows"	"527"
+			}
+		}
+	}
+}

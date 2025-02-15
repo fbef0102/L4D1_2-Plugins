@@ -1,11 +1,11 @@
 # Description | 內容
 Allows players to drop the weapon they are holding
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>How does it work?</summary>
 
@@ -54,12 +54,6 @@ Allows players to drop the weapon they are holding
 		```
 </details>
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [drop_secondary](/drop_secondary): Survivor players will drop their secondary weapon (including melee) when they die
@@ -67,6 +61,9 @@ Allows players to drop the weapon they are holding
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.13 (2024-2-15)
+		* Compatible with "miuwiki_autoscar" by harry
 
 	* v1.12 (2023-1-7)
 		* Add Drop Sound

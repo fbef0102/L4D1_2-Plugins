@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.5h-2025/2/13"
+#define PLUGIN_VERSION			"1.5h-2025/2/15"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -264,11 +264,6 @@ int IsServerLobbyFull()
 	return humans >= L4D_MAXHUMANS_LOBBY_OTHER;
 }
 
-bool IsClientConnectHuman(int client)
-{
-	return IsClientConnected(client) && !IsFakeClient(client);
-}
-
 int GetHumanCount()
 {
 	int humans = 0;
@@ -276,9 +271,19 @@ int GetHumanCount()
 	int i;
 	for(i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientConnectHuman(i))
+		if(IsClientConnected(i) && !IsFakeClient(i))
 		{
-			humans++
+			if(IsClientInGame(i))
+			{
+				return true;
+			}
+			else
+			{
+				// 幽靈人口: 有client, IsClientConnected: true, IsClientInGame: false, userid: -1
+				// 幽靈人口常發生於換圖時離線，踢不掉，status看不到
+				int userid = GetClientUserId(i);
+				if(userid > 0) return true;
+			}
 		}
 	}
 

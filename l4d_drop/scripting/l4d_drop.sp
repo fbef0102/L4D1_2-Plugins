@@ -4,11 +4,21 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#undef REQUIRE_PLUGIN
+#tryinclude <miuwiki_autoscar>
+
+#if !defined _miuwiki_autoscar_included_
+	native bool miuwiki_IsClientHoldAutoScar(int client);
+	native float miuwiki_GetAutoScarSwitchTime(int client);
+	native float miuwiki_GetAutoScarReloadTime(int client);
+	native float miuwiki_GetAutoPrimaryAttackTime(int client);
+	native float miuwiki_GetAutoSecondaryAttackTime(int client);
+#endif
 
 #define PLUGIN_NAME "[L4D1/2] Weapon Drop"
 #define PLUGIN_AUTHOR "Machine, dcx2, Electr000999 /z, Senip, Shao, NoroHime, HarryPotter"
 #define PLUGIN_DESC "Allows players to drop the weapon they are holding"
-#define PLUGIN_VERSION "1.12-2024/1/7"
+#define PLUGIN_VERSION "1.13-2024/2/15"
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198026784913/"
 
 public Plugin myinfo =
@@ -39,8 +49,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
-	OnWeaponDrop = CreateGlobalForward("OnWeaponDrop", ET_Event, Param_Cell, Param_CellByRef);
 	RegPluginLibrary("l4d_drop");
+	OnWeaponDrop = CreateGlobalForward("OnWeaponDrop", ET_Event, Param_Cell, Param_CellByRef);
+
+	MarkNativeAsOptional("miuwiki_IsClientHoldAutoScar");
+	MarkNativeAsOptional("miuwiki_GetAutoScarSwitchTime");
+	MarkNativeAsOptional("miuwiki_GetAutoScarReloadTime");
+	MarkNativeAsOptional("miuwiki_GetAutoPrimaryAttackTime");
+	MarkNativeAsOptional("miuwiki_GetAutoSecondaryAttackTime");
 	
 	return APLRes_Success;
 }
@@ -92,6 +108,22 @@ public void OnPluginStart()
 
 	RegConsoleCmd("sm_drop", Command_Drop);
 	RegConsoleCmd("sm_g", Command_Drop);
+}
+
+bool g_bAvailable_miuwiki_autoscar;
+public void OnAllPluginsLoaded()
+{
+	g_bAvailable_miuwiki_autoscar = LibraryExists("miuwiki_autoscar");
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	g_bAvailable_miuwiki_autoscar = LibraryExists("miuwiki_autoscar");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	g_bAvailable_miuwiki_autoscar = LibraryExists("miuwiki_autoscar");
 }
 
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -193,6 +225,7 @@ Action Command_Drop(int client, int args)
 void DropSlot(int client, int slot)
 {
 	if (!IsValidClient(client) || !IsSurvivor(client) || !IsPlayerAlive(client) || IsplayerIncap(client) || GetInfectedAttacker(client) != -1) return;
+	if (IsUsingMinigun(client)) return;
 	
 	//static char classname[64];
 	//GetEntityClassname(GetPlayerWeaponSlot(client, tester_wep_slot), classname, sizeof(classname));
@@ -209,6 +242,7 @@ void DropSlot(int client, int slot)
 void DropActiveWeapon(int client)
 {
 	if (!IsValidClient(client) || !IsSurvivor(client) || !IsPlayerAlive(client) || IsplayerIncap(client) || GetInfectedAttacker(client) != -1) return;
+	if (IsUsingMinigun(client)) return;
 	
 	//static char classname[64];
 	//GetEntityClassname(GetPlayerWeaponSlot(client, tester_wep_slot), classname, sizeof(classname));
@@ -242,12 +276,45 @@ int DropBlocker(int client, int weapon)
 
 void DropWeapon(int client, int weapon)
 {
-	if ( ( g_iBlockDropMidAction == 1 || ( g_iBlockDropMidAction == 2 && GetPlayerWeaponSlot(client, 2) == weapon ) ) && 
-	GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon && 
-	GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= GetGameTime()) return;
+	int slot0 = GetPlayerWeaponSlot(client, 0);
+	int slot2 = GetPlayerWeaponSlot(client, 2);
+	float fNow = GetGameTime();
+	if ( g_iBlockDropMidAction == 1 && 
+	GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon)
+	{
+		if(slot2 == weapon && g_iBlockDropMidAction == 2)
+		{
+			if(GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= fNow)
+			{
+				return;
+			}
+		}
+		else if(slot0 == weapon )
+		{
+			if(g_bL4D2Version && g_bAvailable_miuwiki_autoscar && miuwiki_IsClientHoldAutoScar(client))
+			{
+				float fTime;
+				fTime = miuwiki_GetAutoScarSwitchTime(client);
+				if(fTime > fNow) return;
+				fTime = miuwiki_GetAutoScarReloadTime(client);
+				if(fTime > fNow) return;
+				fTime = miuwiki_GetAutoPrimaryAttackTime(client);
+				if(fTime > fNow) return;
+				fTime = miuwiki_GetAutoSecondaryAttackTime(client);
+				if(fTime > fNow) return;
+			}
+			else
+			{
+				if(GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= fNow)
+				{
+					return;
+				}
+			}
+		}
+	}
 
 	// throwable is already thrown
-	if ( GetPlayerWeaponSlot(client, 2) == weapon && 
+	if ( slot2 == weapon && 
 		GetOrSetPlayerAmmo(client, weapon) == 0) return;
 
 	int owner = GetEntPropEnt(weapon, Prop_Data, "m_hOwner");
@@ -445,4 +512,9 @@ int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
 	}
 
 	return 0;
+}
+
+bool IsUsingMinigun(int client)
+{
+	return ((GetEntProp(client, Prop_Send, "m_usingMountedWeapon") > 0) || (GetEntProp(client, Prop_Send, g_bL4D2Version ? "m_usingMountedGun" : "m_usingMinigun") > 0));
 }
