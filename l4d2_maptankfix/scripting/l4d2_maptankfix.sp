@@ -295,8 +295,8 @@ void NextFrame_Event_PlayerDeath(int tank)
 
 void OnSpawnedZombieDeath(const char[] output, int caller, int activator, float delay)
 {
-	// caller = 物件本身, activator = client index, 死掉的Tank
-	g_iTankToCommentaryZombieSpawnerRef[activator] = INVALID_ENT_REFERENCE; 
+	// caller = 物件本身, activator = client index, 也可能是entity index, 死掉的Tank
+	if(activator > 0 && activator <= MaxClients) g_iTankToCommentaryZombieSpawnerRef[activator] = INVALID_ENT_REFERENCE; 
 }
 
 // 如果输入符合
