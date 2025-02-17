@@ -1,15 +1,15 @@
 # Description | 內容
 Makes AI Charger take damage like human SI while charging.
 
-* Image | 圖示
-	| Before (裝此插件之前)  			| After (裝此插件之後) |
-	| -------------|:-----------------:|
-	| ![charging_takedamage_patch_1](image/charging_takedamage_patch_1.gif)|![charging_takedamage_patch_2](image/charging_takedamage_patch_2.gif)|
-
 * Apply to | 適用於
 	```
 	L4D2
 	```
+
+* Image | 圖示
+	| Before (裝此插件之前)  			| After (裝此插件之後) |
+	| -------------|:-----------------:|
+	| ![charging_takedamage_patch_1](image/charging_takedamage_patch_1.gif)|![charging_takedamage_patch_2](image/charging_takedamage_patch_2.gif)|
 
 * <details><summary>How does it work?</summary>
 

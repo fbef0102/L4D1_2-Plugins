@@ -1955,7 +1955,7 @@ public Action: Event_AbilityUse( Handle:event, const String:name[], bool:dontBro
 			g_fBoomerVomitStart[client] = GetEngineTime();
 			delete g_hBoomerVomitTimer[client];
 			g_hBoomerVomitTimer[client] = CreateTimer( VOMIT_DURATION_TIME, Timer_BoomVomitCheck,
-				client, TIMER_FLAG_NO_MAPCHANGE );
+				client );
 		}
 	}
 	

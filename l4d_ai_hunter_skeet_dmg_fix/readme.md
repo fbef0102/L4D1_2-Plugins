@@ -1,8 +1,11 @@
 # Description | 內容
 Makes AI Hunter take damage like human SI while pouncing.
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	| Before (裝此插件之前)  			| After (裝此插件之後) |
@@ -29,11 +32,6 @@ Makes AI Hunter take damage like human SI while pouncing.
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * <details><summary>API | 串接</summary>
 
 	```php
@@ -57,12 +55,6 @@ Makes AI Hunter take damage like human SI while pouncing.
 		sm_cvar z_pounce_damage_interrupt "150"
 		```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

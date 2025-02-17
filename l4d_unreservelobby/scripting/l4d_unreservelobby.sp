@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.5h-2025/2/15"
+#define PLUGIN_VERSION			"1.6h-2025/2/17"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -45,8 +45,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar sv_allow_lobby_connect_only;
 int sv_allow_lobby_connect_only_default;
 
-ConVar g_hCvarUnreserveFull, g_hCvarUnreserveRestore, g_hCvarUnreserveTrigger;
-bool g_bCvarUnreserveFull, g_bCvarUnreserveRestore;
+ConVar g_hCvarUnreserveFull, g_hCvarUnreserveTrigger;
+bool g_bCvarUnreserveFull;
 int g_iCvarUnreserveTrigger;
 
 bool 
@@ -57,8 +57,8 @@ bool
 Handle
 	COLD_DOWN_Timer;
 
-char
-	g_sTemporaryReservationID[20]; //長度被left4dhooks綁死
+//char
+//	g_sTemporaryReservationID[20]; //長度被left4dhooks綁死
 
 public void OnPluginStart()
 {
@@ -66,14 +66,12 @@ public void OnPluginStart()
 	sv_allow_lobby_connect_only.AddChangeHook(ConVarChanged_sv_allow_lobby_connect_only);
 
 	g_hCvarUnreserveFull 	= CreateConVar( PLUGIN_NAME ... "_full",		"1", "Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarUnreserveRestore = CreateConVar( PLUGIN_NAME ... "_restore",		"0", "Automatically restores the lobby reservation when there is a vacancy", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarUnreserveTrigger = CreateConVar( PLUGIN_NAME ... "_trigger", 	"0", "When player number reaches the following number, the server unreserves.\n0 = 8 in versus/scavenge, 4 in coop/survival/realism.\n>0 = Any number greater than zero.", CVAR_FLAGS, true, 0.0, true, 8.0);
 	CreateConVar(           			    PLUGIN_NAME ... "_version",     PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true, PLUGIN_NAME);
 
 	GetCvars();
 	g_hCvarUnreserveFull.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarUnreserveRestore.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarUnreserveTrigger.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_disconnect", 		Event_PlayerDisconnect);
@@ -111,7 +109,6 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 void GetCvars()
 {
 	g_bCvarUnreserveFull = g_hCvarUnreserveFull.BoolValue;
-	g_bCvarUnreserveRestore = g_hCvarUnreserveRestore.BoolValue;
 	g_iCvarUnreserveTrigger = g_hCvarUnreserveTrigger.IntValue;
 }
 
@@ -146,9 +143,8 @@ public void OnClientConnected(int client)
 	if(g_bCvarUnreserveFull && L4D_LobbyIsReserved() && IsServerLobbyFull())
 	{
 		//PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Full)");
-		//PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Full)");
+		PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (Full)");
 
-		L4D_GetLobbyReservation(g_sTemporaryReservationID, sizeof g_sTemporaryReservationID);
 		L4D_LobbyUnreserve();
 		SetAllowLobby(0);
 		g_bIsServerUnreserved = true;
@@ -188,11 +184,8 @@ Action Command_Unreserve(int client, int args)
 {
 	if(!L4D_LobbyIsReserved())
 	{
-		if(strlen(g_sTemporaryReservationID) == 0)
-		{
-			ReplyToCommand(client, "[SM] Server is already unreserved.");
-			return Plugin_Handled;
-		}
+		ReplyToCommand(client, "[SM] Server is already unreserved.");
+		return Plugin_Handled;
 	}
 	else
 	{
@@ -203,7 +196,6 @@ Action Command_Unreserve(int client, int args)
 	PrintToChatAll("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (sm_unreserve)");
 	PrintToServer("[SM] Lobby reservation has been removed by l4dunreservelobby.smx (sm_unreserve)");
 
-	g_sTemporaryReservationID = "";
 	g_bIsServerUnreserved = true;
 
 	return Plugin_Handled;
@@ -217,11 +209,8 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 
 	if(CheckIfPlayerInServer(0)) //有玩家在伺服器中
 	{
-		if(g_bCvarUnreserveRestore && g_sTemporaryReservationID[0] && !L4D_LobbyIsReserved() && !IsServerLobbyFull()) //有空位
+		if(L4D_LobbyIsReserved() && !IsServerLobbyFull()) //有空位
 		{
-			//PrintToServer("[SM] Lobby reservation has been restored by l4dunreservelobby.smx (Has slot)");
-			L4D_SetLobbyReservation(g_sTemporaryReservationID);
-			g_bIsServerUnreserved = false;
 			ServerCommand("heartbeat");
 		}
 
@@ -234,7 +223,6 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 		L4D_LobbyUnreserve();
 	}
 
-	g_sTemporaryReservationID = "";
 	g_bIsServerUnreserved = false;
 	SetAllowLobby(sv_allow_lobby_connect_only_default);
 
@@ -275,14 +263,14 @@ int GetHumanCount()
 		{
 			if(IsClientInGame(i))
 			{
-				return true;
+				humans++;
 			}
 			else
 			{
 				// 幽靈人口: 有client, IsClientConnected: true, IsClientInGame: false, userid: -1
 				// 幽靈人口常發生於換圖時離線，踢不掉，status看不到
 				int userid = GetClientUserId(i);
-				if(userid > 0) return true;
+				if(userid > 0) humans++;
 			}
 		}
 	}
