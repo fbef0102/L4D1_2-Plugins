@@ -604,7 +604,7 @@ Action MixMaplist(int client, any args)
 		g_hArrayMapOrder.GetString(i, buffer, BUF_SZ);
 		if (g_iMapsPlayed == i)
 			FormatEx(output, BUF_SZ, "\x04 %d - %s", i + 1, buffer);
-		else if (!g_cvNextMapPrint.IntValue && g_iMapsPlayed < i)
+		else if (!g_cvNextMapPrint.BoolValue && g_iMapsPlayed < i)
 		{
 			FormatEx(output, BUF_SZ, "\x01 %d - %T", i + 1, "Secret", client);
 			CPrintToChat(client, "%s", output);
@@ -830,7 +830,7 @@ Action Timed_NextMapInfo(Handle timer)
 	GetPrettyName(sMapName_Pretty);
 	//PrintToChatAll("%s", sMapName_Pretty);
 	
-	g_cvNextMapPrint.IntValue ? CPrintToChatAll("%t", "Show_Next_Map", sMapName_Pretty) : CPrintToChatAll("%t", "Show_Next_Map (Secret)", "Secret");
+	g_cvNextMapPrint.BoolValue ? CPrintToChatAll("%t", "Show_Next_Map", sMapName_Pretty) : CPrintToChatAll("%t", "Show_Next_Map (Secret)", "Secret");
 	
 	return Plugin_Continue;
 }
@@ -857,20 +857,23 @@ Action Timer_UpdateReadyUpFooter(Handle timer)
 	char sMapName_Pretty[BUF_SZ];
 	if(g_hArrayMapOrder.Length == 0)
 	{
-		FormatEx(sMapName_Pretty, sizeof(sMapName_Pretty), "Mixmap : No active, type !mixmap");
+		//FormatEx(sMapName_Pretty, sizeof(sMapName_Pretty), "Mixmap : No active, type !mixmap");
 	}
 	else
 	{
 		if(g_iMapsPlayed+1 >= g_iMapCount)
 		{
-			FormatEx(sMapName_Pretty, sizeof(sMapName_Pretty), "Mixmap : No Next Map");
+			//FormatEx(sMapName_Pretty, sizeof(sMapName_Pretty), "Mixmap : No Next Map");
 		}
 		else
 		{
-			g_hArrayMapOrder.GetString(g_iMapsPlayed+1, sMapName_Pretty, BUF_SZ);
-			GetPrettyName(sMapName_Pretty);
+			if(g_cvNextMapPrint.BoolValue)
+			{
+				g_hArrayMapOrder.GetString(g_iMapsPlayed+1, sMapName_Pretty, BUF_SZ);
+				GetPrettyName(sMapName_Pretty);
 
-			Format(sMapName_Pretty, sizeof(sMapName_Pretty), "Mixmap : %s", sMapName_Pretty);
+				Format(sMapName_Pretty, sizeof(sMapName_Pretty), "Mixmap : %s", sMapName_Pretty);
+			}
 		}
 	}
 

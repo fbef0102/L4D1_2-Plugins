@@ -1,16 +1,16 @@
 # Description | 內容
 Soul of the dead survivor flies away to the afterlife
 
-* [Video | 影片展示](https://youtu.be/tSb1ayyhW0I)
-
-* Image | 圖示
-	<br/>![l4d_death_soul_1](image/l4d_death_soul_1.gif)
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* [Video | 影片展示](https://youtu.be/tSb1ayyhW0I)
+
+* Image | 圖示
+	<br/>![l4d_death_soul_1](image/l4d_death_soul_1.gif)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -28,6 +28,9 @@ Soul of the dead survivor flies away to the afterlife
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.2h (2025-2-18)
+		* Fixed error
 
 	* v1.1h (2025-2-12)
 		* Fixed crash due to invalid reference

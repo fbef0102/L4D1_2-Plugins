@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION 		"1.1h-2025/2/12"
+#define PLUGIN_VERSION 		"1.2h-2025/2/18"
 
 /*=======================================================================================
 =========================================================================================
@@ -255,6 +255,10 @@ int CreateSoul(int client, float fTimeout = 0.0)
 				SetEntProp(entity, Prop_Send, "m_glowColorOverride", R + (G << 8) + (B << 16));
 				//SetEntProp(entity, Prop_Send, "m_bFlashing", 0);
 			}
+			else
+			{
+				entity = -1;
+			}
 		}
 		else {
 			entity = CreateEntityByName("prop_glowing_object"); // CPropGlowingObject
@@ -272,6 +276,10 @@ int CreateSoul(int client, float fTimeout = 0.0)
 				DispatchKeyValue(entity, "DefaultAnim", g_sAnim[GetRandomInt(0, sizeof(g_sAnim) - 1)] );
 				DispatchSpawn(entity);
 				AcceptEntityInput(entity, "TurnOn");
+			}
+			else
+			{
+				entity = -1;
 			}
 		}
 		if (entity != -1) {
@@ -313,8 +321,9 @@ int CreateRagdollReplacement(int client, float vecOrigin[3])
 		DispatchKeyValueVector(entity, "origin", vecOrigin);
 		DispatchSpawn(entity);
 		AcceptEntityInput(entity, "TurnOn");
+		return entity;
 	}
-	return entity;
+	return -1;
 }
 
 public void OnMapStart()
@@ -874,6 +883,7 @@ int CreateFlySoul(int client)
 		Format( trackname, sizeof( trackname ), "_track%i", idx );
 		
 		track = CreatePath( trackname, vVecTracks[i], prevtrackname );
+		if (track == -1) return -1;
 		
 		g_iTrack[idx] = EntIndexToEntRef(track);
 		g_iTrackClient[client][i] = g_iTrack[idx];
@@ -927,7 +937,7 @@ void SetEntityKillTimer(int ent, float time)
 int CreateTrackTrain( char[] name, char[] firstpath)
 {
 	int ent = CreateEntityByName( "func_tracktrain" ); // CFuncTrackTrain
-	if ( CheckIfEntitySafe( ent ) )
+	if ( CheckIfEntitySafe( ent ) == false )
 	{
 		return -1;
 	}
@@ -958,9 +968,8 @@ int CreateTrackTrain( char[] name, char[] firstpath)
 int CreatePath( char[] name, float pos[3], char[] nexttarget )
 {
 	int ent = CreateEntityByName( "path_track" );
-	if ( CheckIfEntitySafe(ent) )
+	if ( CheckIfEntitySafe(ent) == false )
 	{
-		LogError( "Couldn't create path_track!" );
 		return -1;
 	}
 	DispatchKeyValue( ent, "targetname", name );
@@ -980,7 +989,7 @@ bool ParentToEntity( int ent, int target )
 	return AcceptEntityInput( ent, "SetParent" );
 }
 
-int SpawnEffect(int client, int target, char[] sParticleName, float fTimeout, float XRotation)
+void SpawnEffect(int client, int target, char[] sParticleName, float fTimeout, float XRotation)
 {
 	int iEntity = CreateEntityByName("info_particle_system", -1);
 	if ( CheckIfEntitySafe(iEntity) )
@@ -1013,7 +1022,6 @@ int SpawnEffect(int client, int target, char[] sParticleName, float fTimeout, fl
 		SetEntityKillTimer(iEntity, fTimeout);
 		g_iEffectClient[client] = EntIndexToEntRef(iEntity);
 	}
-	return iEntity;
 }
 
 stock void PrecacheEffect(const char[] sEffectName) // thanks to Dr. Api
