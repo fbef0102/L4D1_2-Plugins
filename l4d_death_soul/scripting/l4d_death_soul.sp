@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION 		"1.2h-2025/2/18"
+#define PLUGIN_VERSION 		"1.2h-2025/2/21"
 
 /*=======================================================================================
 =========================================================================================
@@ -633,7 +633,7 @@ void OnSurvivorSpawn(int client)
 	
 	int track;
 	
-	if (g_iTrackClient[client][0] && (track = EntRefToEntIndex(g_iTrackClient[client][0]))  != INVALID_ENT_REFERENCE)
+	if (g_iTrackClient[client][0] && (track = EntRefToEntIndex(g_iTrackClient[client][0])) != INVALID_ENT_REFERENCE)
 	{
 		HookSingleEntityOutput(track, "OnPass", Callback_TrainPointPass, true);
 	}
@@ -702,7 +702,7 @@ public Action Timer_TrainSpeed(Handle timer, int UserId) // set increased speed 
 		
 		int soul;
 		
-		if (g_iSoulClient[client] && (soul = g_iSoulClient[client]) != INVALID_ENT_REFERENCE)
+		if (g_iSoulClient[client] && (soul = EntRefToEntIndex(g_iSoulClient[client])) != INVALID_ENT_REFERENCE)
 		{
 			switch (GetRandomInt(0, 1)) {
 				case 0: {
@@ -1166,7 +1166,7 @@ void KillSoul(int client)
 	
 	int soul;
 	
-	if (g_iSoulClient[client] && (soul = g_iSoulClient[client]) != INVALID_ENT_REFERENCE)
+	if (g_iSoulClient[client] && (soul = EntRefToEntIndex(g_iSoulClient[client])) != INVALID_ENT_REFERENCE)
 	{
 		AcceptEntityInput(soul, "Kill");
 		g_iSoulClient[client] = 0;

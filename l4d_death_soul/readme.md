@@ -29,7 +29,7 @@ Soul of the dead survivor flies away to the afterlife
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.2h (2025-2-18)
+	* v1.2h (2025-2-21)
 		* Fixed error
 
 	* v1.1h (2025-2-12)
