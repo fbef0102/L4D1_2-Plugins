@@ -1,6 +1,11 @@
 # Description | 內容
 When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.
 
+* Apply to | 適用於
+    ```
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/YkMDgmmoyts)
 
 * Image | 圖示
@@ -13,11 +18,6 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     <br/>![l4d2_item_hint_4](image/l4d2_item_hint_4.jpg)
     * Mark your teammates (標記隊友)
     <br/>![l4d2_item_hint_5](image/l4d2_item_hint_5.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D2
-    ```
 
 * <details><summary>How does it work?</summary>
 
@@ -226,6 +226,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v3.6 (2025-2-23)
+        * Support LMC (Lux's Model Changer)
 
     * v3.5 (2024-6-22)
         * Update cvars

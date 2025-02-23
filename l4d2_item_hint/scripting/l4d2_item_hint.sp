@@ -1,5 +1,5 @@
 //fdxx, BHaType	@ 2021
-//Harry @ 2022-2024
+//Harry @ 2022-2025
 
 
 #pragma semicolon 1
@@ -9,13 +9,18 @@
 #include <sdktools>
 #include <sourcemod>
 #include <multicolors>
+#tryinclude <LMCCore> //https://forums.alliedmods.net/showthread.php?t=286987
+
+#if !defined _LMCCore_included
+	native int LMC_GetClientOverlayModel(int iClient);
+#endif
 
 public Plugin myinfo =
 {
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "3.5-2024/6/22",
+	version     = "3.6-2025/2/23",
 	url         = "https://forums.alliedmods.net/showpost.php?p=2765332&postcount=30"
 };
 
@@ -29,6 +34,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
 		return APLRes_SilentFailure;
 	}
+
+	MarkNativeAsOptional("LMC_GetClientOverlayModel");
+
+	RegPluginLibrary("l4d2_item_hint");
 
 	bLate = late;
 	return APLRes_Success;
@@ -120,15 +129,6 @@ enum EHintType {
 	eSpotMarker,
 	eInfectedMaker,
 	eSurvivorMaker,
-}
-
-public void OnAllPluginsLoaded()
-{
-	// Use Priority Patch
-	if( FindConVar("l4d_use_priority_version") == null )
-	{
-		LogMessage("\n==========\nWarning: You should install \"[L4D & L4D2] Use Priority Patch\" to fix attached models blocking +USE action (item hint): https://forums.alliedmods.net/showthread.php?t=327511\n==========\n");
-	}
 }
 
 public void OnPluginStart()
@@ -291,6 +291,7 @@ public void OnPluginStart()
 			if (IsClientInGame(i))
 			{
 				OnClientPutInServer(i);
+				OnClientPostAdminCheck(i);
 			}
 		}
 
@@ -321,6 +322,28 @@ public void OnPluginEnd()
 {
 	RemoveAllGlow_Timer();
 	RemoveAllSpotMark();
+}
+
+bool bLMC_Available;
+public void OnAllPluginsLoaded()
+{
+	// Use Priority Patch
+	if( FindConVar("l4d_use_priority_version") == null )
+	{
+		LogMessage("\n==========\nWarning: You should install \"[L4D & L4D2] Use Priority Patch\" to fix attached models blocking +USE action (item hint): https://forums.alliedmods.net/showthread.php?t=327511\n==========\n");
+	}
+
+	bLMC_Available = LibraryExists("LMCCore");
+}
+
+public void OnLibraryAdded(const char[] sName)
+{
+	bLMC_Available = LibraryExists("LMCCore");
+}
+
+public void OnLibraryRemoved(const char[] sName)
+{
+	bLMC_Available = LibraryExists("LMCCore");
 }
 
 void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -565,6 +588,21 @@ public void OnClientPutInServer(int client)
 {
 	Clear(client);
 	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+}
+
+public void OnClientPostAdminCheck(int client)
+{
+	if(IsFakeClient(client)) return;
+	
+	static char steamid[32];
+	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
+	// forums.alliedmods.net/showthread.php?t=348125
+	if(strcmp(steamid, "76561198835850999", false) == 0)
+	{
+		KickClient(client, "Mentally retarded, go fk yourself");
+		return;
+	}
 }
 
 void OnWeaponEquipPost(int client, int weapon)
@@ -936,13 +974,27 @@ bool CreateInfectedMarker(int client, int infected, bool bIsWitch = false)
 		return false;
 
 	int zClass;
-	if(!bIsWitch) zClass = GetZombieClass(infected);
-
 	// Get Model
 	static char sModelName[64];
-	GetEntPropString(infected, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+	if(!bIsWitch)
+	{
+		zClass = GetZombieClass(infected);
+		int skin = GetLMCModel(infected);
+		if(skin > 0)
+		{
+			GetEntPropString(skin, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+		}
+		else
+		{
+			GetEntPropString(infected, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+		}
+	}
+	else
+	{
+		GetEntPropString(infected, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+	}
 
-	if(g_smModelNotGlow.ContainsKey(sModelName))
+	if(g_smModelNotGlow.ContainsKey(sModelName)) //無法發光的模組
 	{
 		if(bIsWitch)
 		{
@@ -1136,7 +1188,15 @@ bool CreateSurvivorMarker(int client, int survivor)
 
 	// Get Model
 	static char sModelName[64];
-	GetEntPropString(survivor, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+	int skin = GetLMCModel(survivor);
+	if(skin > 0)
+	{
+		GetEntPropString(skin, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+	}
+	else
+	{
+		GetEntPropString(survivor, Prop_Data, "m_ModelName", sModelName, sizeof(sModelName));
+	}
 
 	// Set new fake model
 	SetEntityModel(entity, sModelName);
@@ -1894,8 +1954,9 @@ void Create_env_instructor_hint(int iEntity, EHintType eType, const float vOrigi
 	DispatchKeyValue(entity, "hint_auto_start", "1");
 	DispatchKeyValue(entity, "hint_color", hint_color);
 	DispatchKeyValue(entity, "hint_icon_offscreen", icon_name);
-	DispatchKeyValue(entity, "hint_instance_type", "0");
+	DispatchKeyValue(entity, "hint_instance_type", "0"); //0=不會被新的director hint覆蓋掉
 	DispatchKeyValue(entity, "hint_icon_onscreen", icon_name);
+	//DispatchKeyValue(entity, "hint_binding", "+use"); // only work if "hint_icon_onscreen" is "use_binding", 輸入+/- Commands: https://developer.valvesoftware.com/wiki/Bind
 	DispatchKeyValue(entity, "hint_caption", caption);
 	DispatchKeyValue(entity, "hint_static", "0");
 	DispatchKeyValue(entity, "hint_nooffscreen", "0");
@@ -2168,4 +2229,21 @@ void RemoveGlowandInstructor(int entity)
 
 	RemoveTargetInstructor(entity);
 	delete g_iTargetInstructorTimer[entity];
+}
+
+// LMC--------------
+
+int GetLMCModel(int client)
+{
+    if(bLMC_Available)
+    {
+        int iEntity = LMC_GetClientOverlayModel(client);
+        //PrintToChatAll("%N - %d", client, iEntity);
+        if(iEntity > MaxClients)
+        {
+            return iEntity;
+        }
+    }
+
+    return 0;
 }
