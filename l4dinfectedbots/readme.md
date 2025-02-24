@@ -1,6 +1,12 @@
 # Description | 內容
 Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
 
+* Apply to | 適用於
+	```
+	L4D1 coop/versus/survival
+	L4D2 coop/versus/realism/survival/scavenge + all mutation modes
+	```
+
 * Image | 圖示
 	* Spawn infected bots without limit (突破限制生成特感)
 	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
@@ -9,24 +15,18 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	* Join infected team and play in coop/survival/realism mode. (在戰役/寫實/生存模式下加入特感陣營)
 	<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
 
-* Apply to | 適用於
-	```
-	L4D1 coop/versus/survival
-	L4D2 coop/versus/realism/survival/scavenge + all mutation modes
-	```
-
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
-* <details><summary>Recommand Install | 推薦安裝</summary>
-
-	1. [SIPool](https://forums.alliedmods.net/showthread.php?t=349615): A Client Pool for SI Bots, used to avoid lots of CreateFakeClient() operation
-		* 插件适用于有需要大量且频繁的特感刷新玩法的服务器，主要目的是提升服务器性能
-	2. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): Aim to improve performance when spawn SI
+	3. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): Aim to improve performance when spawn SI
 		* 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	3. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
-		* 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
+	4. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): (L4D2) Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
+		* (L4D2) 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
+
+* <details><summary>Support | 支援</summary>
+
+	1. [SIPool](https://forums.alliedmods.net/showthread.php?t=349615): (L4D2) SIPool - Aim to improve performance when spawn SI
+		* (L4D2) 插件适用于有需要大量且频繁的特感刷新玩法的服务器，主要目的是提升服务器性能
 </details>
 
 * How to set the correct settings in data config ?
