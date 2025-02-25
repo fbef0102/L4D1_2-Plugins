@@ -33,7 +33,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     1. [Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* <details><summary>Support | 支援</summary>
+* <details><summary>Support | 支援插件</summary>
 
 	1. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
 		* 可以自由變成其他角色或NPC的模組
