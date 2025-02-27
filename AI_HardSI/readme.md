@@ -30,7 +30,7 @@ Improves the AI behaviour of special infected
             ai_tank_bhop "1"
 
             // 1=AI tanks throw rock
-            // 0=Ai tanl won't throw rocks
+            // 0=AI tanks won't throw rocks
             ai_tank_rock "1"
             ```
     </details>

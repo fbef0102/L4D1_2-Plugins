@@ -16,7 +16,7 @@ void Tank_OnModuleStart()
 	g_hCvarEnable 				= CreateConVar("AI_HardSI_Tank_enable",   				"1",   	"0=Improves the Tank behaviour off, 1=Improves the Tank behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
 	g_hCvarTankBhop 			= CreateConVar("ai_tank_bhop", 							"1", 	"If 1, enable bhop facsimile on AI tanks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTankRock 			= CreateConVar("ai_tank_rock", 							"1", 	"1=AI tanks throw rock, 0=Ai tanl won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTankRock 			= CreateConVar("ai_tank_rock", 							"1", 	"1=AI tanks throw rock, 0=AI tanks won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);

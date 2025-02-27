@@ -1,8 +1,11 @@
 # Description | 內容
 when player in spec team, add prefix
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
     <br/>![l4d_spectator_prefix_1](image/l4d_spectator_prefix_1.jpg)
@@ -31,17 +34,6 @@ when player in spec team, add prefix
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
 * <details><summary>Related Plugin | 相關插件</summary>
 	
 	1. [l4d_name_prefix_game](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/l4d_name_prefix_game): Set Prefix Name based on team, character, infected class
@@ -50,7 +42,7 @@ when player in spec team, add prefix
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    * v1.4 (2024-12-6)
+    * v1.4 (2024-2-27)
         * Hide change-name message
 
     * v1.3 (2024-1-31)

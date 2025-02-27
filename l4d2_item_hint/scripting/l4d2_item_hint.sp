@@ -9,6 +9,7 @@
 #include <sdktools>
 #include <sourcemod>
 #include <multicolors>
+#undef REQUIRE_PLUGIN
 #tryinclude <LMCCore> //https://forums.alliedmods.net/showthread.php?t=286987
 
 #if !defined _LMCCore_included

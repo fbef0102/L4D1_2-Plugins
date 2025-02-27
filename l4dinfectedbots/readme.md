@@ -23,7 +23,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	4. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): (L4D2) Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
 		* (L4D2) 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
 
-* <details><summary>Support | 支援</summary>
+* <details><summary>Support | 支援插件</summary>
 
 	1. [SIPool](https://forums.alliedmods.net/showthread.php?t=349615): (L4D2) SIPool - Aim to improve performance when spawn SI
 		* (L4D2) 插件适用于有需要大量且频繁的特感刷新玩法的服务器，主要目的是提升服务器性能
