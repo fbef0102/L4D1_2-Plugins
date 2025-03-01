@@ -29,12 +29,12 @@ public Plugin myinfo =
 	name = "[L4D1/L4D2] Mix Map",
 	author = "Bred, Harry",
 	description = "Randomly select five maps for versus/coop/realism. Adding for fun",
-	version = "1.1h-2025/1/31",
+	version = "1.2h-2025/3/1",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mixmap"
 };
 
 Handle g_hForwardStart;
-Handle g_hForwardNext;
+Handle g_hForwardLoaded;
 Handle g_hForwardEnd;
 
 bool g_bL4D2Version;
@@ -59,10 +59,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	MarkNativeAsOptional("EditFooterStringAtIndex");
 	MarkNativeAsOptional("AddStringToReadyFooter");
 
+	CreateNative("l4d2_mixmap_IsActive",	Native_IsActive);
+	CreateNative("l4d2_mixmap_GetNextMap",	Native_GetNextMap);
+
 	// Right before loading first map; params: 1 = maplist size; 2 = name of first map
 	g_hForwardStart = CreateGlobalForward("OnCMTStart", ET_Ignore, Param_Cell, Param_String );
 	// After loading a map (to let other plugins know what the next map will be ahead of time); 1 = name of next map
-	g_hForwardNext = CreateGlobalForward("OnCMTNextKnown", ET_Ignore, Param_String );
+	g_hForwardLoaded = CreateGlobalForward("OnCMTLoaded", ET_Ignore, Param_String );
 	// After last map is played; no params
 	g_hForwardEnd = CreateGlobalForward("OnCMTEnd", ET_Ignore );
 
@@ -92,9 +95,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define BUF_SZ   			128
 
 ConVar 	g_cvNextMapPrint,
-		g_cvMaxMapsNum,
-		g_cvFinaleEndCoop,
-		g_cvFinaleEndVersus;
+		g_cvMaxMapsNum;
+		//g_cvFinaleEndCoop,
+		//g_cvFinaleEndVersus;
 
 char cfg_exec[BUF_SZ];
 
@@ -105,45 +108,38 @@ ArrayList g_hArrayTagOrder;			// Stores tags by rank 存放标签顺序
 ArrayList g_hArrayMapOrder;			// Stores finalised map list in order 存放抽取完成后的地图顺序
 KeyValues g_hKvMapNames;
 
-bool g_bMaplistFinalized;
-bool g_bMapsetInitialized;
-int g_iMapsPlayed;
-int g_iMapCount;
-
-bool 	
-	g_bServerForceStart = false;
-
-Handle g_hCountDownTimer;
-
 bool 
+	g_bServerForceStart,
 	g_bRoundIsLive, 
 	g_bReadyUpFooterAdded,
-	g_bDifferAbort;
+	g_bMaplistFinalized,
+	g_bMapsetInitialized;
 
 Handle 
-	g_hUpdateFooterTimer;
+	g_hCountDownTimer,
+	g_hUpdateFooterTimer,
+	g_hDifferAbortTimer;
 
 char 
-	g_slandmarkName[128];
+	g_slandmarkName[BUF_SZ],
+	g_sNextMixMap[BUF_SZ];
 
 int 
 	g_iReadyUpFooterIndex,
     g_iRoundStart, 
-    g_iPlayerSpawn;
-
-// ----------------------------------------------------------
-// 		Setup
-// ----------------------------------------------------------
+    g_iPlayerSpawn,
+	g_iMapsPlayed, 
+	g_iMapCount;
 
 public void OnPluginStart() 
 {
 	LoadTranslations("l4d2_mixmap.phrases");
 
-	g_cvNextMapPrint	= CreateConVar("l4d2mm_nextmap_print",		"1",	"If 1, show what the next map will be", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_cvMaxMapsNum		= CreateConVar("l4d2mm_max_maps_num",		"2",	"Determine how many maps of one campaign can be selected; 0 = no limits;", FCVAR_NOTIFY, true, 0.0, true, 5.0);
-	g_cvFinaleEndCoop	= CreateConVar("l4d2mm_finale_end_coop",	"0",	"If 1, auto force start mixmap in the end of finale in coop/realism mode (When mixmap is alreaedy on)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_cvFinaleEndVersus	= CreateConVar("l4d2mm_finale_end_verus",	"0",	"If 1, auto force start mixmap in the end of finale in versus mode (When mixmap is alreaedy on)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	AutoExecConfig(true, 			   "l4d2_mixmap");
+	g_cvNextMapPrint		= CreateConVar("l4d2mm_nextmap_print",		"1",	"If 1, show what the next map will be", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_cvMaxMapsNum			= CreateConVar("l4d2mm_max_maps_num",		"2",	"Determine how many maps of one campaign can be selected; 0 = no limits;", FCVAR_NOTIFY, true, 0.0, true, 5.0);
+	//g_cvFinaleEndCoop		= CreateConVar("l4d2mm_finale_end_coop",	"0",	"If 1, auto force start mixmap in the end of finale in coop/realism mode (When mixmap is alreaedy on)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	//g_cvFinaleEndVersus	= CreateConVar("l4d2mm_finale_end_verus",	"0",	"If 1, auto force start mixmap in the end of finale in versus mode (When mixmap is alreaedy on)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	AutoExecConfig(true, 			   	   "l4d2_mixmap");
 
 	//Servercmd 服务器指令（用于cfg文件）
 	RegServerCmd( "sm_addmap", AddMap, "Add a chatper and tag 新增關卡名稱與標記, Usage: sm_addmap <map_name> <tag>");
@@ -175,9 +171,7 @@ public void OnPluginStart()
 	
 }
 
-bool 
-	g_ReadyUpAvailable;
-
+bool g_ReadyUpAvailable;
 public void OnAllPluginsLoaded()
 {
 	g_ReadyUpAvailable = LibraryExists("readyup");
@@ -193,7 +187,6 @@ public void OnLibraryAdded(const char[] name)
 	g_ReadyUpAvailable = LibraryExists("readyup");
 }
 
-
 // Otherwise nextmap would be stuck and people wouldn't be able to play normal campaigns without the plugin 结束后初始化sm_nextmap的值
 public void OnPluginEnd() 
 {
@@ -205,7 +198,7 @@ public void OnPluginEnd()
 
 public void OnMapStart() 
 {
-	g_bDifferAbort = false;
+	g_sNextMixMap[0] = '\0'; 
 
 	delete g_hKvMapNames;
 	g_hKvMapNames = new KeyValues("Mixmap Map Names");
@@ -248,29 +241,40 @@ public void OnMapStart()
 		{
 			PluginStartInit();
 			
-			g_bDifferAbort = true;
-			CreateTimer(60.0, Timer_DifferAbort, _, TIMER_FLAG_NO_MAPCHANGE);
+			delete g_hDifferAbortTimer;
+			g_hDifferAbortTimer = CreateTimer(60.0, Timer_DifferAbort);
 			return;
 		}
 	}
-
-	// let other plugins know what the map *after* this one will be (unless it is the last map)
-	if (! g_bMaplistFinalized || g_iMapsPlayed >= g_iMapCount-1) {
+	else
+	{
 		return;
 	}
 
-	g_hArrayMapOrder.GetString(g_iMapsPlayed+1, buffer, BUF_SZ);
+	// let other plugins know what the map *after* this one will be (empty if it is the last map)
+	if (g_iMapsPlayed >= g_iMapCount-1) 
+	{
+		g_sNextMixMap[0] = '\0'; 
+		Call_StartForward(g_hForwardLoaded);
+		Call_PushString(g_sNextMixMap);
+		Call_Finish();
+		return;
+	}
+
+	g_hArrayMapOrder.GetString(g_iMapsPlayed+1, g_sNextMixMap, BUF_SZ);
 
 	//CreateTimer(5.0, Timer_FindInfoChangelevel, _, TIMER_FLAG_NO_MAPCHANGE);
 
-	Call_StartForward(g_hForwardNext);
-	Call_PushString(buffer);
+	Call_StartForward(g_hForwardLoaded);
+	Call_PushString(g_sNextMixMap);
 	Call_Finish();
 }
 
 public void OnMapEnd()
 {
 	delete g_hUpdateFooterTimer;
+	delete g_hDifferAbortTimer;
+
 	ClearDefault();
 }
 
@@ -305,7 +309,7 @@ Action Timer_ShowMaplist(Handle timer, int client)
 	client = GetClientOfUserId(client);
 	if (client && IsClientInGame(client))
 	{
-		if(g_bDifferAbort)
+		if(g_hDifferAbortTimer != null)
 		{
 			CPrintToChat(client, "%T", "Differ_Abort", client);
 		}
@@ -319,7 +323,7 @@ Action Timer_ShowMaplist(Handle timer, int client)
 }
 
 // Loads a specified set of maps
-Action ForceMixmap(int client, any args) 
+Action ForceMixmap(int client, int args) 
 {
 	Format(cfg_exec, sizeof(cfg_exec), CFG_DEFAULT);
 	
@@ -363,7 +367,7 @@ Action ForceMixmap(int client, any args)
 }
 
 // Load a specified set of maps
-Action ManualMixmap(int client, any args) 
+Action ManualMixmap(int client, int args) 
 {
 	if (args < 1) 
 	{
@@ -385,7 +389,7 @@ Action ManualMixmap(int client, any args)
 	return Plugin_Handled;
 }
 /*
-Action ShowAllMaps(int client, any Args)
+Action ShowAllMaps(int client, int Args)
 {
 	CPrintToChat(client, "%T", "AllMaps_Official", client);
 
@@ -420,7 +424,7 @@ Action ShowAllMaps(int client, any Args)
 }
 */
 
-Action Mixmap_Cmd(int client, any args) 
+Action Mixmap_Cmd(int client, int args) 
 {
 	if (IsClientAndInGame(client))
 	{
@@ -505,7 +509,7 @@ Action Mixmap_Cmd(int client, any args)
 }
 
 // Specifiy a rank for a given tag
-Action TagRank(any args) 
+Action TagRank(int args) 
 {
 	if (args < 2) 
 	{
@@ -538,7 +542,7 @@ Action TagRank(any args)
 }
 
 // Add a map to the maplist under specified tags
-Action AddMap(any args) 
+Action AddMap(int args) 
 {
 	if (args < 2) 
 	{
@@ -586,7 +590,7 @@ Action AddMap(any args)
 }
 
 // Display current map list
-Action MixMaplist(int client, any args) 
+Action MixMaplist(int client, int args) 
 {
 	if (! g_bMaplistFinalized) 
 	{
@@ -628,7 +632,7 @@ Action MixMaplist(int client, any args)
 }
 
 // Abort a currently loaded mapset
-Action StopMixmap_Cmd(int client, any args) 
+Action StopMixmap_Cmd(int client, int args) 
 {
 	if (!g_bMapsetInitialized ) 
 	{
@@ -675,7 +679,7 @@ Action StopMixmap_Cmd(int client, any args)
 	return Plugin_Continue;
 }
 
-Action StopMixmap(int client, any args) 
+Action StopMixmap(int client, int args) 
 {
 	if (!g_bMapsetInitialized) 
 	{
@@ -711,13 +715,14 @@ void finale_win(Event event, const char[] name, bool dontBroadcast)
 {
 	if(L4D_HasPlayerControlledZombies() == false && g_bMapsetInitialized)
 	{
+		++g_iMapsPlayed;
 		Call_StartForward(g_hForwardEnd);
 		Call_Finish();
 
-		if (g_cvFinaleEndCoop.BoolValue)
-		{
-			CreateTimer(10.0, Timed_ContinueMixmap, _, TIMER_FLAG_NO_MAPCHANGE);
-		}
+		//if (g_cvFinaleEndCoop.BoolValue)
+		//{
+		//	CreateTimer(10.0, Timed_ContinueMixmap, _, TIMER_FLAG_NO_MAPCHANGE);
+		//}
 	}
 }
 
@@ -835,12 +840,12 @@ Action Timed_NextMapInfo(Handle timer)
 	return Plugin_Continue;
 }
 
-Action Timed_ContinueMixmap(Handle timer)
+/*Action Timed_ContinueMixmap(Handle timer)
 {
 	ServerCommand("sm_fmixmap %s", cfg_exec);
 
 	return Plugin_Continue;
-}
+}*/
 
 Action Timer_map_transition(Handle timer)
 {
@@ -893,7 +898,7 @@ Action Timer_UpdateReadyUpFooter(Handle timer)
 	return Plugin_Continue;
 }
 
-stock Action Timer_FindInfoChangelevel(Handle timer)
+/*Action Timer_FindInfoChangelevel(Handle timer)
 {
 	if(L4D_HasPlayerControlledZombies() && strlen(g_slandmarkName) > 0)
 	{
@@ -936,7 +941,7 @@ stock Action Timer_FindInfoChangelevel(Handle timer)
 	}
 
 	return Plugin_Continue;
-}
+}*/
 
 Action StartVoteMixmap_Timer(Handle timer)
 {
@@ -1018,7 +1023,7 @@ Action Timed_GiveThemTimeToReadTheMapList(Handle timer)
 
 Action Timer_DifferAbort(Handle timer)
 {
-	g_bDifferAbort = false;
+	g_hDifferAbortTimer = null;
 
 	return Plugin_Continue;
 }
@@ -1172,6 +1177,7 @@ void PluginStartInit()
 	g_iMapCount = 0;
 
 	g_slandmarkName[0] = '\0';
+	g_sNextMixMap[0] = '\0';
 }
 
 // Others-------------------------------
@@ -1292,10 +1298,10 @@ public void L4D2_OnEndVersusModeRound_Post()
 			Call_StartForward(g_hForwardEnd);
 			Call_Finish();
 
-			if(g_cvFinaleEndVersus.BoolValue && L4D_IsMissionFinalMap(true))
-			{
-				CreateTimer(9.0, Timed_ContinueMixmap);
-			}
+			//if(g_cvFinaleEndVersus.BoolValue && L4D_IsMissionFinalMap(true))
+			//{
+			//	CreateTimer(9.0, Timed_ContinueMixmap);
+			//}
 		}
 	}
 }
@@ -1313,4 +1319,27 @@ public Action l4d2_map_transitions_OnChangeNextMap_Pre(const char[] sNextMapName
 	}
 
 	return Plugin_Continue;
+}
+
+// Native------------
+
+// native bool l4d2_mixmap_IsActive();
+int Native_IsActive(Handle plugin, int numParams)
+{
+	return g_bMapsetInitialized;
+}
+
+// native void l4d2_mixmap_GetNextMap(char[] buffer, int maxlength);
+int Native_GetNextMap(Handle plugin, int numParams)
+{
+	int maxlength = GetNativeCell(2);
+	if (maxlength <= 0) 
+		return 0;
+
+	char[] buffer = new char[maxlength];
+
+	FormatEx(buffer, maxlength, "%s", g_sNextMixMap);
+	SetNativeString(1, buffer, maxlength);
+
+	return 0;
 }

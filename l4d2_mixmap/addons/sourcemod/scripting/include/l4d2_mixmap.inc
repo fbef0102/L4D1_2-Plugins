@@ -24,6 +24,23 @@
 #define _l4d2_mixmap_included_
 
 /**
+ * @brief Returns if mix map is active
+ * 
+ * @return 			True if mix map is active, false otherwise
+ */
+native bool l4d2_mixmap_IsActive();
+
+/**
+ * @brief Get the next map name for mix map
+ *
+ * @param buffer	String to write map name, empty if there is no next mix map
+ * @param maxlength	Max length of buffer
+ * 
+ * @noreturn
+ */
+native void l4d2_mixmap_GetNextMap(char[] buffer, int maxlength);
+
+/**
  * @brief Called when plugin is about to load first mix map
  * @note Right before loading first map
  * 
@@ -33,18 +50,17 @@
 forward void OnCMTStart(int iMapCount, const char[] sMapName);
 
 /**
- * @brief Called when mix map is loaded
+ * @brief Called when mix map is loaded and what is the next mix map
  * @note Right after the map is loaded
  * 
- * @param sMapName 			Name of Current Mix Map Loaded
+ * @param sMapName 			Map name of next mix map, empty if there is no next mix map
  */
-forward void OnCMTNextKnown(const char[] sMapName);
+forward void OnCMTLoaded(const char[] sMapName);
 
 /**
  * @brief Called when last map is played and mixmap is finished
  * @note Right after round ends or final wins
  * 
- * @param sMapName 			Name of Current Mix Map Loaded
  */
 forward void OnCMTEnd();
 
@@ -63,5 +79,7 @@ public SharedPlugin __pl_l4d2_mixmap =
 #if !defined REQUIRE_PLUGIN
 public void __pl_l4d2_mixmap_SetNTVOptional()
 {
+	MarkNativeAsOptional("l4d2_mixmap_IsActive");
+	MarkNativeAsOptional("l4d2_mixmap_GetNextMap");
 }
 #endif

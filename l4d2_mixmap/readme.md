@@ -30,6 +30,16 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		* 修復手動更換地圖會遇到的問題
 	5. [l4d2_transition_info_fix](/l4d2_transition_info_fix): Fix issues after map transitioned, transition info is still retaining when changed new map by other ways.
 		* 修復中途換地圖的時候(譬如使用Changelevel指令)，會遺留上次的過關保存設定，導致滅團後倖存者被傳送到安全室之外或死亡
+		
+* <details><summary>Support | 支援插件</summary>
+
+	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready-up plugin
+		* 所有玩家準備才能開始遊戲的插件
+	2. [l4d2_ty_saveweapons](/l4d2_ty_saveweapons): L4D2 coop save weapon when map transition if more than 4 players
+		* 當伺服器有5+以上玩家遊玩戰役、寫實時，保存他們過關時的血量以及攜帶的武器、物資
+	3. [l4d2_map_transitions](/l4d2_map_transitions): Define map transitions to combine campaigns in versus
+		* 對抗模式第二回合結束時從地圖A切換成地圖B
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -120,17 +130,10 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		```
 </details>
 
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [readyup](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Server_%E4%BC%BA%E6%9C%8D%E5%99%A8/readyup): Ready-up plugin
-		> 所有玩家準備才能開始遊戲的插件
-	2. [l4d2_ty_saveweapons](/l4d2_ty_saveweapons): L4D2 coop save weapon when map transition if more than 4 players
-		* 當伺服器有5+以上玩家遊玩戰役、寫實時，保存他們過關時的血量以及攜帶的武器、物資
-	3. [l4d2_map_transitions](/l4d2_map_transitions): Define map transitions to combine campaigns in versus
-		* 對抗模式第二回合結束時從地圖A切換成地圖B
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.2h (2025-3-1)
+		* Add more api
 
 	* v1.1h (2025-1-31)
 	* v1.0h (2024-12-25)

@@ -27,6 +27,12 @@ Define map transitions to combine campaigns in versus
 	4. [l4d2_transition_info_fix](/l4d2_transition_info_fix): Fix issues after map transitioned, transition info is still retaining when changed new map by other ways.
 		* 修復中途換地圖的時候(譬如使用Changelevel指令)，會遺留上次的過關保存設定，導致滅團後倖存者被傳送到安全室之外或死亡
 
+* <details><summary>Support | 支援插件</summary>
+
+	1. [l4d2_mixmap](/l4d2_mixmap): Randomly select five maps for versus/coop/realism. Adding for fun
+		* 隨機抽取五個關卡組成一張地圖，適用於戰役/對抗/寫實，依一定順序切換地圖來進行遊戲，增加遊戲的趣味性
+</details>
+
 * <details><summary>Command | 命令</summary>
 
 	* **Change to ending map when versus second round ends in starting map**
