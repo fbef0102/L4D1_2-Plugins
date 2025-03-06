@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "1.2h-2025/1/23"
+#define PLUGIN_VERSION "1.3h-2025/3/6"
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -45,12 +45,16 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define CVAR_FLAGS FCVAR_NOTIFY
 
-ConVar g_hCvarPanicTimeout;
+ConVar g_hCvarPanicTimeout, 
+	g_hCvarCISpawn, g_hCvarCIDeath,
+	g_hCvarSISpawn, g_hCvarSIDeath;
 int g_iCvarPanicTimeout;
 
 char g_sMap[64], g_sLog[PLATFORM_MAX_PATH];
 int g_iLastTime;
-bool g_bTriggerHooked, g_bFinaleStarted, g_bFinaleEscape, g_bFinaleVehicleReady;
+bool g_bTriggerHooked, g_bFinaleStarted, g_bFinaleEscape, g_bFinaleVehicleReady,
+	g_bCvarCISpawn, g_bCvarCIDeath,
+	g_bCvarSISpawn, g_bCvarSIDeath;
 Handle g_hTimerWave;
 int g_iPanicTimeout;
 
@@ -60,14 +64,22 @@ public void OnPluginStart()
 	
 	CreateConVar("l4d_finale_stage_fix_version", PLUGIN_VERSION, "Plugin Version", FCVAR_DONTRECORD | CVAR_FLAGS);
 	g_hCvarPanicTimeout = CreateConVar("l4d_finale_stage_fix_panicstage_timeout",		"60",		"Timeout (in sec.) for finale panic stage waiting for tank/painc horde to appear, otherwise stage forcibly changed", CVAR_FLAGS );
+	g_hCvarCISpawn  = CreateConVar("l4d_finale_stage_fix_reset_ci_spawn",				"1",		"If 1, reset timer when common infected spawns", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarCIDeath  = CreateConVar("l4d_finale_stage_fix_reset_ci_death",				"1",		"If 1, reset timer when common infected death", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarSISpawn  = CreateConVar("l4d_finale_stage_fix_reset_si_spawn",				"1",		"If 1, reset timer when special infected bot or tank bot spawns", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarSIDeath  = CreateConVar("l4d_finale_stage_fix_reset_si_death",				"1",		"If 1, reset timer when special infected bot or tank bot death", CVAR_FLAGS, true, 0.0, true, 1.0 );
 	AutoExecConfig(true, "l4d_finale_stage_fix");
+	
 	GetCvars();
 	g_hCvarPanicTimeout.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarCISpawn.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarCIDeath.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarSISpawn.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarSIDeath.AddChangeHook(ConVarChanged_Cvars);
 	
 	HookEvent("round_start",            Event_RoundStart);
 	HookEvent("player_spawn",           Event_PlayerSpawn);
 	HookEvent("player_death",           Event_PlayerDeath);
-	HookEvent("infected_death", 		infected_death);
 	HookEvent("round_end",       		Event_RoundEnd,  		EventHookMode_PostNoCopy);
 	HookEvent("mission_lost", 			Event_RoundEnd,			EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
 	HookEvent("finale_vehicle_leaving", Event_RoundEnd,			EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
@@ -95,7 +107,11 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 
 void GetCvars()
 {
-    g_iCvarPanicTimeout = g_hCvarPanicTimeout.IntValue;
+	g_iCvarPanicTimeout = g_hCvarPanicTimeout.IntValue;
+	g_bCvarCISpawn = g_hCvarCISpawn.BoolValue;
+	g_bCvarCIDeath = g_hCvarCIDeath.BoolValue;
+	g_bCvarSISpawn = g_hCvarSISpawn.BoolValue;
+	g_bCvarSIDeath = g_hCvarSIDeath.BoolValue;
 }
 
 public void OnMapStart()
@@ -128,7 +144,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 		{
 			case 'i':
 			{
-				if (StrEqual(classname, "infected"))
+				if (g_bCvarCISpawn && StrEqual(classname, "infected"))
 				{
 					if(g_hTimerWave != null)
 					{
@@ -328,7 +344,7 @@ void OnFinaleStart(const char[] output, int caller, int activator, float delay)
 
 void Event_PlayerSpawn(Event hEvent, const char[] name, bool dontBroadcast) 
 {
-	if(!g_bFinaleStarted || g_bFinaleEscape) return;
+	if(!g_bFinaleStarted || g_bFinaleEscape || !g_bCvarSISpawn) return;
 
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 	if (!client || !IsClientInGame(client) || !IsFakeClient(client) || GetClientTeam(client) != 3) return;
@@ -346,43 +362,44 @@ void Event_PlayerSpawn(Event hEvent, const char[] name, bool dontBroadcast)
 	}
 }
 
+//witch跟小殭屍被殺死也會觸發
 void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	if(!g_bFinaleStarted || g_bFinaleEscape) return;
 
 	int victim = GetClientOfUserId(event.GetInt("userid"));
-	if (!victim || !IsClientInGame(victim) || !IsFakeClient(victim) || GetClientTeam(victim) != 3) return;
-
-	if(g_hTimerWave != null)
+	if (victim && IsClientInGame(victim) && IsFakeClient(victim) && GetClientTeam(victim) == 3)
 	{
-		#if DEBUG
-			StringToLog("[Timer Reset] S.I. bots death");
-		#endif
+		if(!g_bCvarSIDeath) return;
 
-		g_iPanicTimeout = g_iCvarPanicTimeout;
+		if(g_hTimerWave != null)
+		{
+			#if DEBUG
+				StringToLog("[Timer Reset] S.I. bots death");
+			#endif
 
-		delete g_hTimerWave;
-		g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
+			g_iPanicTimeout = g_iCvarPanicTimeout;
+
+			delete g_hTimerWave;
+			g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
+		}
 	}
-}
-
-void infected_death(Event event, const char[] name, bool dontBroadcast)
-{
-	if(!g_bFinaleStarted || g_bFinaleEscape) return;
-
-	int attacker = GetClientOfUserId(event.GetInt("attacker"));
-	if(!attacker || !IsClientInGame(attacker)|| GetClientTeam(attacker) != 2 ) return;
-
-	if(g_hTimerWave != null)
+	else 
 	{
-		#if DEBUG
-			StringToLog("[Timer Reset] common/witch death");
-		#endif
+		if(!g_bCvarCIDeath) return;
 
-		g_iPanicTimeout = g_iCvarPanicTimeout;
+		int entityid = event.GetInt("entityid");
+		if(IsCommonInfected(entityid))
+		{
+			#if DEBUG
+				StringToLog("[Timer Reset] common death");
+			#endif
 
-		delete g_hTimerWave;
-		g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
+			g_iPanicTimeout = g_iCvarPanicTimeout;
+
+			delete g_hTimerWave;
+			g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
+		}
 	}
 }
 
@@ -448,47 +465,16 @@ Action tmrCheckStageStuck(Handle timer)
 	return Plugin_Continue;
 }
 
-//Left4Dhooks API Forward-------------------------------
-
-public void L4D2_OnChangeFinaleStage_Post(int finaleType, const char[] arg) // public forward
+bool IsCommonInfected(int entity)
 {
-	#if DEBUG
-		int delta;
-		if( g_iLastTime != 0 )
-		{
-			delta = GetTime() - g_iLastTime;
-		}
-		g_iLastTime = GetTime();
-		StringToLog("[Stage] changed to => %i (%i sec.)", finaleType, delta);
-	#else
-		g_iLastTime = GetTime();
-	#endif
-	
-	if( g_bFinaleStarted && !g_bFinaleEscape)
+	if (entity > MaxClients && IsValidEntity(entity))
 	{
-		if( finaleType == FINALE_CUSTOM_PANIC )
-		{
-			#if DEBUG
-				StringToLog("[Timer Start] FINALE_CUSTOM_PANIC");
-			#endif
-			
-			g_iPanicTimeout = g_iCvarPanicTimeout;
-
-			delete g_hTimerWave;
-			g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
-		}
-		else if( finaleType == FINALE_CUSTOM_TANK )
-		{
-			#if DEBUG
-				StringToLog("[Timer Start] FINALE_CUSTOM_TANK");
-			#endif
-			
-			g_iPanicTimeout = g_iCvarPanicTimeout;
-
-			delete g_hTimerWave;
-			g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
-		}
+		static char entType[64];
+		GetEntityClassname(entity, entType, sizeof(entType));
+		return strcmp(entType, "infected", false) == 0;
 	}
+
+	return false;
 }
 
 void ForceNextStage()
@@ -540,4 +526,47 @@ stock void StringToLog(const char[] format, any ...)
 	static char buffer[256];
 	VFormat(buffer, sizeof(buffer), format, 2);
 	LogToFileEx(g_sLog, buffer);
+}
+
+//Left4Dhooks API Forward-------------------------------
+
+public void L4D2_OnChangeFinaleStage_Post(int finaleType, const char[] arg) // public forward
+{
+	#if DEBUG
+		int delta;
+		if( g_iLastTime != 0 )
+		{
+			delta = GetTime() - g_iLastTime;
+		}
+		g_iLastTime = GetTime();
+		StringToLog("[Stage] changed to => %i (%i sec.)", finaleType, delta);
+	#else
+		g_iLastTime = GetTime();
+	#endif
+	
+	if( g_bFinaleStarted && !g_bFinaleEscape)
+	{
+		if( finaleType == FINALE_CUSTOM_PANIC )
+		{
+			#if DEBUG
+				StringToLog("[Timer Start] FINALE_CUSTOM_PANIC");
+			#endif
+			
+			g_iPanicTimeout = g_iCvarPanicTimeout;
+
+			delete g_hTimerWave;
+			g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
+		}
+		else if( finaleType == FINALE_CUSTOM_TANK )
+		{
+			#if DEBUG
+				StringToLog("[Timer Start] FINALE_CUSTOM_TANK");
+			#endif
+			
+			g_iPanicTimeout = g_iCvarPanicTimeout;
+
+			delete g_hTimerWave;
+			g_hTimerWave = CreateTimer(1.0, tmrCheckStageStuck, _, TIMER_REPEAT);
+		}
+	}
 }

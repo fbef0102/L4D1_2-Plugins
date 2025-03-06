@@ -23,6 +23,14 @@ Full auto mode for SCAR
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
+* <details><summary>Support | 支援插件</summary>
+
+	1. [l4d_drop](/l4d_drop): Allows players to drop the weapon they are holding
+		* 玩家可自行丟棄手中的武器
+	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS:GO in L4D2
+		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+</details>
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/miuwiki_autoscar.cfg
@@ -51,14 +59,6 @@ Full auto mode for SCAR
 		```php
 		library name: miuwiki_autoscar
 		```
-</details>
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [l4d_drop](/l4d_drop): Allows players to drop the weapon they are holding
-		* 玩家可自行丟棄手中的武器
-	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS:GO in L4D2
-		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>

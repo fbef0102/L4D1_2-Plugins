@@ -50,12 +50,6 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 		// Determine how many maps of one campaign can be selected; 0 = no limits;
 		l4d2mm_max_maps_num "2"
-
-		// If 1, auto force start mixmap in the end of finale in coop/realism mode (When mixmap is alreaedy on)
-		l4d2mm_finale_end_coop "0"
-
-		// If 1, auto force start mixmap in the end of finale in versus mode (When mixmap is alreaedy on)
-		l4d2mm_finale_end_verus "0"
 		```
 </details>
 
@@ -175,12 +169,6 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 		// 同一張地圖最多能被抽取幾次？; 0 = 無限制;
 		l4d2mm_max_maps_num "2"
-
-		// (戰役/寫實) 為1時，最後一關上救援之後自動選擇下一個Mixmap列表 (當Mix map開啟的時候)
-		l4d2mm_finale_end_coop "0"
-
-		// (對抗) 為1時，最後一關的第二回合結束之後自動選擇下一個Mixmap列表 (當Mix map開啟的時候)
-		l4d2mm_finale_end_verus "0"
 		```
 </details>
 

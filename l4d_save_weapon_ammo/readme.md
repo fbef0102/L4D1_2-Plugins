@@ -25,6 +25,14 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 * Require | 必要安裝
 <br/>None
 
+* <details><summary>Support | 支援插件</summary>
+
+	1. [Reserve (Ammo) Control](https://forums.alliedmods.net/showthread.php?t=334274): Individually control weapons's reserve counts independent of the ammo_* cvars.
+		* 設置每一種武器的後備子彈
+	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS:GO in L4D2
+		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+</details>
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d_save_weapon_ammo.cfg
@@ -38,14 +46,6 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 		// If 1, save if the amount of weapon ammo is more than vanilla
 		l4d_save_weapon_ammo_fix_2 "1"
 		```
-</details>
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [Reserve (Ammo) Control](https://forums.alliedmods.net/showthread.php?t=334274): Individually control weapons's reserve counts independent of the ammo_* cvars.
-		* 設置每一種武器的後備子彈
-	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS:GO in L4D2
-		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>

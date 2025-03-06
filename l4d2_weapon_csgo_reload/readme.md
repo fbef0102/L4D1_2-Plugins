@@ -81,7 +81,7 @@ Quickswitch Reloading like CS:GO in L4D2
 	
 	If you don't use any of these plugins at all, no need to worry about conflicts.
 	1. [l4d_weapon_clear_reload](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_clear_reload)
-		* Abandon magazine when reload weapon
+		* Remove 
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -175,5 +175,5 @@ Quickswitch Reloading like CS:GO in L4D2
 	
     如果沒安裝以下插件就不需要擔心衝突
     1. [l4d_weapon_clear_reload](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_clear_reload)
-		* 武器裝彈時放棄彈夾內的所有子彈
+		* 移除插件
 </details>
