@@ -21,7 +21,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "3.6-2025/2/23",
+	version     = "3.7-2025/3/7",
 	url         = "https://forums.alliedmods.net/showpost.php?p=2765332&postcount=30"
 };
 
@@ -76,14 +76,14 @@ ConVar g_hItemCvarCMD, g_hItemCvarShiftE, g_hItemCvarVocalize,
 	g_hItemInstructorHint, g_hItemInstructorColor, g_hItemInstructorIcon,
 	g_hSpotMarkUseRange, g_hSpotMarkUseSound, g_hSpotMarkAnnounceType, g_hSpotMarkGlowTimer, g_hSpotMarkCvarColor, g_hSpotMarkSpriteModel,
 	g_hSpotMarkInstructorHint, g_hSpotMarkInstructorColor, g_hSpotMarkInstructorIcon,
-	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkWitch,
+	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkWitch, g_hInfectedMarkSI,
 	g_hInfectedMarkInstructorHint, g_hInfectedMarkInstructorColor, g_hInfectedMarkInstructorIcon,
 	g_hSurvivorMarkUseRange, g_hSurvivorMarkUseSound, g_hSurvivorMarkAnnounceType, g_hSurvivorMarkGlowTimer, g_hSurvivorMarkGlowRange, g_hSurvivorMarkCvarColor,
 	g_hSurvivorMarkInstructorHint, g_hSurvivorMarkInstructorColor, g_hSurvivorMarkInstructorIcon;
 int g_iHintTransType,
 	g_iItemAnnounceType, g_iItemGlowRange, g_iItemCvarColor,
 	g_iSpotMarkCvarColorArray[3], g_iSpotMarkAnnounceType,
-	g_iInfectedMarkAnnounceType, g_iInfectedMarkGlowRange, g_iInfectedMarkCvarColor,
+	g_iInfectedMarkAnnounceType, g_iInfectedMarkGlowRange, g_iInfectedMarkCvarColor, g_iInfectedMarkSI,
 	g_iSurvivorMarkAnnounceType, g_iSurvivorMarkGlowRange, g_iSurvivorMarkCvarColor;
 float g_fItemHintCoolDown, g_fSpotMarkCoolDown, g_fInfectedMarkCoolDown, g_fSurvivorMarkCoolDown,
 	g_fItemUseHintRange, g_fItemGlowTimer,
@@ -199,6 +199,7 @@ public void OnPluginStart()
 	g_hInfectedMarkGlowTimer   		= CreateConVar("l4d2_infected_marker_glow_timer", 				"10.0", 				"Infected Marker Glow Time.", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedMarkGlowRange   		= CreateConVar("l4d2_infected_marker_glow_range", 				"2500", 				"Infected Marker Glow Range", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedMarkWitch    		= CreateConVar("l4d2_infected_marker_witch_enable", 			"1", 					"If 1, Enable 'Look' Infected Marker on witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedMarkSI    			= CreateConVar("l4d2_infected_marker_si_flag", 					"127", 					"Enable 'Look' Infected Marker on Which SI? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together (127=All)", FCVAR_NOTIFY, true, 0.0, true, 127.0);
 	g_hInfectedMarkInstructorHint	= CreateConVar("l4d2_infected_marker_instructorhint_enable", 	"1", 					"If 1, Create instructor hint on Infected's head if marked.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedMarkInstructorColor	= CreateConVar("l4d2_infected_marker_instructorhint_color", 	"255 0 0", 				"Instructor hint color on Infecfed Marker. (If empty, off the zombie class display)", FCVAR_NOTIFY);
 	g_hInfectedMarkInstructorIcon	= CreateConVar("l4d2_infected_marker_instructorhint_icon", 		"icon_skull", 			"Instructor icon name on Infecfed Marker.", FCVAR_NOTIFY);
@@ -255,6 +256,7 @@ public void OnPluginStart()
 	g_hInfectedMarkGlowRange.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkCvarColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkWitch.AddChangeHook(ConVarChanged_Cvars);
+	g_hInfectedMarkSI.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorHint.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorIcon.AddChangeHook(ConVarChanged_Cvars);
@@ -405,6 +407,7 @@ void GetCvars()
 	g_hInfectedMarkCvarColor.GetString(sColor, sizeof(sColor));
 	g_iInfectedMarkCvarColor = GetColor(sColor);
 	g_bInfectedMarkWitch = g_hInfectedMarkWitch.BoolValue;
+	g_iInfectedMarkSI = g_hInfectedMarkSI.IntValue;
 	g_bInfectedMarkInstructorHint = g_hInfectedMarkInstructorHint.BoolValue;
 	g_hInfectedMarkInstructorColor.GetString(g_sInfectedMarkInstructorColor, sizeof(g_sInfectedMarkInstructorColor));
 	g_hInfectedMarkInstructorIcon.GetString(g_sInfectedMarkInstructorIcon, sizeof(g_sInfectedMarkInstructorIcon));
@@ -2085,9 +2088,19 @@ void PlayerMarkHint(int client)
 		{
 			bIsAimPlayer = true;
 			//PrintToChatAll("look at %N", clientAim);
-			
-			if( CreateInfectedMarker(client, clientAim) == true )
-				return;
+				
+			int class = GetEntProp(clientAim, Prop_Send, "m_zombieClass");
+			if(class == ZC_TANK) // tank
+			{
+				class--;
+			}
+			class--;
+
+			if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSI))
+			{
+				if( CreateInfectedMarker(client, clientAim) == true )
+					return;
+			}
 		}
 		else if(g_iSurvivorMarkCvarColor != 0 && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
 		{

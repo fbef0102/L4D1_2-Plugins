@@ -166,6 +166,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // If 1, Enable 'Look' Infected Marker on witch.
             l4d2_infected_marker_witch_enable "1"
 
+            // Enable 'Look' Infected Marker on Which SI? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together (127=All)
+            l4d2_infected_marker_si_flag "127"
+
             // If 1, Create instructor hint on Infected's head if marked.
             l4d2_infected_marker_instructorhint_enable "1"
 
@@ -232,6 +235,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v3.7 (2025-3-7)
+        * Update cvars
 
     * v3.6 (2025-2-23)
         * Support LMC (Lux's Model Changer)
@@ -434,6 +440,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 為1時，也可以標記Witch
             l4d2_infected_marker_witch_enable "1"
+
+            // 可以標記哪些特感? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. 請將數字相加 (127=全部)
+            l4d2_infected_marker_si_flag "127"
 
             // 為1時，啟用導演提示
             l4d2_infected_marker_instructorhint_enable "1"
