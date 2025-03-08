@@ -205,5 +205,11 @@
 		"en"		"You can't call this vote once round is live"
 		"zho"		"只有在準備階段才能發起投票"
 		"chi"		"只有在准备阶段才能发起投票"
+	}	
+	"Mode not support"
+	{
+		"en"		"Not support Survival/Scavenge"
+		"zho"		"不支援生存/清道夫模式"
+		"chi"		"不支援生存/清道夫模式"
 	}
 }
