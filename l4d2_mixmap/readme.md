@@ -1,14 +1,14 @@
 # Description | 內容
 Randomly select five maps for versus/coop/realism. Adding for fun
 
-* Image | 圖示
-	<br/>![l4d2_mixmap_1](image/l4d2_mixmap_1.jpg)
-
 * Apply to | 適用於
 	```
-	L4D1
-	L4D2
+	L4D1 Survival/Coop/Versus
+	L4D2 Survival/Coop/Versus/Realism
 	```
+
+* Image | 圖示
+	<br/>![l4d2_mixmap_1](image/l4d2_mixmap_1.jpg)
 
 * <details><summary>How does it work?</summary>
 
@@ -125,6 +125,9 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.3h (2025-3-8)
+		* Fixed server unable to change map in survival/scavenge
 
 	* v1.2h (2025-3-1)
 		* Add more api

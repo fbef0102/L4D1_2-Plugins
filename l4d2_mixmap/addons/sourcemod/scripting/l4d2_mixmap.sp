@@ -29,7 +29,7 @@ public Plugin myinfo =
 	name = "[L4D1/L4D2] Mix Map",
 	author = "Bred, Harry",
 	description = "Randomly select five maps for versus/coop/realism. Adding for fun",
-	version = "1.2h-2025/3/1",
+	version = "1.3h-2025/3/8",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mixmap"
 };
 
@@ -190,7 +190,7 @@ public void OnLibraryAdded(const char[] name)
 // Otherwise nextmap would be stuck and people wouldn't be able to play normal campaigns without the plugin 结束后初始化sm_nextmap的值
 public void OnPluginEnd() 
 {
-	ServerCommand("sm_nextmap ''");
+	ServerCommand("sm_nextmap \"\"");
 	ClearDefault();
 }
 
@@ -220,7 +220,7 @@ public void OnMapStart()
 		PrecacheSound("ui/beep_error01.wav");
 	}
 
-	ServerCommand("sm_nextmap ''");
+	ServerCommand("sm_nextmap \"\"");
 
 	char buffer[BUF_SZ];
 
@@ -428,6 +428,12 @@ Action Mixmap_Cmd(int client, int args)
 {
 	if (IsClientAndInGame(client))
 	{
+		if(L4D_IsSurvivalMode() || (g_bL4D2Version && L4D2_IsScavengeMode()))
+		{
+			CPrintToChat(client, "%T", "Mode not support", client);
+			return Plugin_Handled;
+		}
+
 		if(g_ReadyUpAvailable && g_bRoundIsLive)
 		{
 			CPrintToChat(client, "%T", "Round is live", client);

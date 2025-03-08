@@ -64,8 +64,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 特感死亡時顯示人類造成的傷害統計
 * <b>[l4dffannounce](/l4dffannounce)</b>: Adds Friendly Fire Announcements (who kills teammates).
     * 顯示誰他馬TK我
-* <b>[sm_downloader](/sm_downloader)</b>: SM File/Folder Downloader and Precacher
-    * SM 文件下載器 (玩家連線伺服器的時候能下載自製的檔案)
 * <b>[tank_witch_spawn_notify](/tank_witch_spawn_notify)</b>: When the tank and witch spawns, it announces itself in chat by making a sound
     * Tank/Witch出現有提示與音效
 * <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde ?

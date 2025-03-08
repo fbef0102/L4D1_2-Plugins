@@ -1,18 +1,35 @@
 # Description | 內容
 Download and play custom music in game
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
 * [Video | 影片展示](https://youtu.be/PqnBI-G-kOk)
 
 * Image
 	<br/>![l4d_MusicMapStart_1](image/l4d_MusicMapStart_1.jpg)
 	<br/>![l4d_MusicMapStart_2](image/l4d_MusicMapStart_2.jpg)
 
-* Require | 必要安裝
-	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+* <details><summary>How does it work?</summary>
 
-* Notice
-	* 🟥 Prepare [your content-server for FastDL](https://developer.valvesoftware.com/wiki/FastDL), othersie this plugin will not work
-	* If you don't know what "FastDL" is, please google it
+	* Play custom music when player joins server
+	* Play custom music on new round starts.
+	* Type ```!music``` to play custom music
+</details>
+
+* Require | 必要安裝
+	1. 🟥 Prepare [your content-server for FastDL](https://developer.valvesoftware.com/wiki/FastDL), othersie this plugin will not work 
+		* 🟥 需[自備網空且支援FastDL](https://developer.valvesoftware.com/wiki/Zh/FastDL)，否則此插件會無效 (不知道什麼是FastDL請自行Google)
+	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+
+* <details><summary>Support | 支援插件</summary>
+
+	1. [l4d_force_client_custom_download](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Player_%E7%8E%A9%E5%AE%B6/l4d_force_client_custom_download): Force player to download your server's custom content
+		* 強制玩家打開設置下載伺服器自製的檔案
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -135,25 +152,14 @@ Download and play custom music in game
 		* Connect to server. 
 		* Type ```!music``` in chatbox.
 
-	6. Players should download dance files when connecting to your server
+	6. Players should download dance files when connecting to your server (They need to set Options-> Multiplayer -> CUSTOM SERVER CONTENT -> Allow All)
 		<br/>![l4d_MusicMapStart_3](image/l4d_MusicMapStart_3.jpg)
 </details>
 
-* Apply to | 適用於
+* Translation Support | 支援翻譯
 	```
-	L4D1
-	L4D2
+	translations/MusicMapStart.phrases.txt
 	```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -184,8 +190,7 @@ Download and play custom music in game
 
 * 原理
     * 播放MP3歌曲，可以播放自製的音樂
-	* 也可以輸入!music使用點歌系統，全體玩家能聽到
-	* 🟥 需[自備網空且支援FastDL](https://developer.valvesoftware.com/wiki/Zh/FastDL)，客戶端才能下載音樂檔案 (不知道什麼是FastDL請自行Google)
+	* 也可以輸入```!music```使用點歌系統，全體玩家能聽到
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -311,7 +316,7 @@ Download and play custom music in game
 		* 連線到伺服器
 		* 在聊天視窗輸入```!music```
 
-	6. 玩家加入伺服器時，會自動下載自製的音樂檔案
+	6. 玩家加入伺服器時，會自動下載自製的音樂檔案 (玩家必須自己打開選項->多人連線->自訂伺服器內容->全部允許)
 		<br/>![l4d_MusicMapStart_3](image/l4d_MusicMapStart_3.jpg)
 </details>
 
