@@ -293,7 +293,11 @@ void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast)
 	if(Is_UpgradeGroundPack(entity))
 	{	
 		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(g_fUpradeGroundPack_Time, Timer_KillGroundPackEntity, EntIndexToEntRef(entity));
+
+		DataPack hPack;
+		g_ItemDeleteTimer[entity] = CreateDataTimer(g_fUpradeGroundPack_Time, Timer_KillGroundPackEntity, hPack);
+		hPack.WriteCell(entity);
+		hPack.WriteCell(EntIndexToEntRef(entity));
 	}
 }
 
@@ -328,7 +332,11 @@ void OnNextFrame_ByInfected(int entityRef)
 		if(GetEntProp(weapon, Prop_Send, "m_DroppedByInfectedGender") > 0) //Dropped By Uncommon Infected
 		{
 			delete g_ItemDeleteTimer[weapon];
-			g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, EntIndexToEntRef(weapon));
+
+			DataPack hPack;
+			g_ItemDeleteTimer[weapon] = CreateDataTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, hPack);
+			hPack.WriteCell(weapon);
+			hPack.WriteCell(EntIndexToEntRef(weapon));
 			return;
 		}
 	}
@@ -337,7 +345,11 @@ void OnNextFrame_ByInfected(int entityRef)
 	if(modelIndex == g_iModel_Tonfa) //警棍
 	{
 		delete g_ItemDeleteTimer[weapon];
-		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, EntIndexToEntRef(weapon));
+
+		DataPack hPack;
+		g_ItemDeleteTimer[weapon] = CreateDataTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, hPack);
+		hPack.WriteCell(weapon);
+		hPack.WriteCell(EntIndexToEntRef(weapon));
 	}
 }
 
@@ -370,28 +382,38 @@ void OnNextFrame_BySurvivior(int entityRef)
 		(g_bL4D2Version && modelIndex == g_iModel_Gnome && g_bClearGnome))
 	{
 		delete g_ItemDeleteTimer[weapon];
-		g_ItemDeleteTimer[weapon] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(weapon));
+
+		DataPack hPack;
+		g_ItemDeleteTimer[weapon] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+		hPack.WriteCell(weapon);
+		hPack.WriteCell(EntIndexToEntRef(weapon));
 	}
 }
 
-Action Timer_KillGroundPackEntity(Handle timer, int entRef)
+Action Timer_KillGroundPackEntity(Handle timer, DataPack hPack)
 {
-	int entity = EntRefToEntIndex(entRef);
+	hPack.Reset();
+	int index = hPack.ReadCell();
+	g_ItemDeleteTimer[index] = null;
+
+	int entity = EntRefToEntIndex(hPack.ReadCell());
 	if(entity == INVALID_ENT_REFERENCE) return Plugin_Continue;
 
 	SetEntityRenderFx(entity, RENDERFX_FADE_FAST); //RENDERFX_FADE_SLOW 3.5
 	CreateTimer(1.5, KillEntity, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 
-	g_ItemDeleteTimer[entity] = null;
 	return Plugin_Continue;
 }
 
-Action Timer_KillWeapon(Handle timer, int entRef)
+Action Timer_KillWeapon(Handle timer, DataPack hPack)
 {
-	int entity = EntRefToEntIndex(entRef);
+	hPack.Reset();
+	int index = hPack.ReadCell();
+	g_ItemDeleteTimer[index] = null;
+
+	int entity = EntRefToEntIndex(hPack.ReadCell());
 	if(entity == INVALID_ENT_REFERENCE) return Plugin_Continue;
 
-	g_ItemDeleteTimer[entity] = null;
 	if(IsInUse(entity) == false )
 	{
 		RemoveEntity(entity);
@@ -432,21 +454,29 @@ void SetTimer_DeleteWeapon(int entity)
 			if(modelIndex == g_iModel_Gascan && IsScavengeGascan(entity)) return;
 
 			delete g_ItemDeleteTimer[entity];
-			g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(entity));
+
+			DataPack hPack;
+			g_ItemDeleteTimer[entity] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+			hPack.WriteCell(entity);
+			hPack.WriteCell(EntIndexToEntRef(entity));
 		}
 	}
 	else if(g_smItemDeleteList.GetValue(sClassName, bTemp) == true)
 	{
 		if(strcmp(sClassName, CLASSNAME_WEAPON_GASCAN, false) == 0 && IsScavengeGascan(entity)) return;
 
-		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(entity));
+		DataPack hPack;
+		g_ItemDeleteTimer[entity] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+		hPack.WriteCell(entity);
+		hPack.WriteCell(EntIndexToEntRef(entity));
 	}
 	else if( (g_bClearGnome && strcmp(sClassName, CLASSNAME_WEAPON_GNOME) == 0) ||
 		(g_bClearCola && strcmp(sClassName, CLASSNAME_WEAPON_COLA) == 0) )
 	{
-		delete g_ItemDeleteTimer[entity];
-		g_ItemDeleteTimer[entity] = CreateTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, EntIndexToEntRef(entity));
+		DataPack hPack;
+		g_ItemDeleteTimer[entity] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+		hPack.WriteCell(entity);
+		hPack.WriteCell(EntIndexToEntRef(entity));
 	}
 }
 
