@@ -63,6 +63,9 @@ Full auto mode for SCAR
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.1h (2025-3-19)
+		* Optimize client shoot sound
+
 	* v1.0h (2025-2-15)
 		* Optimize code to detect frame of scar rifle
 		* Update cvars
