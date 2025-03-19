@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <miuwiki_autoscar>
 
-#define PLUGIN_VERSION "1.0h-2025/2/15"
+#define PLUGIN_VERSION "1.1h-2025/3/19"
 
 public Plugin myinfo =
 {
@@ -118,10 +118,10 @@ public void OnPluginStart()
 {
 	LoadGameData();
 	// cvar_l4d2_scar_mininterrupt = CreateConVar("miuwiki_autoscar_mininterrupt", "0.05", "min interrupt time. if your server often lag or player can't shoot or reload, add it.", 0, true, 0.03);
-	cvar_l4d2_scar_cycletime    = CreateConVar("miuwiki_autoscar_cycletime", 	"0.11", "Scar full Auto cycle time. [min 0.03]", FCVAR_NOTIFY, true, 0.03);
-	cvar_l4d2_scar_reloadtime   = CreateConVar("miuwiki_autoscar_reloadtime", 	"0",    "Scar full Auto reload time. [min 0.5, 0=Same as Triple Tap default reload time]", FCVAR_NOTIFY, true, 0.0);
-	cvar_l4d2_scar_notify		= CreateConVar("miuwiki_autoscar_notify", 		"1", 	"1=Enable chat notify, 0=Disable chat notify", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	cvar_l4d2_scar_default		= CreateConVar("miuwiki_autoscar_default", 		"0", 	"Which mode by default when client joins server? 0=Triple Tap, 1=Full Auto", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvar_l4d2_scar_cycletime    = CreateConVar("miuwiki_autoscar_cycletime", 	"0.11", 	"Scar full Auto cycle time. [min 0.03]", FCVAR_NOTIFY, true, 0.03);
+	cvar_l4d2_scar_reloadtime   = CreateConVar("miuwiki_autoscar_reloadtime", 	"0",    	"Scar full Auto reload time. [min 0.5, 0=Same as Triple Tap default reload time]", FCVAR_NOTIFY, true, 0.0);
+	cvar_l4d2_scar_notify		= CreateConVar("miuwiki_autoscar_notify", 		"1", 		"1=Enable chat notify, 0=Disable chat notify", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvar_l4d2_scar_default		= CreateConVar("miuwiki_autoscar_default", 		"0", 		"Which mode by default when client joins server? 0=Triple Tap, 1=Full Auto", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvar_l4d2_scar_button		= CreateConVar("miuwiki_autoscar_buttons", 		"524288", 	"Press which button to trigger full auto mode, 131072=Shift, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex: 655360=Shift + Middle Mouse", FCVAR_NOTIFY);
 
 	GetCvars();
@@ -140,6 +140,12 @@ public void OnPluginStart()
 	HookEvent("round_start",            Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("player_disconnect", 		Event_PlayerDisconnect);
 
+	HookEvent("pounce_end", Infected_CappedEnd);
+	HookEvent("tongue_release", Infected_CappedEnd);
+	HookEvent("charger_carry_end", Infected_CappedEnd);
+	HookEvent("charger_pummel_end", Infected_CappedEnd);
+	HookEvent("jockey_ride_end", Infected_CappedEnd);
+	
 	if(bLate)
 	{
 		LateLoad();
@@ -260,7 +266,7 @@ void SDKCallback_SwitchDesert(int client, int weapon)
 
 	if( weapon < 1 || !IsValidEntity(weapon) )
 		return;
-	
+
 	if( GetEntProp(weapon, Prop_Send, "m_iWorldModelIndex") != g_scar_precache_index )
 	{
 		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
@@ -362,11 +368,22 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	player[client].fullautomode            = cvar.bAutodefault;
 }
 
+void Infected_CappedEnd(Event event, const char[] name, bool dontBroadcast) 
+{
+	int victim = GetClientOfUserId(event.GetInt("victim"));	
+
+	if(!victim || !IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_SURVIVOR || !IsPlayerAlive(victim)) return;
+
+	player[victim].lastAction = 0;
+}
+
 /**
  * this function trigger when player holding scar
- * 手持scar步槍才會觸發此涵式
- * 爬梯時會觸發, 被打飛時會觸發
- * 拿著地圖機槍不會觸發
+ * -手持scar步槍才會觸發此涵式
+ * -爬梯時會觸發, 被打飛時會觸發
+ * -拿著地圖機槍不會觸發
+ * -被Smoker拉走拖曳時不觸發
+ * -被特感控會觸發
  */
 MRESReturn DhookCallback_ItemPostFrame(int pThis)
 {
@@ -381,7 +398,6 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		player[client].lastAction = 0;
 		return MRES_Ignored;
 	}
-		
 
 	//Address temp = GetEntityAddress(pThis) + view_as<Address>(g_Offset_BrustAttackTime);
 	for(int i = 0; i < 3; i++)
@@ -489,7 +505,7 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			// PrintToChat(client, "attacking, time %f", currenttime);
 			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime);
 			SDKCall(g_SDKCall_PrimaryAttack, pThis);
-			// SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100.0);
+			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100.0);
 			player[client].primaryattacktime = currenttime + cvar.cycletime;
 			// EmitSoundToClient(client, SCAR_SHOOT);
 			// if( L4D2_GetWeaponUpgrades(pThis) & L4D2_WEPUPGFLAG_INCENDIARY )
