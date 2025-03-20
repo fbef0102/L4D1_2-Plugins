@@ -332,7 +332,9 @@ void SaveMessage(const char[] message)
 	fileHandle = OpenFile(chatFile, "a");  /* Append */
 	if(fileHandle == null)
 	{
-		CreateDirectory("/addons/sourcemod/logs/chat", 777);
+		// 十進制: 511 -> 八進制: 777
+		// 八進制寫法: 0o777
+		CreateDirectory("/addons/sourcemod/logs/chat", 0o777);
 		fileHandle = OpenFile(chatFile, "a"); //open again
 		if(fileHandle == null)
 		{
