@@ -1,8 +1,11 @@
 # Description | 內容
 shoot your teammate = shoot yourself
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
     * Reflect friendly fire damage (反彈友傷)
@@ -37,17 +40,6 @@ shoot your teammate = shoot yourself
         anti_friendly_fire_damage_multi "1.5"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
