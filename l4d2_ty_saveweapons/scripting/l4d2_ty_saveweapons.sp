@@ -13,7 +13,7 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <l4d_heartbeat>
-#define PLUGIN_VERSION			"6.3-2024/10/3"
+#define PLUGIN_VERSION			"6.4-2025/3/23"
 #define DEBUG 0
 
 public Plugin myinfo =
@@ -185,16 +185,6 @@ public void OnPluginStart()
 	HookEvent("player_bot_replace", 	evtBotReplacedPlayer);
 
 	HxCleaningAll();
-}
-
-public void OnAllPluginsLoaded()
-{
-	if( LibraryExists("l4d_heartbeat") == false )
-	{
-		SetFailState("You are failed at installing!\n" ...
-		"Heartbeat (Revive Fix - Post Revive Options) plugin must be installed first!\n" ...
-		"See: https://forums.alliedmods.net/showthread.php?t=322132");
-	}
 }
 
 public void OnPluginEnd()
@@ -517,21 +507,30 @@ void HxGiveC(int client)
 	int iSlot2;
 	int iSlot3;
 	int iSlot4;
+	int active;
 		
 	iSlot0 = GetPlayerWeaponSlot(client, 0);
 	iSlot1 = GetPlayerWeaponSlot(client, 1);
 	iSlot2 = GetPlayerWeaponSlot(client, 2);
 	iSlot3 = GetPlayerWeaponSlot(client, 3);
 	iSlot4 = GetPlayerWeaponSlot(client, 4);
-	
+
 	if (sg_slot0[client][0] != '\0' || sg_slot1[client][0] != '\0' || 
 		sg_slot2[client][0] != '\0' || sg_slot3[client][0] != '\0' ||
-		sg_slot4[client][0] != '\0') {
+		sg_slot4[client][0] != '\0') 
+	{
 		if (iSlot0 > MaxClients) HxRemoveWeapon(client, iSlot0);
 		if (iSlot1 > MaxClients) HxRemoveWeapon(client, iSlot1);
 		if (iSlot2 > MaxClients) HxRemoveWeapon(client, iSlot2);
 		if (iSlot3 > MaxClients) HxRemoveWeapon(client, iSlot3);
 		if (iSlot4 > MaxClients) HxRemoveWeapon(client, iSlot4);
+
+		active = GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon");
+		if(active > MaxClients) //拿著汽油桶或可樂瓶之類
+		{
+			SDKHooks_DropWeapon(client, active);
+			active = EntIndexToEntRef(active);
+		}
 	}
 
 	int weapon;
@@ -555,7 +554,7 @@ void HxGiveC(int client)
 				}
 				else
 				{
-					EquipPlayerWeapon(client, weapon);
+					AcceptEntityInput(weapon, "Use", client);
 				}
 			}
 		}
@@ -581,7 +580,7 @@ void HxGiveC(int client)
 				if (weapon != -1)
 				{
 					SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots1_clip[client]);
-					EquipPlayerWeapon(client, weapon);
+					AcceptEntityInput(weapon, "Use", client);
 				}
 			}
 			else if (strcmp(sg_slot1[client], "weapon_chainsaw", false) == 0)
@@ -602,7 +601,7 @@ void HxGiveC(int client)
 					}
 					else
 					{
-						EquipPlayerWeapon(client, weapon);
+						AcceptEntityInput(weapon, "Use", client);
 					}
 				}
 			}
@@ -613,7 +612,7 @@ void HxGiveC(int client)
 				{
 					SetEntProp(weapon, Prop_Send, "m_nSkin", ig_slots1_skin[client]);
 					SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots1_clip[client]);
-					EquipPlayerWeapon(client, weapon);
+					AcceptEntityInput(weapon, "Use", client);
 				}
 			}
 		}
@@ -624,7 +623,7 @@ void HxGiveC(int client)
 		weapon = HxCreateWeapon(sg_slot0[client]);
 		if (weapon != -1)
 		{
-			EquipPlayerWeapon(client, weapon);
+			AcceptEntityInput(weapon, "Use", client);
 			SetEntProp(weapon, Prop_Send, "m_iClip1", ig_slots0_clip[client]);
 			SetEntProp(weapon, Prop_Send, "m_upgradeBitVec", ig_slots0_upgrade_bit[client]);
 			SetEntProp(weapon, Prop_Send, "m_nUpgradedPrimaryAmmoLoaded", ig_slots0_upgraded_ammo[client]);
@@ -636,17 +635,22 @@ void HxGiveC(int client)
 	if (sg_slot2[client][0] != '\0')
 	{
 		weapon = HxCreateWeapon(sg_slot2[client]);
-		if (weapon != -1) EquipPlayerWeapon(client, weapon);
+		if (weapon != -1) AcceptEntityInput(weapon, "Use", client);
 	}
 	if (sg_slot3[client][0] != '\0')
 	{
 		weapon = HxCreateWeapon(sg_slot3[client]);
-		if (weapon != -1) EquipPlayerWeapon(client, weapon);
+		if (weapon != -1) AcceptEntityInput(weapon, "Use", client);
 	}
 	if (sg_slot4[client][0] != '\0')
 	{
 		weapon = HxCreateWeapon(sg_slot4[client]);
-		if (weapon != -1) EquipPlayerWeapon(client, weapon);
+		if (weapon != -1) AcceptEntityInput(weapon, "Use", client);
+	}
+
+	if(EntRefToEntIndex(active) != INVALID_ENT_REFERENCE)
+	{
+		AcceptEntityInput(active, "Use", client);
 	}
 
 	Call_StartForward(g_hForwardSaveWeaponGive);

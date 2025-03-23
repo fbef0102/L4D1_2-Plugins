@@ -61,6 +61,9 @@ L4D2 coop save weapon when map transition if more than 4 players
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v6.4 (2025-3-23)
+        * Keep holding gascan or cola... after map transition
+
     * v6.3 (2024-10-3)
         * Require l4d_heartbeat
 
