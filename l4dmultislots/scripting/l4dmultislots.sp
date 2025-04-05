@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #include <l4d_CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"6.8-2024/12/26"
+#define PLUGIN_VERSION 				"6.9-2025/4/5"
 
 public Plugin myinfo = 
 {
@@ -56,7 +56,7 @@ int g_iInfectedLimit, iOffiicalCvar_survivor_respawn_with_guns;
 ConVar g_hMaxSurvivors, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval, 
 	hFirstWeapon, hSecondWeapon, hThirdWeapon, hFourthWeapon, hFifthWeapon,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons, hSpawnSurvivorsAtStart,
-	g_hGiveKitSafeRoom, g_hGiveKitFinalStart, g_hNoSecondChane, g_hCvar_InvincibleTime,
+	g_hGiveKitSafeRoom, g_hGiveKitFinalStart, g_hNoSecondChane, g_hCrashPlayer, g_hCvar_InvincibleTime,
 	g_hCvar_JoinCommandBlock, 
 	g_hCvar_VSCommandBalance, g_hCvar_VSUnBalanceLimit;
 
@@ -67,6 +67,7 @@ int g_iMaxSurvivors, g_iMinSurvivors, iDeadBotTime, g_iCvarFirstWeapon, g_iCvarS
 int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
 bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
 	g_bGiveKitSafeRoom, g_bGiveKitFinalStart, g_bFinalHasStarted, g_bPluginHasStarted,
+	g_bCrashPlayer,
 	g_bCvar_JoinCommandBlock, g_bCvar_VSCommandBalance;
 //bool g_bCvar_VSAutoBalance;
 float g_fSpecCheckInterval, g_fInvincibleTime;
@@ -178,7 +179,8 @@ public void OnPluginStart()
 	}
 	g_hGiveKitSafeRoom 			= CreateConVar(	"l4d_multislots_saferoom_extra_first_aid", 		"1", 	"If 1, allow extra first aid kits for 5+ players when in start saferoom, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hGiveKitFinalStart 		= CreateConVar(	"l4d_multislots_finale_extra_first_aid", 		"1" , 	"If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hNoSecondChane 			= CreateConVar(	"l4d_multislots_no_second_free_spawn",	 		"0" , 	"When same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot. (0=Always spawn alive bot for same player, 1=Take effect after survivor has left safe zone, 2=Just Dead)", CVAR_FLAGS, true, 0.0, true, 2.0);
+	g_hNoSecondChane 			= CreateConVar(	"l4d_multislots_no_second_free_spawn",	 		"0" , 	"When the player reconnects to the server or rejoins survivor team but no any bot can be taken over.\n0=Free Spawn (Alive bot anytime)\n1=Dead bot after survivor has left safe zone\n2=Dead bot anytime", CVAR_FLAGS, true, 0.0, true, 2.0);
+	g_hCrashPlayer 				= CreateConVar(	"l4d_multislots_free_spawn_crash_player",	 	"1" , 	"If the player crashed and reconnected to the server\n0=No Free Spawn, 1=Get Free Spawn", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvar_InvincibleTime 		= CreateConVar(	"l4d_multislots_respawn_invincibletime", 		"3.0", 	"Invincible time after new 5+ Survivor spawn by this plugin. (0=off)\nTake effect after survivor has left safe zone",  FCVAR_NOTIFY, true, 0.0);
 	g_hCvar_JoinCommandBlock  	= CreateConVar(	"l4d_multislots_join_command_block", 			"0", 	"If 1, Block 'Join Survivors' commands (sm_join, sm_js)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	//g_hCvar_VSAutoBalance  		= CreateConVar(	"l4d_multislots_versus_auto_balance", 		"0", 	"If 1, Enable auto team balance when new player joins the server in versus/scavenge.\nThis could cause both team mess after map change", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -210,6 +212,7 @@ public void OnPluginStart()
 	g_hGiveKitSafeRoom.AddChangeHook(ConVarChanged_Cvars);
 	g_hGiveKitFinalStart.AddChangeHook(ConVarChanged_Cvars);
 	g_hNoSecondChane.AddChangeHook(ConVarChanged_Cvars);
+	g_hCrashPlayer.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvar_InvincibleTime.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvar_JoinCommandBlock.AddChangeHook(ConVarChanged_Cvars);
 	//g_hCvar_VSAutoBalance.AddChangeHook(ConVarChanged_Cvars);
@@ -346,6 +349,7 @@ void GetCvars()
 	g_bGiveKitSafeRoom = g_hGiveKitSafeRoom.BoolValue;
 	g_bGiveKitFinalStart = g_hGiveKitFinalStart.BoolValue;
 	g_iNoSecondChane = g_hNoSecondChane.IntValue;
+	g_bCrashPlayer = g_hCrashPlayer.BoolValue;
 	g_fInvincibleTime = g_hCvar_InvincibleTime.FloatValue;
 	g_bCvar_JoinCommandBlock = g_hCvar_JoinCommandBlock.BoolValue;
 	//g_bCvar_VSAutoBalance = g_hCvar_VSAutoBalance.BoolValue;
@@ -690,21 +694,21 @@ void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client || !IsClientInGame(client) || IsFakeClient(client) ) return;
 
-	static char reason[64];
-	event.GetString("reason", reason, sizeof(reason));
-	
-	if (StrContains(reason, "timed out", false) > 0) FormatEx(reason, sizeof(reason), "Timed out");
-	else if (StrContains(reason, "Your client has failed to reply to a query in time", false) > 0) FormatEx(reason, sizeof(reason), "No Response");
-	
-	// If the leaving survivor player crashed.
-	if( strcmp(reason, "Timed out", false) == 0 || 
-		strcmp(reason, "No Steam logon", false) == 0 || 
-		strcmp(reason, "No Response", false) == 0 )
+	if(g_bCrashPlayer)
 	{
-		static char steamid[32];
-		if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+		static char reason[64];
+		event.GetString("reason", reason, sizeof(reason));
+		
+		// If the leaving survivor player crashed.
+		if( StrContains(reason, "timed out", false) > 0 || 
+			strcmp(reason, "No Steam logon", false) == 0 || 
+			StrContains(reason, "Your client has failed to reply to a query in time", false) > 0 )
+		{
+			static char steamid[32];
+			if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
 
-		g_hSteamIDs.Remove(steamid);
+			g_hSteamIDs.Remove(steamid);
+		}
 	}
 
 	g_bIsObserver[client] = false;
@@ -1358,7 +1362,6 @@ void OnNextFrame(DataPack hPack)
 
 	if ( iDeadType == 0 )
 	{
-		StripWeapons( bot );
 		SetHealth( bot );
 		GiveItems( bot );
 	}
@@ -1473,8 +1476,10 @@ void SetHealth( int client )
 	SetEntDataFloat( client, BufferHP, Buff + g_iCvarRespawnBuffHP, true );
 }
 
-void GiveItems(int client) // give client weapon
+void GiveItems(int bot) // give bot weapon
 {
+	StripWeapons( bot );
+
 	int iRandom = g_iCvarSecondWeapon;
 	if(g_bLeft4Dead2 && iRandom == 5) iRandom = GetRandomInt(1,4);
 		
@@ -1482,11 +1487,11 @@ void GiveItems(int client) // give client weapon
 	{
 		case 1:
 		{
-			GivePlayerItem( client, "weapon_pistol" );
-			GivePlayerItem( client, "weapon_pistol" );
+			GivePlayerItem( bot, "weapon_pistol" );
+			GivePlayerItem( bot, "weapon_pistol" );
 		}
-		case 2: GivePlayerItem(client, "weapon_pistol_magnum");
-		case 3: GivePlayerItem(client, "weapon_chainsaw");
+		case 2: GivePlayerItem(bot, "weapon_pistol_magnum");
+		case 3: GivePlayerItem(bot, "weapon_chainsaw");
 		case 4: 
 		{
 			if(g_bLeft4Dead2)
@@ -1497,12 +1502,12 @@ void GiveItems(int client) // give client weapon
 					DispatchKeyValue(entity, "solid", "6");
 					DispatchKeyValue(entity, "melee_script_name", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
 					DispatchSpawn(entity);
-					EquipPlayerWeapon(client, entity);
+					EquipPlayerWeapon(bot, entity);
 				}
 			}
 		}
 		default: {
-			GivePlayerItem( client, "weapon_pistol" );
+			GivePlayerItem( bot, "weapon_pistol" );
 		}
 	}
 
@@ -1515,23 +1520,23 @@ void GiveItems(int client) // give client weapon
 		
 		switch ( iRandom )
 		{
-			case 1: GivePlayerItem(client, "weapon_autoshotgun");
-			case 2: GivePlayerItem(client, "weapon_shotgun_spas");
-			case 3: GivePlayerItem(client, "weapon_rifle");
-			case 4: GivePlayerItem(client, "weapon_rifle_desert");
-			case 5: GivePlayerItem(client, "weapon_rifle_ak47");
-			case 6: GivePlayerItem(client, "weapon_rifle_sg552");
-			case 7: GivePlayerItem(client, "weapon_sniper_military");
-			case 8: GivePlayerItem(client, "weapon_sniper_awp");
-			case 9: GivePlayerItem(client, "weapon_sniper_scout");
-			case 10: GivePlayerItem(client, "weapon_hunting_rifle");
-			case 11: GivePlayerItem(client, "weapon_rifle_m60");
-			case 12: GivePlayerItem(client, "weapon_grenade_launcher");
-			case 13: GivePlayerItem(client, "weapon_smg");
-			case 14: GivePlayerItem(client, "weapon_smg_silenced");
-			case 15: GivePlayerItem(client, "weapon_smg_mp5");
-			case 16: GivePlayerItem(client, "weapon_pumpshotgun");
-			case 17: GivePlayerItem(client, "weapon_shotgun_chrome");
+			case 1: GivePlayerItem(bot, "weapon_autoshotgun");
+			case 2: GivePlayerItem(bot, "weapon_shotgun_spas");
+			case 3: GivePlayerItem(bot, "weapon_rifle");
+			case 4: GivePlayerItem(bot, "weapon_rifle_desert");
+			case 5: GivePlayerItem(bot, "weapon_rifle_ak47");
+			case 6: GivePlayerItem(bot, "weapon_rifle_sg552");
+			case 7: GivePlayerItem(bot, "weapon_sniper_military");
+			case 8: GivePlayerItem(bot, "weapon_sniper_awp");
+			case 9: GivePlayerItem(bot, "weapon_sniper_scout");
+			case 10: GivePlayerItem(bot, "weapon_hunting_rifle");
+			case 11: GivePlayerItem(bot, "weapon_rifle_m60");
+			case 12: GivePlayerItem(bot, "weapon_grenade_launcher");
+			case 13: GivePlayerItem(bot, "weapon_smg");
+			case 14: GivePlayerItem(bot, "weapon_smg_silenced");
+			case 15: GivePlayerItem(bot, "weapon_smg_mp5");
+			case 16: GivePlayerItem(bot, "weapon_pumpshotgun");
+			case 17: GivePlayerItem(bot, "weapon_shotgun_chrome");
 			default: {}//nothing
 		}
 	}
@@ -1542,11 +1547,11 @@ void GiveItems(int client) // give client weapon
 		
 		switch ( iRandom )
 		{
-			case 1: GivePlayerItem(client, "weapon_autoshotgun");
-			case 2: GivePlayerItem(client, "weapon_rifle");
-			case 3: GivePlayerItem(client, "weapon_hunting_rifle");
-			case 4: GivePlayerItem(client, "weapon_smg");
-			case 5: GivePlayerItem(client, "weapon_pumpshotgun");
+			case 1: GivePlayerItem(bot, "weapon_autoshotgun");
+			case 2: GivePlayerItem(bot, "weapon_rifle");
+			case 3: GivePlayerItem(bot, "weapon_hunting_rifle");
+			case 4: GivePlayerItem(bot, "weapon_smg");
+			case 5: GivePlayerItem(bot, "weapon_pumpshotgun");
 			default: {}//nothing
 		}
 	}
@@ -1557,9 +1562,9 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(client, "weapon_molotov");
-		case 2: GivePlayerItem(client, "weapon_pipe_bomb");
-		case 3: GivePlayerItem(client, "weapon_vomitjar");
+		case 1: GivePlayerItem(bot, "weapon_molotov");
+		case 2: GivePlayerItem(bot, "weapon_pipe_bomb");
+		case 3: GivePlayerItem(bot, "weapon_vomitjar");
 		default: {}//nothing
 	}
 	
@@ -1569,10 +1574,10 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(client, "weapon_first_aid_kit");
-		case 2: GivePlayerItem(client, "weapon_defibrillator");
-		case 3: GivePlayerItem(client, "weapon_upgradepack_incendiary");
-		case 4: GivePlayerItem(client, "weapon_upgradepack_explosive");
+		case 1: GivePlayerItem(bot, "weapon_first_aid_kit");
+		case 2: GivePlayerItem(bot, "weapon_defibrillator");
+		case 3: GivePlayerItem(bot, "weapon_upgradepack_incendiary");
+		case 4: GivePlayerItem(bot, "weapon_upgradepack_explosive");
 		default: {}//nothing
 	}
 	
@@ -1581,8 +1586,8 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(client, "weapon_pain_pills");
-		case 2: GivePlayerItem(client, "weapon_adrenaline");
+		case 1: GivePlayerItem(bot, "weapon_pain_pills");
+		case 2: GivePlayerItem(bot, "weapon_adrenaline");
 		default: {}//nothing
 	}
 }
@@ -1648,15 +1653,21 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 {
 	if(!IsValidEntity(inflictor) || damage <= 0.0) return Plugin_Continue;
 
-	static char sClassname[64];
-	GetEntityClassname(inflictor, sClassname, 64);
 	if(victim > 0 && victim <= MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == TEAM_SURVIVORS && clinetSpawnGodTime[victim] > GetEngineTime() )
 	{
-		if( (attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) != TEAM_SPECTATORS) ||
-			strcmp(sClassname, "infected") == 0 || 
-			strcmp(sClassname, "witch") == 0)
+		if( attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) != TEAM_SPECTATORS)
 		{
 			return Plugin_Handled;
+		}
+		else
+		{
+			static char sClassname[64];
+			GetEntityClassname(inflictor, sClassname, 64);
+			if( strcmp(sClassname, "infected") == 0 || 
+				strcmp(sClassname, "witch") == 0 )
+			{
+				return Plugin_Handled;
+			}
 		}
 	}
 	return Plugin_Continue;

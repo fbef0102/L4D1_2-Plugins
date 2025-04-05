@@ -93,9 +93,16 @@ Allows additional survivor players in server when 5+ player joins the server
 		// If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)
 		l4d_multislots_finale_extra_first_aid "1"
 
-		// When same player reconnect the server or rejoin survivor team but no any bot can be taken over, give him a dead bot.
-		// 0=Always spawn alive bot for same player, 1=Take effect after survivor has left safe zone, 2=Just Dead
+		// When the player reconnects to the server or rejoins survivor team but no any bot can be taken over.
+		// 0=Free Spawn (Alive bot anytime)
+		// 1=Dead bot after survivor has left safe zone
+		// 2=Dead bot anytime
 		l4d_multislots_no_second_free_spawn "0"
+
+		// If the player crashed and reconnected to the server
+		// 0=No Free Spawn, 1=Get Free Spawn
+		// (Only works if _no_second_free_spawn is 1 or 2)
+		l4d_multislots_free_spawn_crash_player "1"
 
 		// Invincible time after new 5+ Survivor spawn by this plugin. (0=off)
 		// Take effect after survivor has left safe zone
@@ -188,6 +195,9 @@ Allows additional survivor players in server when 5+ player joins the server
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v6.9 (2025-4-5)
+		* Update cvars
 
 	* v6.8 (2024-12-26)
 		* Update cmds
@@ -341,9 +351,16 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
 		l4d_multislots_finale_extra_first_aid "1"
 
-		// 當玩家已經當過倖存者並嘗試第二次重新加入倖存者時，給他一個死亡Bot
-		// 0=永遠給活著的bot, 1=只有當倖存者離開安全室才會給死亡bot, 2=無論何時都給死亡Bot
+		// 當玩家已經當過倖存者並嘗試第二次重新加入倖存者時
+		// 0=無論何時給活著的bot
+		// 1=離開安全室之前給活著的bot, 離開安全室之後給死亡bot
+		// 2=無論何時都給死亡Bot
 		l4d_multislots_no_second_free_spawn "0"
+
+		// 當玩家的遊戲崩潰且重新連線至伺服器時
+		// 0=給死亡Bot, 1=給活著的bot
+		// (指令l4d_multislots_no_second_free_spawn為1或2時才有效)
+		l4d_multislots_free_spawn_crash_player "1"
 
 		// 當此插件產生一個倖存者Bot時，有3.0秒的無敵時間不會受到任何傷害. (0=關閉)
 		l4d_multislots_respawn_invincibletime "3.0"
