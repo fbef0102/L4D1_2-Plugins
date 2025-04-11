@@ -68,8 +68,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * Tank/Witch出現有提示與音效
 * <b>[trigger_horde_notify](/trigger_horde_notify)</b>: Who called the horde ?
     * 顯示誰觸發了屍潮事件
-* <b>[witch_target_override](/witch_target_override)</b>: (Archived) Change target when the witch incapacitates or kills victim + witch auto follows survivors
-    * (棄案) Witch會自動跟蹤你，一旦驚嚇到她，不殺死任何人絕不罷休
 * <b>[l4d_expertrealism](/l4d_expertrealism)</b>: L4D1/2 Real Realism Mode (No Glow + No Hud)
     * L4D1/2 真寫實模式 (沒有光圈與介面)
 * <b>[L4DVSAutoSpectateOnAFK](/L4DVSAutoSpectateOnAFK)</b>: Forces survivors and infected to spectate if they're AFK after certain time.
@@ -104,8 +102,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * Tank頭上顯示血量狀態
 * <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
     * 修復Source引擎的踩頭跳躍bug
-* <b>[l4d2_spritetrail_fix](/l4d2_spritetrail_fix)</b>: Fixed the final stage get stucked
-    * 修復Source引擎的bug，看不見spritetrail物件的發光效果
 * <b>[l4d_kickloadstuckers](/l4d_kickloadstuckers)</b>: Kicks Clients that get stuck in server connecting state
     * 踢出卡Loading連線中的玩家
 * <b>[pounce_database](/pounce_database)</b>: (Archived) Top Hunter Pounce Announce (Data Support)
@@ -126,8 +122,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 人類死亡後，靈魂升天
 * <b>[l4d_graves](/l4d_graves)</b>: When a survivor die, on his body appear a grave.
     * 為人類屍體造一個墓碑以做紀念
-* <b>[l4d_tankAttackOnSpawn](/l4d_tankAttackOnSpawn)</b>: (Archived) Forces AI tank to leave stasis and attack while spawn in coop/realism.
-    * (棄案) 戰役/寫實模式下，AI Tank一生成會直接往前進並攻擊倖存者，而非待在原地等待
 * <b>[l4d_final_rescue_gravity](/l4d_final_rescue_gravity)</b>: Set client gravity after final rescue starts just for fun.
     * 救援開始之後，所有人重力變低，可以跳很高
 * <b>[gamemode-based_configs](/gamemode-based_configs)</b>: Allows for custom settings for each gamemode and mutatuion.
