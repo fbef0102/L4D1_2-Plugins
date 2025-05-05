@@ -1,6 +1,12 @@
 # Description | 內容
 Tanks throw Tank/S.I./Witch/Hittable instead of rock
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/v-hHB0XzyW0?si=iUmdRvYAsSS_K3KO)
 
 * Image | 圖示
@@ -91,17 +97,6 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
         l4d_tank_throw_car_lifespan "30.0"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-    
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

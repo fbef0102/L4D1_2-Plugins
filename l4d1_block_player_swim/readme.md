@@ -1,16 +1,15 @@
 # Description | 內容
 Disable the 'water hopping' spam in l4d1.
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
 * Apply to | 適用於
     ```
     L4D1
     ```
+
+* How to do 'water hopping' in l4d1
+    1. Jump into deep water or river
+    2. Hold Jump button
+    3. You can swim now
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -29,16 +28,6 @@ Disable the 'water hopping' spam in l4d1.
         l4d_block_player_swim_allow "1"
 		```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* How to do 'water hopping' in l4d1
-    1. Jump into deep water or river
-    2. Hold Jump button
-    3. You can swim now
 
 - - - -
 # 中文說明

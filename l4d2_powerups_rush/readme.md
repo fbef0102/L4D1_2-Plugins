@@ -1,6 +1,12 @@
 # Description | 內容
 When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/nllanhfXYjY)
 
 * Image | 圖示
@@ -79,21 +85,10 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
         ```
 </details>
 
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
+	translations/l4d2_powerups_rush.phrases.txt
 	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 

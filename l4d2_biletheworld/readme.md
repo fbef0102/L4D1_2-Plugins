@@ -1,16 +1,16 @@
 # Description | 內容
 Vomit Jars hit Survivors, Boomer Explosions slime Infected.
 
+* Apply to | 適用於
+    ```
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/jdkrz0vJoXo)
 
 * Image | 圖示
     <br/>![l4d2_biletheworld_1](image/l4d2_biletheworld_1.jpg)
     <br/>![l4d2_biletheworld_2](image/l4d2_biletheworld_2.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D2
-    ```
 
 * <details><summary>How does it work?</summary>
 

@@ -1,8 +1,11 @@
 # Description | 內容
 L4D1/2 Real Realism Mode (No Glow + No Hud)
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image
 	* No Glow + No Hud
@@ -78,12 +81,6 @@ L4D1/2 Real Realism Mode (No Glow + No Hud)
 		sm_hidehud <HUD flag>
 		```
 </details>
-
-* Apply to | 適用於
-    ```
-    L4D1 Coop/Versus/Survival
-    L4D2 Coop/Versus/Survival/Realism/Scavenge
-    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

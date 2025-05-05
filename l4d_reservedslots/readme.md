@@ -1,8 +1,11 @@
 # Description | 內容
 Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+    L4D1 
+	L4D2
+	```
 
 * Image
 	* Reserved Slots for Admin (Kick Message)
@@ -34,26 +37,10 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
+* Translation Support | 支援翻譯
 	```
-    L4D1 
-	L4D2
+	translations/l4d_reservedslots.phrases.txt
 	```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-	```
-	English
-	繁體中文
-	简体中文
-        Russian
-	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 	

@@ -1,16 +1,20 @@
 # Description | 內容
 Fix silence Hunter produces growl sound when player MIC on
 
-* Video | 影片展示
-    * [Hunter Produce an audible growl when MIC on](https://www.youtube.com/watch?v=L7x_x6dc1-Y&t=120s)
-        > 扮演Hunter的玩家如果使用麥克風說話，Hunter會發出低吼聲
-
 * Apply to | 適用於
 	```
-	L4D2 Versus/Scavenge
+	L4D1
+	L4D2
 	```
 
+* Video | 影片展示
+    * [Hunter Produce an audible growl when MIC on](https://www.youtube.com/watch?v=L7x_x6dc1-Y&t=120s)
+        > 扮演Hunter的真人玩家如果使用麥克風說話，Hunter會發出低吼聲
+
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.5 (2025-5-5)
+		* Support L4D1
 
 	* v1.3 (2023-7-27)
 		* Initial Release

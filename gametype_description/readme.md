@@ -1,8 +1,11 @@
 # Description | 內容
 Allows changing of displayed game type in server browser
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	<br/>![gametype_description_1](image/gametype_description_1.jpg)  
@@ -13,27 +16,11 @@ Allows changing of displayed game type in server browser
 * Require | 必要安裝
 	1. [sourcescramble](https://github.com/nosoop/SMExt-SourceScramble/releases)
 
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * <details><summary>How to Modify Game description</summary>
 
     1. Modify file: [configs/gametype_description.cfg](configs/gametype_description.cfg)
     2. The game description will change on map change or server restart
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

@@ -1,5 +1,3 @@
-#define PLUGIN_VERSION "1.3"
-
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 
@@ -7,13 +5,18 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define Hunter_Growl_SOUND	"player/hunter/voice/idle/Hunter_Stalk_01.wav"
-#define Hunter_Growl_SOUND4 "player/hunter/voice/idle/Hunter_Stalk_04.wav"
-#define Hunter_Growl_SOUND5 "player/hunter/voice/idle/Hunter_Stalk_05.wav"
-#define Hunter_Growl_SOUND6 "player/hunter/voice/idle/Hunter_Stalk_06.wav"
-#define Hunter_Growl_SOUND7 "player/hunter/voice/idle/Hunter_Stalk_07.wav"
-#define Hunter_Growl_SOUND8 "player/hunter/voice/idle/Hunter_Stalk_08.wav"
-#define Hunter_Growl_SOUND9 "player/hunter/voice/idle/Hunter_Stalk_09.wav"
+//修正Hunter玩家MIC說話的時候Hunter會發出低吼聲即使Hunter仍然站著不動
+#define Hunter_Growl_SOUND1_L4D1	"player/hunter/voice/idle/Hunter_Stalk_01.wav"
+#define Hunter_Growl_SOUND4_L4D1 "player/hunter/voice/idle/Hunter_Stalk_04.wav"
+#define Hunter_Growl_SOUND5_L4D1 "player/hunter/voice/idle/Hunter_Stalk_05.wav"
+
+#define Hunter_Growl_SOUND1_L4D2	"player/hunter/voice/idle/Hunter_Stalk_01.wav"
+#define Hunter_Growl_SOUND4_L4D2 "player/hunter/voice/idle/Hunter_Stalk_04.wav"
+#define Hunter_Growl_SOUND5_L4D2 "player/hunter/voice/idle/Hunter_Stalk_05.wav"
+#define Hunter_Growl_SOUND6_L4D2 "player/hunter/voice/idle/Hunter_Stalk_06.wav"
+#define Hunter_Growl_SOUND7_L4D2 "player/hunter/voice/idle/Hunter_Stalk_07.wav"
+#define Hunter_Growl_SOUND8_L4D2 "player/hunter/voice/idle/Hunter_Stalk_08.wav"
+#define Hunter_Growl_SOUND9_L4D2 "player/hunter/voice/idle/Hunter_Stalk_09.wav"
 
 #define DEBUG 0
 
@@ -22,29 +25,55 @@ public Plugin myinfo =
 	name = "Hunter produces growl fix",
 	author = "Harry Potter",
 	description = "Fix silence Hunter produces growl sound when player MIC on",
-	version = PLUGIN_VERSION,
+	version = "1.5-2025/5/5",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 
-	if( test != Engine_Left4Dead2 )
+	if( test == Engine_Left4Dead )
 	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		g_bL4D2Version = false;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_bL4D2Version = true;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
-	
-	return APLRes_Success; 
+
+	return APLRes_Success;
 }
 
 public void OnPluginStart()
 {
+	if(g_bL4D2Version)
+	{
+		PrecacheSound(Hunter_Growl_SOUND1_L4D2);
+		PrecacheSound(Hunter_Growl_SOUND4_L4D2);
+		PrecacheSound(Hunter_Growl_SOUND5_L4D2);
+		PrecacheSound(Hunter_Growl_SOUND6_L4D2);
+		PrecacheSound(Hunter_Growl_SOUND7_L4D2);
+		PrecacheSound(Hunter_Growl_SOUND8_L4D2);
+		PrecacheSound(Hunter_Growl_SOUND9_L4D2);
+	}
+	else
+	{
+		PrecacheSound(Hunter_Growl_SOUND1_L4D1);
+		PrecacheSound(Hunter_Growl_SOUND4_L4D1);
+		PrecacheSound(Hunter_Growl_SOUND5_L4D1);
+	}
+
 	AddNormalSoundHook(SI_sh_OnSoundEmitted);
 }
 
-public Action SI_sh_OnSoundEmitted(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch,int  &flags)
+Action SI_sh_OnSoundEmitted(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch,int  &flags)
 {
 
 	if (numClients >= 1 && IsVaildClient(entity) ){
@@ -75,14 +104,24 @@ public Action SI_sh_OnSoundEmitted(int clients[64], int &numClients, char sample
 
 bool IsHunterGrowlSound(const char[] sample)
 {
-	if(StrEqual(sample, Hunter_Growl_SOUND) || 
-	   StrEqual(sample, Hunter_Growl_SOUND4) ||
-	   StrEqual(sample, Hunter_Growl_SOUND5) ||
-	   StrEqual(sample, Hunter_Growl_SOUND6) || 
-	   StrEqual(sample, Hunter_Growl_SOUND7) ||
-	   StrEqual(sample, Hunter_Growl_SOUND8) ||
-	   StrEqual(sample, Hunter_Growl_SOUND9) )
-		return true;
+	if(g_bL4D2Version)
+	{
+		if(StrEqual(sample, Hunter_Growl_SOUND1_L4D2) || 
+		StrEqual(sample, Hunter_Growl_SOUND4_L4D2) ||
+		StrEqual(sample, Hunter_Growl_SOUND5_L4D2) ||
+		StrEqual(sample, Hunter_Growl_SOUND6_L4D2) || 
+		StrEqual(sample, Hunter_Growl_SOUND7_L4D2) ||
+		StrEqual(sample, Hunter_Growl_SOUND8_L4D2) ||
+		StrEqual(sample, Hunter_Growl_SOUND9_L4D2) )
+			return true;
+	}
+	else
+	{
+		if(StrEqual(sample, Hunter_Growl_SOUND1_L4D1) || 
+		StrEqual(sample, Hunter_Growl_SOUND4_L4D1) ||
+		StrEqual(sample, Hunter_Growl_SOUND5_L4D1) )
+			return true;
+	}
 	  
 	return false;
 }

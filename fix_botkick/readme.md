@@ -1,8 +1,11 @@
 # Description | 內容
 Fixed no Survivor bots issue after map loading.
 
-* Video | 影片展示
-<br>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* No survivor bots after map loading (This is bug). (修復換圖後沒有倖存者bot)
@@ -17,11 +20,6 @@ Fixed no Survivor bots issue after map loading.
 
 * Require | 必要安裝
 <br>None
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
 
 * <details><summary>Command | 命令</summary>
 
@@ -38,12 +36,6 @@ Fixed no Survivor bots issue after map loading.
     sm_cvar survivor_limit 4
     ```
 </details>   
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

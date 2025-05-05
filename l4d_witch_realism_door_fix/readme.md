@@ -11,7 +11,7 @@ Fixing witch can't break the door on Realism Normal、Advanced、Expert
 * <details><summary>How does it work?</summary>
 
     * (Before) Witch can't break the door on Realism Normal、Advanced、Expert
-    * Go ask valve, I don't know
+        * Go ask valve, I don't know
     * (After) Fixed
 </details>
 

@@ -1,11 +1,14 @@
 # Description | 內容
 Allows admins to force the game to pause, only adm can unpause the game.
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
-	* Admin force the game to pause (管理員強制暫停遊戲)
+	* Admin can type ```!forcepause``` to force-pause the game (管理員強制暫停遊戲)
 	<br/>![l4d2pause_1](image/l4d2pause_1.jpg)
 	<br/>![l4d2pause_2](image/l4d2pause_2.jpg)
 
@@ -29,12 +32,6 @@ Allows admins to force the game to pause, only adm can unpause the game.
 		```
 </details>
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [lfd_noTeamSay](/lfd_noTeamSay): Redirecting all 'say_team' messages to 'say'
@@ -43,10 +40,6 @@ Allows admins to force the game to pause, only adm can unpause the game.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//pvtschlag @ 2009
-	//HarryPotter @ 2019-2024
-	```
 	* v1.5 (2024-8-16)
 		* Support server console
 

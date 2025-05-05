@@ -1,12 +1,6 @@
 # Description | 內容
 Allows players to be respawned by admin.
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
 * Apply to | 適用於
 	```
 	L4D1
@@ -15,11 +9,7 @@ Allows players to be respawned by admin.
 
 * Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	Hungarian
+	translations/l4d_sm_respawn.phrases.txt
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>

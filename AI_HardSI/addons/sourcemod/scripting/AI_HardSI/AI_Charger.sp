@@ -88,6 +88,18 @@ void Charger_OnSpawn(int botCharger) {
 stock Action Charger_OnPlayerRunCmd(int charger, int &buttons) {
 	if(!g_bCvarEnable) return Plugin_Continue;
 
+	if (L4D_GetVictimCarry(charger) > 0) //抓人
+		return Plugin_Continue;
+
+	if (L4D_GetVictimCharger(charger) > 0) //垂人
+		return Plugin_Continue;
+
+	if (L4D2_GetQueuedPummelVictim(charger) > 0) //準備垂 (抓人之後開始垂人之前的動作)
+		return Plugin_Continue;
+
+	if (IsCharging(charger)) //正在衝鋒
+		return Plugin_Continue;
+
 	// prevent charge until survivors are within the defined proximity
 	float chargerPos[3];
 	GetClientAbsOrigin(charger, chargerPos);
@@ -135,14 +147,12 @@ stock Action Charger_OnPlayerRunCmd(int charger, int &buttons) {
 
 		if (CurTargetDistance(charger) > 100.0 && -1.0 < nearestSurDist < 1500) {
 			GetClientEyeAngles(charger, vAng);
+			buttons |= IN_ATTACK2;
 			return BunnyHop(charger, buttons, vAng);
 		}
 	}
 	else {
 		if (g_bModify[charger] || val < GetEntPropFloat(charger, Prop_Send, "m_flMaxspeed") + BOOST)
-			return Plugin_Continue;
-
-		if (IsCharging(charger))
 			return Plugin_Continue;
 
 		target = GetClientAimTarget(charger, false);

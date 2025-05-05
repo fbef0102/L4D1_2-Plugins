@@ -1,11 +1,11 @@
 # Description | 內容
 L4D1/2 Mix
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1 Versus
+	L4D2 Versus
+	```
 
 * <details><summary>How does it work?</summary>
 
@@ -40,12 +40,6 @@ L4D1/2 Mix
 		sm_forcemix
 		```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1 Versus
-	L4D2 Versus
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

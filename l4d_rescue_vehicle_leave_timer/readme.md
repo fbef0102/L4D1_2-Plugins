@@ -1,6 +1,12 @@
 # Description | 內容
 When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him.
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/zC4kZcG8wOA)
 
 * Image | 圖示
@@ -45,32 +51,16 @@ When rescue vehicle arrived and a timer will display how many time left before v
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
 * <details><summary>Data Example</summary>
 
     * [data/l4d_rescue_vehicle_leave_timer.cfg](data/l4d_rescue_vehicle_leave_timer.cfg)
         > Manual in this file, click for more details...
 </details>
 
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    Русский
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/l4d_rescue_vehicle_leave_timer.phrases.txt
+	```
 
 * <details><summary>Related | 相關插件</summary>
 

@@ -1,16 +1,20 @@
 # Description | 內容
 Ban player who uses L4D1 / Split tank glitchpick up
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
 * Apply to | 適用於
     ```
     L4D1
     ```
+
+* <details><summary>How does it work?</summary>
+
+    * (Before) There is a bug that a lot of people use nowadays where split the tank into two
+        * [Details](https://forums.alliedmods.net/showthread.php?t=326023)
+        1. When player-controlled tank losing control and is about to pass tank to other players
+        2. Reconnect to server immediately
+        3. You have the second tank on the field now
+    * (After) Ban the tank player who leaves the game when losing control
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -38,14 +42,6 @@ Ban player who uses L4D1 / Split tank glitchpick up
         l4d1_ban_twotank_glitch_player_kill_tank "1"
 		```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Details
-    * [Bug explained here](https://forums.alliedmods.net/showthread.php?t=326023)
 
 - - - -
 # 中文說明

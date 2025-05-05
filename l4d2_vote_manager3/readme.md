@@ -1,8 +1,11 @@
 # Description | 內容
 Unable to call valve vote if player does not have access
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image
     <br/>![l4d2_vote_manager3_1](image/l4d2_vote_manager3_1.jpg)
@@ -89,21 +92,10 @@ Unable to call valve vote if player does not have access
         ```
 </details>
 
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    Russian
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/l4d2_vote_manager3.phrases.txt
+	```
 
 * <details><summary>Related | 相關插件</summary>
 

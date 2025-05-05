@@ -1,8 +1,11 @@
 # Description | 內容
 Show statistics of surviviors (kill S.I, C.I. and FF)on round end
 
-* Video | 影片展示
-<br>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* Statistics
@@ -19,11 +22,6 @@ Show statistics of surviviors (kill S.I, C.I. and FF)on round end
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
 * <details><summary>Command | 命令</summary>
 
 	* **Print statistics of surviviors**
@@ -32,23 +30,10 @@ Show statistics of surviviors (kill S.I, C.I. and FF)on round end
 		```
 </details>
 
-* Apply to | 適用於
+* Translation Support | 支援翻譯
 	```
-	L4D1
-	L4D2
+	translations/kills.phrases.txt
 	```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-	```
-	English
-	繁體中文
-	简体中文
-	Spanish
-	Portuguese
-        Russian
-	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 

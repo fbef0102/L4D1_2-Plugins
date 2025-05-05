@@ -1,12 +1,12 @@
 # Description | 內容
 Fixes survivor_max_incapacitated_count cvar increased values reverting black and white screen.
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+	
 * <details><summary>How does it work?</summary>
 
 	* Fixed incorrectly set black/white when official cvar ```survivor_max_incapacitated_count != 2```, [see here](https://forums.alliedmods.net/showthread.php?t=313645)
@@ -25,11 +25,6 @@ Fixes survivor_max_incapacitated_count cvar increased values reverting black and
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * <details><summary>Related Official ConVar</summary>
 
 	```php
@@ -45,12 +40,6 @@ Fixes survivor_max_incapacitated_count cvar increased values reverting black and
 		library name: l4d_heartbeat
 		```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

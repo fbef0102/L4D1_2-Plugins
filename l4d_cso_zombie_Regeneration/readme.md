@@ -1,6 +1,12 @@
 # Description | 內容
 The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/nlPU6Xz0xWQ)
 
 * Image | 圖示
@@ -58,17 +64,6 @@ The zombies have grown stronger, now they are able to heal their injuries by sta
         l4d_cso_zombie_regeneration_wait_time "4"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

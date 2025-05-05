@@ -1,14 +1,14 @@
 # Description | 內容
 Detects and reports skeets, crowns, levels, highpounces, etc.
 
-* Image
-	* Skill moment
-    <br/>![l4d2_skill_detect_1](image/l4d2_skill_detect_1.jpg)  
-
 * Apply to | 適用於
 	```
 	L4D2
 	```
+
+* Image
+	* Skill moment
+    <br/>![l4d2_skill_detect_1](image/l4d2_skill_detect_1.jpg)  
 
 * <details><summary>How does it work?</summary>
 
@@ -126,11 +126,6 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * <details><summary>API | 串接</summary>
 
     * [skill_detect.inc](scripting\include\skill_detect.inc)
@@ -139,14 +134,10 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         ```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-	
-    ```
-	English
-	繁體中文
-	简体中文
+* Translation Support | 支援翻譯
 	```
-</details>
+	translations/l4d2_skill_detect.phrases.txt
+	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

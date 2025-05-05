@@ -15,7 +15,7 @@ Makes AI Hunter take damage like human SI while pouncing.
 * <details><summary>How does it work?</summary>
 
 	* (Before) Human hunter can be easily killed while pouncing, but AI hunters can't be easily killed while pouncing
-		* No skeet mechanics on AI Hunters
+		* No skeet mechanics on AI Hunters, developers doing on purpose
 	* (After) Makes AI hunters take same damage like human SI while while pouncing
 		* Replicate skeet mechanics on AI hunters.
 </details>

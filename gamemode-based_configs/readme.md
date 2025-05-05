@@ -1,8 +1,11 @@
 # Description | 內容
 Allows for custom settings for each gamemode and mutatuion.
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	<br/>![gamemode-based_configs_1](image/gamemode-based_configs_1.jpg)
@@ -20,22 +23,6 @@ Allows for custom settings for each gamemode and mutatuion.
 
 * Require | 必要安裝
 <br/>None
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

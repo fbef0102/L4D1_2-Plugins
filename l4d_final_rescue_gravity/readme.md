@@ -1,8 +1,11 @@
 # Description | 內容
 Set client gravity after final rescue starts just for fun.
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
     <br/>![l4d_final_rescue_gravity_1](image/l4d_final_rescue_gravity_1.jpg)
@@ -48,17 +51,6 @@ Set client gravity after final rescue starts just for fun.
         l4d_final_rescue_gravity_interval "2"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

@@ -6,8 +6,6 @@ Maximum of each L4D1 weapons the survivors can pick up
     L4D1
     ```
 
-* [L4D2 Version | 適用於L4D2的版本](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_limits)
-
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* v1.0 (2023-6-30)
@@ -16,6 +14,12 @@ Maximum of each L4D1 weapons the survivors can pick up
 
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+
+* <details><summary>Other Version | 其他版本</summary>
+
+    1. [l4d_weapon_limits](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_limits): (L4D2) Restrict weapons and melees individually or together
+        * (L4D2) 限制每個武器與近戰可以拿取的數量，超過就不能拿取
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 

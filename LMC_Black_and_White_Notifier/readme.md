@@ -1,16 +1,16 @@
 # Description | 內容
 Notifies selected team(s) when someone is on final strike and add glow
 
+* Apply to | 適用於
+    ```
+    L4D2
+    ```
+
 * Image | 圖示
     * display who is black and white (顯示哪個玩家黑白)
     <br/>![LMC_Black_and_White_Notifier_1](image/LMC_Black_and_White_Notifier_1.jpg)
     * display who healed (顯示誰治癒了黑白)
     <br/>![LMC_Black_and_White_Notifier_2](image/LMC_Black_and_White_Notifier_2.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D2
-    ```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)

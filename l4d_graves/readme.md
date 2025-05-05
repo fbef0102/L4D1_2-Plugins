@@ -1,6 +1,12 @@
 # Description | 內容
 When a survivor die, on his body appear a grave.
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/Pmx64P665rQ)
 
 * Image | 圖示
@@ -35,17 +41,6 @@ When a survivor die, on his body appear a grave.
         l4d_graves_health "1500"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

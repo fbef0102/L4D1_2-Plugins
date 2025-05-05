@@ -1,14 +1,24 @@
 # Description | 內容
 Records player chat messages to a file
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Require | 必要安裝
 <br/>None
+
+* <details><summary>How does it work?</summary>
+
+    * Save chat messages player says and save cmd player types in file
+    * ```sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt```
+        * ```xxxxx``` is server port
+        * ```yy``` is year
+        * ```mm``` is month
+        * ```dd``` is day
+</details>
 
 * <details><summary>Related | 相關插件</summary>
 
@@ -27,26 +37,6 @@ Records player chat messages to a file
         savechat_cosole_command "1"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
-* <details><summary>Save Chat File</summary>
-
-    * ```sourcemod\logs\chat\server_xxxxx_chat_yy_mm_dd.txt```
-        * ```xxxxx``` is server port
-        * ```yy``` is year
-        * ```mm``` is month
-        * ```dd``` is day
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

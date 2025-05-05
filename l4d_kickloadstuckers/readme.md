@@ -1,8 +1,11 @@
 # Description | 內容
 Kicks Clients that get stuck in server connecting state
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
 	* Kick slowass connecting players (踢出loading太久的慢郎中)
@@ -32,18 +35,8 @@ Kicks Clients that get stuck in server connecting state
 		```
 </details>
 
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//AtomicStryker @ 2009-2012
-	//HarryPotter @ 2022-2023
-	```
 	* v1.3 (2023-6-9)
 		* Remake code, convert code to latest syntax
 		* Fix warnings when compiling on SourceMod 1.11.

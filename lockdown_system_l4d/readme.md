@@ -1,6 +1,12 @@
 # Description | 內容
 Locks Saferoom Door Until Someone Opens It.
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/ayPZ-XUbBkc)
 
 * Image | 圖示
@@ -10,12 +16,6 @@ Locks Saferoom Door Until Someone Opens It.
     <br/>![lockdown_system_l4d_2](image/lockdown_system_l4d_2.jpg)
     * Close Saferoom Door (關閉終點安全門)
     <br/>![lockdown_system_l4d_3](image/lockdown_system_l4d_3.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)

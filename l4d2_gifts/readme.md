@@ -1,15 +1,15 @@
 # Description | 內容
 Drop gifts when a special infected or a witch/tank killed by survivor.
 
-* [Video | 影片展示](https://youtu.be/komzEmVvtH0)
-
-* Image | 圖示
-	<br/>![l4d2_gifts_1](image/l4d2_gifts_1.jpg)
-
 * Apply to | 適用於
 	```
 	L4D2
 	```
+
+* [Video | 影片展示](https://youtu.be/komzEmVvtH0)
+
+* Image | 圖示
+	<br/>![l4d2_gifts_1](image/l4d2_gifts_1.jpg)
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -85,14 +85,10 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 		> Manual in this file, click for more details...
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
+	translations/l4d2_gifts.phrases.txt
 	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 

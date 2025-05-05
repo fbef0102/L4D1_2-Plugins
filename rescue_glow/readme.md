@@ -1,15 +1,15 @@
 # Description | 內容
 Fixed sometimes glow is invisible when dead survivors appears in rescue closet
 
-* Image | 圖示
-	| Before (裝此插件之前)  			| After (裝此插件之後) |
-	| -------------|:-----------------:|
-	| ![rescue_glow_1](image/rescue_glow_1.gif)|![rescue_glow_2](image/rescue_glow_2.gif)|
-
 * Apply to | 適用於
 	```
 	L4D2
 	```
+
+* Image | 圖示
+	| Before (裝此插件之前)  			| After (裝此插件之後) |
+	| -------------|:-----------------:|
+	| ![rescue_glow_1](image/rescue_glow_1.gif)|![rescue_glow_2](image/rescue_glow_2.gif)|
 
 * <details><summary>How does it work?</summary>
 

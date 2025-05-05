@@ -7,10 +7,14 @@ Forces silent but crouched hunters to emitt sounds
 
 * Apply to | 適用於
 	```
-	L4D2 Versus/Scavenge
+	L4D1
+	L4D2
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.6 (2025-5-5)
+		* Support L4D1
 
 	* v1.5 (2023-7-27)
 		* Fix warnings when compiling on SourceMod 1.11.

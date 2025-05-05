@@ -1,8 +1,11 @@
 # Description | 內容
 Server name with txt file (Support any language)
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* Dynamic Host Name (Support any language) - 可以有中文房名
@@ -18,11 +21,6 @@ Server name with txt file (Support any language)
 		// League notice displayed on server name
 		l4d_current_mode ""
 		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
 </details>
 
 * <details><summary>How to Modify Server Host Name</summary>
@@ -44,12 +42,6 @@ Server name with txt file (Support any language)
         ```
         ![l4d_DynamicHostname_2](image/l4d_DynamicHostname_2.jpg)
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

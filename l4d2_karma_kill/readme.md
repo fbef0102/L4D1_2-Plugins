@@ -1,16 +1,16 @@
 # Description | 內容
 Very Very loudly announces the predicted event of a player leaving the map and or life through height or drown.
 
+* Apply to | 適用於
+    ```
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/ID5Zxj0QHwg)
 
 * Image | 圖示
     * Arresto Momentum
     <br/>![l4d2_karma_kill_1](image/l4d2_karma_kill_1.gif)
-
-* Apply to | 適用於
-    ```
-    L4D2
-    ```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)

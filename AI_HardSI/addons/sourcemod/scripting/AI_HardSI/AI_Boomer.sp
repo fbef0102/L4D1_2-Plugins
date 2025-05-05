@@ -88,6 +88,7 @@ stock Action Boomer_OnPlayerRunCmd(int client, int &buttons) {
 	if (curTargetDist > 0.50 * g_fVomitRange && -1.0 < nearestSurDist < 1500.0) {
 		static float vAng[3];
 		GetClientEyeAngles(client, vAng);
+		buttons |= IN_ATTACK2;
 		return BunnyHop(client, buttons, vAng);
 	}
 

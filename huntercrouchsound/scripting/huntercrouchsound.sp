@@ -6,7 +6,6 @@
 #include <sdktools>
 
 #define HUNTER       3
-#define MAX_HUNTERSOUND         6
 #define IS_VALID_CLIENT(%1)     (%1 > 0 && %1 <= MaxClients)
 #define IS_INFECTED(%1)         (GetClientTeam(%1) == 3)
 #define IS_VALID_INGAME(%1)     (IS_VALID_CLIENT(%1) && IsClientInGame(%1))
@@ -14,7 +13,7 @@
 #define DEBUG 0
 #define HUNTERCROUCHTRACKING_TIMER 1.8
 
-static char sHunterSound[MAX_HUNTERSOUND + 1][] =
+static char sHunterSound_L4D2[][] =
 {
   	"player/hunter/voice/idle/hunter_stalk_01.wav",
 	"player/hunter/voice/idle/hunter_stalk_04.wav",
@@ -25,23 +24,39 @@ static char sHunterSound[MAX_HUNTERSOUND + 1][] =
 	"player/hunter/voice/idle/hunter_stalk_09.wav"
 };
 
+
+static char sHunterSound_L4D1[][] =
+{
+    "player/hunter/voice/idle/hunter_stalk_01.wav",
+	"player/hunter/voice/idle/hunter_stalk_04.wav",
+	"player/hunter/voice/idle/hunter_stalk_05.wav"
+};
+
 bool isHunter[MAXPLAYERS+1];
 static int g_iOffsetFallVelocity					= -1;
 static char CLASSNAME_TERRORPLAYER[] 				= "CTerrorPlayer";
 static char NETPROP_FALLVELOCITY[]					= "m_flFallVelocity";
 
-/* Plugin Functions */ 
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 
-	if( test != Engine_Left4Dead2 )
+	if( test == Engine_Left4Dead )
 	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		g_bL4D2Version = false;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_bL4D2Version = true;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
-	
-	return APLRes_Success; 
+
+	return APLRes_Success;
 }
 
 public Plugin myinfo = 
@@ -49,7 +64,7 @@ public Plugin myinfo =
     name = "Hunter Crouch Sounds",
     author = "Harry",
     description = "Forces silent but crouched hunters to emitt sounds",
-    version = "1.5-2023/7/27",
+    version = "1.6-2025/5/5",
     url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
@@ -64,11 +79,20 @@ public void OnPluginStart()
 
 public void OnMapStart()
 {
-    for (int i = 0; i <= MAX_HUNTERSOUND; i++)
-    {
-        PrefetchSound(sHunterSound[i]);
-        PrecacheSound(sHunterSound[i], true);
-    }
+	if(g_bL4D2Version)
+	{
+		for (int i = 0; i < sizeof(sHunterSound_L4D2); i++)
+		{
+			PrecacheSound(sHunterSound_L4D2[i]);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < sizeof(sHunterSound_L4D1); i++)
+		{
+			PrecacheSound(sHunterSound_L4D1[i]);
+		}
+	}
 }
 
 
@@ -132,8 +156,17 @@ Action HunterCrouchReallyCheck(Handle timer, any client)
 	int ducked = GetEntProp(client, Prop_Send, "m_bDucked");
 	if (ducked && GetEntDataFloat(client, g_iOffsetFallVelocity) == 0.0)
 	{
-		int rndPick = GetRandomInt(0, MAX_HUNTERSOUND);
-		EmitSoundToAll(sHunterSound[rndPick], client, SNDCHAN_VOICE);
+		if(g_bL4D2Version)
+		{
+			int rndPick = GetRandomInt(0, sizeof(sHunterSound_L4D2)-1);
+			EmitSoundToAll(sHunterSound_L4D2[rndPick], client, SNDCHAN_VOICE);
+		}
+		else
+		{
+			int rndPick = GetRandomInt(0, sizeof(sHunterSound_L4D1)-1);
+			EmitSoundToAll(sHunterSound_L4D1[rndPick], client, SNDCHAN_VOICE);
+		}
+		
 		#if DEBUG
 			PrintToChatAll("Spawn Sound");
 		#endif

@@ -1,30 +1,14 @@
 # Description | 內容
 Fixes issue when a bot die, his IDLE player become fully spectator rather than take over dead bot in 4+ survivors games
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
-
-* Require | 必要安裝
-    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Require | 必要安裝
+    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
 * <details><summary>Changelog | 版本日誌</summary>
 

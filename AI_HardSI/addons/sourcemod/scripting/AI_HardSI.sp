@@ -89,7 +89,7 @@ public Plugin myinfo =
 	name = "AI: Hard SI",
 	author = "Breezy & HarryPotter",
 	description = "Improves the AI behaviour of special infected",
-	version = "2.2-2025/1/15",
+	version = "2.3-2025/5/5",
 	url = "github.com/breezyplease"
 };
 
@@ -289,10 +289,6 @@ void player_spawn(Event event, char[] name, bool dontBroadcast) {
 
 			case (L4D2Infected_Charger): {
 				Charger_OnSpawn(botInfected);
-			}
-			
-			case (L4D2Infected_Jockey): {
-				Jockey_OnSpawn(botInfected);
 			}
 			
 			default: {

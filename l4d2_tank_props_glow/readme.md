@@ -3,16 +3,16 @@ When a Tank punches a Hittable it adds a Glow to the hittable which all infected
 +
 Stop tank props from fading whilst the tank is alive
 
+* Apply to | 適用於
+    ```
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/u7-D--uGlj8)
 
 * Image | 圖示
     * Hittabe car glow (打到的車子均發光)
     <br/>![l4d2_tank_props_glow_1](image/l4d2_tank_props_glow_1.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D2
-    ```
 
 * Require | 必要安裝
     1. [[INC] l4d2_hittable_control](https://github.com/fbef0102/Game-Private_Plugin/blob/main/L4D_插件/Require_檔案/scripting/include/l4d2_hittable_control.inc)

@@ -33,7 +33,6 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
         ```
 </details>
 
-
 * <details><summary>Changelog | 版本日誌</summary>
 
     * v1.0h (2024-3-27)

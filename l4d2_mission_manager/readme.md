@@ -40,14 +40,11 @@ Mission manager for L4D2, provide information about map orders for other plugins
         ```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
+	translations/maps.phrases.txt
+    translations/missions.phrases.txt
 	```
-</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

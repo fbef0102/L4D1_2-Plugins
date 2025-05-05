@@ -223,6 +223,10 @@ Improves the AI behaviour of special infected
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.3 (2025-5-5)
+        * Optimize Code
+        * Charger, Jockey, Spitter, Boomer will scratch while doing bhop
+
     * v2.2 (2025-1-15)
         * Fixed ai tank rock won't throw rocks
 

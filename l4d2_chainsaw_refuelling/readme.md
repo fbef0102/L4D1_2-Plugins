@@ -1,14 +1,14 @@
 # Description | 內容
 Allow refuelling of a chainsaw
 
-* Image | 圖示
-    <br/>![l4d2_chainsaw_refuelling_1](image/l4d2_chainsaw_refuelling_1.gif)
-    <br/>![l4d2_chainsaw_refuelling_2](image/l4d2_chainsaw_refuelling_2.gif)
-
 * Apply to | 適用於
     ```
     L4D2
     ```
+
+* Image | 圖示
+    <br/>![l4d2_chainsaw_refuelling_1](image/l4d2_chainsaw_refuelling_1.gif)
+    <br/>![l4d2_chainsaw_refuelling_2](image/l4d2_chainsaw_refuelling_2.gif)
 
 * <details><summary>How does it work?</summary>
 
@@ -41,19 +41,10 @@ Allow refuelling of a chainsaw
         ```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    Russian
-    Danish
-    German
-    Spanish
-    Polish
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/chainsaw_refuelling.phrases.txt
+	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

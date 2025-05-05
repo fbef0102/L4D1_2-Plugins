@@ -395,15 +395,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
+	translations/l4dinfectedbots.phrases.txt
 	```
-</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

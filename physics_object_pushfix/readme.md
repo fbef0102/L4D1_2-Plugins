@@ -1,15 +1,15 @@
 # Description | 內容
 Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pushed when players walk into them
 
-* Image | 圖示
-    <br/>![physics_object_pushfix_1](image/physics_object_pushfix_1.gif)
-    <br/>![physics_object_pushfix_2](image/physics_object_pushfix_2.gif)
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Image | 圖示
+    <br/>![physics_object_pushfix_1](image/physics_object_pushfix_1.gif)
+    <br/>![physics_object_pushfix_2](image/physics_object_pushfix_2.gif)
 
 * <details><summary>How does it work?</summary>
 

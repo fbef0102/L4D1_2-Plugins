@@ -1,11 +1,11 @@
 # Description | 內容
 Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -63,23 +63,12 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * <details><summary>Known Conflicts</summary>
 	
 	If you don't use any of these plugins at all, no need to worry about conflicts.
 	1. [l4d2_pistol_delay from SirPlease/L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_pistol_delay.sp): Allows you to adjust the rate of fire of pistols (with a high tickrate, the rate of fire of dual pistols is very high).
 		* Please Remove
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

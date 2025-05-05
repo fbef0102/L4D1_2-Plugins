@@ -1,8 +1,11 @@
 # Description | 內容
 Create a survivor bot in game + Teleport player
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image
 	* teleport menu
@@ -41,21 +44,10 @@ Create a survivor bot in game + Teleport player
 		```
 </details>
 
-* Apply to | 適用於
+* Translation Support | 支援翻譯
 	```
-	L4D1
-	L4D2
+	translations/l4d_wind.phrases.txt
 	```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	```
-</details>
 
 * <details><summary>Similar Plugin | 相似插件</summary>
 

@@ -1,8 +1,11 @@
 # Description | 內容
 Precaches Game Files To Prevent Crashes. + Prevents late precache of specific models
 
-* Video | 影片展示
-<br>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* Try to prevent crash "UTIL_SetModel": not precached" - 嘗試解決崩潰 "找不到模組"
@@ -10,22 +13,6 @@ Precaches Game Files To Prevent Crashes. + Prevents late precache of specific mo
 
 * Require | 必要安裝
 <br/>None
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
@@ -35,10 +22,6 @@ Precaches Game Files To Prevent Crashes. + Prevents late precache of specific mo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//cravenge @ 2016
-	//HarryPotter @ 2022-2023
-	```
 	* v1.0h (2023-1-19)
         * Remake Code
 		* Add More models and Precache 

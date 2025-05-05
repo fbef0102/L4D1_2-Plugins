@@ -1,6 +1,12 @@
 # Description | 內容
 Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
 * Video | 影片展示
     * [Grenade launcher Exploit](https://www.youtube.com/watch?v=eAKt6NZXqJM)
         > 踩在榴彈發射器發射的榴彈上高空跳躍bug示範
@@ -19,22 +25,6 @@ Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common
 * Related Plugin | 相關插件
 	1. [l4d2_steady_boost by jensewe](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_steady_boost): Prevent forced sliding when landing at head of enemies.
 		> 人類踩在特感頭上或特感踩在人類頭上不會滑落飄移
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

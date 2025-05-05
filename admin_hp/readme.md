@@ -1,8 +1,11 @@
 # Description | 內容
 Adm type !hp to set survivor team full health
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
     <br/>![admin_hp_1](image/admin_hp_1.jpg)
@@ -23,12 +26,6 @@ Adm type !hp to set survivor team full health
 		sm_givehp
 		```
 </details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

@@ -68,6 +68,7 @@ stock Action Spitter_OnPlayerRunCmd(int client, int &buttons) {
 		if (150.0 < NearestSurDistance(client) < 1500.0) {
 			static float vAng[3];
 			GetClientEyeAngles(client, vAng);
+			buttons |= IN_ATTACK2;
 			return BunnyHop(client, buttons, vAng);
 		}
 	}

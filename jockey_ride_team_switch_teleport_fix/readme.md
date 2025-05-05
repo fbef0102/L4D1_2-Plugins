@@ -1,12 +1,12 @@
 # Description | 內容
 Fixed Teleport bug if jcokey player switches team while riding the survivor (Another valve bug)
 
-* [Video | 影片展示](https://youtu.be/Wt0AgL6Jjd4)
-
 * Apply to | 適用於
 	```
 	L4D2
 	```
+
+* [Video | 影片展示](https://youtu.be/Wt0AgL6Jjd4)
 
 * <details><summary>Changelog | 版本日誌</summary>
 

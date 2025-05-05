@@ -124,6 +124,11 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		```
 </details>
 
+* Translation Support | 支援翻譯
+	```
+	translations/l4d2_mixmap.phrases.txt
+	```
+
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* v1.3h (2025-3-8)

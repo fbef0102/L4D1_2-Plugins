@@ -3,17 +3,17 @@ Announce hunter skeet to the entire server, and save record to data/skeet_databa
 
 > __Note__ <br/>
 This Plugin has been discontinued, Use 
-<br/>[l4d_skeet_database_remake](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Hunter_Hunter/l4d_skeet_database_remake)
-
-* Image | 圖示
-	* Hunter Skeet notify and Top 5 Skeeters (一槍秒殺Hunter的提示與前五名)
-    <br/>![skeet_database_1](image/skeet_database_1.jpg)
+<br/>[l4d_skeet_database_remake](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Hunter_Hunter/l4d_skeet_database_remake), supports mysql database
 
 * Apply to | 適用於
     ```
     L4D1
     L4D2
     ```
+
+* Image | 圖示
+	* Hunter Skeet notify and Top 5 Skeeters (一槍秒殺Hunter的提示與前五名)
+    <br/>![skeet_database_1](image/skeet_database_1.jpg)
 
 * <details><summary>How does it work?</summary>
 

@@ -1,8 +1,11 @@
 # Description | 內容
 Print survivor progress in flow percents
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* Distances of the map [1%-100%] - 人類目前的地圖距離路程 [1%-100%]
@@ -12,11 +15,6 @@ Print survivor progress in flow percents
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
 * <details><summary>Command | 命令</summary>
 
 	* **Print survivor progress in flow percents only you can see**
@@ -25,12 +23,6 @@ Print survivor progress in flow percents
 		sm_current
 		```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

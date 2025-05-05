@@ -1,8 +1,11 @@
 # Description | 內容
 Shows a sprite at the tank head that goes from green to red based on its HP
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
 	* Tank HP stats on his head (Tank頭上顯示血量狀態)
@@ -13,22 +16,6 @@ Shows a sprite at the tank head that goes from green to red based on its HP
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Similar Plugin | 相似插件</summary>
 

@@ -1,8 +1,11 @@
 # Description | 內容
 Notify people when player is black and white.
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
 	* display who is black and white (顯示哪個玩家黑白)
@@ -32,17 +35,6 @@ Notify people when player is black and white.
 	```
 </details>
 
-* <details><summary>Command | 命令</summary>
-	
-    None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
 * <details><summary>Similar Plugin | 相似插件</summary>
 
 	1. [LMC_Black_and_White_Notifier](/LMC_Black_and_White_Notifier): Notifies selected team(s) when someone is on final strike and add glow
@@ -51,10 +43,6 @@ Notify people when player is black and white.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    ```php
-	//DarkNoghri @ 2009-2010
-	//Harry @ 2022
-    ```
 	* v1.7 (2022-11-03)
         * Remake Code
         * Rmove white glow when player is not black and white

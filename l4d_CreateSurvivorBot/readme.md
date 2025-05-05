@@ -1,11 +1,11 @@
 # Description | 內容
 Provide natives, spawn survivor bots without limit.
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>How does it work?</summary>
 
@@ -22,16 +22,6 @@ Provide natives, spawn survivor bots without limit.
 		> 創造5位以上倖存者遊玩伺服器
 </details>
 
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
 * <details><summary>API | 串接</summary>
 
 	* [l4d_CreateSurvivorBot.inc](scripting\include\l4d_CreateSurvivorBot.inc)
@@ -39,12 +29,6 @@ Provide natives, spawn survivor bots without limit.
 		library name: l4d_CreateSurvivorBot
 		```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

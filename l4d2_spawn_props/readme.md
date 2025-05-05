@@ -25,7 +25,7 @@ Let admins spawn any kind of objects and saved to cfg
 
 * <details><summary>How to use</summary>
 
-	* Type !admin to call adm menu and you will see "Spawn Objects" option
+	* Type ```!admin``` to call adm menu and you will see "Spawn Objects" option
 	* **Create Object**
         1. Admin types !admin in chat->Spawn Objects->Spawn Objects->Select the spawn method
         2. Physics（affected by gravity），Non-solid（you can go through it），Solid（won't be affected by gravity），Items&Weapons（Guns, Melees, Supplies, Throwables, etc.）
@@ -173,15 +173,10 @@ Let admins spawn any kind of objects and saved to cfg
 	L4D2
 	```
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
+	translations/l4d2_spawn_props.phrases.txt
 	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 

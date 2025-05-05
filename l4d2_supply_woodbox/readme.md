@@ -1,6 +1,11 @@
 # Description | 內容
 Supply boxes are dropped randomly in the map every certain seconds to provide support for the fight against the zombies.
 
+* Apply to | 適用於
+	```
+	L4D2
+	```
+
 * [Video | 影片展示](https://youtu.be/9rXlJ8PsOTA)
 
 * Image | 圖示
@@ -8,11 +13,6 @@ Supply boxes are dropped randomly in the map every certain seconds to provide su
 	* They contain several types of weapons or items inside, depending on the cvar you set.
 	<br/>![l4d2_supply_woodbox_1](image/l4d2_supply_woodbox_1.jpg)
 	<br/>![l4d2_supply_woodbox_2](image/l4d2_supply_woodbox_2.jpg)
-
-* Apply to | 適用於
-	```
-	L4D2
-	```
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -107,15 +107,10 @@ Supply boxes are dropped randomly in the map every certain seconds to provide su
 	* Check [data/l4d2_supply_woodbox.cfg](data/l4d2_supply_woodbox.cfg) for more details
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Русский
+	translations/l4d2_supply_woodbox.phrases.txt
 	```
-</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

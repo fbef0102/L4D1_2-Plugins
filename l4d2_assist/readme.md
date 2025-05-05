@@ -1,14 +1,14 @@
 # Description | 內容
 Show damage done to S.I. by survivors
 
-* Image | 圖示
-	<br/>![l4d2_assist_1](image/l4d2_assist_1.jpg)  
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Image | 圖示
+	<br/>![l4d2_assist_1](image/l4d2_assist_1.jpg)  
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -41,15 +41,10 @@ Show damage done to S.I. by survivors
 		```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
+	translations/l4d2_assist.phrases.txt
 	```
-</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

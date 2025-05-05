@@ -1,6 +1,12 @@
 # Description | 內容
 Provides the ability to fly to Tanks and special effects.
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
 * [Video | 影片展示](https://youtube.com/shorts/O_60Gggphnk)
 
 * Image | 圖示
@@ -13,10 +19,10 @@ Provides the ability to fly to Tanks and special effects.
 * <details><summary>How does it work?</summary>
 
 	* Tank player can press space key to fly 
-		* (W)(S)(D)(A)
-		* (Space)
-		* (Shift)
-		* (E)
+		* (W)(S)(D)(A) Move
+		* (Space) Rise
+		* (Shift) Fly forward
+		* (E) Descend
 	* Also apply to AI Tank
 </details>
 
@@ -95,27 +101,10 @@ Provides the ability to fly to Tanks and special effects.
 		```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-
-* Apply to | 適用於
+* Translation Support | 支援翻譯
 	```
-	L4D1
-	L4D2
+	translations/l4d_flying_tank.phrases.txt
 	```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	```
-</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
@@ -125,10 +114,6 @@ Provides the ability to fly to Tanks and special effects.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	```php
-	//Ernecio @ 2020
-	//HarryPotter @ 2021-2023
-	```
 	* v1.0h (2023-12-8)
 		* Remake code, convert code to latest syntax
 		* Fix warnings when compiling on SourceMod 1.11.

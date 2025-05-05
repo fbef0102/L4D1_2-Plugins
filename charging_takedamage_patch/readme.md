@@ -14,7 +14,7 @@ Makes AI Charger take damage like human SI while charging.
 * <details><summary>How does it work?</summary>
 
 	* (Before) Human chargers can be easily killed while charging, but AI chargers can't be easily killed while charging
-		* Damage nerf on charging AI chargers
+		* Damage nerf on charging AI chargers, developers doing on purpose
 		* Formua: (Original damage / 3) + 1 = actual damage
 	* (After) Makes AI chargers take same damage like human SI while charging
 		* Remove formua, Make them easily to be killed and melee-leveled

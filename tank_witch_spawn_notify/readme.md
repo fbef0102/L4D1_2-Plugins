@@ -1,8 +1,11 @@
 # Description | 內容
 When the tank and witch spawns, it announces itself in chat by making a sound
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image | 圖示
 	<br/>![tank_witch_spawn_notify_1](image/tank_witch_spawn_notify_1.jpg)
@@ -28,26 +31,10 @@ When the tank and witch spawns, it announces itself in chat by making a sound
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
+	translations/tank_witch_spawn_notify.phrases.txt
 	```
-</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
 

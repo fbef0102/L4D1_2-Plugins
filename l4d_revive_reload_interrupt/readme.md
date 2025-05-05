@@ -1,20 +1,17 @@
 # Description | 內容
 Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bug exists for more than 10 years)
 
-* Video | 影片展示
-    1. [Left 4 Dead Revive Reload Bug - jam and misfire](https://youtu.be/MvUwsdmMnfw)
-        * L4D1 - 卡彈與啞彈
-    1. [Left 4 Dead 2 Revive Reload Bug - Reload Twice](https://youtu.be/SaLJT_PCzbU)
-        * L4D2 - 重複裝彈
-
-* Image | 圖示
-<br>None
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Video | 影片展示
+    1. [Left 4 Dead Revive Reload Bug - jam and misfire](https://youtu.be/MvUwsdmMnfw)
+        * L4D1 - 卡彈與啞彈
+    1. [Left 4 Dead 2 Revive Reload Bug - Reload Twice](https://youtu.be/SaLJT_PCzbU)
+        * L4D2 - 重複裝彈
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -25,16 +22,6 @@ Reviving cancels reloading to fix that weapon has jammed and misfired (stupid bu
 
 * Require | 必要安裝
 <br/>None
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
 
 * Steps to Reproduce Bug
     1. Reload weapon

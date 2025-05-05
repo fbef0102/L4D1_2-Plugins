@@ -1,19 +1,18 @@
 # Description | 內容
 Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fall down, not count as alive, versus score bug
 
-* Image | 圖示
-
-	| Before (裝此插件之前)  			| After (裝此插件之後) |
-	| -------------|:-----------------:|
-	| ![l4d2_rescue_vehicle_multi_1](image/l4d2_rescue_vehicle_multi_1.jpg)|![l4d2_rescue_vehicle_multi_2](image/l4d2_rescue_vehicle_multi_2.jpg)|
-	| ![l4d2_rescue_vehicle_multi_3](image/l4d2_rescue_vehicle_multi_3.gif)|![l4d2_rescue_vehicle_multi_4](image/l4d2_rescue_vehicle_multi_4.gif)|
-	| ![l4d2_rescue_vehicle_multi_5](image/l4d2_rescue_vehicle_multi_5.jpg)|![l4d2_rescue_vehicle_multi_6](image/l4d2_rescue_vehicle_multi_6.jpg)|
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Image | 圖示
+	| Before (裝此插件之前)  			| After (裝此插件之後) |
+	| -------------|:-----------------:|
+	| ![l4d2_rescue_vehicle_multi_1](image/l4d2_rescue_vehicle_multi_1.jpg)|![l4d2_rescue_vehicle_multi_2](image/l4d2_rescue_vehicle_multi_2.jpg)|
+	| ![l4d2_rescue_vehicle_multi_3](image/l4d2_rescue_vehicle_multi_3.gif)|![l4d2_rescue_vehicle_multi_4](image/l4d2_rescue_vehicle_multi_4.gif)|
+	| ![l4d2_rescue_vehicle_multi_5](image/l4d2_rescue_vehicle_multi_5.jpg)|![l4d2_rescue_vehicle_multi_6](image/l4d2_rescue_vehicle_multi_6.jpg)|
 
 * <details><summary>How does it work?</summary>
 

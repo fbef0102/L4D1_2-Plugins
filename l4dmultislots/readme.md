@@ -1,16 +1,16 @@
 # Description | 內容
 Allows additional survivor players in server when 5+ player joins the server
 
-* Image | 圖示
-	* 8+ Survivors join server to play (生成5位以上的倖存者大亂鬥)
-	<br/>![l4dmultislots_1](image/l4dmultislots_1.jpg)
-	<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Image | 圖示
+	* 8+ Survivors join server to play (生成5位以上的倖存者大亂鬥)
+	<br/>![l4dmultislots_1](image/l4dmultislots_1.jpg)
+	<br/>![l4dmultislots_2](image/l4dmultislots_2.jpg)
 
 * <details><summary>How does it work?</summary>
 

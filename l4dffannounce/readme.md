@@ -1,8 +1,11 @@
 # Description | 內容
 Adds Friendly Fire Announcements (who kills teammates)
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image
 	* Display friendly fire
@@ -23,26 +26,10 @@ Adds Friendly Fire Announcements (who kills teammates)
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
+* Translation Support | 支援翻譯
 	```
-	English
-	繁體中文
-	简体中文
-	Russian
+	translations/l4dffannounce.phrases.txt
 	```
-</details>
 
 * <details><summary>Similar Plugin | 相似插件</summary>
 

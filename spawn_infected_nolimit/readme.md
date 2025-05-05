@@ -1,11 +1,11 @@
 # Description | 內容
 Provide natives, spawn special infected without the director limits!
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>How does it work?</summary>
 
@@ -25,11 +25,6 @@ Provide natives, spawn special infected without the director limits!
 		> 離隊伍太遠的玩家，特感代替月亮懲罰你
 	3. [l4d_tank_spawn](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Tank_%E5%9D%A6%E5%85%8B/l4d_tank_spawn): Spawn multi Tanks on the map and final rescue
 		> 一個關卡中或救援期間生成多隻Tank，對抗模式也適用
-</details>
-
-* <details><summary>ConVar | 指令</summary>
-
-	None
 </details>
 
 * <details><summary>Command | 命令</summary>
@@ -52,12 +47,6 @@ Provide natives, spawn special infected without the director limits!
 		library name: spawn_infected_nolimit
 		```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

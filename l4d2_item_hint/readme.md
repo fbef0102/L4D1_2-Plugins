@@ -222,11 +222,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * Translation Support | 支援翻譯
-    ```
-    English
-    繁體中文
-    简体中文
-    ```
+	```
+	translations/l4d2_item_hint.phrases.txt
+	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

@@ -1,6 +1,12 @@
 # Description | 內容
 Allow to release victim
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/IzL-UIF6K-Y)
 
 * Image | 圖示
@@ -8,12 +14,6 @@ Allow to release victim
     <br/>![l4d2_release_victim_1](image/l4d2_release_victim_1.gif)
     * Can't use attack1/attack2 (0=Off) for short time after release victim (釋放後短時間不能攻擊)
     <br/>![l4d2_release_victim_2](image/l4d2_release_victim_2.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -73,14 +73,10 @@ Allow to release victim
         ```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/l4d2_release_victim.phrases.txt
+	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

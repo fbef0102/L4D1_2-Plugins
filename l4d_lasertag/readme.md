@@ -1,6 +1,12 @@
 # Description | 內容
 Shows a laser for straight-flying fired projectiles
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
 * [Video | 影片展示](https://youtu.be/JnBM7GyYdGI)
 
 * Image | 圖示
@@ -72,18 +78,6 @@ Shows a laser for straight-flying fired projectiles
 		l4d_lasertag_access_flag ""
 		```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

@@ -1,6 +1,11 @@
 # Description | 內容
 A spectator can now see the special infected model glows though the wall
 
+* Apply to | 適用於
+    ```
+    L4D2
+    ```
+
 * [Video | 影片展示](https://www.bilibili.com/video/BV1Xq4y1a7ie)
 
 * Image | 圖示
@@ -8,11 +13,6 @@ A spectator can now see the special infected model glows though the wall
     <br/>![l4d2_spectating_cheat_1](image/l4d2_spectating_cheat_1.jpg)
     * Better view for spectator in versus match (提高對抗模式觀賞性)
     <br/>![l4d2_spectating_cheat_2](image/l4d2_spectating_cheat_2.jpg)
-
-* Apply to | 適用於
-    ```
-    L4D2
-    ```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)

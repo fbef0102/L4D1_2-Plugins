@@ -1,21 +1,15 @@
 # Description | 內容
 Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
 
-* Video | 影片展示
-<br/>None
-
-* Image
-<br/>None
-
-* Require | 必要安裝
-    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-    2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
 * Apply to | 適用於
     ```
     L4D1
     L4D2
     ```
+
+* Require | 必要安裝
+    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+    2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -35,26 +29,16 @@ Prevents Rushers From Rushing Then Teleports Them Back To Their Teammates.
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
 * <details><summary>Data Config</summary>
 
     * [configs/no-rushing.cfg](configs/no-rushing.cfg)
         > Manual in this file, click for more details...
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    Russian
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/no-rushing.phrases.txt
+	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

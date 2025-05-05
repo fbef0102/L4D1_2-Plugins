@@ -1,8 +1,11 @@
 # Description | 內容
 Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse.
 
-* Video | 影片展示
-<br>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * <details><summary>Image</summary>
 
@@ -189,22 +192,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 			```
 </details>
 
-* Apply to | 適用於
+* Translation Support | 支援翻譯
 	```
-	L4D1
-	L4D2
+	translations/l4d_afk_commands.phrases.txt
 	```
-
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-	```
-	English
-	繁體中文
-	简体中文
-	Russian
-	Hungarian
-	```
-</details>
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

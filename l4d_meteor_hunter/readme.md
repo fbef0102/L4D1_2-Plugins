@@ -1,8 +1,11 @@
 # Description | 內容
 Hunter high pounces cause meteor strike
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* Meteor strike, inflict extra damage and send nearby survivors flying. (高撲的核彈衝擊波)
@@ -11,7 +14,6 @@ Hunter high pounces cause meteor strike
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -45,17 +47,6 @@ Hunter high pounces cause meteor strike
         l4d_meteor_hunter_vertical_mult "1.5"
 		```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

@@ -14,7 +14,7 @@ Fix issues where customized map tank does not spawn, cause the map process break
 	* For example: Official Map "The Sacrifice stage 1" train tank
 		* (L4D2) If all 31 server slots are occupied, the tank won't spawn, and survivors can't open the second train door to continue game
 			* server slots = maxplayers
-		* (L4D1) If all infecte team slots are occupied, the tank won't spawn, and survivors can't open the second train door to continue game
+		* (L4D1) If all infected team slots are occupied, the tank won't spawn, and survivors can't open the second train door to continue game
 			* infecte team slot = z_max_player_zombies+1
 	* Here is how the plugin fixed
 		1. When map entity tried to spawn trank -> check if tank spawns successfully

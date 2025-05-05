@@ -25,9 +25,6 @@ static bool
 	g_bHasQueuedLunge[MAXPLAYERS+1], 
 	g_bCanLunge[MAXPLAYERS+1];
 
-static float 
-	g_fAttack2[MAXPLAYERS+1];
-
 void Hunter_OnModuleStart() 
 {
 	g_hCvarLungeInterval = FindConVar("z_lunge_interval"); // cooldown on lunges
@@ -133,12 +130,20 @@ stock Action Hunter_OnPlayerRunCmd(int hunter, int &buttons ) {
 	if (!GetEntProp(hunter, Prop_Send, "m_hasVisibleThreats"))
 		return Plugin_Continue;
 
+	if (L4D_GetVictimHunter(hunter) > 0)
+		return Plugin_Continue;
+
 	int flags = GetEntityFlags(hunter);
 	//Proceed if the hunter is in a position to pounce
 	if( flags & FL_ONGROUND ) 
 	{	
 		if ( view_as<bool>(GetEntProp(hunter, Prop_Send, "m_bDucked")) )
 		{
+			int ability = GetEntPropEnt(hunter, Prop_Send, "m_customAbility");
+			if (ability == -1 || !IsValidEntity(ability)) {
+				return Plugin_Continue;
+			}
+
 			float hunterPos[3];
 			GetClientAbsOrigin(hunter, hunterPos);		
 			int iSurvivorsProximity = GetSurvivorProximity(hunterPos);
@@ -147,20 +152,26 @@ stock Action Hunter_OnPlayerRunCmd(int hunter, int &buttons ) {
 			if( iSurvivorsProximity < g_iCvarFastPounceProximity ) {
 				buttons &= ~IN_ATTACK; // release attack button; precautionary					
 				// Queue a pounce/lunge
-				if (!g_bHasQueuedLunge[hunter]) { // check lunge interval timer has not already been initiated
+				if (!g_bHasQueuedLunge[hunter]) // check lunge interval timer has not already been initiated
+				{ 
 					g_bCanLunge[hunter] = false;
 					g_bHasQueuedLunge[hunter] = true; // block duplicate lunge interval timers
 					CreateTimer(g_fCvarLungeInterval, Timer_LungeInterval, hunter, TIMER_FLAG_NO_MAPCHANGE);
-				} else if (g_bCanLunge[hunter]) { // end of lunge interval; lunge!
-					float now = GetEngineTime();
-					if (g_bCvarPounceDancing == true && g_fAttack2[hunter] < now) 
+				} 
+				else if (g_bCanLunge[hunter]) 
+				{ 
+					if(GetEntPropFloat(ability, Prop_Send, "m_nextActivationTimer", 1) < GetGameTime()) // CLunge->m_nextActivationTimer->m_timestamp (GameTime)
 					{
-						buttons |= IN_ATTACK2;
-						g_fAttack2[hunter] = GetEngineTime() + 0.2;
-					}	
-
-					buttons |= IN_ATTACK;
-					g_bHasQueuedLunge[hunter] = false; // unblock lunge interval timer
+						buttons |= IN_ATTACK;
+						g_bHasQueuedLunge[hunter] = false; // unblock lunge interval timer
+					}
+					else
+					{
+						if(g_bCvarPounceDancing == true && GetEntPropFloat(hunter, Prop_Send, "m_flNextShoveTime") < GetGameTime()) // CTerrorPlayer->m_flNextShoveTime (GameTime)
+						{
+							buttons |= IN_ATTACK2;
+						}
+					}
 
 					return Plugin_Changed;
 				} 

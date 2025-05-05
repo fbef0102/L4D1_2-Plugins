@@ -1,14 +1,14 @@
 # Description | 內容
 Add Custom safe area for any map on start
 
-* Image | 圖示
-    <br/>![l4d_start_safe_area_1](image/l4d_start_safe_area_1.jpg)
-
 * Apply to | 適用於
 	```
 	L4D1
 	L4D2
 	```
+
+* Image | 圖示
+    <br/>![l4d_start_safe_area_1](image/l4d_start_safe_area_1.jpg)
 
 * <details><summary>How does it work?</summary>
 

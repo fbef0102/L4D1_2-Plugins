@@ -1,14 +1,14 @@
 # Description | 內容
 Voice Announce in centr text + create hat to Show Who is speaking.
 
-* Image | 圖示
-    * Hat + Text (MIC說話的玩家頭上會有對話框)
-    <br/>![show_mic_1](image/show_mic_1.jpg)
-
 * Apply to | 適用於
     ```
     L4D2
     ```
+
+* Image | 圖示
+    * Hat + Text (MIC說話的玩家頭上會有對話框)
+    <br/>![show_mic_1](image/show_mic_1.jpg)
 
 * <details><summary>How does it work?</summary>
 
@@ -37,6 +37,11 @@ Voice Announce in centr text + create hat to Show Who is speaking.
         show_mic_center_text_enable "1"
         ```
 </details>
+
+* Translation Support | 支援翻譯
+	```
+	translations/show_mic.phrases.txt
+	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 

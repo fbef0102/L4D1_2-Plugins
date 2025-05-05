@@ -1,13 +1,13 @@
 # Description | 內容
 Enables admins to have control over the AI Director and spawn all weapons, melee, items, special infected, and Uncommon Infected without using sv_cheats 1
 
-* Image
-    <br/>![all4dead2_1](image/all4dead2_1.jpg)
-
 * Apply to | 適用於
     ```
     L4D2
     ```
+
+* Image
+    <br/>![all4dead2_1](image/all4dead2_1.jpg)
 
 * <details><summary>How does it work?</summary>
 
@@ -64,18 +64,12 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 </details>
 
 * Translation Support | 支援翻譯
-    ```
-    English
-    繁體中文
-    简体中文
-    ```
+	```
+	translations/all4dead2.phrases.txt
+	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    ```php
-    //grandwazir @ 2009-2010
-    //Harry @ 2020-2024
-    ```
     * v3.9 (2024-3-30)
         * Update cvars
         * Update cmds

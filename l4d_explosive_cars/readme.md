@@ -1,6 +1,12 @@
 # Description | 內容
 Cars explode after they take some damage
 
+* Apply to | 適用於
+    ```
+    L4D1
+    L4D2
+    ```
+
 * [Video | 影片展示](https://youtu.be/B_-pOplOML4)
 
 * Image
@@ -56,17 +62,6 @@ Cars explode after they take some damage
 		l4d_explosive_cars_flying_method "0"
         ```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-    ```
-    L4D1
-    L4D2
-    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

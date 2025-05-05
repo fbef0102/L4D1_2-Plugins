@@ -5,14 +5,14 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 <br/>🟥Dedicated Server Only
 <br/>🟥只能安裝在Dedicated Server
 
-* Image | 圖示
-<br/>![l4d_unreservelobby_1](image/l4d_unreservelobby_1.jpg)
-
 * Apply to | 適用於
 	```
 	L4D1 Dedicated Server
 	L4D2 Dedicated Server
 	```
+
+* Image | 圖示
+<br/>![l4d_unreservelobby_1](image/l4d_unreservelobby_1.jpg)
 
 * <details><summary>How does it work?</summary>
 

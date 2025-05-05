@@ -1,11 +1,11 @@
 # Description | 內容
 Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 
-* Video | 影片展示
-<br/>None
-
-* Image | 圖示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -33,17 +33,6 @@ Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
         AutoTakeOver_take_over_OnJoinServer "1"
 		```
 </details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
-</details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

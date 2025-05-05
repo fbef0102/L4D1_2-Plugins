@@ -1,8 +1,11 @@
 # Description | 內容
 Announces hunter pounces to the entire server
 
-* Video | 影片展示
-<br/>None
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
 
 * Image | 圖示
 	* Hunter high pounce (顯示Hunter的高撲資訊)
@@ -33,11 +36,6 @@ Announces hunter pounces to the entire server
         // 1=units, 2=units & feet, 3=units & meters, 4=feet, 5=meters
         pounceannounce_showdistance "3"
 		```
-</details>
-
-* <details><summary>Command | 命令</summary>
-
-	None
 </details>
 
 * <details><summary>How to change max pounce damage in l4d1</summary>
@@ -90,12 +88,6 @@ Announces hunter pounces to the entire server
             sm_cvar z_pounce_damage_range_max 6104.167
             ```
 </details>
-
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
