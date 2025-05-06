@@ -1,17 +1,16 @@
-﻿# L4D1&2-Plugins  by Harry Potter
-Help server to record, make server more fun, and more useful plugins for adm.
-> All plugins in here apply to L4D1 or L4D2 <br/>
-> If you have any modify or request, feel free to use or pay me money to do it.
-# Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
-
-# Require
+﻿# Require
 * [L4D1 Server Install](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D1#server-install)
 * [L4D2 Server Install](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D2#server-install)
 
 # Plugins
-> __Note__  
-> **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**<br/>
-> **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
+Help server to record, make server more fun, and more useful plugins for adm.
+> All plugins in here apply to L4D1 or L4D2
+> <br/> If you have any modify or request, feel free to use or pay me money to do it. 
+> <br/> **[>>Click here to see my private plugin list<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
+> <br/> 適用於L4D1與L4D2
+> <br/> 歡迎自由使用，可以自行更改源碼。亦或付費請求修改。
+> <br/> **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
+
 * <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
@@ -264,6 +263,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
 
 # Others
 * <b>[Sourcemod-Plugins](https://github.com/fbef0102/Sourcemod-Plugins)</b>: Plugins for most source engine games.
+    * 適用於大部份的Source引擎遊戲
 * <b>[L4D1-Server](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D1)</b>: Setup your own L4D1 Servers.
+    * 架設L4D1伺服器
 * <b>[L4D2-Server](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D2)</b>: Setup your own L4D2 Servers.
+    * 架設L4D2伺服器
 * <b>[Game-Private_Plugin](https://github.com/fbef0102/Game-Private_Plugin)</b>: Private Plugin List.
+    * 私人插件列表
