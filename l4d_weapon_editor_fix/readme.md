@@ -11,6 +11,14 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [WeaponHandling_API](https://forums.alliedmods.net/showthread.php?t=319947)
 
+* <details><summary>Support | 支援插件</summary>
+
+	* [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586): Modify weapons.txt values by config
+		* 修改武器的參數
+	* [Incapped Weapons Patch](https://forums.alliedmods.net/showthread.php?t=322859): allow using melee while Incapped
+		* 可以在倒地狀態下使用主武器與近戰
+</details>
+
 * <details><summary>How does it work?</summary>
 
 	* Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
@@ -27,9 +35,6 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 			* All Melee weapons including custom melee obey "refire_delay" keyvalue in melee\*.txt
 		* Swing Rate (Incap) 
 			* Modify melee swinging rate multi when incapacitate
-
-	* [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586): Modify weapons.txt values by config
-	* [Incapped Weapons Patch](https://forums.alliedmods.net/showthread.php?t=322859): allow using melee while Incapped
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -72,6 +77,9 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.3 (2025-5-10)
+		* Fixed Shotgun fire rate when incap
+
 	* v1.2 (2024-6-25)
 		* Fixed Reload playback when shove
 
@@ -104,9 +112,6 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 			* 所有近戰符合武器參數 "refire_delay" (支援三方圖近戰)
 		* 倒地揮砍速度
 			* 倒地使用近戰，揮砍速度變更慢
-
-	* 彌補[l4d_info_editor插件](https://forums.alliedmods.net/showthread.php?t=310586)修改的部分武器參數沒有作用
-	* 使用[Incapped Weapons Patch插件](https://forums.alliedmods.net/showthread.php?t=322859)，可以在倒地狀態下使用主武器與近戰
 </details>
 
 * <details><summary>指令中文介紹 (點我展開)</summary>

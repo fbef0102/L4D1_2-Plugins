@@ -38,7 +38,7 @@
 #include <left4dhooks>          // https://forums.alliedmods.net/showthread.php?t=321696
 #include <WeaponHandling>       // https://forums.alliedmods.net/showthread.php?t=319947
 
-#define PLUGIN_VERSION			"1.2-2024/6/25"
+#define PLUGIN_VERSION			"1.3-2025/5/10"
 #define PLUGIN_NAME			    "l4d_weapon_editor_fix"
 #define DEBUG 0
 
@@ -222,30 +222,55 @@ public void WH_OnGetRateOfFire(int client, int weapon, L4D2WeaponType weapontype
 
 	if(g_bCvarWeaponIncap_Fix_CycleTime && g_bWeaponHandling_UseIncapCycle && GetEntProp(client, Prop_Send, "m_isIncapacitated", 1))
 	{
-		switch(weapontype)
+		if(weapontype == L4D2WeaponType_Pistol)
 		{
-			case L4D2WeaponType_Pistol:
+			if(GetEntProp(weapon, Prop_Send, "m_isDualWielding", 1))
 			{
-				if(GetEntProp(weapon, Prop_Send, "m_isDualWielding", 1))
-				{
-					if(g_fCvarDualPistol_CycleTime == 0.0) return;
-					if(g_fCvarDualPistol_CycleTime <= g_fIncapCycle) return;
+				if(g_fCvarDualPistol_CycleTime == 0.0) return;
+				if(g_fCvarDualPistol_CycleTime <= g_fIncapCycle) return;
 
-					speedmodifier = g_fIncapCycle *(1.0/g_fCvarDualPistol_CycleTime);
-					return;
-				}
+				speedmodifier = g_fIncapCycle *(1.0/g_fCvarDualPistol_CycleTime);
+				return;
 			}
 		}
+		else if( (weapontype == L4D2WeaponType_Pumpshotgun) ||
+			(weapontype == L4D2WeaponType_PumpshotgunChrome) )
+		{
+			if(g_bCvarShotGun_Fix_CycleTime)
+			{
+				if(g_fWeapon_CycleTime[weapontype] <= g_fIncapCycle) return;
 
-		if( !g_bCvarShotGun_Fix_CycleTime &&
-			(weapontype == L4D2WeaponType_Pumpshotgun) ||
-			(weapontype == L4D2WeaponType_Pumpshotgun) || 
-			(weapontype == L4D2WeaponType_Autoshotgun) ||
-			(weapontype == L4D2WeaponType_AutoshotgunSpas) ) return;
+				speedmodifier = g_fIncapCycle *(1.0/g_fWeapon_CycleTime[weapontype]);
+			}
+			else
+			{
+				if(0.75 <= g_fIncapCycle) return;
 
-		if(g_fWeapon_CycleTime[weapontype] <= g_fIncapCycle) return;
+				speedmodifier = g_fIncapCycle *(1.0/0.75);
+			}
+		}
+		else if( (weapontype == L4D2WeaponType_Autoshotgun) ||
+				(weapontype == L4D2WeaponType_AutoshotgunSpas) )
+		{
+			if(g_bCvarShotGun_Fix_CycleTime)
+			{
+				if(g_fWeapon_CycleTime[weapontype] <= g_fIncapCycle) return;
 
-		speedmodifier = g_fIncapCycle *(1.0/g_fWeapon_CycleTime[weapontype]);
+				speedmodifier = g_fIncapCycle *(1.0/g_fWeapon_CycleTime[weapontype]);
+			}
+			else
+			{
+				if(0.25 <= g_fIncapCycle) return;
+
+				speedmodifier = g_fIncapCycle *(1.0/0.25);
+			}
+		}
+		else
+		{
+			if(g_fWeapon_CycleTime[weapontype] <= g_fIncapCycle) return;
+
+			speedmodifier = g_fIncapCycle *(1.0/g_fWeapon_CycleTime[weapontype]);
+		}
 	}
 	else
 	{
