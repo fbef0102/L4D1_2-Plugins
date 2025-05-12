@@ -1,4 +1,6 @@
-﻿# Require
+﻿# Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me
+
+# Require
 * [L4D1 Server Install](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D1#server-install)
 * [L4D2 Server Install](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D2#server-install)
 

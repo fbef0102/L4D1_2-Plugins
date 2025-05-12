@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.6h-2025/2/17"
+#define PLUGIN_VERSION			"1.7h-2025/5/12"
 #define PLUGIN_NAME			    "l4d_unreservelobby"
 #define DEBUG 0
 
@@ -45,9 +45,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar sv_allow_lobby_connect_only;
 int sv_allow_lobby_connect_only_default;
 
-ConVar g_hCvarUnreserveFull, g_hCvarUnreserveTrigger;
+ConVar g_hCvarUnreserveFull, g_hCvarUnreserveTrigger, g_hCvarHeartbeatInterval;
 bool g_bCvarUnreserveFull;
 int g_iCvarUnreserveTrigger;
+float g_fCvarHeartbeatInterval;
 
 bool 
 	g_bFirstMap,
@@ -55,7 +56,8 @@ bool
 	g_bIsServerUnreserved;
 
 Handle
-	COLD_DOWN_Timer;
+	g_hCOLD_DOWN_Timer,
+	g_hHearBeat_Timer;
 
 //char
 //	g_sTemporaryReservationID[20]; //長度被left4dhooks綁死
@@ -65,14 +67,16 @@ public void OnPluginStart()
 	sv_allow_lobby_connect_only = FindConVar("sv_allow_lobby_connect_only")
 	sv_allow_lobby_connect_only.AddChangeHook(ConVarChanged_sv_allow_lobby_connect_only);
 
-	g_hCvarUnreserveFull 	= CreateConVar( PLUGIN_NAME ... "_full",		"1", "Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarUnreserveTrigger = CreateConVar( PLUGIN_NAME ... "_trigger", 	"0", "When player number reaches the following number, the server unreserves.\n0 = 8 in versus/scavenge, 4 in coop/survival/realism.\n>0 = Any number greater than zero.", CVAR_FLAGS, true, 0.0, true, 8.0);
-	CreateConVar(           			    PLUGIN_NAME ... "_version",     PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
+	g_hCvarUnreserveFull 		= CreateConVar( PLUGIN_NAME ... "_full",				"1", 	"Automatically unreserve server after server lobby is full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarUnreserveTrigger 	= CreateConVar( PLUGIN_NAME ... "_trigger", 			"0", 	"When player number reaches the following number, server unreserves.\n0 = 8 in versus/scavenge, 4 in coop/survival/realism.\n>0 = Any number greater than zero.", CVAR_FLAGS, true, 0.0, true, 8.0);
+	g_hCvarHeartbeatInterval 	= CreateConVar( PLUGIN_NAME ... "_heartbeat_interval",  "30.0", "Time interval to send heartbeat command to steam master server if server lobby is not full and reserved (0=Off)", CVAR_FLAGS, true, 0.0);
+	CreateConVar(           			    	PLUGIN_NAME ... "_version",     		PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true, PLUGIN_NAME);
 
 	GetCvars();
 	g_hCvarUnreserveFull.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarUnreserveTrigger.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarHeartbeatInterval.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("player_disconnect", 		Event_PlayerDisconnect);
 
@@ -110,17 +114,21 @@ void GetCvars()
 {
 	g_bCvarUnreserveFull = g_hCvarUnreserveFull.BoolValue;
 	g_iCvarUnreserveTrigger = g_hCvarUnreserveTrigger.IntValue;
+	g_fCvarHeartbeatInterval = g_hCvarHeartbeatInterval.FloatValue;
 }
 
 // Sourcemod API Forward-------------------------------
 
 public void OnMapEnd()
 {
-	delete COLD_DOWN_Timer;
+	delete g_hCOLD_DOWN_Timer;
+	delete g_hHearBeat_Timer;
 }
 
 public void OnConfigsExecuted()
 {
+	GetCvars();
+
 	if(g_bFirstLoadedConfigs)
 	{
 		sv_allow_lobby_connect_only_default = sv_allow_lobby_connect_only.IntValue;
@@ -129,11 +137,17 @@ public void OnConfigsExecuted()
 
 	if(!g_bFirstMap)
 	{
-		delete COLD_DOWN_Timer;
-		COLD_DOWN_Timer = CreateTimer(10.0, Timer_COLD_DOWN);
+		delete g_hCOLD_DOWN_Timer;
+		g_hCOLD_DOWN_Timer = CreateTimer(10.0, Timer_COLD_DOWN);
 	}
 
 	g_bFirstMap = false;
+
+	if(g_fCvarHeartbeatInterval > 0.0)
+	{
+		delete g_hHearBeat_Timer;
+		g_hHearBeat_Timer = CreateTimer(g_fCvarHeartbeatInterval, Timer_HearBeat);
+	}
 }
 
 public void OnClientConnected(int client)
@@ -167,14 +181,14 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(userid);
 	if(userid > 0 && client == 0) //player leaves during map change, 此時抓不到任何玩家在連線中, 最好等待數秒後再確定一次
 	{
-		delete COLD_DOWN_Timer;
-		COLD_DOWN_Timer = CreateTimer(3.0, Timer_COLD_DOWN);
+		delete g_hCOLD_DOWN_Timer;
+		g_hCOLD_DOWN_Timer = CreateTimer(3.0, Timer_COLD_DOWN);
 	}
 
 	if(client && !IsFakeClient(client)) //檢查是否還有玩家以外的人還在伺服器
 	{
-		delete COLD_DOWN_Timer;
-		COLD_DOWN_Timer = CreateTimer(3.0, Timer_COLD_DOWN);
+		delete g_hCOLD_DOWN_Timer;
+		g_hCOLD_DOWN_Timer = CreateTimer(3.0, Timer_COLD_DOWN);
 	}
 }
 
@@ -205,7 +219,7 @@ Action Command_Unreserve(int client, int args)
 
 Action Timer_COLD_DOWN(Handle timer, any client)
 {
-	COLD_DOWN_Timer = null;
+	g_hCOLD_DOWN_Timer = null;
 
 	if(CheckIfPlayerInServer(0)) //有玩家在伺服器中
 	{
@@ -225,6 +239,30 @@ Action Timer_COLD_DOWN(Handle timer, any client)
 
 	g_bIsServerUnreserved = false;
 	SetAllowLobby(sv_allow_lobby_connect_only_default);
+
+	return Plugin_Continue;
+}
+
+Action Timer_HearBeat(Handle timer)
+{
+	g_hHearBeat_Timer = null;
+
+	if(g_fCvarHeartbeatInterval <= 0.0)
+	{
+		return Plugin_Continue;
+	}
+
+	if(CheckIfPlayerInServer(0)) //有玩家在伺服器中
+	{
+		if(L4D_LobbyIsReserved() && !IsServerLobbyFull()) //有空位且reserved
+		{
+			// heartbeat 作用如下
+			// "告訴Steam Master Server，此伺服器還活著並且有空位，強制更新狀態 (Steam Master Server比較能夠抓人匹配進來填滿空位)""
+			ServerCommand("heartbeat");
+		}
+
+		g_hHearBeat_Timer = CreateTimer(g_fCvarHeartbeatInterval, Timer_HearBeat);
+	}
 
 	return Plugin_Continue;
 }

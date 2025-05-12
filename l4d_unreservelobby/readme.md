@@ -23,31 +23,57 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 			* Unable to connect server from lobby
 	* (After)
 		1. Automatically removes lobby reservation once server is full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
-			* New players is allowed to join the server, they can connect via the console or server browser
-			* Set ```sv_allow_lobby_connect_only 0```
+			* New players is allowed to join the server, they can connect to server via the console or server browser
+			* Automatically Set ```sv_allow_lobby_connect_only 0```
 		2. Automatically Removes lobby reservation once all players have disconnected
 			* Players can connect from a lobby again
-			* Set ```sv_allow_lobby_connect_only``` back to default
-	* In short, if you want multi slots server, must install
+			* Automatically Set ```sv_allow_lobby_connect_only``` back to default
+	* In short, if you want to play multi slots server, must install
 		1. This l4d_unreservelobby plugin
 		2. And **l4dtoolz** (see Require below)
 </details>
 
 * Require
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-	2. To open more server slots, you must install [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz)
+	2. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock more than 8 slots
+
+* <details><summary>Q&A</summary>
+
+	* How to install 8+ slots coop/versus server?
+		* [Read this](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8+_Survivors_In_Coop)
+
+	* What is lobby reserved?
+		* Create a lobby -> Server Type: ```Best Avaliable Dedicated``` -> Types ```mm_dedicated_force_servers xxxxxx``` in game console -> Start The Game
+			* xxxxx is ip
+		* The dedicated server will register with **Steam master server**, and Steam master will send the reserved cookie to your dedicated server
+		* Steam master server always tracks and checks your server if your server keeps reserved.
+		* Once your server is reserved and not full, Steam master server will try to send random players to your server via matchmaking (finding random game)
+	
+	* How to check if server is reserved?
+		* Type ```status``` in server console
+			* If you see ```(reserved xxxxxxx)```, then server is reserved
+			* If you see ```(unreserved)```, then server is unreserved
+
+	* What is ```heartbeat``` command?
+		* All it does is to force updated server status to steam master server (Such as amount of players, latency and so fort, useful for matchmaking and serverbrowser). 
+		* Basically yelling to master server "HEY, I'M STILL ALIVE AND PLEASE GIVE ME PLAYERS"
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d_unreservelobby.cfg
 		```php
-		// Automatically unreserve server after server lobby reserved and full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)
+		// Automatically unreserve server after server lobby is full in gamemode (8 in versus/scavenge, 4 in coop/survival/realism)
 		l4d_unreservelobby_full "1"
 
-		// When player number reaches the following number, the server unreserves.
-		// 0 = 8 in versus/scavenge, 4 in coop/survival/realis.
+		// When player number reaches the following number, server unreserves.
+		// 0 = 8 in versus/scavenge, 4 in coop/survival/realism.
 		// >0 = Any number greater than zero.
 		l4d_unreservelobby_trigger "0"
+
+		// Time interval to send heartbeat command to steam master server if server lobby is not full and reserved (0=Off)
+		// Check "Q&A" above if you want to know what heartbeat command is
+		l4d_unreservelobby_heartbeat_interval "30.0"
 		```
 </details>
 
@@ -61,6 +87,7 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.7h (2025-5-12)
 	* v1.6h (2025-2-17)
 	* v1.5h (2025-2-13)
 	* v1.4h (2024-12-28)
@@ -123,33 +150,31 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		* [開大廳，匹配](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝伺服器與插件#如何從大廳匹配到專屬伺服器)
 
 	* 什麼是大廳reserved cookie?
-		1. 中文是預定的餅乾(X)，類似去飯店預設房間，已經被訂走的房間無法給其他人入住
-		2. 不用想太多這名詞，直接看有無大廳reserved cookie的差別
+		1. 中文是預定的餅乾(X)，表示飯店已預設房間，已經被訂走的房間無法給其他人入住
+		2. 當專屬伺服器被大廳匹配時，會註冊至**Steam Master Server**(也就是Steam主伺服器)，Steam Master會產生一串代碼給專屬伺服器，此代碼就是reserved cookie
+		3. 只要你的專屬伺服器保持reserved，Steam Master就會持續追蹤並檢查你的專屬伺服器狀態
+		4. 當Steam Master發現你伺服器狀態是reserved且還有空位時，就會持續吸引路人進來 (路人找遊戲匹配時會被騙進來的意思)
+
+	* 怎麼知道伺服器有大廳reserved cookie?
+		1. 遊戲控制台或伺服器後台輸入```status```，如果看到```(reserved xxxxx)```，那就是有，反之亦然
 
 	* 有大廳reserved cookie時
-		1. 模式滿人時 (對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家均不能再加入伺服器，即使伺服器設置30個位子依然無法加入
+		1. 模式沒有滿人時
+			* 伺服器會吸路人匹配進來
+		2. 模式滿人時 (對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家均不能再加入伺服器，即使伺服器設置30個位子依然無法加入
 			* 無法直連
 			* 無法加入好友房間
 			* 無法從伺服器瀏覽加入
 			* 伺服器停止吸路人匹配進來
-		2. 無人時 (所有玩家已離開)
-			* 無法從大廳匹配
-			* 伺服器停止吸路人匹配進來
-		3. 模式沒有滿人時
-			* 伺服器會吸路人匹配進來
 
 	* 無大廳reserved cookie時
-		1. 模式滿人時(對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家可以加入伺服器
+		1. 模式沒有滿人時
+			* 伺服器停止吸路人匹配進來
+		2. 模式滿人時(對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家可以加入伺服器
 			* 可直連
 			* 可加入好友房間
 			* 可從伺服器瀏覽加入
 			* 伺服器停止吸路人匹配進來
-		2. 無人時(所有玩家已離開)
-			* 可從大廳匹配
-			* 伺服器停止吸路人匹配進來
-		4. 模式沒有滿人時
-			* 如果第一個玩家是從大廳匹配，伺服器會吸路人匹配進來
-			* 如果第一個玩家不是從大廳匹配，伺服器停止吸路人匹配進來
 
 	* 何時會有大廳reserved cookie?
 		1. 設置指令```sv_allow_lobby_connect_only 1```，且第一位玩家透過以下方式加入伺服器
@@ -160,11 +185,12 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		2. 設置指令```sv_allow_lobby_connect_only 0```，且第一位玩家透過以下方式加入伺服器
 			* 大廳匹配
 
-	* 怎麼知道伺服器有大廳reserved cookie?
-		1. 遊戲控制台或伺服器後台輸入```status```，如果看到reserved xxxxx，那就是有，反之亦然
-
 	* ```sv_allow_lobby_connect_only```與大廳之間的關係圖, [圖來源: Hatsune-Imagine/l4d2-plugins/l4d2_unreservelobby](https://github.com/Hatsune-Imagine/l4d2-plugins/tree/main/l4d2_unreservelobby)
 	<br/>![l4d_unreservelobby_2](image/l4d_unreservelobby_2.jpg)
+
+	* 什麼是 ```heartbeat``` 指令?
+		* 強制更新伺服器狀態至 Steam Master Server (譬如: 玩家數量、延遲、地區...). 
+		* 告訴 Steam Master "嘿! 我這伺服器還他馬活著，請分配路人玩家給我"
 
 	> 詳細功能依然有很多未解之謎，問就是Valve的鍋，我們吃瓜就好
 </details>
@@ -180,6 +206,10 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		// 0 = 對抗/清道夫下8人, 戰役/生存/寫實下4人
 		// >0 = 任何大於0的自定義人數
 		l4d_unreservelobby_trigger "0"
+
+		// (如果伺服器是reserved且還有空位的時候) 每隔一段時間傳送 heartbeat 指令，將伺服器狀態更新至Steam Master Server
+		// (0=關閉此功能, heartbeat指令介紹 請查看上方問題Q&A)
+		l4d_unreservelobby_heartbeat_interval "30.0"
 		```
 </details>
 
