@@ -70,6 +70,7 @@
 		"zho"	"[{olive}TS{default}] 你已被轉換到 {lightgreen}旁觀者"
 		"chi"	"[{olive}TS{default}] 你已被转换到 {lightgreen}旁观者"
 		"ru"	"[{olive}TS{default}] Вас перевели в {lightgreen}наблюдатели"
+                "hu"	"[{olive}TS{default}] Átváltottál a {lightgreen}nézők közé"
 	}	
 }
 
