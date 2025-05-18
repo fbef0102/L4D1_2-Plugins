@@ -6,6 +6,7 @@
 		"zho"		"{olive}%N{green} 觸發了警報車!"
 		"chi"		"{olive}%N{green} 触发了警报车!"
 		"ru"		"{olive}%N{green} провоцирует сигнализацию машины!"
+                "hu"		"{olive}%N{green} beindított egy riasztós autót!"
 	}
 	"Horde"
 	{
@@ -13,13 +14,15 @@
 		"zho"		"{olive}%N{green} 觸發了屍潮事件!"
 		"chi"		"{olive}%N{green} 触发了尸潮事件!"
 		"ru"		"{olive}%N{green} провоцирует орду!"
+                "hu"		"{olive}%N{green} beindított egy horda eseményt!"
 	}
 	"Final Rescue Start"
 	{
-		"en"		"{green}Final Rescure has started!"
+		"en"		"{green}Final Rescue has started!"
 		"zho"		"{green}最後救援開始!"
 		"chi"		"{green}最后救援开始!"
 		"ru"		"{green}Спасение последнего этапа началось!"
+                "hu"		"{green}A végső mentés megkezdődött!"
 	}
 	"Final Rescue"
 	{
@@ -27,5 +30,6 @@
 		"zho"		"{blue}%N{olive} 觸發了救援開關!"
 		"chi"		"{blue}%N{olive} 触发了救援开关!"
 		"ru"		"{blue}%N{olive} начинает спасение последнего этапа!"
+                "hu"		"{blue}%N{olive} beindította a végső mentést!"
 	}
 }
