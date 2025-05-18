@@ -325,6 +325,7 @@
         "ru" 	"Извините! Баланс команды нарушен, слишком много игроков в команде выживших!"
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在生還者隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在生还者队伍!"
+                "hu" 	"Sajnálom! A csapat kiegyensúlyozatlan, túl sok játékos van a fertőzött csapatban!"
 	}
 	"Too many infected, unbalance"
 	{
@@ -333,6 +334,7 @@
 		"ru" 	"Извините! Баланс команды нарушен, слишком много игроков в команде заражённых!"
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在特感隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在特感队伍!"
+                "hu" 	"Nem lehet csapatot váltani felállás vagy tántorgás közben!"
 	}
 	"Get Up Stagger Block"
 	{
@@ -341,6 +343,7 @@
 		"ru" 	"Нельзя сменить команду, вставая или пошатываясь!"
 		"zho" 	"起身或硬直狀態中禁止換隊!"
 		"chi" 	"起身或硬直状态中禁止换队!"
+                "hu"	"Nem lehet csapatot váltani a gránátvető lövése után"
 	}
 	"Can not change team after grenade"
 	{
@@ -349,6 +352,7 @@
 		"ru"			"Невозможно сменить команду после выстрела из гранатомёта"
 		"zho"			"榴彈發射期間禁止換隊."
 		"chi"			"榴弹发射期间禁止换队."
+                "hu"			"Nem lehet csapatot váltani a gránátvető lövése után"
 	}
 	"Idle Wait"
 	{
@@ -358,11 +362,13 @@
 		"ru"			"Пожалуйста, подождите {1} сек., чтобы играть!!"
 		"zho"			"請等待 {1} 秒遊玩倖存者."
 		"chi"			"请等待 {1} 秒游玩幸存者."
+                "hu"			"Kérlek várj {1} másodperc(et) a játékhoz!!"
 	}
 	"Bile Block"
 	{
 		"en" 	"Can not change team while covered in bile!"
 		"zho" 	"被膽汁淋在身上時禁止換隊"
 		"chi" 	"被胆汁淋在身上时禁止换队"
+                "hu" 	"Nem tudsz csapatott váltani, miközben epével vagy borítva!"
 	}
 }
