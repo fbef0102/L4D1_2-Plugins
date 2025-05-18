@@ -6,6 +6,7 @@
 		"en"		"({green}Item{default}) {olive}{1}{default}: {2}"
 		"zho"		"({green}物品{default}) {olive}{1}{default}: {2}"
 		"chi"		"({green}物品{default}) {olive}{1}{default}: {2}"
+                 "hu"		"({green}Tétel{default}) {olive}{1}{default}: {2}"
 	}
 
 	"Announce_Vocalize_ITEM"
@@ -14,6 +15,7 @@
 		"en"		"(Item) {1}: {2}"
 		"zho"		"(物品) {1}: {2}"
 		"chi"		"(物品) {1}: {2}"
+                "hu"		"(Tétel) {1}: {2}"
 	}
 
 	"Announce_Vocalize_INFECTED (C)"
@@ -22,6 +24,7 @@
 		"en"		"({green}Infected{default}) {olive}{1}{default}: {red}{2}"
 		"zho"		"({green}特感{default}) {olive}{1}{default}: {red}{2}"
 		"chi"		"({green}特感{default}) {olive}{1}{default}: {red}{2}"
+                 "hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {red}{2}"
 	}
 
 	"Announce_Vocalize_INFECTED"
@@ -30,6 +33,7 @@
 		"en"		"(Infected) {1}: {2}"
 		"zho"		"(特感) {1}: {2}"
 		"chi"		"(特感) {1}: {2}"
+                "hu"		"(Fertőzött) {1}: {2}"
 	}
 
 	"Announce_Vocalize_SURVIVOR (C)"
@@ -38,6 +42,7 @@
 		"en"		"({green}Survivor{default}) {olive}{1}{default}: {Blue}{2}"
 		"zho"		"({green}倖存者{default}) {olive}{1}{default}: {Blue}{2}"
 		"chi"		"({green}生还者{default}) {olive}{1}{default}: {Blue}{2}"
+                 "hu"		"({green}Túlélő{default}) {olive}{1}{default}: {Blue}{2}"
 	}
 
 	"Announce_Vocalize_SURVIVOR"
@@ -46,6 +51,7 @@
 		"en"		"(Survivor) {1}: {2}"
 		"zho"		"(倖存者) {1}: {2}"
 		"chi"		"(生还者) {1}: {2}"
+                "hu"		"(Túlélő) {1}: {2}"
 	}	
 	
 	"MARKED_SURVIVOR_BY (C)"
@@ -54,6 +60,7 @@
 		"en"		"[{green}Marker{default}] You were marked by {olive}{1}"
 		"zho"		"[{green}Marker{default}] 你被 {olive}{1} 標記"
 		"chi"		"[{green}Marker{default}] 你被 {olive}{1} 标记"
+                 "hu"		"[{green}Jelölő{default}] Megjelölt téged: {olive}{1}"
 	}
 
 	"MARKED_SURVIVOR_BY"
@@ -62,6 +69,7 @@
 		"en"		"[Marker] You were marked by {1}"
 		"zho"		"[Marker] 你被 {1} 標記"
 		"chi"		"[Marker] 你被 {1} 标记"
+                "hu"		"[Jelölő] Megjelölt téged: {1}"
 	}
 
 	"Announce_Spot_Marker (C)"
@@ -70,6 +78,7 @@
 		"en"		"({green}Spot{default}) {olive}{1}{default} marked a position"
 		"zho"		"({green}標記{default}) {olive}{1}{default} 標記了一個位置"
 		"chi"		"({green}标记{default}) {olive}{1}{default} 标记了一个位置"
+                 "hu"		"({green}Jelölés{default}) {olive}{1}{default} megjelölt egy pozíciót"
 	}
 
 	"Announce_Spot_Marker"
@@ -78,6 +87,7 @@
 		"en"		"(Spot) {1} marked a position"
 		"zho"		"(標記) {1} 標記了一個位置"
 		"chi"		"(标记) {1} 标记了一个位置"
+                "hu"		"(Jelölés) {1} megjelölt egy pozíciót"
 	}
 
 	"Spot_Maker"
@@ -89,6 +99,7 @@
 		"en"		"{1} Marked Here"
 		"zho"		"{1} 標記了這裡"
 		"chi"		"{1} 标记了这里"
+                "hu"		"{1} Itt jelölt"
 	}
 
 	"Melee"
@@ -96,6 +107,7 @@
 		"en"		"Melee!"
 		"zho"		"近戰!"
 		"chi"		"近战!"
+                 "hu"		"Közelharci!"
 	}
 
 	"Weapons"
@@ -103,6 +115,7 @@
 		"en"		"Weapons!"
 		"zho"		"武器!"
 		"chi"		"武器!"
+                "hu"		"Fegyverek!"
 	}
 
 	"First_Aid_Kit"
@@ -110,6 +123,7 @@
 		"en"			"First Aid Kit!"
 		"zho"			"醫療包!"
 		"chi"			"医疗包!"
+                "hu"			"Elsősegély csomag!"
 	}
 
 	"Defibrillator"
@@ -117,6 +131,7 @@
 		"en"			"Defibrillator!"
 		"zho"			"電擊器!"
 		"chi"			"除颤器!"
+                "hu"			"Defibrillátor!"
 	}
 
 	"Pain_Pills"
@@ -124,6 +139,7 @@
 		"en"			"Pain Pills!"
 		"zho"			"止痛藥!"
 		"chi"			"止痛药!"
+                "hu"			"Fájdalomcsillapító!"
 	}
 
 	"Adrenaline"
@@ -131,6 +147,7 @@
 		"en"			"Adrenaline!"
 		"zho"			"腎上腺素!"
 		"chi"			"肾上腺素!"
+                "hu"			"Adrenalin!"
 	}
 
 	"Bile_Bomb"
@@ -138,6 +155,7 @@
 		"en"			"Bile Bomb!"
 		"zho"			"膽汁瓶!"
 		"chi"			"胆汁瓶!"
+                "hu"			"Epe tartály!"
 	}
 
 	"Molotov"
@@ -145,6 +163,7 @@
 		"en"			"Molotov!"
 		"zho"			"火瓶!"
 		"chi"			"燃烧瓶!"
+                "hu"			"Molotov!"
 	}
 
 	"Pipe_Bomb"
@@ -152,6 +171,7 @@
 		"en"			"Pipe Bomb!"
 		"zho"			"土製炸彈!"
 		"chi"			"管状手雷!"
+                "hu"			"Csőbomba!"
 	}
 
 	"Laser_Sight"
@@ -159,6 +179,7 @@
 		"en"			"Laser Sight!"
 		"zho"			"雷射裝置!"
 		"chi"			"激光瞄准器!"
+                "hu"			"Lézer irányzék!"
 	}
 
 	"Incendiary_UpgradePack"
@@ -166,6 +187,7 @@
 		"en"			"Incendiary UpgradePack!"
 		"zho"			"火焰彈藥包!"
 		"chi"			"燃烧弹药包!"
+                "hu"			"Gyújtólövedék!"
 	}
 
 	"Explosive_UpgradePack"
@@ -173,6 +195,7 @@
 		"en"			"Explosive UpgradePack!"
 		"zho"			"高爆彈藥包!"
 		"chi"			"高爆弹药包!"
+                "hu"			"Robbanó lövedék!"
 	}
 
 	"Ammo"
@@ -180,6 +203,7 @@
 		"en"			"Ammo!"
 		"zho"			"子彈堆!"
 		"chi"			"子弹堆!"
+                "hu"			"Lőszer!"
 	}
 
 	"Chainsaw"
@@ -187,6 +211,7 @@
 		"en"			"Chainsaw!"
 		"zho"			"電鋸!"
 		"chi"			"电锯!"
+                "hu"			"Láncfűrész!"
 	}
 
 	"Pistol"
@@ -194,6 +219,7 @@
 		"en"			"Pistol!"
 		"zho"			"手槍!"
 		"chi"			"手枪!"
+                "hu"			"Pisztoly!"
 	}
 
 	"Magnum"
@@ -201,6 +227,7 @@
 		"en"			"Magnum!"
 		"zho"			"麥格農!"
 		"chi"			"马格南!"
+                "hu"			"Magnum!"
 	}
 
 	"Pump_Shotgun"
@@ -208,6 +235,7 @@
 		"en"			"Pump Shotgun!"
 		"zho"			"木製霰彈槍!"
 		"chi"			"泵动霰弹枪!"
+                "hu"			"Pumpás sörétes puska!"
 	}
 
 	"Shotgun_Chrome"
@@ -215,6 +243,7 @@
 		"en"			"Shotgun Chrome!"
 		"zho"			"鐵製霰彈槍!"
 		"chi"			"铬管霰弹枪!"
+                "hu"			"Króm sörétes puska!"
 	}
 
 	"Uzi"
@@ -222,6 +251,7 @@
 		"en"			"Uzi!"
 		"zho"			"UZI衝鋒槍!"
 		"chi"			"UZI冲锋枪!"
+                "hu"			"Uzi!"
 	}
 
 	"Silenced_Smg"
@@ -229,6 +259,7 @@
 		"en"			"Silenced Smg!"
 		"zho"			"SMG衝鋒槍!"
 		"chi"			"SMG冲锋枪!"
+                "hu"			"Némított Smg!"
 	}
 
 	"MP5"
@@ -236,6 +267,7 @@
 		"en"			"MP5!"
 		"zho"			"MP5!"
 		"chi"			"MP5冲锋枪!"
+                "hu"			"MP5!"
 	}
 
 	"Rifle"
@@ -243,6 +275,7 @@
 		"en"			"Rifle!"
 		"zho"			"M16步槍!"
 		"chi"			"M16步枪!"
+                "hu"			"Puska!"
 	}
 
 	"SG552"
@@ -250,6 +283,7 @@
 		"en"			"SG552!"
 		"zho"			"SG552步槍!"
 		"chi"			"SG552步枪!"
+                "hu"			"SG552!"
 	}
 
 	"AK47"
@@ -257,6 +291,7 @@
 		"en"			"AK47!"
 		"zho"			"AK47!"
 		"chi"			"AK47步枪!"
+                "hu"			"AK47!"
 	}
 
 	"Desert_Rifle"
@@ -264,6 +299,7 @@
 		"en"			"Desert Rifle!"
 		"zho"			"SCAR步槍!"
 		"chi"			"SCAR步枪!"
+                "hu"			"Sivatagi Puska!"
 	}
 
 	"Shotgun_Spas"
@@ -271,6 +307,7 @@
 		"en"			"Shotgun Spas!"
 		"zho"			"SPAS連發霰彈槍!"
 		"chi"			"SPAS霰弹枪!"
+                "hu"			"Taktikai Sörétes Puska!"
 	}
 
 	"Auto_Shotgun"
@@ -278,6 +315,7 @@
 		"en"			"Auto Shotgun!"
 		"zho"			"自動連發霰彈槍!"
 		"chi"			"M1014霰弹枪!"
+                "hu"			"Automata Sörétes Puska!"
 	}
 
 	"Hunting_Rifle"
@@ -285,6 +323,7 @@
 		"en"			"Hunting Rifle!"
 		"zho"			"獵槍!"
 		"chi"			"狩猎狙击步枪!"
+                "hu"			"Vadász Puska!"
 	}
 
 	"Military_Sniper"
@@ -292,6 +331,7 @@
 		"en"			"Military Sniper!"
 		"zho"			"軍用狙擊槍!"
 		"chi"			"军用狙击步枪!"
+                "hu"			"Katonai Mesterlövész Puska!"
 	}
 
 	"Scout"
@@ -299,6 +339,7 @@
 		"en"			"Scout!"
 		"zho"			"Scout!"
 		"chi"			"侦察狙击步枪!"
+                "hu"			"Felderítő Puska!"
 	}
 
 	"AWP"
@@ -306,6 +347,7 @@
 		"en"			"AWP!"
 		"zho"			"AWP!"
 		"chi"			"AWP狙击步枪!"
+                "hu"			"AWP!"
 	}
 
 	"Grenade_Launcher"
@@ -313,6 +355,7 @@
 		"en"			"Grenade Launcher!"
 		"zho"			"榴彈發射器!"
 		"chi"			"榴弹发射器!"
+                "hu"			"Gránátvető!"
 	}
 
 	"M60"
@@ -320,6 +363,7 @@
 		"en"			"M60!"
 		"zho"			"M60機關槍!"
 		"chi"			"M60机枪!"
+                "hu"			"M60!"
 	}
 
 	"Gas_Can"
@@ -327,6 +371,7 @@
 		"en"			"Gas Can!"
 		"zho"			"汽油桶!"
 		"chi"			"汽油桶!"
+                "hu"			"Gáztartály!"
 	}
 
 	"Firework"
@@ -334,6 +379,7 @@
 		"en"			"Firework!"
 		"zho"			"煙火盒!"
 		"chi"			"烟花盒!"
+                "hu"			"Tűzijáték!"
 	}
 
 	"Propane_Tank"
@@ -341,6 +387,7 @@
 		"en"			"Propane Tank!"
 		"zho"			"瓦斯罐!"
 		"chi"			"丙烷罐!"
+                "hu"			"Propántartály!"
 	}
 
 	"Oxygen_Tank"
@@ -348,6 +395,7 @@
 		"en"			"Oxygen Tank!"
 		"zho"			"氧氣罐!"
 		"chi"			"氧气罐!"
+                "hu"			"Oxigéntartály!"
 	}
 
 	"Gnome"
@@ -355,6 +403,7 @@
 		"en"			"Gnome!"
 		"zho"			"精靈小矮人!"
 		"chi"			"侏儒!"
+                "hu"			"Törpe!"
 	}
 
 	"Cola"
@@ -362,6 +411,7 @@
 		"en"			"Cola!"
 		"zho"			"可樂!"
 		"chi"			"可乐!"
+                "hu"			"Kóla!"
 	}
 
 	"50_Cal_Machine_Gun"
@@ -369,6 +419,8 @@
 		"en"			".50 Cal Machine Gun!"
 		"zho"			".50口徑固定機槍!"
 		"chi"			".50口径固定机枪!"
+                "hu"			".50 Kaliberes Gépfegyver!"
+
 	}
 
 	"Minigun"
@@ -376,6 +428,7 @@
 		"en"			"Minigun!"
 		"zho"			"迷你砲固定機槍!"
 		"chi"			"加特林固定机枪!"
+                "hu"			"Géppuska!"
 	}
 
 	"Explosive_Ammo"
@@ -383,6 +436,7 @@
 		"en"			"Explosive Ammo!"
 		"zho"			"高爆子彈!"
 		"chi"			"高爆弹药!"
+                "hu"			"Robbanó Lőszer!"
 	}
 
 	"Incendiary_Ammo"
@@ -390,6 +444,7 @@
 		"en"			"Incendiary Ammo!"
 		"zho"			"燃燒子彈!"
 		"chi"			"燃烧弹药!"
+                "hu"			"Gyújtó Lőszer!"
 	}
 
 	"Knife"
@@ -397,6 +452,7 @@
 		"en"			"Knife!"
 		"zho"			"小刀!"
 		"chi"			"小刀!"
+                "hu"			"Kés!"
 	}
 
 	"Baseball_Bat"
@@ -404,6 +460,7 @@
 		"en"			"Baseball Bat!"
 		"zho"			"球棒!"
 		"chi"			"棒球棍!"
+                "hu"			"Baseball ütő!"
 	}
 
 	"Cricket_Bat"
@@ -411,6 +468,7 @@
 		"en"			"Cricket Bat!"
 		"zho"			"板球拍!"
 		"chi"			"板球棍!"
+                "hu"			"Krikett ütő!"
 	}
 
 	"Crowbar"
@@ -418,6 +476,7 @@
 		"en"			"Crowbar!"
 		"zho"			"鐵撬!"
 		"chi"			"撬棍!"
+                "hu"			"Feszítővas!"
 	}
 
 	"Electric_Guitar"
@@ -425,6 +484,7 @@
 		"en"			"Electric Guitar!"
 		"zho"			"電吉他!"
 		"chi"			"电吉他!"
+                "hu"			"Elektromos Gitár!"
 	}
 
 	"Fireaxe"
@@ -432,6 +492,7 @@
 		"en"			"Fireaxe!"
 		"zho"			"消防斧!"
 		"chi"			"消防斧!"
+                "hu"			"Tűzoltó Fejsze!"
 	}
 
 	"Frying_Pan"
@@ -439,6 +500,7 @@
 		"en"			"Frying Pan!"
 		"zho"			"平底鍋!"
 		"chi"			"平底锅!"
+                "hu"			"Serpenyő!"
 	}
 
 	"Katana"
@@ -446,6 +508,7 @@
 		"en"			"Katana!"
 		"zho"			"武士刀!"
 		"chi"			"武士刀!"
+                "hu"			"Katana!"
 	}
 
 	"Machete"
@@ -453,6 +516,7 @@
 		"en"			"Machete!"
 		"zho"			"開山刀!"
 		"chi"			"砍刀!"
+                "hu"			"Bozótvágó Kés!"
 	}
 
 	"Nightstick"
@@ -460,6 +524,7 @@
 		"en"			"Nightstick!"
 		"zho"			"警棍!"
 		"chi"			"警棍!"
+                "hu"			"Gumibot!"
 	}
 
 	"Golf_Club"
@@ -467,6 +532,7 @@
 		"en"			"Golf Club!"
 		"zho"			"高爾夫球棍!"
 		"chi"			"高尔夫球棍!"
+                "hu"			"Golf Ütő!"
 	}
 
 	"Pitchfork"
@@ -474,6 +540,7 @@
 		"en"			"Pitchfork!"
 		"zho"			"草叉!"
 		"chi"			"干草叉!"
+                "hu"			"Vasvilla!"
 	}
 
 	"Shovel"
@@ -481,6 +548,7 @@
 		"en"			"Shovel!"
 		"zho"			"鏟子!"
 		"chi"			"铲子!"
+                "hu"			"Ásó!"
 	}
 
 	"Boomer"
@@ -488,6 +556,7 @@
 		"en"			"Boomer!"
 		"zho"			"Boomer!"
 		"chi"			"Boomer!"
+                "hu"			"Pukkancs!"
 	}
 
 	"Spitter"
@@ -495,6 +564,7 @@
 		"en"			"Spitter!"
 		"zho"			"Spitter!"
 		"chi"			"Spitter!"
+                "hu"			"Köpködő!"
 	}
 
 	"Smoker"
@@ -502,6 +572,7 @@
 		"en"			"Smoker!"
 		"zho"			"Smoker!"
 		"chi"			"Smoker!"
+                "hu"			"Füstös!"
 	}
 
 	"Hunter"
@@ -509,6 +580,7 @@
 		"en"			"Hunter!"
 		"zho"			"Hunter!"
 		"chi"			"Hunter!"
+                "hu"			"Vadász!"
 	}
 
 	"Jockey"
@@ -516,6 +588,7 @@
 		"en"			"Jockey!"
 		"zho"			"Jockey!"
 		"chi"			"Jockey!"
+                "hu"			"Zsoké!"
 	}
 
 	"Charger"
@@ -523,6 +596,7 @@
 		"en"			"Charger!"
 		"zho"			"Charger!"
 		"chi"			"Charger!"
+                "hu"			"Rohanó!"
 	}
 
 	"Tank"
@@ -530,6 +604,7 @@
 		"en"			"Tank!"
 		"zho"			"Tank!"
 		"chi"			"Tank!"
+                "hu"			"Tank!"
 	}
 
 	"Witch"
@@ -537,6 +612,7 @@
 		"en"			"Witch!"
 		"zho"			"Witch!"
 		"chi"			"Witch!"
+                "hu"			"Boszorka!"
 	}
 
 	"Witch_Bride"
@@ -544,6 +620,7 @@
 		"en"			"Witch Bride!"
 		"zho"			"新娘 Witch!"
 		"chi"			"Witch Bride!"
+                "hu"			"Menyasszony Boszorka!"
 	}	
 	
 	"Unknown Infected"
@@ -551,5 +628,6 @@
 		"en"			"Unknown Infected"
 		"zho"			"未知的特感!"
 		"chi"			"未知的特感!"
+                "hu"			"Ismeretlen Fertőzött!"
 	}
 }
