@@ -1,6 +1,12 @@
 # Description | 內容
 Let admins spawn any kind of objects and saved to cfg
 
+* Apply to | 適用於
+	```
+	L4D1
+	L4D2
+	```
+
 * Work | 作品展示
     * [Unlimited Map C8 by Harry](https://youtu.be/I_-QSn8F8Cs)
     * [L4D2-Unlimited-Map](https://github.com/fbef0102/L4D2-Unlimited-Map)
@@ -167,18 +173,15 @@ Let admins spawn any kind of objects and saved to cfg
 		```
 </details>
 
-* Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
-
 * Translation Support | 支援翻譯
 	```
 	translations/l4d2_spawn_props.phrases.txt
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v4.2 (2025-5-23)
+		* Suppprt float number
 
 	* v4.1 (2024-3-24)
 		* Fixed error

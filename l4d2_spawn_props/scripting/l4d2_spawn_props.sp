@@ -6,7 +6,7 @@
 #include <left4dhooks>
 #include <multicolors>
 #define DEBUG 0
-#define GETVERSION "4.1-2024/3/24"
+#define GETVERSION "4.2-2025/5/23"
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -3128,18 +3128,18 @@ Action CmdRotate(int client, int args)
 	GetCmdArg(2, arg2, sizeof(arg2));
 	float vecAngles[3];
 	GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
-	int iAngles = StringToInt(arg2);
+	float fAngles = StringToFloat(arg2);
 	if(strcmp(arg1, "x")== 0)
 	{
-		vecAngles[0] += iAngles;
+		vecAngles[0] += fAngles;
 	}
 	else if(strcmp(arg1, "y")== 0)
 	{
-		vecAngles[1] += iAngles;
+		vecAngles[1] += fAngles;
 	}
 	else if(strcmp(arg1, "z")== 0)
 	{
-		vecAngles[2] += iAngles;
+		vecAngles[2] += fAngles;
 	}
 	else
 	{
