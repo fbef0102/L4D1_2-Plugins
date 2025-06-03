@@ -81,6 +81,9 @@ Fixed the final stage get stucked
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.4h (2025-6-3)
+        * Stop timer when scavenge gas event
+
     * v1.3h (2025-3-6)
         * Upate cvars
 

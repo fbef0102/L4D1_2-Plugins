@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "1.3h-2025/3/6"
+#define PLUGIN_VERSION "1.4h-2025/6/4"
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -432,6 +432,19 @@ Action tmrCheckStageStuck(Handle timer)
 		#endif
 
 		return Plugin_Continue;
+	}
+
+	if(g_bL4D2Version)
+	{
+		int entity = -1;
+		while ((entity = FindEntityByClassname(entity, "game_scavenge_progress_display")) != -1)
+		{
+			if (!IsValidEntity(entity))
+				continue;
+
+			if(GetEntProp(entity, Prop_Data, "m_bActive") == 1) // scavenge gas event
+				return Plugin_Continue;
+		}	
 	}
 
 	g_iPanicTimeout--;
