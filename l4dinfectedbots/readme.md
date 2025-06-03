@@ -386,12 +386,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	* **Control special zombies spawn timer until next map or data is reloaded (Adm Required: ADMFLAG_ROOT)**
 		```php
-		sm_timer
+		sm_timer <time seconds>
 		```
 
 	* **Control max special zombies limit until next map or data is reloaded (Adm Required: ADMFLAG_ROOT)**
 		```php
-		sm_zlimit
+		sm_zlimit <number>
 		```
 </details>
 
@@ -912,11 +912,11 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	* **設置特感的生成時間，直到關卡結束或是重新載入data (權限: ADMFLAG_ROOT)**
 		```php
-		sm_timer
+		sm_timer <時間秒數>
 		```
 
 	* **設置場上特感的數量上限，直到關卡結束或是重新載入data (權限: ADMFLAG_ROOT)**
 		```php
-		sm_zlimit
+		sm_zlimit <數量>
 		```
 </details>

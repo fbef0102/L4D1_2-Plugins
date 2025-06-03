@@ -17,7 +17,7 @@ Downloading fastdl custom files only when map change/transition
 * Require | 必要安裝
 	1. 🟥 Use this plugin only when you have [fastdl set](https://developer.valvesoftware.com/wiki/FastDL)
 		* 🟥 有使用自己準備的[網空支援Fastdl](https://developer.valvesoftware.com/wiki/Zh/FastDL)，才需要安裝此插件
-	2. [[INC] stringtables_data](https://forums.alliedmods.net/showthread.php?t=319828)
+	2. [[INC] stringtables_data](https://github.com/fbef0102/Game-Private_Plugin/blob/main/L4D_%E6%8F%92%E4%BB%B6/Require_%E6%AA%94%E6%A1%88/scripting/include/stringtables_data.inc)
 
 * <details><summary>Support | 支援插件</summary>
 
