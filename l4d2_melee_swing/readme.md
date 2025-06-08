@@ -1,13 +1,13 @@
 # Description | 內容
 Adjustable melee swing rate for each melee weapon.
 
-* Image | 圖示
-	<br/>![l4d2_melee_swing_1](image/l4d2_melee_swing_1.gif)
-
 * Apply to | 適用於
     ```
     L4D2
     ```
+
+* Image | 圖示
+	<br/>![l4d2_melee_swing_1](image/l4d2_melee_swing_1.gif)
 
 * Require | 必要安裝
  <br/>None

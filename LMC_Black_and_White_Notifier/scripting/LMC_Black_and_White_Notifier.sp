@@ -8,10 +8,11 @@
 #include <sdkhooks>
 #include <left4dhooks>
 #include <multicolors>
+#include <l4d_heartbeat>
 
 native int LMC_GetClientOverlayModel(int iClient);
 
-#define PLUGIN_VERSION "1.1h-2023/6/23"
+#define PLUGIN_VERSION "1.2h-2025/6/8"
 
 ConVar hCvar_Enabled = null;
 ConVar hCvar_GlowEnabled = null;
@@ -156,19 +157,27 @@ void CvarsChanged()
 void eReviveSuccess(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(!bEnabled)
-	return;
+		return;
 	
+	// 如果最後一次倒地時使用give health, 此參數依然為true (必須使用Heartbeat_GetRevives 判定)
 	if(!event.GetBool("lastlife"))
-	return;
-	
-	int iClient;
-	iClient = GetClientOfUserId(event.GetInt("subject"));
+		return;
+
+	RequestFrame(NextFrame_ReviveSuccess, event.GetInt("subject"));
+}
+
+void NextFrame_ReviveSuccess(int iClient)
+{
+	iClient = GetClientOfUserId(iClient);
 	
 	if(iClient < 1 || iClient > MaxClients)
-	return;
+		return;
 	
 	if(!IsClientInGame(iClient) || !IsPlayerAlive(iClient))
-	return;
+		return;
+
+	if(Heartbeat_GetRevives(iClient) < L4D_GetMaxReviveCount())
+		return;
 	
 	int iEntity = -1;
 	
@@ -216,7 +225,7 @@ void eReviveSuccess(Event event, const char[] name, bool dontBroadcast)
 	// 			if(iNoticeType == 2)
 	// 			PrintHintText(i, "[BW] %N(%s\x04) is Black&White", iClient, sCharName);
 	// 			if(iNoticeType == 3)
-	// 			DirectorHint(iClient, i);
+	// 			DirectorHintRevive(iClient, i);
 	// 		}
 			
 	// 	}
@@ -252,7 +261,7 @@ void eReviveSuccess(Event event, const char[] name, bool dontBroadcast)
 	// 				continue;
 	// 			}
 	// 			if(iNoticeType == 3)
-	// 			DirectorHint(iClient, i);
+	// 			DirectorHintRevive(iClient, i);
 	// 		}
 	// 	}
 	// }
@@ -273,7 +282,7 @@ void eReviveSuccess(Event event, const char[] name, bool dontBroadcast)
 				if(i == iClient) continue;
 
 				if(iNoticeType == 3)
-					DirectorHint(iClient, i);
+					DirectorHintRevive(iClient, i);
 			}
 			
 		}
@@ -312,7 +321,7 @@ void eReviveSuccess(Event event, const char[] name, bool dontBroadcast)
 				if(i == iClient) continue;
 
 				if(iNoticeType == 3)
-					DirectorHint(iClient, i);
+					DirectorHintRevive(iClient, i);
 			}
 		}
 	}
@@ -383,7 +392,7 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 	// 			PrintHintText(i, "[BW] %N(%s) healed themselves", iClient, sCharName);
 				
 	// 			if(iNoticeType == 3)
-	// 			DirectorHintAll(iClient, iHealer, i);
+	// 			DirectorHintReviveHeal(iClient, iHealer, i);
 	// 		}
 	// 	}
 	// 	case 1:
@@ -443,7 +452,7 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 	// 				continue;
 	// 			}
 	// 			if(iNoticeType == 3)
-	// 			DirectorHintAll(iClient, iHealer, i);
+	// 			DirectorHintReviveHeal(iClient, iHealer, i);
 	// 		}
 	// 	}
 	// }
@@ -471,7 +480,7 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 				//if(i == iClient) continue;
 
 				if(iNoticeType == 3)
-					DirectorHintAll(iClient, iHealer, i);
+					DirectorHintReviveHeal(iClient, iHealer, i);
 			}
 		}
 		case 1:
@@ -534,7 +543,7 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 				//if(i == iClient) continue;
 
 				if(iNoticeType == 3)
-					DirectorHintAll(iClient, iHealer, i);
+					DirectorHintReviveHeal(iClient, iHealer, i);
 			}
 		}
 	}
@@ -806,7 +815,7 @@ int GetModelName(int iClient, int iEntity)
 }
 */
 
-void DirectorHint(int iClient, int i)
+void DirectorHintRevive(int iClient, int i)
 {
 	int iEntity = CreateEntityByName("env_instructor_hint");
 	if(iEntity == -1)
@@ -837,7 +846,7 @@ void DirectorHint(int iClient, int i)
 	AcceptEntityInput(iEntity, "FireUser1");
 }
 
-// void DirectorHintAll(iClient, iHealer, i)
+// void DirectorHintReviveHeal(iClient, iHealer, i)
 // {
 // 	int iEntity;
 // 	iEntity = CreateEntityByName("env_instructor_hint");
@@ -870,7 +879,7 @@ void DirectorHint(int iClient, int i)
 // 	AcceptEntityInput(iEntity, "AddOutput");
 // 	AcceptEntityInput(iEntity, "FireUser1");
 // }
-void DirectorHintAll(int iClient, int iHealer, int i)
+void DirectorHintReviveHeal(int iClient, int iHealer, int i)
 {
 	int iEntity = CreateEntityByName("env_instructor_hint");
 	if(iEntity == -1)

@@ -12,7 +12,7 @@ Notify people when player is black and white.
 	<br/>![l4d_blackandwhite_1](image/l4d_blackandwhite_1.jpg)
 
 * Require | 必要安裝
-<br/>None
+    1. [l4d_heartbeat](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_heartbeat)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -43,11 +43,14 @@ Notify people when player is black and white.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.7 (2022-11-03)
+    * v1.8 (2025-6-8)
+        * Require l4d_heartbeat
+
+    * v1.7 (2022-11-03)
         * Remake Code
         * Rmove white glow when player is not black and white
         * Add Glow cvars
-	
+
     * v1.31
         * [By DarkNoghri](https://forums.alliedmods.net/showthread.php?p=951787)
 </details>

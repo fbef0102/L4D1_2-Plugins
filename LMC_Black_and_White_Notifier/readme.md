@@ -15,6 +15,7 @@ Notifies selected team(s) when someone is on final strike and add glow
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+    3. [l4d_heartbeat](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_heartbeat)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -52,14 +53,10 @@ Notifies selected team(s) when someone is on final strike and add glow
         ```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/LMC_Black_and_White_Notifier.phrases.txt
+	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
@@ -70,6 +67,9 @@ Notifies selected team(s) when someone is on final strike and add glow
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.2h (2025-6-8)
+        * Require l4d_heartbeat
 
     * v1.1h (2023-6-23)
         * Fixed glow disappear when B&W player switches team

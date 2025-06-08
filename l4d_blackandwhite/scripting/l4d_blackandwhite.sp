@@ -2,7 +2,7 @@
 #pragma newdecls required //強制1.7以後的新語法
 
 #include <sourcemod>
-#define PLUGIN_VERSION "1.7"
+#include <l4d_heartbeat>
 
 #define ZOEY 0
 #define LOUIS 1
@@ -19,12 +19,14 @@ public Plugin myinfo =
 	name = "L4D Black and White Notifier",
 	author = "DarkNoghri, HarryPotter",
 	description = "Notify people when player is black and white.",
-	version = PLUGIN_VERSION,
+	version = "1.8-2025/6/8",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
-ConVar h_cvarNoticeType, h_cvarPrintType, h_cvarGlowEnable, h_cvarColor, h_cvarRange;
-int bandw_notice, bandw_type, bandw_glow, g_iCvarColor,  g_iCvarRange;
+ConVar h_cvarNoticeType, h_cvarPrintType, h_cvarGlowEnable, h_cvarColor, h_cvarRange,
+	survivor_max_incapacitated_count;
+int bandw_notice, bandw_type, bandw_glow, g_iCvarColor,  g_iCvarRange,
+	g_iMaxIncapCount;
 
 Handle BWCheckTimer[MAXPLAYERS+1];
 
@@ -52,6 +54,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	survivor_max_incapacitated_count = FindConVar("survivor_max_incapacitated_count");
+
 	HookEvent("revive_success", EventReviveSuccess);
 	HookEvent("heal_success", EventHealSuccess);
 	HookEvent("player_bot_replace", OnBotSwap);
@@ -70,6 +74,7 @@ public void OnPluginStart()
 	
 	GetCvars();
 	
+	survivor_max_incapacitated_count.AddChangeHook(ChangeVars);
 	h_cvarNoticeType.AddChangeHook(ChangeVars);
 	h_cvarPrintType.AddChangeHook(ChangeVars);
 	if(g_bL4D2Version)
@@ -88,6 +93,7 @@ void ChangeVars(ConVar convar, const char[] oldValue, const char[] newValue)
 
 void GetCvars()
 {
+	g_iMaxIncapCount = survivor_max_incapacitated_count.IntValue;
 	bandw_notice = h_cvarNoticeType.IntValue;
 	bandw_type = h_cvarPrintType.IntValue;
 	if(g_bL4D2Version)
@@ -127,119 +133,125 @@ public void OnClientDisconnect(int client)
 
 void EventReviveSuccess(Event event, const char[] name, bool dontBroadcast) 
 {
-	int target = GetClientOfUserId(event.GetInt("subject"));
-	if(target == 0 || !IsClientInGame(target)) return;
-
 	if(event.GetBool("lastlife"))
 	{
-		char targetModel[128]; 
-		char charName[32];
-		GetClientModel(target, targetModel, sizeof(targetModel));
-		//fill string with character names
-		if(StrContains(targetModel, "teenangst", false) > 0) 
-		{
-			strcopy(charName, sizeof(charName), "Zoey");
-		}
-		else if(StrContains(targetModel, "biker", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Francis");
-		}
-		else if(StrContains(targetModel, "manager", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Louis");
-		}
-		else if(StrContains(targetModel, "namvet", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Bill");
-		}
-		else if(StrContains(targetModel, "producer", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Rochelle");
-		}
-		else if(StrContains(targetModel, "mechanic", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Ellis");
-		}
-		else if(StrContains(targetModel, "coach", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Coach");
-		}
-		else if(StrContains(targetModel, "gambler", false) > 0)
-		{
-			strcopy(charName, sizeof(charName), "Nick");
-		}
-		else{
-			strcopy(charName, sizeof(charName), "Unknown");
-		}
+		RequestFrame(NextFrame_ReviveSuccess, event.GetInt("subject"));
+	}
+}
 
-		if(g_bL4D2Version && bandw_glow)
-		{
-			SetEntProp(target, Prop_Send, "m_iGlowType", 3); 				
-			SetEntProp(target, Prop_Send, "m_glowColorOverride", g_iCvarColor);	
-			SetEntProp(target, Prop_Send, "m_nGlowRange", g_iCvarRange);
+void NextFrame_ReviveSuccess(int target)
+{
+	target = GetClientOfUserId(target);
+	if(target == 0 || !IsClientInGame(target)) return;	
 
-			delete BWCheckTimer[target];
-			BWCheckTimer[target] = CreateTimer(0.4, Timer_CheckThirdstrike, target, TIMER_REPEAT);
-		}
-		
-		//turned off
-		if(bandw_notice == 0) return;
-		
-		//print to all
-		else if(bandw_notice == 2) 
-		{
-			if(IsFakeClient(target))
-			{
-				if(bandw_type == 1) PrintHintTextToAll("%N 黑白了.", target);
-				else PrintToChatAll("%N 黑白了.", target);
-			}
-			{
-				if(bandw_type == 1) PrintHintTextToAll("%N (%s) 黑白了.", target, charName);
-				else PrintToChatAll("%N (%s) 黑白了.", target, charName);
-			}
-		}
-		//print to infected
-		else if(bandw_notice == 3)
-		{
-			for( int x = 1; x <= MaxClients; x++)
-			{
-				if(!IsClientInGame(x) || GetClientTeam(x) == GetClientTeam(target) || x == target || IsFakeClient(x))
-					continue;
+	if(Heartbeat_GetRevives(target) < g_iMaxIncapCount)
+		return;
 
-				if(IsFakeClient(target))
-				{	
-					if(bandw_type == 1) PrintHintText(x, "%N 黑白了.", target);
-					else PrintToChat(x, "%N 黑白了.", target);
-				}
-				else
-				{
-					if(bandw_type == 1) PrintHintText(x, "%N (%s) 黑白了.", target, charName);
-					else PrintToChat(x, "%N (\x04%s\x01) 黑白了.", target, charName);	
-				}
-			}
-		}
-		//print to survivors
-		else
-		{
-			for( int x = 1; x <= MaxClients; x++)
-			{
-				if(!IsClientInGame(x) || GetClientTeam(x) != GetClientTeam(target) || x == target || IsFakeClient(x)) 
-					continue;
-				if(IsFakeClient(target))
-				{		
-					if(bandw_type == 1) PrintHintText(x, "%N 黑白了.", target);
-					else PrintToChat(x, "%N 黑白了.", target);
-				}
-				else
-				{
-					if(bandw_type == 1) PrintHintText(x, "%N (%s) 黑白了.", target, charName);
-					else PrintToChat(x, "%N (\x04%s\x01) 黑白了.", target, charName);					
-				}
-			}
-		}	
+	char targetModel[128]; 
+	char charName[32];
+	GetClientModel(target, targetModel, sizeof(targetModel));
+	//fill string with character names
+	if(StrContains(targetModel, "teenangst", false) > 0) 
+	{
+		strcopy(charName, sizeof(charName), "Zoey");
+	}
+	else if(StrContains(targetModel, "biker", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Francis");
+	}
+	else if(StrContains(targetModel, "manager", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Louis");
+	}
+	else if(StrContains(targetModel, "namvet", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Bill");
+	}
+	else if(StrContains(targetModel, "producer", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Rochelle");
+	}
+	else if(StrContains(targetModel, "mechanic", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Ellis");
+	}
+	else if(StrContains(targetModel, "coach", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Coach");
+	}
+	else if(StrContains(targetModel, "gambler", false) > 0)
+	{
+		strcopy(charName, sizeof(charName), "Nick");
+	}
+	else{
+		strcopy(charName, sizeof(charName), "Unknown");
+	}
+
+	if(g_bL4D2Version && bandw_glow)
+	{
+		SetEntProp(target, Prop_Send, "m_iGlowType", 3); 				
+		SetEntProp(target, Prop_Send, "m_glowColorOverride", g_iCvarColor);	
+		SetEntProp(target, Prop_Send, "m_nGlowRange", g_iCvarRange);
+
+		delete BWCheckTimer[target];
+		BWCheckTimer[target] = CreateTimer(0.4, Timer_CheckThirdstrike, target, TIMER_REPEAT);
 	}
 	
-	return;
+	//turned off
+	if(bandw_notice == 0) return;
+	
+	//print to all
+	else if(bandw_notice == 2) 
+	{
+		if(IsFakeClient(target))
+		{
+			if(bandw_type == 1) PrintHintTextToAll("%N 黑白了.", target);
+			else PrintToChatAll("%N 黑白了.", target);
+		}
+		{
+			if(bandw_type == 1) PrintHintTextToAll("%N (%s) 黑白了.", target, charName);
+			else PrintToChatAll("%N (%s) 黑白了.", target, charName);
+		}
+	}
+	//print to infected
+	else if(bandw_notice == 3)
+	{
+		for( int x = 1; x <= MaxClients; x++)
+		{
+			if(!IsClientInGame(x) || GetClientTeam(x) == GetClientTeam(target) || x == target || IsFakeClient(x))
+				continue;
+
+			if(IsFakeClient(target))
+			{	
+				if(bandw_type == 1) PrintHintText(x, "%N 黑白了.", target);
+				else PrintToChat(x, "%N 黑白了.", target);
+			}
+			else
+			{
+				if(bandw_type == 1) PrintHintText(x, "%N (%s) 黑白了.", target, charName);
+				else PrintToChat(x, "%N (\x04%s\x01) 黑白了.", target, charName);	
+			}
+		}
+	}
+	//print to survivors
+	else
+	{
+		for( int x = 1; x <= MaxClients; x++)
+		{
+			if(!IsClientInGame(x) || GetClientTeam(x) != GetClientTeam(target) || x == target || IsFakeClient(x)) 
+				continue;
+			if(IsFakeClient(target))
+			{		
+				if(bandw_type == 1) PrintHintText(x, "%N 黑白了.", target);
+				else PrintToChat(x, "%N 黑白了.", target);
+			}
+			else
+			{
+				if(bandw_type == 1) PrintHintText(x, "%N (%s) 黑白了.", target, charName);
+				else PrintToChat(x, "%N (\x04%s\x01) 黑白了.", target, charName);					
+			}
+		}
+	}
 }
 
 void EventHealSuccess(Event event, const char[] name, bool dontBroadcast) 

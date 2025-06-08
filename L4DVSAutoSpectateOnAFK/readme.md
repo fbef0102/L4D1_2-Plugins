@@ -55,15 +55,10 @@ Forces survivors and infected to spectate if they're AFK after certain time
         ```
 </details>
 
-* <details><summary>Translation Support | 支援翻譯</summary>
-
-    ```
-    English
-    繁體中文
-    简体中文
-    Русский
-    ```
-</details>
+* Translation Support | 支援翻譯
+	```
+	translations/L4DVSAutoSpectateOnAFK.phrases.txt
+	```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
