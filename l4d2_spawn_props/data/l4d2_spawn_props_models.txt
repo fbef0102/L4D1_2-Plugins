@@ -668,7 +668,7 @@ models/w_models/weapons/w_eq_molotov.mdl TAG- 火焰瓶模型
 models/props_junk/gascan001a.mdl TAG- 汽油桶模型
 models/props_equipment/oxygentank01.mdl TAG- 氧氣罐模型
 models/props_junk/propanecanister001a.mdl TAG- 瓦斯桶模型
-models/props_interiors/medicalcabinet02.mdl TAG- 醫療櫃
+models/props_interiors/medicalcabinet02.mdl TAG- 醫藥箱模型
 models/w_models/weapons/w_pistol_B.mdl TAG- L4D2手槍模型
 models/w_models/weapons/w_desert_eagle.mdl TAG- 沙漠之鷹模型
 models/w_models/weapons/w_smg_a.mdl TAG- 消音機槍模型
@@ -775,7 +775,6 @@ models/props_interiors/styrofoam_cups.mdl TAG- 疊起來的杯子 (可動)
 models/props_interiors/waterheater.mdl TAG- 熱水器
 models/props_unique/wheelchair01.mdl TAG- 輪椅
 models/props_interiors/tv.mdl TAG- 電視機
-models/props_interiors/medicalcabinet02.mdl TAG- 醫藥箱
 models/props_c17/computer01_keyboard.mdl TAG- 鍵盤
 models/props_interiors/corkboardverticle01.mdl TAG- 公告欄
 models/props_urban/picture_frame001.mdl TAG- 一幅畫 1
