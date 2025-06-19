@@ -17,7 +17,6 @@ Improves the AI behaviour of special infected
 * Improve Infected
     * <details><summary><b>AI Tank</b></summary>
 
-        * Stop throwing the underhand rock
         * Modify Official ConVar in ```cfg\AI_HardSI\aggressive_ai.cfg```
             ```php
             // AI Tank will not throw rock within this range (default: 250)
@@ -32,6 +31,12 @@ Improves the AI behaviour of special infected
             // 1=AI tanks throw rock
             // 0=AI tanks won't throw rocks
             ai_tank_rock "1"
+
+            // If 1, Prevents AI tanks from throwing underhand rocks + Fix sticking aim after throws for AI Tanks.
+            ai_tank_smart_throw "1"
+
+            // If the tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)
+            ai_tank_aim_offset_sensitivity "22.5"
             ```
     </details>
 
@@ -92,28 +97,28 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // At what distance to start pouncing fast
-            ai_fast_pounce_proximity 1000
+            ai_hunter_fast_pounce_proximity 1000
 
             // Vertical angle to which AI hunter pounces will be restricted
-            ai_pounce_vertical_angle 7
+            ai_hunter_pounce_vertical_angle 7
 
             // Mean angle produced by Gaussian RNG
-            ai_pounce_angle_mean 10
+            ai_hunter_pounce_angle_mean 10
 
             // One standard deviation from mean as produced by Gaussian RNG
-            ai_pounce_angle_std 20
+            ai_hunter_pounce_angle_std 20
 
             // Distance to nearest survivor at which hunter will consider pouncing straight
-            ai_straight_pounce_proximity 200
+            ai_hunter_straight_pounce_proximity 200
 
             // If the hunter has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius
-            ai_aim_offset_sensitivity_hunter 30
+            ai_hunter_aim_offset_sensitivity 30
 
             // How far in front of himself infected bot will check for a wall. Use '-1' to disable feature
-            ai_wall_detection_distance -1
+            ai_hunter_wall_detection_distance -1
 
             // If 1, Hunter do scratch animation when pouncing
-            ai_pounce_dancing_enable "1"
+            ai_hunter_pounce_dancing_enable "1"
             ```
     </details>
 
@@ -137,7 +142,7 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // How close a jockey will approach before it starts hopping
-            ai_hop_activation_proximity 500
+            ai_jockey_hop_activation_proximity 500
             ```
     </details>
 
@@ -152,10 +157,10 @@ Improves the AI behaviour of special infected
             ai_charger_proximity 300
 
             // If the charger has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius
-            ai_aim_offset_sensitivity_charger 22.5
+            ai_charger_aim_offset_sensitivity 22.5
 
             // Charger will charge if its health drops to this level
-            ai_health_threshold_charger 300
+            ai_charger_health_threshold 300
             ```
     </details>
 
@@ -211,17 +216,28 @@ Improves the AI behaviour of special infected
         ```
 </details>
 
+* <details><summary>Known Conflicts</summary>
+	
+	If you don't use any of these plugins at all, no need to worry about conflicts.
+	1. [smart_ai_rock](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/smart_ai_rock): Fix sticking aim after throws for AI Tanks.
+		* Duplicate function, remove
+</details>
+
 * <details><summary>Related Plugin | 相關插件</summary>
 
     1. [l4dinfectedbots](/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
         * 生成多特感控制插件
     2. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player to the teammate who is much nearer to survivors.
         * 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-    3. [smart_ai_rock](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/smart_ai_rock): Fix sticking aim after throws for AI Tanks.
-        * AI Tank不會丟underhand rocks動作且丟完石頭後會立馬轉頭攻擊背後的倖存者
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.4 (2025-6-18)
+        * Rename some cvars
+        * Prevents AI tanks from throwing underhand rocks
+        * Fix sticking aim after throws for AI Tanks.
+        * While throwing the rock, the rock would fly to the closest survivor
 
     * v2.3 (2025-5-5)
         * Optimize Code
@@ -276,7 +292,6 @@ Improves the AI behaviour of special infected
 * 各特感強化內容
     * <details><summary><b>AI Tank</b></summary>
 
-        * 取消"低手投擲"的丟石頭動作，因為瞄準率0%
         * 更動的官方指令，請查看```cfg\AI_HardSI\aggressive_ai.cfg```
             ```php
             // AI Tank 在距離倖存者此範圍內不會丟石頭 (預設: 250)
@@ -291,6 +306,14 @@ Improves the AI behaviour of special infected
             // 1=AI tanks會丟石頭
             // 0=AI tanks不丟石頭
             ai_tank_rock "1"
+
+            // 為1時，AI Tank不會丟"低手投擲"石頭 (因為瞄準率0%)
+            // 為1時，AI Tank丟完石頭之後馬上轉身打背後的倖存者
+            ai_tank_smart_throw "1"
+
+            // 當Tank正在丟石頭時，如果目標不在此數值的視野角度範圍內，將石頭轉向至距離最近的倖存者 (-1=關閉這項功能)
+            // 請填0~180, 視野角度
+            ai_tank_aim_offset_sensitivity "22.5"
             ```
     </details>
 
@@ -350,26 +373,26 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 強迫AI Hunter在1000公尺範圍內蹲下準備撲人
-            ai_fast_pounce_proximity 1000
+            ai_hunter_fast_pounce_proximity 1000
 
             // 強迫AI Hunter跳躍的最大傾角 (避免飛過頭或飛太高)
-            ai_pounce_vertical_angle 7
+            ai_hunter_pounce_vertical_angle 7
 
             // 強制左右飛撲靠近目標，不要垂直飛向目標
-            ai_pounce_angle_mean 10
-            ai_pounce_angle_std 20
+            ai_hunter_pounce_angle_mean 10
+            ai_hunter_pounce_angle_std 20
 
             // 離目標200公尺範圍內考慮直接垂直飛向目標
-            ai_straight_pounce_proximity 200
+            ai_hunter_straight_pounce_proximity 200
 
             // 目標倖存者的準心如果在瞄自身AI Hunter的身體低於30度視野範圍內則強制飛撲
-            ai_aim_offset_sensitivity_hunter 30
+            ai_hunter_aim_offset_sensitivity 30
 
             // 前面有牆壁的範圍內則飛撲的角度會變高，嘗試越過障礙物 (-1: 無限範圍)
-            ai_wall_detection_distance -1
+            ai_hunter_wall_detection_distance -1
 
             // 為1時，Hunter邊飛撲邊嘗試做出抓傷動作
-            ai_pounce_dancing_enable "1"
+            ai_hunter_pounce_dancing_enable "1"
             ```
     </details>
 
@@ -393,7 +416,7 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 強迫AI Jockey在500公尺範圍內開始連跳
-            ai_hop_activation_proximity 500
+            ai_jockey_hop_activation_proximity 500
             ```
     </details>
 
@@ -408,10 +431,10 @@ Improves the AI behaviour of special infected
             ai_charger_proximity 300
 
             // 目標倖存者的準心如果在瞄自身AI Charger的身體低於20度視野範圍內則強制衝刺
-            ai_aim_offset_sensitivity_charger 22.5
+            ai_charger_aim_offset_sensitivity 22.5
 
             // 當Charger低於300血量時，強迫AI Charger開始衝刺
-            ai_health_threshold_charger 300
+            ai_charger_health_threshold 300
             ```
     </details>
 
@@ -461,3 +484,11 @@ Improves the AI behaviour of special infected
         ....
         ```
 </details> 
+
+* <details><summary>會衝突的插件</summary>
+	
+	如果沒安裝以下插件就不需要擔心衝突
+	If you don't use any of these plugins at all, no need to worry about conflicts.
+	1. [smart_ai_rock](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/smart_ai_rock): AI Tank不會丟underhand rocks動作且丟完石頭後會立馬轉頭攻擊背後的倖存者
+		* 功能重複, 可移除
+</details>

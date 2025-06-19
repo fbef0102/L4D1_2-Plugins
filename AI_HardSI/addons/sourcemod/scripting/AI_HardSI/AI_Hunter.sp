@@ -36,14 +36,14 @@ void Hunter_OnModuleStart()
 
 	g_hCvarEnable 					= CreateConVar( "AI_HardSI_Hunter_enable",  		"1",   	"0=Improves the Hunter behaviour off, 1=Improves the Hunter behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	g_hCvarFastPounceProximity 		= CreateConVar( "ai_fast_pounce_proximity", 		"1000", "At what distance to start pouncing fast", FCVAR_NOTIFY, true, 0.0);
-	g_hCvarPounceVerticalAngle 		= CreateConVar( "ai_pounce_vertical_angle", 		"7", 	"Vertical angle to which AI hunter pounces will be restricted", FCVAR_NOTIFY, true, 0.0);
-	g_hCvarPounceAngleMean 			= CreateConVar( "ai_pounce_angle_mean", 			"10", 	"Mean angle produced by Gaussian RNG", FCVAR_NOTIFY, true, 0.0 );
-	g_hCvarPounceAngleStd 			= CreateConVar( "ai_pounce_angle_std", 				"20", 	"One standard deviation from mean as produced by Gaussian RNG", FCVAR_NOTIFY, true, 0.0 );
-	g_hCvarStraightPounceProximity 	= CreateConVar( "ai_straight_pounce_proximity", 	"200", 	"Distance to nearest survivor at which hunter will consider pouncing straight", FCVAR_NOTIFY, true, 0.0);
-	g_hCvarAimOffsetSensitivity 	= CreateConVar( "ai_aim_offset_sensitivity_hunter", "30",  	"If the hunter has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius", FCVAR_NOTIFY, true, 0.0, true, 179.0 );
-	g_hCvarWallDetectionDistance 	= CreateConVar( "ai_wall_detection_distance", 		"-1", 	"How far in front of hunter infected bot will check for a wall. Use '-1' to disable feature", FCVAR_NOTIFY, true, -1.0);
-	g_hCvarPounceDancing 			= CreateConVar( "ai_pounce_dancing_enable", 		"1", 	"If 1, Hunter do scratch animation when pouncing", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarFastPounceProximity 		= CreateConVar( "ai_hunter_fast_pounce_proximity", 		"1000", "At what distance to start pouncing fast", FCVAR_NOTIFY, true, 0.0);
+	g_hCvarPounceVerticalAngle 		= CreateConVar( "ai_hunter_pounce_vertical_angle", 		"7", 	"Vertical angle to which AI hunter pounces will be restricted", FCVAR_NOTIFY, true, 0.0);
+	g_hCvarPounceAngleMean 			= CreateConVar( "ai_hunter_pounce_angle_mean", 			"10", 	"Mean angle produced by Gaussian RNG", FCVAR_NOTIFY, true, 0.0 );
+	g_hCvarPounceAngleStd 			= CreateConVar( "ai_hunter_pounce_angle_std", 			"20", 	"One standard deviation from mean as produced by Gaussian RNG", FCVAR_NOTIFY, true, 0.0 );
+	g_hCvarStraightPounceProximity 	= CreateConVar( "ai_hunter_straight_pounce_proximity", 	"200", 	"Distance to nearest survivor at which hunter will consider pouncing straight", FCVAR_NOTIFY, true, 0.0);
+	g_hCvarAimOffsetSensitivity 	= CreateConVar( "ai_hunter_aim_offset_sensitivity", 	"30",  	"If the hunter has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius", FCVAR_NOTIFY, true, 0.0, true, 179.0 );
+	g_hCvarWallDetectionDistance 	= CreateConVar( "ai_hunter_wall_detection_distance", 	"-1", 	"How far in front of hunter infected bot will check for a wall. Use '-1' to disable feature", FCVAR_NOTIFY, true, -1.0);
+	g_hCvarPounceDancing 			= CreateConVar( "ai_hunter_pounce_dancing_enable", 		"1", 	"If 1, Hunter do scratch animation when pouncing", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);

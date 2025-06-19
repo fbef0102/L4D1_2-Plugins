@@ -18,12 +18,12 @@ static bool
 	g_bModify[MAXPLAYERS + 1];
 
 void Charger_OnModuleStart() {
-	g_hCvarEnable 						= CreateConVar("AI_HardSI_Charger_enable",   		"1",   		"0=Improves the Charger behaviour off, 1=Improves the Charger behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	
-	g_hChargerBhop 						= CreateConVar("ai_charger_bhop",			  		"1",	 	"If 1, enable bhop facsimile on AI chargers", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarChargeProximity 				= CreateConVar("ai_charger_proximity", 		  		"300", 		"How close a charger will approach before charging", FCVAR_NOTIFY, true, 0.0);	
-	g_hCvarAimOffsetSensitivity 		= CreateConVar("ai_aim_offset_sensitivity_charger", "22.5", 	"If the charger has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius", FCVAR_NOTIFY, true, 0.0, true, 179.0);
-	g_hCvarHealthThreshold 				= CreateConVar("ai_health_threshold_charger", 		"300", 		"Charger will charge if its health drops to this level", FCVAR_NOTIFY, true, 0.0);	
+	g_hCvarEnable 						= CreateConVar("AI_HardSI_Charger_enable",   			"1",   		"0=Improves the Charger behaviour off, 1=Improves the Charger behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+
+	g_hChargerBhop 						= CreateConVar("ai_charger_bhop",			  			"1",	 	"If 1, enable bhop facsimile on AI chargers", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarChargeProximity 				= CreateConVar("ai_charger_proximity", 		  			"300", 		"How close a charger will approach before charging", FCVAR_NOTIFY, true, 0.0);	
+	g_hCvarAimOffsetSensitivity 		= CreateConVar("ai_charger_aim_offset_sensitivity", 	"22.5", 	"If the charger has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius", FCVAR_NOTIFY, true, 0.0, true, 179.0);
+	g_hCvarHealthThreshold 				= CreateConVar("ai_charger_health_threshold", 			"300", 		"Charger will charge if its health drops to this level", FCVAR_NOTIFY, true, 0.0);	
 
 	g_hChargeMaxSpeed =			FindConVar("z_charge_max_speed");
 	g_hChargeStartSpeed =		FindConVar("z_charge_start_speed");

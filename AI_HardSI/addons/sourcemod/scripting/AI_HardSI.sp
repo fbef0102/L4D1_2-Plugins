@@ -76,6 +76,15 @@ bool
 #include "AI_HardSI/AI_Jockey.sp"
 #include "AI_HardSI/AI_Tank.sp"
 
+public Plugin myinfo = 
+{
+	name = "AI: Hard SI",
+	author = "Breezy & HarryPotter",
+	description = "Improves the AI behaviour of special infected",
+	version = "2.4-2025/6/18",
+	url = "github.com/breezyplease"
+};
+
 ConVar g_hCvarEnable, g_hCvarAssaultReminderInterval, g_hCvarExecAggressiveCfg;
 bool g_bCvarEnable;
 float g_fCvarAssaultReminderInterval;
@@ -84,14 +93,8 @@ char g_sCvarExecAggressiveCfg[64];
 int 
 	g_iCurTarget[MAXPLAYERS + 1];
 
-public Plugin myinfo = 
-{
-	name = "AI: Hard SI",
-	author = "Breezy & HarryPotter",
-	description = "Improves the AI behaviour of special infected",
-	version = "2.3-2025/5/5",
-	url = "github.com/breezyplease"
-};
+float 
+	g_fRunTopSpeed[MAXPLAYERS + 1];
 
 public void OnPluginStart() 
 { 
@@ -327,10 +330,31 @@ public Action L4D2_OnChooseVictim(int specialInfected, int &curTarget)
 	return Plugin_Continue;
 }
 
-public Action L4D2_OnSelectTankAttack(int client, int &sequence) {
+public Action L4D_OnGetRunTopSpeed(int target, float &retVal)
+{
+	g_fRunTopSpeed[target] = retVal;
+	return Plugin_Continue;
+}
+
+public Action L4D2_OnSelectTankAttack(int client, int &sequence) 
+{
 	if(!g_bCvarEnable) return Plugin_Continue;
 
 	return Tank_OnSelectTankAttack(client, sequence);
+}
+
+public Action L4D_TankRock_OnRelease(int tank, int rock, float vecPos[3], float vecAng[3], float vecVel[3], float vecRot[3])
+{
+	if(!g_bCvarEnable) return Plugin_Continue;
+
+	return Tank_TankRock_OnRelease(tank, rock, vecAng, vecVel);
+}
+
+public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3], const float vecAng[3], const float vecVel[3], const float vecRot[3])
+{
+	if(!g_bCvarEnable) return;
+
+	Tank_TankRock_OnRelease_Post(tank);
 }
 
 // Other----------
@@ -378,6 +402,11 @@ int GetCurTarget(int client)
 	return g_iCurTarget[client];
 }
 
+float GetTargetRunTopSpeed(int client)
+{
+	return g_fRunTopSpeed[client];
+}
+
 /**
  * Returns true if the player is currently on the survivor team. 
  *
@@ -392,7 +421,6 @@ bool IsSurvivor(int client) {
 	}
 }
 
- 
 /**
  * Returns true if the player is incapacitated. 
  *
@@ -879,4 +907,22 @@ bool PointWithinViewAngle(const float vecSrcPosition[3], const float vecTargetPo
 
 float GetFOVDotProduct(float angle) {
 	return Cosine(DegToRad(angle) / 2.0);
+}
+
+bool IsPinned(int client) 
+{
+	if (GetEntPropEnt(client, Prop_Send, "m_tongueOwner") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_pounceAttacker") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_carryAttacker") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_pummelAttacker") > 0)
+		return true;
+	if (L4D2_GetQueuedPummelAttacker(client) > 0)
+		return true;
+
+	return false;
 }
