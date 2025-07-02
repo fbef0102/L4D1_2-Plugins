@@ -30,7 +30,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	* cfg/sourcemod/l4dmultislots.cfg
 		```php
 		// Total survivors allowed on the server. If numbers of survivors reached limit, no any new bots would be created.
-		// Must be greater then or equal to 'l4d_multislots_min_survivors'
+		// Must be greater then or equal to '_multislots_min_survivors'
 		l4d_multislots_max_survivors "10"
 
 		// Set minimum # of survivors in game.(Override official cvar 'survivor_limit')
@@ -52,7 +52,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// Amount of buffer HP a new 5+ Survivor will spawn with (Def 20)
 		l4d_multislots_respawnbuffhp "20"
 
-		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_min_survivors)
+		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar _multislots_min_survivors)
 		l4d_multislots_spawn_survivors_roundstart "0"
 
 		// (L4D2) First slot weapon for new 5+ Survivor (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=Rand T1, 19=Rand T2, 20=Rand T3, 0=off)
@@ -153,7 +153,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// Kick AI survivor bots if numbers of survivors has exceeded the certain value. (does not kick real player, minimum is 1)
 		l4d_multislots_min_survivors "8"
 
-		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar l4d_multislots_min_survivors)
+		// If 1, Spawn 5+ survivor bots when round starts. (Numbers depends on Convar _multislots_min_survivors)
 		l4d_multislots_spawn_survivors_roundstart "1" 
 		```
 	</details>
@@ -279,7 +279,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	* cfg/sourcemod/l4dmultislots.cfg
 		```php
 		// 伺服器能允許的倖存者數量. 如果倖存者超過數量限制，則伺服器不會產生新的倖存者Bots
-		// 這個數值必須大於或等於 'l4d_multislots_min_survivors'
+		// 這個數值必須大於或等於 '_multislots_min_survivors'
 		l4d_multislots_max_survivors "10"
 
 		// 設置遊戲最少的倖存者數量. (覆蓋官方指令 'survivor_limit')
@@ -301,7 +301,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 新生成的倖存者Bot虛血值 (預設 20)
 		l4d_multislots_respawnbuffhp "20"
 
-		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 l4d_multislots_min_survivors)
+		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 _multislots_min_survivors)
 		l4d_multislots_spawn_survivors_roundstart "0"
 
 		// (L4D2) 給予新生成的倖存者Bot主武器 (1-Autoshot, 2-SPAS, 3-M16, 4-SCAR, 5-AK47, 6-SG552, 7-Mil Sniper, 8-AWP, 9-Scout, 10=Hunt Rif, 11=M60, 12=GL, 13-SMG, 14-Sil SMG, 15=MP5, 16-Pump Shot, 17=Chrome Shot, 18=隨機T1武器, 19=隨機T2武器, 20=隨機T3武器, 0=關閉)
@@ -401,7 +401,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 當倖存者Bot超過4位以上時踢出遊戲. (不會踢出真人玩家, 最小值是 1)
 		l4d_multislots_min_survivors "8"
 
-		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 l4d_multislots_min_survivors)
+		// 為1時，回合一開始生成第五位以上的倖存者Bot (數量依據指令 _multislots_min_survivors)
 		l4d_multislots_spawn_survivors_roundstart "1" 
 		```
 	</details>
