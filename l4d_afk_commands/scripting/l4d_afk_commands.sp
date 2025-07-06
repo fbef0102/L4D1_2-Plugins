@@ -14,7 +14,7 @@
 * 11.對抗/清道夫模式下檢查雙方隊伍的玩家數量，隊伍不平衡則不能換隊 (防止一方的玩家數量過多)
 * 12.起身或硬直狀態中禁止換隊 (防止略過硬直狀態)
 * 13.玩家發射榴彈期間禁止換隊 (防止友傷bug、防止Witch失去目標)
-* 14. 膽汁淋在身上 (防止略過被噴的綠色螢幕)
+* 14.膽汁淋在身上 (防止略過被噴的綠色螢幕)
 *
 * Admin 功能
 * 1.管理員可以強制玩家更換隊伍 "sm_swapto <player> <team>"
@@ -824,7 +824,7 @@ Action TurnClientToSpectate(int client, int argCount)
 
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-	if(HasAccess(client, g_sSpecCommandAccesslvl) == false)
+	if(HasAccessWithoutRoot(client, g_sSpecCommandAccesslvl) == false)
 	{
 		PrintHintText(client, "%T","You don't have access to change team to spectator",client);
 		return Plugin_Handled;
@@ -877,7 +877,7 @@ Action TurnClientToObserver(int client, int args)
 
 	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 	
-	if(HasAccess(client, g_sObsCommandAccesslvl) == false)
+	if(HasAccessWithoutRoot(client, g_sObsCommandAccesslvl) == false)
 	{
 		PrintHintText(client, "%T","You don't have access to be an observer",client);
 		return Plugin_Handled;
@@ -938,7 +938,7 @@ Action TurnClientToSurvivors(int client, int args)
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-	if(HasAccess(client, g_sSurCommandAccesslvl) == false)
+	if(HasAccessWithoutRoot(client, g_sSurCommandAccesslvl) == false)
 	{
 		PrintHintText(client, "%T.","You don't have access to change team to survivor",client);
 		return Plugin_Handled;
@@ -1062,7 +1062,7 @@ Action TurnClientToInfected(int client, int args)
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-	if(HasAccess(client, g_sInfCommandAccesslvl) == false)
+	if(HasAccessWithoutRoot(client, g_sInfCommandAccesslvl) == false)
 	{
 		PrintHintText(client, "%T","You don't have access to change team to Infected",client);
 		return Plugin_Handled;
@@ -1202,7 +1202,7 @@ Action jointeam(int client, int args) //press m (jointeam)
 
 	if(args > 2) return Plugin_Handled;
 
-	bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
+	bool bHaveAccess = HasAccessWithoutRoot(client, g_sImmuneAcclvl);
 	if(g_bPressMBlock == true && bHaveAccess == false) 
 	{
 		PrintHintText(client, "%T","This function has been blocked!",client);	
@@ -1304,7 +1304,7 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 	
 	if(Is_AFK_COMMAND_Block()) return Plugin_Handled;
 	
-	bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
+	bool bHaveAccess = HasAccessWithoutRoot(client, g_sImmuneAcclvl);
 	if(g_bTakeABreakBlock == true && bHaveAccess == false) 
 	{
 		PrintHintText(client, "%T","This function has been blocked!",client);	
@@ -1355,7 +1355,7 @@ Action sb_takecontrol(int client, int args) //sb_takecontrol
 
 	if(args > 1) return Plugin_Handled;
 
-	bool bHaveAccess = HasAccess(client, g_sImmuneAcclvl);
+	bool bHaveAccess = HasAccessWithoutRoot(client, g_sImmuneAcclvl);
 	if(g_bTakeControlBlock == true && bHaveAccess == false) 
 	{
 		ReplyToCommand(client, "[TS] %T","This function has been blocked!",client);	
@@ -1393,7 +1393,7 @@ Action CommandListener_SpecNext(int client, char[] command, int argc)
 	{
 		if(IsClientIdle(client))
 		{
-			if(HasAccess(client, g_sImmuneAcclvl))return Plugin_Continue;
+			if(HasAccessWithoutRoot(client, g_sImmuneAcclvl))return Plugin_Continue;
 
 			if(g_hInCoolDownTimer[client] != null)
 			{
@@ -1466,7 +1466,7 @@ bool HasIdlePlayer(int bot)
 
 bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 { 
-	if(g_bHasLeftSafeRoom == false || bIsAdm || HasAccess(client, g_sImmuneAcclvl)) return true;
+	if(g_bHasLeftSafeRoom == false || bIsAdm || HasAccessWithoutRoot(client, g_sImmuneAcclvl)) return true;
 
 	int team = GetClientTeam(client);
 
@@ -1568,7 +1568,7 @@ void StartChangeTeamCoolDown(int client)
 	if( IsFakeClient(client) 
 	|| g_bHasLeftSafeRoom == false 
 	|| g_hInCoolDownTimer[client] != null
-	|| HasAccess(client, g_sImmuneAcclvl)) return;
+	|| HasAccessWithoutRoot(client, g_sImmuneAcclvl)) return;
 	
 	if(g_fCoolTime > 0.0)
 	{
@@ -1597,7 +1597,7 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 		}
 	}
 
-	if(HasAccess(client, g_sImmuneAcclvl)) return Plugin_Continue;
+	if(HasAccessWithoutRoot(client, g_sImmuneAcclvl)) return Plugin_Continue;
 
 	if(g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0)
 	{
@@ -1820,7 +1820,7 @@ int GetSurvivorVictim(int client)
 	return -1;
 }
 
-bool HasAccess(int client, char[] sAcclvl)
+bool HasAccessWithoutRoot(int client, char[] sAcclvl)
 {
 	// no permissions set
 	if (strlen(sAcclvl) == 0)
@@ -1831,7 +1831,7 @@ bool HasAccess(int client, char[] sAcclvl)
 
 	// check permissions
 	int flag = GetUserFlagBits(client);
-	if ( flag & ReadFlagString(sAcclvl) || flag & ADMFLAG_ROOT )
+	if ( flag & ReadFlagString(sAcclvl) )
 	{
 		return true;
 	}
@@ -1875,7 +1875,8 @@ public void OnEntityCreated(int entity, const char[] classname)
 			strncmp(classname, "pipe_bomb_projectile", 20) == 0 ||
 			strncmp(classname, "inferno", 7) == 0 ||
 			(g_bL4D2Version && strncmp(classname, "vomitjar_projectile", 19) == 0) ||
-			(g_bL4D2Version && strncmp(classname, "grenade_launcher_projectile", 27) == 0)
+			(g_bL4D2Version && strncmp(classname, "grenade_launcher_projectile", 27) == 0) ||
+			(g_bL4D2Version && strncmp(classname, "fire_cracker_blast", 18) == 0)
 		)
 		{
 			RequestFrame(OnNextFrame, EntIndexToEntRef(entity));
@@ -1926,7 +1927,8 @@ void OnNextFrame(int entRef)
 			g_alClientGrenade[client].Push(entRef);
 		}
 	}
-	else if(strncmp(sClassname, "inferno", 7) == 0) //火瓶燃燒時
+	else if(strncmp(sClassname, "inferno", 7) == 0 || //火瓶燃燒時
+		strncmp(sClassname, "fire_cracker_blast", 18) == 0) //煙火盒燃燒時
 	{
 		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 
