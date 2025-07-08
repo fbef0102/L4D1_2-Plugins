@@ -44,6 +44,7 @@
 	{
 		"#format"		"{1:N},{2:d}"
 		"en"			"{blue}{1}{default} got gift + {green}{2} HP{default}!"
+		"es"			"{blue}{1}{default} obtuvo un regalo + {green}{2} HP{default}!"
 		"zho"			"{blue}{1}{default} 取得禮物 + {green}{2} HP{default}!"
 		"chi"			"{blue}{1}{default} 取得礼物 + {green}{2} HP{default}!"
 		"ru"			"{blue}{1}{default} получил здоровье + {green}{2} HP{default}!"
@@ -53,6 +54,7 @@
 	{
 		"#format"		"{1:N},{2:d}"
 		"en"			"{1} got gift + {2} HP!"
+		"es"			"{1} obtuvo un regalo + {2} HP!"
 		"zho"			"{1} 取得禮物 + {2} HP!"
 		"chi"			"{1} 取得礼物 + {2} HP!"
 		"ru"			"{1} получил здоровье + {2} HP!"
@@ -62,6 +64,7 @@
 	{
 		"#format"		"{1:N},{2:d}"
 		"en"			"{blue}{1}{default} got bad gift - {green}{2} HP{default}!"
+		"es"			"{blue}{1}{default} obtuvo un mal regalo  - {green}{2} HP{default}!"
 		"zho"			"{blue}{1}{default} 取得壞禮物 - {green}{2} HP{default}!"
 		"chi"			"{blue}{1}{default} 取得坏礼物 - {green}{2} HP{default}!"
 		"ru"			"{blue}{1}{default} потерял здоровье {green}{2} HP{default}!"
@@ -71,6 +74,7 @@
 	{
 		"#format"		"{1:N},{2:d}"
 		"en"			"{1} got bad gift - {2} HP!"
+		"en"			"{1} obtuvo un mal regalo - {2} HP!"
 		"zho"			"{1} 取得壞禮物 - {2} HP!"
 		"chi"			"{1} 取得坏礼物 - {2} HP!"
 		"ru"			"{1} потерял здоровье {2} HP!"
@@ -80,6 +84,7 @@
 	{
 		"#format"		"{1:N},{2:d}"
 		"en"			"{red}{1}{default}{default} got gift + {green}{2} HP{default}!"
+		"es"			"{red}{1}{default}{default} obtuvo un regalo + {green}{2} HP{default}!"
 		"zho"			"{red}{1}{default} 取得禮物 + {green}{2} HP{default}!"
 		"chi"			"{red}{1}{default} 取得礼物 + {green}{2} HP{default}!"
 		"ru"			"{red}{1}{default} Получил Здоровье {green}{2} HP{default}!"
@@ -89,6 +94,7 @@
 	{
 		"#format"		"{1:N},{2:d}"
 		"en"			"{1} got gift + {2} HP!"
+		"es"			"{1} obtuvo un regalo + {2} HP!"
 		"zho"			"{1} 取得禮物 + {2} HP!"
 		"chi"			"{1} 取得礼物 + {2} HP!"
 		"ru"			"{1} Получил Здоровье {2} HP!"
@@ -119,7 +125,7 @@
 		"pt"	"Pumpshotgun"
 		"zho"	"木製霰彈槍"
 		"chi"	"木制霰弹枪"
-		"es"	"Escopeta de bomba"
+		"es"	"Escopeta Corredera"
 		"ru"	"Помп.Дробовик"
 	}
 	"Chrome Shotgun"
@@ -137,7 +143,7 @@
 		"pt"	"Smg"
 		"zho"	"機槍"
 		"chi"	"机枪"
-		"es"	"Smg"
+		"es"	"Metralleta"
 		"ru"	"UZI"
 	}
 	"Silenced Smg"
@@ -146,7 +152,7 @@
 		"pt"	"Silenced Smg"
 		"zho"	"消音機槍"
 		"chi"	"消音机枪"
-		"es"	"Smg silenciador"
+		"es"	"Metralleta con silenciador"
 		"ru"	"MAC-10"
 	}
 	"MP5"
@@ -164,7 +170,7 @@
 		"pt"	"Rifle"
 		"zho"	"步槍"
 		"chi"	"步枪"
-		"es"	"Rifle"
+		"es"	"Rifle de Asalto M16"
 		"ru"	"М16"
 	}
 	"AK47"
@@ -182,7 +188,7 @@
 		"pt"	"Desert Rifle"
 		"zho"	"三連發步槍"
 		"chi"	"三连发步枪"
-		"es"	"Rifle del desierto"
+		"es"	"Rifle de Combate SCAR"
 		"ru"	"SCAR"
 	}
 	"SG552"
@@ -317,7 +323,7 @@
 		"pt"	"Machado"
 		"zho"	"斧頭"
 		"chi"	"斧头"
-		"es"	"Hacha contra incendios"
+		"es"	"Hacha"
 		"ru"	"Топор"
 	}
 	"Frying Pan"
@@ -353,7 +359,7 @@
 		"pt"	"Bastão Policial"
 		"zho"	"警棍"
 		"chi"	"警棍"
-		"es"	"Tonfa"
+		"es"	"Porra de Policía"
 		"ru"	"Полицейская дубинка"
 	}
 	"Golf Club"
@@ -380,7 +386,7 @@
 		"pt"	"Forcado"
 		"zho"	"草叉"
 		"chi"	"草叉"
-		"es"	"Horca"
+		"es"	"Trinche"
 		"ru"	"Вилы"
 	}
 	"Shovel"
@@ -434,7 +440,7 @@
 		"pt"	"Pipe Bomb"
 		"zho"	"土製炸彈"
 		"chi"	"土制炸弹"
-		"es"	"Bomba de tubo"
+		"es"	"Bomba Casera"
 		"ru"	"Пайп бомба"
 	}
 	"Molotov"
@@ -452,7 +458,7 @@
 		"pt"	"Jarra de Vômito"
 		"zho"	"膽汁"
 		"chi"	"胆汁"
-		"es"	"Frasco de vomito"
+		"es"	"Frasco de Bilis"
 		"ru"	"Банка блевоты"
 	}
 	"Ammo"
@@ -479,7 +485,7 @@
 		"pt"	"Munição Incendiária"
 		"zho"	"火焰子彈"
 		"chi"	"火焰子弹"
-		"es"	"Munición incendiaria"
+		"es"	"Balas Incendiarias"
 		"ru"	"Зажигательные патроны"
 	}
 	"Explosive Ammo"
@@ -488,7 +494,7 @@
 		"pt"	"Munição Explosiva"
 		"zho"	"高爆子彈"
 		"chi"	"高爆子弹"
-		"es"	"Munición explosiva"
+		"es"	"Balas Explosivas"
 		"ru"	"Разрывные патроны"
 	}
 	"Incendiary Pack"
@@ -497,7 +503,7 @@
 		"pt"	"Pacote Incendiário"
 		"zho"	"火焰包"
 		"chi"	"火焰包"
-		"es"	"Paquete incendiario"
+		"es"	"Caja de Munición Incendiaria"
 		"ru"	"Коробка зажигательных"
 	}
 	"Explosive Pack"
@@ -506,7 +512,7 @@
 		"pt"	"Pacote Explosivo"
 		"zho"	"高爆彈"
 		"chi"	"高爆弹"
-		"es"	"Paquete explosivo"
+		"es"	"Caja de Munición Explosivo"
 		"ru"	"Коробка разрывных"
 	}
 	"Propane Tank"
@@ -542,7 +548,7 @@
 		"pt"	"Galão de Gasolina"
 		"zho"	"汽油"
 		"chi"	"油桶"
-		"es"	"Lata de gas"
+		"es"	"Lata de Gasolina"
 		"ru"	"Канистра"
 	}
 	"Gnome"
@@ -568,6 +574,7 @@
 		"en"	"Empty (Have a good day)"
 		"zho"	"空(謝謝惠顧)"
 		"chi"	"空(谢谢惠顾)"
+		"es"     "Vacío (Que tenga un buen día)"
 		"ru"	"Пусто (Хорошего дня)"
 	}
 }
