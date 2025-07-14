@@ -130,6 +130,21 @@ public void OnPluginStart()
 	HookEvent("player_death",   Event_PlayerDeath);
 }
 
+public void OnAllPluginsLoaded()
+{
+	if(MaxClients < 31)
+	{
+		SetFailState("Your maxplayers is not 31, please go install L4dtoolz: https://github.com/lakwsh/l4dtoolz/releases, and set launch parameter: +sv_setmax 31 -maxplayers 31");
+		return;
+	}
+
+	if(MaxClients > 31)
+	{
+		SetFailState("Maxplayers can not be set over 31, please set launch parameter: +sv_setmax 31 -maxplayers 31");
+		return;
+	}
+}
+
 void ConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();

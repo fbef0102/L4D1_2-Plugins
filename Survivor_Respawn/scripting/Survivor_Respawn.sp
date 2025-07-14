@@ -8,7 +8,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION 			"4.1-2024/12/4"
+#define PLUGIN_VERSION 			"4.2-2025/7/14"
 
 public Plugin myinfo = 
 {
@@ -41,13 +41,13 @@ public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_ma
 #define TEAM_SPECTATOR 	1
 #define TEAM_SURVIVOR 	2
 
-ConVar g_hCvarEnable, hCvar_EnableHuman, hCvar_EnableBots, hCvar_RespawnRespect, 
+ConVar g_hCvarEnable, g_hCvarAnnounceType, hCvar_EnableHuman, hCvar_EnableBots, hCvar_RespawnRespect, 
 	hCvar_RespawnLimit, hCvar_RespawnTimeout, hCvar_RespawnHP, hCvar_RespawnBuffHP, hCvar_BotReplaced, 
 	hCvar_InvincibleTime, hCvar_EscapeDisable, hCvar_MsgEnable,
 	FirstWeapon, SecondWeapon, ThirdWeapon, FourthWeapon, FifthWeapon;
 
 bool g_bCvarEnable, g_bEnableHuman, g_bEnableBots, g_bEnablesRespawnLimit;
-int g_iRespawnLimit, g_iRespawnTimeout,
+int g_iCvarAnnounceType, g_iRespawnLimit, g_iRespawnTimeout,
 	g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon;
 bool g_bEscapeDisable, g_bCvar_MsgEnable;
 float g_fInvincibleTime, g_fRespawnTimeout;
@@ -157,6 +157,7 @@ public void OnPluginStart()
 	
 	CreateConVar( 						   "l4d_survivorrespawn_version", 				PLUGIN_VERSION, "Survivor Respawning Version", FCVAR_SPONLY|FCVAR_DONTRECORD|FCVAR_NOTIFY);
 	g_hCvarEnable 			= CreateConVar("l4d_survivorrespawn_enable", 				"1", 	"0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarAnnounceType 	= CreateConVar("l4d_survivorrespawn_announce_type", 		"2",    "How message displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	hCvar_EnableHuman 		= CreateConVar("l4d_survivorrespawn_human", 				"1", 	"If 1, Enables Human Survivors to respawn automatically when killed", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_EnableBots 		= CreateConVar("l4d_survivorrespawn_bot", 					"1", 	"If 1, Allows Bots to respawn automatically when killed", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_RespawnRespect 	= CreateConVar("l4d_survivorrespawn_limitenable", 			"1", 	"If 1, Enables the respawn limit for Survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -185,6 +186,7 @@ public void OnPluginStart()
 	
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAnnounceType.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EnableHuman.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EnableBots.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_RespawnRespect.AddChangeHook(ConVarChanged_Cvars);
@@ -279,6 +281,7 @@ void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newV
 void GetCvars()
 {
 	g_bCvarEnable = g_hCvarEnable.BoolValue;
+	g_iCvarAnnounceType = g_hCvarAnnounceType.IntValue;
 	g_bEnableHuman = hCvar_EnableHuman.BoolValue;
 	g_bEnableBots = hCvar_EnableBots.BoolValue;
 	g_bEnablesRespawnLimit = hCvar_RespawnRespect.BoolValue;
@@ -370,18 +373,53 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 
 	if (g_bIsOpenSafeRoom) 
 	{
-		PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+		}
+		
 		return;
 	}
 	if ( bFinaleEscapeStarted && g_bEscapeDisable)
 	{
-		PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+		}
+
 		return;
 	}
 
 	if ( clinetReSpawnTime[client] > GetEngineTime() )
 	{
-		PrintHintText( client, "%T", "You will be respawned again.", client );
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "You will be respawned again.", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "You will be respawned again.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "You will be respawned again.", client );
+			}
+		}
 		
 		CreateTimer( 3.0, RespawnAgain, GetClientUserId( client ), TIMER_FLAG_NO_MAPCHANGE );
 		return;
@@ -423,7 +461,19 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 		}
 		else if ( RespawnLimit[client] >= g_iRespawnLimit )
 		{
-			PrintHintText( client, "%T", "Respawn Limit", client );
+			switch(g_iCvarAnnounceType)
+			{
+				case 1: {
+					CPrintToChat(client, "%T", "Respawn Limit", client );
+				}
+				case 2: {
+					PrintHintText( client, "%T", "Respawn Limit", client );
+				}
+				case 3: {
+					PrintCenterText(client, "%T", "Respawn Limit", client );
+				}
+			}
+
 			bRescuable[client] = false;
 		}
 	}
@@ -487,7 +537,19 @@ void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast 
 			}
 			else if ( RespawnLimit[client] >= g_iRespawnLimit )
 			{
-				PrintHintText( client, "%T", "Respawn Limit", client );
+				switch(g_iCvarAnnounceType)
+				{
+					case 1: {
+						CPrintToChat(client, "%T", "Respawn Limit", client );
+					}
+					case 2: {
+						PrintHintText( client, "%T", "Respawn Limit", client );
+					}
+					case 3: {
+						PrintCenterText(client, "%T", "Respawn Limit", client );
+					}
+				}
+
 				bRescuable[client] = false;
 			}
 		}
@@ -564,7 +626,19 @@ Action Timer_Event_PlayerSpawn(Handle timer, int client)
 		}
 		else if ( RespawnLimit[client] >= g_iRespawnLimit )
 		{
-			PrintHintText( client, "%T", "Respawn Limit", client );
+			switch(g_iCvarAnnounceType)
+			{
+				case 1: {
+					CPrintToChat(client, "%T", "Respawn Limit", client );
+				}
+				case 2: {
+					PrintHintText( client, "%T", "Respawn Limit", client );
+				}
+				case 3: {
+					PrintCenterText(client, "%T", "Respawn Limit", client );
+				}
+			}
+
 			bRescuable[client] = false;
 		}
 	}
@@ -759,7 +833,19 @@ Action TimerCount( Handle hTimer, int client )
 	
 	if(g_bIsOpenSafeRoom) 
 	{
-		PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+			}
+		}
+
 		delete RespawnTimer[client];
 		CountTimer[client] = null;
 		return Plugin_Stop;
@@ -767,7 +853,19 @@ Action TimerCount( Handle hTimer, int client )
 
 	if(bFinaleEscapeStarted && g_bEscapeDisable)
 	{
-		PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+			}
+		}
+
 		delete RespawnTimer[client];
 		CountTimer[client] = null;
 		return Plugin_Stop;
@@ -780,16 +878,49 @@ Action TimerCount( Handle hTimer, int client )
 		int left = g_iRespawnLimit - RespawnLimit[client];
 		if(left == 1)
 		{
-			PrintHintText( client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
+			switch(g_iCvarAnnounceType)
+			{
+				case 1: {
+					CPrintToChat(client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
+				}
+				case 2: {
+					PrintHintText( client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
+				}
+				case 3: {
+					PrintCenterText(client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
+				}
+			}
 		}
 		else
 		{	
-			PrintHintText( client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
+			switch(g_iCvarAnnounceType)
+			{
+				case 1: {
+					CPrintToChat(client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
+				}
+				case 2: {
+					PrintHintText( client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
+				}
+				case 3: {
+					PrintCenterText(client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
+				}
+			}
 		}
 	}
 	else
 	{
-		PrintHintText( client, "%T", "Seconds To Respawn", client, Seconds[client] );
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Seconds To Respawn", client, Seconds[client] );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Seconds To Respawn", client, Seconds[client] );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Seconds To Respawn", client, Seconds[client] );
+			}
+		}
 	}
 
 	return Plugin_Continue;
@@ -1202,15 +1333,21 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 {
 	if(!g_bCvarEnable || !IsValidEntity(inflictor) || damage <= 0.0) return Plugin_Continue;
 
-	static char sClassname[64];
-	GetEntityClassname(inflictor, sClassname, 64);
 	if(victim > 0 && victim <= MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == 2 && clinetReSpawnTime[victim] > GetEngineTime())
 	{
-		if( (attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) != 1) ||
-			strcmp(sClassname, "infected") == 0 || 
-			strcmp(sClassname, "witch") == 0)
+		if( attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) != 1)
 		{
 			return Plugin_Handled;
+		}
+		else
+		{
+			static char sClassname[64];
+			GetEntityClassname(inflictor, sClassname, 64);
+			if( strcmp(sClassname, "infected") == 0 || 
+				strcmp(sClassname, "witch") == 0 )
+			{
+				return Plugin_Handled;
+			}
 		}
 	}
 	return Plugin_Continue;

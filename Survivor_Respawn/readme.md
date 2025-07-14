@@ -16,7 +16,10 @@ When a Survivor dies, will respawn after a period of time.
 	* cfg/sourcemod/Survivor_Respawn.cfg
 		```php
 		// 0=Plugin off, 1=Plugin on.
-		l4d2_final_rescue_arrive_time_enable "0"
+		l4d_survivorrespawn_enable "1"
+
+		// How message displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
+		l4d_survivorrespawn_announce_type "2"
 
 		// If 1, Enables Human Survivors to respawn automatically when killed
 		l4d_survivorrespawn_human "1"
@@ -113,6 +116,7 @@ When a Survivor dies, will respawn after a period of time.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.3 (2025-7-14)
 	* v4.2 (2024-12-4)
 		* Update cvars
 
@@ -161,7 +165,10 @@ When a Survivor dies, will respawn after a period of time.
 	* cfg/sourcemod/Survivor_Respawn.cfg
 		```php
 		// 0=關閉插件, 1=啟動插件
-		l4d2_final_rescue_arrive_time_enable "0"
+		l4d_survivorrespawn_enable "1"
+
+		// 提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
+		l4d_survivorrespawn_announce_type "2"
 
 		// 為1時，倖存者玩家死亡之後，過一段時間自動復活
 		l4d_survivorrespawn_human "1"
