@@ -54,14 +54,14 @@ HUD with cs kill info list.
 
         // X (horizontal) position of the kill list.
         // Note: setting it to less than 0.0 may cut/hide the text at screen.
-        l4d2_cs_kill_hud_x "0.5"
+        l4d2_cs_kill_hud_x "0.6"
 
         // Y (vertical) position of the kill list.
         // Note: setting it to less than 0.0 may cut/hide the text at screen.
         l4d2_cs_kill_hud_y "0.1"
 
         // Text area Width.
-        l4d2_cs_kill_hud_width "0.49"
+        l4d2_cs_kill_hud_width "0.39"
 
         // Text area Height.
         l4d2_cs_kill_hud_height "0.04"
@@ -75,11 +75,11 @@ HUD with cs kill info list.
         l4d2_cs_kill_hud_team "0"
 
         // If 1, Makes the text blink from white to red.
-        l4d2_cs_kill_hud_blink "1"
+        l4d2_cs_kill_hud_blink "0"
 
         // If 1, Shows the text inside a black transparent background.
         // Note: the background may not draw properly when initialized as "0", start the map with "1" to render properly.
-        l4d2_cs_kill_hud_background "0"
+        l4d2_cs_kill_hud_background "1"
         ```
 </details>
 
@@ -93,6 +93,9 @@ HUD with cs kill info list.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.0h (2025-7-17)
+        * Optimize code
+        
     * v1.9h (2024-5-1)
         * Add "unknown weapons"
         * Add "Infected kill Infected"
@@ -180,7 +183,7 @@ L4D2擊殺提示改成CS遊戲的擊殺列表
 
         // 擊殺列表的X軸位置
         // 注意: 數值低於0可能會導致文字被切掉
-        l4d2_cs_kill_hud_x "0.5"
+        l4d2_cs_kill_hud_x "0.6"
 
         // 擊殺列表的Y軸位置
         // 注意: 數值低於0可能會導致文字被切掉
@@ -188,7 +191,7 @@ L4D2擊殺提示改成CS遊戲的擊殺列表
 
         // 文字框的寬度
         // 非文字變大
-        l4d2_cs_kill_hud_width "0.49"
+        l4d2_cs_kill_hud_width "0.39"
 
         // 文字框的高度
         // 非文字變大
@@ -203,10 +206,10 @@ L4D2擊殺提示改成CS遊戲的擊殺列表
         l4d2_cs_kill_hud_team "0"
 
         // 為1時，擊殺列表文字紅白閃爍
-        l4d2_cs_kill_hud_blink "1"
+        l4d2_cs_kill_hud_blink "0"
 
         // 為1時，擊殺列表顯示黑底背景
         // 注意: 修改這項指令可能要重啟地圖才會生效
-        l4d2_cs_kill_hud_background "0"
+        l4d2_cs_kill_hud_background "1"
         ```
 </details>

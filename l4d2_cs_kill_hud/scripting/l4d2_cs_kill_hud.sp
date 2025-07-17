@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#define PLUGIN_VERSION			"1.9h-2024/5/1"
+#define PLUGIN_VERSION			"2.0h-2025/7/17"
 #define PLUGIN_NAME			    "l4d2_cs_kill_hud"
 #define DEBUG 0
 
@@ -185,14 +185,14 @@ public void OnPluginStart()
 	g_hCvarKillInfoNumber 	= CreateConVar( PLUGIN_NAME ... "_number",        				"5",   	"Numbers of kill list on hud (Default: 5, MAX: 6)", CVAR_FLAGS, true, 1.0, true, 6.0);
 	g_hCvarHudDecrease 		= CreateConVar( PLUGIN_NAME ... "_notice_time",   				"7.0", 	"Time in seconds to erase kill list on hud.", CVAR_FLAGS, true, 1.0);
 	g_hCvarBlockMessage 	= CreateConVar( PLUGIN_NAME ... "_disable_standard_message", 	"1",   	"If 1, disable offical player death message (the red font of kill info)", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvar_HUD_X           = CreateConVar( PLUGIN_NAME ... "_x",             				"0.50",  "X (horizontal) position of the kill list.\nNote: setting it to less than 0.0 may cut/hide the text at screen.", CVAR_FLAGS, true, -1.0, true, 1.0);
+	g_hCvar_HUD_X           = CreateConVar( PLUGIN_NAME ... "_x",             				"0.60",  "X (horizontal) position of the kill list.\nNote: setting it to less than 0.0 may cut/hide the text at screen.", CVAR_FLAGS, true, -1.0, true, 1.0);
 	g_hCvar_HUD_Y           = CreateConVar( PLUGIN_NAME ... "_y",             				"0.10",  "Y (vertical) position of the kill list.\nNote: setting it to less than 0.0 may cut/hide the text at screen.", CVAR_FLAGS, true, -1.0, true, 1.0);
-	g_hCvar_HUD_Width       = CreateConVar( PLUGIN_NAME ... "_width",         				"0.49", "Text area Width.", CVAR_FLAGS, true, 0.0, true, 2.0);
+	g_hCvar_HUD_Width       = CreateConVar( PLUGIN_NAME ... "_width",         				"0.39", "Text area Width.", CVAR_FLAGS, true, 0.0, true, 2.0);
 	g_hCvar_HUD_Height      = CreateConVar( PLUGIN_NAME ... "_height",        				"0.04",	"Text area Height.", CVAR_FLAGS, true, 0.0, true, 2.0);
 	g_hCvar_HUD_TextAlign   = CreateConVar( PLUGIN_NAME ... "_text_align",    				"3",    "Aligns the text horizontally.\n1 = LEFT, 2 = CENTER, 3 = RIGHT.", CVAR_FLAGS, true, 1.0, true, 3.0);
 	g_hCvar_HUD_Team        = CreateConVar( PLUGIN_NAME ... "_team",          				"0",    "Which team should see the text.\n0 = ALL, 1 = SURVIVOR, 2 = INFECTED.", CVAR_FLAGS, true, 0.0, true, 2.0);
-	g_hCvarHUDBlink         = CreateConVar( PLUGIN_NAME ... "_blink", 						"1",   	"If 1, Makes the text blink from white to red.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarHUDBackground    = CreateConVar( PLUGIN_NAME ... "_background", 					"0",   	"If 1, Shows the text inside a black transparent background.\nNote: the background may not draw properly when initialized as \"0\", start the map with \"1\" to render properly.\n", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarHUDBlink         = CreateConVar( PLUGIN_NAME ... "_blink", 						"0",   	"If 1, Makes the text blink from white to red.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarHUDBackground    = CreateConVar( PLUGIN_NAME ... "_background", 					"1",   	"If 1, Shows the text inside a black transparent background.\nNote: the background may not draw properly when initialized as \"0\", start the map with \"1\" to render properly.\n", CVAR_FLAGS, true, 0.0, true, 1.0);
 	CreateConVar(                       	PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true,                	PLUGIN_NAME);
 
@@ -426,6 +426,10 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 				{
 					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[20],victim_name);
 					DisplayKillList(killinfo);
+					return;
+				}
+				else if(zombie == ZC_TANK && victim == attacker && strcmp(sWeapon, "world", false) == 0 && damagetype == DMG_NEVERGIB) // 傷害類型: 2048, 武器: world, 受害者與攻擊者: tank自己, 原因: 真人A玩家失去tank控制權給真人B玩家時會觸發此涵式
+				{
 					return;
 				}
 			}
