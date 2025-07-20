@@ -47,8 +47,9 @@ Use sm_who or similar commands to monitor who has elevated permissions.
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <basecomm>
 
-#define PLUGIN_VERSION			"1.0"
+#define PLUGIN_VERSION			"1.1-2025/7/20"
 #define PLUGIN_NAME			    "l4d_hackers_block"
 #define DEBUG 0
 
@@ -90,14 +91,22 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 ConVar g_hCvarEnable, g_hCvarKick;
 bool g_bCvarEnable;
-int g_iCvarKick;
 
-char sg_log[256];
+char 
+    sg_log[256];
+
+int 
+    g_iHackersDetect[MAXPLAYERS+1];
+
+bool 
+    g_bSteamIDNotValid[MAXPLAYERS+1];
+
+Handle 
+    g_hDetectTimer[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
     g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-    g_hCvarKick         = CreateConVar( PLUGIN_NAME ... "_kick",          "1",   "1=Kick players if client's authentication failed (steam id is not valid), 0=Log only", CVAR_FLAGS, true, 0.0, true, 1.0);
     CreateConVar(                       PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
     AutoExecConfig(true,                PLUGIN_NAME);
 
@@ -128,7 +137,6 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 void GetCvars()
 {
     g_bCvarEnable = g_hCvarEnable.BoolValue;
-    g_iCvarKick = g_hCvarKick.IntValue;
 }
 
 // Sourcemod API Forward-------------------------------
@@ -144,18 +152,100 @@ public void OnConfigsExecuted()
     }
 }
 
-public void OnClientPutInServer(int client) 
+public void OnClientConnected(int client) 
 {
     if(IsFakeClient(client)) return;
 
-    int userid = GetClientUserId(client);
-    CreateTimer(10.0, CheckSteamID, userid, TIMER_FLAG_NO_MAPCHANGE);
+    g_iHackersDetect[client] = 0;
+    g_bSteamIDNotValid[client] = false;
 }
+
+public void OnClientPutInServer(int client) 
+{
+    if(!g_bCvarEnable) return;
+    if(IsFakeClient(client)) return;
+
+    delete g_hDetectTimer[client];
+    g_hDetectTimer[client] = CreateTimer(8.0, CheckSteamID, client);
+
+    char steamID[32];
+    if (!GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID))) 
+    {
+        g_bSteamIDNotValid[client] = true;
+        BaseComm_SetClientMute(client, true);
+    }
+    else
+    {
+        g_bSteamIDNotValid[client] = false;
+    }
+}
+
+public void OnClientAuthorized(int client)
+{
+    delete g_hDetectTimer[client];
+    g_bSteamIDNotValid[client] = false;
+
+    BaseComm_SetClientMute(client, false);
+}
+
+public void OnClientDisconnect(int client)
+{
+    delete g_hDetectTimer[client];
+}
+
+// 不會檢測到客戶端能執行的指令
+// 遊戲控制台輸入指令
+public Action OnClientCommand(int client, int args) 
+{
+    if(!g_bCvarEnable)
+        return Plugin_Continue;
+
+    if(client < 0 || client > MaxClients || IsFakeClient(client))
+        return Plugin_Continue;
+
+    if(g_bSteamIDNotValid[client])
+        return Plugin_Handled;
+
+    return Plugin_Continue;
+}
+
+// 打字聊天
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
+{
+    if(!g_bCvarEnable)
+        return Plugin_Continue;
+
+    if(client < 0 || client > MaxClients || IsFakeClient(client))
+        return Plugin_Continue;
+
+    if(g_bSteamIDNotValid[client])
+        return Plugin_Stop;
+
+    return Plugin_Stop;
+}
+
 // Command-------------------------------
 
 Action bugpause(int client, int args)
 {
     if(!g_bCvarEnable) return Plugin_Continue;
+
+    if(client > 0 && !IsFakeClient(client))
+    {
+        g_iHackersDetect[client]++;
+        if(g_iHackersDetect[client] >= 3)
+        {
+            char steamID[32];
+            GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID)); 
+
+            char ip[32];
+            GetClientIP(client, ip, sizeof(ip));
+            
+            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: bugpause command abuse", client, steamID, ip);
+            
+            KickClient(client, "Nice try, hacker!");
+        }
+    }
 
     return Plugin_Handled;
 }
@@ -164,12 +254,46 @@ Action bugunpause(int client, int args)
 {
     if(!g_bCvarEnable) return Plugin_Continue;
 
+    if(client > 0 && !IsFakeClient(client))
+    {
+        g_iHackersDetect[client]++;
+        if(g_iHackersDetect[client] >= 3)
+        {
+            char steamID[32];
+            GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID)); 
+
+            char ip[32];
+            GetClientIP(client, ip, sizeof(ip));
+            
+            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: bugunpause command abuse", client, steamID, ip);
+            
+            KickClient(client, "Nice try, hacker!");
+        }
+    }
+
     return Plugin_Handled;
 }
 
 Action jockey(int client, int args)
 {
     if(!g_bCvarEnable) return Plugin_Continue;
+
+    if(client > 0 && !IsFakeClient(client))
+    {
+        g_iHackersDetect[client]++;
+        if(g_iHackersDetect[client] >= 3)
+        {
+            char steamID[32];
+            GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID)); 
+
+            char ip[32];
+            GetClientIP(client, ip, sizeof(ip));
+            
+            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: jockey command abuse", client, steamID, ip);
+            
+            KickClient(client, "Nice try, hacker!");
+        }
+    }
 
     return Plugin_Handled;
 }
@@ -184,17 +308,18 @@ Action Timer_ServerLoaded(Handle timer)
 }
 
 //駭客阻止Steam ID驗證導致ban失效
-Action CheckSteamID(Handle timer, int userid) 
+Action CheckSteamID(Handle timer, int client) 
 {
-    int client = GetClientOfUserId(userid);
+    g_hDetectTimer[client] = null;
 
-    if (client == 0 || !IsClientInGame(client)) {
+    if (!g_bCvarEnable || !IsClientInGame(client) || IsFakeClient(client)) 
+    {
         return Plugin_Continue;
     }
 
     if(!g_bServerLoaded)
     {
-        CreateTimer(10.0, CheckSteamID, userid, TIMER_FLAG_NO_MAPCHANGE);
+        g_hDetectTimer[client] = CreateTimer(8.0, CheckSteamID, client);
         return Plugin_Continue;
     }
 
@@ -204,15 +329,13 @@ Action CheckSteamID(Handle timer, int userid)
         char ip[32];
         GetClientIP(client, ip, sizeof(ip));
 
-        if(g_iCvarKick == 1)
-        {
-            LogToFileEx(sg_log, "Kick %N <STEAM_ID_PENDING>, IP: %s", client, ip);
-            KickClient(client, "AuthId not valid");
-        }
-        else 
-        {
-            LogToFileEx(sg_log, "Warning! %N <STEAM_ID_PENDING>, IP: %s", client, ip);
-        }
+        LogToFileEx(sg_log, "Kick %N <STEAM_ID_PENDING>, IP: %s, Reason: no steam id available", client, ip);
+        KickClient(client, "AuthId not valid");
+    }
+    else
+    {
+        g_bSteamIDNotValid[client] = false;
+        BaseComm_SetClientMute(client, false);
     }
 
     return Plugin_Continue;

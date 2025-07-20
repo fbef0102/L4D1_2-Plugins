@@ -18,8 +18,10 @@ Block hackers using some exploit to crash server
         2. Stops steam server from validating steam id, so sourcemod banid not working for them (no steam id)
     * How this plugin does
         1. Register some dangerous commands and block entirely
+            * Kick client if abuse crash command
         2. Kick players if client's authentication failed (steam id is not valid)
-            * If your network is offine, please disable this function
+            * Block chat voice, cast of votes and commands while no steam id available
+        3. Log record: [logs/l4d_hackers_block.log](logs/l4d_hackers_block.log)
     * What you can do to prevent hackers
         1. Set ```sm_cvar sv_allow_wait_command 0``` to your ```cfg/server.cfg``` to block certain command exploits.
         2. Check ```sv_cheats 0``` and ensure no plugins override it.
@@ -41,6 +43,11 @@ Block hackers using some exploit to crash server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.1 (2025-7-20)
+        * Update cvars
+        * Block chat voice, cast of votes and commands while no steam id available
+        * Kick client if abuse crash command
+
     * v1.0 (2025-7-19)
         * Initial Release
         * Thanks to IfChinsCouldKill
@@ -57,8 +64,10 @@ Block hackers using some exploit to crash server
         2. 繞過steam驗證，導致無法獲得該玩家的steam id，使其無法被伺服器封鎖ID (因為steam id抓不到) 
     * 這插件做了什麼
         1. 阻擋一些指令被觸發
+            * 頻繁使用會被踢出伺服器
         2. 踢出steam驗證失敗的玩家 (steam id抓不到)
-            * 建議沒有網路時關閉這項功能
+            * 禁語音、禁言打字、禁使用控制台輸入指令
+        3. 紀錄文件: [logs/l4d_hackers_block.log](logs/l4d_hackers_block.log)
     * 你可以做甚麼防止駭客
         1. 在```cfg/server.cfg```文件中設置 ```sm_cvar sv_allow_wait_command 0```
             * 禁止客戶端使用```wait```以阻擋一些奇葩指令或自製腳本
@@ -72,9 +81,5 @@ Block hackers using some exploit to crash server
         ```php
         // 0=關閉插件, 1=啟動插件
         l4d_hackers_block_enable "1"
-
-        // 1=踢出steam驗證失敗的玩家 (steam id抓不到), 0=不踢出只記錄
-        // 建議沒有網路時設置0關閉這項功能
-        l4d_hackers_block_kick "1"
         ```
 </details>
