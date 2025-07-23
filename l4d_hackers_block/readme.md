@@ -20,8 +20,8 @@ Block hackers using some exploit to crash server
         1. Register some dangerous commands and block entirely
             * Kick client if abuse crash command
         2. Kick players if client's authentication failed (steam id is not valid)
-            * Block chat voice, cast of votes and commands while no steam id available
-        3. Log record: [logs/l4d_hackers_block.log](logs/l4d_hackers_block.log)
+        3. Force to spec + Block chat voicecast of votes and commands while no steam id available
+        4. Log record: [logs/l4d_hackers_block.log](logs/l4d_hackers_block.log)
     * What you can do to prevent hackers
         1. Set ```sm_cvar sv_allow_wait_command 0``` to your ```cfg/server.cfg``` to block certain command exploits.
         2. Check ```sv_cheats 0``` and ensure no plugins override it.
@@ -36,12 +36,22 @@ Block hackers using some exploit to crash server
         // 0=Plugin off, 1=Plugin on.
         l4d_hackers_block_enable "1"
 
-        // 1=Kick players if client's authentication failed (steam id is not valid), 0=Log only
+        // Time in seconds to check if players has steam id authorized after join server
+        l4d_hackers_block_time "10.0"
+
+        // 1=Kick the player if no steam id authorized, 0=Log only
         l4d_hackers_block_kick "1"
+
+        // If 1, Force to spec/Block chat/Block voice/Block commands while no steam id available
+        l4d_hackers_block_spec "1"
         ```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.2 (2025-7-23)
+        * Update cvars
+        * Force to spec while no steam id available
 
     * v1.1 (2025-7-20)
         * Update cvars
@@ -66,8 +76,8 @@ Block hackers using some exploit to crash server
         1. 阻擋一些指令被觸發
             * 頻繁使用會被踢出伺服器
         2. 踢出steam驗證失敗的玩家 (steam id抓不到)
-            * 禁語音、禁言打字、禁使用控制台輸入指令
-        3. 紀錄文件: [logs/l4d_hackers_block.log](logs/l4d_hackers_block.log)
+        3. 當玩家沒有steam id驗證時，強制旁觀、禁語音、禁言打字、禁止使用控制台發送指令給伺服器
+        4. 紀錄文件: [logs/l4d_hackers_block.log](logs/l4d_hackers_block.log)
     * 你可以做甚麼防止駭客
         1. 在```cfg/server.cfg```文件中設置 ```sm_cvar sv_allow_wait_command 0```
             * 禁止客戶端使用```wait```以阻擋一些奇葩指令或自製腳本
@@ -81,5 +91,14 @@ Block hackers using some exploit to crash server
         ```php
         // 0=關閉插件, 1=啟動插件
         l4d_hackers_block_enable "1"
+
+        // 延遲檢查玩家是否有steam id驗證的時間
+        l4d_hackers_block_time "10.0"
+
+        // 1=踢出steam驗證失敗的玩家 (steam id抓不到), 0=只記錄log文件
+        l4d_hackers_block_kick "1"
+
+        // 為1時，當玩家沒有steam id驗證時，強制旁觀、禁語音、禁言打字、禁止使用控制台發送指令給伺服器
+        l4d_hackers_block_spec "1"
         ```
 </details>

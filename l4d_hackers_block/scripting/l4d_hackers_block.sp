@@ -49,7 +49,7 @@ Use sm_who or similar commands to monitor who has elevated permissions.
 #include <sdkhooks>
 #include <basecomm>
 
-#define PLUGIN_VERSION			"1.1-2025/7/20"
+#define PLUGIN_VERSION			"1.2-2025/7/23"
 #define PLUGIN_NAME			    "l4d_hackers_block"
 #define DEBUG 0
 
@@ -89,8 +89,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define LOG_FILE		        "logs/" ... PLUGIN_NAME ... ".log"
 
-ConVar g_hCvarEnable, g_hCvarKick;
-bool g_bCvarEnable;
+ConVar g_hCvarEnable, g_hCvarTime, g_hCvarKick, g_hCvarSpec;
+bool g_bCvarEnable, g_bCvarSpec;
+int g_iCvarKick;
+float g_fCvarTime;
 
 char 
     sg_log[256];
@@ -107,12 +109,17 @@ Handle
 public void OnPluginStart()
 {
     g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+    g_hCvarTime 		= CreateConVar( PLUGIN_NAME ... "_time",          "10.0","Time in seconds to check if players has steam id authorized after join server", CVAR_FLAGS, true, 0.0);
+    g_hCvarKick         = CreateConVar( PLUGIN_NAME ... "_kick",          "1",   "1=Kick the player if no steam id authorized, 0=Log only", CVAR_FLAGS, true, 0.0, true, 1.0);
+    g_hCvarSpec         = CreateConVar( PLUGIN_NAME ... "_spec",          "1",   "If 1, Force to spec/Block chat/Block voice/Block commands while no steam id available", CVAR_FLAGS, true, 0.0, true, 1.0);
     CreateConVar(                       PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
     AutoExecConfig(true,                PLUGIN_NAME);
 
     GetCvars();
     g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
+    g_hCvarTime.AddChangeHook(ConVarChanged_Cvars);
     g_hCvarKick.AddChangeHook(ConVarChanged_Cvars);
+    g_hCvarSpec.AddChangeHook(ConVarChanged_Cvars);
 
     // 開發者測試用的命令, 在客戶端輸入命令會導致遊戲凍結或暫停, 聊天框出現 "BUG REPORTER ACTIVATED BY:"
     RegConsoleCmd("bugpause", bugpause);
@@ -123,6 +130,8 @@ public void OnPluginStart()
         // 別問我, 伺服器端輸入這條直接崩潰
         RegConsoleCmd("jockey", jockey);
     }
+
+    HookEvent("player_team",            Event_PlayerTeam);
 
     BuildPath(Path_SM, sg_log, sizeof(sg_log), "%s", LOG_FILE);
 }
@@ -137,6 +146,9 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 void GetCvars()
 {
     g_bCvarEnable = g_hCvarEnable.BoolValue;
+    g_fCvarTime = g_hCvarTime.FloatValue;
+    g_iCvarKick = g_hCvarKick.IntValue;
+    g_bCvarSpec = g_hCvarSpec.BoolValue;
 }
 
 // Sourcemod API Forward-------------------------------
@@ -165,14 +177,17 @@ public void OnClientPutInServer(int client)
     if(!g_bCvarEnable) return;
     if(IsFakeClient(client)) return;
 
-    delete g_hDetectTimer[client];
-    g_hDetectTimer[client] = CreateTimer(8.0, CheckSteamID, client);
-
     char steamID[32];
     if (!GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID))) 
     {
-        g_bSteamIDNotValid[client] = true;
-        BaseComm_SetClientMute(client, true);
+        if(g_bCvarSpec)
+        {
+            g_bSteamIDNotValid[client] = true;
+            BaseComm_SetClientMute(client, true);
+        }
+
+        delete g_hDetectTimer[client];
+        g_hDetectTimer[client] = CreateTimer(g_fCvarTime, CheckSteamID, client);
     }
     else
     {
@@ -182,10 +197,12 @@ public void OnClientPutInServer(int client)
 
 public void OnClientAuthorized(int client)
 {
+    if(IsFakeClient(client)) return;
+    
     delete g_hDetectTimer[client];
     g_bSteamIDNotValid[client] = false;
 
-    BaseComm_SetClientMute(client, false);
+    if(g_bCvarSpec && IsClientInGame(client) && BaseComm_IsClientMuted(client)) BaseComm_SetClientMute(client, false);
 }
 
 public void OnClientDisconnect(int client)
@@ -197,7 +214,7 @@ public void OnClientDisconnect(int client)
 // 遊戲控制台輸入指令
 public Action OnClientCommand(int client, int args) 
 {
-    if(!g_bCvarEnable)
+    if(!g_bCvarEnable || !g_bCvarSpec)
         return Plugin_Continue;
 
     if(client < 0 || client > MaxClients || IsFakeClient(client))
@@ -212,7 +229,7 @@ public Action OnClientCommand(int client, int args)
 // 打字聊天
 public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
 {
-    if(!g_bCvarEnable)
+    if(!g_bCvarEnable || !g_bCvarSpec)
         return Plugin_Continue;
 
     if(client < 0 || client > MaxClients || IsFakeClient(client))
@@ -221,7 +238,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
     if(g_bSteamIDNotValid[client])
         return Plugin_Stop;
 
-    return Plugin_Stop;
+    return Plugin_Continue;
 }
 
 // Command-------------------------------
@@ -298,7 +315,32 @@ Action jockey(int client, int args)
     return Plugin_Handled;
 }
 
+// Event------------
+
+void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast) 
+{
+    if(!g_bCvarEnable || !g_bCvarSpec) return;
+
+    int userid = event.GetInt("userid");
+    CreateTimer(1.0, PlayerChangeTeamCheck, userid);//延遲一秒檢查
+}
+
 // Timer & Frame-------------------------------
+
+Action PlayerChangeTeamCheck(Handle timer,int userid)
+{
+    int client = GetClientOfUserId(userid);
+    if (client && IsClientInGame(client) && GetClientTeam(client) > 1)
+    {
+        if(g_bSteamIDNotValid[client])
+        {
+            ChangeClientTeam(client, 1);
+            PrintToChat(client, "Unable to play games while steam id not authorized!!");
+        }
+    }
+
+    return Plugin_Continue;
+}
 
 Action Timer_ServerLoaded(Handle timer)
 {
@@ -319,7 +361,7 @@ Action CheckSteamID(Handle timer, int client)
 
     if(!g_bServerLoaded)
     {
-        g_hDetectTimer[client] = CreateTimer(8.0, CheckSteamID, client);
+        g_hDetectTimer[client] = CreateTimer(g_fCvarTime, CheckSteamID, client);
         return Plugin_Continue;
     }
 
@@ -329,13 +371,20 @@ Action CheckSteamID(Handle timer, int client)
         char ip[32];
         GetClientIP(client, ip, sizeof(ip));
 
-        LogToFileEx(sg_log, "Kick %N <STEAM_ID_PENDING>, IP: %s, Reason: no steam id available", client, ip);
-        KickClient(client, "AuthId not valid");
+        if(g_iCvarKick == 1)
+        {
+            LogToFileEx(sg_log, "Kick %N <STEAM_ID_PENDING>, IP: %s, Reason: no steam id available", client, ip);
+            KickClient(client, "AuthId not valid");
+        }
+        else
+        {
+            LogToFileEx(sg_log, "Warning! Careful %N <STEAM_ID_PENDING>, IP: %s, Reason: no steam id available", client, ip);
+        }
     }
     else
     {
         g_bSteamIDNotValid[client] = false;
-        BaseComm_SetClientMute(client, false);
+        if(g_bCvarSpec && BaseComm_IsClientMuted(client)) BaseComm_SetClientMute(client, false);
     }
 
     return Plugin_Continue;
