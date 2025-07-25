@@ -258,6 +258,12 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 撿起的武器時不會有滿發的彈夾 + 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
 * <b>[l4d_hackers_block](/l4d_hackers_block)</b>: Block hackers using some exploit to crash server
     * 阻止駭客利用某些漏洞導致伺服器崩潰
+* <b>[l4d_exploit_dmg_block](/l4d_exploit_dmg_block)</b>: Block exploit damage by player, ex: throw molotov and change team to infected
+    * 防止惡意玩家的友軍傷害，譬如: 丟火瓶之後跑去特感隊伍
+* <b>[l4d_collision_adjustments](/l4d_collision_adjustments)</b>: No collisions to fix a handful of silly collision bugs in l4d
+    * 改善一些愚蠢的實體碰撞造成的問題
+* <b>[l4d_full_slot_bot_replace_fix](/l4d_full_slot_bot_replace_fix)</b>: Fix bugs if not enough slots to spawn bots to take over + Kick Previously human-controlled SI bots
+    * 修復伺服器客戶端已滿的狀態下無法生成Bot取代玩家所造成的嚴重問題
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

@@ -1,0 +1,82 @@
+"Games"
+{
+	"#default"
+	{
+		"Functions"
+		{
+			"SurvivorReplacement::Save"
+			{
+				"signature"		"SurvivorReplacement::Save"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"ignore"
+				"arguments"
+				{
+					"a1"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+
+			"ZombieReplacement::Save"
+			{
+				"signature"		"ZombieReplacement::Save"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"ignore"
+				"arguments"
+				{
+					"a1"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+		}
+	}
+
+	"left4dead"
+	{
+		"Signatures"
+		{
+			"SurvivorReplacement::Save"
+			{
+				"library"		"server"
+				"linux"			"@_ZN19SurvivorReplacement4SaveEP13CTerrorPlayer"
+				"windows"		"\x83\xEC\x1C\x53\x56\x8B\x74\x24\x28\x33\xDB"
+								/* 83 EC 1C 53 56 8B 74 24 28 33 DB */
+			}
+
+			"ZombieReplacement::Save"
+			{
+				"library"		"server"
+				"linux"			"@_ZN17ZombieReplacement4SaveEP13CTerrorPlayer"
+				"windows"		"\x83\xEC\x1C\x53\x55\x8B\x6C\x24\x28\x56"
+								/* 83 EC 1C 53 55 8B 6C 24 28 56 */
+			}
+		}
+	}
+
+	"left4dead2"
+	{
+		"Signatures"
+		{
+			"SurvivorReplacement::Save"
+			{
+				"library"		"server"
+				"linux"			"@_ZN19SurvivorReplacement4SaveEP13CTerrorPlayer"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\x75\x08\x33\xDB"
+								/* 55 8B EC 83 EC 20 53 56 8B 75 08 33 DB */
+			}
+
+			"ZombieReplacement::Save"
+			{
+				"library"		"server"
+				"linux"			"@_ZN17ZombieReplacement4SaveEP13CTerrorPlayer"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x33\xDB"
+								/* 55 8B EC 83 EC 20 53 56 33 DB */
+			}
+		}
+	}
+}
