@@ -49,6 +49,9 @@ Block hackers using some exploit to crash server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.3 (2025-7-28)
+        * More cmd
+
     * v1.2 (2025-7-23)
         * Update cvars
         * Force to spec while no steam id available

@@ -49,7 +49,7 @@ Use sm_who or similar commands to monitor who has elevated permissions.
 #include <sdkhooks>
 #include <basecomm>
 
-#define PLUGIN_VERSION			"1.2-2025/7/23"
+#define PLUGIN_VERSION			"1.3-2025/7/28"
 #define PLUGIN_NAME			    "l4d_hackers_block"
 #define DEBUG 0
 
@@ -122,13 +122,14 @@ public void OnPluginStart()
     g_hCvarSpec.AddChangeHook(ConVarChanged_Cvars);
 
     // 開發者測試用的命令, 在客戶端輸入命令會導致遊戲凍結或暫停, 聊天框出現 "BUG REPORTER ACTIVATED BY:"
-    RegConsoleCmd("bugpause", bugpause);
-    RegConsoleCmd("bugunpause", bugunpause);
+    RegConsoleCmd("bugpause", CMD_CRASH);
+    RegConsoleCmd("bugunpause", CMD_CRASH);
    
     if(g_bL4D2Version)
     {
         // 別問我, 伺服器端輸入這條直接崩潰
-        RegConsoleCmd("jockey", jockey);
+        RegConsoleCmd("jockey", CMD_CRASH);
+        RegConsoleCmd("jockeyme", CMD_CRASH);
     }
 
     HookEvent("player_team",            Event_PlayerTeam);
@@ -243,70 +244,25 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
 // Command-------------------------------
 
-Action bugpause(int client, int args)
+Action CMD_CRASH(int client, int args)
 {
     if(!g_bCvarEnable) return Plugin_Continue;
 
     if(client > 0 && !IsFakeClient(client))
     {
         g_iHackersDetect[client]++;
-        if(g_iHackersDetect[client] >= 3)
+        if(g_iHackersDetect[client] >= 5)
         {
-            char steamID[32];
+            static char steamID[32];
             GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID)); 
 
-            char ip[32];
+            static char ip[32];
             GetClientIP(client, ip, sizeof(ip));
+
+            static char sName[12];
+            GetCmdArg(0, sName, sizeof(sName));
             
-            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: bugpause command abuse", client, steamID, ip);
-            
-            KickClient(client, "Nice try, hacker!");
-        }
-    }
-
-    return Plugin_Handled;
-}
-
-Action bugunpause(int client, int args)
-{
-    if(!g_bCvarEnable) return Plugin_Continue;
-
-    if(client > 0 && !IsFakeClient(client))
-    {
-        g_iHackersDetect[client]++;
-        if(g_iHackersDetect[client] >= 3)
-        {
-            char steamID[32];
-            GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID)); 
-
-            char ip[32];
-            GetClientIP(client, ip, sizeof(ip));
-            
-            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: bugunpause command abuse", client, steamID, ip);
-            
-            KickClient(client, "Nice try, hacker!");
-        }
-    }
-
-    return Plugin_Handled;
-}
-
-Action jockey(int client, int args)
-{
-    if(!g_bCvarEnable) return Plugin_Continue;
-
-    if(client > 0 && !IsFakeClient(client))
-    {
-        g_iHackersDetect[client]++;
-        if(g_iHackersDetect[client] >= 3)
-        {
-            char steamID[32];
-            GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID)); 
-
-            char ip[32];
-            GetClientIP(client, ip, sizeof(ip));
-            
-            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: jockey command abuse", client, steamID, ip);
+            LogToFileEx(sg_log, "Kick %N <%s>, IP: %s, Reason: %s command abuse", client, steamID, ip, sName);
             
             KickClient(client, "Nice try, hacker!");
         }
