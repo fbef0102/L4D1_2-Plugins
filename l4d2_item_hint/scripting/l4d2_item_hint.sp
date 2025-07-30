@@ -771,7 +771,7 @@ int GetUseEntity(int client, float fRadius)
 
 bool IsRealSur(int client)
 {
-	return (client > 0 && client <= MaxClients && !IsFakeClient(client) && IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVOR && !IsFakeClient(client));
+	return (client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == TEAM_SURVIVOR && !IsFakeClient(client));
 }
 
 void Clear(int client = -1)
