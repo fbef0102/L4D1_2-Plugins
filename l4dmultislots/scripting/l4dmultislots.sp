@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #include <l4d_CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"6.9-2025/4/5"
+#define PLUGIN_VERSION 				"7.0-2025/8/1"
 
 public Plugin myinfo = 
 {
@@ -1497,11 +1497,11 @@ void GiveItems(int bot) // give bot weapon
 	{
 		case 1:
 		{
-			GivePlayerItem( bot, "weapon_pistol" );
-			GivePlayerItem( bot, "weapon_pistol" );
+			GivePlayerItem_L4D( bot, "weapon_pistol" );
+			GivePlayerItem_L4D( bot, "weapon_pistol" );
 		}
-		case 2: GivePlayerItem(bot, "weapon_pistol_magnum");
-		case 3: GivePlayerItem(bot, "weapon_chainsaw");
+		case 2: GivePlayerItem_L4D(bot, "weapon_pistol_magnum");
+		case 3: GivePlayerItem_L4D(bot, "weapon_chainsaw");
 		case 4: 
 		{
 			if(g_bLeft4Dead2)
@@ -1517,7 +1517,7 @@ void GiveItems(int bot) // give bot weapon
 			}
 		}
 		default: {
-			GivePlayerItem( bot, "weapon_pistol" );
+			GivePlayerItem_L4D( bot, "weapon_pistol" );
 		}
 	}
 
@@ -1530,23 +1530,23 @@ void GiveItems(int bot) // give bot weapon
 		
 		switch ( iRandom )
 		{
-			case 1: GivePlayerItem(bot, "weapon_autoshotgun");
-			case 2: GivePlayerItem(bot, "weapon_shotgun_spas");
-			case 3: GivePlayerItem(bot, "weapon_rifle");
-			case 4: GivePlayerItem(bot, "weapon_rifle_desert");
-			case 5: GivePlayerItem(bot, "weapon_rifle_ak47");
-			case 6: GivePlayerItem(bot, "weapon_rifle_sg552");
-			case 7: GivePlayerItem(bot, "weapon_sniper_military");
-			case 8: GivePlayerItem(bot, "weapon_sniper_awp");
-			case 9: GivePlayerItem(bot, "weapon_sniper_scout");
-			case 10: GivePlayerItem(bot, "weapon_hunting_rifle");
-			case 11: GivePlayerItem(bot, "weapon_rifle_m60");
-			case 12: GivePlayerItem(bot, "weapon_grenade_launcher");
-			case 13: GivePlayerItem(bot, "weapon_smg");
-			case 14: GivePlayerItem(bot, "weapon_smg_silenced");
-			case 15: GivePlayerItem(bot, "weapon_smg_mp5");
-			case 16: GivePlayerItem(bot, "weapon_pumpshotgun");
-			case 17: GivePlayerItem(bot, "weapon_shotgun_chrome");
+			case 1: GivePlayerItem_L4D(bot, "weapon_autoshotgun");
+			case 2: GivePlayerItem_L4D(bot, "weapon_shotgun_spas");
+			case 3: GivePlayerItem_L4D(bot, "weapon_rifle");
+			case 4: GivePlayerItem_L4D(bot, "weapon_rifle_desert");
+			case 5: GivePlayerItem_L4D(bot, "weapon_rifle_ak47");
+			case 6: GivePlayerItem_L4D(bot, "weapon_rifle_sg552");
+			case 7: GivePlayerItem_L4D(bot, "weapon_sniper_military");
+			case 8: GivePlayerItem_L4D(bot, "weapon_sniper_awp");
+			case 9: GivePlayerItem_L4D(bot, "weapon_sniper_scout");
+			case 10: GivePlayerItem_L4D(bot, "weapon_hunting_rifle");
+			case 11: GivePlayerItem_L4D(bot, "weapon_rifle_m60");
+			case 12: GivePlayerItem_L4D(bot, "weapon_grenade_launcher");
+			case 13: GivePlayerItem_L4D(bot, "weapon_smg");
+			case 14: GivePlayerItem_L4D(bot, "weapon_smg_silenced");
+			case 15: GivePlayerItem_L4D(bot, "weapon_smg_mp5");
+			case 16: GivePlayerItem_L4D(bot, "weapon_pumpshotgun");
+			case 17: GivePlayerItem_L4D(bot, "weapon_shotgun_chrome");
 			default: {}//nothing
 		}
 	}
@@ -1557,11 +1557,11 @@ void GiveItems(int bot) // give bot weapon
 		
 		switch ( iRandom )
 		{
-			case 1: GivePlayerItem(bot, "weapon_autoshotgun");
-			case 2: GivePlayerItem(bot, "weapon_rifle");
-			case 3: GivePlayerItem(bot, "weapon_hunting_rifle");
-			case 4: GivePlayerItem(bot, "weapon_smg");
-			case 5: GivePlayerItem(bot, "weapon_pumpshotgun");
+			case 1: GivePlayerItem_L4D(bot, "weapon_autoshotgun");
+			case 2: GivePlayerItem_L4D(bot, "weapon_rifle");
+			case 3: GivePlayerItem_L4D(bot, "weapon_hunting_rifle");
+			case 4: GivePlayerItem_L4D(bot, "weapon_smg");
+			case 5: GivePlayerItem_L4D(bot, "weapon_pumpshotgun");
 			default: {}//nothing
 		}
 	}
@@ -1572,9 +1572,9 @@ void GiveItems(int bot) // give bot weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(bot, "weapon_molotov");
-		case 2: GivePlayerItem(bot, "weapon_pipe_bomb");
-		case 3: GivePlayerItem(bot, "weapon_vomitjar");
+		case 1: GivePlayerItem_L4D(bot, "weapon_molotov");
+		case 2: GivePlayerItem_L4D(bot, "weapon_pipe_bomb");
+		case 3: GivePlayerItem_L4D(bot, "weapon_vomitjar");
 		default: {}//nothing
 	}
 	
@@ -1584,10 +1584,10 @@ void GiveItems(int bot) // give bot weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(bot, "weapon_first_aid_kit");
-		case 2: GivePlayerItem(bot, "weapon_defibrillator");
-		case 3: GivePlayerItem(bot, "weapon_upgradepack_incendiary");
-		case 4: GivePlayerItem(bot, "weapon_upgradepack_explosive");
+		case 1: GivePlayerItem_L4D(bot, "weapon_first_aid_kit");
+		case 2: GivePlayerItem_L4D(bot, "weapon_defibrillator");
+		case 3: GivePlayerItem_L4D(bot, "weapon_upgradepack_incendiary");
+		case 4: GivePlayerItem_L4D(bot, "weapon_upgradepack_explosive");
 		default: {}//nothing
 	}
 	
@@ -1596,8 +1596,8 @@ void GiveItems(int bot) // give bot weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(bot, "weapon_pain_pills");
-		case 2: GivePlayerItem(bot, "weapon_adrenaline");
+		case 1: GivePlayerItem_L4D(bot, "weapon_pain_pills");
+		case 2: GivePlayerItem_L4D(bot, "weapon_adrenaline");
 		default: {}//nothing
 	}
 }
@@ -1703,10 +1703,10 @@ Action Timer_GiveRandomT1Weapon(Handle timer, int userid)
 
 			switch(random)
 			{
-				case 1: GivePlayerItem(client, "weapon_smg");
-				case 2: GivePlayerItem(client, "weapon_pumpshotgun");
-				case 3: GivePlayerItem(client, "weapon_smg_silenced");
-				case 4: GivePlayerItem(client, "weapon_shotgun_chrome");
+				case 1: GivePlayerItem_L4D(client, "weapon_smg");
+				case 2: GivePlayerItem_L4D(client, "weapon_pumpshotgun");
+				case 3: GivePlayerItem_L4D(client, "weapon_smg_silenced");
+				case 4: GivePlayerItem_L4D(client, "weapon_shotgun_chrome");
 			}
 		}
 	}
@@ -1832,4 +1832,27 @@ bool NotAllowSecondTime(int client)
 	}
 
 	return IsSecondTime(client);
+}
+
+void GivePlayerItem_L4D(int client, const char sItem[64])
+{
+    if(g_bLeft4Dead2)
+    {
+        GivePlayerItem(client, sItem);
+    }
+    else
+    {
+        CheatCommand(client, "give", sItem);
+    }
+}
+
+void CheatCommand(int client, const char[] command, const char[] arguments = "", const char[] extra = "")
+{
+	int userFlags = GetUserFlagBits(client);
+	SetUserFlagBits(client, ADMFLAG_ROOT);
+	int flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s %s", command, arguments, extra);
+	SetCommandFlags(command, flags);
+	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
 }

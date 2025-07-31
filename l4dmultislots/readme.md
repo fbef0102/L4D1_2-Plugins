@@ -187,6 +187,9 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v7.0 (2025-8-1)
+		* Fixed weapon drop the ground in L4D1
+
 	* v6.9 (2025-4-5)
 		* Update cvars
 

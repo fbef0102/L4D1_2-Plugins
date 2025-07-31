@@ -8,7 +8,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION 			"4.2-2025/7/14"
+#define PLUGIN_VERSION 			"4.3-2025/8/1"
 
 public Plugin myinfo = 
 {
@@ -1029,11 +1029,11 @@ void GiveItems(int client) // give client weapon
 	{
 		case 1:
 		{
-			GivePlayerItem( client, "weapon_pistol" );
-			GivePlayerItem( client, "weapon_pistol" );
+			GivePlayerItem_L4D( client, "weapon_pistol" );
+			GivePlayerItem_L4D( client, "weapon_pistol" );
 		}
-		case 2: GivePlayerItem(client, "weapon_pistol_magnum");
-		case 3: GivePlayerItem(client, "weapon_chainsaw");
+		case 2: GivePlayerItem_L4D(client, "weapon_pistol_magnum");
+		case 3: GivePlayerItem_L4D(client, "weapon_chainsaw");
 		case 4: 
 		{
 			if(g_bL4D2Version)
@@ -1049,7 +1049,7 @@ void GiveItems(int client) // give client weapon
 			}
 		}
 		default: {
-			GivePlayerItem( client, "weapon_pistol" );
+			GivePlayerItem_L4D( client, "weapon_pistol" );
 		}
 	}
 
@@ -1062,23 +1062,23 @@ void GiveItems(int client) // give client weapon
 		
 		switch ( iRandom )
 		{
-			case 1: GivePlayerItem(client, "weapon_autoshotgun");
-			case 2: GivePlayerItem(client, "weapon_shotgun_spas");
-			case 3: GivePlayerItem(client, "weapon_rifle");
-			case 4: GivePlayerItem(client, "weapon_rifle_desert");
-			case 5: GivePlayerItem(client, "weapon_rifle_ak47");
-			case 6: GivePlayerItem(client, "weapon_rifle_sg552");
-			case 7: GivePlayerItem(client, "weapon_sniper_military");
-			case 8: GivePlayerItem(client, "weapon_sniper_awp");
-			case 9: GivePlayerItem(client, "weapon_sniper_scout");
-			case 10: GivePlayerItem(client, "weapon_hunting_rifle");
-			case 11: GivePlayerItem(client, "weapon_rifle_m60");
-			case 12: GivePlayerItem(client, "weapon_grenade_launcher");
-			case 13: GivePlayerItem(client, "weapon_smg");
-			case 14: GivePlayerItem(client, "weapon_smg_silenced");
-			case 15: GivePlayerItem(client, "weapon_smg_mp5");
-			case 16: GivePlayerItem(client, "weapon_pumpshotgun");
-			case 17: GivePlayerItem(client, "weapon_shotgun_chrome");
+			case 1: GivePlayerItem_L4D(client, "weapon_autoshotgun");
+			case 2: GivePlayerItem_L4D(client, "weapon_shotgun_spas");
+			case 3: GivePlayerItem_L4D(client, "weapon_rifle");
+			case 4: GivePlayerItem_L4D(client, "weapon_rifle_desert");
+			case 5: GivePlayerItem_L4D(client, "weapon_rifle_ak47");
+			case 6: GivePlayerItem_L4D(client, "weapon_rifle_sg552");
+			case 7: GivePlayerItem_L4D(client, "weapon_sniper_military");
+			case 8: GivePlayerItem_L4D(client, "weapon_sniper_awp");
+			case 9: GivePlayerItem_L4D(client, "weapon_sniper_scout");
+			case 10: GivePlayerItem_L4D(client, "weapon_hunting_rifle");
+			case 11: GivePlayerItem_L4D(client, "weapon_rifle_m60");
+			case 12: GivePlayerItem_L4D(client, "weapon_grenade_launcher");
+			case 13: GivePlayerItem_L4D(client, "weapon_smg");
+			case 14: GivePlayerItem_L4D(client, "weapon_smg_silenced");
+			case 15: GivePlayerItem_L4D(client, "weapon_smg_mp5");
+			case 16: GivePlayerItem_L4D(client, "weapon_pumpshotgun");
+			case 17: GivePlayerItem_L4D(client, "weapon_shotgun_chrome");
 			default: {}//nothing
 		}
 	}
@@ -1089,11 +1089,11 @@ void GiveItems(int client) // give client weapon
 		
 		switch ( iRandom )
 		{
-			case 1: GivePlayerItem(client, "weapon_autoshotgun");
-			case 2: GivePlayerItem(client, "weapon_rifle");
-			case 3: GivePlayerItem(client, "weapon_hunting_rifle");
-			case 4: GivePlayerItem(client, "weapon_smg");
-			case 5: GivePlayerItem(client, "weapon_pumpshotgun");
+			case 1: GivePlayerItem_L4D(client, "weapon_autoshotgun");
+			case 2: GivePlayerItem_L4D(client, "weapon_rifle");
+			case 3: GivePlayerItem_L4D(client, "weapon_hunting_rifle");
+			case 4: GivePlayerItem_L4D(client, "weapon_smg");
+			case 5: GivePlayerItem_L4D(client, "weapon_pumpshotgun");
 			default: {}//nothing
 		}
 	}
@@ -1104,9 +1104,9 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(client, "weapon_molotov");
-		case 2: GivePlayerItem(client, "weapon_pipe_bomb");
-		case 3: GivePlayerItem(client, "weapon_vomitjar");
+		case 1: GivePlayerItem_L4D(client, "weapon_molotov");
+		case 2: GivePlayerItem_L4D(client, "weapon_pipe_bomb");
+		case 3: GivePlayerItem_L4D(client, "weapon_vomitjar");
 		default: {}//nothing
 	}
 	
@@ -1116,10 +1116,10 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(client, "weapon_first_aid_kit");
-		case 2: GivePlayerItem(client, "weapon_defibrillator");
-		case 3: GivePlayerItem(client, "weapon_upgradepack_incendiary");
-		case 4: GivePlayerItem(client, "weapon_upgradepack_explosive");
+		case 1: GivePlayerItem_L4D(client, "weapon_first_aid_kit");
+		case 2: GivePlayerItem_L4D(client, "weapon_defibrillator");
+		case 3: GivePlayerItem_L4D(client, "weapon_upgradepack_incendiary");
+		case 4: GivePlayerItem_L4D(client, "weapon_upgradepack_explosive");
 		default: {}//nothing
 	}
 	
@@ -1128,8 +1128,8 @@ void GiveItems(int client) // give client weapon
 	
 	switch ( iRandom )
 	{
-		case 1: GivePlayerItem(client, "weapon_pain_pills");
-		case 2: GivePlayerItem(client, "weapon_adrenaline");
+		case 1: GivePlayerItem_L4D(client, "weapon_pain_pills");
+		case 2: GivePlayerItem_L4D(client, "weapon_adrenaline");
 		default: {}//nothing
 	}
 }
@@ -1468,6 +1468,28 @@ void CleanUpStateAndMusic(int client)
 	}
 }
 
+void GivePlayerItem_L4D(int client, const char sItem[64])
+{
+    if(g_bL4D2Version)
+    {
+        GivePlayerItem(client, sItem);
+    }
+    else
+    {
+        CheatCommand(client, "give", sItem);
+    }
+}
+
+void CheatCommand(int client, const char[] command, const char[] arguments = "", const char[] extra = "")
+{
+	int userFlags = GetUserFlagBits(client);
+	SetUserFlagBits(client, ADMFLAG_ROOT);
+	int flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s %s", command, arguments, extra);
+	SetCommandFlags(command, flags);
+	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
+}
 
 //-------------------------------lockdown_system-l4d2_b API Forward-------------------------------
 

@@ -116,7 +116,9 @@ When a Survivor dies, will respawn after a period of time.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v4.3 (2025-7-14)
+	* v4.3 (2025-8-1)
+		* Fixed weapon drop the ground in L4D1
+
 	* v4.2 (2024-12-4)
 		* Update cvars
 
