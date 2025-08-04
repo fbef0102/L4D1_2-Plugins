@@ -218,7 +218,7 @@ public Action OnClientCommand(int client, int args)
     if(!g_bCvarEnable || !g_bCvarSpec)
         return Plugin_Continue;
 
-    if(client < 0 || client > MaxClients || IsFakeClient(client))
+    if(client <= 0 || client > MaxClients || IsFakeClient(client))
         return Plugin_Continue;
 
     if(g_bSteamIDNotValid[client])
@@ -233,7 +233,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
     if(!g_bCvarEnable || !g_bCvarSpec)
         return Plugin_Continue;
 
-    if(client < 0 || client > MaxClients || IsFakeClient(client))
+    if(client <= 0 || client > MaxClients || IsFakeClient(client))
         return Plugin_Continue;
 
     if(g_bSteamIDNotValid[client])
