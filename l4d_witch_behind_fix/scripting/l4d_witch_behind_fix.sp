@@ -9,7 +9,7 @@ public Plugin myinfo =
 	name = "[L4D & L4D2] witch smart attack behind",
 	author = "HarryPotter",
 	description = "The witch turns back if nearby survivor scares her behind",
-	version = "1.3",
+	version = "1.4-2025/8/5",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
@@ -26,29 +26,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-ConVar witch_target_override_on;
-bool witch_target_override_on_value = false;
-public void OnAllPluginsLoaded()
-{
-	// Use Witch Target Override: https://github.com/fbef0102/L4D1_2-Plugins/tree/master/witch_target_override
-	witch_target_override_on = FindConVar("witch_target_override_on");
-	if(witch_target_override_on != null)
-	{
-		GetCvars();
-		witch_target_override_on.AddChangeHook(ConVarChanged_Cvars);
-	}
-}
-
-void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	GetCvars();
-}
-
-void GetCvars()
-{
-	witch_target_override_on_value = witch_target_override_on.BoolValue;
-}
-
 public void OnPluginStart()
 {
 	HookEvent("witch_harasser_set", WitchHarasserSet_Event);
@@ -56,8 +33,6 @@ public void OnPluginStart()
 
 void WitchHarasserSet_Event(Event event, const char[] name, bool dontBroadcast)
 {
-	if(witch_target_override_on_value == true) return;
-	
 	int witch = event.GetInt("witchid");
 	int attacker = GetClientOfUserId(event.GetInt("userid"));
 	if (attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) == 2 && IsPlayerAlive(attacker))
