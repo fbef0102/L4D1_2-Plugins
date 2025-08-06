@@ -36,6 +36,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         REP_CARALARM			(2 ^ 18 = 262144) //Trigger Car Alarm
         REP_POPSTOP				(2 ^ 19 = 524288) //Shove Boomer before vomit
         REP_VOMIT				(2 ^ 20 = 1048576) //Boomer Perfect Vomit (Vomit 4+ survivors)
+        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //Hunter team skeet assist report 
         ```
         ```php
         // Report Flag by default
@@ -56,7 +57,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         ```
         ```php
         // Display All Messages
-        sm_skill_report_flagss 2097151
+        sm_skill_report_flagss 4194303
         ```
 </details>
 
@@ -141,6 +142,10 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.1h (2025-8-6)
+        * Update API
+        * Add hunter skeet assist report
+
     * v1.9h (2024-12-20)
         * Compatible with with l4d2_kills_manager by Harry
 
@@ -202,7 +207,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
         // 控制此指令選擇打印哪些特殊技巧 (請查看中文說明書教學)
         // bitflags: 1,2:skeets/hurt; 4,8:level/chip; 16,32:crown/draw; 64,128:cut/selfclear, ...
-        // 源碼內查看 bitflags.
+        // 源碼內或說明書查看 bitflags.
         sm_skill_report_flags "2076671"
 
         // 為1時，打印 散彈槍空爆 並輸出API
@@ -280,6 +285,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         REP_CARALARM			(2 ^ 18 = 262144) //警報車
         REP_POPSTOP				(2 ^ 19 = 524288) //推開Boomer不被嘔吐
         REP_VOMIT				(2 ^ 20 = 1048576) //Boomer 完美嘔吐 (一次吐到4位倖存者以上)
+        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //空爆hunter/jokcey的協力者 (非擊殺者)
         ```
         ```php
         // 此指令用來決定顯示哪些花式技巧
@@ -301,6 +307,6 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         ```php
         // 顯示所有花式技巧
         // 總數值
-        sm_skill_report_flags 2097151
+        sm_skill_report_flags 4194303
         ```
 </details>

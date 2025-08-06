@@ -444,7 +444,7 @@ Action ForceSurvivorSuicide(int client, int args)
 			return Plugin_Handled;
 		}
 
-		if(GetInfectedAttacker(client) != -1)
+		if(my_GetInfectedAttacker(client) != -1)
 		{
 			PrintHintText(client, "%T","In your dreams!",client);
 			return Plugin_Handled;
@@ -1485,7 +1485,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 
 	if(team == 2)
 	{
-		if ( GetInfectedAttacker(client) != -1 && g_bInfectedAttackBlock == true)
+		if ( my_GetInfectedAttacker(client) != -1 && g_bInfectedAttackBlock == true)
 		{
 			PrintHintText(client, "%T","Infected Attack Block",client);
 			return false;
@@ -1547,7 +1547,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 	}
 	else if(team == 3)
 	{
-		if(GetSurvivorVictim(client)!= -1 && g_bInfectedCapBlock == true)
+		if(my_GetSurvivorVictim(client) != -1 && g_bInfectedCapBlock == true)
 		{
 			PrintHintText(client, "%T", "Infected Cap Block",client);
 			return false;
@@ -1720,49 +1720,17 @@ public void L4D2_OnStagger_Post(int client, int source)
 
 // Others-----
 
-int GetInfectedAttacker(int client)
+int my_GetInfectedAttacker(int client)
 {
-	int attacker;
+	int attacker = L4D_GetPinnedInfected(client);
 
-	if(g_bL4D2Version)
-	{
-		/* Charger */
-		attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
-		if (attacker > 0)
-		{
-			return attacker;
-		}
-
-		attacker = GetEntPropEnt(client, Prop_Send, "m_carryAttacker");
-		if (attacker > 0)
-		{
-			return attacker;
-		}
-
-		attacker = L4D2_GetQueuedPummelAttacker(client);
-		if(attacker > 0)
-		{
-			return attacker;
-		}
-
-		/* Jockey */
-		attacker = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
-		if (attacker > 0)
-		{
-			return attacker;
-		}
-	}
-
-	/* Hunter */
-	attacker = GetEntPropEnt(client, Prop_Send, "m_pounceAttacker");
-	if (attacker > 0)
+	if(attacker > 0)
 	{
 		return attacker;
 	}
 
-	/* Smoker */
-	attacker = GetEntPropEnt(client, Prop_Send, "m_tongueOwner");
-	if (attacker > 0)
+	attacker = L4D2_GetQueuedPummelAttacker(client);
+	if(attacker > 0)
 	{
 		return attacker;
 	}
@@ -1770,51 +1738,19 @@ int GetInfectedAttacker(int client)
 	return -1;
 }
 
-int GetSurvivorVictim(int client)
+int my_GetSurvivorVictim(int client)
 {
-	int victim;
+	int victim = L4D_GetPinnedSurvivor(client);
 
-	if(g_bL4D2Version)
-	{
-		/* Charger */
-		victim = GetEntPropEnt(client, Prop_Send, "m_pummelVictim");
-		if (victim > 0)
-		{
-			return victim;
-		}
-
-		victim = GetEntPropEnt(client, Prop_Send, "m_carryVictim");
-		if (victim > 0)
-		{
-			return victim;
-		}
-
-		victim = L4D2_GetQueuedPummelVictim(client);
-		if (victim > 0)
-		{
-			return victim;
-		}
-
-		/* Jockey */
-		victim = GetEntPropEnt(client, Prop_Send, "m_jockeyVictim");
-		if (victim > 0)
-		{
-			return victim;
-		}
-	}
-
-    /* Hunter */
-	victim = GetEntPropEnt(client, Prop_Send, "m_pounceVictim");
-	if (victim > 0)
+	if(victim > 0)
 	{
 		return victim;
- 	}
+	}
 
-    /* Smoker */
- 	victim = GetEntPropEnt(client, Prop_Send, "m_tongueVictim");
-	if (victim > 0)
+	victim = L4D2_GetQueuedPummelVictim(client);
+	if(victim > 0)
 	{
-		return victim;	
+		return victim;
 	}
 
 	return -1;

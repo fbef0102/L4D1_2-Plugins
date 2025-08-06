@@ -9,76 +9,82 @@
  * 
  * @param survivor 			Client index of survivor (-2 if team skeet, -1 or 0 if unknown or invalid client)
  * @param victim 			Client index of hunter or jockey
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeet( int survivor, int victim, bool isHunter, bool headshot, int shots )
+forward void OnSkeet( int survivor, int victim, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Melee
  * 
  * @param survivor 			Client index of survivor (-2 if team skeet, -1 or 0 if unknown or invalid client)
  * @param victim 			Client index of hunter or jockey
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * 
  * @noreturn
  */
-forward void OnSkeetMelee( int survivor, int victim, bool isHunter, bool headshot )
+forward void OnSkeetMelee( int survivor, int victim, bool isTeamSkeet, bool isHunter, bool headshot )
  
  /**
  * @brief Called when survivor skeeted hunter or jockey with Sniper
  * 
  * @param survivor 			Client index of survivor (-2 if team skeet, -1 or 0 if unknown or invalid client)
  * @param victim 			Client index of hunter or jockey
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeetSniper( int survivor, int victim, bool isHunter, bool headshot, int shots )
+forward void OnSkeetSniper( int survivor, int victim, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Magnum
  * 
  * @param survivor 			Client index of survivor (-2 if team skeet, -1 or 0 if unknown or invalid client)
  * @param victim 			Client index of hunter or jockey
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeetMagnum( int survivor, int victim, bool isHunter, bool headshot, int shots )
+forward void OnSkeetMagnum( int survivor, int victim, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Shotgun
  * 
  * @param survivor 			client index of survivor (-2 if team skeet, -1 or 0 if unknown or invalid client)
  * @param victim 			client index of hunter or jockey
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			true if victim is hunter, false if victim if jockey
  * @param headshot 			true if headshot, false otherwise
  * @param shots 			how many shots
  * 
  * @noreturn
  */
-forward void OnSkeetShotgun( int survivor, int victim, bool isHunter, bool headshot, int shots )
+forward void OnSkeetShotgun( int survivor, int victim, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Grenade Launcher
  * 
  * @param survivor 			Client index of survivor (-2 if team skeet, -1 or 0 if unknown or invalid client)
  * @param victim 			Client index of hunter or jockey
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * 
  * @noreturn
  */
-forward void OnSkeetGL( int survivor, int victim, bool isHunter, bool headshot )
+forward void OnSkeetGL( int survivor, int victim, bool isTeamSkeet, bool isHunter, bool headshot )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey
@@ -89,13 +95,14 @@ forward void OnSkeetGL( int survivor, int victim, bool isHunter, bool headshot )
  * @param victim 			Client index of hunter or jockey
  * @param damage 			The amount of damage done to victim (That didn't add up to skeeting damage)
  * @param isOverkill 		Indicates whether the shot would've been a skeet if the hunter had not been chipped
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeetHurt( int survivor, int victim, int damage, bool isOverkill, bool isHunter, bool headshot, int shots )
+forward void OnSkeetHurt( int survivor, int victim, int damage, bool isOverkill, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
  
 /**
  * @brief Called when survivor skeeted hunter or jockey with Melee
@@ -105,12 +112,13 @@ forward void OnSkeetHurt( int survivor, int victim, int damage, bool isOverkill,
  * @param victim 			Client index of hunter or jockey
  * @param damage 			The amount of damage done to victim (That didn't add up to skeeting damage)
  * @param isOverkill 		Indicates whether the shot would've been a skeet if the hunter had not been chipped (always true for melee)
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * 
  * @noreturn
  */
-forward void OnSkeetMeleeHurt( int survivor, int victim, int damage, bool isOverkill, bool isHunter, bool headshot )
+forward void OnSkeetMeleeHurt( int survivor, int victim, int damage, bool isOverkill, bool isTeamSkeet, bool isHunter, bool headshot )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Sniper
@@ -120,13 +128,14 @@ forward void OnSkeetMeleeHurt( int survivor, int victim, int damage, bool isOver
  * @param victim 			Client index of hunter or jockey
  * @param damage 			The amount of damage done to victim (That didn't add up to skeeting damage)
  * @param isOverkill 		Indicates whether the shot would've been a skeet if the hunter had not been chipped
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeetSniperHurt( int survivor, int victim, int damage, bool isOverkill, bool isHunter, bool headshot, int shots )
+forward void OnSkeetSniperHurt( int survivor, int victim, int damage, bool isOverkill, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Magnum
@@ -136,13 +145,14 @@ forward void OnSkeetSniperHurt( int survivor, int victim, int damage, bool isOve
  * @param victim 			Client index of hunter or jockey
  * @param damage 			The amount of damage done to victim (That didn't add up to skeeting damage)
  * @param isOverkill 		Indicates whether the shot would've been a skeet if the hunter had not been chipped
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeetMagnumHurt( int survivor, int victim, int damage, bool isOverkill, bool isHunter, bool headshot, int shots )
+forward void OnSkeetMagnumHurt( int survivor, int victim, int damage, bool isOverkill, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
 
 /**
  * @brief Called when survivor skeeted hunter or jockey with Shotgun
@@ -152,13 +162,27 @@ forward void OnSkeetMagnumHurt( int survivor, int victim, int damage, bool isOve
  * @param victim 			Client index of hunter or jockey
  * @param damage 			The amount of damage done to victim (That didn't add up to skeeting damage)
  * @param isOverkill 		Indicates whether the shot would've been a skeet if the hunter had not been chipped
+ * @param isTeamSkeet 		True if is teamskeet, false otherwise
  * @param isHunter 			True if victim is hunter, false if victim if jockey
  * @param headshot 			True if headshot, false otherwise
  * @param shots 			How many shots
  * 
  * @noreturn
  */
-forward void OnSkeetShotgunHurt( int survivor, int victim, int damage, bool isOverkill, bool isHunter, bool headshot, int shots )
+forward void OnSkeetShotgunHurt( int survivor, int victim, int damage, bool isOverkill, bool isTeamSkeet, bool isHunter, bool headshot, int shots )
+
+/**
+ * @brief Called when survivors team-skeet hunter or jockey, report assist
+ * 
+ * @param victim 			Client index of hunter or jockey
+ * @param assist 			Client index of team-skeet assist (not killer)
+ * @param isHunter 			True if victim is hunter, false if victim if jockey
+ * @param damage 			The amount of damage done to victim
+ * @param shots 			How many shots
+ * 
+ * @noreturn
+ */
+forward void OnTeamSkeetAssist( int victim, int assist, bool isHunter, int damage, int shots)
 
 /**
  * @brief Called when survivor deadstopped hunter

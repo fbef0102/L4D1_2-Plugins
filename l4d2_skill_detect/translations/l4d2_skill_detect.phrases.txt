@@ -44,21 +44,21 @@
 	}
 	"HandleLevelHurt_1"
 	{
-		"en"		"{lightgreen}★★★ {olive}%N{default} chip-leveled {green}%N{default} ({lightgreen}%i{default} damage)."
-		"zho"		"{lightgreen}★★★ {olive}%N{default} 近戰砍死了衝鋒的 {green}%N{default} ({lightgreen}%i{default} 傷害)."
-		"chi"		"{lightgreen}★★★ {olive}%N{default} 近战砍死了冲锋的 {green}%N{default} ({lightgreen}%i{default} 伤害)."
+		"en"		"{lightgreen}★★★ {olive}%N{default} chip-leveled {green}%N{default} ({lightgreen}%i{default} low damage)."
+		"zho"		"{lightgreen}★★★ {olive}%N{default} 近戰砍死了衝鋒的 {green}%N{default} ({lightgreen}%i{default} 低傷害)."
+		"chi"		"{lightgreen}★★★ {olive}%N{default} 近战砍死了冲锋的 {green}%N{default} ({lightgreen}%i{default} 低伤害)."
 	}
 	"HandleLevelHurt_2"
 	{
-		"en"		"{lightgreen}★★★ {olive}%N{default} chip-leveled {green}a charger{default} ({lightgreen}%i{default} damage)."
-		"zho"		"{lightgreen}★★★ {olive}%N{default} 近戰砍死了衝鋒的 {green}Charger{default} ({lightgreen}%i{default} 傷害)."
-		"chi"		"{lightgreen}★★★ {olive}%N{default} 近战砍死了冲锋的 {green}Charger{default} ({lightgreen}%i{default} 伤害)."
+		"en"		"{lightgreen}★★★ {olive}%N{default} chip-leveled {green}a charger{default} ({lightgreen}%i{default} low damage)."
+		"zho"		"{lightgreen}★★★ {olive}%N{default} 近戰砍死了衝鋒的 {green}Charger{default} ({lightgreen}%i{default} 低傷害)."
+		"chi"		"{lightgreen}★★★ {olive}%N{default} 近战砍死了冲锋的 {green}Charger{default} ({lightgreen}%i{default} 低伤害)."
 	}
 	"HandleLevelHurt_3"
 	{
-		"en"		"{lightgreen}★★★ {green}A charger{default} was chip-leveled ({lightgreen}%i{default} damage)."
-		"zho"		"{lightgreen}★★★ {green}Charger{default} 被 {olive}倖存者{default} 近戰砍死了 ({lightgreen}%i{default} 傷害)."
-		"chi"		"{lightgreen}★★★ {green}Charger{default} 被 {olive}幸存者{default} 近战砍死了.({lightgreen}%i{default} 伤害)."
+		"en"		"{lightgreen}★★★ {green}A charger{default} was chip-leveled ({lightgreen}%i{default} low damage)."
+		"zho"		"{lightgreen}★★★ {green}Charger{default} 被 {olive}倖存者{default} 近戰砍死了 ({lightgreen}%i{default} 低傷害)."
+		"chi"		"{lightgreen}★★★ {green}Charger{default} 被 {olive}幸存者{default} 近战砍死了.({lightgreen}%i{default} 低伤害)."
 	}
 	"HandleDeadstop_1_H"
 	{
@@ -108,35 +108,34 @@
 	}
 	"HandleSkeetAssist_2"
 	{
+		//無法翻譯
 		"en"		"{olive}%N{default} ({green}%d{default} shots, {green}%d{default} dmg)"
-		"zho"		"{olive}%N{default} ({green}%d{default} 次射擊, {green}%d{default} 傷害)"
-		"chi"		"{olive}%N{default} ({green}%d{default} 次射击, {green}%d{default} 伤害)"
 	}
 	"HandleSkeet_1_H"
 	{
 		//Is Hunter
 		"en"		"{lightgreen}★ {green}%N{default} was team-skeeted by {olive}%N{default}."
-		"zho"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和隊友們合力空爆了."
-		"chi"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和队友们合力空爆了."
+		"zho"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和隊伍合力空爆了."
+		"chi"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和队伍合力空爆了."
 	}
 	"HandleSkeet_1_J"
 	{
 		//Is Jockey
 		"en"		"{lightgreen}★ {green}%N{default} was team-skeeted by {olive}%N{default}."
-		"zho"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和隊友們合力空爆了."
-		"chi"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和队友们合力空爆了."
+		"zho"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和隊伍合力空爆了."
+		"chi"		"{lightgreen}★ {green}%N{default} 被 {olive}%N{default} 和队伍合力空爆了."
 	}
 	"HandleSkeet_2_H"
 	{
 		"en"		"{lightgreen}★ {green}%t{default} was team-skeeted by {olive}%N{default}."
-		"zho"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和隊友們合力空爆了."
-		"chi"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和队友们合力空爆了."
+		"zho"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和隊伍合力空爆了."
+		"chi"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和队伍合力空爆了."
 	}
 	"HandleSkeet_2_J"
 	{
 		"en"		"{lightgreen}★ {green}%t{default} was team-skeeted by {olive}%N{default}."
-		"zho"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和隊友們合力空爆了."
-		"chi"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和队友们合力空爆了."
+		"zho"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和隊伍合力空爆了."
+		"chi"		"{lightgreen}★ {green}%t{default} 被 {olive}%N{default} 和队伍合力空爆了."
 	}
 	"HandleSkeet_3_H"
 	{
@@ -332,147 +331,147 @@
 	}
 	"HandleNonSkeet_1_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} melee-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 砍死了飛撲的 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 砍死了飞扑的 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} chip-melee-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-砍死了飛撲的 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-砍死了飞扑的 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_1_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} melee-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 砍死了空中的 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 砍死了空中的 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} chip-melee-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-砍死了空中的 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-砍死了空中的 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_2_H"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%N{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%N{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%N{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%N{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_2_J"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%N{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%N{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%N{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%N{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_3_H"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_3_J"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_4_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} melee-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 砍死了飛撲的 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 砍死了飞扑的 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} chip-melee-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-砍死了飛撲的 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-砍死了飞扑的 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_4_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} melee-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 砍死了空中的 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 砍死了空中的 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} chip-melee-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-砍死了空中的 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-砍死了空中的 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_5_H"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%t{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%t{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%t{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%t{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_5_J"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%t{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%t{default} ({lightgreen}%d{default} shots, {lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%t{default} ({lightgreen}%d{default} 次射擊, {lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%t{default} ({lightgreen}%d{default} 次射击, {lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_6_H"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_6_J"
 	{
-		"en"		"{lightgreen}★ {olive}%N{default} skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★ {olive}%N{default} 空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★ {olive}%N{default} chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★ {olive}%N{default} 低傷害-空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★ {olive}%N{default} 低伤害-空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_SN_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} sniper-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 狙擊空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 狙击空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} sniper-chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-狙擊空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-狙击空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_SN_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} sniper-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 狙擊空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 狙击空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} sniper-chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-狙擊空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-狙击空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_M_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} magnum-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 麥格農空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 马格南空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} magnum-chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-麥格農空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-马格南空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_M_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} magnum-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 麥格農空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 马格南空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} magnum-chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-麥格農空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-马格南空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_S_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 霰彈空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 散弹空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-霰彈空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-散弹空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_S_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 霰彈空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 散弹空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-chip-skeeted {green}%N{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-霰彈空爆了 {green}%N{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-散弹空爆了 {green}%N{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_SN_S_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} sniper-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 狙擊空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 狙击空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} sniper-chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-狙擊空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-狙击空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_SN_S_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} sniper-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 狙擊空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 狙击空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} sniper-chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-狙擊空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-狙击空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_M_S_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} magnum-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 麥格農空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 马格南空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} magnum-chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-麥格農空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-马格南空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_M_S_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} magnum-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 麥格農空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 马格南空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} magnum-chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-麥格農空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-马格南空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_S_S_H"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 霰彈空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 散弹空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-霰彈空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-散弹空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleNonSkeet_S_S_J"
 	{
-		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
-		"zho"		"{lightgreen}★★ {olive}%N{default} 霰彈空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 散弹空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
+		"en"		"{lightgreen}★★ {olive}%N{default} shotgun-chip-skeeted {green}%t{default} ({lightgreen}%d{default} dmg)."
+		"zho"		"{lightgreen}★★ {olive}%N{default} 低傷害-霰彈空爆了 {green}%t{default} ({lightgreen}%d{default} 傷害)."
+		"chi"		"{lightgreen}★★ {olive}%N{default} 低伤害-散弹空爆了 {green}%t{default} ({lightgreen}%d{default} 伤害)."
 	}
 	"HandleCrown_1"
 	{
@@ -736,9 +735,9 @@
 	"HandleVomitLanded_1"
 	{
 		"#format"	"{1:d}"
-		"en"		"{lightgreen}★★ {olive}%N{default} vomit all {1} survivors"
-		"zho"		"{lightgreen}★★ {olive}%N{default} 嘔吐到 {1} 以上倖存者."
-		"chi"		"{lightgreen}★★ {olive}%N{default} 呕吐到 {1} 以上生还者."
+		"en"		"{lightgreen}★★ {green}%N{default} vomit all {olive}{1}{default} survivors"
+		"zho"		"{lightgreen}★★ {green}%N{default} 嘔吐到 {olive}{1}{default} 位倖存者."
+		"chi"		"{lightgreen}★★ {green}%N{default} 呕吐到 {olive}{1}{default} 位生还者."
 	}
 	"Hunter"
 	{

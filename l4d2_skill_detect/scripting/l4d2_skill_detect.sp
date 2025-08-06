@@ -19,11 +19,13 @@
 #define REP_CARALARM			(1 << 18)		// 262144, Trigger Car Alarm
 #define REP_POPSTOP				(1 << 19)		// 524288, Shove Boomer before vomit
 #define REP_VOMIT				(1 << 20)		// 1048576, Boomer Perfect Vomit (Vomit 4+ survivors)
+#define REP_SKEET_ASSIST		(1 << 21)		// 2097152, Hunter team skeet assist report 
 
 //Report Flag
 //1:SKEET; 2: HURTSKEET, 4:LEVEL, 8:HURTLEVEL; 16:CROWN, 32:DRAWCROWN; 64:TONGUECUT, 128:SELFCLEAR
 //256:SELFCLEARSHOVE, 512:ROCKSKEET, 1024:DEADSTOP, 2048:POP, 4096:SHOVE, 8192:HUNTERDP, 16384: JOCKEYDP, 32768: DEATHCHARGE
-//65536: INSTACLEAR, 131072: BHOPSTREAK, 262144: CARALARM, 524288: POPSTOP, 1048576: VOMIT, 2097151: All)
+//65536: INSTACLEAR, 131072: BHOPSTREAK, 262144: CARALARM, 524288: POPSTOP, 1048576: VOMIT, 2097152: Hunter team skeet assist)
+//(4194303: All)
 #define REP_DEFAULT				"2076671" // 2076671 = 111111010111111111111 , 1019391 = 011111000110111111111
 
 /**
@@ -66,7 +68,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager>
 
-#define PLUGIN_VERSION "2.0h-2024/12/20"
+#define PLUGIN_VERSION "2.1h-2025/8/6"
 #define DEBUG 0
 
 #define IS_VALID_CLIENT(%1)		(%1 > 0 && %1 <= MaxClients)
@@ -227,6 +229,7 @@ Handle 			g_hForwardSkeetSniper								= null;
 Handle 			g_hForwardSkeetSniperHurt							= null;
 Handle 			g_hForwardSkeetShotGun								= null;
 Handle 			g_hForwardSkeetShotGunHurt							= null;
+Handle 			g_hForwardTeamSkeetAssist							= null;
 Handle 			g_hForwardSkeetMagnum								= null;
 Handle 			g_hForwardSkeetMagnumHurt							= null;
 Handle 			g_hForwardSkeetGL									= null;
@@ -449,17 +452,19 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
 	RegPluginLibrary("skill_detect");
 	
-	g_hForwardSkeet =				CreateGlobalForward("OnSkeet", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetMelee =			CreateGlobalForward("OnSkeetMelee", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetSniper =			CreateGlobalForward("OnSkeetSniper", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetMagnum =			CreateGlobalForward("OnSkeetMagnum", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetShotGun =		CreateGlobalForward("OnSkeetShotgun", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetGL =				CreateGlobalForward("OnSkeetGL", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetHurt =			CreateGlobalForward("OnSkeetHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetMeleeHurt =		CreateGlobalForward("OnSkeetMeleeHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetSniperHurt = 	CreateGlobalForward("OnSkeetSniperHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetMagnumHurt = 	CreateGlobalForward("OnSkeetMagnumHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
-	g_hForwardSkeetShotGunHurt =	CreateGlobalForward("OnSkeetShotgunHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeet =				CreateGlobalForward("OnSkeet", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetMelee =			CreateGlobalForward("OnSkeetMelee", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetSniper =			CreateGlobalForward("OnSkeetSniper", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetMagnum =			CreateGlobalForward("OnSkeetMagnum", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetShotGun =		CreateGlobalForward("OnSkeetShotgun", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetGL =				CreateGlobalForward("OnSkeetGL", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetHurt =			CreateGlobalForward("OnSkeetHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetMeleeHurt =		CreateGlobalForward("OnSkeetMeleeHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetSniperHurt = 	CreateGlobalForward("OnSkeetSniperHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetMagnumHurt = 	CreateGlobalForward("OnSkeetMagnumHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardSkeetShotGunHurt =	CreateGlobalForward("OnSkeetShotgunHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardTeamSkeetAssist =		CreateGlobalForward("OnTeamSkeetAssist", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
+	
 	g_hForwardSIShove =				CreateGlobalForward("OnSpecialShoved", ET_Ignore, Param_Cell, Param_Cell, Param_Cell );
 	g_hForwardHunterDeadstop =		CreateGlobalForward("OnHunterDeadstop", ET_Ignore, Param_Cell, Param_Cell );
 	g_hForwardJockeyDeadstop =		CreateGlobalForward("OnJockeyDeadstop", ET_Ignore, Param_Cell, Param_Cell );
@@ -699,7 +704,7 @@ public Action: Event_RoundEnd( Handle:event, const String:name[], bool:dontBroad
 	g_hCarTrie = CreateTrie();
 }
 
-public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
+void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 {
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 	new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
@@ -714,7 +719,7 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 		new health = GetEventInt(event, "health");
 		new hitgroup = GetEventInt(event, "hitgroup");
 		
-		if ( damage < 1 ) { return Plugin_Continue; }
+		if ( damage < 1 ) { return; }
 		
 		switch ( zClass )
 		{
@@ -724,7 +729,7 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 				if ( !IS_VALID_SURVIVOR(attacker) )
 				{
 					g_iHunterLastHealth[victim] = health;
-					return Plugin_Continue;
+					return;
 				}
 				
 				// if the damage done is greater than the health we know the hunter to have remaining, reduce the damage done
@@ -790,11 +795,14 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 						if ( GetTrieValue(g_hTrieWeapons, weaponB, weaponTypeB) && weaponTypeB == WPTYPE_GL )
 						{
 							if ( GetConVarBool(g_hCvarAllowGLSkeet) ) {
-								HandleSkeet( attacker, victim, WPTYPE_GL, 1, -1, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
+								HandleSkeet( attacker, victim, WPTYPE_GL, 1, false, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
 							}
 						}
 					}
-					else if ( damagetype & DMG_BULLET ) {
+					else if ( damagetype & DMG_BULLET ) 
+					{
+						g_iHunterShotCount[victim][attacker] += 1;
+
 						// headshot with bullet based weapon (only single shots) -- only snipers
 						decl String: weaponA[32];
 						new strWeaponType: weaponTypeA;
@@ -803,21 +811,17 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 						{
 							if(weaponTypeA == WPTYPE_SNIPER)
 							{
-								g_iHunterShotCount[victim][attacker] += 1;
-								
-								if(health == 0 && hitgroup == HITGROUP_HEAD)
+								if(health == 0)
 								{
 									if ( damage >= g_iPounceInterrupt )
 									{
-										g_iHunterShotDmgTeam[victim] = 0;
 										if ( GetConVarBool(g_hCvarAllowSniper) ) {
 											HandleSkeet( attacker, victim, WPTYPE_SNIPER,
 												g_iHunterShotCount[victim][attacker],
-												_, 
+												false, 
 												zClass == ZC_HUNTER,
 												hitgroup == HITGROUP_HEAD );
 										}
-										ResetHunter(victim);
 									}
 									else
 									{
@@ -827,36 +831,30 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 												( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > g_iPounceInterrupt ), 
 												WPTYPE_SNIPER,
 												g_iHunterShotCount[victim][attacker],
+												g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0,
 												zClass == ZC_HUNTER,
 												hitgroup == HITGROUP_HEAD );
 										}
-										ResetHunter(victim);
 									}
-								}
-								else
-								{
-									g_iHunterShotDmgTeam[victim] += damage;
-									g_iHunterShotDmg[victim][attacker] += damage; //此行原本被comment
-									g_iHunterShotDamage[victim][attacker] += damage;
+
+									ResetHunter(victim);
+									g_iHunterLastHealth[victim] = 0;
+									return;
 								}
 							}
 							else if (weaponTypeA == WPTYPE_MAGNUM)
 							{
-								g_iHunterShotCount[victim][attacker] += 1;
-								
-								if(health == 0 && hitgroup == HITGROUP_HEAD)
+								if(health == 0)
 								{
 									if ( damage >= g_iPounceInterrupt )
 									{
-										g_iHunterShotDmgTeam[victim] = 0;
 										if ( GetConVarBool(g_hCvarAllowMagnum) ) {
 											HandleSkeet( attacker, victim, WPTYPE_MAGNUM,
 												g_iHunterShotCount[victim][attacker],
-												_, 
+												false, 
 												zClass == ZC_HUNTER,
 												hitgroup == HITGROUP_HEAD );
 										}
-										ResetHunter(victim);
 									}
 									else
 									{
@@ -866,27 +864,22 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 												( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > g_iPounceInterrupt ), 
 												WPTYPE_MAGNUM,
 												g_iHunterShotCount[victim][attacker],
+												g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0,
 												zClass == ZC_HUNTER,
 												hitgroup == HITGROUP_HEAD );
 										}
-										ResetHunter(victim);
 									}
-								}
-								else
-								{
-									g_iHunterShotDmgTeam[victim] += damage;
-									g_iHunterShotDmg[victim][attacker] += damage; //此行原本被comment
-									g_iHunterShotDamage[victim][attacker] += damage;
+
+									ResetHunter(victim);
+									g_iHunterLastHealth[victim] = 0;
+									return;
 								}
 							}
 						}
-						else
-						{
-							//這三行原本不存在
-							g_iHunterShotDmgTeam[victim] += damage;
-							g_iHunterShotDmg[victim][attacker] += damage; 
-							g_iHunterShotDamage[victim][attacker] += damage;
-						}
+						
+						g_iHunterShotDmgTeam[victim] += damage;
+						g_iHunterShotDmg[victim][attacker] += damage; 
+						g_iHunterShotDamage[victim][attacker] += damage;
 						// already handled hurt skeet above
 						//g_bHunterKilledPouncing[victim] = true;
 					}
@@ -895,21 +888,30 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 						// melee skeet
 						if ( damage >= g_iPounceInterrupt )
 						{
-							g_iHunterShotDmgTeam[victim] = 0;
 							if ( GetConVarBool(g_hCvarAllowMelee) && health == 0 ) {
-								HandleSkeet( attacker, victim, WPTYPE_MELEE, 1, _, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
+								HandleSkeet( attacker, victim, WPTYPE_MELEE, 1, false, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
 							}
-							ResetHunter(victim);
 							//g_bHunterKilledPouncing[victim] = true;
 						}
 						else if ( health == 0 )
 						{
 							// hurt skeet (always overkill)
 							if ( GetConVarBool(g_hCvarAllowMelee) ) {
-								HandleNonSkeet( attacker, victim, damage, true, WPTYPE_MELEE, 1, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
+								HandleNonSkeet( attacker, 
+									victim, 
+									damage, 
+									true, 
+									WPTYPE_MELEE, 
+									1, 
+									g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0,
+									zClass == ZC_HUNTER, 
+									hitgroup == HITGROUP_HEAD );
 							}
-							ResetHunter(victim);
 						}
+
+						ResetHunter(victim);
+						g_iHunterLastHealth[victim] = health;
+						return;
 					}
 				}
 				else if ( health == 0 )
@@ -961,7 +963,7 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 			
 			case ZC_SMOKER:
 			{
-				if ( !IS_VALID_SURVIVOR(attacker) ) { return Plugin_Continue; }
+				if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 				
 				g_iSmokerVictimDamage[victim] += damage;
 			}
@@ -1006,7 +1008,7 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 					}
 				}
 				
-				return Plugin_Continue;
+				return;
 			}
 		}
 	}
@@ -1028,8 +1030,6 @@ public Action: Event_PlayerHurt( Handle:event, const String:name[], bool:dontBro
 			g_iVictimFlags[victim] = g_iVictimFlags[victim] | VICFLG_HURTLOTS;
 		}
 	}
-	
-	return Plugin_Continue;
 }
 
 public Action: Event_PlayerSpawn( Handle:event, const String:name[], bool:dontBroadcast )
@@ -1180,7 +1180,6 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 	attacker = GetClientOfUserId( attacker ); 
 	if ( IS_VALID_INFECTED(victim) )
 	{
-
 		new zClass = GetEntProp(victim, Prop_Send, "m_zombieClass");
 		
 		switch ( zClass )
@@ -1196,25 +1195,25 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 				if ( g_iHunterShotDmgTeam[victim] > 0 && g_bHunterKilledPouncing[victim] )
 				{
 					// skeet?
-					if (	g_iHunterShotDmgTeam[victim] > g_iHunterShotDmg[victim][attacker] &&
-							g_iHunterShotDmgTeam[victim] >= g_iPounceInterrupt
-					) {
+					if(g_iHunterShotDmgTeam[victim] > g_iHunterShotDmg[victim][attacker] 
+						&& g_iHunterShotDmgTeam[victim] >= g_iPounceInterrupt)
+					{
 						// team skeet
-						HandleSkeet( -2, victim, weaponType, g_iHunterShotCount[victim][attacker], attacker,
+						HandleSkeet( attacker, victim, weaponType, g_iHunterShotCount[victim][attacker], true,
 							zClass == ZC_HUNTER, headshot );
 					}
 					else if ( g_iHunterShotDmg[victim][attacker] >= g_iPounceInterrupt )
 					{
 						// single player skeet
 						HandleSkeet( attacker, victim, weaponType, g_iHunterShotCount[victim][attacker],
-							-1, zClass == ZC_HUNTER, headshot );
+							false, zClass == ZC_HUNTER, headshot );
 					}
 					else if ( g_iHunterOverkill[victim] > 0 )
 					{
 						// overkill? might've been a skeet, if it wasn't on a hurt hunter (only for shotguns)
 						HandleNonSkeet( attacker, victim, g_iHunterShotDmgTeam[victim],
 							( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > g_iPounceInterrupt ),
-							weaponType, 1, zClass == ZC_HUNTER, headshot);
+							weaponType, 1, g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0, zClass == ZC_HUNTER, headshot);
 					}
 					else
 					{
@@ -1223,7 +1222,7 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 						if(g_iHunterShotDmg[victim][attacker] > 0)
 						{
 							HandleNonSkeet( attacker, victim, g_iHunterShotDmg[victim][attacker], false,
-								weaponType, 1, zClass == ZC_HUNTER, headshot);
+								weaponType, 1, g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0, zClass == ZC_HUNTER, headshot);
 						}
 					}
 				}
@@ -1382,31 +1381,31 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 				if ( g_iHunterShotDmgTeam[victim] > 0 && g_bHunterKilledPouncing[victim] )
 				{
 					// skeet?
-					if (	g_iHunterShotDmgTeam[victim] > g_iHunterShotDmg[victim][attacker] &&
-							g_iHunterShotDmgTeam[victim] >= g_iPounceInterrupt
-					) {
+					if(g_iHunterShotDmgTeam[victim] > g_iHunterShotDmg[victim][attacker] 
+						&& g_iHunterShotDmgTeam[victim] >= g_iPounceInterrupt)
+					{
 						// team skeet
-						HandleSkeet( -2, victim, weaponType, g_iHunterShotCount[victim][attacker], attacker,
+						HandleSkeet( attacker, victim, weaponType, g_iHunterShotCount[victim][attacker], true,
 							zClass == ZC_HUNTER, headshot );
 					}
 					else if ( g_iHunterShotDmg[victim][attacker] >= g_iPounceInterrupt )
 					{
 						// single player skeet
 						HandleSkeet( attacker, victim, weaponType, g_iHunterShotCount[victim][attacker],
-							-1, zClass == ZC_HUNTER, headshot );
+							false, zClass == ZC_HUNTER, headshot );
 					}
 					else if ( g_iHunterOverkill[victim] > 0 )
 					{
 						// overkill? might've been a skeet, if it wasn't on a hurt hunter (only for shotguns)
 						HandleNonSkeet( attacker, victim, g_iHunterShotDmgTeam[victim],
 							( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > g_iPounceInterrupt ),
-							weaponType, 1, zClass == ZC_HUNTER, headshot);
+							weaponType, 1, g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0, zClass == ZC_HUNTER, headshot);
 					}
 					else
 					{
 						// not a skeet at all
 						HandleNonSkeet( attacker, victim, g_iHunterShotDmg[victim][attacker], false,
-							weaponType, 1, zClass == ZC_HUNTER, headshot);
+							weaponType, 1, g_iHunterShotDmgTeam[victim] - g_iHunterShotDmg[victim][attacker] > 0, zClass == ZC_HUNTER, headshot);
 					}
 				}
 				else {
@@ -2318,16 +2317,8 @@ public Action: Event_PlayerBoomed (Handle:event, const String:name[], bool:dontB
 		g_bBoomerHitSomebody[attacker] = true;
 		
 		// check if it was vomit spray
-		new bool: byExplosion = GetEventBool(event, "exploded");
-		if ( !byExplosion )
+		if ( GetEventBool(event, "exploded") == false )
 		{
-			/*
-			// count amount of booms
-			if ( !g_iBoomerVomitHits[attacker] ) {
-				// check for boom count later
-				CreateTimer( VOMIT_DURATION_TIME, Timer_BoomVomitCheck, attacker, TIMER_FLAG_NO_MAPCHANGE );
-			}
-			*/
 			g_iBoomerVomitHits[attacker]++;
 		}
 	}
@@ -3201,67 +3192,94 @@ stock HandleShove( attacker, victim, zombieClass )
 	Call_Finish();
 }
 
-stock HandleSkeetAssist(attacker, victim)
+void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 {
-	if(!IS_VALID_INGAME(attacker))
-		return;
-	
+	bool bReport = false;
+	if(g_bCvarReportEnable &&
+		g_iCvarReportFlags & REP_SKEET_ASSIST)
+	{
+		bReport = true;
+	}
+
 	if(victim > 0 && victim <= MaxClients && g_iHunterShotDmgTeam[victim] > 0)
 	{
 		new String:assistMsg[255] = "";
-		new team = GetClientTeam(attacker);
+		int count;
 		for(new i = 1; i <= MaxClients; ++i)
 		{
-			if(i == attacker || g_iHunterShotCount[victim][i] <= 0 || g_iHunterShotDamage[victim][i] <= 0 ||
-				!IS_VALID_INGAME(i) || GetClientTeam(i) != team)
+			if(i == attacker ||
+				!IS_VALID_INGAME(i) || GetClientTeam(i) != 2)
 				continue;
-			
-			if(assistMsg[0] == EOS)
-				FormatEx(assistMsg, sizeof(assistMsg), "%t", "HandleSkeetAssist_1");
-			else
-				StrCat(assistMsg, sizeof(assistMsg), ",");
-			
-			Format(assistMsg, sizeof(assistMsg), "%s%t", 
-				assistMsg, "HandleSkeetAssist_2", i, g_iHunterShotCount[victim][i], g_iHunterShotDamage[victim][i]);
-			
-			// 不知道够不够
-			if(strlen(assistMsg) >= 200)
+
+			//PrintToChatAll("%N-%d-%d", i, g_iHunterShotCount[victim][i], g_iHunterShotDamage[victim][i]);
+			if(g_iHunterShotCount[victim][i] <= 0 || g_iHunterShotDamage[victim][i] <= 0)
+				continue;
+
+			Call_StartForward(g_hForwardTeamSkeetAssist);
+			Call_PushCell(victim);
+			Call_PushCell(i);
+			Call_PushCell(isHunter);
+			Call_PushCell(g_iHunterShotCount[victim][i]);
+			Call_PushCell(g_iHunterShotDamage[victim][i]);
+			Call_Finish();
+
+			count++;
+
+			if(bReport)
 			{
-				// break;
-				CPrintToChatAll(assistMsg);
-				strcopy(assistMsg, sizeof(assistMsg), ",");
+				if(assistMsg[0] != EOS)
+					StrCat(assistMsg, sizeof(assistMsg), ", ");
+				
+				Format(assistMsg, sizeof(assistMsg), "%s%T", 
+					assistMsg, "HandleSkeetAssist_2", LANG_SERVER, i, g_iHunterShotCount[victim][i], g_iHunterShotDamage[victim][i]);
+				
+				// 不知道够不够
+				if(count % 2 == 0)
+				{
+					// break;
+					CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);
+					strcopy(assistMsg, sizeof(assistMsg), ", ");
+				}
 			}
 		}
 		
-		if(assistMsg[0] != EOS)
-			CPrintToChatAll(assistMsg);
+		if(bReport)
+		{
+			if(count > 2)
+			{
+				CPrintToChatAll(assistMsg);
+			}
+			else
+			{
+				CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);
+			}
+		}
 	}
 }
 
 // real skeet
-stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
-	shots = 1, assist = -1, bool:isHunter = true, bool headshot )
+void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
+	int shots = 1, bool isTeamSkeet = false, bool isHunter = true, bool headshot )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_SKEET) )
 	{
-		if ( attacker == -2 )
+		if ( isTeamSkeet )
 		{
-			// team skeet sets to -2
-			if(IS_VALID_INGAME(assist))
+			if(IS_VALID_INGAME(attacker))
 			{
 				if ( IS_VALID_INGAME(victim) && !IsFakeClient(victim) ) {
 
 					if(isHunter)
-						CPrintToChatAll( "%t", "HandleSkeet_1_H", victim, assist );
+						CPrintToChatAll( "%t", "HandleSkeet_1_H", victim, attacker );
 					else
-						CPrintToChatAll( "%t", "HandleSkeet_1_J", victim, assist );
+						CPrintToChatAll( "%t", "HandleSkeet_1_J", victim, attacker );
 
 				} else {
 					if(isHunter)
-						CPrintToChatAll( "%t", "HandleSkeet_2_H", "Hunter", assist );
+						CPrintToChatAll( "%t", "HandleSkeet_2_H", "Hunter", attacker );
 					else
-						CPrintToChatAll( "%t", "HandleSkeet_2_J", "Jockey", assist );
+						CPrintToChatAll( "%t", "HandleSkeet_2_J", "Jockey", attacker );
 				}
 			}
 			else
@@ -3278,6 +3296,8 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 						CPrintToChatAll( "%t", "HandleSkeet_4_J", "Jockey");
 				}
 			}
+
+			HandleSkeetAssist(attacker, victim, isHunter);
 		}
 		else if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
 		{
@@ -3398,9 +3418,6 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 					CPrintToChatAll("%t", "HandleSkeet_14_J", attacker, "Jockey");
 			}
 		}
-		
-		if(attacker > 0)
-			HandleSkeetAssist(attacker, victim);
 	}
 	
 	// PrintToConsoleAll("%d skeet %d", attacker, victim);
@@ -3411,6 +3428,7 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 		Call_StartForward(g_hForwardSkeetSniper);
 		Call_PushCell(attacker);
 		Call_PushCell(victim);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3421,6 +3439,7 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 		Call_StartForward(g_hForwardSkeetGL);
 		Call_PushCell(attacker);
 		Call_PushCell(victim);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_Finish();
@@ -3430,6 +3449,7 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 		Call_StartForward(g_hForwardSkeetMelee);
 		Call_PushCell(attacker);
 		Call_PushCell(victim);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_Finish();
@@ -3439,6 +3459,7 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 		Call_StartForward(g_hForwardSkeetMagnum);
 		Call_PushCell(attacker);
 		Call_PushCell(victim);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3449,6 +3470,7 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 		Call_StartForward(g_hForwardSkeetShotGun);
 		Call_PushCell(attacker);
 		Call_PushCell(victim);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3459,6 +3481,7 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 		Call_StartForward(g_hForwardSkeet);
 		Call_PushCell(attacker);
 		Call_PushCell(victim);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3468,8 +3491,8 @@ stock HandleSkeet( attacker, victim, strWeaponType eWeaponType,
 
 // hurt skeet / non-skeet
 //	NOTE: bSniper not set yet, do this
-stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeaponType eWeaponType,
-	shots = 1, bool:isHunter = true, bool headshot )
+void HandleNonSkeet( int attacker, int victim, int damage, bool bOverKill = false, strWeaponType eWeaponType,
+	int shots = 1, bool isTeamSkeet = false, bool isHunter = true, bool headshot )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_HURTSKEET) )
@@ -3571,7 +3594,7 @@ stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeapo
 				}
 			}
 			
-			HandleSkeetAssist(attacker, victim);
+			if(isTeamSkeet) HandleSkeetAssist(attacker, victim, isHunter);
 		}
 	}
 	
@@ -3585,6 +3608,7 @@ stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeapo
 		Call_PushCell(victim);
 		Call_PushCell(damage);
 		Call_PushCell(bOverKill);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3597,6 +3621,7 @@ stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeapo
 		Call_PushCell(victim);
 		Call_PushCell(damage);
 		Call_PushCell(bOverKill);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_Finish();
@@ -3608,6 +3633,7 @@ stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeapo
 		Call_PushCell(victim);
 		Call_PushCell(damage);
 		Call_PushCell(bOverKill);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3620,6 +3646,7 @@ stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeapo
 		Call_PushCell(victim);
 		Call_PushCell(damage);
 		Call_PushCell(bOverKill);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
@@ -3632,6 +3659,7 @@ stock HandleNonSkeet( attacker, victim, damage, bool:bOverKill = false, strWeapo
 		Call_PushCell(victim);
 		Call_PushCell(damage);
 		Call_PushCell(bOverKill);
+		Call_PushCell(isTeamSkeet);
 		Call_PushCell((isHunter) ? 1 : 0);
 		Call_PushCell(headshot);
 		Call_PushCell(shots);
