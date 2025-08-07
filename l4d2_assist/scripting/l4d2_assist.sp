@@ -145,8 +145,8 @@ Action OnTakeDamageAlive(int client, int &attacker, int &inflictor, float &damag
 		}
 		else if(class == ZC_SMOKER)
 		{
-			//AI Smoker拉人時被打超過50 (tongue_break_from_damage_amount) 會有二次傷害
-			//OnTakeDamageAlive -> OnTakeDamageAlive(第二次) -> player_hurt -> player_death -> player_hurt
+			//(戰役) AI Smoker拉人時被打超過50 (tongue_break_from_damage_amount) 會有二次傷害
+			//OnTakeDamageAlive -> OnTakeDamageAlive(第二次) -> player_hurt -> player_death -> player_hurt(第二次)
 			if(g_bSmokerTakeDamageAlive[client])
 			{
 				//PrintToChatAll("Same Frame");
@@ -393,6 +393,16 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	//PrintToChatAll("Event_PlayerDeath: %d %d", attacker, victim);
 	
 	if(!victim || !IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
+
+	static char weapon[64];
+	event.GetString("weapon", weapon, sizeof(weapon));
+	int damagetype = event.GetInt("type");
+	if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK
+		&& attacker == victim && strcmp(weapon, "world", false) == 0 && damagetype == DMG_NEVERGIB)
+	{
+		//PrintToChatAll("Event_PlayerDeath - %N 轉移tank控制權給其他真人玩家觸發這句話", victim);
+		return;
+	}
 
 	if (attacker && IsClientInGame(attacker))
 	{
