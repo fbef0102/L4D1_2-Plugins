@@ -43,6 +43,7 @@ Let admins spawn any kind of objects and saved to cfg
         1. Admin types !admin in chat->Spawn Objects->Save Objects->Save Stripper File
 		2. All Spawned objects will be saved into addons\stripper\maps\xxxxx.cfg
 			* xxxx is map name
+			* Auto-generate xxxxx.cfg if file not exist
 		3. Restart Map
 
 	* **Delete Object**
@@ -234,6 +235,7 @@ Let admins spawn any kind of objects and saved to cfg
 		1. 管理員輸入!admin->生成物件->儲存物件
 		2. 生成的物件會儲存於addons\stripper\maps\xxxxx.cfg
 			* xxxx是地圖名
+			* 沒有此cfg也會自動產生
 		3. 重啟地圖
 
 	* 如何刪除已經儲存的物件?

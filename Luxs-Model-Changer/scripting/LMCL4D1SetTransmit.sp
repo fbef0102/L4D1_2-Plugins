@@ -20,13 +20,14 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <left4dhooks>
 #pragma newdecls required
 
 
 #define PLUGIN_NAME "LMCL4D1SetTransmit"
 #define PLUGIN_VERSION "1.0.1"
 
-enum ZOMBIECLASS
+enum /*ZOMBIECLASS*/
 {
 	ZOMBIECLASS_SMOKER = 1,
 	ZOMBIECLASS_BOOMER,
@@ -64,18 +65,18 @@ public void OnPluginStart()
 	CreateConVar("lmcl4d1settransmit_version", PLUGIN_VERSION, "LMCL4D1SetTransmit_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 }
 
-Action HideModel(int iEntity, int iClient)
+Action HideModel(int iEntity, int client)
 {
-	if(IsFakeClient(iClient))
+	if(IsFakeClient(client))
 		return Plugin_Continue;
 	
 	static int iOwner;
 	iOwner = GetClientOfUserId(iHiddenOwner[iEntity]);
-	if(!IsPlayerAlive(iClient))
+	if(!IsPlayerAlive(client))
 	{
-		if(GetEntProp(iClient, Prop_Send, "m_iObserverMode") == 4)
+		if(GetEntProp(client, Prop_Send, "m_iObserverMode") == 4)
 		{
-			if(GetEntPropEnt(iClient, Prop_Send, "m_hObserverTarget") == iOwner)
+			if(GetEntPropEnt(client, Prop_Send, "m_hObserverTarget") == iOwner)
 			{
 				switch(GetClientTeam(iOwner))
 				{
@@ -103,10 +104,10 @@ Action HideModel(int iEntity, int iClient)
 	{
 		case 2: 
 		{
-			if(iOwner != iClient)
+			if(iOwner != client)
 				return Plugin_Continue;
 			
-			if(!IsSurvivorThirdPerson(iClient, false))
+			if(!IsSurvivorThirdPerson(client, false))
 				return Plugin_Handled;
 		}
 		case 3: 
@@ -114,7 +115,7 @@ Action HideModel(int iEntity, int iClient)
 			static bool bIsGhost;
 			bIsGhost = GetEntProp(iOwner, Prop_Send, "m_isGhost", 1) > 0;
 			
-			if(iOwner != iClient) 
+			if(iOwner != client) 
 			{
 				//Hide model for everyone else when is ghost mode exapt me
 				if(bIsGhost)
@@ -136,105 +137,109 @@ Action HideModel(int iEntity, int iClient)
 }
 
 
-static bool IsSurvivorThirdPerson(int iClient, bool bSpecCheck)
+static bool IsSurvivorThirdPerson(int client, bool bSpecCheck)
 {
+	if (IsFakeClient(client))
+		return false;
+
 	if(!bSpecCheck)
 	{
-		if(bThirdPerson[iClient])
+		if(bThirdPerson[client])
 			return true;
 		
-		if(GetEntProp(iClient, Prop_Send, "m_iObserverMode") == 1)
+		if(GetEntProp(client, Prop_Send, "m_iObserverMode") == 1)
 			return true;
 	}
-	if(GetEntPropEnt(iClient, Prop_Send, "m_hViewEntity") > 0)
-		return true;
-	if(GetEntPropEnt(iClient, Prop_Send, "m_pounceAttacker") > 0)
-		return true;
-	if(GetEntProp(iClient, Prop_Send, "m_isHangingFromLedge") > 0)
-		return true;
-	if(GetEntPropEnt(iClient, Prop_Send, "m_reviveTarget") > 0)
-		return true;
-	if(GetEntPropEnt(iClient, Prop_Send, "m_healTarget") > 0)
-		return true;
-	if(GetEntPropFloat(iClient, Prop_Send, "m_staggerTimer", 1) > GetGameTime())
-		return true;
-	
-	static char sModel[31];
-	GetEntPropString(iClient, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-	
-	switch(sModel[29])
+
+	int Activity = L4D1_GetMainActivity(client);
+	switch (Activity) 
 	{
-		case 'v'://bill
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 535, 537, 539, 540, 541:
+		case L4D1_ACT_TERROR_SHOVED_FORWARD, // 1145, 1146, 1147, 1148: stumble
+			L4D1_ACT_TERROR_SHOVED_BACKWARD,
+			L4D1_ACT_TERROR_SHOVED_LEFTWARD,
+			L4D1_ACT_TERROR_SHOVED_RIGHTWARD: 
 				return true;
-			}
-		}
-		case 'n'://zoey
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 517, 519, 521, 522, 523:
-				return true;
-			}
-		}
-		case 'e'://francis
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 536, 538, 540, 541, 542:
-				return true;
-			}
-		}
-		case 'a'://louis
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 535, 537, 539, 540, 541:
-				return true;
-			}
-		}
+
+		case L4D1_ACT_TERROR_POUNCED_TO_STAND: // 1263: get up from hunter
+			return true;
+
+		case L4D1_ACT_TERROR_HIT_BY_TANKPUNCH, // 1077, 1078, 1079: HIT BY TANK PUNCH
+			L4D1_ACT_TERROR_IDLE_FALL_FROM_TANKPUNCH,
+			L4D1_ACT_TERROR_TANKPUNCH_LAND:
+			return true;
 	}
+
+	if (GetEntPropEnt(client, Prop_Send, "m_hViewEntity") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_pounceAttacker") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_tongueOwner") > 0)
+	{
+		if(Activity == L4D1_ACT_TERROR_PULLED_RUN_RIFLE)
+			return false;
+		else 
+			return true;
+	}
+	if (GetEntProp(client, Prop_Send, "m_isHangingFromLedge") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_reviveTarget") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_healTarget") > 0)
+		return true;
+
 	return false;
 }
 
-static bool IsInfectedThirdPerson(int iClient, bool bSpecCheck)
+static bool IsInfectedThirdPerson(int client, bool bSpecCheck)
 {
+	if (IsFakeClient(client))
+		return false;
+
 	if(!bSpecCheck)
 	{
-		if(bThirdPerson[iClient])
+		if(bThirdPerson[client])
 			return true;
 	}
-	if(GetEntPropFloat(iClient, Prop_Send, "m_staggerTimer", 1) > GetGameTime())
-		return true;
-	if(GetEntPropEnt(iClient, Prop_Send, "m_hViewEntity") > 0)
-		return true;
-	if(GetEntPropEnt(iClient, Prop_Send, "m_tongueVictim") > 0)
-		return true;
-	if(GetEntPropEnt(iClient, Prop_Send, "m_pounceVictim") > 0)
-		return true;
-	/*
-	There is still a bug in l4d1 xbox where infected can revive survivors that are down this seems to be fixed on pc.
-	if(GetEntPropEnt(iClient, Prop_Send, "m_reviveTarget") > 0)
-		return true;
-	*/
-	if(view_as<ZOMBIECLASS>(GetEntProp(iClient, Prop_Send, "m_zombieClass")) == ZOMBIECLASS_TANK)
+
+	int Activity = L4D1_GetMainActivity(client);
+	switch (Activity) 
 	{
-		switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
+		case L4D1_ACT_TERROR_SHOVED_FORWARD, // 1145, 1146, 1147, 1148: stumble
+			L4D1_ACT_TERROR_SHOVED_BACKWARD,
+			L4D1_ACT_TERROR_SHOVED_LEFTWARD,
+			L4D1_ACT_TERROR_SHOVED_RIGHTWARD: 
+				return true;
+	}
+
+	if(GetEntPropEnt(client, Prop_Send, "m_hViewEntity") > 0)
+		return true;
+
+	switch(GetEntProp(client, Prop_Send, "m_zombieClass"))
+	{
+		case ZOMBIECLASS_SMOKER:
 		{
-			case 47, 48, 49, 71, 72, 73, 74, 75:
-			return true;
+			if(GetEntPropEnt(client, Prop_Send, "m_tongueVictim") > 0) return true;
+
+			int ability = L4D_GetPlayerCustomAbility(client);
+			if(ability > MaxClients && GetEntProp(ability, Prop_Send, "m_tongueState") == 2)  return true;
+		}
+		case ZOMBIECLASS_HUNTER:
+		{
+			if(GetEntPropEnt(client, Prop_Send, "m_pounceVictim") > 0)
+				return true;
+		}
+		case ZOMBIECLASS_TANK:
+		{
+			
 		}
 	}
-	
+
 	return false;
 }
 
-public void TP_OnThirdPersonChanged(int iClient, bool bIsThirdPerson)
+public void TP_OnThirdPersonChanged(int client, bool bIsThirdPerson)
 {
-	bThirdPerson[iClient] = bIsThirdPerson;
+	bThirdPerson[client] = bIsThirdPerson;
 }
 
 int SetTransmit(Handle plugin, int numParams)
@@ -242,12 +247,12 @@ int SetTransmit(Handle plugin, int numParams)
 	if(numParams < 3)
 		ThrowNativeError(SP_ERROR_PARAM, "Invalid numParams");
 	
-	int iClient = GetNativeCell(1);
-	if(iClient < 1 || iClient > MaxClients)
-		ThrowNativeError(SP_ERROR_PARAM, "Client index out of bounds %i", iClient);
+	int client = GetNativeCell(1);
+	if(client < 1 || client > MaxClients)
+		ThrowNativeError(SP_ERROR_PARAM, "Client index out of bounds %i", client);
 	
-	if(!IsClientInGame(iClient))
-		ThrowNativeError(SP_ERROR_ABORTED, "Client is not ingame %i", iClient);
+	if(!IsClientInGame(client))
+		ThrowNativeError(SP_ERROR_ABORTED, "Client is not ingame %i", client);
 	
 	int iEntity = GetNativeCell(2);
 	if(iEntity < MaxClients+1 || iEntity > 2048)
@@ -258,7 +263,7 @@ int SetTransmit(Handle plugin, int numParams)
 	
 	if(GetNativeCell(3))
 	{
-		iHiddenOwner[iEntity] = GetClientUserId(iClient);
+		iHiddenOwner[iEntity] = GetClientUserId(client);
 		SDKHookEx(iEntity, SDKHook_SetTransmit, HideModel);
 		return 0;
 	}

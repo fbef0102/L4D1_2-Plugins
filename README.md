@@ -264,6 +264,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 改善一些愚蠢的實體碰撞造成的問題
 * <b>[l4d_full_slot_bot_replace_fix](/l4d_full_slot_bot_replace_fix)</b>: Fix bugs if not enough slots to spawn bots to take over + Kick Previously human-controlled SI bots
     * 修復伺服器客戶端已滿的狀態下無法生成Bot取代玩家所造成的嚴重問題
+* <b>[_[L4D2]Survivor_Legs](/_[L4D2]Survivor_Legs)</b>: Add's Left 4 Dead 1 Style ViewModel Legs
+    * 第一人稱可以看到自己的雙腳
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

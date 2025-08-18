@@ -23,6 +23,10 @@ LMC Allows you to use most models with most characters
     * Name with L4D1: For L4D1 only
 </details>
 
+* Require | 必要安裝
+    1. [ThirdPersonShoulder_Detect](https://forums.alliedmods.net/showthread.php?t=298649)
+    2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/LMCCore.cfg
@@ -119,9 +123,6 @@ LMC Allows you to use most models with most characters
         lmc_announcemode "1" 
         ```
 </details>
-
-* Require | 必要安裝
-    * [ThirdPersonShoulder_Detect](https://forums.alliedmods.net/showthread.php?t=298649)
 
 * Translation Support | 支援翻譯
     ```

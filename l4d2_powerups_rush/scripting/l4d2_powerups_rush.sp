@@ -61,7 +61,7 @@ const float g_fl_PumpE = 0.4;
 forward Action OnAdrenalineGiven(int client, float duration);
 
 //tracks if the game is L4D 2 (Support for L4D1 pending...)
-int g_i_L4D_12 = 0;
+bool g_bL4D2Version;
 
 //offsets
 int g_iNextPAttO		= -1;
@@ -113,11 +113,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	
 	if( test == Engine_Left4Dead )
 	{
-		g_i_L4D_12 = 1;
+		g_bL4D2Version = false;
 	}
 	else if( test == Engine_Left4Dead2 )
 	{
-		g_i_L4D_12 = 2;
+		g_bL4D2Version = true;
 	}
 	else
 	{
@@ -155,7 +155,7 @@ public void OnPluginStart()
 	powerups_duration = CreateConVar("l4d_powerups_duration", "20", "How long should the duration of the boosts last?", FCVAR_NOTIFY, true, 1.0);
 	powerups_notify_type = CreateConVar("l4d_powerups_notify_type", "1", "Changes how activation hint and deactivation hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	powerups_timer_type = CreateConVar("l4d_powerups_coutdown_type", "2", "Changes how countdown timer hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	if(g_i_L4D_12 == 2) powerups_adrenaline_effect = CreateConVar("l4d_powerups_add_adrenaline_effect", "1", "(L4D2) If 1, set adrenaline effect time same as l4d_powerups_duration (Progress bar faster, such as use kits faster, save teammates faster... etc)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	if(g_bL4D2Version) powerups_adrenaline_effect = CreateConVar("l4d_powerups_add_adrenaline_effect", "1", "(L4D2) If 1, set adrenaline effect time same as l4d_powerups_duration (Progress bar faster, such as use kits faster, save teammates faster... etc)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	pills_luck = CreateConVar("l4d_powerups_pills_luck", "3", "The luckey change for pills that will grant the boost. (0=Off, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)", FCVAR_NOTIFY, true, 0.0);
 	
 	g_h_reload_rate = CreateConVar("l4d_powerups_weaponreload_rate", "0.5714", "The interval incurred by reloading is multiplied by this value (clamped between 0.2 ~ 0.9)", FCVAR_NOTIFY, true, 0.2, true, 0.9);
@@ -559,7 +559,7 @@ Action Timer_Countdown(Handle timer, any client)
 		}
 		g_powerups_timeleft[client] -= 1.0;
 
-		if(g_i_L4D_12 == 2 && powerups_adrenaline_effect.BoolValue == true)
+		if(g_bL4D2Version && powerups_adrenaline_effect.BoolValue == true)
 		{
 			float remaining = Terror_GetAdrenalineTime(client);
 			remaining = (remaining > 0) ? remaining : 0.0;
@@ -753,9 +753,11 @@ Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
 	//but first check the reload state; if it's 2, then it needs a pump/cock before it can shoot again, and thus needs more time
-	if (g_i_L4D_12 == 2)
+	if (g_bL4D2Version)
+	{
 		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
-	else if (g_i_L4D_12 == 1)
+	}
+	else
 	{
 		if (GetEntData(iEntid,g_iShotRelStateO)==2)
 			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
@@ -884,9 +886,11 @@ Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 	SetEntDataFloat(iEntid, g_iPlayRateO, 1.0/g_fl_reload_rate, true);
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
-	if (g_i_L4D_12 == 2)
+	if (g_bL4D2Version)
+	{
 		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
-	else if (g_i_L4D_12 == 1)
+	}
+	else if (g_bL4D2Version)
 	{
 		if (GetEntData(iEntid,g_iShotRelStateO) == 2)
 			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
@@ -1444,119 +1448,74 @@ void UnHookAll()
 			SDKUnhook(i, SDKHook_PostThinkPost, hOnPostThinkPost);
 }
 
-void hOnPostThinkPost(int iClient)
+void hOnPostThinkPost(int client)
 {
-	if(IsFakeClient(iClient) && GetClientTeam(iClient) != 2)
+	if(IsFakeClient(client) && GetClientTeam(client) != 2)
 	{
-		SDKUnhook(iClient, SDKHook_PostThinkPost, hOnPostThinkPost);
+		SDKUnhook(client, SDKHook_PostThinkPost, hOnPostThinkPost);
 		return;
 	}
 	
-	if(!IsPlayerAlive(iClient) || GetClientTeam(iClient) != 2 || g_powerups_plugin_on == false) 
+	if(!IsPlayerAlive(client) || GetClientTeam(client) != 2 || g_powerups_plugin_on == false) 
 		return;
 	
-	if(g_usedhealth[iClient] == 0)
+	if(g_usedhealth[client] == 0)
 		return;
 	
-	if(ShouldGetUpFaster(iClient))
-		SetEntPropFloat(iClient, Prop_Send, "m_flPlaybackRate", fAnimSpeed);
+	if(ShouldGetUpFaster(client))
+		SetEntPropFloat(client, Prop_Send, "m_flPlaybackRate", fAnimSpeed);
 	else
 	{
 		float fGameTime;
 		fGameTime = GetGameTime();
-		if(fGameTimeSave[iClient] > fGameTime)
+		if(fGameTimeSave[client] > fGameTime)
 			return;
 		
 		float fStaggerTimer;
-		fStaggerTimer = GetEntPropFloat(iClient, Prop_Send, "m_staggerTimer", 1);
+		fStaggerTimer = GetEntPropFloat(client, Prop_Send, "m_staggerTimer", 1);
 		if(fStaggerTimer <= fGameTime + fTickRate)// ignore if stagger will last atleast 1 tick
 			return;
 		
 		fStaggerTimer = (((fStaggerTimer - fGameTime) / fAnimSpeed) + fGameTime);
-		SetEntPropFloat(iClient, Prop_Send, "m_staggerTimer", fStaggerTimer, 1);
-		fGameTimeSave[iClient] = fStaggerTimer;
+		SetEntPropFloat(client, Prop_Send, "m_staggerTimer", fStaggerTimer, 1);
+		fGameTimeSave[client] = fStaggerTimer;
 	}
 	return;
 }
 
-static bool ShouldGetUpFaster(int iClient)
+bool ShouldGetUpFaster(int client)
 {
-	static char sModel[31];
-	GetEntPropString(iClient, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-	switch(sModel[29])
+	int Activity = PlayerAnimState.FromPlayer(client).GetMainActivity();
+	switch (Activity) 
 	{
-		case 'b'://nick
+		case L4D2_ACT_TERROR_SHOVED_FORWARD_MELEE, // 633, 634, 635, 636: stumble
+			L4D2_ACT_TERROR_SHOVED_BACKWARD_MELEE,
+			L4D2_ACT_TERROR_SHOVED_LEFTWARD_MELEE,
+			L4D2_ACT_TERROR_SHOVED_RIGHTWARD_MELEE: 
+				return true;
+
+		case L4D2_ACT_TERROR_POUNCED_TO_STAND: // 771: get up from hunter
+			return true;
+
+		case L4D2_ACT_TERROR_CHARGERHIT_LAND_SLOW: // 526: get up from charger
+			return true;
+
+		case L4D2_ACT_TERROR_HIT_BY_CHARGER, // 524, 525, 526: flung by a nearby Charger impact
+			L4D2_ACT_TERROR_IDLE_FALL_FROM_CHARGERHIT: 
+			return true;
+
+		case L4D2_ACT_TERROR_HIT_BY_TANKPUNCH,
+			L4D2_ACT_TERROR_IDLE_FALL_FROM_TANKPUNCH,
+			L4D2_ACT_TERROR_TANKPUNCH_LAND: // hit by tank
+			return true;
+
+		/*case L4D2_ACT_TERROR_INCAP_TO_STAND: // 697, revive from incap or death
 		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
+			if(!L4D_IsPlayerIncapacitated(client)) // revive by defibrillator
 			{
-				case 680, 667, 671, 672, 630, 620, 627:
-					return true;
+				return true;
 			}
-		}
-		case 'd'://rochelle
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 687, 679, 678, 674, 638, 635, 629:
-					return true;
-			}
-		}
-		case 'c'://coach
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 669, 661, 660, 656, 630, 627, 621:
-					return true;
-			}
-		}
-		case 'h'://ellis
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 684, 676, 675, 671, 625, 635, 632:
-					return true;
-			}
-		}
-		case 'v'://bill
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 772, 764, 763, 759, 538, 535, 528:
-					return true;
-			}
-		}
-		case 'n'://zoey
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 824, 823, 819, 809, 547, 544, 537:
-					return true;
-			}
-		}
-		case 'e'://francis
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 775, 767, 766, 762, 541, 539, 531:
-					return true;
-			}
-		}
-		case 'a'://louis
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 772, 764, 763, 759, 538, 535, 528:
-					return true;
-			}
-		}
-		case 'w'://adawong
-		{
-			switch(GetEntProp(iClient, Prop_Send, "m_nSequence"))
-			{
-				case 687, 679, 678, 674, 638, 635, 629:
-					return true;
-			}
-		}
+		}*/
 	}
 	
 	return false;
