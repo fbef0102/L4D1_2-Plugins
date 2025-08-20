@@ -155,41 +155,77 @@ static bool IsSurvivorThirdPerson(int client, bool bSpecCheck)
 			return true;
 	}
 
-	int Activity = L4D1_GetMainActivity(client);
+	int Activity = PlayerAnimState.FromPlayer(client).GetMainActivity();
 	switch (Activity) 
 	{
-		case L4D1_ACT_TERROR_SHOVED_FORWARD, // 1145, 1146, 1147, 1148: stumble
-			L4D1_ACT_TERROR_SHOVED_BACKWARD,
-			L4D1_ACT_TERROR_SHOVED_LEFTWARD,
-			L4D1_ACT_TERROR_SHOVED_RIGHTWARD: 
+		case L4D2_ACT_TERROR_SHOVED_FORWARD_MELEE, // 633, 634, 635, 636: stumble
+			L4D2_ACT_TERROR_SHOVED_BACKWARD_MELEE,
+			L4D2_ACT_TERROR_SHOVED_LEFTWARD_MELEE,
+			L4D2_ACT_TERROR_SHOVED_RIGHTWARD_MELEE: 
 				return true;
 
-		case L4D1_ACT_TERROR_POUNCED_TO_STAND: // 1263: get up from hunter
+		case L4D2_ACT_TERROR_POUNCED_TO_STAND: // 771: get up from hunter
 			return true;
 
-		case L4D1_ACT_TERROR_HIT_BY_TANKPUNCH, // 1077, 1078, 1079: HIT BY TANK PUNCH
-			L4D1_ACT_TERROR_IDLE_FALL_FROM_TANKPUNCH,
-			L4D1_ACT_TERROR_TANKPUNCH_LAND:
+		case L4D2_ACT_TERROR_CHARGERHIT_LAND_SLOW: // 526: get up from charger
 			return true;
+
+		case L4D2_ACT_TERROR_HIT_BY_CHARGER, // 524, 525, 526: flung by a nearby Charger impact
+			L4D2_ACT_TERROR_IDLE_FALL_FROM_CHARGERHIT: 
+			return true;
+
+		case L4D2_ACT_TERROR_INCAP_TO_STAND: // 697, revive from incap or death
+		{
+			if(!L4D_IsPlayerIncapacitated(client)) // revive by defibrillator
+			{
+				return true;
+			}
+		}
 	}
 
 	if (GetEntPropEnt(client, Prop_Send, "m_hViewEntity") > 0)
+		return true;
+	if (GetEntPropFloat(client, Prop_Send, "m_TimeForceExternalView") > GetGameTime())
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_pummelAttacker") > 0)
+		return true;
+	if (GetEntPropEnt(client, Prop_Send, "m_carryAttacker") > 0)
+		return true;
+	if (L4D2_GetQueuedPummelAttacker(client) > 0)
 		return true;
 	if (GetEntPropEnt(client, Prop_Send, "m_pounceAttacker") > 0)
 		return true;
 	if (GetEntPropEnt(client, Prop_Send, "m_tongueOwner") > 0)
 	{
-		if(Activity == L4D1_ACT_TERROR_PULLED_RUN_RIFLE)
+		if(Activity == L4D2_ACT_TERROR_PULLED_RUN_RIFLE)
 			return false;
 		else 
 			return true;
 	}
+	if (GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker") > 0)
+		return true;
 	if (GetEntProp(client, Prop_Send, "m_isHangingFromLedge") > 0)
 		return true;
 	if (GetEntPropEnt(client, Prop_Send, "m_reviveTarget") > 0)
 		return true;
-	if (GetEntPropEnt(client, Prop_Send, "m_healTarget") > 0)
+	if (GetEntPropFloat(client, Prop_Send, "m_staggerTimer", 1) > -1.0)
 		return true;
+
+	switch(GetEntProp(client, Prop_Send, "m_iCurrentUseAction"))
+	{
+		case 1:
+		{
+			static int iTarget;
+			iTarget = GetEntPropEnt(client, Prop_Send, "m_useActionTarget");
+
+			if (iTarget == GetEntPropEnt(client, Prop_Send, "m_useActionOwner"))
+					return true;
+			else if (iTarget != client)
+					return true;
+		}
+		case 4, 5, 6, 7, 8, 9, 10:
+			return true;
+	}
 
 	return false;
 }
