@@ -16,8 +16,8 @@ Fix bugs if not enough slots to spawn bots to take over + Kick Previously human-
     | ![l4d_full_slot_bot_replace_fix_2_before](image/l4d_full_slot_bot_replace_fix_2_before.gif)|![l4d_full_slot_bot_replace_fix_2_after](image/l4d_full_slot_bot_replace_fix_2_after.gif)|
 
 * Require | 必要安裝
-    1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 server slots limit
-        * [l4dtoolz 中文安裝](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8/README.md#%E5%AE%89%E8%A3%9Dl4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩
+    1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 server slots limit
+        * [l4dtoolz 中文安裝](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩
     2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
 * <details><summary>How does it work?</summary>

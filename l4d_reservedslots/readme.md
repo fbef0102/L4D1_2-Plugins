@@ -19,7 +19,7 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 </details>
 
 * Require
-	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit
+	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz): Unlock server slots limit
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -69,7 +69,7 @@ Admin Reserved Slots in L4D1/2 (Sorry, Reserverd Slots for Admin..)
 	<br/>![l4d_reservedslots_1](image/zho/l4d_reservedslots_1.jpg)
 
 * 必要安裝
-	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8#%E5%AE%89%E8%A3%9Dl4dtoolz): 解鎖伺服器人數上限
+	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz): 解鎖伺服器人數上限
 
 * 原理
 	* 當伺服器滿人的時候

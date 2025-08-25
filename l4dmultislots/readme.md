@@ -20,7 +20,7 @@ Allows additional survivor players in server when 5+ player joins the server
 </details>
 
 * Require
-	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 survivors and server slots limit
+	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz): To unlock more than 18 survivors and server slots limit
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	4. [l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)
@@ -160,12 +160,12 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	2. <details><summary>How to set 8+ players in coop?</summary>
 
-		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
+		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
 	</details>
 
 	3. <details><summary>How to fix 5+ survivor bug ? For example: charger stop, witch attack wrong player, bot model change... etc</summary>
 
-		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
+		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
 	</details>
 
 * Translation Support | 支援翻譯
@@ -272,7 +272,7 @@ Allows additional survivor players in server when 5+ player joins the server
 	* (對抗/清道夫模式) 當有人使用插件的命令嘗試加入倖存者陣營時，先檢查特感與人類隊伍平衡，如果隊伍不平衡，加入倖存者陣營將會失敗
 
 * 必要安裝
-	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Server/%E5%AE%89%E8%A3%9D%E5%85%B6%E4%BB%96%E6%AA%94%E6%A1%88%E6%95%99%E5%AD%B8/README.md#%E5%AE%89%E8%A3%9Dl4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩
+	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩
 	2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	4. [l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)
@@ -411,10 +411,10 @@ Allows additional survivor players in server when 5+ player joins the server
 
 	2. <details><summary>戰役模式如何開八人房?</summary>
 
-		請閱讀[8位玩家遊玩戰役模式](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Game/L4D2/8%E4%BD%8D%E7%8E%A9%E5%AE%B6%E9%81%8A%E7%8E%A9%E6%88%B0%E5%BD%B9%E6%A8%A1%E5%BC%8F#%E5%AE%89%E8%A3%9D%E7%B8%BD%E6%94%AC)
+		請閱讀[8位玩家遊玩戰役模式](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game/L4D2/8位玩家遊玩戰役模式)
 	</details>
 
 	3. <details><summary>五位以上的倖存者問題如何修正? 譬如: Charger衝撞停止Bug、witch攻擊錯誤的目標、模組被亂改bug等等</summary>
 
-		請閱讀[8位玩家遊玩戰役模式](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Game/L4D2/8%E4%BD%8D%E7%8E%A9%E5%AE%B6%E9%81%8A%E7%8E%A9%E6%88%B0%E5%BD%B9%E6%A8%A1%E5%BC%8F#%E5%AE%89%E8%A3%9D%E7%B8%BD%E6%94%AC)
+		請閱讀[8位玩家遊玩戰役模式](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game/L4D2/8位玩家遊玩戰役模式)
 	</details>

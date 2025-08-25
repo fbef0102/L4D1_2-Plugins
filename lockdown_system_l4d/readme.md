@@ -88,11 +88,6 @@ Locks Saferoom Door Until Someone Opens It.
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
-
-    None
-</details>
-
 * <details><summary>Data Config</summary>
 
     * [data/lockdown_system_l4d.cfg](data/lockdown_system_l4d.cfg)

@@ -68,7 +68,7 @@ Downloading fastdl custom files only when map change/transition
 只有在換圖或過關時，才讓玩家下載Fastdl自製的檔案
 
 * 原理
-	* [什麼是自訂伺服器內容?](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Game#%E4%B8%8B%E8%BC%89%E8%87%AA%E8%A8%82%E4%BC%BA%E6%9C%8D%E5%99%A8%E5%85%A7%E5%AE%B9)
+	* [什麼是自訂伺服器內容?](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game#%E4%B8%8B%E8%BC%89%E8%87%AA%E8%A8%82%E4%BC%BA%E6%9C%8D%E5%99%A8%E5%85%A7%E5%AE%B9)
 	* (安裝此插件之前) 玩家連線到伺服器必須下載所有伺服器的自製檔案
 		* 下載過程漫長且玩家螢幕會黑屏
 		* 玩家通常沒有耐心等待，而且看到螢幕黑屏以為遊戲卡住，導致大部分玩家直接離開，反覆循環

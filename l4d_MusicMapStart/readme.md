@@ -132,7 +132,7 @@ Download and play custom music in game
 			* If you are L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2/"	
 				```
 
 	4. Uploading files to server.
@@ -296,7 +296,7 @@ Download and play custom music in game
 			* 如果你是 L4D2
 				```php
 				sm_cvar sv_allowdownload "1"
-				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2"	
+				sm_cvar sv_downloadurl "http://your-content-server.com/left4dead2/"	
 				```
 
 	4. 上傳文件到服務器
@@ -317,6 +317,8 @@ Download and play custom music in game
 		* 在聊天視窗輸入```!music```
 
 	6. 玩家加入伺服器時，會自動下載自製的音樂檔案 (玩家必須自己打開選項->多人連線->自訂伺服器內容->全部允許)
+		* 連線時, 控制台會顯示正在下載音樂 (L4D1不會顯示)
+		* 可自行檢查遊戲內的資料夾確認音樂已下載
 		<br/>![l4d_MusicMapStart_3](image/l4d_MusicMapStart_3.jpg)
 </details>
 

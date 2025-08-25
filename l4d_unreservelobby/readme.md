@@ -35,12 +35,12 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 * Require
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-	2. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Other_File#l4dtoolz): Unlock more than 8 slots
+	2. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz): Unlock more than 8 slots
 
 * <details><summary>Q&A</summary>
 
 	* How to install 8+ slots coop/versus server?
-		* [Read this](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8+_Survivors_In_Coop)
+		* [Read this](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Game/L4D2/8+_Survivors_In_Coop)
 
 	* What is lobby reserved?
 		* Create a lobby -> Server Type: ```Best Avaliable Dedicated``` -> Types ```mm_dedicated_force_servers xxxxxx``` in game console -> Start The Game
@@ -144,7 +144,7 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 * <details><summary>問題Q&A</summary>
 
 	* 怎麼開多人房?
-		* [教學文章](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Game/L4D2/8%E4%BD%8D%E7%8E%A9%E5%AE%B6%E9%81%8A%E7%8E%A9%E6%88%B0%E5%BD%B9%E6%A8%A1%E5%BC%8F)
+		* [教學文章](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game/L4D2/8位玩家遊玩戰役模式)
 
 	* 什麼是大廳匹配?
 		* [開大廳，匹配](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝伺服器與插件#如何從大廳匹配到專屬伺服器)

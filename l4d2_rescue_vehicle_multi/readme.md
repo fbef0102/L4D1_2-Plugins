@@ -26,7 +26,7 @@ Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fal
 		3. (L4D2) (Versus) calculate 5+ survivors alive count
 		4. (Versus) Kills survivors before the score is calculated so player won't get full distance if is incapped as the rescue vehicle leaves.
 	* How to set up 5 survivors?
-		* Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Game/L4D2/8%2B_Survivors_In_Coop)
+		* Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Game/L4D2/8%2B_Survivors_In_Coop)
 </details>
 
 * Require | 必要安裝
@@ -59,4 +59,4 @@ Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fal
 		3. (L4D2) (對抗) 第五位以上的玩家列入對抗活著分數
 		4. (對抗) 倒地的倖存者自動處死，避免倒地的玩家獲得對抗距離分數
 	* 如何設置5+多人倖存者?
-		* 請閱讀這篇文章[8位玩家遊玩戰役模式](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/Chinese_%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87/Game/L4D2/8%E4%BD%8D%E7%8E%A9%E5%AE%B6%E9%81%8A%E7%8E%A9%E6%88%B0%E5%BD%B9%E6%A8%A1%E5%BC%8F)
+		* 請閱讀這篇文章[8位玩家遊玩戰役模式](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game/L4D2/8位玩家遊玩戰役模式)
