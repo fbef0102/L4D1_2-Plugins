@@ -1,7 +1,11 @@
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sourcemod>
 #include <adminmenu>
 #include <sdktools>
-#define PLUGIN_VERSION "2.6"
+#include <multicolors>
+#define PLUGIN_VERSION "2.7-2025/8/27"
 
 enum
 {
@@ -41,12 +45,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-public void OnPluginStart(){
+public void OnPluginStart()
+{
+	LoadTranslations("admin_hp.phrases");
 	RegAdminCmd("sm_hp", restore_hp, ADMFLAG_ROOT, "Restore all survivors full hp");
 	RegAdminCmd("sm_givehp", restore_hp, ADMFLAG_ROOT, "Restore all survivors full hp");
 }
 
-public Action restore_hp(int client, int args){
+Action restore_hp(int client, int args){
 	if (client == 0)
 	{
 		PrintToServer("[TS] \"Restore_hp\" cannot be used by server.");
@@ -55,16 +61,26 @@ public Action restore_hp(int client, int args){
 	
 	for( int i = 1; i <= MaxClients; i++ ) {
 		if (IsClientInGame(i) && GetClientTeam(i)==L4D_TEAM_SURVIVOR && IsPlayerAlive(i))
-			CheatCommand(i);
+			CheatCommanGiveHealth(i);
+	}
+
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if( !IsClientInGame(i) ) continue;
+		if( IsFakeClient(i) )
+		{
+			if(!IsClientSourceTV(i)) continue;
+		}
+
+		CPrintToChat(i, "%T", "Message", i, client);
 	}
 	
-	PrintToChatAll("\x01[\x05TS\x01] Adm \x03%N \x01restores \x05all survivors \x04FULL HP", client);
-	LogMessage("[TS] Adm %N restores all survivors FULL HP", client);
+	LogMessage("Adm %N restores all survivors FULL HP", client);
 	
 	return Plugin_Handled;
 }
 
-void CheatCommand(int client)
+void CheatCommanGiveHealth(int client)
 {
 	int give_flags = GetCommandFlags("give");
 	SetCommandFlags("give", give_flags & ~FCVAR_CHEAT);

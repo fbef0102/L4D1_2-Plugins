@@ -1,0 +1,32 @@
+﻿/*
+	支援以下顏色:
+	 - {default}	(白色)
+	 - {green}		(橘色)
+	 - {olive}		(綠色)
+	 - {lightgreen}	(淺綠色)
+	 - {red}		(紅色) - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+	 - {blue}		(藍色) - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
+	 注意事項: 藍色, 紅色, 淺綠色，這三種顏色的其中任意兩種不可出現在同一句話裡
+*/
+
+/*
+	Following named colors are supported:
+	 - {default}	(whilte)
+	 - {green}		(olive color)
+	 - {olive}		(green color)
+	 - {lightgreen}	(light green)
+	 - {red}		(red) - There must be at least one player or bot in infected team，or red will turn into {green} color
+	 - {blue}		(blue) - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
+	 Warning:  2 of (Blue, Red, Lightgreen) colors can not be used together in one sentence
+*/
+
+"Phrases"
+{
+	"Message"
+	{
+		"#format"		"{1:N}"
+		"en"		"[{olive}TS{default}] Adm {lightgreen}{1} {default}restores {olive}all survivors {green}FULL HP"
+		"zho"		"[{olive}TS{default}] 管理員 {lightgreen}{1} {default}回復 {olive}所有倖存者 {green}血量"
+		"chi"		"[{olive}TS{default}] 管理员 {lightgreen}{1} {default}回复 {olive}所有幸存者 {green}血量"
+	}
+}

@@ -365,8 +365,7 @@ Improves the AI behaviour of special infected
             // AI Hunter跳躍的最大傾角 (避免飛過頭或飛太高，預設: 45)
             hunter_pounce_max_loft_angle 0
 
-            // 此數值的範圍內還沒攻擊的AI Hunter被人類傷害時會逃跑跳走 (只會出現在戰役/寫實模式，預設: 1000)
-            // 0=關閉逃跑跳走能力, >0: 回復逃跑跳走能力並且等待玩家過來
+            // AI + 真人 Hunter 在飛撲途中受傷超過此數值會立刻死亡 (無論你剩餘多少血量都一樣，別問我為捨，此遊戲設計的，預設: 50)
             z_pounce_damage_interrupt 150
             ```
 
