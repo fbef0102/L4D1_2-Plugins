@@ -99,8 +99,6 @@ void SaveDownloadables()
 		g_aItems.PushString(sItems);
 	}
 	
-	PrintToServer("[FixScreen] All strings has been saved and deleted from stringtable");
-	
 	INetworkStringTable table = INetworkStringTable(iTable);
 	table.DeleteStrings();
 	
@@ -118,6 +116,8 @@ void SaveDownloadables()
 			}
 		}
 	}*/
+
+	PrintToServer("[FASTDL DOWNLOAD] All strings has been saved and deleted from downloadables stringtable");
 }
 
 /*void eStart(Event event, const char[] name, bool dontBroadcast)
@@ -129,7 +129,7 @@ void SaveDownloadables()
 		if ( strlen(g_sItems[i]) )
 			AddFileToDownloadsTable(g_sItems[i]);
 	
-	PrintToServer("[FixScreen] All strings has been restored to downloadables");
+	PrintToServer("[FASTDL DOWNLOAD] All strings has been restored to downloadables");
 }*/
 
 /**
@@ -157,7 +157,7 @@ Action ServerCmd_changelevel(int client, const char[] command, int argc)
 			AddFileToDownloadsTable(sItems);
 	}
 	
-	PrintToServer("[FixScreen] All strings has been restored to downloadables");
+	PrintToServer("[FASTDL DOWNLOAD] All strings has been restored to downloadables");
 
 	return Plugin_Continue;
 }
