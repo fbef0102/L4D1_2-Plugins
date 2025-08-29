@@ -20,8 +20,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	3. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): Aim to improve performance when spawn SI
 		* 修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	4. [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024): (L4D2) Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
-		* (L4D2) 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
+	4. [l4d_unrestrict_panic_battlefield](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_unrestrict_panic_battlefield): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
+		* 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
 
 * <details><summary>Support | 支援插件</summary>
 
@@ -285,11 +285,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		Special Infected can't spawn sometimes, and server console spamming message
 		![l4dinfectedbots_6](image/l4dinfectedbots_6.jpg)
-		* Reason: It means that the game can not find a position to spawn special infected, usually happen when director stops spawning special infected (C1m4 before evelator) or NAV problem (can't find any valid nav area to spawn infected near survivors)
-
-		* 🟥Infected limit + numbers of survivor + spectators can not exceed 31 slots, otherwise server fails to spawn S.I.
+		* Reason: It means that the game can not find a position to spawn special infected
+			* usually happen when director stops spawning special infected (C1m4 before evelator)
+			* NAV problem (can't find any valid nav area to spawn infected near survivors)
+			* 🟥Infected limit + numbers of survivor + spectators can not exceed 31 slots, otherwise server fails to spawn S.I.
 		* I can't do anything about the nav pathfinding, only Valve or map authors can handle nav problem.
-		* Recommand to install [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351) and [l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024)
+		* Recommand to install [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351) and [l4d_unrestrict_panic_battlefield](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_unrestrict_panic_battlefield)
 	</details>
 
 	4. <details><summary>Count players including dead</summary>
@@ -792,12 +793,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		* 問題：特感無法生成，然後伺服器後台經常冒出```Couldn't find xxxxx Spawn position in X tries```
 		![l4dinfectedbots_6](image/l4dinfectedbots_6.jpg)
 
-		* 分析：AI特感與普通感染者生成的範圍是受到限制的，在官方的預設當中，是距離人類550~1500公尺範圍之間找位置復活，如果在這範圍內找不到，那就不會有特感與普通感染者。
+		* 分析：AI特感與普通感染者生成的範圍是受到地圖與遊戲限制的，在官方的預設當中，是距離人類550~1500公尺範圍之間找位置復活，如果在這範圍內找不到合適的地方，那就不會生成特感與普通感染者。
 
 		* 原因一：地圖故意作者為之，為了怕人類滅團所以停止特感生成一段時間，常發生在三方圖開啟地圖機關的時候或者開啟最終章救援無線電之前
 			* 解決方式法一：去跟地圖作者抱怨
 			* 解決方式法二：自己修改地圖vscript
-			* 解決方式法三：推薦安裝[zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351)與[l4d_unrestrict_panic_battlefield](https://forums.alliedmods.net/showpost.php?p=2815688&postcount=1024)，修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
+			* 解決方式法三：推薦安裝[zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351)與[l4d_unrestrict_panic_battlefield](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_unrestrict_panic_battlefield)，修正某些時候遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
 		2. 原因二：地圖問題，找不到附近的地形特感，常發生在NAV沒有做好的爛圖或是人類已經抵達地圖終點，譬如死亡都心第一關人類抵達終點安全室的附近
 			* 解決方式法一：去跟地圖作者抱怨
 			* 解決方式法二：自己修改地圖的NAV
@@ -813,7 +814,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 			* 解決方式法四：請倖存者隊伍移動位置，讓特感可以生成
 		4. 原因四：有設置指令值```director_no_specials 1```，這會關閉遊戲導演系統
 			* 解決方式：```sm_cvar director_no_specials 0```
-		5. 🟥 特感數量 + 倖存者數量 + 旁觀者數量 超過了31個位子，伺服器會變得很卡且無法生成特感
+		5. 🟥 原因五：特感數量 + 倖存者數量 + 旁觀者數量 超過了31個位子，伺服器會變得很卡且無法生成特感
 			* 解決方式：無法解決，請盡量減少特感數量或倖存者數量，因為此遊戲最多只能容納31個 "特感玩家(包括Bot)+倖存者玩家(包括Bot)+旁觀者"
 	</details>
 
