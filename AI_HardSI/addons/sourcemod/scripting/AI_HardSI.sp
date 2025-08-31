@@ -5,19 +5,28 @@
 #include <left4dhooks>
 #include <actions>
 
+bool g_bL4D2Version;
 bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	EngineVersion test = GetEngineVersion();
+    EngineVersion test = GetEngineVersion();
 
-	if( test != Engine_Left4Dead2 )
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
-		return APLRes_SilentFailure;
-	}
+    if( test == Engine_Left4Dead )
+    {
+        g_bL4D2Version = false;
+    }
+    else if( test == Engine_Left4Dead2 )
+    {
+        g_bL4D2Version = true;
+    }
+    else
+    {
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+        return APLRes_SilentFailure;
+    }
 
-	bLate = late;
-	return APLRes_Success;
+    bLate = late;
+    return APLRes_Success;
 }
 
 bool 
@@ -25,11 +34,6 @@ bool
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
-
-#define DEBUG_FLOW 0
-
-#define TEAM_CLASS(%1) (%1 == ZC_SMOKER ? "smoker" : (%1 == ZC_BOOMER ? "boomer" : (%1 == ZC_HUNTER ? "hunter" :(%1 == ZC_SPITTER ? "spitter" : (%1 == ZC_JOCKEY ? "jockey" : (%1 == ZC_CHARGER ? "charger" : (%1 == ZC_WITCH ? "witch" : (%1 == ZC_TANK ? "tank" : "None"))))))))
-#define MAX(%0,%1) (((%0) > (%1)) ? (%0) : (%1))
 
 #define L4D2Team_Spectator 1
 #define L4D2Team_Survivor 2
@@ -43,28 +47,7 @@ bool
 #define L4D2Infected_Charger 6
 #define L4D2Infected_Witch 7
 #define L4D2Infected_Tank 8
-
-// alternative enumeration
-// Special infected classes
-#define ZC_NONE 0
-#define ZC_SMOKER 1
-#define ZC_BOOMER 2
-#define ZC_HUNTER 3
-#define ZC_SPITTER 4
-#define ZC_JOCKEY 5
-#define ZC_CHARGER 6
-#define ZC_WITCH 7
-#define ZC_TANK 8
-#define ZC_NOTINFECTED 9
-
-// 0=Anywhere, 1=Behind, 2=IT, 3=Specials in front, 4=Specials anywhere, 5=Far Away, 6=Above
-#define ANYWHERE 0
-#define BEHIND 1
-#define IT 2
-#define SPECIALS_IN_FRONT 3
-#define SPECIALS_ANYWHERE 4
-#define FAR_AWAY 5
-#define ABOVE 6
+#define L4D1Infected_Tank 5
 
 #define PLAYER_HEIGHT	72.0
 
@@ -78,10 +61,10 @@ bool
 
 public Plugin myinfo = 
 {
-	name = "AI: Hard SI",
+	name = "[L4D1/L4D2] AI: Hard SI",
 	author = "Breezy & HarryPotter",
 	description = "Improves the AI behaviour of special infected",
-	version = "2.4-2025/6/18",
+	version = "2.5-2025/8/31",
 	url = "github.com/breezyplease"
 };
 
@@ -100,12 +83,18 @@ public void OnPluginStart()
 { 
 	// Cvars
 	g_hCvarEnable 				 	= CreateConVar( "AI_HardSI_enable",        		"1",   	"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarAssaultReminderInterval 	= CreateConVar( "ai_assault_reminder_interval", "2", 	"Frequency(sec) at which the 'nb_assault' command is fired to make SI attack", CVAR_FLAGS, true, 0.0 );
+	if(g_bL4D2Version)
+	{
+		g_hCvarAssaultReminderInterval 	= CreateConVar( "ai_assault_reminder_interval", "2", 	"Frequency(sec) at which the 'nb_assault' command is fired to make SI attack", CVAR_FLAGS, true, 0.0 );
+	}
 	g_hCvarExecAggressiveCfg 		= CreateConVar( "AI_HardSI_aggressive_cfg", 	"aggressive_ai.cfg", 	"File to execute for AI aggressive cvars (in cfg/AI_HardSI folder)\nExecute file every map changed", CVAR_FLAGS );
 
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarAssaultReminderInterval.AddChangeHook(ConVarChanged_Cvars);
+	if(g_bL4D2Version)
+	{
+		g_hCvarAssaultReminderInterval.AddChangeHook(ConVarChanged_Cvars);
+	}
 	g_hCvarExecAggressiveCfg.AddChangeHook(ConVarChanged_Cvars);
 
 	// Event hooks
@@ -114,11 +103,14 @@ public void OnPluginStart()
 
 	// Load modules
 	Smoker_OnModuleStart();
-	Hunter_OnModuleStart();
-	Spitter_OnModuleStart();
 	Boomer_OnModuleStart();
-	Charger_OnModuleStart();
-	Jockey_OnModuleStart();
+	Hunter_OnModuleStart();
+	if(g_bL4D2Version)
+	{
+		Spitter_OnModuleStart();
+		Jockey_OnModuleStart();
+		Charger_OnModuleStart();
+	}
 	Tank_OnModuleStart();
 
 	//Autoconfig for plugin
@@ -132,7 +124,7 @@ public void OnPluginStart()
 
 void LateLoad()
 {
-	if(L4D_HasAnySurvivorLeftSafeArea())
+	if(g_bL4D2Version && L4D_HasAnySurvivorLeftSafeArea())
 	{
 		CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
 	}
@@ -143,11 +135,14 @@ public void OnPluginEnd()
 	g_bPluginEnd = true;
 	// Unload modules
 	Smoker_OnModuleEnd();
-	Hunter_OnModuleEnd();
-	Spitter_OnModuleEnd();
 	Boomer_OnModuleEnd();
-	Charger_OnModuleEnd();
-	Jockey_OnModuleEnd();
+	Hunter_OnModuleEnd();
+	if(g_bL4D2Version)
+	{
+		Spitter_OnModuleEnd();
+		Jockey_OnModuleEnd();
+		Charger_OnModuleEnd();
+	}
 	Tank_OnModuleEnd();
 }
 
@@ -159,7 +154,10 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 void GetCvars()
 {
 	g_bCvarEnable = g_hCvarEnable.BoolValue;
-	g_fCvarAssaultReminderInterval = g_hCvarAssaultReminderInterval.FloatValue;
+	if(g_bL4D2Version)
+	{
+		g_fCvarAssaultReminderInterval = g_hCvarAssaultReminderInterval.FloatValue;
+	}
 	g_hCvarExecAggressiveCfg.GetString(g_sCvarExecAggressiveCfg, sizeof(g_sCvarExecAggressiveCfg));
 }
 
@@ -182,7 +180,9 @@ public void OnConfigsExecuted()
 ***********************************************************************************************************************************************************************************/
 
 public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client) 
-{
+{	
+	if(!g_bL4D2Version) return;
+
 	CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
 }
 
@@ -236,35 +236,59 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		if (L4D_IsPlayerStaggering(client))
 			return Plugin_Continue;
 
-		switch( GetInfectedClass(client) ) {
+		if(g_bL4D2Version)
+		{
+			switch( GetInfectedClass(client) ) {
 
-			case (L4D2Infected_Boomer): {
-				return Boomer_OnPlayerRunCmd( client, buttons);
-			}
-		
-			case (L4D2Infected_Hunter): {
-				return Hunter_OnPlayerRunCmd( client, buttons);
-			}		
+				case (L4D2Infected_Boomer): {
+					return Boomer_OnPlayerRunCmd( client, buttons);
+				}
+			
+				case (L4D2Infected_Hunter): {
+					return Hunter_OnPlayerRunCmd( client, buttons);
+				}		
 
-			case (L4D2Infected_Spitter): {
-				return Spitter_OnPlayerRunCmd( client, buttons );
-			}	
-			
-			case (L4D2Infected_Charger): {
-				return Charger_OnPlayerRunCmd( client, buttons);
-			}	
-			
-			case (L4D2Infected_Jockey): {
-				return Jockey_OnPlayerRunCmd( client, buttons);
-			}
+				case (L4D2Infected_Spitter): {
+					return Spitter_OnPlayerRunCmd( client, buttons );
+				}	
 				
-			case (L4D2Infected_Tank): {
-				return Tank_OnPlayerRunCmd( client, buttons, vel);
-			}
+				case (L4D2Infected_Charger): {
+					return Charger_OnPlayerRunCmd( client, buttons);
+				}	
 				
-			default: {
-				return Plugin_Continue;
-			}		
+				case (L4D2Infected_Jockey): {
+					return Jockey_OnPlayerRunCmd( client, buttons);
+				}
+					
+				case (L4D2Infected_Tank): {
+					return Tank_OnPlayerRunCmd( client, buttons, vel);
+				}
+					
+				default: {
+					return Plugin_Continue;
+				}		
+			}
+		}
+		else
+		{
+			switch( GetInfectedClass(client) ) {
+
+				case (L4D2Infected_Boomer): {
+					return Boomer_OnPlayerRunCmd( client, buttons);
+				}
+			
+				case (L4D2Infected_Hunter): {
+					return Hunter_OnPlayerRunCmd( client, buttons);
+				}		
+					
+				case (L4D1Infected_Tank): {
+					return Tank_OnPlayerRunCmd( client, buttons, vel);
+				}
+					
+				default: {
+					return Plugin_Continue;
+				}		
+			}
 		}
 	}
 	return Plugin_Continue;
@@ -284,19 +308,27 @@ void player_spawn(Event event, char[] name, bool dontBroadcast) {
 	if( IsBotInfected(client) ) {
 		int botInfected = client;
 		// Process for SI class
-		switch( GetInfectedClass(botInfected) ) {
-			
-			case (L4D2Infected_Hunter): {
-				Hunter_OnSpawn(botInfected);
-			}
+		if(g_bL4D2Version)
+		{
+			switch( GetInfectedClass(botInfected) ) {
+				
+				case (L4D2Infected_Hunter): {
+					Hunter_OnSpawn(botInfected);
+				}
 
-			case (L4D2Infected_Charger): {
-				Charger_OnSpawn(botInfected);
+				case (L4D2Infected_Charger): {
+					Charger_OnSpawn(botInfected);
+				}			
 			}
-			
-			default: {
-				return;	
-			}				
+		}
+		else
+		{
+			switch( GetInfectedClass(botInfected) ) {
+				
+				case (L4D2Infected_Hunter): {
+					Hunter_OnSpawn(botInfected);
+				}				
+			}
 		}
 	}
 }
@@ -313,7 +345,7 @@ void ability_use(Event event, char[] name, bool dontBroadcast) {
 		event.GetString("ability", abilityName, sizeof(abilityName));
 		if( strcmp(abilityName, "ability_lunge") == 0) {
 			ability_use_OnPounce(bot);
-		} else if( strcmp(abilityName, "ability_charge") == 0) {
+		} else if( g_bL4D2Version && strcmp(abilityName, "ability_charge") == 0) {
 			ability_use_OnCharge(bot);
 		} else if( strcmp(abilityName, "ability_vomit") == 0) {
 			ability_use_OnVomit(bot);
@@ -911,17 +943,21 @@ float GetFOVDotProduct(float angle) {
 
 bool IsPinned(int client) 
 {
+	if(g_bL4D2Version)
+	{
+		if (GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker") > 0)
+			return true;
+		if (GetEntPropEnt(client, Prop_Send, "m_carryAttacker") > 0)
+			return true;
+		if (GetEntPropEnt(client, Prop_Send, "m_pummelAttacker") > 0)
+			return true;
+		if (L4D2_GetQueuedPummelAttacker(client) > 0)
+			return true;
+	}
+	
 	if (GetEntPropEnt(client, Prop_Send, "m_tongueOwner") > 0)
 		return true;
 	if (GetEntPropEnt(client, Prop_Send, "m_pounceAttacker") > 0)
-		return true;
-	if (GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker") > 0)
-		return true;
-	if (GetEntPropEnt(client, Prop_Send, "m_carryAttacker") > 0)
-		return true;
-	if (GetEntPropEnt(client, Prop_Send, "m_pummelAttacker") > 0)
-		return true;
-	if (L4D2_GetQueuedPummelAttacker(client) > 0)
 		return true;
 
 	return false;

@@ -33,7 +33,7 @@ void Tank_OnModuleStart()
 
 	g_hCvarTankBhop 			= CreateConVar("ai_tank_bhop", 							"1", 	"If 1, enable bhop facsimile on AI tanks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarTankRock 			= CreateConVar("ai_tank_rock", 							"1", 	"1=AI tanks throw rock, 0=AI tanks won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTankThrow 			= CreateConVar("ai_tank_smart_throw", 					"1", 	"If 1, Prevents AI tanks from throwing underhand rocks + Fix sticking aim after throws for AI Tanks.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTankThrow 			= CreateConVar("ai_tank_smart_throw", 					"1", 	"If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)\nIf 1, AI tank can quickly turn around if someone behind him after throws", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hAimOffsetSensitivity 	= CreateConVar("ai_tank_aim_offset_sensitivity",		"22.5",	"If the tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)", _, true, -1.0, true, 180.0);
 	
 	GetCvars();
@@ -155,13 +155,27 @@ stock Action Tank_OnPlayerRunCmd( int tank, int &buttons, float vel[3] ) {
 
 			if(buttons & IN_JUMP)
 			{
-				int Activity = PlayerAnimState.FromPlayer(tank).GetMainActivity();
-				if(Activity == L4D2_ACT_HULK_THROW || Activity == L4D2_ACT_TANK_OVERHEAD_THROW || Activity == L4D2_ACT_HULK_ATTACK_LOW)
+				if(g_bL4D2Version)
 				{
-					GetEntPropVector(tank, Prop_Data, "m_vecVelocity", vel);
-					vel[2] = 280.0;
-					TeleportEntity(tank, NULL_VECTOR, NULL_VECTOR, vel);  
-					//buttons &= ~IN_JUMP;
+					int Activity = PlayerAnimState.FromPlayer(tank).GetMainActivity();
+					if(Activity == L4D2_ACT_HULK_THROW || Activity == L4D2_ACT_TANK_OVERHEAD_THROW || Activity == L4D2_ACT_HULK_ATTACK_LOW)
+					{
+						GetEntPropVector(tank, Prop_Data, "m_vecVelocity", vel);
+						vel[2] = 280.0;
+						TeleportEntity(tank, NULL_VECTOR, NULL_VECTOR, vel);  
+						//buttons &= ~IN_JUMP;
+					}
+				}
+				else
+				{
+					int Activity = L4D1_GetMainActivity(tank);
+					if(Activity == L4D1_ACT_HULK_THROW || Activity == L4D1_ACT_TANK_OVERHEAD_THROW || Activity == L4D1_ACT_HULK_ATTACK_LOW)
+					{
+						GetEntPropVector(tank, Prop_Data, "m_vecVelocity", vel);
+						vel[2] = 280.0;
+						TeleportEntity(tank, NULL_VECTOR, NULL_VECTOR, vel);  
+						//buttons &= ~IN_JUMP;
+					}
 				}
 			}
 		}
@@ -170,7 +184,9 @@ stock Action Tank_OnPlayerRunCmd( int tank, int &buttons, float vel[3] ) {
 	return Plugin_Continue;	
 }
 
-Action Tank_OnSelectTankAttack(int client, int &sequence) {
+Action Tank_OnSelectTankAttack(int client, int &sequence) 
+{
+	if(!g_bL4D2Version) return Plugin_Continue;
 	if(!g_bCvarEnable || !g_bCvarTankThrow) return Plugin_Continue;
 
 	if (IsFakeClient(client) && sequence == 50) // underhand rock
@@ -190,8 +206,11 @@ Action Tank_TankRock_OnRelease(int tank, int rock, float vecAng[3], float vecVel
 	if (rock <= MaxClients || !IsValidEntity(rock))
 		return Plugin_Continue;
 
-	if (tank < 1 || tank > MaxClients || !IsClientInGame(tank)|| GetClientTeam(tank) != 3 || GetEntProp(tank, Prop_Send, "m_zombieClass") != 8)
+	if (tank < 1 || tank > MaxClients || !IsClientInGame(tank)|| GetClientTeam(tank) != 3)
 		return Plugin_Continue;
+
+	if(g_bL4D2Version && GetEntProp(tank, Prop_Send, "m_zombieClass") != L4D2Infected_Tank) return Plugin_Continue;
+	if(!g_bL4D2Version && GetEntProp(tank, Prop_Send, "m_zombieClass") != L4D1Infected_Tank) return Plugin_Continue;
 
 	if (!IsFakeClient(tank))
 		return Plugin_Continue;

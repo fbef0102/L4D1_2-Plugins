@@ -47,6 +47,8 @@ static void GetCvars()
 
 stock void AI_Smoker_OnActionCreated(BehaviorAction action, const char[] name)
 {
+    if(!g_bL4D2Version) return;
+
     //if (!strcmp(name[6], "Behavior"))
     //{
     //	action.InitialContainedAction = SmokerBehavior_InitialContainedAction;

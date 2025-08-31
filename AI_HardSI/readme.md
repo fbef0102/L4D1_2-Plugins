@@ -3,6 +3,7 @@ Improves the AI behaviour of special infected
 
 * Apply to | 適用於
     ```
+    L4D1
     L4D2
     ```
 
@@ -11,7 +12,7 @@ Improves the AI behaviour of special infected
     * Improves the AI behaviour of special infected, make each of them very aggresive
     * Make special infected behop jump as they can
     * Use official cvar to improve AI bots, please check[cfg/AI_HardSI/aggressive_ai.cfg](cfg/AI_HardSI/aggressive_ai.cfg)
-	* Execute ```nb_assault``` every 2.0 seconds, read more details about this command below
+	* (L4D2) Execute ```nb_assault``` every 2.0 seconds, read more details about this command below
 </details>
 
 * Improve Infected
@@ -32,7 +33,8 @@ Improves the AI behaviour of special infected
             // 0=AI tanks won't throw rocks
             ai_tank_rock "1"
 
-            // If 1, Prevents AI tanks from throwing underhand rocks + Fix sticking aim after throws for AI Tanks.
+            // If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)
+            // If 1, AI tank can quickly turn around if someone behind him after throws
             ai_tank_smart_throw "1"
 
             // If the tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)
@@ -122,7 +124,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>AI Spitter</b></summary>
+    * <details><summary><b>(L4D2) AI Spitter</b></summary>
 
         * Plugin ConVar
             ```php
@@ -131,7 +133,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>AI Jockey</b></summary>
+    * <details><summary><b>(L4D2) AI Jockey</b></summary>
 
         * Modify Official ConVar in ```cfg\AI_HardSI\aggressive_ai.cfg```
             ```php
@@ -146,7 +148,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>AI Charger</b></summary>
+    * <details><summary><b>(L4D2) AI Charger</b></summary>
 
         * Plugin ConVar
             ```php
@@ -164,18 +166,38 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>What is nb_assault</b></summary>
+    * <details><summary><b>(L4D2) What is nb_assault</b></summary>
 
         * Tell all special infected bots to assault, attack survivors actively instead of not moving like idiots
         * This is official command from valve
         * Not affect AI Smoker
     </details>
 
-
-
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
+
+* <details><summary>Support | 支援插件</summary>
+
+    1. [l4dinfectedbots](/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
+        * 生成多特感控制插件
+    2. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_特感/l4d_ssi_teleport_fix): Teleport AI Infected player to the teammate who is much nearer to survivors.
+        * 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
+    3. [l4d2_smoker_toxic](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Smoker_舌頭/l4d2_smoker_toxic): Adds a lot of abilities and powers to the smoker
+        * 增強Smoker，賦予多種超能力
+    4. [l4d_Nauseating_boomer](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Boomer_Boomer/l4d_Nauseating_boomer): Allows for unique Boomer abilities
+        * 增強Boomer，賦予多種超能力
+    5. [l4d_hunter_destructive](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Hunter_Hunter/l4d_hunter_destructive): Allows for unique Hunter abilities
+        * 增強Hunter，賦予多種超能力
+    6. [L4D2_Spitter_Supergirl](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Spitter_Spitter/L4D2_Spitter_Supergirl): Adds a lot of abilities and powers to the Spitter
+        * 增強Spitter，賦予多種超能力 
+    7. [l4d2_Sinister_Jockey](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Jockey_Jockey/l4d2_Sinister_Jockey): Allows for unique Jockey abilities
+        * 增強Jockey，賦予多種超能力
+    8. [l4d2_charger_unstoppable](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Charger_Charger/l4d2_charger_unstoppable): Adds a lot of abilities and powers to the Charger
+        * 增強Charger，賦予多種超能力
+    9. [l4d_witch_psychotic](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_女巫/l4d_witch_psychotic): Adds a lot of abilities to witch
+        * 增強Witch，賦予多種超能力
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -223,15 +245,10 @@ Improves the AI behaviour of special infected
 		* Duplicate function, remove
 </details>
 
-* <details><summary>Related Plugin | 相關插件</summary>
-
-    1. [l4dinfectedbots](/l4dinfectedbots): Spawns multi infected bots in any mode + allows playable special infected in coop/survival + unlock infected slots (10 VS 10 available)
-        * 生成多特感控制插件
-    2. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player to the teammate who is much nearer to survivors.
-        * 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.5 (2025-8-31)
+        * Support L4D1
 
     * v2.4 (2025-6-18)
         * Rename some cvars
@@ -281,7 +298,7 @@ Improves the AI behaviour of special infected
 * 原理
     * 改變各種特感的行為
     * 可以開關各特感的強化行為
-    * 每兩秒執行```nb_assault```命令 (往下看說明)
+    * (L4D2) 每兩秒執行```nb_assault```命令 (往下看說明)
     * 修改官方指令強化AI智商，請查看[cfg/AI_HardSI/aggressive_ai.cfg](cfg/AI_HardSI/aggressive_ai.cfg)
 
 * 用意在哪?
@@ -307,7 +324,7 @@ Improves the AI behaviour of special infected
             // 0=AI tanks不丟石頭
             ai_tank_rock "1"
 
-            // 為1時，AI Tank不會丟"低手投擲"石頭 (因為瞄準率0%)
+            // (L4D2) 為1時，AI Tank不會丟"低手投擲"石頭 (因為瞄準率0%)
             // 為1時，AI Tank丟完石頭之後馬上轉身打背後的倖存者
             ai_tank_smart_throw "1"
 
@@ -395,7 +412,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>AI Spitter</b></summary>
+    * <details><summary><b>(L4D2) AI Spitter</b></summary>
 
         * 插件自帶的指令
             ```php
@@ -404,7 +421,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>AI Jockey</b></summary>
+    * <details><summary><b>(L4D2) AI Jockey</b></summary>
 
         * 更動的官方指令，請查看```cfg\AI_HardSI\aggressive_ai.cfg```
             ```php
@@ -419,7 +436,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>AI Charger</b></summary>
+    * <details><summary><b>(L4D2) AI Charger</b></summary>
 
         * 插件自帶的指令
             ```php
@@ -437,7 +454,7 @@ Improves the AI behaviour of special infected
             ```
     </details>
 
-    * <details><summary><b>甚麼是 nb_assault ?</b></summary>
+    * <details><summary><b>(L4D2) 甚麼是 nb_assault ?</b></summary>
 
         * 強迫所有特感Bots主動往前攻擊倖存者而非像智障一樣待在原地等倖存者過來
         * 這是官方的指令

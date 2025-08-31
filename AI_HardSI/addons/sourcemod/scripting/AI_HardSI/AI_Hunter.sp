@@ -340,6 +340,8 @@ static Action Timer_LungeInterval(Handle timer, any client) {
 
 stock void AI_Hunter_OnActionCreated(BehaviorAction action, const char[] name)
 {
+	if(!g_bL4D2Version) return;
+	
 	if (strcmp(name[6], "Attack") == 0)
 	{
 		action.OnCommandAssault = HunterAttack_OnCommandAssault;
