@@ -71,7 +71,7 @@ The zombies have grown stronger, now they are able to heal their injuries by sta
         * 地圖上隨機出現補給箱，提供人類強力支援 (仿CSO惡靈降世 補給箱)
 
     2. [weapon_csgo_reload](/l4d2_weapon_csgo_reload): Weapon Quickswitch Reloading in L4D1+2
-        * 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+        * 將武器改成現代遊戲的裝子彈機制 (仿CS2切槍裝彈設定)
 
     3. [l4d2_cso_knockback](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Nothing_Impossible_無理改造版/l4d2_cso_knockback): Weapons and Melees now have knockback power like CSO
         * 槍械與近戰武器現在有擊退力 (仿CSO惡靈降世)

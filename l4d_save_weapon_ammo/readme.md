@@ -29,8 +29,8 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 
 	1. [Reserve (Ammo) Control](https://forums.alliedmods.net/showthread.php?t=334274): Individually control weapons's reserve counts independent of the ammo_* cvars.
 		* 設置每一種武器的後備子彈
-	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS:GO in L4D2
-		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS2 in L4D2
+		* 將武器改成現代遊戲的裝子彈機制 (仿CS2切槍裝彈設定)
 </details>
 
 * <details><summary>ConVar | 指令</summary>

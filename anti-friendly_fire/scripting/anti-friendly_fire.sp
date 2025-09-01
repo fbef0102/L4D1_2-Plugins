@@ -548,7 +548,12 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 
 void HurtEntity(int victim, int client, float damage)
 {
-	SDKHooks_TakeDamage(victim, client, client, damage * g_fDamageMulti, DMG_SLASH);
+	if(damage == 0.0 || g_fDamageMulti == 0.0) return;
+	
+	float fDamage = damage * g_fDamageMulti;
+	if(fDamage < 1.0) fDamage = 1.0;
+	
+	SDKHooks_TakeDamage(victim, client, client, fDamage, DMG_SLASH);
 }
 
 bool IsClientAndInGame(int client)

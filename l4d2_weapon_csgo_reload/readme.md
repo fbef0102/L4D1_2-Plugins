@@ -1,5 +1,5 @@
 # Description | 內容
-Quickswitch Reloading like CS:GO in L4D2
+Quickswitch Reloading like CS2 in L4D2
 
 * Apply to | 適用於
     ```
@@ -13,7 +13,7 @@ Quickswitch Reloading like CS:GO in L4D2
 
 * <details><summary>Other Version | 其他版本</summary>
 
-    1. [l4d_weapon_csgo_reload](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/l4d_weapon_csgo_reload.sp): (L4D1) Quickswitch Reloading like CS:GO
+    1. [l4d_weapon_csgo_reload](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/l4d_weapon_csgo_reload.sp): (L4D1) Quickswitch Reloading like CS2
         > (L4D1) 將武器改成現代遊戲的裝子彈機制
 </details>
 
@@ -105,7 +105,7 @@ Quickswitch Reloading like CS:GO in L4D2
 
 - - - -
 # 中文說明
-將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+將武器改成現代遊戲的裝子彈機制 (仿CS2切槍裝彈設定)
 
 * 原理
 	* 裝子彈的時候，彈夾不會歸零

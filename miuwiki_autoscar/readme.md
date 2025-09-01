@@ -27,8 +27,8 @@ Full auto mode for SCAR
 
 	1. [l4d_drop](/l4d_drop): Allows players to drop the weapon they are holding
 		* 玩家可自行丟棄手中的武器
-	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS:GO in L4D2
-		* 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+	2. [l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload): Quickswitch Reloading like CS2 in L4D2
+		* 將武器改成現代遊戲的裝子彈機制 (仿CS2切槍裝彈設定)
 </details>
 
 * <details><summary>ConVar | 指令</summary>

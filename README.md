@@ -210,8 +210,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 地圖上隨機出現補給箱，提供人類強力支援 (仿CSO惡靈降世 補給箱)
 * <b>[l4d2_tank_props_glow](/l4d2_tank_props_glow)</b>: When a Tank punches a Hittable it adds a Glow to the hittable which all infected players can see.
     * Tank打到的物件都會產生光圈，只有特感能看見 + Tank死亡之後車子自動消失
-* <b>[l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload)</b>: Quickswitch Reloading like CS:GO in L4D2
-    * 將武器改成現代遊戲的裝子彈機制 (仿CS:GO切槍裝彈設定)
+* <b>[l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload)</b>: Quickswitch Reloading like CS2 in L4D2
+    * 將武器改成現代遊戲的裝子彈機制 (仿CS2切槍裝彈設定)
 * <b>[LMC_Black_and_White_Notifier](/LMC_Black_and_White_Notifier)</b>: Notifies selected team(s) when someone is on final strike and add glow 
     * 顯示誰是黑白狀態，有更多的提示與支援LMC模組
 * <b>[show_mic](/show_mic)</b>: Voice Announce in centr text + create hat to Show Who is speaking.
