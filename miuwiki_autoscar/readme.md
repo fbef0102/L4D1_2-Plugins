@@ -63,6 +63,9 @@ Full auto mode for SCAR
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2h (2025-9-3)
+		* 使用原作者的更新代碼
+
 	* v1.1h (2025-3-19)
 		* Optimize client shoot sound
 

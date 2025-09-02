@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <miuwiki_autoscar>
 
-#define PLUGIN_VERSION "1.1h-2025/3/19"
+#define PLUGIN_VERSION "1.2h-2025/9/3"
 
 public Plugin myinfo =
 {
@@ -49,6 +49,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define SCAR_SHOOT_EMPTY      "weapons/clipempty_rifle.wav"
 
 #define SCAR_WORLD_MODEL      "models/w_models/weapons/w_desert_rifle.mdl"
+#define SCAR_SWITCH_SEQUENCE 4
 
 #define DEFAULT_RELOAD_TIME  3.2
 #define DEFAULT_ATTACK2_TIME 0.4
@@ -64,13 +65,11 @@ Handle
 	g_SDKCall_SeondaryAttack,
 	g_SDKCall_PrimaryAttack,
 	g_SDKCall_CanAttack;
-	//g_SDKCall_IsGettingUp;
 
 DynamicHook
 	g_DynamicHook_ItemPostFrame;
 
 ConVar
-	// cvar_l4d2_scar_mininterrupt,
 	cvar_l4d2_scar_cycletime,
 	cvar_l4d2_scar_reloadtime,
 	cvar_l4d2_scar_notify,
@@ -79,7 +78,6 @@ ConVar
 
 enum struct GlobalConVar
 {
-	// float mininterrupt;
 	float cycletime;
 	float reloadtime;
 	bool bNotify;
@@ -96,7 +94,7 @@ enum struct PlayerData
 	bool  shoveinreload;
 	bool  inzoom;
 
-	//int   lasttickcount;
+	int   animcount;
 	int   lastAction;
 	float primaryattacktime;
 	float secondaryattacktime;
@@ -117,7 +115,6 @@ float
 public void OnPluginStart()
 {
 	LoadGameData();
-	// cvar_l4d2_scar_mininterrupt = CreateConVar("miuwiki_autoscar_mininterrupt", "0.05", "min interrupt time. if your server often lag or player can't shoot or reload, add it.", 0, true, 0.03);
 	cvar_l4d2_scar_cycletime    = CreateConVar("miuwiki_autoscar_cycletime", 	"0.11", 	"Scar full Auto cycle time. [min 0.03]", FCVAR_NOTIFY, true, 0.03);
 	cvar_l4d2_scar_reloadtime   = CreateConVar("miuwiki_autoscar_reloadtime", 	"0",    	"Scar full Auto reload time. [min 0.5, 0=Same as Triple Tap default reload time]", FCVAR_NOTIFY, true, 0.0);
 	cvar_l4d2_scar_notify		= CreateConVar("miuwiki_autoscar_notify", 		"1", 		"1=Enable chat notify, 0=Disable chat notify", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -125,26 +122,18 @@ public void OnPluginStart()
 	cvar_l4d2_scar_button		= CreateConVar("miuwiki_autoscar_buttons", 		"524288", 	"Press which button to trigger full auto mode, 131072=Shift, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex: 655360=Shift + Middle Mouse", FCVAR_NOTIFY);
 
 	GetCvars();
-	//cvar_l4d2_scar_mininterrupt.AddChangeHook(ConVarChanged_Cvars);
 	cvar_l4d2_scar_cycletime.AddChangeHook(ConVarChanged_Cvars);
 	cvar_l4d2_scar_reloadtime.AddChangeHook(ConVarChanged_Cvars);
 	cvar_l4d2_scar_notify.AddChangeHook(ConVarChanged_Cvars);
 	cvar_l4d2_scar_default.AddChangeHook(ConVarChanged_Cvars);
 	cvar_l4d2_scar_button.AddChangeHook(ConVarChanged_Cvars);
 
-	// RegConsoleCmd("sm_autoscar", Cmd_AutoScar);
 	AutoExecConfig(true,       "miuwiki_autoscar");
 
 	AddCommandListener(CmdListen_weapon_reparse_server, "weapon_reparse_server");
 
 	HookEvent("round_start",            Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("player_disconnect", 		Event_PlayerDisconnect);
-
-	HookEvent("pounce_end", Infected_CappedEnd);
-	HookEvent("tongue_release", Infected_CappedEnd);
-	HookEvent("charger_carry_end", Infected_CappedEnd);
-	HookEvent("charger_pummel_end", Infected_CappedEnd);
-	HookEvent("jockey_ride_end", Infected_CappedEnd);
 	
 	if(bLate)
 	{
@@ -179,7 +168,6 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 
 void GetCvars()
 {
-	// cvar.mininterrupt 	= cvar_l4d2_scar_mininterrupt.FloatValue;
 	cvar.cycletime    		= cvar_l4d2_scar_cycletime.FloatValue;
 	cvar.reloadtime   		= cvar_l4d2_scar_reloadtime.FloatValue;
 	cvar.bNotify 	  		= cvar_l4d2_scar_notify.BoolValue;
@@ -213,8 +201,9 @@ public void OnClientConnected(int client)
 	//player[client].fullautomode           = false;
 	player[client].needrelease             	= false;
 	player[client].shoveinreload           	= false;
-	//player[client].lasttickcount          = 0;
-	player[client].lastAction   		   	= 0; // 0=拿著三連發步槍或切槍的時候, 1=切換成自動模式時候, 2=不做修改
+
+	player[client].animcount          		= 0;
+	player[client].lastAction   		   	= 0; // 0=倖存者無法行動的時候, 1=切換成自動模式時候或是切槍的時候, 2=不做修改
 	player[client].primaryattacktime   		= 0.0;
 	player[client].secondaryattacktime 		= 0.0;
 	player[client].switchendtime           	= 0.0;
@@ -246,20 +235,13 @@ public void OnClientPutInServer(int client)
 		return;
 	
 	SDKHook(client, SDKHook_WeaponSwitchPost, SDKCallback_SwitchDesert);
-	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+	SDKHook(client, SDKHook_PostThink, SDKCallback_OnClientPostThink);
 }
 
 //切換武器時觸發
 //滾輪或Q切換武器時觸發
 void SDKCallback_SwitchDesert(int client, int weapon)
 {
-	// static char name[64];
-	// GetEntityClassname(weapon, name, sizeof(name));
-	// if( strcmp(name, "weapon_rifle_desert") != 0 )
-	// {
-	// 	SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
-	// 	return;
-	// }
 	if (GetClientTeam(client) != 2) {
 		return;
 	}
@@ -272,8 +254,6 @@ void SDKCallback_SwitchDesert(int client, int weapon)
 		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
 		return;
 	}
-
-	player[client].lastAction = 0;
 
 	if( player[client].fullautomode )
 	{
@@ -293,16 +273,9 @@ void SDKCallback_SwitchDesert(int client, int weapon)
 	}
 }
 
-// 撿起地上的步槍時觸發: 
-//   -> WeaponCanUse -> WeaponCanUsePost
-//   -> OnWeaponEquip 
-//         -> WeaponCanSwitchTo (已裝備地上的物品) -> WeaponCanSwitchToPost 
-//   -> OnWeaponEquipPost
-void OnWeaponEquipPost(int client, int weapon)
+void SDKCallback_OnClientPostThink(int client)
 {
-	if (GetClientTeam(client) != 2) {
-		return;
-	}
+	int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 
 	if( weapon < 1 || !IsValidEntity(weapon) )
 		return;
@@ -310,7 +283,22 @@ void OnWeaponEquipPost(int client, int weapon)
 	if( GetEntProp(weapon, Prop_Send, "m_iWorldModelIndex") != g_scar_precache_index )
 		return;
 
-	player[client].lastAction = 0;
+	int viewmodel = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
+	if( viewmodel < 1 || !IsValidEntity(viewmodel) )
+		return;
+
+	int animcount = GetEntProp(viewmodel, Prop_Send, "m_nAnimationParity");
+	if( player[client].fullautomode
+		&& player[client].animcount != animcount 
+		&& GetEntProp(viewmodel, Prop_Send, "m_nLayerSequence") == SCAR_SWITCH_SEQUENCE )
+	{
+		player[client].lastAction = 1;
+		player[client].needrelease = true;
+		player[client].switchendtime = GetGameTime() + 0.97;
+		player[client].reloadendtime = NOT_IN_RELOAD;
+	}
+
+	player[client].animcount = animcount;
 }
 
 Action CmdListen_weapon_reparse_server(int client, const char[] command, int argc)
@@ -327,31 +315,10 @@ void OnNextFrame_weapon_reparse_server()
 	if(g_fScarReloadTime <= 0.0) g_fScarReloadTime = 3.32; //just in case
 }
 
-// Action Cmd_AutoScar(int client, int args)
-// {
-// 	if( client < 1 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2 )
-// 		return Plugin_Handled;
-	
-// 	player[client].fullautomode = !player[client].fullautomode;
-// 	if( !player[client].fullautomode )
-// 	{
-// 		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-// 		SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", GetGameTime() + 0.1);
-// 		SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.2);
-// 		if(cvar.bNotify) PrintToChat(client, "\x04[★]\x05Your SCAR mode is \x04'Triple Tap'");
-// 	}
-// 	else
-// 	{
-// 		if(cvar.bNotify) PrintToChat(client, "\x04[★]\x05Your SCAR mode is \x04'Full Auto'");
-// 	}
-// 	return Plugin_Handled;
-// }
-
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
 	for(int i = 0; i <= MaxClients; i++)
 	{
-		//player[i].lasttickcount           = 0;
 		player[i].lastAction 			  	= 0;
 		player[i].primaryattacktime   		= 0.0;
 		player[i].secondaryattacktime 		= 0.0;
@@ -368,15 +335,6 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	player[client].fullautomode            = cvar.bAutodefault;
 }
 
-void Infected_CappedEnd(Event event, const char[] name, bool dontBroadcast) 
-{
-	int victim = GetClientOfUserId(event.GetInt("victim"));	
-
-	if(!victim || !IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_SURVIVOR || !IsPlayerAlive(victim)) return;
-
-	player[victim].lastAction = 0;
-}
-
 /**
  * this function trigger when player holding scar
  * -手持scar步槍才會觸發此涵式
@@ -391,15 +349,12 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 	if( client < 1 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client) )
 		return MRES_Ignored;
 
-	//int currenttickcount = GetGameTickCount();
 	if( !player[client].fullautomode ) // although we are not in automode, but we have weapon on hand so set the tickcount/
 	{
-		//player[client].lasttickcount = currenttickcount;
 		player[client].lastAction = 0;
 		return MRES_Ignored;
 	}
 
-	//Address temp = GetEntityAddress(pThis) + view_as<Address>(g_Offset_BrustAttackTime);
 	for(int i = 0; i < 3; i++)
 	{
 		//使用StoreToAddress 換圖時有機率會導致崩潰 crash: tier0.dll + 0x1991d
@@ -407,76 +362,45 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 
 		SetEntData(pThis, g_Offset_BrustAttackTime + (4 * i), 0);
 	}
-	// Address v4 = temp + view_as<Address>(0x17f4);
-	// Address v5 = temp + view_as<Address>(0x17f8);
-	// Address v6 = temp + view_as<Address>(0x17fc);
-	// StoreToAddress(v4, 0, NumberType_Int32);
-	// StoreToAddress(v5, 0, NumberType_Int32);
-	// StoreToAddress(v6, 0, NumberType_Int32);
 
 	int clip             = GetEntProp(pThis, Prop_Send, "m_iClip1");
 	float currenttime    = GetGameTime();
 
 	SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100);
 	SetEntPropFloat(pThis, Prop_Send, "m_flNextSecondaryAttack", currenttime + 100);
-	// PrintToChat(client, "active desert %f, frametime %f, lastframetime %f, d:%f, cvar:%f", 
-	// GetGameTime(), enginetime, player[client].lastenginetime, enginetime - player[client].lastenginetime, cvar.mininterrupt);
-	// in switching or interrupt
-	// LogError("triggering itempostframe, currenttickcount: %d, lasttickcount: %d", currenttickcount, player[client].lasttickcount);
-	// 玩家切視窗或是卡頓時，GetGameTickCount 會延遲跳過 1~3 tick
-	//if( currenttickcount - player[client].lasttickcount > 1 || SDKCall(g_SDKCall_IsGettingUp, client) )  
-	if( player[client].lastAction < 2 ) 
-	{
-		// reset state.
-		player[client].needrelease = true;
-		if(player[client].lastAction == 0)
-		{
-			player[client].switchendtime = currenttime + 0.92; 
-			player[client].reloadendtime = NOT_IN_RELOAD;
-		}
-		//player[client].lasttickcount = currenttickcount;
-		player[client].lastAction	= 2;
-		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
-		return MRES_Ignored;
-	}
-	else if(IsGettingUp(client) || IsClientOnLadder(client))
+	
+
+	if(player[client].lastAction == 0)
 	{
 		player[client].needrelease = true;
-		player[client].switchendtime = currenttime + 0.97; 
+		player[client].switchendtime = currenttime + 0.3; 
 		player[client].reloadendtime = NOT_IN_RELOAD;
 		player[client].lastAction	= 2;
 		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
 		
 		return MRES_Ignored;
 	}
-	//player[client].lasttickcount = currenttickcount;
-	
-	// reload start
-	int viewmodel = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
-	/*if( clip == 0 && CanReload(client, clip) && L4D_GetReserveAmmo(client, pThis) > 0 
-		&& currenttime > player[client].secondaryattacktime ) // not allow in attack2
+	else if( player[client].lastAction == 1 ) 
 	{
-		//PrintToChat(client, "reload start, time %f", currenttime);
-		SDKCall(g_SDKCall_AbortReload, pThis);
-		EmitSoundToClient(client, SCAR_SHOOT_EMPTY);
-		SetEntProp(viewmodel, Prop_Send, "m_nLayerSequence", 8);
-		SetEntPropFloat(viewmodel, Prop_Send, "m_flLayerStartTime", currenttime);
-		// SetEntPropFloat(pThis, Prop_Send, "m_flCycle", 0.0);
-		if(cvar.reloadtime <= 0.0)
-		{
-			SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", DEFAULT_RELOAD_TIME / g_fScarReloadTime);
-			player[client].reloadendtime = currenttime + g_fScarReloadTime;
-		}
-		else
-		{
-			SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", DEFAULT_RELOAD_TIME / cvar.reloadtime);
-			player[client].reloadendtime = currenttime + cvar.reloadtime;
-		}
-		player[client].shoveinreload = false;
+		player[client].needrelease = true;
+		player[client].lastAction	= 2;
+		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
 		return MRES_Ignored;
-	}*/
-
+	}
+	else
+	{
+		if(IsGettingUp(client) || IsClientOnLadder(client))
+		{
+			player[client].reloadendtime = NOT_IN_RELOAD;
+			player[client].lastAction	= 0;
+			SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
+			
+			return MRES_Ignored;
+		}
+	}
 	
+	int viewmodel = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
+
 	static int button;
 	button = GetClientButtons(client);
 	// seondary first
@@ -490,9 +414,6 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			player[client].secondaryattacktime = currenttime + DEFAULT_ATTACK2_TIME;
 			if( player[client].reloadendtime != NOT_IN_RELOAD )
 				player[client].shoveinreload = true;
-			// if( SDKCall(g_SDKCall_SeondaryAttack, pThis) )
-			// 	player[client].secondaryattacktime = currenttime + DEFAULT_ATTACK2_TIME;
-			// SetEntPropFloat(pThis, Prop_Send, "m_flNextSecondaryAttack", currenttime + 100.0);
 		}
 		return MRES_Ignored; // ignore in_attack and in_reload when pushing pushing.
 	}
@@ -507,11 +428,6 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			SDKCall(g_SDKCall_PrimaryAttack, pThis);
 			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100.0);
 			player[client].primaryattacktime = currenttime + cvar.cycletime;
-			// EmitSoundToClient(client, SCAR_SHOOT);
-			// if( L4D2_GetWeaponUpgrades(pThis) & L4D2_WEPUPGFLAG_INCENDIARY )
-			// 	EmitSoundToClient(client, SCAR_SHOOT_INCENDIARY);
-			// else
-			// 	EmitSoundToClient(client, SCAR_SHOOT);
 		}
 		return MRES_Ignored; // ignore IN_RELOAD when pushing attack button.
 	}
@@ -546,7 +462,6 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		{
 			L4D_SetReserveAmmo(client, pThis, reserverammo + clip);
 			SetEntProp(pThis, Prop_Send, "m_iClip1", 0); // 不等下一偵
-			// SetEntProp(viewmodel, Prop_Send, "m_nLayerSequence", 8);
 
 			SDKCall(g_SDKCall_AbortReload, pThis);
 			EmitSoundToClient(client, SCAR_SHOOT_EMPTY);
@@ -569,25 +484,11 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 	// reload complete
 	if( player[client].reloadendtime != NOT_IN_RELOAD && currenttime >= player[client].reloadendtime )
 	{
-		// PrintToChat(client, "reload complete, time %f", currenttime);
-		// int clipsize = g_iMaxScarClip;
-		// int remainammo = L4D_GetReserveAmmo(client, pThis);
-		// if( remainammo >= clipsize )
-		// {
-		// 	SetEntProp(pThis, Prop_Send, "m_iClip1", clipsize);
-		// 	L4D_SetReserveAmmo(client, pThis, remainammo - clipsize);
-		// }
-		// else
-		// {
-		// 	SetEntProp(pThis, Prop_Send, "m_iClip1", remainammo);
-		// 	L4D_SetReserveAmmo(client, pThis, 0);
-		// }
 		SDKCall(g_SDKCall_FinishReload, pThis);
 		player[client].reloadendtime = NOT_IN_RELOAD;
 		if( player[client].shoveinreload )
 			SetEntProp(viewmodel, Prop_Send, "m_nLayer", 0);
-		// SetEntProp(viewmodel, Prop_Send, "m_nLayerSequence", 1);
-		// SetEntProp(viewmodel, Prop_Send, "m_nLayer", 0);
+
 		SetEntPropFloat(viewmodel, Prop_Send, "m_flLayerStartTime", 0.0);
 		SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", 1.0);
 	}
@@ -678,12 +579,6 @@ void LoadGameData()
 	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
 	if( !(g_SDKCall_CanAttack = EndPrepSDKCall()) )
 		SetFailState("failed to start sdkcall \"%s\"", func);
-	
-	//FormatEx(func, sizeof(func), "CTerrorPlayer::IsGettingUp");
-	//StartPrepSDKCall(SDKCall_Entity);
-	//PrepSDKCall_SetFromConf(hGameData, SDKConf_Signature, func);
-	//if( !(g_SDKCall_IsGettingUp = EndPrepSDKCall()) )
-	//	SetFailState("failed to start sdkcall \"%s\"", func);
 
 	FormatEx(func, sizeof(func), "CRifle_Desert::ItemPostFrame");
 	g_DynamicHook_ItemPostFrame = DynamicHook.FromConf(hGameData, func);
@@ -780,6 +675,9 @@ public void OnPlayerRunCmdPost(int client, int buttons)
 
 			SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
 			player[client].lastAction = 1;
+			player[client].needrelease = true;
+			player[client].switchendtime = GetGameTime() + 0.2;
+			player[client].reloadendtime = NOT_IN_RELOAD;
 		}
 	}
 	else
@@ -787,23 +685,6 @@ public void OnPlayerRunCmdPost(int client, int buttons)
 		player[client].inzoom = false;
 	}
 }
-// fix that no craft and ammo trace problem.
-// public void OnPlayerRunCmdPre(int client, int buttons)
-// {
-// 	if(IsFakeClient(client))
-// 		return;
-	
-// 	if( player[client].fullautomode )
-// 		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
-// 	else
-// 		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
-
-// 	// Address state = GetEntityAddress(client) + view_as<Address>(0x70);
-// 	// StoreToAddress(state, LoadFromAddress(state, NumberType_Int32) | FL_EDICT_CHANGED, NumberType_Int32);
-// 	// SetEntProp(client, Prop_Data, "m_bLagCompensation", 1);
-// 	// StoreToAddress(state, LoadFromAddress(state, NumberType_Int32) | FL_EDICT_CHANGED, NumberType_Int32);
-// }
-
 void PlaySoundAroundClient(int client, const char[] sSoundName)
 {
 	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_AIRCRAFT, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
