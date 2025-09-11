@@ -28,6 +28,9 @@ Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.5 (2025-9-11)
+		* clamp velocity instead of hardcode to 0
+
 	* v1.4
 		* Optimize code and improve performance
 		* molotov

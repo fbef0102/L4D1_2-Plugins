@@ -15,7 +15,7 @@ public Plugin myinfo =
     name = "[L4D1/2] Survivor Progress",
     author = "CanadaRox, Visor, harry",
     description = "Print survivor progress in flow percents",
-    version = "2.4",
+    version = "2.5-2025/9/11",
     url = "http://steamcommunity.com/profiles/76561198026784913"
 };
 
@@ -59,14 +59,17 @@ public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client)
 }
 
 int GetMaxSurvivorCompletion() {
-	float flow = 0.0;
+	float flow = 0.0, tmp_flow = 0.0;
 	if(L4D_IsVersusMode())
 	{
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
-			{
-				flow = MAX(flow, L4D2Direct_GetFlowDistance(i));
+		Address pNavArea;
+		for (int i = 1; i <= MaxClients; i++) {
+			if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i)) {
+				pNavArea = L4D_GetLastKnownArea(i);
+				if (pNavArea != Address_Null) {
+					tmp_flow = L4D2Direct_GetTerrorNavAreaFlow(pNavArea);
+					flow = (flow > tmp_flow) ? flow : tmp_flow;
+				}
 			}
 		}
 		
@@ -74,17 +77,13 @@ int GetMaxSurvivorCompletion() {
 	}
 	else
 	{
-		float tmp_flow, origin[3];
 		Address pNavArea;
-		for (int client = 1; client <= MaxClients; client++) {
-			if(IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
-			{
-				GetClientAbsOrigin(client, origin);
-				pNavArea = L4D2Direct_GetTerrorNavArea(origin);
-				if (pNavArea != Address_Null)
-				{
+		for (int i = 1; i <= MaxClients; i++) {
+			if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i)) {
+				pNavArea = L4D_GetLastKnownArea(i);
+				if (pNavArea != Address_Null) {
 					tmp_flow = L4D2Direct_GetTerrorNavAreaFlow(pNavArea);
-					flow = MAX(flow, tmp_flow);
+					flow = (flow > tmp_flow) ? flow : tmp_flow;
 				}
 			}
 		}

@@ -40,7 +40,11 @@ Allows admins to force the game to pause, only adm can unpause the game.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v1.5 (2024-8-16)
+	* v1.7 (2025-9-11)
+		* Restore default chat behavior while paused
+		* Credit: [A1mDev](https://github.com/SirPlease/L4D2-Competitive-Rework/commit/a31e639828aee1fa8f322a4816eab67c1dfdc0d3)
+
+	* v1.6 (2024-8-16)
 		* Support server console
 
 	* v1.5 (2023-5-22)

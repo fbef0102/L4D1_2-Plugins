@@ -3,7 +3,7 @@
 #include <sourcemod>
 #include <basecomm>
 #include <multicolors>
-#define PLUGIN_VERSION "1.6-2024/8/16"
+#define PLUGIN_VERSION "1.7-2025/9/11"
 
 public Plugin myinfo =
 {
@@ -45,20 +45,22 @@ public void OnPluginStart()
 	SetConVarInt(g_hPausable, 0);
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect);
+	HookEvent("player_say", Event_PlayerSay, EventHookMode_Post);
 
 	RegConsoleCmd("unpause", Command_Unpause);
 	RegAdminCmd("sm_forcepause", Command_SMForcePause, ADMFLAG_ROOT, "Adm forces the game to pause/unpause");
 
-	AddCommandListener(Say_Command, "say");
-	AddCommandListener(SayTeam_Command, "say_team");
+	//AddCommandListener(Say_Command, "say");
+	//AddCommandListener(SayTeam_Command, "say_team");
+
 }
 
-ConVar g_hNoTeamSayPlugin = null;
-public void OnAllPluginsLoaded()
-{
-	// lfd_noTeamSay
-	g_hNoTeamSayPlugin = FindConVar("noteamsay_ignorelist");
-}
+//ConVar g_hNoTeamSayPlugin = null;
+//public void OnAllPluginsLoaded()
+//{
+//	// lfd_noTeamSay
+//	g_hNoTeamSayPlugin = FindConVar("noteamsay_ignorelist");
+//}
 
 public void OnMapStart()
 {
@@ -68,6 +70,18 @@ public void OnMapStart()
 public void OnMapEnd()
 {
 	ResetPauseRequest(); //Reset any pause requests
+}
+
+public void OnClientPutInServer(int client)
+{
+	if (g_bIsPaused)
+	{
+		if (!IsFakeClient(client))
+		{
+			CPrintToChatAll("%t", "Pause_1", client);
+			SetEntPropFloat(client, Prop_Data, "m_fLastPlayerTalkTime", 0.0);
+		}
+	}
 }
 
 Action Command_Unpause(int client, int args)
@@ -123,7 +137,7 @@ Action Command_SMForcePause(int client, int args)
 	return Plugin_Handled;
 }
 
-Action Say_Command(int client, const char[] command, int args)
+/*Action Say_Command(int client, const char[] command, int args)
 {
 	if (!g_bIsPaused || client == 0 || BaseComm_IsClientGagged(client) == true) return Plugin_Continue;
 
@@ -165,7 +179,7 @@ Action SayTeam_Command(int client, const char[] command, int args)
 		
 	return Plugin_Handled;
 
-}
+}*/
 
 Action UnpauseCountdown(Handle timer, any client)
 {
@@ -212,6 +226,24 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
+void Event_PlayerSay(Event hEvent, const char[] sEventName, bool bDontBroadcast)
+{
+    int iUserId = hEvent.GetInt("userid");
+    RequestFrame(FrameDelay_PlayerSay, iUserId);
+}
+
+void FrameDelay_PlayerSay(int iUserId)
+{
+	int iClient = GetClientOfUserId(iUserId);
+	if (iClient < 1 || !g_bIsPaused) {
+		return;
+	}
+
+	// During a pause the time (gpGlobals->curtime) does not change.
+	// Let's reset this property for the chat to work.
+	SetEntPropFloat(iClient, Prop_Data, "m_fLastPlayerTalkTime", 0.0);
+}
+
 void Pause(int client)
 {
 	ResetPauseRequest(); 
@@ -236,6 +268,16 @@ void Pause(int client)
 		SetConVarInt(g_hPausable, 1);
 		FakeClientCommand(client, "setpause"); 
 		SetConVarInt(g_hPausable, 0);
+	}
+
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i))
+		{
+
+			SetEntPropFloat(i, Prop_Data, "m_fLastPlayerTalkTime", 0.0);
+
+		}
 	}
 
 	g_bIsUnpausing = false; //Game was just paused and can no longer be unpausing if it was
@@ -267,6 +309,14 @@ void Unpause(int client)
 		SetConVarInt(g_hPausable, 0);
 	}
 
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i))
+		{
+			SetEntPropFloat(i, Prop_Data, "m_fLastPlayerTalkTime", 0.0);
+		}
+	}
+
 	g_bIsUnpausing = false; //Game is active so it is no longer in the unpausing state
 }
 
@@ -276,8 +326,8 @@ void ResetPauseRequest()
 	g_bPauseRequest[1] = false; //Infected request
 }
 
-bool IsSayCommandPrivate(const char[] command)
+/*bool IsSayCommandPrivate(const char[] command)
 {
 	if (StrContains(command, PRIVAT_TRIGGER) == 0) return true;
 	return false;
-}
+}*/

@@ -34,9 +34,12 @@ Print survivor progress in flow percents
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.5
+		* Optimize code
+
 	* v2.4
-        * Remake Code
-        * Support all game mode
+		* Remake Code
+		* Support coop/realism mode
 
 	* v2.0.2
 		* [From SirPlease/L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/current.sp)
