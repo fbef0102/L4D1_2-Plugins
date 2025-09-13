@@ -151,7 +151,7 @@ public void OnPluginStart()
 
 	g_hDamageMulti = CreateConVar( "anti_friendly_fire_damage_multi", "1.5",
 								"Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)",
-								FCVAR_NOTIFY, true, 1.0 );	
+								FCVAR_NOTIFY, true, 0.0 );	
 
 	GetCvars();
 	g_hGod.AddChangeHook(ConVarChanged_Cvars);

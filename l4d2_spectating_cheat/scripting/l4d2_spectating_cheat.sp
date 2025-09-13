@@ -150,7 +150,7 @@ public void OnClientDisconnect(int client)
 	{
 		// jockey正在騎的倖存者玩家如果離開遊戲, 光圈會卡住
 		int jockey = GetEntPropEnt(client, Prop_Send, "m_jockeyAttacker");
-		if(jockey > 0)
+		if(jockey > 0 && IsClientInGame(jockey))
 		{
 			RequestFrame(OnNextFrame, GetClientUserId(jockey));
 		}
