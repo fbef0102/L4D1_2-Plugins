@@ -134,8 +134,8 @@
 //  "coop_versus_spawn_time_max"    "35.0"
 //  "coop_versus_spawn_time_min"    "25.0"
 //
-//  // 1 = Tank will always be controlled by human player in coop/survival/realism.
-//  // 1 = 玩家可以在戰役/寫實/生存模式中接管Tank
+//  // 1 = AI Tank will always be controlled by human player in coop/survival/realism.
+//  // 1 = 在戰役/寫實/生存模式中, 場上的 AI Tank 一直都會交給真人玩家接管
 //  "coop_versus_tank_playable" "0"
 //
 //  // 1 = Clients will be announced to on how to join the infected team in chatbox

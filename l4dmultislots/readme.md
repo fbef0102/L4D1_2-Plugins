@@ -40,7 +40,8 @@ Allows additional survivor players in server when 5+ player joins the server
 		// Delete all items form survivor bots when they got kicked by this plugin. (0=off)
 		l4d_multislots_bot_items_delete "1"
 
-		// When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds. (0=Always spawn alive bot for new player)
+		// When 5+ new player joins the server but no any bot can be taken over, the player will appear as a dead survivor if survivors have left start safe area for at least X seconds.
+		// 0=Always spawn alive bot for new player
 		l4d_multislots_alive_bot_time "0"
 
 		// Setup time interval the instruction message to spectator.(0=off)
@@ -98,6 +99,11 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 1=Dead bot after survivor has left safe zone
 		// 2=Dead bot anytime
 		l4d_multislots_no_second_free_spawn "0"
+
+		// How to give player dead bot?
+		// 0=Spawn player and force suicide (have dead body)
+		// 1=Dead state (no dead body, waiting for rescue room)
+		l4d_multislots_dead_bot_method "1"
 
 		// If the player crashed and reconnected to the server
 		// 0=No Free Spawn, 1=Get Free Spawn
@@ -186,6 +192,9 @@ Allows additional survivor players in server when 5+ player joins the server
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v7.1 (2025-9-17)
+		* Update cvars
 
 	* v7.0 (2025-8-1)
 		* Fixed weapon drop the ground in L4D1
@@ -351,9 +360,14 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 2=無論何時都給死亡Bot
 		l4d_multislots_no_second_free_spawn "0"
 
+		// 如何給予死亡bot?
+		// 0=取代倖存者bot後自殺 (屍體在其他玩家旁邊)
+		// 1=直接進入死亡狀態 (沒有屍體, 等待救援房間)
+		l4d_multislots_dead_bot_method "1"
+
 		// 當玩家的遊戲崩潰且重新連線至伺服器時
 		// 0=給死亡Bot, 1=給活著的bot
-		// (指令l4d_multislots_no_second_free_spawn為1或2時才有效)
+		// (指令 '_no_second_free_spawn' 為1或2時才有效)
 		l4d_multislots_free_spawn_crash_player "1"
 
 		// 當此插件產生一個倖存者Bot時，有3.0秒的無敵時間不會受到任何傷害. (0=關閉)
