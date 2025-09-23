@@ -19,7 +19,7 @@ The witch turns back if nearby survivor scares her behind
 	1. [Witch fixes[Left 4 Fix]](https://forums.alliedmods.net/showthread.php?t=315481): Witch fixes! by Lux
 		* 由Lux大老製作修復Witch各種的bug
 
-	2. [l4d_witch_follow_kill_everyone](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_follow_kill_everyone): Witch will chase another survivor after the witch incapacitates or kills victim + witch auto follows survivors
+	2. [l4d_witch_follow_kill_everyone](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_女巫/l4d_witch_follow_kill_everyone): Witch will chase another survivor until everyone is incap or dead + witch auto follows survivors
 		* Witch被驚嚇後，會追殺死所有倖存者 + Witch會自動跟蹤你
 
 	3. [l4d_witch_stagger_block](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_stagger_block): Block Witch stumble by Weapons/Shove/Explosive Bullet/Pipebomb/....

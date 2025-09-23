@@ -256,8 +256,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * SCAR三連發步槍可以切換成全自動模式
 * <b>[l4d_save_weapon_ammo](/l4d_save_weapon_ammo)</b>: Prevent filling the clip when taking the same weapon + save if the amount of weapon ammo is more than vanilla.
     * 撿起的武器時不會有滿發的彈夾 + 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
-* <b>[l4d_hackers_block](/l4d_hackers_block)</b>: Block hackers using some exploit to crash server
-    * 阻止駭客利用某些漏洞導致伺服器崩潰
 * <b>[l4d_exploit_dmg_block](/l4d_exploit_dmg_block)</b>: Block exploit damage by player, ex: throw molotov and change team to infected
     * 防止惡意玩家的友軍傷害，譬如: 丟火瓶之後跑去特感隊伍
 * <b>[l4d_collision_adjustments](/l4d_collision_adjustments)</b>: No collisions to fix a handful of silly collision bugs in l4d

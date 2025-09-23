@@ -6,7 +6,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     L4D2
     ```
 
-* [Video | 影片展示](https://youtu.be/YkMDgmmoyts)
+* [Video | 影片展示](https://youtu.be/FxFyhFxaZug)
 
 * Image | 圖示
     * Mark weapons and items (標記武器與物品)
@@ -26,7 +26,19 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         <br/>![l4d2_item_hint_0.jpg](image/l4d2_item_hint_0.jpg)
         * Type```!mark```
         * Press shift+E
+    * Marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
+    * If not aiming target or item, the plugin detects what player is looking at using field of view angle
+        * If has more than two targets, it finds the target nearest to your crosshair
+    <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
     * The infected is unable to mark, unable see the mark and unable to hear the mark sound
+</details>
+
+* <details><summary>Important</summary>
+
+    * Hats and others attaching stuff to players could block the players "use" function, which makes you unable to use 'look' item hint. Install [Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511) plugin to fix.
+    * Player must Enabled GAME INSTRUCTOR, in ESC -> Options -> Multiplayer, or they can't see the hint
+    <br/>![l4d2_item_hint_6.jpg](image/l4d2_item_hint_6.jpg)
+    * DO NOT modify convar ```sv_gameinstructor_disable``` this force all clients to disable their game instructors.
 </details>
 
 * Require | 必要安裝
@@ -37,14 +49,6 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 	1. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
 		* 可以自由變成其他角色或NPC的模組
-</details>
-
-* <details><summary>Important</summary>
-
-    * Hats and others attaching stuff to players could block the players "use" function, which makes you unable to use 'look' item hint. Install [Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511) plugin to fix.
-    * Player must Enabled GAME INSTRUCTOR, in ESC -> Options -> Multiplayer, or they can't see the hint
-    <br/>![l4d2_item_hint_6.jpg](image/l4d2_item_hint_6.jpg)
-    * DO NOT modify convar ```sv_gameinstructor_disable``` this force all clients to disable their game instructors.
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -149,7 +153,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_cooldown_time "0.25"
 
             // How far away can a player use 'Look' Infected Marker.
-            l4d2_infected_marker_use_range "1800"
+            l4d2_infected_marker_use_range "1000"
 
             // Infected Marker Sound. (relative to to sound/, Empty = OFF)
             l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
@@ -177,6 +181,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // Instructor icon name on Infecfed Marker.
             l4d2_infected_marker_instructorhint_icon "icon_skull"
+
+            // Fov angle to detect if player is looking speical infected
+            // Game vanilla: 45.0, 0=Off, crosshair aim only
+            l4d2_infected_marker_si_fov "15.0"
+
+            // Fov angle to detect if player is looking witch
+            // Game vanilla: 45.0, 0=Off, crosshair aim only
+            l4d2_infected_marker_witch_fov "15.0"
             ```
 
         * Survivor Marker
@@ -210,6 +222,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // Instructor icon name on Survivor Marker.
             l4d2_survivor_marker_instructorhint_icon "icon_alert"
+
+            // Fov angle to detect if player is looking teammate
+            // Game vanilla: 45.0, 0=Off, crosshair aim only
+            l4d2_survivor_marker_fov "15.0"
             ```
 </details>
 
@@ -233,6 +249,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v3.8 (2025-9-23)
+        * Update cvars
+        * Plugin now helps detect what player is looking at using field of view angle, which means player no longer aims hard at the target
 
     * v3.7 (2025-3-7)
         * Update cvars
@@ -309,12 +329,15 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         <br/>![zho/l4d2_item_hint_0.jpg](image/zho/l4d2_item_hint_0.jpg)
         2. 輸入```!mark```
         3. 按下Shift+E
+    * 如果準心沒有指向任何東西，會依照玩家視野看到的目標進行標記
+        * 如果有兩個目標以上，看哪一個目標離你的準心最近
+        <br/>![l4d2_item_hint_7](image/zho/l4d2_item_hint_7.gif)
+    * 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
     * 特感看不見人類標記的光圈、標記提示，也聽不見標記音校
-
 
 * 注意事項
     * 如果有其他插件會擋住視野的裝飾品譬如帽子插件，你可能無法使用標記功能，請安裝[Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)以修正
-    * 玩家必須啟動[遊戲指導系統](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game#%E5%95%9F%E5%8B%95%E9%81%8A%E6%88%B2%E6%8C%87%E5%B0%8E%E7%B3%BB%E7%B5%B1)，否則玩家看不見標記提示
+    * 玩家必須啟動[遊戲指導系統](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game#啟動遊戲指導系統)，否則玩家看不見標記提示
     * 伺服器端不要修改指令 ```sv_gameinstructor_disable```，這會關閉所有玩家的遊戲指導系統
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
@@ -422,7 +445,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_cooldown_time "0.25"
 
             // 能標記特感的距離
-            l4d2_infected_marker_use_range "1800"
+            l4d2_infected_marker_use_range "1000"
 
             // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
             l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
@@ -450,6 +473,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
             l4d2_infected_marker_instructorhint_icon "icon_skull"
+
+            // 檢測玩家的視野是否正在看特感, 此數值代表特感與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_infected_marker_si_fov "15.0"
+
+            // 檢測玩家的視野是否正在看Witch, 此數值代表Witch與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_infected_marker_witch_fov "15.0"
             ```
 
         * 標記隊友
@@ -484,5 +515,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 導演提示的圖案 
             l4d2_survivor_marker_instructorhint_icon "icon_alert"
+
+            // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_survivor_marker_fov "15.0"
             ```
 </details>

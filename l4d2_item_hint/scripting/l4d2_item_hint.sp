@@ -21,7 +21,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "3.7-2025/3/7",
+	version     = "3.8-2025/9/23",
 	url         = "https://forums.alliedmods.net/showpost.php?p=2765332&postcount=30"
 };
 
@@ -76,10 +76,12 @@ ConVar g_hItemCvarCMD, g_hItemCvarShiftE, g_hItemCvarVocalize,
 	g_hItemInstructorHint, g_hItemInstructorColor, g_hItemInstructorIcon,
 	g_hSpotMarkUseRange, g_hSpotMarkUseSound, g_hSpotMarkAnnounceType, g_hSpotMarkGlowTimer, g_hSpotMarkCvarColor, g_hSpotMarkSpriteModel,
 	g_hSpotMarkInstructorHint, g_hSpotMarkInstructorColor, g_hSpotMarkInstructorIcon,
-	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkWitch, g_hInfectedMarkSI,
+	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkSI,
 	g_hInfectedMarkInstructorHint, g_hInfectedMarkInstructorColor, g_hInfectedMarkInstructorIcon,
+	g_hInfectedMarkWitch, g_hInfectedMarkSIFov, g_hInfectedMarkWitchFov,
 	g_hSurvivorMarkUseRange, g_hSurvivorMarkUseSound, g_hSurvivorMarkAnnounceType, g_hSurvivorMarkGlowTimer, g_hSurvivorMarkGlowRange, g_hSurvivorMarkCvarColor,
-	g_hSurvivorMarkInstructorHint, g_hSurvivorMarkInstructorColor, g_hSurvivorMarkInstructorIcon;
+	g_hSurvivorMarkInstructorHint, g_hSurvivorMarkInstructorColor, g_hSurvivorMarkInstructorIcon,
+	g_hSurvivorMarkFov;
 int g_iHintTransType,
 	g_iItemAnnounceType, g_iItemGlowRange, g_iItemCvarColor,
 	g_iSpotMarkCvarColorArray[3], g_iSpotMarkAnnounceType,
@@ -88,8 +90,8 @@ int g_iHintTransType,
 float g_fItemHintCoolDown, g_fSpotMarkCoolDown, g_fInfectedMarkCoolDown, g_fSurvivorMarkCoolDown,
 	g_fItemUseHintRange, g_fItemGlowTimer,
 	g_fSpotMarkUseRange, g_fSpotMarkGlowTimer,
-	g_fInfectedMarkUseRange, g_fInfectedMarkGlowTimer,
-	g_fSurvivorMarkUseRange, g_fSurvivorMarkGlowTimer;
+	g_fInfectedMarkUseRange, g_fInfectedMarkGlowTimer, g_fInfectedMarkSIFov, g_fInfectedMarkWitchFov,
+	g_fSurvivorMarkUseRange, g_fSurvivorMarkGlowTimer, g_fSurvivorMarkFov;
 float       g_fItemHintCoolDownTime[MAXPLAYERS + 1], g_fSpotMarkCoolDownTime[MAXPLAYERS + 1], g_fInfectedMarkCoolDownTime[MAXPLAYERS + 1], g_fSurvivorMarkCoolDownTime[MAXPLAYERS + 1];
 char g_sItemInstructorColor[12], g_sItemInstructorIcon[16], g_sSpotMarkCvarColor[12], g_sItemUseSound[100], g_sKillDelay[32],
 			g_sSpotMarkUseSound[100], g_sSpotMarkInstructorColor[12], g_sSpotMarkInstructorIcon[16], g_sSpotMarkSpriteModel[PLATFORM_MAX_PATH],
@@ -193,16 +195,18 @@ public void OnPluginStart()
 
 	g_hInfectedMarkCvarColor   		= CreateConVar("l4d2_infected_marker_glow_color", 				"255 120 203",			"Infected Marker Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Infected Marker)", FCVAR_NOTIFY);
 	g_hInfectedMarkCoolDown			= CreateConVar("l4d2_infected_marker_cooldown_time", 			"0.25", 				"Cold Down Time in seconds a player can use 'Look' Infected Marker again.", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedMarkUseRange     	= CreateConVar("l4d2_infected_marker_use_range", 				"1800", 				"How far away can a player use 'Look' Infected Marker.", FCVAR_NOTIFY, true, 1.0);
+	g_hInfectedMarkUseRange     	= CreateConVar("l4d2_infected_marker_use_range", 				"1000", 				"How far away can a player use 'Look' Infected Marker.", FCVAR_NOTIFY, true, 1.0);
 	g_hInfectedMarkUseSound			= CreateConVar("l4d2_infected_marker_use_sound", 				"items/suitchargeok1.wav", "Infected Marker Sound. (relative to to sound/, Empty = OFF)", FCVAR_NOTIFY);
 	g_hInfectedMarkAnnounceType		= CreateConVar("l4d2_infected_marker_announce_type",			"1", 					"Changes how infected marker hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	g_hInfectedMarkGlowTimer   		= CreateConVar("l4d2_infected_marker_glow_timer", 				"10.0", 				"Infected Marker Glow Time.", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedMarkGlowRange   		= CreateConVar("l4d2_infected_marker_glow_range", 				"2500", 				"Infected Marker Glow Range", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedMarkWitch    		= CreateConVar("l4d2_infected_marker_witch_enable", 			"1", 					"If 1, Enable 'Look' Infected Marker on witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedMarkSI    			= CreateConVar("l4d2_infected_marker_si_flag", 					"127", 					"Enable 'Look' Infected Marker on Which SI? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together (127=All)", FCVAR_NOTIFY, true, 0.0, true, 127.0);
 	g_hInfectedMarkInstructorHint	= CreateConVar("l4d2_infected_marker_instructorhint_enable", 	"1", 					"If 1, Create instructor hint on Infected's head if marked.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedMarkInstructorColor	= CreateConVar("l4d2_infected_marker_instructorhint_color", 	"255 0 0", 				"Instructor hint color on Infecfed Marker. (If empty, off the zombie class display)", FCVAR_NOTIFY);
 	g_hInfectedMarkInstructorIcon	= CreateConVar("l4d2_infected_marker_instructorhint_icon", 		"icon_skull", 			"Instructor icon name on Infecfed Marker.", FCVAR_NOTIFY);
+	g_hInfectedMarkWitch    		= CreateConVar("l4d2_infected_marker_witch_enable", 			"1", 					"If 1, Enable 'Look' Infected Marker on witch.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedMarkSIFov			= CreateConVar("l4d2_infected_marker_si_fov", 					"15.0", 				"Fov angle to detect if player is looking speical infected\nGame vanilla: 45.0, 0=Off, crosshair aim only", FCVAR_NOTIFY, true, 0.0, true, 90.0);
+	g_hInfectedMarkWitchFov			= CreateConVar("l4d2_infected_marker_witch_fov", 				"15.0", 				"Fov angle to detect if player is looking witch\nGame vanilla: 45.0, 0=Off, crosshair aim only", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 
 	g_hSurvivorMarkCvarColor   		= CreateConVar("l4d2_survivor_marker_glow_color", 				"0 200 0", 					"Survivor Marker Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Survivor Marker)", FCVAR_NOTIFY);
 	g_hSurvivorMarkCoolDown			= CreateConVar("l4d2_survivor_marker_cooldown_time", 			"1.0", 						"Cold Down Time in seconds a player can use 'Look' Survivor Marker again.", FCVAR_NOTIFY, true, 0.0);
@@ -214,6 +218,7 @@ public void OnPluginStart()
 	g_hSurvivorMarkInstructorHint	= CreateConVar("l4d2_survivor_marker_instructorhint_enable", 	"1", 						"If 1, Create instructor hint on Survivor's head if marked.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hSurvivorMarkInstructorColor	= CreateConVar("l4d2_survivor_marker_instructorhint_color", 	"0 200 0", 					"Instructor hint color on Survivor Marker. (If empty, off the name display)", FCVAR_NOTIFY);
 	g_hSurvivorMarkInstructorIcon	= CreateConVar("l4d2_survivor_marker_instructorhint_icon", 		"icon_alert", 				"Instructor icon name on Survivor Marker.", FCVAR_NOTIFY);
+	g_hSurvivorMarkFov				= CreateConVar("l4d2_survivor_marker_fov", 						"15.0", 					"Fov angle to detect if player is looking teammate\nGame vanilla: 45.0, 0=Off, crosshair aim only", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 
 	AutoExecConfig(true, "l4d2_item_hint");
 
@@ -255,11 +260,13 @@ public void OnPluginStart()
 	g_hInfectedMarkGlowTimer.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkGlowRange.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkCvarColor.AddChangeHook(ConVarChanged_Cvars);
-	g_hInfectedMarkWitch.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkSI.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorHint.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorIcon.AddChangeHook(ConVarChanged_Cvars);
+	g_hInfectedMarkWitch.AddChangeHook(ConVarChanged_Cvars);
+	g_hInfectedMarkSIFov.AddChangeHook(ConVarChanged_Cvars);
+	g_hInfectedMarkWitchFov.AddChangeHook(ConVarChanged_Cvars);
 
 	g_hSurvivorMarkCoolDown.AddChangeHook(ConVarChanged_Cvars);
 	g_hSurvivorMarkUseRange.AddChangeHook(ConVarChanged_Cvars);
@@ -271,6 +278,7 @@ public void OnPluginStart()
 	g_hSurvivorMarkInstructorHint.AddChangeHook(ConVarChanged_Cvars);
 	g_hSurvivorMarkInstructorColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hSurvivorMarkInstructorIcon.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorMarkFov.AddChangeHook(ConVarChanged_Cvars);
 
 	RegConsoleCmd("sm_mark", CMD_MARK, "Mark item/infected/spot");
 
@@ -406,11 +414,13 @@ void GetCvars()
 	g_iInfectedMarkGlowRange = g_hInfectedMarkGlowRange.IntValue;
 	g_hInfectedMarkCvarColor.GetString(sColor, sizeof(sColor));
 	g_iInfectedMarkCvarColor = GetColor(sColor);
-	g_bInfectedMarkWitch = g_hInfectedMarkWitch.BoolValue;
 	g_iInfectedMarkSI = g_hInfectedMarkSI.IntValue;
 	g_bInfectedMarkInstructorHint = g_hInfectedMarkInstructorHint.BoolValue;
 	g_hInfectedMarkInstructorColor.GetString(g_sInfectedMarkInstructorColor, sizeof(g_sInfectedMarkInstructorColor));
 	g_hInfectedMarkInstructorIcon.GetString(g_sInfectedMarkInstructorIcon, sizeof(g_sInfectedMarkInstructorIcon));
+	g_bInfectedMarkWitch = g_hInfectedMarkWitch.BoolValue;
+	g_fInfectedMarkSIFov = g_hInfectedMarkSIFov.FloatValue;
+	g_fInfectedMarkWitchFov = g_hInfectedMarkWitchFov.FloatValue;
 
 	g_fSurvivorMarkCoolDown = g_hSurvivorMarkCoolDown.FloatValue;
 	g_fSurvivorMarkUseRange = g_hSurvivorMarkUseRange.FloatValue;
@@ -424,6 +434,7 @@ void GetCvars()
 	g_bSurvivorMarkInstructorHint = g_hSurvivorMarkInstructorHint.BoolValue;
 	g_hSurvivorMarkInstructorColor.GetString(g_sSurvivorMarkInstructorColor, sizeof(g_sSurvivorMarkInstructorColor));
 	g_hSurvivorMarkInstructorIcon.GetString(g_sSurvivorMarkInstructorIcon, sizeof(g_sSurvivorMarkInstructorIcon));
+	g_fSurvivorMarkFov = g_hSurvivorMarkFov.FloatValue;
 }
 
 void CreateStringMap()
@@ -971,11 +982,8 @@ bool CreateInfectedMarker(int client, int infected, bool bIsWitch = false)
 
 	if (bIsWitch && g_bInfectedMarkWitch == false) return false; // disable infected mark on witch
 
-	float vSurvivorPos[3], vInfectedPos[3];
-	GetEntPropVector(client, Prop_Data, "m_vecOrigin", vSurvivorPos);
+	float vInfectedPos[3];
 	GetEntPropVector(infected, Prop_Data, "m_vecOrigin", vInfectedPos);
-	if (GetVectorDistance(vSurvivorPos, vInfectedPos, true) > g_fInfectedMarkUseRange * g_fInfectedMarkUseRange) // over distance
-		return false;
 
 	int zClass;
 	// Get Model
@@ -1173,12 +1181,6 @@ bool CreateInfectedMarker(int client, int infected, bool bIsWitch = false)
 bool CreateSurvivorMarker(int client, int survivor)
 {
 	if( GetEngineTime() < g_fSurvivorMarkCoolDownTime[client]) return true; //colde down not yet
-
-	float vStartPos[3], vEndPos[3];
-	GetEntPropVector(client, Prop_Data, "m_vecOrigin", vStartPos);
-	GetEntPropVector(survivor, Prop_Data, "m_vecOrigin", vEndPos);
-	if (GetVectorDistance(vStartPos, vEndPos, true) > g_fSurvivorMarkUseRange * g_fSurvivorMarkUseRange) // over distance
-		return false;
 
 	// Spawn dynamic prop entity
 	int entity = -1;
@@ -2078,13 +2080,15 @@ void PlayerMarkHint(int client)
 	bool bIsAimPlayer = false, bIsAimWitch = false, bIsVaildItem = false;
 	static char sItemPhrase[64], sEntModelName[PLATFORM_MAX_PATH];
 
-	// marker priority (infected maker > item hint > spot marker)
+	// 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
 
 	int clientAim = GetClientViewClient(client); //ignore glow model
+	float vClientPos[3], vTargetPos[3];
+	GetEntPropVector(client, Prop_Data, "m_vecOrigin", vClientPos);
 
 	if (1 <= clientAim <= MaxClients && IsClientInGame(clientAim))
 	{
-		if(g_iInfectedMarkCvarColor != 0 && GetClientTeam(clientAim) == TEAM_INFECTED && IsPlayerAlive(clientAim) && !IsPlayerGhost(clientAim))
+		if(g_iInfectedMarkCvarColor > 0 && GetClientTeam(clientAim) == TEAM_INFECTED && IsPlayerAlive(clientAim) && !IsPlayerGhost(clientAim))
 		{
 			bIsAimPlayer = true;
 			//PrintToChatAll("look at %N", clientAim);
@@ -2098,27 +2102,137 @@ void PlayerMarkHint(int client)
 
 			if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSI))
 			{
-				if( CreateInfectedMarker(client, clientAim) == true )
+				GetEntPropVector(clientAim, Prop_Data, "m_vecOrigin", vTargetPos);
+				if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) && CreateInfectedMarker(client, clientAim) == true )
 					return;
 			}
 		}
-		else if(g_iSurvivorMarkCvarColor != 0 && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
+		else if(g_iSurvivorMarkCvarColor > 0 && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
 		{
 			bIsAimPlayer = true;
 			//PrintToChatAll("look at %N", clientAim);
 			
-			if( CreateSurvivorMarker(client, clientAim) == true )
+			GetEntPropVector(clientAim, Prop_Data, "m_vecOrigin", vTargetPos);
+			if( IsWithInRange(vClientPos, vTargetPos, g_fSurvivorMarkUseRange) && CreateSurvivorMarker(client, clientAim) == true )
 				return;
 		}
 	}
-	else if ( g_iInfectedMarkCvarColor != 0 && IsWitch(clientAim) )
+	else if ( g_iInfectedMarkCvarColor > 0 && IsWitch(clientAim) )
 	{
 		bIsAimWitch = true;
 
-		if( CreateInfectedMarker(client, clientAim, true) == true )
+		GetEntPropVector(clientAim, Prop_Data, "m_vecOrigin", vTargetPos);
+		if( IsWithInRange(vClientPos, vTargetPos, g_fSurvivorMarkUseRange) && CreateInfectedMarker(client, clientAim, true) == true )
 			return;
 	}
 
+	if(!bIsAimPlayer && !bIsAimWitch)
+	{
+		// 玩家的視野看到的特感或隊友 (大概)
+		// 特感與witch優先
+		float degree, degree_Lowest = 360.0;
+		int Target_FovNearBy;
+
+		if ( g_iInfectedMarkCvarColor > 0 )
+		{
+			if(g_fInfectedMarkSIFov > 0.0)
+			{
+				for(int i = 1; i <= MaxClients; i++)
+				{
+					if(!IsClientInGame(i)) continue;
+					if(!IsPlayerAlive(i)) continue;
+					if(GetClientTeam(i) == TEAM_INFECTED)
+					{
+						GetEntPropVector(i, Prop_Data, "m_vecOrigin", vTargetPos);
+						if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+
+						degree = GetFovAngle(client, i);
+						//PrintToChatAll("與%N的夾角度: %.1f", i, degree);
+						// 官方是超過45度忽略
+						if(degree > g_fInfectedMarkSIFov) continue;
+
+						if(degree < degree_Lowest)
+						{
+							degree_Lowest = degree;
+							Target_FovNearBy = i;
+						}
+					}
+				}
+			}
+
+			if(g_fInfectedMarkWitchFov > 0.0)
+			{
+				int witch = -1;
+				while ((witch = FindEntityByClassname(witch, "witch")) != -1)
+				{
+					if (!IsValidEntity(witch))
+						continue;	
+					
+					GetEntPropVector(witch, Prop_Data, "m_vecOrigin", vTargetPos);
+					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+					degree = GetFovAngle(client, witch);
+					//PrintToChatAll("與Witch的夾角度: %.1f", degree);
+					// 官方是超過45度忽略
+					if(degree > g_fInfectedMarkWitchFov) continue;
+
+					if(degree < degree_Lowest)
+					{
+						degree_Lowest = degree;
+						Target_FovNearBy = witch;
+					}
+				}
+			}
+
+			if(Target_FovNearBy > 0)
+			{
+				if(Target_FovNearBy > MaxClients)
+				{
+					bIsAimWitch = true;
+					if( CreateInfectedMarker(client, Target_FovNearBy, true) == true )
+						return;
+				}
+				else
+				{
+					bIsAimPlayer = true;
+					if( CreateInfectedMarker(client, Target_FovNearBy) == true )
+						return;
+				}
+			}
+		}
+
+		// 隊友次要
+		if ( g_iSurvivorMarkCvarColor > 0 && g_fSurvivorMarkFov > 0.0)
+		{
+			for(int i = 1; i <= MaxClients; i++)
+			{
+				if(!IsClientInGame(i)) continue;
+				if(!IsPlayerAlive(i)) continue;
+				if(GetClientTeam(i) == TEAM_SURVIVOR)
+				{
+					GetEntPropVector(i, Prop_Data, "m_vecOrigin", vTargetPos);
+					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+
+					degree = GetFovAngle(client, i);
+					//PrintToChatAll("與%N的夾角度: %.1f", i, degree);
+					// 官方是超過45度忽略
+					if(degree > g_fSurvivorMarkFov) continue;
+
+					if(degree < degree_Lowest)
+					{
+						degree_Lowest = degree;
+						Target_FovNearBy = i;
+					}
+				}
+			}
+
+			if(Target_FovNearBy > 0)
+			{
+				bIsAimPlayer = true;
+				if( CreateSurvivorMarker(client, Target_FovNearBy) == true )
+					return;
+			}
+		}
+	}
 
 	static int iEntity;
 	iEntity = GetUseEntity(client, g_fItemUseHintRange);
@@ -2129,97 +2243,97 @@ void PlayerMarkHint(int client)
 		if (strcmp(targetname, "harry_marked_item") == 0) //custom model
 		{
 			iEntity = GetEntPropEnt(iEntity, Prop_Data, "m_pParent");
+			if(!IsValidEntityIndex(iEntity) || !IsValidEntity(iEntity)) return;
 		}
 
 		static char classname[32];
-		if (GetEntityClassname(iEntity, classname, sizeof(classname)) && HasEntProp(iEntity, Prop_Data, "m_ModelName"))
+		if (GetEntityClassname(iEntity, classname, sizeof(classname)) 
+			&& HasEntProp(iEntity, Prop_Data, "m_ModelName")
+			&& GetEntPropString(iEntity, Prop_Data, "m_ModelName", sEntModelName, sizeof(sEntModelName)) > 1)
 		{
-			if (GetEntPropString(iEntity, Prop_Data, "m_ModelName", sEntModelName, sizeof(sEntModelName)) > 1)
+			if(strncmp(classname, "prop_dynamic", 12, false) == 0)
 			{
-				if(strncmp(classname, "prop_dynamic", 12, false) == 0)
+				int m_iEFlags = GetEntProp(iEntity, Prop_Data, "m_iEFlags");
+				if(m_iEFlags & EFL_DONTBLOCKLOS && m_iEFlags & SF_PHYSPROP_PREVENT_PICKUP)
 				{
-					int m_iEFlags = GetEntProp(iEntity, Prop_Data, "m_iEFlags");
-					if(m_iEFlags & EFL_DONTBLOCKLOS && m_iEFlags & SF_PHYSPROP_PREVENT_PICKUP)
-					{
-						//PrintToChatAll("this is attach api weapons");
+					//PrintToChatAll("this is attach api weapons");
 
-						// client / world / witch
-						CreateSpotMarker(client, bIsAimPlayer);
-						return;
-					}
-				}		
-
-				//PrintToChatAll("%N is looking at %d (%s-%s)", client, iEntity, classname, sEntModelName);
-				StringToLowerCase(sEntModelName);
-				float fHeight = 10.0;
-				if (g_smModelToName.GetString(sEntModelName, sItemPhrase, sizeof(sItemPhrase)))
-				{
-					g_smModelHeight.GetValue(sEntModelName, fHeight);
-					bIsVaildItem = true;
-				}
-				else if (strncmp(classname, "weapon_melee", 12, false) == 0) // (custom melee model)
-				{
-					FormatEx(sItemPhrase, sizeof(sItemPhrase), "Melee");
-					fHeight = 5.0;
-
-					bIsVaildItem = true;
-				}
-				else if (strncmp(classname, "weapon_ammo_spawn", 17, false) == 0) // (custom ammo model)
-				{
-					FormatEx(sItemPhrase, sizeof(sItemPhrase), "Ammo");
-					fHeight = 10.0;
-
-					bIsVaildItem = true;
-				}
-				else if (StrContains(sEntModelName, "/weapons/") != -1) // entity is not in the list (custom weapom model)
-				{
-					FormatEx(sItemPhrase, sizeof(sItemPhrase), "Weapons");
-					fHeight = 10.0;
-
-					bIsVaildItem = true;
-				}
-				else // entity is not in the list (other entity model on the map)
-				{
-					bIsVaildItem = false;
-				}
-
-				if(bIsVaildItem)
-				{
-					if(GetEngineTime() > g_fItemHintCoolDownTime[client])
-					{
-						NotifyMessage(client, sItemPhrase, eItemHint);
-
-						if (strlen(g_sItemUseSound) > 0)
-						{
-							for (int target = 1; target <= MaxClients; target++)
-							{
-								if (!IsClientInGame(target))
-									continue;
-
-								if (IsFakeClient(target))
-									continue;
-
-								if (GetClientTeam(target) == TEAM_INFECTED)
-									continue;
-
-								EmitSoundToClient(target, g_sItemUseSound, client);
-							}
-						}
-
-						g_fItemHintCoolDownTime[client] = GetEngineTime() + g_fItemHintCoolDown;
-						CreateEntityModelGlow(iEntity, sEntModelName);
-
-						if(g_bItemInstructorHint)
-						{
-							float vEndPos[3];
-							GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", vEndPos);
-							vEndPos[2] = vEndPos[2] + fHeight;
-							CreateInstructorHint(client, vEndPos, sItemPhrase, iEntity, eItemHint);
-						}
-					}
-
+					// client / world / witch
+					CreateSpotMarker(client, bIsAimPlayer);
 					return;
 				}
+			}		
+
+			//PrintToChatAll("%N is looking at %d (%s-%s)", client, iEntity, classname, sEntModelName);
+			StringToLowerCase(sEntModelName);
+			float fHeight = 10.0;
+			if (g_smModelToName.GetString(sEntModelName, sItemPhrase, sizeof(sItemPhrase)))
+			{
+				g_smModelHeight.GetValue(sEntModelName, fHeight);
+				bIsVaildItem = true;
+			}
+			else if (strncmp(classname, "weapon_melee", 12, false) == 0) // (custom melee model)
+			{
+				FormatEx(sItemPhrase, sizeof(sItemPhrase), "Melee");
+				fHeight = 5.0;
+
+				bIsVaildItem = true;
+			}
+			else if (strncmp(classname, "weapon_ammo_spawn", 17, false) == 0) // (custom ammo model)
+			{
+				FormatEx(sItemPhrase, sizeof(sItemPhrase), "Ammo");
+				fHeight = 10.0;
+
+				bIsVaildItem = true;
+			}
+			else if (StrContains(sEntModelName, "/weapons/") != -1) // entity is not in the list (custom weapom model)
+			{
+				FormatEx(sItemPhrase, sizeof(sItemPhrase), "Weapons");
+				fHeight = 10.0;
+
+				bIsVaildItem = true;
+			}
+			else // entity is not in the list (other entity model on the map)
+			{
+				bIsVaildItem = false;
+			}
+
+			if(bIsVaildItem)
+			{
+				if(GetEngineTime() > g_fItemHintCoolDownTime[client])
+				{
+					NotifyMessage(client, sItemPhrase, eItemHint);
+
+					if (strlen(g_sItemUseSound) > 0)
+					{
+						for (int target = 1; target <= MaxClients; target++)
+						{
+							if (!IsClientInGame(target))
+								continue;
+
+							if (IsFakeClient(target))
+								continue;
+
+							if (GetClientTeam(target) == TEAM_INFECTED)
+								continue;
+
+							EmitSoundToClient(target, g_sItemUseSound, client);
+						}
+					}
+
+					g_fItemHintCoolDownTime[client] = GetEngineTime() + g_fItemHintCoolDown;
+					CreateEntityModelGlow(iEntity, sEntModelName);
+
+					if(g_bItemInstructorHint)
+					{
+						float vEndPos[3];
+						GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", vEndPos);
+						vEndPos[2] = vEndPos[2] + fHeight;
+						CreateInstructorHint(client, vEndPos, sItemPhrase, iEntity, eItemHint);
+					}
+				}
+
+				return;
 			}
 		}
 	}
@@ -2243,6 +2357,33 @@ void RemoveGlowandInstructor(int entity)
 
 	RemoveTargetInstructor(entity);
 	delete g_iTargetInstructorTimer[entity];
+}
+
+bool IsWithInRange(float vStartPos[3], float vEndPos[3], float fDistance)
+{
+	if (GetVectorDistance(vStartPos, vEndPos, true) > fDistance * fDistance) // over distance
+		return false;
+
+	return true;
+}
+
+float GetFovAngle(int client, int target)
+{
+	float start[3], end[3], entdir[3], facedir[3];
+
+	GetClientEyePosition(client, start);
+	GetClientEyeAngles(client, facedir); // as a temp vec
+	GetAngleVectors(facedir, facedir, NULL_VECTOR, NULL_VECTOR);
+	NormalizeVector(facedir, facedir);
+
+	if(target > MaxClients) GetEntPropVector(target, Prop_Data, "m_vecOrigin", end);
+	else GetClientEyePosition(target, end);
+	SubtractVectors(end, start, entdir); // client --> entity
+	NormalizeVector(entdir, entdir);
+
+	//兩向量 求夾角
+	//θ = arccos((A ⋅ B) / (|A| |B|))
+	return RadToDeg(ArcCosine(GetVectorDotProduct(entdir, facedir) / (1*1)));
 }
 
 // LMC--------------
