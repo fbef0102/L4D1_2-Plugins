@@ -504,7 +504,6 @@ Improves the AI behaviour of special infected
 * <details><summary>會衝突的插件</summary>
 	
 	如果沒安裝以下插件就不需要擔心衝突
-	If you don't use any of these plugins at all, no need to worry about conflicts.
 	1. [smart_ai_rock](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/smart_ai_rock): AI Tank不會丟underhand rocks動作且丟完石頭後會立馬轉頭攻擊背後的倖存者
 		* 功能重複, 可移除
 </details>

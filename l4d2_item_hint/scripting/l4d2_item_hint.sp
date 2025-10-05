@@ -21,7 +21,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "3.8-2025/9/23",
+	version     = "3.9-2025/10/5",
 	url         = "https://forums.alliedmods.net/showpost.php?p=2765332&postcount=30"
 };
 
@@ -106,7 +106,9 @@ bool g_bItemCvarCMD, g_bItemCvarShiftE, g_bItemCvarVocalize,
 
 
 bool   
-	ge_bMoveUp[MAXENTITIES+1];
+	ge_bMoveUp[MAXENTITIES+1],
+	ge_bInvalidTrace[MAXENTITIES+1],
+	g_bMapStarted;
 
 int       
 	g_iModelIndex[MAXENTITIES+1] = {0},
@@ -123,9 +125,6 @@ StringMap
 	g_smModelToName,
 	g_smModelHeight,
 	g_smModelNotGlow;
-
-bool 
-	g_bMapStarted;
 
 enum EHintType {
 	eItemHint,
@@ -831,6 +830,9 @@ bool IsValidEntRef(int entity)
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
+	if (!IsValidEntityIndex(entity))
+		return;
+		
 	switch (classname[0])
 	{
 		case 'p':
@@ -843,6 +845,22 @@ public void OnEntityCreated(int entity, const char[] classname)
 			{
 				SDKHook(entity, SDKHook_SpawnPost, SpawnPost);
 			}
+		}
+
+		case 't':
+		{
+			if (StrEqual(classname, "tank_rock"))
+				ge_bInvalidTrace[entity] = true;
+		}
+		case 'i':
+		{
+			if (StrEqual(classname, "infected"))
+				ge_bInvalidTrace[entity] = true;
+		}
+		case 'w':
+		{
+			if (StrEqual(classname, "witch"))
+				ge_bInvalidTrace[entity] = true;
 		}
 	}
 }
@@ -885,6 +903,7 @@ public void OnEntityDestroyed(int entity)
 	delete g_iTargetInstructorTimer[entity];
 
 	ge_bMoveUp[entity] = false;
+	ge_bInvalidTrace[entity] = false;
 }
 
 void RemoveAllGlow_Timer()
@@ -1295,7 +1314,7 @@ void CreateSpotMarker(int client, bool bIsAimPlayer)
 	float vAng[3];
 	GetClientEyeAngles(client, vAng);
 
-	Handle trace = TR_TraceRayFilterEx(vPos, vAng, MASK_ALL, RayType_Infinite, TraceFilter, client);
+	Handle trace = TR_TraceRayFilterEx(vPos, vAng, MASK_ALL, RayType_Infinite, TraceFilter_Spot, client);
 
 	if (TR_DidHit(trace))
 	{
@@ -1577,14 +1596,13 @@ int[] ConvertRGBToIntArray(char[] sColor)
     return color;
 }
 
-bool TraceFilter(int entity, int contentsMask, int client)
+bool TraceFilter_Spot(int entity, int contentsMask, int client)
 {
 	if (entity == client)
 		return false;
 
 	if (entity == ENTITY_WORLDSPAWN)
 		return true;
-
 
 	if (1 <= entity <= MaxClients && IsClientInGame(entity))
 	{
@@ -1603,7 +1621,7 @@ bool TraceFilter(int entity, int contentsMask, int client)
 		return true;
 	}
 
-	return false;
+	return ge_bInvalidTrace[entity] ? false : true;
 }
 
 void StringToLowerCase(char[] input)
@@ -2083,8 +2101,9 @@ void PlayerMarkHint(int client)
 	// 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
 
 	int clientAim = GetClientViewClient(client); //ignore glow model
-	float vClientPos[3], vTargetPos[3];
+	float vClientPos[3], vTargetPos[3], vClientEyePos[3];
 	GetEntPropVector(client, Prop_Data, "m_vecOrigin", vClientPos);
+	GetClientEyePosition(client, vClientEyePos);
 
 	if (1 <= clientAim <= MaxClients && IsClientInGame(clientAim))
 	{
@@ -2143,8 +2162,11 @@ void PlayerMarkHint(int client)
 					if(!IsPlayerAlive(i)) continue;
 					if(GetClientTeam(i) == TEAM_INFECTED)
 					{
+						if(IsPlayerGhost(i)) continue;
+
 						GetEntPropVector(i, Prop_Data, "m_vecOrigin", vTargetPos);
 						if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+						if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
 
 						degree = GetFovAngle(client, i);
 						//PrintToChatAll("與%N的夾角度: %.1f", i, degree);
@@ -2169,7 +2191,10 @@ void PlayerMarkHint(int client)
 						continue;	
 					
 					GetEntPropVector(witch, Prop_Data, "m_vecOrigin", vTargetPos);
+
 					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+					if( !IsVisibleToEntity(vClientEyePos, vTargetPos, witch) ) continue;
+
 					degree = GetFovAngle(client, witch);
 					//PrintToChatAll("與Witch的夾角度: %.1f", degree);
 					// 官方是超過45度忽略
@@ -2211,6 +2236,7 @@ void PlayerMarkHint(int client)
 				{
 					GetEntPropVector(i, Prop_Data, "m_vecOrigin", vTargetPos);
 					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+					if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
 
 					degree = GetFovAngle(client, i);
 					//PrintToChatAll("與%N的夾角度: %.1f", i, degree);
@@ -2384,6 +2410,90 @@ float GetFovAngle(int client, int target)
 	//兩向量 求夾角
 	//θ = arccos((A ⋅ B) / (|A| |B|))
 	return RadToDeg(ArcCosine(GetVectorDotProduct(entdir, facedir) / (1*1)));
+}
+
+float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
+float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
+bool IsVisibleToPlayer(float vClientEyePos[3], int target)
+{
+    float vTargetPos[3];
+    float vLookAt[3];
+    float vAng[3];
+
+    GetClientEyePosition(target, vTargetPos);
+    MakeVectorFromPoints(vClientEyePos, vTargetPos, vLookAt);
+    GetVectorAngles(vLookAt, vAng);
+
+    Handle trace = TR_TraceRayFilterEx(vClientEyePos, vAng, MASK_PLAYERSOLID, RayType_Infinite, TraceFilter_VisibleToPlayer, target);
+
+    bool isVisible;
+
+    if (TR_DidHit(trace))
+    {
+        isVisible = (TR_GetEntityIndex(trace) == target);
+
+        if (!isVisible)
+        {
+            vTargetPos[2] -= 62.0; // results the same as GetClientAbsOrigin
+
+            delete trace;
+            trace = TR_TraceHullFilterEx(vClientEyePos, vTargetPos, g_fVPlayerMins, g_fVPlayerMaxs, MASK_PLAYERSOLID, TraceFilter_VisibleToPlayer, target);
+
+            if (TR_DidHit(trace))
+                isVisible = (TR_GetEntityIndex(trace) == target);
+        }
+    }
+
+    delete trace;
+
+    return isVisible;
+}
+
+bool TraceFilter_VisibleToPlayer(int entity, int contentsMask, int infected)
+{
+    if (entity == infected)
+        return true;
+
+    if (IsValidClientIndex(entity))
+        return false;
+
+    if( !IsValidEntityIndex(entity) )
+        return false;
+
+    return ge_bInvalidTrace[entity] ? false : true;
+}
+
+bool IsVisibleToEntity(float vClientEyePos[3], float vTargetPos[3], int witch)
+{
+	Handle hTrace = TR_TraceRayFilterEx(vClientEyePos, vTargetPos, MASK_SOLID_BRUSHONLY, RayType_EndPoint, TraceFilter_VisibleToEntity, witch);
+	
+	if (TR_DidHit(hTrace))
+	{
+		delete hTrace;
+		return false;
+	}
+	
+	delete hTrace;
+	return true;
+}
+
+bool TraceFilter_VisibleToEntity(int entity, int contentsMask, int witch)
+{
+	if (entity == 0)
+		return true;
+
+	if (entity == witch)
+		return false;
+
+	if (IsValidClientIndex(entity))
+		return false;
+
+	return ge_bInvalidTrace[entity] ? false : true;
+}
+
+bool IsValidClientIndex(int client)
+{
+    return (1 <= client <= MaxClients);
 }
 
 // LMC--------------

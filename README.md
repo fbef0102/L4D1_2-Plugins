@@ -266,7 +266,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 第一人稱可以看到自己的雙腳
 * <b>[l4d_minigun_fly_fix](/l4d_minigun_fly_fix)</b>: Fixes a glitch with a minigun that allows players to fly long distances
     * 修復倖存者利用地圖上的機關砲台飛上天空
-    
+* <b>[l4d_witch_retreat_panic_fix](/l4d_witch_retreat_panic_fix)</b>: Fixed the bug that witch cancels retreat and comes back to chase survivor again if game starts panic event
+    * 修復Witch撤退之後又馬上重新攻擊倖存者的Bug
+
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
     * 使用 sourcemod v1.11 的編譯環境

@@ -250,6 +250,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v3.9 (2025-10-5)
     * v3.8 (2025-9-23)
         * Update cvars
         * Plugin now helps detect what player is looking at using field of view angle, which means player no longer aims hard at the target
@@ -333,7 +334,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         * 如果有兩個目標以上，看哪一個目標離你的準心最近
         <br/>![l4d2_item_hint_7](image/zho/l4d2_item_hint_7.gif)
     * 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
-    * 特感看不見人類標記的光圈、標記提示，也聽不見標記音校
+    * 特感看不見人類標記的光圈、標記提示，也聽不見標記音效
 
 * 注意事項
     * 如果有其他插件會擋住視野的裝飾品譬如帽子插件，你可能無法使用標記功能，請安裝[Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)以修正
