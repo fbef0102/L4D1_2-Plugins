@@ -1663,7 +1663,7 @@ void SetFileCategory(Menu menu, int client)
 	char FileName[256];
 	char ItemModel[256];
 	char ItemTag[256];
-	char buffer[256];
+	char buffer[1024];
 	BuildPath(Path_SM, FileName, sizeof(FileName), "data/l4d2_spawn_props_models.txt");
 	int len;
 	if(!FileExists(FileName))

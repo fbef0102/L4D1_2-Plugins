@@ -268,6 +268,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復倖存者利用地圖上的機關砲台飛上天空
 * <b>[l4d_witch_retreat_panic_fix](/l4d_witch_retreat_panic_fix)</b>: Fixed the bug that witch cancels retreat and comes back to chase survivor again if game starts panic event
     * 修復Witch撤退之後又馬上重新攻擊倖存者的Bug
+* <b>[l4d2_ladder_editor](/l4d2_ladder_editor)</b>: Clone and move special infected/survivor ladders.
+    * 複製並創造新的特感梯子或倖存者梯子
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

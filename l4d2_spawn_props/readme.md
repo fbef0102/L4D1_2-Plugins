@@ -7,6 +7,8 @@ Let admins spawn any kind of objects and saved to cfg
 	L4D2
 	```
 
+* [Video | 影片展示](https://youtu.be/4josvz9xJso)
+
 * Work | 作品展示
     * [Unlimited Map C8 by Harry](https://youtu.be/I_-QSn8F8Cs)
     * [L4D2-Unlimited-Map](https://github.com/fbef0102/L4D2-Unlimited-Map)
@@ -27,7 +29,8 @@ Let admins spawn any kind of objects and saved to cfg
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-    3. [Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#stripper)
+    3. [Install Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#stripper): Save objects/items permanently
+		* [安裝Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝stripper): 永久保存障礙物與物品於地圖上
 
 * <details><summary>How to use</summary>
 
@@ -40,14 +43,14 @@ Let admins spawn any kind of objects and saved to cfg
 			* Not all objects can be Solid (Go ask Valve)
 
 	* **Save Object**
-        1. Admin types !admin in chat->Spawn Objects->Save Objects->Save Stripper File
-		2. All Spawned objects will be saved into addons\stripper\maps\xxxxx.cfg
+        1. Admin types ```!admin``` in chat->Spawn Objects->Save Objects->Save Stripper File
+		2. All Spawned objects will be saved into ```addons\stripper\maps\xxxxx.cfg```
 			* xxxx is map name
 			* Auto-generate xxxxx.cfg if file not exist
 		3. Restart Map
 
 	* **Delete Object**
-        1. Modify file: addons\stripper\maps\xxxxx.cfg
+        1. Modify file: ```addons\stripper\maps\xxxxx.cfg```
 			* xxxx is map name
 		2. Find the object you want to delete by classname, origin, angles
 		3. Delete code {}，for example:
@@ -64,12 +67,12 @@ Let admins spawn any kind of objects and saved to cfg
 
 * <details><summary>Q&A</summary>
 
-	* Why I can't read object spawn menu?
-		* The data/l4d2_spawn_props_models.txt is Chinese language
-		* Either you translate by yourself, or just download [english data](https://forums.alliedmods.net/showpost.php?p=2607756&postcount=178) here(but fewer models)
+	* Why I can't read object names in the menu?
+		* The [data/l4d2_spawn_props_models.txt](data/l4d2_spawn_props_models.txt) is Chinese language
+		* Delete file and Use [data/l4d2_spawn_props_models_english.txt](data/l4d2_spawn_props_models_english.txt), rename to ```data/l4d2_spawn_props_models.txt```
 
 	* How to add more models?
-		* Modify data/l4d2_spawn_props_models.txt
+		* Modify ```data/l4d2_spawn_props_models.txt```
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -181,6 +184,9 @@ Let admins spawn any kind of objects and saved to cfg
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.3 (2025-10-7)
+		* Update translation
+
 	* v4.2 (2025-5-23)
 		* Suppprt float number
 
@@ -215,31 +221,24 @@ Let admins spawn any kind of objects and saved to cfg
 # 中文說明
 創造屬於自己風格的地圖，製作迷宮與障礙物
 
-* 必看
-	* 必須[安裝Stripper:Source](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝stripper)才能改變地圖
-		```c
-		// Stripper Config Path
-		stripper_cfg_path "addons/stripper"
-		```
-
 * <details><summary>如何使用?</summary>
 
 	* 如何創造物件?
-		1. 管理員輸入!admin->生成物件->生成物件->選擇其中一項
+		1. 管理員輸入```!admin```->生成物件->生成物件->選擇其中一項
 		2. 動態（會受重力影響），穿透（擺好看），固態（不受重力影響），物品（槍械、近戰、醫療物品、投擲物品、彈藥堆、雷射裝置）
 			* 非所有模型都能變成動態
 			* 非所有模型都能變成穿透
 			* 非所有模型都能變成固態 (去問Valve，認真你就輸了)
 
 	* 如何儲存物件?
-		1. 管理員輸入!admin->生成物件->儲存物件
-		2. 生成的物件會儲存於addons\stripper\maps\xxxxx.cfg
+		1. 管理員輸入```!admin```->生成物件->儲存物件
+		2. 生成的物件會儲存於```addons\stripper\maps\xxxxx.cfg```
 			* xxxx是地圖名
 			* 沒有此cfg也會自動產生
 		3. 重啟地圖
 
 	* 如何刪除已經儲存的物件?
-		1. 編輯檔案 addons\stripper\maps\xxxxx.cfg
+		1. 編輯檔案 ```addons\stripper\maps\xxxxx.cfg```
 			* xxxx是地圖名
 		2. 透過 ```"model" "origin" "angles"```關鍵字查找你要刪除的物件
 			* origin: 位置
@@ -260,7 +259,7 @@ Let admins spawn any kind of objects and saved to cfg
 * <details><summary>Q&A</summary>
 
 	* 如何增加更多模組?
-		* 編輯檔案 data/l4d2_spawn_props_models.txt
+		* 編輯檔案 [data/l4d2_spawn_props_models.txt](data/l4d2_spawn_props_models.txt)
 </details>
 
 

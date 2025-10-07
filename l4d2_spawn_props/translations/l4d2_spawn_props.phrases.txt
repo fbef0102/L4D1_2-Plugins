@@ -450,128 +450,128 @@
 	}
 	"Move Up 1 Unit"
 	{
-		"en"	"Move Up 1 Unit"
-		"zho"	"向上移動 1 單位"
-		"chi"	"向上移动 1 单位"
+		"en"	"Z axys +1"
+		"zho"	"Z軸: +1"
+		"chi"	"Z轴: +1"
 		"ru"	"Поднять на 1 ед."
 	}
 	"Move Up 10 Unit"
 	{
-		"en"	"Move Up 10 Unit"
-		"zho"	"向上移動 10 單位"
-		"chi"	"向上移动 10 单位"
+		"en"	"Z axys +10"
+		"zho"	"Z軸: +10"
+		"chi"	"Z轴: +10"
 		"ru"	"Поднять на 10 ед."
 	}
 	"Move Up 30 Unit"
 	{
-		"en"	"Move Up 30 Unit"
-		"zho"	"向上移動 30 單位"
-		"chi"	"向上移动 30 单位"
+		"en"	"Z axys +30"
+		"zho"	"Z軸: +30"
+		"chi"	"Z轴: +30"
 		"ru"	"Поднять на 30 ед."
 	}
 	"Move Down 1 Unit"
 	{
-		"en"	"Move Down 1 Unit"
-		"zho"	"向下移動 1 單位"
-		"chi"	"向下移动 1 单位"
+		"en"	"Z axys -1"
+		"zho"	"Z軸: -1"
+		"chi"	"Z轴: -1"
 		"ru"	"Опустить на 1 ед."
 	}
 	"Move Down 10 Unit"
 	{
-		"en"	"Move Down 10 Unit"
-		"zho"	"向下移動 10 單位"
-		"chi"	"向下移动 10 单位"
+		"en"	"Z axys -10"
+		"zho"	"Z軸: -10"
+		"chi"	"Z轴: -10"
 		"ru"	"Опустить на 10 ед."
 	}
 	"Move Down 30 Unit"
 	{
-		"en"	"Move Down 30 Unit"
-		"zho"	"向下移動 30 單位"
-		"chi"	"向下移动 30 单位"
+		"en"	"Z axys -30"
+		"zho"	"Z軸: -30"
+		"chi"	"Z轴: -30"
 		"ru"	"Опустить на 30 ед."
 	}
 	"Move Right 1 Unit"
 	{
-		"en"	"Move Right 1 Unit"
-		"zho"	"向右移動 1 單位"
-		"chi"	"向右移动 1 单位"
+		"en"	"Y axys +1"
+		"zho"	"Y軸: +1"
+		"chi"	"Y轴: +1"
 		"ru"	"Сдвинуть вправо на 1 ед."
 	}
 	"Move Right 10 Unit"
 	{
-		"en"	"Move Right 10 Unit"
-		"zho"	"向右移動 10 單位"
-		"chi"	"向右移动 10 单位"
+		"en"	"Y axys +10"
+		"zho"	"Y軸: +10"
+		"chi"	"Y轴: +10"
 		"ru"	"Сдвинуть вправо на 10 ед."
 	}
 	"Move Right 30 Unit"
 	{
-		"en"	"Move Right 30 Unit"
-		"zho"	"向右移動 30 單位"
-		"chi"	"向右移动 30 单位"
+		"en"	"Y axys +30"
+		"zho"	"Y軸: +30"
+		"chi"	"Y轴: +30"
 		"ru"	"Сдвинуть вправо на 30 ед."
 	}
 	"Move Left 1 Unit"
 	{
-		"en"	"Move Left 1 Unit"
-		"zho"	"向左移動 1 單位"
-		"chi"	"向左移动 1 单位"
+		"en"	"Y axys -1"
+		"zho"	"Y軸: -1"
+		"chi"	"Y轴: -1"
 		"ru"	"Сдвинуть влево на 1 ед."
 	}
 	"Move Left 10 Unit"
 	{
-		"en"	"Move Left 10 Unit"
-		"zho"	"向左移動 10 單位"
-		"chi"	"向左移动 10 单位"
+		"en"	"Y axys -10"
+		"zho"	"Y軸: -10"
+		"chi"	"Y轴: -10"
 		"ru"	"Сдвинуть влево на 10 ед."
 	}
 	"Move Left 30 Unit"
 	{
-		"en"	"Move Left 30 Unit"
-		"zho"	"向左移動 30 單位"
-		"chi"	"向左移动 30 单位"
+		"en"	"Y axys -30"
+		"zho"	"Y軸: -30"
+		"chi"	"Y轴: -30"
 		"ru"	"Сдвинуть влево на 30 ед."
 	}
 	"Move Forward 1 Unit"
 	{
-		"en"	"Move Forward 1 Unit"
-		"zho"	"向前移動 1 單位"
-		"chi"	"向前移动 1 单位"
+		"en"	"X axys +1"
+		"zho"	"X軸: +1"
+		"chi"	"X轴: +1"
 		"ru"	"Сдвинуть вперёд на 1 ед."
 	}
 	"Move Forward 10 Unit"
 	{
-		"en"	"Move Forward 10 Unit"
-		"zho"	"向前移動 10 單位"
-		"chi"	"向前移动 10 单位"
+		"en"	"X axys +10"
+		"zho"	"X軸: +10"
+		"chi"	"X轴: +10"
 		"ru"	"Сдвинуть вперёд на 10 ед."
 	}
 	"Move Forward 30 Unit"
 	{
-		"en"	"Move Forward 30 Unit"
-		"zho"	"向前移動 30 單位"
-		"chi"	"向前移动 30 单位"
+		"en"	"X axys +30"
+		"zho"	"X軸: +30"
+		"chi"	"X轴: +30"
 		"ru"	"Сдвинуть вперёд на 30 ед."
 	}
 	"Move Backward 1 Unit"
 	{
-		"en"	"Move Backward 1 Unit"
-		"zho"	"向後移動 1 單位"
-		"chi"	"向后移动 1 单位"
+		"en"	"X axys -1"
+		"zho"	"X軸: -1"
+		"chi"	"X轴: -1"
 		"ru"	"Сдвинуть назад на 1 ед."
 	}
 	"Move Backward 10 Unit"
 	{
-		"en"	"Move Backward 10 Unit"
-		"zho"	"向後移動 10 單位"
-		"chi"	"向后移动 10 单位"
+		"en"	"X axys -10"
+		"zho"	"X軸: -10"
+		"chi"	"X轴: -10"
 		"ru"	"Сдвинуть назад на 10 ед."
 	}
 	"Move Backward 30 Unit"
 	{
-		"en"	"Move Backward 30 Unit"
-		"zho"	"向後移動 30 單位"
-		"chi"	"向后移动 30 单位"
+		"en"	"X axys -30"
+		"zho"	"X軸: -30"
+		"chi"	"X轴: -30"
 		"ru"	"Сдвинуть назад на 30 ед."
 	}
 	"Object Model"
