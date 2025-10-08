@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <miuwiki_autoscar>
 
-#define PLUGIN_VERSION "1.2h-2025/9/3"
+#define PLUGIN_VERSION "1.3h-2025/10/8"
 
 public Plugin myinfo =
 {
@@ -110,16 +110,17 @@ int
 	g_iMaxScarClip;
 
 float 
-	g_fScarReloadTime;
+	g_fScarReloadTime,
+	g_fScarCycleTime;
 
 public void OnPluginStart()
 {
 	LoadGameData();
-	cvar_l4d2_scar_cycletime    = CreateConVar("miuwiki_autoscar_cycletime", 	"0.11", 	"Scar full Auto cycle time. [min 0.03]", FCVAR_NOTIFY, true, 0.03);
+	cvar_l4d2_scar_cycletime    = CreateConVar("miuwiki_autoscar_cycletime", 	"0.11", 	"Scar full Auto cycle time. [min 0.03, 0=Same as Triple Tap default cycle time]", FCVAR_NOTIFY, true, 0.0);
 	cvar_l4d2_scar_reloadtime   = CreateConVar("miuwiki_autoscar_reloadtime", 	"0",    	"Scar full Auto reload time. [min 0.5, 0=Same as Triple Tap default reload time]", FCVAR_NOTIFY, true, 0.0);
 	cvar_l4d2_scar_notify		= CreateConVar("miuwiki_autoscar_notify", 		"1", 		"1=Enable chat notify, 0=Disable chat notify", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvar_l4d2_scar_default		= CreateConVar("miuwiki_autoscar_default", 		"0", 		"Which mode by default when client joins server? 0=Triple Tap, 1=Full Auto", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	cvar_l4d2_scar_button		= CreateConVar("miuwiki_autoscar_buttons", 		"524288", 	"Press which button to trigger full auto mode, 131072=Shift, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex: 655360=Shift + Middle Mouse", FCVAR_NOTIFY);
+	cvar_l4d2_scar_button		= CreateConVar("miuwiki_autoscar_buttons", 		"524288", 	"Press which button to trigger full auto mode, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex: 655360=Shift + Middle Mouse", FCVAR_NOTIFY);
 
 	GetCvars();
 	cvar_l4d2_scar_cycletime.AddChangeHook(ConVarChanged_Cvars);
@@ -310,9 +311,12 @@ Action CmdListen_weapon_reparse_server(int client, const char[] command, int arg
 
 void OnNextFrame_weapon_reparse_server()
 {
+
 	g_iMaxScarClip = L4D2_GetIntWeaponAttribute("weapon_rifle_desert", L4D2IWA_ClipSize);
 	g_fScarReloadTime = L4D2_GetFloatWeaponAttribute("weapon_rifle_desert", L4D2FWA_ReloadDuration);
 	if(g_fScarReloadTime <= 0.0) g_fScarReloadTime = 3.32; //just in case
+	g_fScarCycleTime = L4D2_GetFloatWeaponAttribute("weapon_rifle_desert", L4D2FWA_CycleTime);
+	if(g_fScarCycleTime <= 0.0) g_fScarCycleTime = 0.07; //just in case
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
@@ -427,7 +431,10 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime);
 			SDKCall(g_SDKCall_PrimaryAttack, pThis);
 			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100.0);
-			player[client].primaryattacktime = currenttime + cvar.cycletime;
+			if(cvar.cycletime <= 0.0)
+				player[client].primaryattacktime = currenttime + g_fScarCycleTime;
+			else
+				player[client].primaryattacktime = currenttime + cvar.cycletime;
 		}
 		return MRES_Ignored; // ignore IN_RELOAD when pushing attack button.
 	}

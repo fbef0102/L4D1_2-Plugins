@@ -99,6 +99,10 @@ public void OnEntityCreated(int entity, const char[] classname)
             {
                 RequestFrame(OnNextFrame_minigun, EntIndexToEntRef(entity));
             }
+            else if( strncmp(classname, "prop_mounted_machine_gun", 24, false) == 0 )
+            {
+                RequestFrame(OnNextFrame_minigun, EntIndexToEntRef(entity));
+            }
         }
     }
 }

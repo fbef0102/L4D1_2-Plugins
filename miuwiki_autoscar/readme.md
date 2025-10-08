@@ -35,7 +35,7 @@ Full auto mode for SCAR
 
 	* cfg/sourcemod/miuwiki_autoscar.cfg
 		```php
-		// Scar full Auto cycle time. [min 0.03]
+		// Scar full Auto cycle time. [min 0.03, 0.0=Same as Triple Tap default cycle time]
 		miuwiki_autoscar_cycletime "0.11"
 
 		// Scar full Auto reload time. [min 0.5, 0=Same as Triple Tap default reload time]
@@ -47,7 +47,7 @@ Full auto mode for SCAR
 		// Which mode by default when client joins server? 0=Triple Tap, 1=Full Auto
 		miuwiki_autoscar_default "0"
 
-		// Press which button to trigger full auto mode, 131072=Shift, 32=Use, 8192=Reload, 524288=Middle Mouse
+		// Press which button to trigger full auto mode, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
 		// You can add numbers together, ex: 655360=Shift + Middle Mouse
 		miuwiki_autoscar_buttons "524288"
 		```
@@ -62,6 +62,9 @@ Full auto mode for SCAR
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.3h (2025-10-8)
+		* Update cvars
 
 	* v1.2h (2025-9-3)
 		* 使用原作者的更新代碼
@@ -110,7 +113,7 @@ SCAR三連發步槍可以切換成全自動模式
 		// 玩家進來伺服器時預設使用何種模式, 0=三連發, 1=全自動
 		miuwiki_autoscar_default "0"
 
-		// 使用哪個按鍵切換模式? 131072=Shift鍵, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
+		// 使用哪個按鍵切換模式? 131072=Shift鍵, 4=蹲下鍵, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
 		// 可以數字相加, 譬如: 655360=必須同時按 "Shift鍵+滾輪鍵"
 		miuwiki_autoscar_buttons "524288"
 		```
