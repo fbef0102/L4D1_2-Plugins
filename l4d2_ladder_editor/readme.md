@@ -97,7 +97,7 @@ Clone and move special infected/survivor ladders.
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d2_ladder_editor.cfg
+	* cfg/sourcemod/l4d2_ladder_editor.cfg
 		```php
 		// 0=Plugin off, 1=Plugin on.
 		l4d2_ladder_editor_enable "1"
@@ -296,7 +296,7 @@ Clone and move special infected/survivor ladders.
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\l4d2_ladder_editor.cfg
+	* cfg/sourcemod/l4d2_ladder_editor.cfg
 		```php
 		// 0=關閉插件, 1=啟動插件
 		l4d2_ladder_editor_enable "1"

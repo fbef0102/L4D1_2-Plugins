@@ -23,7 +23,7 @@ Maximum of each L4D1 weapons the survivors can pick up
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d1_weapon_limits.cfg
+	* cfg/sourcemod/l4d1_weapon_limits.cfg
 		```php
         // Maximum of autoshotguns the survivors can pick up. [-1:No limit]
         l4d1_weapon_limitsautoshotgun "1"

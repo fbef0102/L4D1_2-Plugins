@@ -24,7 +24,7 @@ Provide natives, spawn survivor bots without limit.
 
 * <details><summary>API | 串接</summary>
 
-	* [l4d_CreateSurvivorBot.inc](scripting\include\l4d_CreateSurvivorBot.inc)
+	* [l4d_CreateSurvivorBot.inc](scripting/include/l4d_CreateSurvivorBot.inc)
 		```php
 		library name: l4d_CreateSurvivorBot
 		```

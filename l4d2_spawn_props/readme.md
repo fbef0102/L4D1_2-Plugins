@@ -77,7 +77,7 @@ Let admins spawn any kind of objects and saved to cfg
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d2_spawn_props.cfg
+	* cfg/sourcemod/l4d2_spawn_props.cfg
 		```php
         // Enable the Decorative category
         l4d2_spawn_props_category_decorative "1"

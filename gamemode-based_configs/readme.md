@@ -16,7 +16,7 @@ Allows for custom settings for each gamemode and mutatuion.
 		* Map change
 		* Gamemode/Mutation change
 		* This is called right after OnMapStart() but any time before OnConfigsExecuted(). After the "exec sourcemod.cfg"command and all AutoExecConfig() exec commands have been added to the ServerCommand() buffer.
-	* Cfg files are in ```cfg\sourcemod\gamemode_cvars\xxxxx.cfg```
+	* Cfg files are in ```cfg/sourcemod/gamemode_cvars\xxxxx.cfg```
 		* xxxxx is gamemode or mutation name
 	* [L4D2 all mutations](https://developer.valvesoftware.com/wiki/L4D2_Decrypted_mutations)
 </details>
@@ -48,7 +48,7 @@ Allows for custom settings for each gamemode and mutatuion.
 		* 地圖載入時
 		* 遊戲模式/突變模式改變時
 		* Server.cfg 和 sourcemod.cfg 以及所有插件產生的cfg 執行之後，```OnConfigsExecuted()``` 之前
-	* cfg文件位於```cfg\sourcemod\gamemode_cvars\xxxxx.cfg```
+	* cfg文件位於```cfg/sourcemod/gamemode_cvars\xxxxx.cfg```
 		* xxxxx 是遊戲模式名稱或突變模式名稱
     * [L4D2 突變模式列表](https://developer.valvesoftware.com/wiki/L4D2_Decrypted_mutations)
 

@@ -11,7 +11,7 @@ v1.10
 -Original Post: https://forums.alliedmods.net/showthread.php?t=315345
 
 -Convars-
-cfg\sourcemod\l4d_rock_lagcomp.cfg
+cfg/sourcemod/l4d_rock_lagcomp.cfg
 // Gun category damage
 sm_rock_damage_magnum "1000"
 

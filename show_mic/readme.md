@@ -28,7 +28,7 @@ Voice Announce in centr text + create hat to Show Who is speaking.
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\show_mic.cfg
+    * cfg/sourcemod/show_mic.cfg
         ```php
         // If 1, display hat on player's head if player is speaking
         show_mic_center_hat_enable "1"
@@ -79,7 +79,7 @@ Voice Announce in centr text + create hat to Show Who is speaking.
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg\sourcemod\show_mic.cfg
+    * cfg/sourcemod/show_mic.cfg
         ```php
         // 為1時，玩家用MIC說話時，頭上產生對話框的模組 
         show_mic_center_hat_enable "1"

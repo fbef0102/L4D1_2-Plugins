@@ -21,7 +21,7 @@ A spectator can now see the special infected model glows though the wall
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\l4d2_specting_cheat.cfg
+    * cfg/sourcemod/l4d2_specting_cheat.cfg
         ```php
         // Ghost SI glow color, Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.
         l4d2_specting_cheat_ghost_color "255 255 255"
@@ -121,7 +121,7 @@ A spectator can now see the special infected model glows though the wall
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg\sourcemod\l4d2_specting_cheat.cfg
+    * cfg/sourcemod/l4d2_specting_cheat.cfg
         ```php
         // 靈魂特感的光圈顏色. 三個0-255的數值，需要空白間隔. (RGB 三色)
         l4d2_specting_cheat_ghost_color "255 255 255"

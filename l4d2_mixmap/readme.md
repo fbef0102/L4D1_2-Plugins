@@ -118,7 +118,7 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 * <details><summary>API | 串接</summary>
 
-	* [l4d2_mixmap.inc](addons\sourcemod\scripting\include\l4d2_mixmap.inc)
+	* [l4d2_mixmap.inc](addons\sourcemod\scripting/include/l4d2_mixmap.inc)
 		```php
 		library name: l4d2_mixmap
 		```

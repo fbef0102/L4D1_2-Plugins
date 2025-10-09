@@ -18,7 +18,7 @@ Shows a laser for straight-flying fired projectiles
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d_lasertag.cfg
+	* cfg/sourcemod/l4d_lasertag.cfg
 		```php
 		// Turnon Lasertagging. 0=disable, 1=enable
 		l4d_lasertag_enable "1"
@@ -115,7 +115,7 @@ Shows a laser for straight-flying fired projectiles
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\l4d_lasertag.cfg
+	* cfg/sourcemod/l4d_lasertag.cfg
 		```php
 		// 0=關閉插件, 1=啟動插件
 		l4d_lasertag_enable "1"

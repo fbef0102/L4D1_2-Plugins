@@ -12,7 +12,7 @@ L4D2 coop save weapon when map transition if more than 4 players
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\l4d2_ty_saveweapons.cfg
+    * cfg/sourcemod/l4d2_ty_saveweapons.cfg
         ```php
         // If 1, restore 100 full health when end of chapter.
         l4d2_ty_saveweapons_health "0"
@@ -44,7 +44,7 @@ L4D2 coop save weapon when map transition if more than 4 players
 
 * <details><summary>API | 串接</summary>
 
-    * [l4d2_ty_saveweapons.inc](scripting\include\l4d2_ty_saveweapons.inc)
+    * [l4d2_ty_saveweapons.inc](scripting/include/l4d2_ty_saveweapons.inc)
         ```php
         library name: l4d2_ty_saveweapons
         ```
@@ -107,7 +107,7 @@ L4D2 coop save weapon when map transition if more than 4 players
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg\sourcemod\l4d2_ty_saveweapons.cfg
+    * cfg/sourcemod/l4d2_ty_saveweapons.cfg
         ```php
         // 為1時，過關時回復所有倖存者的血量
         l4d2_ty_saveweapons_health "0"

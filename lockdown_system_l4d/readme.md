@@ -96,7 +96,7 @@ Locks Saferoom Door Until Someone Opens It.
 
 * <details><summary>API | 串接</summary>
 
-    * [lockdown_system_l4d.inc](scripting\include\lockdown_system_l4d.inc)
+    * [lockdown_system_l4d.inc](scripting/include/lockdown_system_l4d.inc)
         ```php
         library name: lockdown_system_l4d
         ```

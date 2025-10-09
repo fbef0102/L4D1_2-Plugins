@@ -22,7 +22,7 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\all4dead2.cfg
+	* cfg/sourcemod/all4dead2.cfg
 		```php
         // Whether or not we announce changes in game.
         a4d_notify_players "1"
@@ -120,7 +120,7 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\all4dead2.cfg
+	* cfg/sourcemod/all4dead2.cfg
 		```php
         // 1=通知玩家訊息, 0=不通知
         a4d_notify_players "1"

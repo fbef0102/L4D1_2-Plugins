@@ -30,7 +30,7 @@ Ban player who uses L4D1 / Split tank glitchpick up
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d1_ban_twotank_glitch_player.cfg
+	* cfg/sourcemod/l4d1_ban_twotank_glitch_player.cfg
 		```php
         // Ban how many mins.
         l4d1_ban_twotank_glitch_player_ban_time "5"

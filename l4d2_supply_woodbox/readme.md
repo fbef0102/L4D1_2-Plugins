@@ -26,7 +26,7 @@ Supply boxes are dropped randomly in the map every certain seconds to provide su
 
 * <details><summary>ConVar</summary>
 
-	* cfg\sourcemod\l4d2_supply_woodbox.cfg
+	* cfg/sourcemod/l4d2_supply_woodbox.cfg
 		```php
 		// 0=Plugin off, 1=Plugin on.
 		l4d2_supply_woodbox_allow "1"
@@ -178,7 +178,7 @@ Supply boxes are dropped randomly in the map every certain seconds to provide su
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\l4d2_supply_woodbox.cfg
+	* cfg/sourcemod/l4d2_supply_woodbox.cfg
 		```php
 		// 0=關閉插件, 1=啟動插件
 		l4d2_supply_woodbox_allow "1"

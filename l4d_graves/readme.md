@@ -17,7 +17,7 @@ When a survivor die, on his body appear a grave.
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\l4d_graves.cfg
+    * cfg/sourcemod/l4d_graves.cfg
         ```php
         // Enable or disable this plugin.
         l4d_graves_enable "1"
@@ -76,7 +76,7 @@ When a survivor die, on his body appear a grave.
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg\sourcemod\l4d_graves.cfg
+    * cfg/sourcemod/l4d_graves.cfg
         ```php
         // 0=關閉插件, 1=啟動插件
         l4d_graves_enable "1"

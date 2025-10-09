@@ -22,7 +22,7 @@ Disable the 'water hopping' spam in l4d1.
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d_block_player_swim.cfg
+	* cfg/sourcemod/l4d_block_player_swim.cfg
 		```php
         // 0=Plugin off, 1=Plugin on.
         l4d_block_player_swim_allow "1"

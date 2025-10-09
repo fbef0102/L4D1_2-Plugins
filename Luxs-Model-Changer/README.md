@@ -133,7 +133,7 @@ LMC Allows you to use most models with most characters
 
     * v3.1.1 (2024-12-18)
         * Add some instructions how to install plugins (English and Chinese)
-        * Update cvar "lmc_adminonly" => "lmc_admin_flag" in _Menu_Choosing, player no needs to modify ```sourcemod\configs\admin_overrides.cfg```
+        * Update cvar "lmc_adminonly" => "lmc_admin_flag" in _Menu_Choosing, player no needs to modify ```sourcemod/configs/admin_overrides.cfg```
 
     * v3.1.0c (2024-10-2)
         * Fixed warnings in sm1.11 or above

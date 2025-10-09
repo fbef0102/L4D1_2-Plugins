@@ -18,7 +18,7 @@ Set client gravity after final rescue starts just for fun.
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\l4d_final_rescue_gravity.cfg
+    * cfg/sourcemod/l4d_final_rescue_gravity.cfg
         ```php
         // 0=Plugin off, 1=Plugin on.
         l4d_final_rescue_gravity_allow "1"
@@ -92,7 +92,7 @@ Set client gravity after final rescue starts just for fun.
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg\sourcemod\l4d_final_rescue_gravity.cfg
+    * cfg/sourcemod/l4d_final_rescue_gravity.cfg
         ```php
         // 0=關閉插件, 1=啟動插件.
         l4d_final_rescue_gravity_allow "1"

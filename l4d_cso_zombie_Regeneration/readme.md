@@ -19,7 +19,7 @@ The zombies have grown stronger, now they are able to heal their injuries by sta
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\l4d_cso_zombie_regeneration.cfg
+    * cfg/sourcemod/l4d_cso_zombie_regeneration.cfg
         ```php
         // 0=Plugin off, 1=Plugin on.
         l4d_cso_zombie_regeneration_allow "1"

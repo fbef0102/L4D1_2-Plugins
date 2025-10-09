@@ -129,7 +129,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * <details><summary>API | 串接</summary>
 
-    * [skill_detect.inc](scripting\include\skill_detect.inc)
+    * [skill_detect.inc](scripting/include/skill_detect.inc)
         ```php
         library name: skill_detect
         ```

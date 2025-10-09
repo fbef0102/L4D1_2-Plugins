@@ -201,7 +201,7 @@ Improves the AI behaviour of special infected
 
 * <details><summary>ConVar | 指令</summary>
 
-    * cfg\sourcemod\AI_HardSI.cfg
+    * cfg/sourcemod/AI_HardSI.cfg
         ```php
         // 0=Plugin off, 1=Plugin on.
         AI_HardSI_enable "1"
@@ -463,7 +463,7 @@ Improves the AI behaviour of special infected
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-    * cfg\sourcemod\AI_HardSI.cfg
+    * cfg/sourcemod/AI_HardSI.cfg
         ```php
         // 0=關閉插件, 1=啟動插件
         AI_HardSI_enable "1"

@@ -21,7 +21,7 @@ L4D1/2 Mix
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d_mix.cfg
+	* cfg/sourcemod/l4d_mix.cfg
 		```php
 		// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA
 		l4d_mix_select_order "1"
@@ -86,7 +86,7 @@ L4D1/2 Mix
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\l4d_mix.cfg
+	* cfg/sourcemod/l4d_mix.cfg
 		```php
 		// 0 = ABABAB | 1 = ABBAAB | 2 = ABBABA
 		l4d_mix_select_order "1"

@@ -17,7 +17,7 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\lfd_both_fixUpgradePack.cfg
+	* cfg/sourcemod/lfd_both_fixUpgradePack.cfg
         ```php
         // Play sound when ammo already used
         lfd_both_fixUpgradePack_denied_sound "1"
@@ -58,7 +58,7 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\lfd_both_fixUpgradePack.cfg
+	* cfg/sourcemod/lfd_both_fixUpgradePack.cfg
         ```php
         // 第二次重複拾取時，提示音效
         lfd_both_fixUpgradePack_denied_sound "1"

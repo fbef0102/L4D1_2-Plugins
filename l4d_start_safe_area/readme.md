@@ -27,7 +27,7 @@ Add Custom safe area for any map on start
 	
 * <details><summary>API | 串接</summary>
 
-	* [l4d_start_safe_area.inc](scripting\include\l4d_start_safe_area.inc)
+	* [l4d_start_safe_area.inc](scripting/include/l4d_start_safe_area.inc)
 		```php
 		library name: l4d_start_safe_area
 		```

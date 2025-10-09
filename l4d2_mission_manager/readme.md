@@ -34,7 +34,7 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>API | 串接</summary>
 
-    * [l4d2_mission_manager.inc](scripting\include\l4d2_mission_manager.inc)
+    * [l4d2_mission_manager.inc](scripting/include/l4d2_mission_manager.inc)
         ```php
         library name: l4d2_mission_manager
         ```

@@ -101,7 +101,7 @@ SCAR三連發步槍可以切換成全自動模式
 
 	* cfg/sourcemod/miuwiki_autoscar.cfg
 		```php
-		// 全自動SCAR步槍的射速. [最小: 0.03]
+		// 全自動SCAR步槍的射速. [最小: 0.03, 0=與三連發模式射速一樣]
 		miuwiki_autoscar_cycletime "0.11"
 
 		// 全自動SCAR步槍的裝彈時間. [最小: 0.5, 0=與三連發模式裝彈時間一樣]

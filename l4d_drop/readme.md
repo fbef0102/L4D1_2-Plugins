@@ -18,7 +18,7 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg\sourcemod\l4d_drop.cfg
+	* cfg/sourcemod/l4d_drop.cfg
 		```php
 		// Prevent players from dropping their secondaries? (Fixes bugs that can come with incapped weapons or A-Posing.)
 		sm_drop_block_secondary "0"
@@ -48,7 +48,7 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>API | 串接</summary>
 
-	* [l4d_drop.inc](scripting\include\l4d_drop.inc)
+	* [l4d_drop.inc](scripting/include/l4d_drop.inc)
 		```php
 		library name: l4d_drop
 		```
@@ -97,7 +97,7 @@ Allows players to drop the weapon they are holding
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg\sourcemod\l4d_drop.cfg
+	* cfg/sourcemod/l4d_drop.cfg
 		```php
 		// 為1時，禁止丟棄副武器 (避免玩家手上空空如也)
 		sm_drop_block_secondary "0"
