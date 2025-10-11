@@ -471,7 +471,7 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			SetEntProp(pThis, Prop_Send, "m_iClip1", 0); // 不等下一偵
 
 			SDKCall(g_SDKCall_AbortReload, pThis);
-			EmitSoundToClient(client, SCAR_SHOOT_EMPTY);
+			//EmitSoundToClient(client, SCAR_SHOOT_EMPTY);
 			SetEntProp(viewmodel, Prop_Send, "m_nLayerSequence", 8);
 			SetEntPropFloat(viewmodel, Prop_Send, "m_flLayerStartTime", currenttime);
 			if(cvar.reloadtime <= 0.0)
