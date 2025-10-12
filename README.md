@@ -216,7 +216,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 顯示誰是黑白狀態，有更多的提示與支援LMC模組
 * <b>[show_mic](/show_mic)</b>: Voice Announce in centr text + create hat to Show Who is speaking.
     * 顯示誰在語音並且在說話的玩家頭上帶帽子
-* <b>[l4d2_ty_saveweapons](/l4d2_ty_saveweapons)</b>: L4D2 coop save weapon when map transition if more than 4 players
+* <b>[l4d2_ty_saveweapons](/l4d2_ty_saveweapons)</b>: Save weapons/health when map transition if more than 4 players in l4d1/2
     * 當伺服器有5+以上玩家遊玩戰役、寫實時，保存他們過關時的血量以及攜帶的武器、物資
 * <b>[l4d2_mission_manager](/l4d2_mission_manager)</b>: Mission manager for L4D2, provide information about map orders for other plugins
     * 地圖管理器，提供給其他插件做依賴與API串接

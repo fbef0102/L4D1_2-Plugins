@@ -1,14 +1,24 @@
 # Description | 內容
-L4D2 coop save weapon when map transition if more than 4 players
+Save weapons/health when map transition if more than 4 players in l4d1/2
 
 * Apply to | 適用於
     ```
+    L4D1 Coop
     L4D2 Coop/Realism
     ```
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [l4d_heartbeat](/l4d_heartbeat)
+
+* <details><summary>Support | 支援插件</summary>
+
+    1. [l4dmultislots](/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
+        * 創造5位以上倖存者遊玩伺服器
+
+    2. [l4d2_afk_saveweapons](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_人類/l4d2_afk_saveweapons): Save Weapons/Items when going AFK
+        * 當倖存者玩家閒置或旁觀時，保存攜帶的武器、物資
+</details>
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -50,16 +60,11 @@ L4D2 coop save weapon when map transition if more than 4 players
         ```
 </details>
 
-* <details><summary>Related | 相關插件</summary>
-
-    1. [l4dmultislots](/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
-        * 創造5位以上倖存者遊玩伺服器
-
-    2. [l4d2_afk_saveweapons](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Survivor_人類/l4d2_afk_saveweapons): Save Weapons/Items when going AFK
-        * 當倖存者玩家閒置或旁觀時，保存攜帶的武器、物資
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v6.5 (2025-10-12)
+        * Support L4D1
+        * Update API
 
     * v6.4 (2025-3-23)
         * Keep holding gascan or cola... after map transition
@@ -96,14 +101,13 @@ L4D2 coop save weapon when map transition if more than 4 players
 # 中文說明
 當伺服器有5+以上玩家遊玩戰役、寫實時，保存他們過關時的血量以及攜帶的武器、物品
 
-> __Note__ 只有當伺服器有5+以上玩家時才需要安裝此插件
-
 * 原理
     * 抵達終點關下安全門時，插件會保存每一位玩家的資料
         * 武器、物品
         * 人物角色
         * 血量與黑白狀態
     * 當玩家載入到下一關之後，恢复所有資料
+    * 當伺服器有5+以上玩家時才需要安裝此插件
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

@@ -209,7 +209,7 @@ Clone and move special infected/survivor ladders.
 		* Optimize code and improve performance
 
 	* v2.0
-        * [Original Post by devilesk](https://github.com/devilesk/rl4d2l-plugins/blob/master/l4d2_ladder_editor.sp)
+        * [Original Plugin by devilesk](https://github.com/devilesk/rl4d2l-plugins/blob/master/l4d2_ladder_editor.sp)
 </details>
 
 - - - -
