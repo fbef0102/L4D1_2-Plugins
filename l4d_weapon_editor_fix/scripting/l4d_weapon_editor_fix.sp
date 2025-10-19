@@ -119,7 +119,7 @@ public void OnPluginStart()
 	g_hCvarWeaponIncap_Fix_CycleTime 		= CreateConVar( PLUGIN_NAME ... "_incap_fire_rate",  			"1",   		"If 1, Use weapon_*.txt \"CycleTime\" or official cvar \"survivor_incapacitated_cycle_time\" for incap shooting cycle rate, depends on which cycle rate is slower than another\n(\"wh_use_incap_cycle_cvar\" must be 1)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	if(g_bL4D2Version)
 	{
-		g_hCvarMelee_Fix_Refire_Delay			= CreateConVar( PLUGIN_NAME ... "_melee_swing",  				"1",   		"If 1, Make melee swing rate obey \"refire_delay\" keyvalue in melee\\*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
+		g_hCvarMelee_Fix_Refire_Delay			= CreateConVar( PLUGIN_NAME ... "_melee_swing",  				"0",   		"If 1, Make melee swing rate obey \"refire_delay\" keyvalue in melee\\*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
 		g_hCvarMeleeIncap_Refire_Delay_Multi	= CreateConVar( PLUGIN_NAME ... "_melee_swing_incap_multi",  	"1.3",   	"0=Unchanged, Modify melee swinging rate multi when incapacitated, (ex. Use 'Incapped Weapons Patch by Silvers' to allow using melee while Incapped)", CVAR_FLAGS, true, 0.0);
 	}
 	CreateConVar(                       					PLUGIN_NAME ... "_version",       				PLUGIN_VERSION, PLUGIN_NAME ... 	" Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
@@ -344,28 +344,28 @@ public void WH_OnReloadModifier(int client, int weapon, L4D2WeaponType weapontyp
 			if(!g_bCvarShotGun_Fix_ReloadDuration) return;
 			if(g_fWeapon_ReloadDuration[L4D2WeaponType_Pumpshotgun] <= 0.0) return;
 
-			speedmodifier = 0.525 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_Pumpshotgun]); // Pumpshotgun "CycleTime" = 0.525
+			speedmodifier = 0.525 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_Pumpshotgun]); // Pumpshotgun "ReloadDuration" = 0.525
 		}
 		case L4D2WeaponType_PumpshotgunChrome:
 		{
 			if(!g_bCvarShotGun_Fix_ReloadDuration) return;
 			if(g_fWeapon_ReloadDuration[L4D2WeaponType_PumpshotgunChrome] <= 0.0) return;
 
-			speedmodifier = 0.525 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_PumpshotgunChrome]); // PumpshotgunChrome "CycleTime" = 0.525
+			speedmodifier = 0.525 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_PumpshotgunChrome]); // PumpshotgunChrome "ReloadDuration" = 0.525
 		}
 		case L4D2WeaponType_Autoshotgun:
 		{
 			if(!g_bCvarShotGun_Fix_ReloadDuration) return;
 			if(g_fWeapon_ReloadDuration[L4D2WeaponType_Autoshotgun] <= 0.0) return;
 
-			speedmodifier = 0.400 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_Autoshotgun]); // Autoshotgun "CycleTime" = 0.400
+			speedmodifier = 0.400 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_Autoshotgun]); // Autoshotgun "ReloadDuration" = 0.400
 		}
 		case L4D2WeaponType_AutoshotgunSpas:
 		{
 			if(!g_bCvarShotGun_Fix_ReloadDuration) return;
 			if(g_fWeapon_ReloadDuration[L4D2WeaponType_AutoshotgunSpas] <= 0.0) return;
 
-			speedmodifier = 0.400 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_AutoshotgunSpas]); // AutoshotgunSpas "CycleTime" = 0.400
+			speedmodifier = 0.400 *(1.0/g_fWeapon_ReloadDuration[L4D2WeaponType_AutoshotgunSpas]); // AutoshotgunSpas "ReloadDuration" = 0.400
 		}
 	}
 	DebugPrint("WH_OnReloadModifier finish %N - %.3f", client, speedmodifier);

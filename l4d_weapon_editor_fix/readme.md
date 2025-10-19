@@ -10,31 +10,33 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [WeaponHandling_API](https://forums.alliedmods.net/showthread.php?t=319947)
+	3. [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586): Modify weapons.txt values by config
+		* 修改武器的參數
 
 * <details><summary>Support | 支援插件</summary>
 
-	* [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586): Modify weapons.txt values by config
-		* 修改武器的參數
 	* [Incapped Weapons Patch](https://forums.alliedmods.net/showthread.php?t=322859): allow using melee while Incapped
 		* 可以在倒地狀態下使用主武器與近戰
 </details>
 
 * <details><summary>How does it work?</summary>
 
-	* Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
-	* Weapons
-		* Fire Rate (Standing)
-			* Dual pistol, shotguns obey "CycleTime" keyvalue in weapon_*.txt
-		* Fire Rate (Incap) 
-			* If weapon_*.txt "CycleTime" slower than official cvar "survivor_incapacitated_cycle_time", ignores the cvar and uses weapon "CycleTime" for incap shooting cycle rate
-			* If weapon_*.txt "CycleTime" faster than official cvar "survivor_incapacitated_cycle_time", use "survivor_incapacitated_cycle_time" for incap shooting cycle rate
-		* Reload Duration
-			* Dual pistol, shotguns obey "ReloadDuration" keyvalue in weapon_*.txt
-	* Melee
-		* Swing Rate (Standing)
-			* All Melee weapons including custom melee obey "refire_delay" keyvalue in melee\*.txt
-		* Swing Rate (Incap) 
-			* Modify melee swinging rate multi when incapacitate
+	* How to change weapon attribute?
+		* Install [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586) and modify ```data\l4d_info_editor_weapons.cfg```
+	* Fix some weapon attribute not exactly obey keyvalue in weapon_*.txt
+		* Weapons
+			* Fire Rate (Standing)
+				* Dual pistol, shotguns obey "CycleTime" keyvalue in weapon_*.txt
+			* Fire Rate (Incap) 
+				* If weapon_*.txt "CycleTime" slower than official cvar "survivor_incapacitated_cycle_time", ignores the cvar and uses weapon "CycleTime" for incap shooting cycle rate
+				* If weapon_*.txt "CycleTime" faster than official cvar "survivor_incapacitated_cycle_time", use "survivor_incapacitated_cycle_time" for incap shooting cycle rate
+			* Reload Duration
+				* Dual pistol, shotguns obey "ReloadDuration" keyvalue in weapon_*.txt
+		* Melee
+			* Swing Rate (Standing)
+				* All Melee weapons including custom melee obey "refire_delay" keyvalue in melee\*.txt
+			* Swing Rate (Incap) 
+				* Modify melee swinging rate multi when incapacitate
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -96,6 +98,8 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 修復一些武器的 weapon_*.txt 參數沒有作用
 
 * 原理
+	* 如何修改武器參數?
+		* 安裝 [l4d_info_editor](https://forums.alliedmods.net/showthread.php?t=310586) 並修改文件: ```data\l4d_info_editor_weapons.cfg```
 	* 修復官方文件內的某些武器參數，即使修改了數值依然沒有作用
 
 * <details><summary>修補內容</summary>

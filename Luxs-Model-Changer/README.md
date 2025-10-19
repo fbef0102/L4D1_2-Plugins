@@ -239,7 +239,7 @@ LMC Allows you to use most models with most characters
         lmc_rng_humans "0"
 
         // (0 = 不給隨機模型) 特感生成時，給他隨機一個模型的機率 [數值: 1~100]
-        lmc_rng_model_infected "1000"
+        lmc_rng_model_infected "100"
 
         // (0 = 不給隨機模型) 倖存者生成時，給他隨機一個模型的機率 [數值: 1~100]
         lmc_rng_model_survivor "100" 

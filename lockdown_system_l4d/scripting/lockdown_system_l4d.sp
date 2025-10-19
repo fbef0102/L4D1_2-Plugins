@@ -829,7 +829,7 @@ void InitDoor()
 		g_iStartCheckpointDoor = FindStartSafeRoomDoor();
 	}
 
-	if( g_iStartCheckpointDoor == -1 ) 
+	if( g_iStartCheckpointDoor == -1 || g_iStartCheckpointDoor == EntRefToEntIndex(g_iEndCheckpointDoor)) 
 		return;
 
 	g_iStartCheckpointDoor = EntIndexToEntRef(g_iStartCheckpointDoor);
@@ -1316,9 +1316,6 @@ public void SLS_OnDoorStatusChanged(bool locked)
 
 void LoadData()
 {
-	g_bMapOff = false;
-	g_iMapOpeningTanks = 1;
-	
 	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), "%s", DATA_FILE);
 	
@@ -1337,12 +1334,14 @@ void LoadData()
 	char sCurrentMap[64];
 	GetCurrentMap(sCurrentMap, sizeof(sCurrentMap));
 
+	g_bMapOff = false;
+	g_iMapOpeningTanks = 1;
 	if(hData.JumpToKey("Maps"))
 	{
 		if(hData.JumpToKey("default"))
 		{
-			g_bMapOff = view_as<bool>(hData.GetNum("map_off", 0));
-			g_iMapOpeningTanks = hData.GetNum("tank_spawn_opening", 1);
+			g_bMapOff = view_as<bool>(hData.GetNum("map_off", g_bMapOff));
+			g_iMapOpeningTanks = hData.GetNum("tank_spawn_opening", g_iMapOpeningTanks);
 
 			hData.GoBack();
 		}
