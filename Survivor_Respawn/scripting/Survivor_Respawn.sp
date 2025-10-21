@@ -960,6 +960,7 @@ void RespawnTarget_Crosshair( int client, int target )
 	}
 
 	L4D_WarpToValidPositionIfStuck(target);
+	SetEntPropFloat(target, Prop_Send, "m_noAvoidanceTimer", GetGameTime() + g_fInvincibleTime, 1);
 	
 	delete RespawnTimer[target];
 }
@@ -979,6 +980,7 @@ void RespawnTarget( int client )
 	StripWeapons( client );
 	GiveItems( client);
 	L4D_WarpToValidPositionIfStuck(client);
+	SetEntPropFloat(client, Prop_Send, "m_noAvoidanceTimer", GetGameTime() + g_fInvincibleTime, 1);
 	RespawnLimit[client] += 1;
 	
 	char sPlayerName[64];
@@ -1413,6 +1415,8 @@ void RespawnTargeAgain(int target)
 	L4D_WarpToValidPositionIfStuck(target);
 
 	CreateTimer( 1.0, Timer_LoadStatDelayed, GetClientUserId( target ), TIMER_FLAG_NO_MAPCHANGE );
+
+	SetEntPropFloat(target, Prop_Send, "m_noAvoidanceTimer", GetGameTime() + g_fInvincibleTime, 1);
 
 	delete RespawnTimer[target];
 }
