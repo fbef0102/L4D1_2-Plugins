@@ -1,7 +1,7 @@
-//此插件0.1秒後設置Tank與特感血量
+//此插件0.1秒後設置血量(Tank與特感)
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.2 (2009-2025)
+* Version	: 3.0.3 (2009-2025)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,11 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+*
+* Version 3.0.3 (2025-10-22)
+*	   - Add a config to override tank limit director vscript
+*	   - Add a config to count special infected including tanks in all gamemode
 *
 * Version 3.0.2 (2025-1-29)
 *	   - If root admin use !zlimit or !timer to change zombies limit/spawn timer, keep the change until next map or data is reloaded
@@ -795,7 +800,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.2-2025/1/29"
+#define PLUGIN_VERSION 			"3.0.3-2025/10/22"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -925,7 +930,8 @@ int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
 bool 
 	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
-	g_bAdjustSIHealth[MAXPLAYERS+1]; //true if SI adjust health already
+	g_bAdjustSIHealth[MAXPLAYERS+1], //true if SI adjust health already
+	g_bReplaceNewTank[MAXPLAYERS+1]; //true if tank replace another tank
 
 char 
 	g_sCvarMPGameMode[32];
@@ -945,6 +951,7 @@ enum struct EPluginData
 
 	int m_iSpawnLimit[NUM_TYPES_INFECTED_MAX];
 	int m_iMaxSpecials;
+	bool m_bMaxSpecialsIncludingTank;
 
 	float m_fSpawnTimeMax;
 	float m_fSpawnTimeMin;
@@ -957,6 +964,7 @@ enum struct EPluginData
 	int m_iSIHealth[NUM_TYPES_INFECTED_MAX];
 
 	int m_iTankLimit;
+	bool m_bTankLimit_OverrideVSCript;
 	int m_iTankSpawnProbability;
 	int m_iTankHealth;
 	bool m_bTankSpawnFinal;
@@ -1499,9 +1507,7 @@ void TweakSettings()
 
 void ResetCvars()
 {
-	#if DEBUG
-	LogMessage("Plugin Cvars Reset");
-	#endif
+	//LogMessage("Plugin Cvars Reset");
 
 	if (g_iCurrentMode == 1)
 	{
@@ -1735,9 +1741,7 @@ void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
 	if (!client || IsFakeClient(client) || PlayerHasEnteredStart[client])
 		return;
 
-	#if DEBUG
-		PrintToChatAll("[TS] Player has spawned for the first time");
-	#endif
+	//PrintToChatAll("[TS] Player has spawned for the first time");
 
 	// Versus Coop code, puts all players on infected at start, delay is added to prevent a weird glitch
 
@@ -1789,9 +1793,8 @@ Action MaxSpecialsSet(Handle Timer)
 {
 	z_max_player_zombies.SetInt(g_ePluginSettings.m_iMaxSpecials);
 	
-	#if DEBUG
-	LogMessage("Max Player Zombies Set");
-	#endif
+	//LogMessage("Max Player Zombies Set");
+
 	return Plugin_Continue;
 }
 
@@ -2523,65 +2526,70 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	// If round has ended .. we ignore this
-	if (g_bHasRoundEnded || g_bInitialSpawn) return;
+	if (g_bHasRoundEnded) return;
 
 	float SpawnTime;
 	// if victim was a bot, we setup a timer to spawn a new bot ...
 	if (L4D_HasPlayerControlledZombies())
 	{
-		if (IsFakeClient(client))
-		{
-			if(g_ePluginSettings.m_bSpawnDisableBots) return;
-
-			SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
-			if(SpawnTime < 0.0) SpawnTime = 1.0;
-
-			respawnDelay[client] = RoundFloat(SpawnTime);
-			InfectedBotQueue++;
-
-			if( g_ePluginSettings.m_bCoordination && IsPlayerTank(client)) respawnDelay[client] = 0;
-			
-			for(int i = 1; i <= MaxClients; i++)
-			{
-				if(SpawnInfectedBotTimer[i] == null)
-				{
-					SpawnInfectedBotTimer[i] = CreateTimer(SpawnTime+0.1, Timer_Spawn_InfectedBot, i);
-					break;
-				}
-			}
-		}
+		if(g_bInitialSpawn) SpawnTime = g_ePluginSettings.m_fInitialSpawnTime;
 		else
 		{
-			//真人玩家的復活時間是根據官方指令設定
-			//z_ghost_delay_min 20
-			//z_ghost_delay_max 30 
-		}
+			if (IsFakeClient(client))
+			{
+				if(g_ePluginSettings.m_bSpawnDisableBots) return;
 
-		#if DEBUG
-			PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
-		#endif
+				SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
+				if(SpawnTime < 0.0) SpawnTime = 1.0;
+
+				respawnDelay[client] = RoundFloat(SpawnTime);
+				InfectedBotQueue++;
+
+				if( g_ePluginSettings.m_bCoordination && IsPlayerTank(client)) respawnDelay[client] = 0;
+				
+				for(int i = 1; i <= MaxClients; i++)
+				{
+					if(SpawnInfectedBotTimer[i] == null)
+					{
+						SpawnInfectedBotTimer[i] = CreateTimer(SpawnTime+0.1, Timer_Spawn_InfectedBot, i);
+						break;
+					}
+				}
+			}
+			else
+			{
+				//真人玩家的復活時間是根據官方指令設定
+				//z_ghost_delay_min 20
+				//z_ghost_delay_max 30 
+			}
+
+			//PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
+		}
 	}
 	// This spawns a bot in coop/survival regardless if the special that died was controlled by a player, MI 5
 	else
 	{
-		if(IsFakeClient(client))
+		if(g_bInitialSpawn) SpawnTime = g_ePluginSettings.m_fInitialSpawnTime;
 		{
-			if(g_ePluginSettings.m_bSpawnDisableBots) return;
-
-			SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
-
-			if(g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected > 0.0)
+			if(IsFakeClient(client))
 			{
-				SpawnTime = SpawnTime + (HumansOnInfected() * g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected);
+				if(g_ePluginSettings.m_bSpawnDisableBots) return;
+
+				SpawnTime = GetRandomFloat(g_ePluginSettings.m_fSpawnTimeMin, g_ePluginSettings.m_fSpawnTimeMax);
+
+				if(g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected > 0.0)
+				{
+					SpawnTime = SpawnTime + (HumansOnInfected() * g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected);
+				}
+
+				if(SpawnTime <= 0.0) SpawnTime = 1.0;
 			}
+			else
+			{
+				SpawnTime = GetRandomFloat(g_ePluginSettings.m_fCoopVersSpawnTimeMin, g_ePluginSettings.m_fCoopVersSpawnTimeMax);
 
-			if(SpawnTime <= 0.0) SpawnTime = 1.0;
-		}
-		else
-		{
-			SpawnTime = GetRandomFloat(g_ePluginSettings.m_fCoopVersSpawnTimeMin, g_ePluginSettings.m_fCoopVersSpawnTimeMax);
-
-			if(SpawnTime <= 3.0) SpawnTime = 3.0;
+				if(SpawnTime <= 3.0) SpawnTime = 3.0;
+			}
 		}
 
 		respawnDelay[client] = RoundFloat(SpawnTime);
@@ -2598,9 +2606,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 			}
 		}
 
-		#if DEBUG
-			PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
-		#endif
+		//PrintToChatAll("[TS] An infected bot has been added to the spawn queue...");
 	}
 
 	// This fixes the spawns when the spawn timer is set to 5 or below and fixes the spitter spit glitch
@@ -2789,7 +2795,6 @@ void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(userid);
 	if(!client || !IsClientInGame(client)) return; 
 
-	g_bAdjustSIHealth[client] = false;
 	delete g_hPlayerSpawnTimer[client];
 
 	RemoveSurvivorModelGlow(client);
@@ -2890,9 +2895,7 @@ Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 			if (newteam == 3)
 			{
 				CheckIfBotsNeeded(-1);
-				#if DEBUG
-				LogMessage("A player switched to infected, attempting to boot a bot");
-				#endif
+				//LogMessage("A player switched to infected, attempting to boot a bot");
 			}
 		}
 		else
@@ -3053,9 +3056,7 @@ public void OnClientDisconnect(int client)
 				}	
 			}
 
-			#if DEBUG
-				PrintToChatAll("[TS] OnClientDisconnect");
-			#endif
+			//PrintToChatAll("[TS] OnClientDisconnect");
 			respawnDelay[client] = RoundFloat(SpawnTime);
 			InfectedBotQueue++;
 
@@ -3095,9 +3096,7 @@ void CheckIfBotsNeeded(int spawn_type)
 {
 	if (g_bHasRoundEnded || !g_bLeftSaveRoom ) return;
 
-	#if DEBUG
-		LogMessage("[TS] Checking bots");
-	#endif
+	//LogMessage("[TS] Checking bots");
 
 	CountPlayersInServer();
 	if (L4D_HasPlayerControlledZombies())
@@ -3114,18 +3113,14 @@ void CheckIfBotsNeeded(int spawn_type)
 	// We need more infected bots
 	if (spawn_type == 1)
 	{
-		#if DEBUG
-			LogMessage("[TS] spawn_immediately");
-		#endif
+		//LogMessage("[TS] spawn_immediately");
 
 		InfectedBotQueue++;
 		CreateTimer(0.0, Timer_Spawn_InfectedBot, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else if (spawn_type == 2 && g_bInitialSpawn) //round start first spawn
 	{
-		#if DEBUG
-			LogMessage("[TS] initial_spawn %.1f", g_fInitialSpawn);
-		#endif
+		//LogMessage("[TS] initial_spawn %.1f", g_fInitialSpawn);
 
 		if(g_ePluginSettings.m_bSpawnSameFrame)
 		{
@@ -3143,15 +3138,14 @@ void CheckIfBotsNeeded(int spawn_type)
 			SpawnInfectedBotTimer[0] = CreateTimer(g_ePluginSettings.m_fInitialSpawnTime, Timer_Spawn_InfectedBot, 0);
 		}
 
+		delete InitialSpawnResetTimer;
 		InitialSpawnResetTimer = CreateTimer(g_ePluginSettings.m_fInitialSpawnTime + 5.0, Timer_InitialSpawnReset, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else if (spawn_type == 0) // server can't find a valid position or director stop
 	{
 		int SpawnTime = 10;
 
-		#if DEBUG
-			LogMessage("[TS] InfectedBotQueue + 1, %d spawntime", SpawnTime);
-		#endif
+		//LogMessage("[TS] InfectedBotQueue + 1, %d spawntime", SpawnTime);
 
 		InfectedBotQueue++;
 		for(int i = 0; i <= MaxClients; i++)
@@ -3268,6 +3262,9 @@ void CountPlayersInServer()
 		// Check if client is infected ...
 		if (GetClientTeam(i) == TEAM_INFECTED)
 		{
+			//PrintToChatAll("m_bMaxSpecialsIncludingTank: %d", g_ePluginSettings.m_bMaxSpecialsIncludingTank);
+			if(g_bL4D2Version && !g_ePluginSettings.m_bMaxSpecialsIncludingTank && IsPlayerTank(i)) continue;
+
 			// If player is a bot ...
 			if (IsFakeClient(i))
 			{
@@ -3422,9 +3419,7 @@ Action Timer_ReplaceAITank(Handle timer, int tank)
 		if (IsPlayerTank(t)) continue;
 
 		Index[IndexCount++] = t; //save target to index
-		#if DEBUG
-			PrintToChatAll("[TS] Client %i found to be valid Tank Choice", Index[IndexCount]);
-		#endif
+		//PrintToChatAll("[TS] Client %i found to be valid Tank Choice", Index[IndexCount]);
 	}
 
 	if (IndexCount > 0 )
@@ -3494,20 +3489,21 @@ void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-// AI tank 給真人時不觸發
-//      AI給A時: Event_PlayerTeam (Tank) -> Event_PlayerSpawn (Tank) -> Event_PlayerTeam(tank) -> Tank_Spawn (A) -> Event_PlayerSpawn (A) -> Event_PlayerReplaceBot (A repalce tank) -> Event_PlayerTeam(tank)
-// 真人 tank 失去控制權給AI時不觸發, 
-//      A給AI時: OnTankFrustrated (A) -> Event_PlayerTeam (Tank) -> Tank_Spawn (Tank) -> Event_PlayerSpawn (Tank) -> Event_BotReplacePlayer (tank replaces A)
-// 真人 tank 轉移控制權給 其他真人時 觸發, 
-//      A給B時: OnTankFrustrated (A) -> L4D_OnReplaceTank (A, B) -> Event_PlayerSpawn (B) -> L4D_OnReplaceTank(B, B) -> Event_PlayerSpawn (B)
-// 使用L4D_ReplaceTank時 觸發 (無論真人或AI)
 // 需檢查 tank != newtank
 public void L4D_OnReplaceTank(int tank, int newtank)
 {
+	g_bReplaceNewTank[newtank] = true;
+	RequestFrame(NextFrame_ReplaceData, newtank);
+
 	if(tank == newtank) return;
 
 	g_bAdjustSIHealth[newtank] = g_bAdjustSIHealth[tank];
 	g_bAdjustSIHealth[tank] = false;
+}
+
+void NextFrame_ReplaceData(int client)
+{
+	g_bReplaceNewTank[client] = false;
 }
 
 void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
@@ -3672,9 +3668,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		if ( InfectedRealCount + InfectedRealQueue + InfectedBotCount >= g_ePluginSettings.m_iMaxSpecials ||
 			AllPlayerCount >= MaxClients)
 		{
-			#if DEBUG
-				LogMessage("team is already full, don't spawn a bot");
-			#endif
+			//LogMessage("team is already full, don't spawn a bot");
 			InfectedBotQueue = 0;
 			g_bIsCoordination = false;
 
@@ -3690,9 +3684,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		if ( InfectedRealCount + InfectedBotCount >= g_ePluginSettings.m_iMaxSpecials ||
 			AllPlayerCount >= MaxClients )
 		{
-			#if DEBUG
-				LogMessage("team is already full, don't spawn a bot");
-			#endif
+			//LogMessage("team is already full, don't spawn a bot");
 			InfectedBotQueue = 0;
 			g_bIsCoordination = false;
 
@@ -3739,29 +3731,28 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	}
 
 	int human = 0;
-	for (int i=1;i<=MaxClients;i++)
+	if(L4D_HasPlayerControlledZombies() == false)
 	{
-		if (IsClientInGame(i) && !IsFakeClient(i)) // player is connected and is not fake and it's in game ...
+		for (int i=1;i<=MaxClients;i++)
 		{
-			// If player is on infected's team and is dead ..
-			if (GetClientTeam(i) == TEAM_INFECTED)
+			if (IsClientInGame(i) && !IsFakeClient(i))
 			{
-				if (IsPlayerGhost(i))
+				if (GetClientTeam(i) == TEAM_INFECTED)
 				{
-					continue;
-				}
-				else if (!IsPlayerAlive(i) && L4D_HasPlayerControlledZombies()) // if player is just dead
-				{
-					continue;
-				}
-				else if (!IsPlayerAlive(i) && respawnDelay[i] > 0)
-				{
-					continue;
-				}
-				else if (!IsPlayerAlive(i) && respawnDelay[i] <= 0 && human == 0)
-				{
-					human = i;
-					break;
+					if (IsPlayerGhost(i))
+					{
+						continue;
+					}
+					else if (!IsPlayerAlive(i))
+					{
+						if(respawnDelay[i] > 0) continue;
+
+						if(respawnDelay[i] <= 0 && human == 0)
+						{
+							human = i;
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -3790,6 +3781,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	}
 
 	int bot_type = BotTypeNeeded(), bot;
+	//PrintToChatAll("bot_type: %d", bot_type);
 	bool bSpawnSuccessful = false;
 	float vecPos[3];
 
@@ -4030,9 +4022,7 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 	}
 
 	// Debug print
-	#if DEBUG
-		PrintToChatAll("[TS] Spawning an infected bot. Type = %i ", bot_type);
-	#endif
+	//PrintToChatAll("[TS] Spawning an infected bot. Type = %i ", bot_type);
 
 	// We decrement the infected queue
 	if(InfectedBotQueue>0) InfectedBotQueue--;
@@ -4298,6 +4288,8 @@ Action Timer_CheckSpawn(Handle timer)
 		// Check if client is infected ...
 		if (GetClientTeam(i) == TEAM_INFECTED)
 		{
+			if(g_bL4D2Version && !g_ePluginSettings.m_bMaxSpecialsIncludingTank && IsPlayerTank(i)) continue;
+
 			// If player is a bot ...
 			if (IsFakeClient(i))
 			{
@@ -4534,14 +4526,14 @@ void ShowInfectedHUD()
 		#endif
 
 		#if DEBUG
-		for(int i = 0; i <= MaxClients; i++)
-		{
-			if(SpawnInfectedBotTimer[i] != null)
+			for(int i = 0; i <= MaxClients; i++)
 			{
-				Format(lineBuf, sizeof(lineBuf), "%d - Timer Cout Downing", i);
-				pInfHUD.DrawItem(lineBuf);
+				if(SpawnInfectedBotTimer[i] != null)
+				{
+					Format(lineBuf, sizeof(lineBuf), "%d - Timer Cout Downing", i);
+					pInfHUD.DrawItem(lineBuf);
+				}
 			}
-		}
 		#endif
 	}
 
@@ -5707,9 +5699,7 @@ void GameStart()
 
 	// We check if we need to spawn bots
 	CheckIfBotsNeeded(2);
-	#if DEBUG
-	LogMessage("Checking to see if we need bots");
-	#endif
+	//LogMessage("Checking to see if we need bots");
 	if(g_iCurrentMode != 3)
 	{
 		delete hSpawnWitchTimer;
@@ -6087,6 +6077,7 @@ void LoadData()
 		ePluginData[0].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", 2);
 		ePluginData[0].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", 2);
 		ePluginData[0].m_iMaxSpecials = hData.GetNum("max_specials", 2);
+		ePluginData[0].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", 1));
 
 		ePluginData[0].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", 60.0);
 		ePluginData[0].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", 40.0);
@@ -6109,6 +6100,7 @@ void LoadData()
 		ePluginData[0].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", 600);
 
 		ePluginData[0].m_iTankLimit = hData.GetNum("tank_limit", 1);
+		ePluginData[0].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", 0));
 		ePluginData[0].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", 5);
 		ePluginData[0].m_iTankHealth = hData.GetNum("tank_health", 4000);
 		ePluginData[0].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", 0));
@@ -6156,6 +6148,7 @@ void LoadData()
 			ePluginData[i].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", ePluginData[0].m_iSpawnLimit[SI_JOCKEY]);
 			ePluginData[i].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", ePluginData[0].m_iSpawnLimit[SI_CHARGER]);
 			ePluginData[i].m_iMaxSpecials = hData.GetNum("max_specials", ePluginData[0].m_iMaxSpecials);
+			ePluginData[i].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", ePluginData[0].m_bMaxSpecialsIncludingTank));
 
 			ePluginData[i].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", ePluginData[0].m_fSpawnTimeMax);
 			ePluginData[i].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", ePluginData[0].m_fSpawnTimeMin);
@@ -6178,6 +6171,7 @@ void LoadData()
 			ePluginData[i].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", ePluginData[0].m_iSIHealth[SI_CHARGER]);
 			
 			ePluginData[i].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
+			ePluginData[i].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
 			ePluginData[i].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
 			ePluginData[i].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
 			ePluginData[i].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
@@ -6263,14 +6257,16 @@ public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 		//PrintToServer("ChargerLimit %d", retVal);
 		return Plugin_Handled;
 	}
-	/*
-	// 註解原因: 影響到導演生成的tank包括: 地圖固定tank, 對抗生成的tank
-	else if(strcmp(sKey, "TankLimit", false) == 0 || strcmp(sKey, "cm_TankLimit", false) == 0) {
 
-		retVal = g_ePluginSettings.m_iSpawnLimit[SI_TANK];
+	// 影響到導演生成的tank包括: 地圖固定tank, 對抗生成的tank
+	else if( g_ePluginSettings.m_bTankLimit_OverrideVSCript 
+			&& (strcmp(sKey, "TankLimit", false) == 0 || strcmp(sKey, "cm_TankLimit", false) == 0) 
+			) 
+	{
+		retVal = g_ePluginSettings.m_iTankLimit;
 		//PrintToServer("TankLimit %d", retVal);
 		return Plugin_Handled;
-	}*/
+	}
 	else if(strcmp(sKey, "MaxSpecials", false) == 0 || strcmp(sKey, "cm_MaxSpecials", false) == 0 // Maximum number of Director spawned Special Infected allowed to be in play simultaneously.
 		|| strcmp(sKey, "cm_BaseSpecialLimit", false) == 0) { // Controls the default max limits of all the Special Infected. Overridden by individual special limits.
 

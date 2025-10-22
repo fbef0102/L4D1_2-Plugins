@@ -417,6 +417,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.0.3 (2025-10-22)
+		* Add a config to override tank limit director vscript
+		* Add a config to count special infected including tanks in all gamemode
+
 	* v3.0.2 (2025-1-29)
 		* If root admin use !zlimit or !timer to change zombies limit/spawn timer, keep the change until next map or data is reloaded
 		* Remove common limit
