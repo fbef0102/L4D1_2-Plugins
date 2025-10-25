@@ -55,6 +55,7 @@ Stop tank props from fading whilst the tank is alive
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.8 (2025-10-25)
     * v2.7 (2023-3-18)
         * Optimize Code
 

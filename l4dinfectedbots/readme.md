@@ -8,12 +8,22 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	```
 
 * Image | 圖示
-	* Spawn infected bots without limit (突破限制生成特感)
+	* Spawn more infected bots without limit (突破限制生成更多特感)
 	<br/>![l4dinfectedbots_1](image/l4dinfectedbots_1.jpg)
 	<br/>![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
-	<br/>![zho/l4dinfectedbots_2](image/zho/l4dinfectedbots_2.jpg)
-	* Join infected team and play in coop/survival/realism mode. (在戰役/寫實/生存模式下加入特感陣營)
 	<br/>![l4dinfectedbots_3](image/l4dinfectedbots_3.jpg)
+
+* <details><summary>How does it work?</summary>
+
+	* If More 5+ survivors on the server
+		* More special infected spawn (without limit by director), more health
+		* More tanks spawn (without limit by director), more health
+		* More witches spawn
+	* Player can play infected team in coop/survival/realism, for fun :D
+	* Support any gamemode including mutation mode, this plugin would override vscript to make sure S.I. can spawn
+	* You can use plugin to set 10VS10 versus mode
+	* All settings you want to know are in [data/l4dinfectedbots](data/l4dinfectedbots) folder
+</Chargedetails>
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
@@ -84,7 +94,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		<br/>2. In Versus/Scavenge, Max Special Limit = infected team slots
 
 		> __Warning__ 
-		<br/>🟥Infected limit + numbers of survivor + spectators can not exceed 32 slots, otherwise server fails to spawn infected and becomes super lag
+		<br/>🟥Infected limit + numbers of survivor + spectators can not exceed 31 slots, otherwise server fails to spawn infected and becomes super lag
 	</details>
 
 	3. <details><summary>Adjust special infected spawn time</summary>
@@ -535,7 +545,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * 原理
 	* 此插件控制遊戲導演生成系統，能夠強制無視遊戲特感數量限制，生成多特感
-	* 當倖存者變多時，殭屍數量變多、特感數量變多、Tank數量變多、Tank血量變多，提升遊戲難度
+	* 當倖存者變多時
+		* 特感數量變多, 血量變多
+		* Tank數量變多, 血量變多
+		* Witch數量變多
 	* 此插件可以讓玩家在戰役/寫實/生存模式下加入特感陣營，用來惡搞戰役玩家XD
 	* 解鎖特感隊伍的人數上限，可以加入第五位以上的特感真人玩家，達成對抗 10 VS 10 玩法
 	* **支援所有模式包括突變模式**
@@ -595,7 +608,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		<br/>2. 在對抗／清道夫模式中，特感最大生成數量 = 特感隊伍的空位
 		
 		> __Warning__ 
-		<br/>🟥警告!!! 特感數量 + 倖存者數量 + 旁觀者數量不得超過32，否則伺服器會變得很卡且無法生成特感 (因為此遊戲只能容納32個)
+		<br/>🟥警告!!! 特感數量 + 倖存者數量 + 旁觀者數量不得超過31，否則伺服器會變得很卡且無法生成特感 (因為此遊戲只能容納31個玩家位置)
 	</details>
 
 	3. <details><summary>調整特感生成時間</summary>

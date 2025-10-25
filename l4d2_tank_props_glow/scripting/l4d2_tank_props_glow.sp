@@ -6,9 +6,14 @@
 #include <sdktools>
 #include <dhooks>
 #undef REQUIRE_PLUGIN
-#include <l4d2_hittable_control>
+#tryinclude <l4d2_hittable_control>
 
-#define PLUGIN_VERSION			"2.7"
+#if !defined _l4d2_hittable_control_included
+	native bool AreForkliftsUnbreakable();
+#endif
+
+
+#define PLUGIN_VERSION			"2.8-2025/10/25"
 #define PLUGIN_NAME			    "l4d2_tank_props_glow"
 #define DEBUG 0
 
@@ -23,15 +28,17 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-    EngineVersion test = GetEngineVersion();
+	EngineVersion test = GetEngineVersion();
 
-    if( test != Engine_Left4Dead2 )
-    {
-        strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
-        return APLRes_SilentFailure;
-    }
+	if( test != Engine_Left4Dead2 )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		return APLRes_SilentFailure;
+	}
 
-    return APLRes_Success;
+	MarkNativeAsOptional("AreForkliftsUnbreakable");
+
+	return APLRes_Success;
 }
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
@@ -300,15 +307,19 @@ void TankPropTankSpawn(Event hEvent, const char[] sEventName, bool bDontBroadcas
 		return;
 	}
 
-	UnhookTankProps();
-	delete g_hTankPropsHitList;
-	g_hTankPropsHitList = new ArrayList();
+	int client = GetClientOfUserId(hEvent.GetInt("userid"));
+	if(client && IsAliveTank(client))
+	{
+		//UnhookTankProps();
+		delete g_hTankPropsHitList;
+		g_hTankPropsHitList = new ArrayList();
 
-	HookTankProps();
+		HookTankProps();
 
-	DHookAddEntityListener(ListenType_Created, PossibleTankPropCreated);
+		DHookAddEntityListener(ListenType_Created, PossibleTankPropCreated);
 
-	g_bTankSpawned = true;
+		g_bTankSpawned = true;
+	}
 }
 
 void TankPropTankKilled(Event hEvent, const char[] sEventName, bool bDontBroadcast)
@@ -318,7 +329,7 @@ void TankPropTankKilled(Event hEvent, const char[] sEventName, bool bDontBroadca
 	}
 
 	int victim = GetClientOfUserId(hEvent.GetInt("userid"));
-	if(victim && IsClientInGame(victim) && IsTank(victim))
+	if(victim && IsClientInGame(victim) && GetClientTeam(victim) == TEAM_INFECTED && IsTank(victim))
 	{
 		CreateTimer(0.5, TankDeadCheck, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
@@ -403,6 +414,8 @@ Action TankDeadCheck(Handle hTimer)
 
 Action TankPropsBeGone(Handle hTimer)
 {
+	if(g_bTankSpawned) return Plugin_Continue;
+
 	UnhookTankProps();
 
 	return Plugin_Continue;
@@ -427,7 +440,7 @@ void PluginEnable()
 
 	HookEvent("round_start", TankPropRoundReset, EventHookMode_PostNoCopy);
 	HookEvent("round_end", TankPropRoundReset, EventHookMode_PostNoCopy);
-	HookEvent("tank_spawn", TankPropTankSpawn, EventHookMode_PostNoCopy);
+	HookEvent("player_spawn", TankPropTankSpawn, EventHookMode_PostNoCopy);
 	HookEvent("player_death", TankPropTankKilled, EventHookMode_PostNoCopy);
 }
 
@@ -437,7 +450,7 @@ void PluginDisable()
 
 	UnhookEvent("round_start", TankPropRoundReset, EventHookMode_PostNoCopy);
 	UnhookEvent("round_end", TankPropRoundReset, EventHookMode_PostNoCopy);
-	UnhookEvent("tank_spawn", TankPropTankSpawn, EventHookMode_PostNoCopy);
+	UnhookEvent("player_spawn", TankPropTankSpawn, EventHookMode_PostNoCopy);
 	UnhookEvent("player_death", TankPropTankKilled, EventHookMode_PostNoCopy);
 	int iRef = INVALID_ENT_REFERENCE, iValue = -1, iSize = g_hTankPropsHitList.Length;
 
@@ -549,6 +562,7 @@ void HookTankProps()
 
 	for (int i = MaxClients; i < iEntCount; i++) {
 		if (IsTankProp(i)) {
+			SDKUnhook(i, SDKHook_OnTakeDamagePost, PropDamaged);
 			SDKHook(i, SDKHook_OnTakeDamagePost, PropDamaged);
 			g_hTankPropsList.Push(i);
 		}
