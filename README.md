@@ -270,6 +270,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復Witch撤退之後又馬上重新攻擊倖存者的Bug
 * <b>[l4d2_ladder_editor](/l4d2_ladder_editor)</b>: Clone and move special infected/survivor ladders.
     * 複製並創造新的特感梯子或倖存者梯子
+* <b>[l4d2_chainsaw_fix](/l4d2_chainsaw_fix)</b>: Fixed server crash due to chainsaw sound issue in l4d2 linux
+    * 修復L4D2 linux系統下電鋸音效導致伺服器崩潰
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

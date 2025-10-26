@@ -1,0 +1,40 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"CSoundPatch::ChangePitch"
+			{
+				"signature"		"CSoundPatch::ChangePitch"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"address"
+			}
+			
+			"CSoundControllerImp::SoundChangePitch"
+			{
+				"signature"		"CSoundControllerImp::SoundChangePitch"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"address"
+			}
+		}
+		"Signatures"
+		{
+			/* CSoundPatch::ChangePitch(float, float) */
+			"CSoundPatch::ChangePitch"
+			{
+				"library"		"server"
+				"linux"			"@_ZN11CSoundPatch11ChangePitchEff"
+			}
+			
+			/* CSoundControllerImp::SoundChangePitch(CSoundPatch*, float, float) */
+			"CSoundControllerImp::SoundChangePitch"
+			{
+				"library"		"server"
+				"linux"			"@_ZN19CSoundControllerImp16SoundChangePitchEP11CSoundPatchff"
+			}
+		}
+	}
+}
