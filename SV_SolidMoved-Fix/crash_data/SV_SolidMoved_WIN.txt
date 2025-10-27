@@ -1,0 +1,86 @@
+_DWORD *__thiscall SV_SolidMoved(_DWORD *this, int a2, int a3, char a4)
+{
+  int v5; // eax
+  int v6; // eax
+  int v7; // eax
+  int v8; // eax
+  float v10[3]; // [esp+8h] [ebp-18h] BYREF
+  float v11[3]; // [esp+14h] [ebp-Ch] BYREF
+
+  *this = &CTouchLinks::`vftable';
+  this[27] = 8;
+  this[28] = 8;
+  this[26] = 0;
+  v5 = (*(int (__thiscall **)(_DWORD, int))(*g_pMemAlloc + 4))(g_pMemAlloc, 32);
+  this[26] = v5;
+  this[30] = v5;
+  this[29] = 0;
+  this[24] = a2;
+  if ( (*(_BYTE *)a2 & 4) != 0 && (v6 = *(_DWORD *)(a2 + 12)) != 0 )
+    v7 = (*(int (__thiscall **)(int))(*(_DWORD *)v6 + 12))(v6);
+  else
+    v7 = 0;
+  this[25] = v7;
+  CM_GetCollideableTriggerTestBox(v10, v11, v7, a4);
+  v8 = (*(int (__thiscall **)(_DWORD))(*(_DWORD *)this[25] + 32))(this[25]);
+  if ( a3 )
+    sub_10106890(a3, v8, v10, v11);
+  else
+    sub_10106890(v8, v8, v10, v11);
+  return this;
+}
+
+===================
+
+Crash, is caused by:
+
+v7 = 0; // (eax)
+this[25] = v7;
+
+and attempt to dereference it here:
+
+v8 = (*(int (__thiscall **)(_DWORD))(*(_DWORD *)this[25] + 32))(this[25]);
+
+==================
+
+Fixing by checking eax in this point:
+
+loc_1020FB58:
+SV_SolidMoved+58   8B 4D 10                                mov     ecx, [ebp+arg_8]
+SV_SolidMoved+5B   57                                      push    edi
+SV_SolidMoved+5C   51                                      push    ecx
+SV_SolidMoved+5D   50                                      push    eax
+
+==================
+
+Addition:
+------------------------------
+
+Windows crash stack:
+
+EXCEPTION_ACCESS_VIOLATION_READ accessing 0x0
+
+Thread 0 (crashed):
+   0: engine.dll + 0x20fb6f
+      eip: 0x6cc8fb6f  esp: 0x009bd970  ebp: 0x009bd99c  ebx: 0x009bd9c0
+      esi: 0x009bd990  edi: 0x009bd984  eax: 0x00000000  ecx: 0x00000000
+      edx: 0x2b737275  efl: 0x00210212  
+
+      6cc8fb5e  8d 75 f4        lea esi, [ebp-0xc]
+      6cc8fb61  8d 7d e8        lea edi, [ebp-0x18]
+      6cc8fb64  89 43 64        mov [ebx+0x64], eax
+      6cc8fb67  e8 44 fd ff ff  call 0x6cc8f8b0
+      6cc8fb6c  8b 4b 64        mov ecx, [ebx+0x64]
+  >   6cc8fb6f  8b 11           mov edx, [ecx]
+      6cc8fb71  8b 42 20        mov eax, [edx+0x20]
+      6cc8fb74  83 c4 08        add esp, 0x8
+      6cc8fb77  ff d0           call eax
+      6cc8fb79  8b 4d 0c        mov ecx, [ebp+0xc]
+      6cc8fb7c  5f              pop edi
+
+      009bd970  00 00 00 00 01 00 00 00  40 2c d4 09 c0 2a d4 09  ........@,...*..
+      009bd980  6c da 9b 00 80 a3 13 6d  c0 75 fe 04 04 00 b0 d5  l......m.u......
+      009bd990  b0 75 fe 04 00 00 00 00  00 00 00 00 60 da 9b 00  .u..........`...
+      009bd9a0  82 04 c9 6c                                       ...l            
+
+      Found via instruction pointer in context

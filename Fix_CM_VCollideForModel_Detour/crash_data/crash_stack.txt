@@ -1,0 +1,128 @@
+SIGSEGV /SEGV_MAPERR accessing 0x6c
+
+Thread 0 (crashed):
+   0: engine.so!CM_VCollideForModel(int, model_t const*) + 0x19
+      eip: 0xf6754432  esp: 0xffcc4ff0  ebp: 0x00000000  ebx: 0xf6979a20
+      esi: 0x11883b68  edi: 0x00000000  eax: 0x00000000  ecx: 0x00000000
+      edx: 0x00000000  efl: 0x00210292  
+
+      f675441c  83 ec 10           sub esp, 0x10
+      f675441f  e8 56 49 f8 ff     call 0xf66d8d7a
+      f6754424  81 c3 fc 55 22 00  add ebx, 0x2255fc
+      f675442a  8b 4c 24 20        mov ecx, [esp+0x20]
+      f675442e  8b 54 24 24        mov edx, [esp+0x24]
+  >   f6754432  8b 42 6c           mov eax, [edx+0x6c]
+      f6754435  83 f8 01           cmp eax, 0x1
+      f6754438  74 30              jz 0xf675446a
+      f675443a  83 f8 03           cmp eax, 0x3
+      f675443d  74 09              jz 0xf6754448
+      f675443f  31 c0              xor eax, eax
+
+      ffcc4ff0  f0 39 88 11 40 69 4e 10  dc 69 4e 10 20 9a 97 f6  .9..@iN..iN. ...
+      ffcc5000  20 9a 97 f6 68 3b 88 11  00 00 00 00 93 8c 79 f6   ...h;........y.
+
+      Found via instruction pointer in context
+
+
+   1: engine.so!CEngineTrace::ClipRayToVPhysics(Ray_t const&, unsigned int, ICollideable*, studiohdr_t*, CGameTrace*) + 0x11d
+      eip: 0xf6798c93  esp: 0xffcc5010  ebp: 0x00000000  ebx: 0xf6979a20
+      esi: 0x11883b68  edi: 0x00000000  
+
+      ffcc5010  00 00 00 00 00 00 00 00  0b 42 02 02 20 9a 97 f6  .........B.. ...
+      ffcc5020  30 ed cc f5 6c 27 7d f6  90 4c c1 f5 5b 01 42 f5  0...l'}..L..[.B.
+      ffcc5030  a4 e3 9c f6 00 00 00 00  00 00 00 00 24 0b aa f6  ............$...
+      ffcc5040  90 4c c1 f5 70 61 cc ff  1c 61 cc ff 28 99 24 f5  .L..pa...a..(.$.
+      ffcc5050  f0 39 88 11 00 00 00 00  01 00 00 00 20 9a 97 f6  .9.......... ...
+      ffcc5060  70 61 cc ff 1c 61 cc ff  68 3b 88 11 9d 93 79 f6  pa...a..h;....y.
+
+      Found via call frame info
+
+
+   2: engine.so!CEngineTrace::ClipRayToCollideable(Ray_t const&, unsigned int, ICollideable*, CGameTrace*) + 0xe9
+      eip: 0xf679939d  esp: 0xffcc5070  ebp: 0x11883b68  ebx: 0xf6979a20
+      esi: 0xffcc6170  edi: 0xffcc611c  
+
+      ffcc5070  e0 6e 9c f6 70 61 cc ff  0b 42 02 02 68 3b 88 11  .n..pa...B..h;..
+      ffcc5080  00 00 00 00 1c 61 cc ff  00 00 00 00 06 00 00 00  .....a..........
+      ffcc5090  f0 39 88 11 c8 61 cc ff  90 4c c1 f5 dc 8d 38 f5  .9...a...L....8.
+      ffcc50a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffcc50b0  f0 39 88 11 0b 42 02 02  79 2e 73 6d 20 9a 97 f6  .9...B..y.sm ...
+      ffcc50c0  01 00 00 00 f0 39 88 11  e0 6e 9c f6 44 9c 79 f6  .....9...n..D.y.
+
+      Found via call frame info 
+      
+      
+Crash caused by zero pointer of model_t passed to CM_VCollideForModel function.
+We're checking for edx == 0 and if true, making jump to:
+
+CM_VCollideForModel(int,model_t const*)+26                           loc_A843F:                              ; CODE XREF: CM_VCollideForModel(int,model_t const*)+90j
+CM_VCollideForModel(int,model_t const*)+26   31 C0                                   xor     eax, eax
+CM_VCollideForModel(int,model_t const*)+28
+CM_VCollideForModel(int,model_t const*)+28                           loc_A8441:                              ; CODE XREF: CM_VCollideForModel(int,model_t const*)+58j
+CM_VCollideForModel(int,model_t const*)+28                                                                   ; CM_VCollideForModel(int,model_t const*)+66j
+CM_VCollideForModel(int,model_t const*)+28   83 C4 10                                add     esp, 10h
+CM_VCollideForModel(int,model_t const*)+2B   5B                                      pop     ebx
+CM_VCollideForModel(int,model_t const*)+2C   5E                                      pop     esi
+CM_VCollideForModel(int,model_t const*)+2D   5F                                      pop     edi
+CM_VCollideForModel(int,model_t const*)+2E   C3                                      retn
+CM_VCollideForModel(int,model_t const*)+2F                           ; -------------------------------
+
+via mid-function detour of:
+
++19   8B 42 6C                                mov     eax, [edx+6Ch]
+
+
+========================================================
+
+Windows part of crash:
+
+EXCEPTION_ACCESS_VIOLATION_READ accessing 0x6c
+
+Thread 0 (crashed):
+   0: engine.dll + 0x1d024
+      eip: 0x0873d024  esp: 0x0019cbd8  ebp: 0x062397e4  ebx: 0x02024200
+      esi: 0x00000000  edi: 0x062397e4  eax: 0x00000000  ecx: 0x06239680
+      edx: 0x00000000  efl: 0x00210246  
+
+      0873d016  83 c4 04        add esp, 0x4
+      0873d019  a1 38 4d af 08  mov eax, [0x8af4d38]
+      0873d01e  5e              pop esi
+      0873d01f  c3              ret
+      0873d020  8b 54 24 08     mov edx, [esp+0x8]
+  >   0873d024  8b 42 6c        mov eax, [edx+0x6c]
+      0873d027  83 e8 01        sub eax, 0x1
+      0873d02a  74 1e           jz 0x873d04a
+      0873d02c  83 e8 02        sub eax, 0x2
+      0873d02f  74 03           jz 0x873d034
+      0873d031  33 c0           xor eax, eax
+
+      0019cbd8  f3 16 76 08                                       ..v.            
+
+      Found via instruction pointer in context
+
+
+   1: engine.dll + 0x416f3
+      eip: 0x087616f3  esp: 0x0019cbdc  ebp: 0x062397e4  
+
+      0019cbdc  00 00 00 00 00 00 00 00  e4 97 23 06 c0 cc 19 00  ..........#.....
+      0019cbec  0b 42 02 02 70 cc 19 00  80 96 23 06 bf ac 73 08  .B..p.....#...s.
+
+      Found via stack scanning
+
+
+   2: engine.dll + 0x1acbf
+      eip: 0x0873acbf  esp: 0x0019cbfc  ebp: 0x062397e4  
+
+      0019cbfc  05 2b 76 08                                       .+v.            
+
+      Found via stack scanning 
+      
+Detour here:
+
+CM_VCollideForModel+4    8B 42 6C                                mov     eax, [edx+6Ch]
+
+jmp here:
+
+CM_VCollideForModel+11   33 C0                                   xor     eax, eax
+CM_VCollideForModel+13   C3                                      retn
+

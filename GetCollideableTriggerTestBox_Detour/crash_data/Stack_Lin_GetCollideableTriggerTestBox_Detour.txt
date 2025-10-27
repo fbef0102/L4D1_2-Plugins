@@ -1,0 +1,493 @@
+SIGSEGV /SEGV_MAPERR accessing 0x0
+
+Thread 0 (crashed):
+   0: engine_srv.so!CM_GetCollideableTriggerTestBox(ICollideable*, Vector*, Vector*, bool) + 0x90
+      eip: 0xf72faf50  esp: 0xffdd5470  ebp: 0xffdd5498  ebx: 0xffdd54c8
+      esi: 0xffdd54d4  edi: 0x00000000  eax: 0x00000000  ecx: 0xffdd54d4
+      edx: 0xffdd54c8  efl: 0x00210202  
+
+      f72faf4b  5e                 pop esi
+      f72faf4c  5f                 pop edi
+      f72faf4d  5d                 pop ebp
+      f72faf4e  c3                 ret
+      f72faf4f  90                 nop
+  >   f72faf50  8b 00              mov eax, [eax]
+      f72faf52  89 3c 24           mov [esp], edi
+      f72faf55  ff 50 2c           call dword [eax+0x2c]
+      f72faf58  83 f8 02           cmp eax, 0x2
+      f72faf5b  0f 85 74 ff ff ff  jnz 0xf72faed5
+      f72faf61  8b 07              mov eax, [edi]
+
+      ffdd5470  70 53 e9 0e 84 54 dd ff  2e ef 2a 00 d5 f1 16 00  pS...T....*.....
+      ffdd5480  40 09 de ed 89 88 88 3c  b9 9f d8 f7 38 56 dd ff  @......<....8V..
+      ffdd5490  60 03 db e8 01 00 00 00  78 55 dd ff e8 b2 2f f7  `.......xU..../.
+
+      Found via instruction pointer in context
+
+
+   1: engine_srv.so!SV_SolidMoved(edict_t*, ICollideable*, Vector const*, bool) + 0x78
+      eip: 0xf72fb2e8  esp: 0xffdd54a0  ebp: 0xffdd5578  ebx: 0xffdd5638
+      esi: 0xe8db0360  edi: 0x00000001  
+
+      ffdd54a0  01 00 00 00 00 00 00 00  b9 9f d8 f7 98 55 dd ff  .............U..
+      ffdd54b0  00 00 00 00 00 00 00 00  00 00 00 00 f4 98 55 0f  ..............U.
+      ffdd54c0  0d 00 00 00 d0 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd54d0  00 00 00 00 00 00 00 00  00 00 00 00 ff ff 00 00  ................
+      ffdd54e0  90 6b 38 f7 00 00 00 80  18 55 dd ff f0 75 55 0f  .k8......U...uU.
+      ffdd54f0  0d 00 00 00 0d 00 00 00  38 55 dd ff 61 48 5b ed  ........8U..aH[.
+      ffdd5500  f4 98 55 0f ff ff 00 00  14 55 dd ff f4 98 55 0f  ..U......U....U.
+      ffdd5510  74 92 55 0f 14 6e 08 45  98 55 dd ff eb 03 27 ed  t.U..n.E.U....'.
+      ffdd5520  e0 1e a7 0e ff ff ff ff  ff ff ff 7f f0 75 55 0f  .............uU.
+      ffdd5530  74 92 55 0f 98 55 dd ff  08 56 dd ff d4 0c 74 ed  t.U..U...V....t.
+      ffdd5540  60 03 db e8 00 00 00 00  60 e6 c5 10 08 00 00 00  `.......`.......
+      ffdd5550  08 00 00 00 00 00 00 00  60 e6 c5 10 70 55 21 f7  ........`...pU!.
+      ffdd5560  98 55 dd ff 00 00 00 00  30 40 00 00 e0 1e a7 0e  .U......0@......
+      ffdd5570  60 03 db e8 00 00 00 00  c8 55 dd ff 3d 86 20 ed  `........U..=. .
+
+      Found via call frame info
+
+
+   2: server_srv.so!CBaseEntity::PhysicsTouchTriggers(Vector const*) + 0x15d
+      eip: 0xed20863d  esp: 0xffdd5580  ebp: 0xffdd55c8  ebx: 0x0ea71ee0
+      esi: 0xe8db0360  edi: 0x00000000  
+
+      ffdd5580  60 03 db e8 74 20 a7 0e  38 56 dd ff 01 00 00 00  `...t ..8V......
+      ffdd5590  01 00 00 00 00 00 00 00  c8 55 dd ff b2 09 27 ed  .........U....'.
+      ffdd55a0  74 20 a7 0e ff ff ff 01  38 56 dd ff 00 00 00 00  t ......8V......
+      ffdd55b0  00 00 66 43 00 00 66 c3  00 00 00 00 e0 1e a7 0e  ..fC..f.........
+      ffdd55c0  f0 75 55 0f 00 00 00 00  68 56 dd ff 92 0f 27 ed  .uU.....hV....'.
+
+      Found via call frame info
+
+
+   3: server_srv.so!CBaseEntity::PhysicsRigidChild() + 0x1a2
+      eip: 0xed270f92  esp: 0xffdd55d0  ebp: 0xffdd5668  ebx: 0x0ea71ee0
+      esi: 0x0f5575f0  edi: 0x00000000  
+
+      ffdd55d0  e0 1e a7 0e 38 56 dd ff  00 00 00 00 00 00 00 00  ....8V..........
+      ffdd55e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd55f0  50 16 28 13 30 9e 00 00  78 56 dd ff f0 75 55 0f  P.(.0...xV...uU.
+      ffdd5600  00 00 00 00 00 00 00 00  68 56 dd ff 83 16 87 ed  ........hV......
+      ffdd5610  f0 75 55 0f 84 56 dd ff  00 00 00 00 00 00 00 00  .uU..V..........
+      ffdd5620  00 00 00 00 00 00 00 00  89 88 88 3c 00 00 00 00  ...........<....
+      ffdd5630  00 00 00 00 00 00 00 00  7f 96 18 4b 7f 96 18 4b  ...........K...K
+      ffdd5640  7f 96 18 4b 00 00 00 00  00 00 00 00 00 00 00 00  ...K............
+      ffdd5650  54 97 e8 12 00 00 00 00  00 00 00 00 e0 1e a7 0e  T...............
+      ffdd5660  f0 75 55 0f 00 00 00 00  08 57 dd ff f0 1e 27 ed  .uU......W....'.
+
+      Found via call frame info
+
+
+   4: server_srv.so!CBaseEntity::PhysicsSimulate() + 0xb70
+      eip: 0xed271ef0  esp: 0xffdd5670  ebp: 0xffdd5708  ebx: 0x0ea71ee0
+      esi: 0x0f5575f0  edi: 0x00000000  
+
+      ffdd5670  e0 1e a7 0e 01 00 00 00  00 00 00 00 af 17 6c 43  ..............lC
+      ffdd5680  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5690  00 00 00 00 00 00 00 00  00 00 00 00 70 eb f0 12  ............p...
+      ffdd56a0  00 00 00 00 00 00 00 00  08 57 dd ff 72 69 58 ed  .........W..riX.
+      ffdd56b0  70 eb f0 12 00 00 00 00  00 00 00 00 00 00 00 00  p...............
+      ffdd56c0  00 00 00 00 00 00 00 00  20 c8 dd ed 00 00 00 00  ........ .......
+      ffdd56d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd56e0  40 21 dc ed 00 00 00 00  00 00 00 00 00 00 00 00  @!..............
+      ffdd56f0  00 00 66 c3 00 00 00 00  00 00 00 00 70 d1 a3 0f  ..f.........p...
+      ffdd5700  e0 1e a7 0e 00 00 00 00  a8 57 dd ff da 16 27 ed  .........W....'.
+
+      Found via call frame info
+
+
+   5: server_srv.so!CBaseEntity::PhysicsSimulate() + 0x35a
+      eip: 0xed2716da  esp: 0xffdd5710  ebp: 0xffdd57a8  ebx: 0x0fa3d170
+      esi: 0x0ea71ee0  edi: 0x00000000  
+
+      ffdd5710  e0 1e a7 0e 01 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5720  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5730  c7 33 d8 f7 9c 57 dd ff  00 00 00 00 40 94 9e 12  .3...W......@...
+      ffdd5740  00 00 00 00 00 00 00 00  a8 57 dd ff 83 16 87 ed  .........W......
+      ffdd5750  40 94 9e 12 90 08 c8 0d  00 00 00 00 00 00 00 00  @...............
+      ffdd5760  00 00 00 00 00 00 00 00  38 3f 1d f5 00 00 00 00  ........8?......
+      ffdd5770  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5780  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5790  d4 57 dd ff 00 00 00 00  00 00 00 00 70 d1 a3 0f  .W..........p...
+      ffdd57a0  25 93 aa ed 00 00 00 00  28 58 dd ff 42 85 58 ed  %.......(X..B.X.
+
+      Found via call frame info
+
+
+   6: server_srv.so!Physics_SimulateEntity(CBaseEntity*) + 0x152
+      eip: 0xed588542  esp: 0xffdd57b0  ebp: 0xffdd5828  ebx: 0x0fa3d170
+      esi: 0xedaa9325  edi: 0x00000000  
+
+      ffdd57b0  70 d1 a3 0f c0 b7 b1 13  f8 57 dd ff 69 4f 29 ed  p........W..iO).
+      ffdd57c0  a0 ec 75 11 c0 b7 b1 13  10 00 00 00 00 00 00 00  ..u.............
+      ffdd57d0  00 00 00 00 91 25 68 c4  a8 01 9e c4 00 d4 df a0  .....%h.........
+      ffdd57e0  00 00 00 00 dc 58 dd ff  60 58 dd ff c0 d9 d7 ed  .....X..`X......
+      ffdd57f0  20 58 dd ff 8c 58 dd ff  00 00 00 00 00 00 00 00   X...X..........
+      ffdd5800  3c b9 45 f7 00 00 00 00  00 00 00 00 00 00 00 00  <.E.............
+      ffdd5810  8c 58 dd ff 02 00 00 00  00 00 00 00 1c 00 00 00  .X..............
+      ffdd5820  60 58 dd ff 38 00 00 00  d8 5a dd ff 71 8a 58 ed  `X..8....Z..q.X.
+
+      Found via call frame info
+
+
+   7: server_srv.so!Physics_RunThinkFunctions(bool) + 0x2d1
+      eip: 0xed588a71  esp: 0xffdd5830  ebp: 0xffdd5ad8  ebx: 0x0000001c
+      esi: 0xffdd5860  edi: 0x00000038  
+
+      ffdd5830  70 d1 a3 0f 86 00 00 00  00 00 00 00 f4 ef 28 f5  p.............(.
+      ffdd5840  dc ef 28 f5 44 5a dd ff  e8 58 dd ff be 04 f3 f7  ..(.DZ...X......
+      ffdd5850  02 00 00 00 00 00 00 00  99 02 f3 f7 f4 ef 28 f5  ..............(.
+      ffdd5860  10 6d ff 0d b0 8e a6 0d  d0 3a 6e 10 f0 3c ea 0d  .m.......:n..<..
+      ffdd5870  c0 b7 b1 13 50 6b 88 12  b0 8b fb 11 f0 16 9b 12  ....Pk..........
+      ffdd5880  00 19 21 11 f0 68 79 12  80 d5 f0 0d 50 e4 45 11  ..!..hy.....P.E.
+      ffdd5890  20 aa c1 11 30 73 69 12  60 e3 45 10 a0 ec 75 11   ...0si.`.E...u.
+      ffdd58a0  e0 82 77 12 10 2c 92 09  50 cc 8c 0b 50 31 44 13  ..w..,..P...P1D.
+      ffdd58b0  e0 f5 aa 12 e0 91 63 0b  10 39 49 11 40 94 9e 12  ......c..9I.@...
+      ffdd58c0  90 ed e8 0f 70 eb f0 12  c0 0c b6 10 70 53 e9 0e  ....p.......pS..
+      ffdd58d0  70 d1 a3 0f 00 18 bc 0b  e0 42 70 10 f0 75 55 0f  p........Bp..uU.
+      ffdd58e0  80 3a 6a 0f b0 ec cf 12  10 7a 12 10 d0 7a e8 12  .:j......z...z..
+      ffdd58f0  d0 da 2f 11 f0 91 a8 10  90 e8 1a 0d e0 5d 5c 13  ../..........]\.
+      ffdd5900  20 4e 28 13 70 c6 cb 11  f0 cf bf 0c c0 f3 98 0b   N(.p...........
+      ffdd5910  70 41 76 12 50 42 5d 13  10 28 3a 0f f0 7c 6e 0f  pAv.PB]..(:..|n.
+      ffdd5920  70 b4 10 0f 40 00 92 09  50 36 77 09 30 45 f2 0c  p...@...P6w.0E..
+      ffdd5930  c0 54 cd 0b 60 26 91 10  40 a1 0a 13 70 5e 5c 10  .T..`&..@...p^\.
+      ffdd5940  7f 02 00 00 00 00 00 00  7f 02 dd ff 2b e4 20 ed  ............+. .
+      ffdd5950  40 a1 0a 13 02 00 00 00  00 00 00 00 00 00 00 00  @...............
+      ffdd5960  33 f3 e2 bc 00 5e 9c bf  00 00 00 00 00 00 f0 3f  3....^.........?
+      ffdd5970  44 5a dd ff 00 00 00 00  98 59 dd ff 00 d4 df a0  DZ.......Y......
+      ffdd5980  c4 bd 0a 13 9c 39 cb 10  00 00 00 00 00 00 00 00  .....9..........
+      ffdd5990  40 a1 0a 13 18 34 b3 43  48 5a dd ff 10 81 f1 f7  @....4.CHZ......
+      ffdd59a0  40 a1 0a 13 30 58 35 12  d8 59 dd ff cf ac 38 f5  @...0X5..Y....8.
+      ffdd59b0  54 58 35 12 00 00 00 00  00 00 00 00 10 81 f1 f7  TX5.............
+      ffdd59c0  9f 45 c7 43 02 00 00 00  00 00 00 00 01 00 00 00  .E.C............
+      ffdd59d0  01 00 00 00 00 00 00 00  f8 59 dd ff 66 39 57 ed  .........Y..f9W.
+      ffdd59e0  30 58 35 12 00 00 00 00  99 02 f3 f7 f4 ef 28 f5  0X5...........(.
+      ffdd59f0  dc ef 28 f5 01 00 00 00  58 5a dd ff ab 39 47 ed  ..(.....XZ...9G.
+      ffdd5a00  02 00 00 00 f0 ec 5b 08  05 00 d9 93 10 ed 5b 08  ......[.......[.
+      ffdd5a10  f4 ef 28 f5 30 ed 5b 08  58 5a dd ff b0 0c 24 f5  ..(.0.[.XZ....$.
+      ffdd5a20  00 ee 5b 08 a0 ee 5b 08  05 00 d9 93 c0 ee 5b 08  ..[...[.......[.
+      ffdd5a30  06 00 d9 93 01 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5a40  80 eb 5b 08 00 00 00 00  00 00 00 00 00 00 00 00  ..[.............
+      ffdd5a50  00 00 00 00 01 00 00 00  d8 5a dd ff 1b 8a 58 ed  .........Z....X.
+      ffdd5a60  40 21 dc ed 00 01 00 00  00 00 00 00 00 00 00 00  @!..............
+      ffdd5a70  00 02 00 00 00 01 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5a80  00 03 00 00 00 01 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5a90  00 04 00 00 00 01 00 00  40 a2 29 f5 bc bb 28 44  ........@.)...(D
+      ffdd5aa0  00 05 00 00 00 01 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5ab0  00 00 00 00 00 00 00 00  00 00 00 00 00 d4 df a0  ................
+      ffdd5ac0  00 07 00 00 00 01 00 00  00 00 00 00 01 00 00 00  ................
+      ffdd5ad0  00 00 00 00 01 00 00 00  58 5b dd ff 97 05 4c ed  ........X[....L.
+
+      Found via call frame info
+
+
+   8: server_srv.so!CServerGameDLL::GameFrame(bool) + 0x967
+      eip: 0xed4c0597  esp: 0xffdd5ae0  ebp: 0xffdd5b58  ebx: 0x00000001
+      esi: 0x00000000  edi: 0x00000001  
+
+      ffdd5ae0  01 00 00 00 00 00 00 00  34 7a 2e 09 00 00 00 00  ........4z......
+      ffdd5af0  34 7a 2e 09 00 00 00 00  10 00 00 00 00 00 00 00  4z..............
+      ffdd5b00  00 00 00 00 00 6f 2c 0b  00 00 00 00 80 93 7a e8  .....o,.......z.
+      ffdd5b10  01 00 00 00 01 9d dd ed  38 5b dd ff 89 88 88 3c  ........8[.....<
+      ffdd5b20  30 7a 2e 09 00 00 00 00  00 00 00 00 00 00 00 00  0z..............
+      ffdd5b30  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5b40  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5b50  28 9d dd ed 30 fe ec 08  98 5b dd ff ab d4 65 e8  (...0....[....e.
+
+      Found via call frame info
+
+
+   9: sourcemod.2.l4d2.so!__SourceHook_FHCls_IServerGameDLLGameFramefalse::Func + 0x9b
+      eip: 0xe865d4ab  esp: 0xffdd5b60  ebp: 0xffdd5b98  ebx: 0xeddd9d28
+      esi: 0x08ecfe30  edi: 0x00000001  
+
+      ffdd5b60  28 9d dd ed 01 00 00 00  3c 84 0d 29 55 44 2c f7  (.......<..)UD,.
+      ffdd5b70  20 0c a5 e8 01 00 00 00  98 5b dd ff 30 fc 4b ed   ........[..0.K.
+      ffdd5b80  00 00 00 00 00 00 00 00  00 00 00 00 01 00 00 00  ................
+      ffdd5b90  00 52 de ed 01 00 00 00  18 5c dd ff d8 af 2b f7  .R.......\....+.
+
+      Found via call frame info
+
+
+  10: engine_srv.so!SV_Think(bool) + 0x1c8
+      eip: 0xf72bafd8  esp: 0xffdd5ba0  ebp: 0xffdd5c18  ebx: 0x00000001
+      esi: 0x00000001  edi: 0xedde5200  
+
+      ffdd5ba0  28 9d dd ed 01 00 00 00  18 5c dd ff a9 87 1c f7  (........\......
+      ffdd5bb0  40 3e 47 f7 40 3e 47 f7  30 fe ec 08 0e de a1 e8  @>G.@>G.0.......
+      ffdd5bc0  50 3d 5c 09 00 00 00 00  a4 8e a8 ed 30 fe ec 08  P=\.........0...
+      ffdd5bd0  01 00 00 00 28 9d dd ed  18 5c dd ff bc bb 28 44  ....(....\....(D
+      ffdd5be0  b0 87 a4 e8 30 fe ec 08  00 00 00 00 00 00 00 00  ....0...........
+      ffdd5bf0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5c00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5c10  01 00 00 00 01 00 00 00  98 5c dd ff 48 c3 2b f7  .........\..H.+.
+
+      Found via call frame info
+
+
+  11: engine_srv.so!SV_Frame(bool) + 0x168
+      eip: 0xf72bc348  esp: 0xffdd5c20  ebp: 0xffdd5c98  ebx: 0x00000001
+      esi: 0x00000001  edi: 0xedde5200  
+
+      ffdd5c20  01 00 00 00 30 9e 00 00  12 14 ba 97 e6 e1 16 00  ....0...........
+      ffdd5c30  9c fd 44 f7 02 00 00 00  31 c8 f1 f7 01 00 00 00  ..D.....1.......
+      ffdd5c40  88 5c dd ff 00 70 ee f7  98 5c dd ff c1 58 e1 f7  .\...p...\...X..
+      ffdd5c50  01 00 00 00 88 5c dd ff  00 00 00 00 00 00 00 00  .....\..........
+      ffdd5c60  01 00 00 00 52 ae 96 ba  00 00 00 00 00 00 00 00  ....R...........
+      ffdd5c70  00 00 00 00 88 5c dd ff  d3 f3 f7 1d 89 ff a0 40  .....\.........@
+      ffdd5c80  01 00 00 00 b8 5c dd ff  3f 03 38 00 01 00 00 00  .....\..?.8.....
+      ffdd5c90  52 ae 96 ba d0 93 3a 00  38 5d dd ff dc 3c 23 f7  R.....:.8]...<#.
+
+      Found via call frame info
+
+
+  12: engine_srv.so!_Host_RunFrame_Server(bool) + 0x17c
+      eip: 0xf7233cdc  esp: 0xffdd5ca0  ebp: 0xffdd5d38  ebx: 0x00000001
+      esi: 0xba96ae52  edi: 0x003a93d0  
+
+      ffdd5ca0  01 00 00 00 b8 5c dd ff  a5 38 f3 1d 89 ff a0 40  .....\...8.....@
+      ffdd5cb0  a0 8e f1 ed 01 00 00 00  3f 03 38 00 a2 cc c3 2d  ........?.8....-
+      ffdd5cc0  a0 8e f1 ed d4 5c dd ff  38 5d dd ff ff 39 23 f7  .....\..8]...9#.
+      ffdd5cd0  40 8a f1 ed 02 00 00 00  8d 89 eb 1d 00 c0 79 44  @.............yD
+      ffdd5ce0  f4 86 f1 ed a0 f5 45 f7  18 5d dd ff 28 b0 e9 ed  ......E..]..(...
+      ffdd5cf0  a0 8e f1 ed 01 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5d00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5d10  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5d20  f4 86 f1 ed 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5d30  01 00 00 00 01 00 00 00  f8 5d dd ff 60 53 23 f7  .........]..`S#.
+
+      Found via call frame info
+
+
+  13: engine_srv.so!_Host_RunFrame(float) + 0x470
+      eip: 0xf7235360  esp: 0xffdd5d40  ebp: 0xffdd5df8  ebx: 0x00000000
+      esi: 0x00000001  edi: 0x00000001  
+
+      ffdd5d40  01 00 00 00 01 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5d50  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5d60  6b d3 0c 48 ae 0a 0d 00  fd 57 b3 00 00 00 00 00  k..H.....W......
+      ffdd5d70  12 73 46 1d 89 ff a0 40  41 c7 f1 f7 34 cd ff ff  .sF....@A...4...
+      ffdd5d80  5c 27 4c 1d 89 ff a0 40  08 5e dd ff da ca f1 01  \'L....@.^......
+      ffdd5d90  40 a2 29 f5 00 00 00 00  00 00 00 00 4c 0f 84 3c  @.).........L..<
+      ffdd5da0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5db0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5dc0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5dd0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5de0  00 9e 4a f7 00 00 00 00  58 5e dd ff 04 00 00 00  ..J.....X^......
+      ffdd5df0  a0 f5 45 f7 48 9a 4a f7  18 5e dd ff a8 ff 23 f7  ..E.H.J..^....#.
+
+      Found via call frame info
+
+
+  14: engine_srv.so!CHostState::State_Run(float) + 0xf8
+      eip: 0xf723ffa8  esp: 0xffdd5e00  ebp: 0xffdd5e18  ebx: 0x00000004
+      esi: 0xf745f5a0  edi: 0xf74a9a48  
+
+      ffdd5e00  7e 95 8b 3a 00 70 ee f7  58 5e dd ff c1 58 e1 f7  ~..:.p..X^...X..
+      ffdd5e10  04 00 00 00 00 9e 4a f7  38 5e dd ff 86 02 24 f7  ......J.8^....$.
+
+      Found via call frame info
+
+
+  15: engine_srv.so!CHostState::FrameUpdate(float) + 0x166
+      eip: 0xf7240286  esp: 0xffdd5e20  ebp: 0xffdd5e38  ebx: 0x00000004
+      esi: 0xf74a9e00  edi: 0xf74a9a48  
+
+      ffdd5e20  a0 f5 45 f7 7e 95 8b 3a  48 9a 4a f7 8b b2 ce f7  ..E.~..:H.J.....
+      ffdd5e30  01 00 00 00 00 00 00 00  58 5e dd ff cd 02 24 f7  ........X^....$.
+
+      Found via call frame info
+
+
+  16: engine_srv.so!HostState_Frame(float) + 0x1d
+      eip: 0xf72402cd  esp: 0xffdd5e40  ebp: 0xffdd5e58  ebx: 0x00000000
+      esi: 0xf74a9e00  edi: 0xf74a9a48  
+
+      ffdd5e40  a0 f5 45 f7 7e 95 8b 3a  3f 03 38 00 00 00 00 00  ..E.~..:?.8.....
+      ffdd5e50  00 9e 4a f7 48 9a 4a f7  d8 5e dd ff 4f 57 2d f7  ..J.H.J..^..OW-.
+
+      Found via call frame info
+
+
+  17: engine_srv.so!CEngine::Frame() + 0x54f
+      eip: 0xf72d574f  esp: 0xffdd5e60  ebp: 0xffdd5ed8  ebx: 0x00000000
+      esi: 0xf74a9e00  edi: 0xf74a9a48  
+
+      ffdd5e60  7e 95 8b 3a 7e 95 8b 3a  c0 fa 37 00 00 00 00 00  ~..:~..:..7.....
+      ffdd5e70  00 9e 4a f7 48 9a 4a f7  f8 5e dd ff 4f 57 2d f7  ..J.H.J..^..OW-.
+      ffdd5e80  76 71 a3 3b 76 71 a3 3b  09 51 e1 f7 e4 5e dd ff  vq.;vq.;.Q...^..
+      ffdd5e90  85 4e 96 ba d0 93 3a 00  18 5f dd ff af e2 dc f7  .N....:.._......
+      ffdd5ea0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5eb0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5ec0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd5ed0  00 00 00 00 01 00 00 00  f8 5e dd ff 76 24 2d f7  .........^..v$-.
+
+      Found via call frame info
+
+
+  18: engine_srv.so!CDedicatedServerAPI::RunFrame() + 0x26
+      eip: 0xf72d2476  esp: 0xffdd5ee0  ebp: 0xffdd5ef8  ebx: 0x00000000
+      esi: 0x00000001  edi: 0xf74a9a48  
+
+      ffdd5ee0  00 9e 4a f7 00 00 00 00  40 42 0f 00 00 d4 df a0  ..J.....@B......
+      ffdd5ef0  00 00 00 00 00 00 00 00  18 5f dd ff dc 8c 57 f7  ........._....W.
+
+      Found via call frame info
+
+
+  19: dedicated_srv.so!RunServerIteration(bool) + 0x3c
+      eip: 0xf7578cdc  esp: 0xffdd5f00  ebp: 0xffdd5f18  ebx: 0x00000000
+      esi: 0x00000001  edi: 0xf74a9a48  
+
+      ffdd5f00  48 9a 4a f7 01 00 00 00  00 00 00 00 40 a7 e9 ed  H.J.........@...
+      ffdd5f10  01 00 00 00 00 00 00 00  38 5f dd ff 78 8d 57 f7  ........8_..x.W.
+
+      Found via call frame info
+
+
+  20: dedicated_srv.so!RunServer(bool) + 0x48
+      eip: 0xf7578d78  esp: 0xffdd5f20  ebp: 0xffdd5f38  ebx: 0x00000000
+      esi: 0x00000001  edi: 0xf74a9a48  
+
+      ffdd5f20  00 00 00 00 c0 90 5b f7  00 00 00 00 01 00 00 00  ......[.........
+      ffdd5f30  30 26 6a 08 30 26 6a 08  58 5f dd ff 0d 25 2d f7  0&j.0&j.X_...%-.
+
+      Found via call frame info
+
+
+  21: engine_srv.so!CModAppSystemGroup::Main() + 0x8d
+      eip: 0xf72d250d  esp: 0xffdd5f40  ebp: 0xffdd5f58  ebx: 0x086a2630
+      esi: 0x00000001  edi: 0xf74a9a48  
+
+      ffdd5f40  00 00 00 00 01 00 00 00  00 c1 5d f7 30 26 6a 08  ..........].0&j.
+      ffdd5f50  01 00 00 00 30 26 6a 08  78 5f dd ff 68 79 32 f7  ....0&j.x_..hy2.
+
+      Found via call frame info
+
+
+  22: engine_srv.so!CAppSystemGroup::Run() + 0x38
+      eip: 0xf7327968  esp: 0xffdd5f60  ebp: 0xffdd5f78  ebx: 0x086a2630
+      esi: 0x00000001  edi: 0xf74a9a48  
+
+      ffdd5f60  30 26 6a 08 09 00 00 00  00 00 00 00 e8 60 dd ff  0&j..........`..
+      ffdd5f70  30 26 6a 08 01 00 00 00  c8 60 dd ff 7f 33 2d f7  0&j......`...3-.
+
+      Found via call frame info
+
+
+  23: engine_srv.so!CDedicatedServerAPI::ModInit(ModInfo_t&) + 0x1af
+      eip: 0xf72d337f  esp: 0xffdd5f80  ebp: 0xffdd60c8  ebx: 0x086a2630
+      esi: 0x00000001  edi: 0xf74a9a48  
+
+      ffdd5f80  30 26 6a 08 e4 62 dd ff  00 00 00 00 00 00 00 00  0&j..b..........
+      ffdd5f90  48 9a 4a f7 10 38 2d f7  01 54 00 00 30 26 6a 08  H.J..8-..T..0&j.
+      ffdd5fa0  f8 57 36 f7 01 38 39 33  34 00 00 00 02 00 00 00  .W6..8934.......
+      ffdd5fb0  d7 ff d7 f7 00 05 00 00  05 00 00 00 bf 00 00 00  ................
+      ffdd5fc0  31 8a 00 00 00 03 1c 7f  15 04 00 01 00 11 13 1a  1...............
+      ffdd5fd0  00 12 0f 17 16 00 00 00  00 05 00 00 10 00 00 00  ................
+      ffdd5fe0  e0 41 d0 f7 2a 8e 5b f7  18 60 dd ff 00 d4 df a0  .A..*.[..`......
+      ffdd5ff0  80 c3 5d f7 80 c3 5d f7  18 60 dd ff f7 71 57 f7  ..]...]..`...qW.
+      ffdd6000  a0 8d 5b f7 00 12 0f 17  5e e5 df f7 a0 e3 5d f7  ..[.....^.....].
+      ffdd6010  a0 e3 5d f7 30 60 dd ff  c8 60 dd ff 0a 7b 57 f7  ..].0`...`...{W.
+      ffdd6020  80 c3 5d f7 2a 8e 5b f7  00 00 00 00 a0 9c 29 f5  ..].*.[.......).
+      ffdd6030  00 00 20 00 00 00 00 00  00 00 00 00 00 00 00 00  .. .............
+      ffdd6040  00 00 00 00 00 00 00 00  00 00 00 00 10 00 00 00  ................
+      ffdd6050  e0 41 d0 f7 e2 90 5b f7  20 c2 5d f7 7b f2 58 f7  .A....[. .].{.X.
+      ffdd6060  e2 90 5b f7 c0 38 52 08  04 01 00 00 10 00 00 00  ..[..8R.........
+      ffdd6070  e0 41 d0 f7 0d 92 5b f7  a8 60 dd ff d8 6e ce f7  .A....[..`...n..
+      ffdd6080  0d 92 5b f7 c0 38 52 08  a8 60 dd ff 4b 87 57 f7  ..[..8R..`..K.W.
+      ffdd6090  20 c2 5d f7 2f 00 00 00  04 00 00 00 e0 41 d0 f7   .]./........A..
+      ffdd60a0  00 00 00 00 00 85 dd ff  04 00 00 00 00 d4 df a0  ................
+      ffdd60b0  e0 41 d0 f7 0d 92 5b f7  00 00 00 00 e4 62 dd ff  .A....[......b..
+      ffdd60c0  84 61 dd ff 44 85 dd ff  08 61 dd ff c5 89 57 f7  .a..D....a....W.
+
+      Found via call frame info
+
+
+  24: dedicated_srv.so!CDedicatedAppSystemGroup::Main() + 0xb5
+      eip: 0xf75789c5  esp: 0xffdd60d0  ebp: 0xffdd6108  ebx: 0xffdd62e4
+      esi: 0xffdd6184  edi: 0xffdd8544  
+
+      ffdd60d0  48 9a 4a f7 e8 60 dd ff  00 00 00 00 30 94 59 f7  H.J..`......0.Y.
+      ffdd60e0  e4 62 dd ff 84 61 dd ff  00 00 00 00 00 c1 5d f7  .b...a........].
+      ffdd60f0  b0 38 52 08 a4 84 5b f7  e4 62 dd ff 00 61 dd ff  .8R...[..b...a..
+      ffdd6100  84 61 dd ff e4 62 dd ff  28 61 dd ff 58 9a 59 f7  .a...b..(a..X.Y.
+
+      Found via call frame info
+
+
+  25: dedicated_srv.so!CAppSystemGroup::Run() + 0x38
+      eip: 0xf7599a58  esp: 0xffdd6110  ebp: 0xffdd6128  ebx: 0xffdd62e4
+      esi: 0xffdd6184  edi: 0xffdd8544  
+
+      ffdd6110  e4 62 dd ff 20 ab 5d f7  84 61 dd ff d3 83 57 f7  .b.. .]..a....W.
+      ffdd6120  84 61 dd ff 84 61 dd ff  48 61 dd ff 58 9a 59 f7  .a...a..Ha..X.Y.
+
+      Found via call frame info
+
+
+  26: dedicated_srv.so!CAppSystemGroup::Run() + 0x38
+      eip: 0xf7599a58  esp: 0xffdd6130  ebp: 0xffdd6148  ebx: 0xffdd6184
+      esi: 0xffdd6184  edi: 0xffdd8544  
+
+      ffdd6130  e4 62 dd ff 00 00 00 00  48 61 dd ff 2b 84 57 f7  .b......Ha..+.W.
+      ffdd6140  e4 62 dd ff 84 61 dd ff  58 64 dd ff f7 3f 54 f7  .b...a..Xd...?T.
+
+      Found via call frame info
+
+
+  27: dedicated_srv.so!main + 0x217
+      eip: 0xf7543ff7  esp: 0xffdd6150  ebp: 0xffdd6458  ebx: 0xffdd62e4
+      esi: 0xffdd6184  edi: 0xffdd8544  
+
+      ffdd6150  84 61 dd ff e4 62 dd ff  00 00 00 00 02 00 00 00  .a...b..........
+      ffdd6160  01 00 00 00 01 00 00 00  01 00 00 00 01 00 00 00  ................
+      ffdd6170  d0 21 52 08 e4 61 dd ff  00 00 00 00 db 7f 7f 02  .!R..a..........
+      ffdd6180  00 00 00 00 c8 94 5b f7  00 3b 52 08 03 00 00 00  ......[..;R.....
+      ffdd6190  00 00 00 00 02 00 00 00  00 3b 52 08 30 3b 52 08  .........;R.0;R.
+      ffdd61a0  08 00 00 00 00 00 00 00  02 00 00 00 30 3b 52 08  ............0;R.
+      ffdd61b0  80 67 55 f7 f0 39 52 08  10 00 00 00 00 00 00 00  .gU..9R.........
+      ffdd61c0  00 00 02 00 ff ff 01 00  f0 39 52 08 00 00 00 00  .........9R.....
+      ffdd61d0  08 00 00 00 20 ab 5d f7  e4 62 dd ff ff ff ff ff  .... .]..b......
+      ffdd61e0  2e 00 00 72 63 64 73 5f  6c 69 6e 75 78 00 00 00  ...rcds_linux...
+      ffdd61f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6200  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6210  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6220  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6230  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6240  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6250  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6260  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6270  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6280  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd6290  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd62a0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd62b0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd62c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd62d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+      ffdd62e0  00 00 00 00 88 94 5b f7  e0 a1 5b 08 0c 00 00 00  ......[...[.....
+      ffdd62f0  00 00 00 00 08 00 00 00  e0 a1 5b 08 d0 a2 5b 08  ..........[...[.
+      ffdd6300  10 00 00 00 00 00 00 00  0b 00 00 00 d0 a2 5b 08  ..............[.
+      ffdd6310  80 67 55 f7 e0 38 52 08  10 00 00 00 00 00 00 00  .gU..8R.........
+      ffdd6320  05 00 0b 00 ff ff 0a 00  e0 38 52 08 84 61 dd ff  .........8R..a..
+      ffdd6330  08 00 00 00 20 ab 5d f7  00 5a f4 f7 ac 63 dd ff  .... .]..Z...c..
+      ffdd6340  00 00 00 00 db 7f f2 f7  7c 82 04 08 ac 63 dd ff  ........|....c..
+      ffdd6350  9c 5a f4 f7 01 00 00 00  10 7b f1 f7 01 00 00 00  .Z.......{......
+      ffdd6360  00 00 00 00 01 00 00 00  40 59 f4 f7 26 b6 f0 f7  ........@Y..&...
+      ffdd6370  18 f0 f0 f7 c8 cf f2 f7  00 00 00 00 00 50 f4 f7  .............P..
+      ffdd6380  00 00 00 00 b8 73 f1 f7  20 7c f1 f7 01 00 00 00  .....s.. |......
+      ffdd6390  01 00 00 00 00 00 00 00  00 00 00 00 01 00 00 00  ................
+      ffdd63a0  00 50 f4 f7 ff ff ff ff  b9 9f d8 f7 00 d4 df a0  .P..............
+      ffdd63b0  00 72 f1 f7 26 3c e4 f7  68 b1 51 08 60 3d e4 f7  .r..&<..h.Q.`=..
+      ffdd63c0  d0 63 dd ff c0 bd f0 f7  3c 64 dd ff 44 85 dd ff  .c......<d..D...
+      ffdd63d0  00 00 00 00 00 00 00 00  00 00 00 00 00 d4 df a0  ................
+      ffdd63e0  00 f0 f0 f7 60 b1 51 08  04 55 f4 f7 dc 50 ef f7  ....`.Q..U...P..
+      ffdd63f0  90 9c 57 f7 40 50 f4 f7  04 55 f4 f7 de 51 ef f7  ..W.@P...U...Q..
+      ffdd6400  04 55 f4 f7 01 00 00 00  e9 3a ef f7 00 f0 f0 f7  .U.......:......
+      ffdd6410  77 c3 f0 f7 00 00 00 00  40 50 f4 f7 73 be f0 f7  w.......@P..s...
+      ffdd6420  04 55 f4 f7 3c 64 dd ff  f9 dd d7 f7 10 00 00 00  .U..<d..........
+      ffdd6430  19 cf f2 f7 00 20 52 08  a0 d0 51 08 00 d4 df a0  ..... R...Q.....
+      ffdd6440  70 8a 04 08 0e 87 04 08  90 9c 57 f7 00 20 52 08  p.........W.. R.
+      ffdd6450  a0 d0 51 08 44 85 dd ff  a8 84 dd ff 22 87 04 08  ..Q.D......."...
+
+      Found via call frame info

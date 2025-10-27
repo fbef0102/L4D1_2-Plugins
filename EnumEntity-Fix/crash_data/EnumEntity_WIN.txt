@@ -1,0 +1,163 @@
+CTriggerTraceEnum__EnumEntity                              CTriggerTraceEnum__EnumEntity proc near ; DATA XREF: .rdata:const CTriggerTraceEnum::`vftable'vo
+CTriggerTraceEnum__EnumEntity
+CTriggerTraceEnum__EnumEntity                              var_58          = byte ptr -58h
+CTriggerTraceEnum__EnumEntity                              var_2C          = dword ptr -2Ch
+CTriggerTraceEnum__EnumEntity                              var_4           = dword ptr -4
+CTriggerTraceEnum__EnumEntity                              arg_0           = dword ptr  8
+CTriggerTraceEnum__EnumEntity
+CTriggerTraceEnum__EnumEntity      55                                      push    ebp
+CTriggerTraceEnum__EnumEntity+1    8B EC                                   mov     ebp, esp
+CTriggerTraceEnum__EnumEntity+3    83 EC 58                                sub     esp, 58h
+CTriggerTraceEnum__EnumEntity+6    A1 58 79 7B 10                          mov     eax, ___security_cookie
+CTriggerTraceEnum__EnumEntity+B    33 C5                                   xor     eax, ebp
+CTriggerTraceEnum__EnumEntity+D    89 45 FC                                mov     [ebp+var_4], eax
+CTriggerTraceEnum__EnumEntity+10   53                                      push    ebx
+CTriggerTraceEnum__EnumEntity+11   56                                      push    esi
+CTriggerTraceEnum__EnumEntity+12   8B 75 08                                mov     esi, [ebp+arg_0]
+CTriggerTraceEnum__EnumEntity+15   8B 06                                   mov     eax, [esi]
+CTriggerTraceEnum__EnumEntity+17   8B 50 08                                mov     edx, [eax+8]
+CTriggerTraceEnum__EnumEntity+1A   57                                      push    edi
+CTriggerTraceEnum__EnumEntity+1B   8B F9                                   mov     edi, ecx
+CTriggerTraceEnum__EnumEntity+1D   8B CE                                   mov     ecx, esi
+CTriggerTraceEnum__EnumEntity+1F   FF D2                                   call    edx
+CTriggerTraceEnum__EnumEntity+21   8B 00                                   mov     eax, [eax]
+CTriggerTraceEnum__EnumEntity+23   83 F8 FF                                cmp     eax, 0FFFFFFFFh
+CTriggerTraceEnum__EnumEntity+26   74 2A                                   jz      short loc_10010682
+CTriggerTraceEnum__EnumEntity+28   8B C8                                   mov     ecx, eax
+CTriggerTraceEnum__EnumEntity+2A   81 E1 FF 0F 00 00                       and     ecx, 0FFFh
+CTriggerTraceEnum__EnumEntity+30   C1 E1 04                                shl     ecx, 4
+CTriggerTraceEnum__EnumEntity+33   81 C1 AC A4 7C 10                       add     ecx, offset dword_107CA4AC
+CTriggerTraceEnum__EnumEntity+39   C1 E8 0C                                shr     eax, 0Ch
+CTriggerTraceEnum__EnumEntity+3C   39 41 04                                cmp     [ecx+4], eax
+CTriggerTraceEnum__EnumEntity+3F   75 11                                   jnz     short loc_10010682
+CTriggerTraceEnum__EnumEntity+41   8B 09                                   mov     ecx, [ecx]
+CTriggerTraceEnum__EnumEntity+43   85 C9                                   test    ecx, ecx
+CTriggerTraceEnum__EnumEntity+45   74 0B                                   jz      short loc_10010682
+CTriggerTraceEnum__EnumEntity+47   8B 01                                   mov     eax, [ecx]
+CTriggerTraceEnum__EnumEntity+49   8B 50 14                                mov     edx, [eax+14h]
+CTriggerTraceEnum__EnumEntity+4C   FF D2                                   call    edx
+CTriggerTraceEnum__EnumEntity+4E   8B D8                                   mov     ebx, eax
+CTriggerTraceEnum__EnumEntity+50   EB 02                                   jmp     short loc_10010684
+CTriggerTraceEnum__EnumEntity+52                           ; ---------------------------------------------------------------------------
+CTriggerTraceEnum__EnumEntity+52
+CTriggerTraceEnum__EnumEntity+52                           loc_10010682:                           ; CODE XREF: CTriggerTraceEnum__EnumEntity+26^j
+CTriggerTraceEnum__EnumEntity+52                                                                   ; CTriggerTraceEnum__EnumEntity+3F^j ...
+CTriggerTraceEnum__EnumEntity+52   33 DB                                   xor     ebx, ebx
+CTriggerTraceEnum__EnumEntity+54
+CTriggerTraceEnum__EnumEntity+54                           loc_10010684:                           ; CODE XREF: CTriggerTraceEnum__EnumEntity+50^j
+CTriggerTraceEnum__EnumEntity+54   80 BB A2 01 00 00 00                    cmp     byte ptr [ebx+1A2h], 0
+CTriggerTraceEnum__EnumEntity+5B   74 09                                   jz      short loc_10010696
+CTriggerTraceEnum__EnumEntity+5D   F6 83 A0 01 00 00 04                    test    byte ptr [ebx+1A0h], 4
+CTriggerTraceEnum__EnumEntity+64   74 40                                   jz      short loc_100106D6
+CTriggerTraceEnum__EnumEntity+66
+CTriggerTraceEnum__EnumEntity+66                           loc_10010696:                           ; CODE XREF: CTriggerTraceEnum__EnumEntity+5B^j
+CTriggerTraceEnum__EnumEntity+66   8B 0D 04 14 7E 10                       mov     ecx, dword_107E1404
+CTriggerTraceEnum__EnumEntity+6C   8B 01                                   mov     eax, [ecx]
+CTriggerTraceEnum__EnumEntity+6E   8B 40 0C                                mov     eax, [eax+0Ch]
+CTriggerTraceEnum__EnumEntity+71   8D 55 A8                                lea     edx, [ebp+var_58]
+CTriggerTraceEnum__EnumEntity+74   52                                      push    edx
+CTriggerTraceEnum__EnumEntity+75   8B 57 10                                mov     edx, [edi+10h]
+CTriggerTraceEnum__EnumEntity+78   56                                      push    esi
+CTriggerTraceEnum__EnumEntity+79   52                                      push    edx
+CTriggerTraceEnum__EnumEntity+7A   8B 57 14                                mov     edx, [edi+14h]
+CTriggerTraceEnum__EnumEntity+7D   52                                      push    edx
+CTriggerTraceEnum__EnumEntity+7E   FF D0                                   call    eax
+CTriggerTraceEnum__EnumEntity+80   F3 0F 10 05 8C 0D 5C 10                 movss   xmm0, ds:dword_105C0D8C
+CTriggerTraceEnum__EnumEntity+88   0F 2F 45 D4                             comiss  xmm0, [ebp+var_2C]
+CTriggerTraceEnum__EnumEntity+8C   76 18                                   jbe     short loc_100106D6
+CTriggerTraceEnum__EnumEntity+8E   8D 4D A8                                lea     ecx, [ebp+var_58]
+CTriggerTraceEnum__EnumEntity+91   51                                      push    ecx
+CTriggerTraceEnum__EnumEntity+92   8D 57 04                                lea     edx, [edi+4]
+CTriggerTraceEnum__EnumEntity+95   52                                      push    edx
+CTriggerTraceEnum__EnumEntity+96   83 C7 18                                add     edi, 18h
+CTriggerTraceEnum__EnumEntity+99   57                                      push    edi
+CTriggerTraceEnum__EnumEntity+9A   8B CB                                   mov     ecx, ebx
+CTriggerTraceEnum__EnumEntity+9C   E8 3F C2 05 00                          call    sub_1006C910
+CTriggerTraceEnum__EnumEntity+A1   E8 0A 6D 1D 00                          call    sub_101E73E0
+CTriggerTraceEnum__EnumEntity+A6
+CTriggerTraceEnum__EnumEntity+A6                           loc_100106D6:                           ; CODE XREF: CTriggerTraceEnum__EnumEntity+64^j
+CTriggerTraceEnum__EnumEntity+A6                                                                   ; CTriggerTraceEnum__EnumEntity+8C^j
+CTriggerTraceEnum__EnumEntity+A6   8B 4D FC                                mov     ecx, [ebp+var_4]
+CTriggerTraceEnum__EnumEntity+A9   5F                                      pop     edi
+CTriggerTraceEnum__EnumEntity+AA   5E                                      pop     esi
+CTriggerTraceEnum__EnumEntity+AB   33 CD                                   xor     ecx, ebp        ; StackCookie
+CTriggerTraceEnum__EnumEntity+AD   B0 01                                   mov     al, 1
+CTriggerTraceEnum__EnumEntity+AF   5B                                      pop     ebx
+CTriggerTraceEnum__EnumEntity+B0   E8 1F BD 53 00                          call    @__security_check_cookie@4 ; __security_check_cookie(x)
+CTriggerTraceEnum__EnumEntity+B5   8B E5                                   mov     esp, ebp
+CTriggerTraceEnum__EnumEntity+B7   5D                                      pop     ebp
+CTriggerTraceEnum__EnumEntity+B8   C2 04 00                                retn    4
+CTriggerTraceEnum__EnumEntity+B8                           CTriggerTraceEnum__EnumEntity endp
+
+
+==========================
+
+char __thiscall CTriggerTraceEnum::EnumEntity(_DWORD *this, int a2)
+{
+  _DWORD *v2; // edi
+  unsigned int v3; // eax
+  int *v4; // ecx
+  int v5; // ecx
+  int v6; // ebx
+  char v8; // [esp+Ch] [ebp-58h]
+  float v9; // [esp+38h] [ebp-2Ch]
+
+  v2 = this;
+  v3 = *(_DWORD *)(*(int (__thiscall **)(int))(*(_DWORD *)a2 + 8))(a2);
+  if ( v3 != -1 && (v4 = &dword_107CA4AC[4 * (v3 & 0xFFF)], v4[1] == v3 >> 12) && (v5 = *v4) != 0 )
+    v6 = (*(int (__thiscall **)(int))(*(_DWORD *)v5 + 20))(v5);
+  else
+    v6 = 0;
+  if ( !*(_BYTE *)(v6 + 418) || *(_BYTE *)(v6 + 416) & 4 )
+  {
+    (*(void (__thiscall **)(int, _DWORD, _DWORD, int, char *))(*(_DWORD *)dword_107E1404 + 12))(
+      dword_107E1404,
+      v2[5],
+      v2[4],
+      a2,
+      &v8);
+    if ( v9 < 1.0 )
+    {
+      sub_1006C910(v2 + 6, v2 + 1, &v8);
+      sub_101E73E0();
+    }
+  }
+  return 1;
+}
+
+===================
+
+Crash, possibly, caused by:
+
+v6 = 0;
+
+and further attempt to dereference it.
+
+==================
+
+Addition:
+------------------------------
+
+Linux crash stack:
+
+SIGSEGV /SEGV_MAPERR accessing 0x1b6
+
+Thread 0 (crashed):
+   0: server_srv.so!CTriggerTraceEnum::EnumEntity(IHandleEntity*) + 0x46
+      eip: 0xee2488d6  esp: 0xff9f3910  ebp: 0xff9f39b8  ebx: 0x12e5ed18
+      esi: 0xff9f3d18  edi: 0x00000000  eax: 0xffffffff  ecx: 0x00000642
+      edx: 0xee8c4fb8  efl: 0x00210246  
+
+      ee2488be  81 e2 ff 0f 00 00     and edx, 0xfff
+      ee2488c4  c1 e2 04              shl edx, 0x4
+      ee2488c7  81 c2 20 76 c4 ee     add edx, 0xeec47620
+      ee2488cd  39 42 08              cmp [edx+0x8], eax
+      ee2488d0  0f 84 8a 00 00 00     jz 0xee248960
+  >   ee2488d6  80 bf b6 01 00 00 00  cmp byte [edi+0x1b6], 0x0
+      ee2488dd  0f b7 87 b4 01 00 00  movzx eax, word [edi+0x1b4]
+      ee2488e4  74 1a                 jz 0xee248900
+      ee2488e6  a8 04                 test al, 0x4
+      ee2488e8  75 16                 jnz 0xee248900
+      ee2488ea  8b 5d f4              mov ebx, [ebp-0xc]
+	  
+	  

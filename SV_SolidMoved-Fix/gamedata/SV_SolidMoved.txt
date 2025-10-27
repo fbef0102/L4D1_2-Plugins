@@ -1,0 +1,40 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			"Detour_Offset" // last safe instruction, before crash
+			{
+				"windows"		"0x58"
+				"linux"			"0x67"
+			}
+			"Detour_Bytes" // (4 bytes)
+			{
+				"windows"		"0x57104D8B" // mov ecx, [ebp+arg_8]; push    edi - reverse order {8B 4D 10 57}
+				"linux"			"0x89FAB60F" // movzx   edi, dl; mov     [esp], edi - reverse order {0F B6 FA 89}
+			}
+			"Retn_Offset" // offset of stack restore before retn
+			{
+				"windows"		"0x92"
+				"linux"			"0x260"
+			}
+			"Retn_Bytes" // (4 bytes)
+			{
+				"windows"		"0x5BC38B5E" // pop esi; mov eax, ebx; pop ebx - reverse order {5E 8B C3 5B}
+				"linux"			"0x00CCC481" // add esp, 0CCh; - reverse order {81 C4 CC 00}
+			}
+		}
+		"Signatures"
+		{
+			"SV_SolidMoved"
+			{
+				"library"		"engine"
+				"linux"			"@_Z13SV_SolidMovedP7edict_tP12ICollideablePK6Vectorb"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x18\x53\x8B\xD9\xC7\x03\x2A\x2A\x2A\x2A\x56\xB8\x08\x00\x00\x00\x89\x43\x6C\x89\x43\x70\x33\xF6\x89\x73\x68\xA1\x2A\x2A\x2A\x2A\x8B\x08\x8B\x11\x8B\x42\x04\x6A\x20"
+				/* 55 8B EC 83 EC 18 53 8B D9 C7 03 ? ? ? ? 56 B8 08 00 00 00 89 43 6C 89 43 70 33 F6 89 73 68 A1 ? ? ? ? 8B 08 8B 11 8B 42 04 6A 20 */
+				/* Found by Crash Address "engine.dll + 0x20fb6f". Has Href from CM_GetCollideableTriggerTestBox */
+			}
+		}
+	}
+}

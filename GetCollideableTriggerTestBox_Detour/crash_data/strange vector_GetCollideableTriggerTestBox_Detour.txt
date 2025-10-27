@@ -1,0 +1,7 @@
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector2= 0.000000 0.000000 0.000000
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector1= 0.000000 -43.000000 486104120306885200000000000000000.000000
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector2= 13.000000 13.000000 25.000000
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector1= 0.000000 -43.000000 0.000000
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector2= 13.000000 13.000000 25.000000
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector1= 0.000000 -43.000000 0.000000
+L 12/27/2020 - 18:49:21: [GetCollideableTriggerTestBox_Detour.smx] vector2= 13.000000 13.000000 25.000000

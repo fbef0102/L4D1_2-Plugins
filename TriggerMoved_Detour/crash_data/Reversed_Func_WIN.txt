@@ -1,0 +1,69 @@
+int __thiscall CM_TriggerWorldSpaceBounds(_DWORD *this, int a2)
+{
+  _DWORD *v2; // esi
+  int v3; // ecx
+  int pCollideable_orig; // eax
+  int v5; // eax
+  int pCollideable; // edi
+  void *v7; // eax
+  float pMins[3]; // [esp+8h] [ebp-18h]
+  float pMaxs[3]; // [esp+14h] [ebp-Ch]
+
+  v2 = this;                                    // CTriggerMoved
+  this[1] = a2;
+  if ( *(_BYTE *)a2 & 4 && (v3 = *(_DWORD *)(a2 + 12)) != 0 )// edict_t pTriggerEntity = IClientEntity + 12
+    pCollideable_orig = (*(int (__thiscall **)(int))(*(_DWORD *)v3 + 12))(v3);// pTriggerEntity->GetCollideable()
+  else
+    pCollideable_orig = 0;
+  v2[2] = pCollideable_orig;
+  v5 = (*(int (__thiscall **)(int))(*(_DWORD *)pCollideable_orig + 48))(pCollideable_orig);// m_triggerSolidFlags = pCollideable->GetSolidFlags()
+  pCollideable = v2[2];
+  v2[3] = v5;
+  if ( (*(char (__thiscall **)(int))(*(_DWORD *)pCollideable + 48))(pCollideable) >= 0 )// MAYBE: pCollideable->GetSolidFlags() & FSOLID_USE_TRIGGER_BOUNDS ???
+    CM_WorldSpaceBounds(pCollideable, pMins, pMaxs);
+  else
+    (*(void (__thiscall **)(int, float *, float *))(*(_DWORD *)pCollideable + 12))(pCollideable, pMins, pMaxs);// // WorldSpaceTriggerBounds(pMins, pMaxs)
+  v7 = SpatialPartition();                      // g_SpatialPartition
+  return (*(int (__thiscall **)(void *, int, float *, float *, _DWORD, _DWORD *))(*(_DWORD *)v7 + 52))(// SpatialPartition()->EnumerateElementsInBox
+           v7,                                  // g_SpatialPartition
+           1,                                   // PARTITION_ENGINE_SOLID_EDICTS
+           pMins,
+           pMaxs,
+           0,                                   // false
+           v2);                                 // CTriggerMoved
+}
+
+/*
+	Crash is possibly happened due to:
+	
+	pCollideable_orig = 0;
+	
+	and further attempt to dereference it.
+*/
+
+Addition:
+------------------------------
+
+Linux crash stack:
+
+SIGSEGV /SEGV_MAPERR accessing 0x0
+
+Thread 0 (crashed):
+   0: engine_srv.so!SV_TriggerMoved(edict_t*, bool) + 0x5e
+      eip: 0xf745279e  esp: 0xffef9ec0  ebp: 0xffef9f48  ebx: 0xe9c1cfe0
+      esi: 0x00000001  edi: 0xe9c1cf01  eax: 0x00000000  ecx: 0xf7e17780
+      edx: 0x0d5960a8  efl: 0x00210246  
+
+      f7452791  74 08     jz 0xf745279b
+      f7452793  8b 02     mov eax, [edx]
+      f7452795  89 14 24  mov [esp], edx
+      f7452798  ff 50 10  call dword [eax+0x10]
+      f745279b  89 45 a4  mov [ebp-0x5c], eax
+  >   f745279e  8b 10     mov edx, [eax]
+      f74527a0  89 04 24  mov [esp], eax
+      f74527a3  ff 52 30  call dword [edx+0x30]
+      f74527a6  89 45 a8  mov [ebp-0x58], eax
+      f74527a9  8b 45 a4  mov eax, [ebp-0x5c]
+      f74527ac  8d 5d dc  lea ebx, [ebp-0x24]
+	  
+	  

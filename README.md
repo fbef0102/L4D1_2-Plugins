@@ -272,6 +272,20 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 複製並創造新的特感梯子或倖存者梯子
 * <b>[l4d2_chainsaw_fix](/l4d2_chainsaw_fix)</b>: Fixed server crash due to chainsaw sound issue in l4d2 linux
     * 修復L4D2 linux系統下電鋸音效導致伺服器崩潰
+* <b>[GetCollideableTriggerTestBox_Detour](/GetCollideableTriggerTestBox_Detour)</b>: Fixing the crash with null pointer dereference in ```CM_GetCollideableTriggerTestBox```
+    * 修復崩潰 ```CM_GetCollideableTriggerTestBox``` 涵式內的空指針
+* <b>[Tier_MemScan_Detour](/Tier_MemScan_Detour)</b>: Temp. walkaround agains wrong mem. address access in ```Tier0```, maybe some mem. scan related
+    * 修復崩潰 ```tier0.dll``` 涵式相關記憶體錯誤
+* <b>[SV_SolidMoved-Fix](/SV_SolidMoved-Fix)</b>: Fixing the null pointer dereference in ```SV_SolidMoved```
+    * 修復崩潰 ```SV_SolidMoved``` 涵式內的空指針
+* <b>[Fix_CM_VCollideForModel_Detour](/Fix_CM_VCollideForModel_Detour)</b>: Fixed server crash caused by zero pointer of model_t passed to ```CM_VCollideForModel``` function
+    * 修復崩潰: 傳給```CM_VCollideForModel``` 涵式內的zero pointer
+* <b>[EnumEntity-Fix](/EnumEntity-Fix)</b>: Fix Crash ```CTriggerTraceEnum::EnumEntity``` null pointer
+    * 修正崩潰: ```CTriggerTraceEnum::EnumEntity``` 涵式內的空指針
+* <b>[TriggerMoved_Detour](/TriggerMoved_Detour)</b>: Fix Crash ```CM_TriggerWorldSpaceBounds()``` null pointer
+    * 修正崩潰: ```CM_TriggerWorldSpaceBounds()``` 涵式內的空指針
+* <b>[Server_sub_101D7CB0_Detour](/Server_sub_101D7CB0_Detour)</b>: Fix Crash ```server.dll + 0x1d7cbb``` null pointer
+    * 修正崩潰: ```server.dll + 0x1d7cbb``` 涵式內的空指針
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

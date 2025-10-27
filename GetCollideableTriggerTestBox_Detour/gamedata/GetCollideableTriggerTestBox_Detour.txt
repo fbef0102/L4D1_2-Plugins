@@ -1,0 +1,88 @@
+"Games"
+{
+	"#default"
+	{
+		"Offsets"
+		{
+			"OS"
+			{
+				"windows"	"0"
+				"linux"		"1"
+				"mac"		"2"
+			}
+		}
+	}
+
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"CM_GetCollideableTriggerTestBox"
+			{
+				"signature"		"CM_GetCollideableTriggerTestBox"
+				"callconv"		"cdecl" // __usercall https://www.hex-rays.com/products/ida/support/idadoc/1361.shtml
+				"return"		"float"
+				"this"			"ignore"
+				
+				"arguments" // Lin/Win has different arguments order!
+				{
+					"linux"
+					{
+						"a1"
+						{
+							"type"	"int"
+							"register" "eax"
+						}
+						"a2"
+						{
+							"type"	"vectorptr"
+							"register" "edx"
+						}
+						"a3"
+						{
+							"type"	"vectorptr"
+							"register" "ecx"
+						}
+						"a4"
+						{
+							"type"	"bool"
+						}
+					}
+					"windows"
+					{
+						"a1"
+						{
+							"type"	"vectorptr"
+							"register" "edi"
+						}
+						"a2"
+						{
+							"type"	"vectorptr"
+							"register" "esi"
+						}
+						"a3"
+						{
+							"type"	"int"
+						}
+						"a4"
+						{
+							"type"	"bool"
+						}
+					}
+				}
+			}
+		}
+		"Signatures"
+		{
+			"CM_GetCollideableTriggerTestBox"
+			{
+				"library"		"engine"
+				"linux"			"@_ZL31CM_GetCollideableTriggerTestBoxP12ICollideableP6VectorS2_b"
+				"windows"		"\x55\x8B\xEC\x80\x7D\x0C\x00\x53\x8B\x5D\x08\x74\x2A\x8B\x03\x8B\x50\x2C\x8B\xCB\xFF\xD2"
+				/* 55 8B EC 80 7D 0C 00 53 8B 5D 08 74 ? 8B 03 8B 50 2C 8B CB FF D2 */
+				/* Found by crash address: engine.dll + 0x20fbad */
+				/* Also, in WIN it has XRef from the function SV_SolidMoved(), that contains a call to CTouchLinks::EnumElement. */
+			}
+		}
+	}
+}

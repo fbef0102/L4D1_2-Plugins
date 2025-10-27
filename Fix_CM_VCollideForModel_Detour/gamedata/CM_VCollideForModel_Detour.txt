@@ -1,0 +1,41 @@
+"Games"
+{
+	"left4dead"
+	{
+		"Offsets"
+		{
+			"Detour_Offset"
+			{
+				"linux"		"0x19"
+				"windows"	"4"
+			}
+			"Detour_Bytes" // mov eax, [edx+6Ch]
+			{
+				"linux"		"0x836C428B" //  - reverse order of: 8B 42 6C 83
+				"windows"	"0x836C428B" //  - reverse order of: 8B 42 6C 83
+			}
+			"Retn_Offset" // offset of (xor eax, eax) - stack restore before retn
+			{
+				"linux"		"0x26"
+				"windows"	"0x11"
+			}
+			"Retn_Bytes"
+			{
+				"linux"		"0xC483C031" // - reverse order of: 31 C0 83 C4 {10} // xor eax, eax; add esp, 10h
+				"windows"	"0x8BC3C033" // - reverse order of: 33 C0 C3 [8B] // xor eax, eax; retn; mov ...
+			}
+		}
+		
+		"Signatures"
+		{
+			"CM_VCollideForModel"
+			{
+				"library"	"engine"
+				"linux"		"@_Z19CM_VCollideForModeliPK7model_t"
+				"windows"	"\x8b\x54\x24\x08\x8b\x42\x6c\x83\xe8\x01\x74\x2a\x83\xe8\x02\x74\x03\x33\xc0\xc3"
+				/* 8b 54 24 08 8b 42 6c 83 e8 01 74 ? 83 e8 02 74 03 33 c0 c3 */
+				/* Found by crash stack */
+			}
+		}
+	}
+}

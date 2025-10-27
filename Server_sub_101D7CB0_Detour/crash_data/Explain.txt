@@ -1,0 +1,24 @@
+EXCEPTION_ACCESS_VIOLATION_WRITE accessing 0x50
+
+Thread 0 (crashed):
+   0: server.dll + 0x1d7cbb
+      eip: 0x78797cbb  esp: 0x00bbd8fc  ebp: 0x00bbd8fc  ebx: 0x00bbdac8
+      esi: 0x22cbb780  edi: 0x00000000  eax: 0x78d3cb80  ecx: 0x00000000
+      edx: 0x78797cb0  efl: 0x00210212  
+
+__int64 __userpurge sub_101D7CB0@<edx:eax>(char a1@<efl>, int a2, float a3, float a4)
+
+sub_101D7CB0      55                                      push    ebp
+sub_101D7CB0+1    8B EC                                   mov     ebp, esp
+sub_101D7CB0+3    8B 4D 08                                mov     ecx, [ebp+arg_0]
+sub_101D7CB0+6    F3 0F 10 4D 0C                          movss   xmm1, [ebp+arg_4]
+sub_101D7CB0+B  > 83 49 50 02                             or      dword ptr [ecx+50h], 2
+sub_101D7CB0+F    F3 0F 10 11                             movss   xmm2, dword ptr [ecx]
+sub_101D7CB0+13   0F 57 DB                                xorps   xmm3, xmm3
+
+*(_DWORD *)(a2 + 80) |= 2u;
+
+Crash happened due to "ecx" null pointer dereference.
+Function prototype is unusual. There is no support for such register in DHook Detours,
+so we are using own detour.
+I was unable to find Linux accordance. There is no XRef.

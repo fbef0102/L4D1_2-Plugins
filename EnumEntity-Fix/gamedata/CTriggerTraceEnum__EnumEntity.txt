@@ -1,0 +1,39 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			"Detour_Offset" // last safe instruction, before crash
+			{
+				"windows"		"0x56" // OLD: 0x54
+				"linux"			"0x40" // OLD: 0x46
+			}
+			"Detour_Bytes" // (4 bytes)
+			{
+				"windows"		"0x01A2BB80" // mov [esi+8], eax - reverse order {80 BB A2 01}
+				"linux"			"0x01B6BB80" // cmp byte ptr [edi+1B6h], 0 - reverse order {80 BB B6 01 00 00 00} // OLD: 0x01B6BF80; cmp byte ptr [edi+1B6h], 0 - reverse order {80 BF B6 01 00 00 00}
+			}
+			"Retn_Offset" // offset of stack restore before retn
+			{
+				"windows"		"0xA8" // OLD: 0xA6
+				"linux"			"0x54" // OLD: 0x5A
+			}
+			"Retn_Bytes" // (4 bytes)
+			{
+				"windows"		"0x5FFC4D8B" // mov ecx, [ebp+var_4]; pop edi - reverse order {8B 4D FC 5F}
+				"linux"			"0x008CC481" // add esp, 8Ch - reverse order {81 C4 8C 00} // OLD: 0xB8F45D8B; mov ebx, [ebp+var_C]; mov eax, 1 - reverse order {8B 5D F4 B8 01 00 00 00}
+			}
+		}
+		"Signatures"
+		{
+			"CTriggerTraceEnum__EnumEntity"
+			{
+				"library"		"server"
+				"windows"		"\x55\x8B\x2A\x83\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\x2A\x89\x2A\x2A\x53\x56\x8B\x2A\x2A\x8B\x2A\x8B\x2A\x2A\x57\x8B\x2A\x8B\x2A\xFF"
+				/* Found by Crash Address "server.dll + 0x10684" & some bytes from crash stack */
+				"linux"			"@_ZN17CTriggerTraceEnum10EnumEntityEP13IHandleEntity"
+			}
+		}
+	}
+}

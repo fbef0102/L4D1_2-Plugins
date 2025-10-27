@@ -1,0 +1,37 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			"Detour_Offset"
+			{
+				"windows"		"11"
+			}
+			"Detour_Bytes" // 	or dword ptr [ecx+50h], 2
+			{
+				"windows"		"38816131" //  - reverse order: 83 49 50 02
+			}
+			"Retn_Offset" // offset of (pop ebp) - stack restore before retn
+			{
+				"windows"		"81"
+			}
+			"Retn_Bytes" // pop ebp (1 byte)
+			{
+				"windows"		"93"
+			}
+		}
+		
+		"Signatures"
+		{
+			"Sub1"
+			{
+				"library"		"server"
+				"windows"		"\x55\x8B\xEC\x8B\x4D\x08\xF3\x0F\x10\x4D\x0C\x83\x49\x50\x02"
+				/* 55 8B EC 8B 4D 08 F3 0F 10 4D 0C 83 49 50 02 */
+				/* Found by Crash Address "server.dll + 0x1d7cbb" */
+				/* Has no XRef :( */
+			}
+		}
+	}
+}

@@ -1,0 +1,28 @@
+	/*
+		SV_SolidMoved() func:
+		...
+	
+		  if ( *(_BYTE *)a2 & 4 && (v6 = *(_DWORD *)(a2 + 12)) != 0 )
+	    	v7 = (*(int (__thiscall **)(int))(*(_DWORD *)v6 + 12))(v6);
+		  else
+	>	    v7 = 0;
+		  *((_DWORD *)v4 + 25) = v7;
+		  CM_GetCollideableTriggerTestBox((float *)&v10, (float *)&v11, v7, a4);
+		  
+		  // proto:
+		  CM_GetCollideableTriggerTestBox(Vector *, Vector *, ICollideable *, bool)
+		  
+		  // Perhaps, crash happened due to v7 = 0, that is extracted from malformed entity:
+		  causing null ICollideable. Crash place:
+		  
+		  	55                                      push    ebp
+			8B EC                                   mov     ebp, esp
+			80 7D 0C 00                             cmp     byte ptr [ebp+arg_4], 0
+			53                                      push    ebx
+			8B 5D 08                                mov     ebx, [ebp+arg_0]
+			74 43                                   jz      short loc_1020FBF0
+		>	8B 03                                   mov     eax, [ebx]
+			8B 50 2C                                mov     edx, [eax+2Ch]
+			8B CB                                   mov     ecx, ebx
+			FF D2                                   call    edx
+  */

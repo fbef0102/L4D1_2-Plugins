@@ -1,0 +1,41 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Offsets"
+		{
+			"Detour_Offset" // last safe instruction, before crash
+			{
+				"windows"		"0x27"
+				"linux"			"0x60" // OLD: 0x5B
+			}
+			"Detour_Bytes" // mov [esi+8], eax (3 bytes)
+			{
+				"windows"		"0x084689" // reverse order {89 46 08}
+				"linux"			"0xCC4589" // reverse order {89 45 CC} // OLD: 0xA44589; reverse order {89 45 A4}
+			}
+			"Retn_Offset" // offset of instruction, where stack restore before retn
+			{
+				"windows"		"0x7D"
+				"linux"			"0x105" // OLD: 0xFD
+			}
+			"Retn_Bytes" // (1 byte)
+			{
+				"windows"		"0x5F" // pop edi
+				"linux"			"0x83" // add esp, 70h {83 C4 70} // OLD: add esp, 7Ch {83 C4 7C}
+			}
+		}
+		"Signatures"
+		{
+			"CM_TriggerWorldSpaceBounds" // WIN. For linux it's "SV_TriggerMoved"
+			{
+				"library"		"engine"
+				"windows"		"\x55\x8B\x2A\x8B\x2A\x2A\x83\x2A\x2A\x56\x8B\x2A\x89\x2A\x2A\xF6"
+				/* Found by Crash Address "engine.dll + 0x20fc9a" */
+				/* Has XRef from CL_TriggerMoved func, see: CTriggerMoved::TriggerMoved from SDK (world.cpp) */
+				/* Linux is possibly not affected. Same crash place is located in CL_TriggerMoved(). */
+				"linux"			"@_Z15SV_TriggerMovedP7edict_tb"
+			}
+		}
+	}
+}
