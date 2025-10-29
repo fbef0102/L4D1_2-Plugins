@@ -5,7 +5,7 @@ Fix Crash ```CM_TriggerWorldSpaceBounds()``` null pointer
 
 * Apply to | 適用於
 	```
-	L4D1 windows/linux
+	L4D2 windows/linux
 	```
 	
 * Require | 必要安裝

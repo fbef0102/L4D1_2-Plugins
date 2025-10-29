@@ -5,7 +5,7 @@ Fix Crash ```server.dll + 0x1d7cbb``` null pointer
 
 * Apply to | 適用於
 	```
-	L4D1 windows
+	L4D2 windows
 	```
 	
 * Require | 必要安裝
