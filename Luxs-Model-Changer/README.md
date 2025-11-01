@@ -11,21 +11,33 @@ LMC Allows you to use most models with most characters
 
 * <details><summary>How does it work?</summary>
 
-    * Require files
-        * LMCCore: Core of LMC, manages overlay models
-        * SetTransmit: Manages transmitting models to clients
-        * LMC_SharedCvars: Modules that share cvars are put in here
-    * Optional files
-        * Menu_Choosing: Allows players to type ```!lmc``` to choose LMC model with cookie saving
-        * RandomSpawns: Makes lmc models random for players and AI
-        * CDeathHandler: Manages deaths regarding lmc, overlay deathmodels and ragdolls, and fixes clonesurvivors deathmodels teleporting around.
-    * Name with L4D2: For L4D2 only
-    * Name with L4D1: For L4D1 only
+    * Add or remove more models in file: [data/LMC_L4D_Model_Data.cfg](data/LMC_L4D_Model_Data.cfg)
+    * L4D2
+        * Require files
+            * LMCCore: Core of LMC, manages overlay models
+            * LMCSharedCvars: Modules that share cvars are put in here
+            * LMCL4D2SetTransmit: Manages transmitting models to clients
+        * Optional files
+            * LMCEDeathHandler: Manages deaths regarding lmc for entities ragdolls, module required to handle (witch & common deaths)
+            * LMCL4D2CDeathHandler: Manages deaths regarding lmc, overlay deathmodels and ragdolls, and fixes clonesurvivors deathmodels teleporting around.
+            * LMC_L4D2_Menu_Choosing: Allows players to type ```!lmc``` to choose LMC model with cookie saving
+            * LMC_L4D2_RandomSpawns: Makes lmc models random for players and AI
+    * L4D1
+        * Require files
+            * LMCCore: Core of LMC, manages overlay models
+            * LMCSharedCvars: Modules that share cvars are put in here
+            * LMCL4D1SetTransmit: Manages transmitting models to clients
+        * Optional files
+            * LMCEDeathHandler: Manages deaths regarding lmc for entities ragdolls, module required to handle (witch & common deaths)
+            * LMCL4D1CDeathHandler: Manages deaths regarding lmc, overlay deathmodels and ragdolls, and fixes clonesurvivors deathmodels teleporting around.
+            * LMC_L4D1_Menu_Choosing: Allows players to type ```!lmc``` to choose LMC model with cookie saving
+            * LMC_L4D1_RandomSpawns: Makes lmc models random for players and AI
 </details>
 
 * Require | 必要安裝
     1. [ThirdPersonShoulder_Detect](https://forums.alliedmods.net/showthread.php?t=298649)
     2. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+    3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -37,9 +49,9 @@ LMC Allows you to use most models with most characters
         lmc_aggressive_model_checks "0" 
         ```
 
-    * cfg/sourcemod/LMC_SharedCvars.cfg
+    * cfg/sourcemod/LMCSharedCvars.cfg
         ```php
-        // ConVars for plugin "LMC_SharedCvars.smx"
+        // ConVars for plugin "LMCSharedCvars.smx"
 
         // Allow Survivors to have custom model? (1 = true)
         lmc_allowSurvivors "1"
@@ -55,12 +67,6 @@ LMC Allows you to use most models with most characters
 
         // Allow Tanks to have custom model? (1 = true)
         lmc_allowtank "0"
-
-        // The tank model is big and don't look good on other models so i made it optional(1 = true)
-        lmc_allow_tank_model_use "0"
-
-        // Disables model precaching on selected maps to help prevent crashing, e.g. "c1m3_mall," for dead center map 3 separated by ","
-        lmc_precache_prevent "" 
         ```
 
     * cfg/sourcemod/LMC_L4D2_RandomSpawns.cfg
@@ -71,6 +77,7 @@ LMC Allows you to use most models with most characters
         lmc_rng_humans "0"
 
         // (0 = disable custom models)chance on which will get a custom model
+        // Does not work in Jockey, Charger, Spitter 
         lmc_rng_model_infected "20"
 
         // (0 = disable custom models)chance on which will get a custom model
@@ -92,7 +99,7 @@ LMC Allows you to use most models with most characters
         lmc_announcemode "1"
 
         // How long (in seconds) the client will be in thirdperson view after selecting a model from !lmc command. (0.5 < = off)
-        lmc_thirdpersontime "0.0" 
+        lmc_thirdpersontime "1.0" 
         ```
 
     * cfg/sourcemod/LMC_L4D1_RandomSpawns.cfg
@@ -102,10 +109,10 @@ LMC Allows you to use most models with most characters
         // Allow humans to be considered by rng, menu selection will overwrite this in LMC_Menu_Choosing
         lmc_rng_humans "0"
 
-        // (0 = disable custom models)chance on which will get a custom model
+        // (0 = disable custom models)chance on which will get a custom model, [1~100]%
         lmc_rng_model_infected "100"
 
-        // (0 = disable custom models)chance on which will get a custom model
+        // (0 = disable custom models)chance on which will get a custom model, [1~100]%
         lmc_rng_model_survivor "100" 
         ```
 
@@ -131,6 +138,10 @@ LMC Allows you to use most models with most characters
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.0h (2025-11-2)
+        * Update translation, cvars
+        * Add data to modify custom model
+
     * v3.1.1 (2024-12-18)
         * Add some instructions how to install plugins (English and Chinese)
         * Update cvar "lmc_adminonly" => "lmc_admin_flag" in _Menu_Choosing, player no needs to modify ```sourcemod/configs/admin_overrides.cfg```
@@ -150,16 +161,27 @@ LMC Allows you to use most models with most characters
 可以自由變成其他角色或NPC的模組
 
 * 原理
-    * 插件必裝
-        * LMCCore: 核心插件
-        * SetTransmit: 其他玩家能看到你的模型
-        * LMC_SharedCvars: 創造共用的指令
-    * 插件自選
-        * Menu_Choosing: 輸入```!lmc```能自己選擇模型，下次玩家加入伺服器自動保存相同模型
-        * RandomSpawns: 玩家或AI復活與生成時，給他隨機一個模型
-        * CDeathHandler: 死亡的屍體模型也是自己選擇的模型
-    * 插件名子帶有L4D2: 只能安裝在 L4D2
-    * 插件名子帶有L4D1: 只能安裝在 L4D1
+    * 想新增或刪減模型可修改文件: [data/LMC_L4D_Model_Data.cfg](data/LMC_L4D_Model_Data.cfg)    
+    * L4D2
+        * 插件必裝
+            * LMCCore: 核心插件
+            * LMCSharedCvars: 創造共用的指令
+            * LMCL4D2SetTransmit: 其他玩家能看到你的模型
+        * 插件自選
+            * LMCEDeathHandler: 處理死亡的屍體特效
+            * LMCL4D2CDeathHandler: 死亡的屍體也是自己選擇的模型
+            * LMC_L4D2_Menu_Choosing: 輸入```!lmc```能自己選擇模型，下次玩家加入伺服器自動保存相同模型
+            * LMC_L4D2_RandomSpawns: 玩家或AI復活與生成時，給他隨機一個模型
+    * L4D1
+        * 插件必裝
+            * LMCCore: 核心插件
+            * LMCSharedCvars: 創造共用的指令
+            * LMCL4D1SetTransmit: 其他玩家能看到你的模型
+        * 插件自選
+            * LMCEDeathHandler: 處理死亡的屍體特效
+            * LMCL4D1CDeathHandler: 死亡的屍體也是自己選擇的模型
+            * LMC_L4D1_Menu_Choosing: 輸入```!lmc```能自己選擇模型，下次玩家加入伺服器自動保存相同模型
+            * LMC_L4D1_RandomSpawns: 玩家或AI復活與生成時，給他隨機一個模型
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -171,9 +193,9 @@ LMC Allows you to use most models with most characters
         lmc_aggressive_model_checks "0" 
         ```
 
-    * cfg/sourcemod/LMC_SharedCvars.cfg
+    * cfg/sourcemod/LMCSharedCvars.cfg
         ```php
-        // 插件 "LMC_SharedCvars.smx"
+        // 插件 "LMCSharedCvars.smx"
 
         // 為1時，允許倖存者更換模型
         lmc_allowSurvivors "1"
@@ -189,12 +211,6 @@ LMC Allows you to use most models with most characters
 
         // 為1時，允許Tank更換模型
         lmc_allowtank "0"
-
-        // 為1時，更換成Tank模型 (Tank模型體積很大，可能會導致錯亂)
-        lmc_allow_tank_model_use "0"
-
-        // 以下地圖不准換模型，請用逗號區隔 範例: "c1m3_mall,c7m1_docks"
-        lmc_precache_prevent "" 
         ```
 
     * cfg/sourcemod/LMC_L4D2_RandomSpawns.cfg
@@ -205,10 +221,11 @@ LMC Allows you to use most models with most characters
         // 1=給, 0=不給
         lmc_rng_humans "0"
 
-        // (0 = 不給隨機模型) 特感生成時，給他隨機一個模型的機率 [數值: 1~100]
+        // (0 = 不給隨機模型) 特感生成時，給他隨機一個模型的機率 [1~100]%
+        // Jockey, Charger, Spitter不會給模型
         lmc_rng_model_infected "20"
 
-        // (0 = 不給隨機模型) 倖存者生成時，給他隨機一個模型的機率 [數值: 1~100]
+        // (0 = 不給隨機模型) 倖存者生成時，給他隨機一個模型的機率 [1~100]%
         lmc_rng_model_survivor "10" 
         ```
 
@@ -227,7 +244,7 @@ LMC Allows you to use most models with most characters
         lmc_announcemode "1"
 
         // 玩家使用 !lmc 命令選擇模型之後，短暫切緩第三人稱視角的時間 (此數值小於0.5則關閉這項功能)
-        lmc_thirdpersontime "0.0" 
+        lmc_thirdpersontime "1.0" 
         ```
 
     * cfg/sourcemod/LMC_L4D1_RandomSpawns.cfg
@@ -238,10 +255,10 @@ LMC Allows you to use most models with most characters
         // 1=給, 0=不給
         lmc_rng_humans "0"
 
-        // (0 = 不給隨機模型) 特感生成時，給他隨機一個模型的機率 [數值: 1~100]
+        // (0 = 不給隨機模型) 特感生成時，給他隨機一個模型的機率 [1~100]%
         lmc_rng_model_infected "100"
 
-        // (0 = 不給隨機模型) 倖存者生成時，給他隨機一個模型的機率 [數值: 1~100]
+        // (0 = 不給隨機模型) 倖存者生成時，給他隨機一個模型的機率 [1~100]%
         lmc_rng_model_survivor "100" 
         ```
 

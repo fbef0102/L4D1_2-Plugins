@@ -22,6 +22,7 @@
 #include <sdktools>
 
 #define REQUIRE_PLUGIN
+//#include <LMCL4D1CDeathHandler> // doesn't exist
 #include <LMCL4D1SetTransmit>
 #include <LMCCore>
 #undef REQUIRE_PLUGIN
@@ -30,11 +31,9 @@
 
 
 #define PLUGIN_NAME "LMC_L4D1_RandomSpawns"
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
-#define HUMAN_MODEL_PATH_SIZE 4
-#define SPECIAL_MODEL_PATH_SIZE 5
-#define COMMON_MODEL_PATH_SIZE 13
+#define DATA_FILE		        "data/LMC_L4D_Model_Data.cfg"
 
 
 enum /*ZOMBIECLASS*/
@@ -46,71 +45,33 @@ enum /*ZOMBIECLASS*/
 	ZOMBIECLASS_TANK,
 }
 
-enum /*LMCModelSectionType*/
+enum LMCModelSectionType
 {
 	LMCModelSectionType_Human = 0,
 	LMCModelSectionType_Special,
-	LMCModelSectionType_Common
+	LMCModelSectionType_Common,
+	LMCModelSectionType_Max,
 };
 
-static const char sHumanPaths[HUMAN_MODEL_PATH_SIZE+1][] =
+enum struct CModelData
 {
-	"models/survivors/survivor_namvet.mdl",
-	"models/survivors/survivor_teenangst.mdl",
-	"models/survivors/survivor_biker.mdl",
-	"models/survivors/survivor_manager.mdl",
-	"models/npcs/rescue_pilot_01.mdl"
-};
+    int m_iIndex;
+    char m_sModelPath[256];
+    char m_sName[128];
 
-enum LMCHumanModelType
-{
-	LMCHumanModelType_Bill = 0,
-	LMCHumanModelType_Zoey,
-	LMCHumanModelType_Francis,
-	LMCHumanModelType_Louis,
-	LMCHumanModelType_Pilot
-};
+    void Reset()
+    {
+        this.m_iIndex = 0;
+        this.m_sModelPath[0] = '\0';
+        this.m_sName[0] = '\0';
+    }
+}
 
-static const char sSpecialPaths[SPECIAL_MODEL_PATH_SIZE+1][] =
-{
-	"models/infected/witch.mdl",
-	"models/infected/boomer.mdl",
-	"models/infected/hunter.mdl",
-	"models/infected/smoker.mdl",
-	"models/infected/hulk.mdl",
-	"models/infected/hulk_dlc3.mdl"
-};
+ArrayList
+    g_aModel_List[LMCModelSectionType_Max],
+	g_aModel_TotalList;
 
-enum LMCSpecialModelType
-{
-	LMCSpecialModelType_Witch = 0,
-	LMCSpecialModelType_Boomer,
-	LMCSpecialModelType_Hunter,
-	LMCSpecialModelType_Smoker,
-	LMCSpecialModelType_Tank,
-	LMCSpecialModelType_TankDLC3
-};
-
-static const char sCommonPaths[COMMON_MODEL_PATH_SIZE+1][] =
-{
-	"models/infected/common_female_nurse01.mdl",
-	"models/infected/common_female_rural01.mdl",
-	"models/infected/common_female01.mdl",
-	"models/infected/common_male_baggagehandler_01.mdl",
-	"models/infected/common_male_pilot.mdl",
-	"models/infected/common_male_rural01.mdl",
-	"models/infected/common_male_suit.mdl",
-	"models/infected/common_male01.mdl",
-	"models/infected/common_military_male01.mdl",
-	"models/infected/common_patient_male01.mdl",
-	"models/infected/common_police_male01.mdl",
-	"models/infected/common_surgeon_male01.mdl",
-	"models/infected/common_tsaagent_male01.mdl",
-	"models/infected/common_worker_male01.mdl",
-};
-
-
-#define CvarIndexes 7
+#define CvarIndexes 5
 static const char sSharedCvarNames[CvarIndexes][] =
 {
 	"lmc_allowtank",
@@ -118,8 +79,6 @@ static const char sSharedCvarNames[CvarIndexes][] =
 	"lmc_allowsmoker",
 	"lmc_allowboomer",
 	"lmc_allowSurvivors",
-	"lmc_allow_tank_model_use",
-	"lmc_precache_prevent"
 };
 static Handle hCvar_ArrayIndex[CvarIndexes] = {INVALID_HANDLE, ...};
 
@@ -128,7 +87,6 @@ static bool g_bAllowHunter = true;
 static bool g_bAllowSmoker = true;
 static bool g_bAllowBoomer = true;
 static bool g_bAllowSurvivors = true;
-static bool g_bTankModel = false;
 
 static Handle hCvar_RNGHumans = INVALID_HANDLE;
 static Handle hCvar_Survivors = INVALID_HANDLE;
@@ -188,8 +146,6 @@ void CvarsChanged()
 		g_bAllowBoomer = GetConVarInt(hCvar_ArrayIndex[3]) > 0;
 	if(hCvar_ArrayIndex[4] != INVALID_HANDLE)
 		g_bAllowSurvivors = GetConVarInt(hCvar_ArrayIndex[4]) > 0;
-	if(hCvar_ArrayIndex[5] != INVALID_HANDLE)
-		g_bTankModel = GetConVarInt(hCvar_ArrayIndex[5]) > 0;
 	
 	g_bRNGHumans = GetConVarInt(hCvar_RNGHumans) > 0;
 	g_iChanceSurvivor = GetConVarInt(hCvar_Survivors);
@@ -214,42 +170,133 @@ void HookCvars()
 
 public void OnMapStart()
 {
-	bool bPrecacheModels = true;
-	if(FindConVar(sSharedCvarNames[6]) != INVALID_HANDLE)
-	{
-		char sCvarString[4096];
-		char sMap[66];
-		GetConVarString(FindConVar(sSharedCvarNames[6]), sCvarString, sizeof(sCvarString));
-		GetCurrentMap(sMap, sizeof(sMap));
-		
-		Format(sMap, sizeof(sMap), ",%s,", sMap);
-		Format(sCvarString, sizeof(sCvarString), ",%s,", sCvarString);
-		
-		if(StrContains(sCvarString, sMap, false) != -1)
-			bPrecacheModels = false;
-		
-		if(!bPrecacheModels)
-		{
-			ReplaceString(sMap, sizeof(sMap), ",", "", false);
-			PrintToServer("[%s] \"%s\" Model Precaching Disabled.", PLUGIN_NAME, sMap);
-		}
-	}
-	
-	if(bPrecacheModels)
-	{
-		int i;
-		for(i = 0; i <= HUMAN_MODEL_PATH_SIZE; i++)
-			PrecacheModel(sHumanPaths[i], true);
-		
-		for(i = 0; i <= SPECIAL_MODEL_PATH_SIZE; i++)
-			PrecacheModel(sSpecialPaths[i], true);
-		
-		for(i = 0; i <= COMMON_MODEL_PATH_SIZE; i++)
-			PrecacheModel(sCommonPaths[i], true);
-	}
-	
 	HookCvars();
 	CvarsChanged();
+
+	LoadData();
+}
+
+void LoadData()
+{
+	for(LMCModelSectionType i = LMCModelSectionType_Human; i < LMCModelSectionType_Max; i++)
+	{
+		delete g_aModel_List[i];
+		g_aModel_List[i] = new ArrayList(sizeof(CModelData));
+	}
+
+	delete g_aModel_TotalList;
+	g_aModel_TotalList = new ArrayList(sizeof(CModelData));
+
+	char sPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, sPath, sizeof(sPath), DATA_FILE);
+	if( !FileExists(sPath) )
+	{
+		SetFailState("File Not Found: %s", sPath);
+		return;
+	}
+
+	// Load config
+	KeyValues hFile = new KeyValues("LMC_L4D_Model_Data");
+	if( !hFile.ImportFromFile(sPath) )
+	{
+		SetFailState("File Format Not Correct: %s", sPath);
+		delete hFile;
+		return;
+	}
+
+	int index;
+	char sTemp[4];
+	if(hFile.JumpToKey("Left4Dead2"))
+	{
+		if(hFile.JumpToKey("Human"))
+		{
+			for(index = 1; index > 0; index++)
+			{
+				FormatEx(sTemp, sizeof(sTemp), "%d", index);
+
+				if(hFile.JumpToKey(sTemp) == false) break;
+
+				CModelData cModelData;
+				cModelData.Reset();
+
+				cModelData.m_iIndex = index;
+				hFile.GetString("model", cModelData.m_sModelPath, sizeof(CModelData::m_sModelPath), cModelData.m_sModelPath);
+				hFile.GetString("Name", cModelData.m_sName, sizeof(CModelData::m_sModelPath), cModelData.m_sName);
+
+				if(strlen(cModelData.m_sModelPath) <= 0) continue;
+				PrecacheModel(cModelData.m_sModelPath, true);
+
+				g_aModel_List[LMCModelSectionType_Human].PushArray(cModelData, sizeof CModelData);
+				g_aModel_TotalList.PushArray(cModelData, sizeof CModelData);
+
+				hFile.GoBack();
+			}
+
+			hFile.GoBack();
+		}
+
+		if(hFile.JumpToKey("Special_Infected"))
+		{
+			for(index = 1; index > 0; index++)
+			{
+				FormatEx(sTemp, sizeof(sTemp), "%d", index);
+
+				if(hFile.JumpToKey(sTemp) == false) break;
+
+				CModelData cModelData;
+				cModelData.Reset();
+
+				cModelData.m_iIndex = index;
+				hFile.GetString("model", cModelData.m_sModelPath, sizeof(CModelData::m_sModelPath), cModelData.m_sModelPath);
+				hFile.GetString("Name", cModelData.m_sName, sizeof(CModelData::m_sModelPath), cModelData.m_sName);
+
+				if(strlen(cModelData.m_sModelPath) <= 0) continue;
+				PrecacheModel(cModelData.m_sModelPath, true);
+
+				g_aModel_List[LMCModelSectionType_Special].PushArray(cModelData, sizeof CModelData);
+				g_aModel_TotalList.PushArray(cModelData, sizeof CModelData);
+
+				hFile.GoBack();
+			}
+
+			hFile.GoBack();
+		}
+
+		if(hFile.JumpToKey("Common_Infected"))
+		{
+			for(index = 1; index > 0; index++)
+			{
+				FormatEx(sTemp, sizeof(sTemp), "%d", index);
+
+				if(hFile.JumpToKey(sTemp) == false) break;
+
+				CModelData cModelData;
+				cModelData.Reset();
+
+				cModelData.m_iIndex = index;
+				hFile.GetString("model", cModelData.m_sModelPath, sizeof(CModelData::m_sModelPath), cModelData.m_sModelPath);
+				hFile.GetString("Name", cModelData.m_sName, sizeof(CModelData::m_sModelPath), cModelData.m_sName);
+
+				if(strlen(cModelData.m_sModelPath) <= 0) continue;
+				PrecacheModel(cModelData.m_sModelPath, true);
+
+				g_aModel_List[LMCModelSectionType_Common].PushArray(cModelData, sizeof CModelData);
+				g_aModel_TotalList.PushArray(cModelData, sizeof CModelData);
+
+				hFile.GoBack();
+			}
+
+			hFile.GoBack();
+		}
+	}
+	else
+	{
+		SetFailState("File Format Not Correct: %s", sPath);
+		delete hFile;
+		return;
+	}
+
+	delete hFile;
 }
 
 void ePlayerSpawn(Handle hEvent, const char[] sEventName, bool bDontBroadcast)
@@ -353,22 +400,18 @@ void NextFrame(int iUserID)
 
 bool ChooseRNGModel(char sModel[PLATFORM_MAX_PATH])
 {
-	switch(GetRandomInt(0, LMCModelSectionType_Common))
-	{
-		case LMCModelSectionType_Human:
-			strcopy(sModel, sizeof(sModel), sHumanPaths[GetRandomInt(0, HUMAN_MODEL_PATH_SIZE)]);
-		case LMCModelSectionType_Special:
-		{
-			int iRNG = GetRandomInt(0, SPECIAL_MODEL_PATH_SIZE);
-			if(!g_bTankModel)
-				if(iRNG == view_as<int>(LMCSpecialModelType_Tank) || iRNG == view_as<int>(LMCSpecialModelType_TankDLC3))
-					return false;
-			
-			strcopy(sModel, sizeof(sModel), sSpecialPaths[iRNG]);
-		}
-		case LMCModelSectionType_Common:
-			strcopy(sModel, sizeof(sModel), sCommonPaths[GetRandomInt(0, COMMON_MODEL_PATH_SIZE)]);
-	}
+	sModel[0] = '\0';
+	if(g_aModel_TotalList.Length <= 0) return false;
+
+	int randomtype = GetRandomInt(view_as<int>(LMCModelSectionType_Human), view_as<int>(LMCModelSectionType_Common));
+	if(g_aModel_List[randomtype].Length <= 0) return false;
+
+	CModelData cModelData;
+	int random = GetRandomInt(0, g_aModel_List[randomtype].Length-1);
+
+	g_aModel_List[randomtype].GetArray(random, cModelData, sizeof cModelData);
+	FormatEx(sModel, sizeof(sModel), "%s", cModelData.m_sModelPath);
+
 	return true;
 }
 

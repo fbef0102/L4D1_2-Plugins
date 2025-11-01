@@ -2570,6 +2570,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	else
 	{
 		if(g_bInitialSpawn) SpawnTime = g_ePluginSettings.m_fInitialSpawnTime;
+		else 
 		{
 			if(IsFakeClient(client))
 			{
@@ -3263,7 +3264,7 @@ void CountPlayersInServer()
 		if (GetClientTeam(i) == TEAM_INFECTED)
 		{
 			//PrintToChatAll("m_bMaxSpecialsIncludingTank: %d", g_ePluginSettings.m_bMaxSpecialsIncludingTank);
-			if(g_bL4D2Version && !g_ePluginSettings.m_bMaxSpecialsIncludingTank && IsPlayerTank(i)) continue;
+			if(g_bL4D2Version && !g_ePluginSettings.m_bMaxSpecialsIncludingTank && IsPlayerAlive(i) && IsPlayerTank(i)) continue;
 
 			// If player is a bot ...
 			if (IsFakeClient(i))
@@ -4288,7 +4289,7 @@ Action Timer_CheckSpawn(Handle timer)
 		// Check if client is infected ...
 		if (GetClientTeam(i) == TEAM_INFECTED)
 		{
-			if(g_bL4D2Version && !g_ePluginSettings.m_bMaxSpecialsIncludingTank && IsPlayerTank(i)) continue;
+			if(g_bL4D2Version && !g_ePluginSettings.m_bMaxSpecialsIncludingTank && IsPlayerAlive(i) && IsPlayerTank(i)) continue;
 
 			// If player is a bot ...
 			if (IsFakeClient(i))

@@ -25,7 +25,7 @@
 
 //Cannot really add crazy face toggle without making unnecessary checks
 
-#define PLUGIN_VERSION "3.1.1"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 //https://github.com/alliedmodders/hl2sdk/blob/0ef5d3d482157bc0bb3aafd37c08961373f87bfd/public/const.h#L281-L298
 // entity effects
