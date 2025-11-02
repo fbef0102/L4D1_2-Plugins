@@ -21,7 +21,7 @@
 #include <sourcemod>
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.0.1"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -45,15 +45,13 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	CreateConVar("lmc_sharedcvars_version", PLUGIN_VERSION, "LMC_SharedCvars_Version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
+	CreateConVar("lmcsharedcvars_version", PLUGIN_VERSION, "LMCSharedCvars_Version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 	
 	CreateConVar("lmc_allowtank", "0", "Allow Tanks to have custom model? (1 = true)",FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	CreateConVar("lmc_allowhunter", "1", "Allow Hunters to have custom model? (1 = true)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	CreateConVar("lmc_allowsmoker", "1", "Allow Smoker to have custom model? (1 = true)",FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	CreateConVar("lmc_allowboomer", "1", "Allow Boomer to have custom model? (1 = true)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	CreateConVar("lmc_allowSurvivors", "1", "Allow Survivors to have custom model? (1 = true)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	CreateConVar("lmc_allow_tank_model_use", "0", "The tank model is big and don't look good on other models so i made it optional(1 = true)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	CreateConVar("lmc_precache_prevent", "", "Disables model precaching on selected maps to help prevent crashing, e.g. \"c1m3_mall,\" for dead center map 3 separated by \",\"", FCVAR_NOTIFY);
-	
-	AutoExecConfig(true, "LMC_SharedCvars");
+
+	AutoExecConfig(true, "LMCSharedCvars");
 }

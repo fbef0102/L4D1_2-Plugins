@@ -25,7 +25,7 @@
 
 
 #define PLUGIN_NAME "LMCL4D1SetTransmit"
-#define PLUGIN_VERSION "1.0.1"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 enum /*ZOMBIECLASS*/
 {
@@ -62,7 +62,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	CreateConVar("lmcl4d1settransmit_version", PLUGIN_VERSION, "LMCL4D1SetTransmit_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
+	CreateConVar("LMCL4D1SetTransmit_version", PLUGIN_VERSION, "LMCL4D1SetTransmit_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 }
 
 Action HideModel(int iEntity, int client)

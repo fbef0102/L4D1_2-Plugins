@@ -30,7 +30,7 @@
 
 
 #define PLUGIN_NAME "LMCEDeathHandler"
-#define PLUGIN_VERSION "1.1.4"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -56,7 +56,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	CreateConVar("lmcedeathhandler_version", PLUGIN_VERSION, "LMCL4D2EDeathHandler_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
+	CreateConVar("LMCEDeathHandler_version", PLUGIN_VERSION, "LMCL4D2EDeathHandler_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 }
 
 public void OnAllPluginsLoaded()// makesure my hook is last if it can

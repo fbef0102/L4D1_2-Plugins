@@ -29,7 +29,7 @@
 
 
 #define PLUGIN_NAME "LMCL4D2CDeathHandler"
-#define PLUGIN_VERSION "1.1.6"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 static char sModelStrings[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 

@@ -30,7 +30,7 @@
 
 
 #define PLUGIN_NAME "LMCL4D1CDeathHandler"
-#define PLUGIN_VERSION "1.1.1"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 static char sModelStrings[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 static int iCSRagdollRef = INVALID_ENT_REFERENCE;
@@ -59,7 +59,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	CreateConVar("lmcl4d1cdeathhandler_version", PLUGIN_VERSION, "LMCL4D1CDeathHandler_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
+	CreateConVar("LMCL4D1CDeathHandler_version", PLUGIN_VERSION, "LMCL4D1CDeathHandler_version", FCVAR_DONTRECORD|FCVAR_NOTIFY);
 	HookEvent("player_death", ePlayerDeath);
 }
 

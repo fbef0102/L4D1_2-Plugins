@@ -96,150 +96,6 @@ forward void LMC_OnClientModelApplied(int iClient, int iEntity, const char sMode
 */
 forward void LMC_OnClientModelDestroyed(int iClient, int iEntity);
 
-/**
-*   @note Used for in-line string translation.
-*
-*   @param  iClient     Client Index, translation is apllied to.
-*   @param  format      String formatting rules. By default, you should pass at least "%t" specifier.
-*   @param  ...			Variable number of format parameters.
-*   @return char[192]	Resulting string. Note: output buffer is hardly limited.
-*/
-stock char[] LMC_Translate(int iClient, const char[] format, any ...)
-{
-	char buffer[192];
-	SetGlobalTransTarget(iClient);
-	VFormat(buffer, sizeof(buffer), format, 3);
-	return buffer;
-}
-
-/**
-*   @note Used for in-line string translation.
-*
-*   @param  iClient     Client Index, translation is apllied to.
-*   @param  format      String formatting rules. By default, you should pass at least "%t" specifier.
-*   @param  ...			Variable number of format parameters.
-*   @return char[192]	Resulting string. Note: output buffer is hardly limited.
-*/
-stock char[] LMC_TranslateNoColor(int iClient, const char[] format, any ...)
-{
-	char buffer[192];
-	SetGlobalTransTarget(iClient);
-	VFormat(buffer, sizeof(buffer), format, 3);
-	LMC_RemoveColor(buffer, sizeof(buffer));
-	return buffer;
-}
-
-/**
-*   @note Prints a message to a specific client in the chat area. Supports named colors in translation file.
-*
-*   @param  iClient     Client Index.
-*   @param  format		Formatting rules.
-*   @param  ...			Variable number of format parameters.
-*   @no return
-*/
-stock void LMC_CPrintToChat(int iClient, const char[] format, any ...)
-{
-    char buffer[192];
-    SetGlobalTransTarget(iClient);
-    VFormat(buffer, sizeof(buffer), format, 3);
-    LMC_ReplaceColor(buffer, sizeof(buffer));
-    PrintToChat(iClient, "\x01%s", buffer);
-}
-
-/**
-*   @note Prints a message to all clients in the chat area. Supports named colors in translation file.
-*
-*   @param  format		Formatting rules.
-*   @param  ...			Variable number of format parameters.
-*   @no return
-*/
-stock void LMC_CPrintToChatAll(const char[] format, any ...)
-{
-    char buffer[192];
-    for( int i = 1; i <= MaxClients; i++ )
-    {
-        if( IsClientInGame(i) && !IsFakeClient(i) )
-        {
-            SetGlobalTransTarget(i);
-            VFormat(buffer, sizeof(buffer), format, 2);
-            LMC_ReplaceColor(buffer, sizeof(buffer));
-            PrintToChat(i, "\x01%s", buffer);
-        }
-    }
-}
-
-/**
-*   @note Converts named color to control character. Used internally by string translation functions.
-*
-*   @param  char[]		Input/Output string for convertion.
-*   @param  maxLen		Maximum length of string buffer (includes NULL terminator).
-*   @no return
-*/
-stock void LMC_ReplaceColor(char[] message, int maxLen)
-{
-    ReplaceString(message, maxLen, "{white}", "\x01", false);
-    ReplaceString(message, maxLen, "{cyan}", "\x03", false);
-    ReplaceString(message, maxLen, "{orange}", "\x04", false);
-    ReplaceString(message, maxLen, "{green}", "\x05", false);
-}
-
-/**
-* @note Removes named color to empty string. Used internally by string translation functions.
-*
-*   @param  char[]		Input/Output string for convertion.
-*   @param  maxLen		Maximum length of string buffer (includes NULL terminator).
-*   @no return
-*/
-stock void LMC_RemoveColor(char[] message, int maxLen)
-{
-    ReplaceString(message, maxLen, "{white}", "", false);
-    ReplaceString(message, maxLen, "{cyan}", "", false);
-    ReplaceString(message, maxLen, "{orange}", "", false);
-    ReplaceString(message, maxLen, "{green}", "", false);
-}
-
-/**
-*   @note Prints a hint message to all clients. Supports individual string translation for each client.
-*
-*   @param  format		Formatting rules.
-*   @param  ...			Variable number of format parameters.
-*   @no return
-*/
-stock void LMC_CPrintHintTextToAll(const char[] format, any ...)
-{
-    char buffer[192];
-    for( int i = 1; i <= MaxClients; i++ )
-    {
-        if( IsClientInGame(i) && !IsFakeClient(i) )
-        {
-            SetGlobalTransTarget(i);
-            VFormat(buffer, sizeof(buffer), format, 2);
-            PrintHintText(i, buffer);
-        }
-    }
-}
-
-/**
-*   @note Prints a center screen message to all clients. Supports individual string translation for each client.
-*
-*   @param  format		Formatting rules.
-*   @param  ...			Variable number of format parameters.
-*   @no return
-*/
-stock void LMC_CPrintCenterTextAll(const char[] format, any ...)
-{
-    char buffer[192];
-    for( int i = 1; i <= MaxClients; i++ )
-    {
-        if( IsClientInGame(i) && !IsFakeClient(i) )
-        {
-            SetGlobalTransTarget(i);
-            VFormat(buffer, sizeof(buffer), format, 2);
-            PrintCenterText(i, buffer);
-        }
-    }
-}
-
 //https://github.com/alliedmodders/hl2sdk/blob/0ef5d3d482157bc0bb3aafd37c08961373f87bfd/public/const.h#L281-L298
 // entity effects
 enum
@@ -264,7 +120,7 @@ enum
 /*
 *	Recreated "SetAttached" entity input from "prop_dynamic_ornament"
 */
-stock void SetAttached(int iEntToAttach, int iEntToAttachTo)
+stock void LMC_SetAttached(int iEntToAttach, int iEntToAttachTo)
 {
 	SetVariantString("!activator");
 	AcceptEntityInput(iEntToAttach, "SetParent", iEntToAttachTo);
@@ -285,7 +141,7 @@ stock void SetAttached(int iEntToAttach, int iEntToAttachTo)
 *	Recreated "Detach" entity input from "prop_dynamic_ornament"
 *	I have not included the EF_NODRAW effect flag, unlike the input
 */
-stock void Detach(int iEntity)
+stock void LMC_Detach(int iEntity)
 {
 	AcceptEntityInput(iEntity, "ClearParent");
 	
@@ -298,13 +154,6 @@ stock void Detach(int iEntity)
 }
 
 
-
-
-
-
-
-
-
 /**
 *   Deprecated function will thorw error from LMC_Core if called.
 *
@@ -315,8 +164,8 @@ stock void Detach(int iEntity)
 *   @param  bHide       true = hide \ false = unhide (toggle effect)
 *   @return true        If action was successful false othewise.
 */
-#pragma deprecated no longer used since 2.0.3
-native bool LMC_HideClientOverlayModel(int iEntity, bool bHide);
+//#pragma deprecated no longer used since 2.0.3
+//native bool LMC_HideClientOverlayModel(int iEntity, bool bHide);
 
 
 /**
@@ -333,37 +182,8 @@ native bool LMC_HideClientOverlayModel(int iEntity, bool bHide);
 *   @param  sModel      return Plugin_Changed Model Path to change model
 *   @return Plugin_Handled/Plugin_Stop to block, Plugin_Changed to change model to sModel
 */
-#pragma deprecated no longer used since 2.0.3
-forward Action LMC_OnClientModelSelected(int iClient, char sModel[PLATFORM_MAX_PATH]);
-
-enum LMCModelType
-{
-	LMCModelType_NoModel = 1,
-	LMCModelType_WitchNormal,
-	LMCModelType_WitchBride,
-	LMCModelType_InfectedBoomer,
-	LMCModelType_InfectedBoomette,
-	LMCModelType_InfectedHunter,
-	LMCModelType_InfectedSmoker,
-	LMCModelType_InfectedRiotcop,
-	LMCModelType_InfectedMudman,
-	LMCModelType_NPCPilot,
-	LMCModelType_InfectedCeda,
-	LMCModelType_InfectedClown,
-	LMCModelType_InfectedJimmyGibs,
-	LMCModelType_InfectedFallenSurvivor,
-	LMCModelType_InfectedRandomCommon,
-	LMCModelType_SurvivorNick,
-	LMCModelType_SurvivorRochelle,
-	LMCModelType_SurvivorCoach,
-	LMCModelType_SurvivorEllis,
-	LMCModelType_SurvivorBill,
-	LMCModelType_SurvivorZoey,
-	LMCModelType_SurvivorFrancis,
-	LMCModelType_SurvivorLouis,
-	LMCModelType_InfectedTank,
-	LMCModelType_InfectedTankDLC3,
-}
+//#pragma deprecated no longer used since 2.0.3
+//forward Action LMC_OnClientModelSelected(int iClient, char sModel[PLATFORM_MAX_PATH]);
 
 /**
 *   Deprecated forward will not be called in version 2.0.3+
@@ -379,8 +199,8 @@ enum LMCModelType
 *   @param  iModelType  ModelIndex  Refer to LMCModelType enum
 *   @return Plugin_Handled/Plugin_Stop to block, Plugin_Changed to change model Index
 */
-#pragma deprecated no longer used since 2.0.3
-forward Action LMC_OnClientModelAppliedPre(int iClient, LMCModelType &iModel);
+//#pragma deprecated no longer used since 2.0.3
+//forward Action LMC_OnClientModelAppliedPre(int iClient, LMCModelType &iModel);
 
 public SharedPlugin __pl_LMCCore = 
 {

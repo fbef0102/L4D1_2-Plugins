@@ -26,7 +26,7 @@
 
 
 #define PLUGIN_NAME "LMCL4D2SetTransmit"
-#define PLUGIN_VERSION "1.0.3"
+#define PLUGIN_VERSION "1.0h-2025/11/02"
 
 enum /*ZOMBIECLASS*/
 {
