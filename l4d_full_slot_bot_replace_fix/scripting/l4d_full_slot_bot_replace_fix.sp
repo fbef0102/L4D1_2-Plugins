@@ -37,7 +37,7 @@
 #include <dhooks>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.0h-2025/7/25"
+#define PLUGIN_VERSION			"1.1h-2025/11/8"
 #define PLUGIN_NAME			    "l4d_full_slot_bot_replace_fix"
 #define DEBUG 0
 
@@ -113,8 +113,17 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     return APLRes_Success;
 }
 
+int 
+	iOffs_m_hSecondaryHiddenWeaponPreDead = -1,
+	iOffs_m_SecondaryWeaponDoublePistolPreDead = -1,
+	iOffs_m_SecondaryWeaponIDPreDead = -1;
+
 public void OnPluginStart()
 {
+	iOffs_m_SecondaryWeaponIDPreDead = FindSendPropInfo("CTerrorPlayer", "m_knockdownTimer") + 108; //死前所持副武器weapon ID
+	iOffs_m_SecondaryWeaponDoublePistolPreDead = FindSendPropInfo("CTerrorPlayer", "m_knockdownTimer") + 112; //死前所持副武器是否双持手槍
+	iOffs_m_hSecondaryHiddenWeaponPreDead = FindSendPropInfo("CTerrorPlayer", "m_knockdownTimer") + 116; //死前所持非手枪副武器EHandle
+
 	GameDataWrapper gd = new GameDataWrapper(PLUGIN_NAME);
 	delete gd.CreateDetourOrFail("SurvivorReplacement::Save", DTR_PlayerReplacement_Save);
 	delete gd.CreateDetourOrFail("ZombieReplacement::Save", DTR_PlayerReplacement_Save);
@@ -196,8 +205,24 @@ MRESReturn DTR_PlayerReplacement_Save(DHookParam hParams)
 				int weapon;
 				for( int i = 4; i >= 0; i-- )
 				{
+					if(i == 1 && L4D_IsPlayerIncapacitated(i))
+					{
+						if(active == GetPlayerWeaponSlot(client, 1)) active = -1;
+
+						weapon = GetSecondaryHiddenWeaponPreDead(client);
+						if( weapon > MaxClients && active != weapon && GetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity") == client )
+						{
+							SDKHooks_DropWeapon(client, weapon);
+							SetSecondaryWeaponIDPreDead(client, 1);
+							SetSecondaryWeaponDoublePistolPreDead(client, 0);
+							SetSecondaryHiddenWeapon(client, -1);
+							continue;
+						}
+					}
+					
 					weapon = GetPlayerWeaponSlot(client, i);
-					if( weapon != -1 && active != weapon && GetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity") == client )
+					
+					if( weapon > MaxClients && active != weapon && GetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity") == client )
 					{
 						SDKHooks_DropWeapon(client, weapon);
 					}
@@ -266,3 +291,22 @@ void CleanMusic(int client)
 	L4D_StopMusic(client, "Event.ScenarioLose");
 }
 
+int GetSecondaryHiddenWeaponPreDead(int client)
+{
+	return GetEntDataEnt2(client, iOffs_m_hSecondaryHiddenWeaponPreDead);
+}
+
+void SetSecondaryWeaponIDPreDead(int client, int data)
+{
+	SetEntData(client, iOffs_m_SecondaryWeaponIDPreDead, data);
+}
+
+void SetSecondaryWeaponDoublePistolPreDead(int client, int data)
+{
+	SetEntData(client, iOffs_m_SecondaryWeaponDoublePistolPreDead, data);
+}
+
+void SetSecondaryHiddenWeapon(int client, int data)
+{
+	SetEntData(client, iOffs_m_hSecondaryHiddenWeaponPreDead, data);
+}

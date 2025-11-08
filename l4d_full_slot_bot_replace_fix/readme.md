@@ -52,6 +52,9 @@ Fix bugs if not enough slots to spawn bots to take over + Kick Previously human-
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.1h (2025-11-8)
+        * Drop hidden secondary weapon if survivor is incap
+
     * v1.0h (2025-7-25)
         * Initial Release
    

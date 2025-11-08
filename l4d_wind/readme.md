@@ -12,7 +12,7 @@ Create a survivor bot in game + Teleport player
 	<br/>![l4d_wind_1](image/l4d_wind_1.jpg)
 
 * Require | 必要安裝
-<br/>None
+	1. [l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -56,6 +56,9 @@ Create a survivor bot in game + Teleport player
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.8 (2025-11-8)
+		* Require l4d_CreateSurvivorBot
 
 	* v1.7 (2024-5-31)
 		* Respawn bot if bot was added as dead state

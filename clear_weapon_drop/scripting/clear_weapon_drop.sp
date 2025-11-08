@@ -256,7 +256,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		case 'p':
 		{
-			if ( strncmp(classname, "physics_prop", 12, false) == 0 || strncmp(classname, "prop_physics", 12, false) == 0) //從人類手上丟出去的汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人，classname變成physics_prop
+			if ( strncmp(classname, "physics_prop", 12, false) == 0 || strncmp(classname, "prop_physics", 12, false) == 0)
 			{
 				SDKHook(entity, SDKHook_SpawnPost, OnSpawnPost_BySurvivior);
 			}
@@ -276,8 +276,8 @@ void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
 {
 	if (g_fClearSurvivorWeaponTime == 0.0) return;
 	
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (!IsValidClient(client) || GetClientTeam(client) != 2) return;
+	//int client = GetClientOfUserId(event.GetInt("userid"));
+	//if (!IsValidClient(client) || GetClientTeam(client) != 2) return;
 		
 	int entity = event.GetInt("propid");	
 	SetTimer_DeleteWeapon(entity);
@@ -497,16 +497,19 @@ bool IsScavengeGascan(int entity)
 bool IsInUse(int entity)
 {	
 	int client;
+	//武器被裝備的時候才會有這個值
 	if(HasEntProp(entity, Prop_Data, "m_hOwner"))
 	{
-		client = GetEntPropEnt(entity, Prop_Data, "m_hOwner"); //武器被裝備的時候才會有這個值
+		client = GetEntPropEnt(entity, Prop_Data, "m_hOwner"); 
 		if (IsValidClient(client))
 			return true;
 	}
 	
-	/*if(HasEntProp(entity, Prop_Data, "m_hOwnerEntity"))
+	/*
+	//prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
+	if(HasEntProp(entity, Prop_Data, "m_hOwnerEntity"))
 	{
-		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity"); //prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
+		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity"); 
 		if (IsValidClient(client))
 			return true;
 	}*/

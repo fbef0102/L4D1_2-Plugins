@@ -3,14 +3,14 @@
 #include <sourcemod>
 #include <sdktools>
 #include <adminmenu>
-#include <left4dhooks>
+#include <l4d_CreateSurvivorBot>
 
 public Plugin myinfo = 
 {
 	name = "Add a survivor bot + Teleport an alive player",
 	author = "Harry Potter",
 	description = "Create a survivor bot + teleport an alive player in game",
-	version = "1.7-2024/5/31",
+	version = "1.8-2025/11/8",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -70,41 +70,19 @@ public void OnPluginStart()
 	}
 }
 
-public Action sm_addabot(int client, int args)
+Action sm_addabot(int client, int args)
 {
 	if(client == 0) return Plugin_Handled;
 	if(g_cvAddBot.BoolValue == false) return Plugin_Handled;
 
-	int bot = CreateFakeClient("I am not real.");
-	if(bot != 0)
+	int bot = CreateSurvivorBot();
+	if(bot > 0)
 	{
-		ChangeClientTeam(bot, 2);
-		if(DispatchKeyValue(bot, "classname", "SurvivorBot") == false)
-		{
-			PrintToChat(client, "[TS] %T", "l4d_wind_15", client);
-			return Plugin_Handled;
-		}
-		
-		if(DispatchSpawn(bot) == false)
-		{
-			PrintToChat(client, "[TS] %T", "l4d_wind_15", client);
-			return Plugin_Handled;
-		}
-
-		if(!IsPlayerAlive(bot))
-		{
-			L4D_RespawnPlayer(bot);
-		}
-
-		SetEntityRenderColor(bot, 128, 0, 0, 255);
- 		
 		bool canTeleport = SetTeleportEndPoint(client, g_pos[client]);
 		if(canTeleport)
 		{
 			PerformTeleport(client, bot, g_pos[client], true);
 		}
-		
-		CreateTimer(0.1, Timer_KickFakeBot, GetClientUserId(bot));
 	}
 	return Plugin_Handled;
 }
@@ -166,17 +144,6 @@ void PerformTeleport(int client, int target, float pos[3], bool addbot = false)
 	}
 }
 
-Action Timer_KickFakeBot(Handle timer, int fakeclient)
-{
-	fakeclient = GetClientOfUserId(fakeclient);
-	if(fakeclient && IsClientInGame(fakeclient))
-	{
-		KickClient(fakeclient, "Kicking FakeClient");	
-	}	
-
-	return Plugin_Continue;
-}
-
 public bool TraceEntityFilterPlayer(int entity, int contentsMask)
 {
 	return entity > MaxClients || !entity;
@@ -207,7 +174,7 @@ public void OnLibraryRemoved(const char[] name)
 	}
 }
 
-TopMenu hTopMenu;
+TopMenu g_hTopMenu;
 public void OnAdminMenuReady(Handle aTopMenu)
 {
 	AddAdminItem(aTopMenu);
@@ -215,12 +182,12 @@ public void OnAdminMenuReady(Handle aTopMenu)
 	TopMenu topmenu = TopMenu.FromHandle(aTopMenu);
 
 	/* Block us from being called twice */
-	if (hTopMenu == topmenu)
+	if (g_hTopMenu == topmenu)
 	{
 		return;
 	}
 
-	hTopMenu = topmenu;
+	g_hTopMenu = topmenu;
 }
 
 void RemoveAdminItem()
@@ -269,7 +236,7 @@ void AddAdminItem(Handle aTopMenu, bool bRemoveItem = false)
 	}
 }
 
-public void AdminMenuTeleportHandler(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
+void AdminMenuTeleportHandler(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int param, char[] buffer, int maxlength)
 {
 	if( action == TopMenuAction_SelectOption )
 	{
@@ -348,7 +315,7 @@ void MenuClientsToTeleport(int client, int item = 0)
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch( action )
 	{
@@ -358,9 +325,9 @@ public int MenuHandler_MenuList(Menu menu, MenuAction action, int param1, int pa
 		}
 		case MenuAction_Cancel:
 		{
-			if (param2 == MenuCancel_ExitBack && hTopMenu)
+			if (param2 == MenuCancel_ExitBack && g_hTopMenu)
 			{
-				hTopMenu.Display(param1, TopMenuPosition_LastCategory);
+				g_hTopMenu.Display(param1, TopMenuPosition_LastCategory);
 			}
 		}
 		case MenuAction_Select:
@@ -443,7 +410,7 @@ void MenuTeleportToClients(int client, int target, int item = 0)
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch( action )
 	{
@@ -453,7 +420,7 @@ public int MenuHandler_MenuList2(Menu menu, MenuAction action, int param1, int p
 		}
 		case MenuAction_Cancel:
 		{
-			if (param2 == MenuCancel_ExitBack && hTopMenu)
+			if (param2 == MenuCancel_ExitBack && g_hTopMenu)
 			{
 				MenuClientsToTeleport(param1);
 			}

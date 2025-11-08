@@ -3,6 +3,7 @@ Survivor players will drop their secondary weapon (including melee) when they di
 
 * Apply to | 適用於
 	```
+	L4D1
 	L4D2
 	```
 
@@ -11,7 +12,7 @@ Survivor players will drop their secondary weapon (including melee) when they di
 	* When you die, drop your secondary weapon
 		* Pistol and Dual pistol
 		* Magnum
-		* Melee weapons
+		* Melee weapons (support custom map melee)
 		* Chainsaw
 </details>
 
@@ -20,7 +21,10 @@ Survivor players will drop their secondary weapon (including melee) when they di
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v2.6 (2024-1-16)
+	* v2.7 (2025-11-8)
+		* Support L4D1
+
+	* v2.6 (2025-1-16)
 		* Remake code
 		* Clear hidden weapon data for player
 
@@ -50,6 +54,7 @@ Survivor players will drop their secondary weapon (including melee) when they di
 死亡時掉落第二把武器
 
 * 原理
-	* 死亡時掉落手上裝備的第二把武器，譬如手槍、近戰武器、麥格農手槍、電鋸
-	* 可掉雙手槍
+	* 死亡時掉落手上裝備的第二把武器
+		* 手槍、近戰武器、麥格農手槍、電鋸
+		* 可掉雙手槍
 	* 可掉三方圖自製近戰武器
