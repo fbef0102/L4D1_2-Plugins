@@ -107,7 +107,7 @@ Download and play custom music in game
 			* Ensure no file has space or special characters like "long dash" (–) or so.
 		* Sample rate
 			* All MP3 files must be encoded in 44100 Hz sample rate, otherwise it may not play at all.
-			* To ensure, you can download [MP3 Quality Modifier tool](https://mp3-quality-modifier.en.softonic.com/download) and re-encode all files at once.
+			* Find MP3 Modifier tool by google and re-encode all files at once.
 
 		* File size
 			* Next, it is recommended every file will not be > 5 MB. in size (to improve download speed).
@@ -271,7 +271,7 @@ Download and play custom music in game
 
 		* 採樣率
 			* 所有 MP3 文件必須以 44100 Hz 採樣率編碼，否則可能根本無法播放。
-			* 為了確保，您可以下載 [MP3 質量修改器工具](https://mp3-quality-modifier.en.softonic.com/download) 並一次重新編碼所有文件。
+			* 自行Google搜尋MP3修改器工具，最好找可以轉碼且能改變音量的軟體
 
 		* 文件大小
 			* 接下來，建議每個文件不要> 5 MB。大小（以提高下載速度）。
