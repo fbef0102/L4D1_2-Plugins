@@ -205,7 +205,7 @@ MRESReturn DTR_PlayerReplacement_Save(DHookParam hParams)
 				int weapon;
 				for( int i = 4; i >= 0; i-- )
 				{
-					if(i == 1 && L4D_IsPlayerIncapacitated(i))
+					if(i == 1 && L4D_IsPlayerIncapacitated(client))
 					{
 						if(active == GetPlayerWeaponSlot(client, 1)) active = -1;
 

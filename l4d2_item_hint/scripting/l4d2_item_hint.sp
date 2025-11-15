@@ -862,6 +862,12 @@ public void OnEntityCreated(int entity, const char[] classname)
 			if (StrEqual(classname, "witch"))
 				ge_bInvalidTrace[entity] = true;
 		}
+		case 'e':
+		{
+			if (StrEqual(classname, "env_physics_blocker") 
+				|| StrEqual(classname, "env_player_blocker"))
+				ge_bInvalidTrace[entity] = true;
+		}
 	}
 }
 
@@ -1314,7 +1320,8 @@ void CreateSpotMarker(int client, bool bIsAimPlayer)
 	float vAng[3];
 	GetClientEyeAngles(client, vAng);
 
-	Handle trace = TR_TraceRayFilterEx(vPos, vAng, MASK_ALL, RayType_Infinite, TraceFilter_Spot, client);
+	// MASK_ALL -> MASK_VISIBLE
+	Handle trace = TR_TraceRayFilterEx(vPos, vAng, MASK_VISIBLE, RayType_Infinite, TraceFilter_Spot, client);
 
 	if (TR_DidHit(trace))
 	{
@@ -2424,7 +2431,8 @@ bool IsVisibleToPlayer(float vClientEyePos[3], int target)
     MakeVectorFromPoints(vClientEyePos, vTargetPos, vLookAt);
     GetVectorAngles(vLookAt, vAng);
 
-    Handle trace = TR_TraceRayFilterEx(vClientEyePos, vAng, MASK_PLAYERSOLID, RayType_Infinite, TraceFilter_VisibleToPlayer, target);
+	// MASK_PLAYERSOLID -> MASK_VISIBLE
+    Handle trace = TR_TraceRayFilterEx(vClientEyePos, vAng, MASK_VISIBLE, RayType_Infinite, TraceFilter_VisibleToPlayer, target);
 
     bool isVisible;
 
@@ -2437,10 +2445,13 @@ bool IsVisibleToPlayer(float vClientEyePos[3], int target)
             vTargetPos[2] -= 62.0; // results the same as GetClientAbsOrigin
 
             delete trace;
-            trace = TR_TraceHullFilterEx(vClientEyePos, vTargetPos, g_fVPlayerMins, g_fVPlayerMaxs, MASK_PLAYERSOLID, TraceFilter_VisibleToPlayer, target);
+			// MASK_PLAYERSOLID -> MASK_VISIBLE
+            trace = TR_TraceHullFilterEx(vClientEyePos, vTargetPos, g_fVPlayerMins, g_fVPlayerMaxs, MASK_VISIBLE, TraceFilter_VisibleToPlayer, target);
 
             if (TR_DidHit(trace))
+			{
                 isVisible = (TR_GetEntityIndex(trace) == target);
+			}
         }
     }
 
@@ -2449,15 +2460,15 @@ bool IsVisibleToPlayer(float vClientEyePos[3], int target)
     return isVisible;
 }
 
-bool TraceFilter_VisibleToPlayer(int entity, int contentsMask, int infected)
+bool TraceFilter_VisibleToPlayer(int entity, int contentsMask, int player)
 {
-    if (entity == infected)
+    if (entity == player)
         return true;
 
     if (IsValidClientIndex(entity))
         return false;
 
-    if( !IsValidEntityIndex(entity) )
+    if (!IsValidEntityIndex(entity) )
         return false;
 
     return ge_bInvalidTrace[entity] ? false : true;
@@ -2465,7 +2476,8 @@ bool TraceFilter_VisibleToPlayer(int entity, int contentsMask, int infected)
 
 bool IsVisibleToEntity(float vClientEyePos[3], float vTargetPos[3], int witch)
 {
-	Handle hTrace = TR_TraceRayFilterEx(vClientEyePos, vTargetPos, MASK_SOLID_BRUSHONLY, RayType_EndPoint, TraceFilter_VisibleToEntity, witch);
+	// MASK_SOLID_BRUSHONLY -> MASK_VISIBLE
+	Handle hTrace = TR_TraceRayFilterEx(vClientEyePos, vTargetPos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_VisibleToEntity, witch);
 	
 	if (TR_DidHit(hTrace))
 	{
