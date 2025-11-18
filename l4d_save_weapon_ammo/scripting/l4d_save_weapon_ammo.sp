@@ -131,6 +131,8 @@ public void OnPluginStart()
 	{
 		for( int i = 1; i <= MaxClients; i++ )
 		{
+			if(!IsClientInGame(i)) continue;
+
 			OnClientPutInServer(i);
 			OnClientPostAdminCheck(i);
 		}
@@ -337,7 +339,7 @@ void OnFrame_WeaponCanUsePost(DataPack dPack)
 		// Restore clip size to previous
 		SetEntProp(weapon, Prop_Send, "m_iClip1", g_iClientClip[client][weapon_weaponid][weapon_skin]);
 
-		GetOrSetPlayerAmmo(client, weapon, MIN(cur_ammo, 999));
+		GetOrSetPlayerAmmo(client, weapon, cur_ammo);
 
 		return;
 	}
@@ -347,15 +349,15 @@ void OnFrame_WeaponCanUsePost(DataPack dPack)
 	{
 		if(!g_bCvarFix2) return;
 
-		g_iWeaponAmmo[weapon] = MIN(g_iWeaponAmmo[weapon], 999);
-		int cur_ammo = GetOrSetPlayerAmmo(client, weapon);
+		//int cur_ammo = GetOrSetPlayerAmmo(client, weapon);
 
-		//PrintToChatAll("%d %d", g_iWeaponAmmo[weapon], cur_ammo);
-		if(g_iWeaponAmmo[weapon] > cur_ammo)
-		{
-			// 歸還彈藥
-			GetOrSetPlayerAmmo(client, weapon, g_iWeaponAmmo[weapon]);
-		}
+		////PrintToChatAll("%d %d", g_iWeaponAmmo[weapon], cur_ammo);
+		//if(g_iWeaponAmmo[weapon] > cur_ammo)
+		//{
+		//	// 歸還彈藥
+		//	GetOrSetPlayerAmmo(client, weapon, g_iWeaponAmmo[weapon]);
+		//}
+		GetOrSetPlayerAmmo(client, weapon, g_iWeaponAmmo[weapon]);
 	}
 }
 
@@ -376,7 +378,7 @@ int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
 		else
 		{
 			int ammo = GetEntData(client, g_iOffsetAmmo + offset);
-			return ammo >= 999 ? 999 : ammo;
+			return ammo;
 		}
 	}
 
