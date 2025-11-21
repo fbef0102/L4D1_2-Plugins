@@ -250,6 +250,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v4.0 (2025-11-21)
     * v3.9 (2025-10-5)
     * v3.8 (2025-9-23)
         * Update cvars

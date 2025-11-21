@@ -749,9 +749,12 @@ bool TraceSelfFilter(int entity, int contentsMask, any data) {
 }
 
 bool TraceWallFilter(int entity, int contentsMask, any data) {
-	if (entity != data) {
+	if (entity != data) 
+	{
+		if(!IsValidEntity(entity)) return false;
+
 		static char cls[5];
-		GetEdictClassname(entity, cls, sizeof cls);
+		GetEntityClassname(entity, cls, sizeof cls);
 		return cls[3] != 'e' && cls[3] != 'c';
 	}
 
@@ -759,9 +762,12 @@ bool TraceWallFilter(int entity, int contentsMask, any data) {
 }
 
 bool TraceEntityFilter(int entity, int contentsMask) {
-	if (!entity || entity > MaxClients) {
+	if (!entity || entity > MaxClients) 
+	{
+		if(!IsValidEntity(entity)) return false;
+
 		static char cls[5];
-		GetEdictClassname(entity, cls, sizeof cls);
+		GetEntityClassname(entity, cls, sizeof cls);
 		return cls[3] != 'e' && cls[3] != 'c';
 	}
 
