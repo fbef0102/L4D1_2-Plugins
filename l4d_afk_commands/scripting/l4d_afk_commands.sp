@@ -294,7 +294,7 @@ public void OnPluginStart()
 
 	g_smClientSwitchTeam = new StringMap();
 
-	for (int i = 1; i <= MaxClients; i++)
+	for (int i = 1; i <= 32; i++)
 	{
 		g_alClientAttackedByWitch[i] = new ArrayList();
 		g_alClientThrowable[i] = new ArrayList();
