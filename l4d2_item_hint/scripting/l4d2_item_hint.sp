@@ -2297,8 +2297,13 @@ void PlayerMarkHint(int client)
 		}
 	}
 
-	static int iEntity;
-	iEntity = GetUseEntity(client, g_fItemUseHintRange);
+	int iEntity = 0;
+	if(IsPlayerAlive(client)) iEntity = GetUseEntity(client, g_fItemUseHintRange);
+	else
+	{
+		if(clientAim > MaxClients) iEntity = clientAim;
+	}
+
 	if ( !bIsAimPlayer && !bIsAimWitch && IsValidEntityIndex(iEntity) && IsValidEntity(iEntity) && HasParentClient(iEntity) == false )
 	{
 		static char targetname[128];
