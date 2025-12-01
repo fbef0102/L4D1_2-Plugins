@@ -7,6 +7,16 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
     L4D2 Coop/Realism
     ```
 
+* <details><summary>How does it work?</summary>
+
+	* When survivors reach the end safe room and map transition
+        * Save health/incap count
+        * Save character
+        * Save weapons
+        * Save melee weapons (support custom map)
+    * Restore health and weapons after the level-transitioning (including the level failed and restarted)
+</Chargedetails>
+
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [l4d_heartbeat](/l4d_heartbeat)
@@ -104,10 +114,11 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 * 原理
     * 抵達終點關下安全門時，插件會保存每一位玩家的資料
         * 武器、物品
+        * 近戰武器 (支援三方圖)
         * 人物角色
         * 血量與黑白狀態
     * 當玩家載入到下一關之後，恢复所有資料
-    * 當伺服器有5+以上玩家時才需要安裝此插件
+        * 下一關滅團並重啟時，也會恢复上一關的所有資料
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

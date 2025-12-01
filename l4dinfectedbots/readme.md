@@ -277,8 +277,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		![l4dinfectedbots_2](image/l4dinfectedbots_2.jpg)
 		```php
-		// 1 = Announce current plugin status in chatbox when the number of alive survivors changes.
-		"announce_enable" "0"
+		// Modify file: cfg/sourcemod/l4dinfectedbots.cfg
+		l4d_infectedbots_announce_chat "0"
 		```
 	</details>
 
@@ -286,7 +286,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		![l4dinfectedbots_5](image/l4dinfectedbots_5.jpg)
 		```php
-		// 1 = Attaches red flash light to human infected player in coop/survival/realism. (Make it clear which infected bot is controlled by player)
+		// Modify file: data/l4dinfectedbots/xxxx.cfg
 		"coop_versus_human_light"   "0"
 		```
 	</details>
@@ -350,6 +350,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		// Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.
 		l4d_infectedbots_modes_tog "0"
+
+		// If 1, (Chatbox) Announce current plugin status when the number of alive survivors changes.
+		l4d_infectedbots_announce_chat "1"
+
+		// If 1, (Server Console) Announce current plugin status when the number of alive survivors changes.
+		l4d_infectedbots_announce_server "0"
 
 		// Toggle whether Infected HUD is active or not.
 		l4d_infectedbots_infhud_enable "1"
@@ -426,6 +432,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.0.4 (2025-12-1)
+		* Update cvars and data
 
 	* v3.0.3 (2025-10-22)
 		* Add a config to override tank limit director vscript
@@ -791,8 +800,8 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		![zho/l4dinfectedbots_2](image/zho/l4dinfectedbots_2.jpg)
 		```php
-		// 1 = 當存活的倖存者數量發生變化時，聊天框提示插件狀態
-		"announce_enable" "0"
+		// 修改文件 cfg/sourcemod/l4dinfectedbots.cfg
+		l4d_infectedbots_announce_chat "0"
 		```
 	</details>
 
@@ -800,7 +809,7 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		![l4dinfectedbots_5](image/l4dinfectedbots_5.jpg)
 		```php
-		// 1 = 真人扮演的感染者，身體會發出紅色的動態光 (戰役/寫實/生存模式)
+		// 修改文件 data/l4dinfectedbots/xxxx.cfg
 		"coop_versus_human_light"   "0"
 		```
 	</details>
@@ -883,6 +892,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		// 什麼模式下啟動此插件. 0=所有模式, 1=戰役, 2=生存, 4=對抗, 8=清道夫. 請將數字相加起來
 		l4d_infectedbots_modes_tog "0"
+
+		// (聊天框) 1 = 當存活的倖存者數量發生變化時，提示插件狀態
+		l4d_infectedbots_announce_chat "1"
+
+		// (伺服器後台) 1 = 當存活的倖存者數量發生變化時，提示插件狀態
+		l4d_infectedbots_announce_server "0"
 
 		// 1=感染者玩家開啓HUD
 		l4d_infectedbots_infhud_enable "1"

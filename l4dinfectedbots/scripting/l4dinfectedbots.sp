@@ -1,7 +1,7 @@
 //此插件0.1秒後設置血量(Tank與特感)
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.3 (2009-2025)
+* Version	: 3.0.4 (2009-2025)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -10,6 +10,8 @@
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
 *
+* Version 3.0.4 (2025-12-1)
+*	   - Update cvars and data
 *
 * Version 3.0.3 (2025-10-22)
 *	   - Add a config to override tank limit director vscript
@@ -800,7 +802,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.3-2025/10/22"
+#define PLUGIN_VERSION 			"3.0.4-2025/12/1"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -876,9 +878,13 @@ float g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max;
 bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default, director_no_specials_bool;
 bool g_bConfigsExecuted;
 
-ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
-ConVar h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead,
+ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarAnnounceChat, g_hCvarAnnounceServer,
+	h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead,
 	g_hCvarReloadSettings;
+bool g_bCvarAllow, g_bCvarAnnounceChat, g_bCvarAnnounceServer, 
+	g_bVersusCoop,
+	g_bInfHUD, g_bAnnounce, g_bIncludingDead;
+int g_iZSDisableGamemode;
 char g_sCvarReloadSettings[64];
 
 Handle PlayerLeftStartTimer = null; //Detect player has left safe area or not
@@ -922,9 +928,7 @@ bool roundInProgress 		= false;		// Flag that marks whether or not a round is cu
 float fPlayerSpawnEngineTime[MAXPLAYERS+1] = {0.0}; //time when real infected player spawns
 
 int g_iClientColor[MAXPLAYERS+1], g_iClientIndex[MAXPLAYERS+1], g_iLightIndex[MAXPLAYERS+1];
-bool g_bCvarAllow, g_bMapStarted, g_bVersusCoop,
-	g_bInfHUD, g_bAnnounce, g_bIncludingDead;
-int g_iZSDisableGamemode;
+bool g_bMapStarted;
 int g_iPlayerSpawn, g_bSpawnWitchBride;
 int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
@@ -947,8 +951,6 @@ int lastHumanTankId;
 
 enum struct EPluginData
 {
-	bool m_bAnnounceEnable;
-
 	int m_iSpawnLimit[NUM_TYPES_INFECTED_MAX];
 	int m_iMaxSpecials;
 	bool m_bMaxSpecialsIncludingTank;
@@ -1069,6 +1071,9 @@ public void OnPluginStart()
 	g_hCvarModesOff =					CreateConVar("l4d_infectedbots_modes_off",								"",			"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", FCVAR_NOTIFY );
 	g_hCvarModesTog =					CreateConVar("l4d_infectedbots_modes_tog",								"0",		"Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", FCVAR_NOTIFY );
 	
+	g_hCvarAnnounceChat  =				CreateConVar("l4d_infectedbots_announce_chat",							"1",		"If 1, (Chatbox) Announce current plugin status when the number of alive survivors changes.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarAnnounceServer  =			CreateConVar("l4d_infectedbots_announce_server",						"0",		"If 1, (Server Console) Announce current plugin status when the number of alive survivors changes.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	
 	h_InfHUD = 							CreateConVar("l4d_infectedbots_infhud_enable", 							"1", 		"Toggle whether Infected HUD is active or not.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_Announce = 						CreateConVar("l4d_infectedbots_infhud_announce", 						"1", 		"Toggle whether Infected HUD announces itself to clients.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_VersusCoop = 						CreateConVar("l4d_infectedbots_versus_coop", 							"0", 		"If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge.\nEnable this also allow game to continue with survivor bots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -1098,6 +1103,8 @@ public void OnPluginStart()
 	h_Announce.AddChangeHook(ConVarChanged_Cvars);
 	h_ZSDisableGamemode.AddChangeHook(ConVarChanged_Cvars);
 	h_IncludingDead.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAnnounceChat.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAnnounceServer.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarReloadSettings.AddChangeHook(ConVarChanged_ReloadSettings);
 
 	g_bVersusCoop = h_VersusCoop.BoolValue;
@@ -1260,6 +1267,8 @@ void GetCvars()
 	g_bAnnounce = h_Announce.BoolValue;
 	g_iZSDisableGamemode = h_ZSDisableGamemode.IntValue;
 	g_bIncludingDead = h_IncludingDead.BoolValue;
+	g_bCvarAnnounceChat = g_hCvarAnnounceChat.BoolValue;
+	g_bCvarAnnounceServer = g_hCvarAnnounceServer.BoolValue;
 	g_hCvarReloadSettings.GetString(g_sCvarReloadSettings, sizeof(g_sCvarReloadSettings));
 }
 
@@ -2182,12 +2191,15 @@ Action ForceInfectedSuicide(int client, int args)
 
 	if (client && GetClientTeam(client) == 3 && !IsFakeClient(client) && IsPlayerAlive(client) && !IsPlayerGhost(client))
 	{
-		int iGameMode = g_iCurrentMode;
-		if(iGameMode == 3) iGameMode = 4;
-		if(iGameMode & g_iZSDisableGamemode)
+		if(g_iZSDisableGamemode > 0)
 		{
-			PrintHintText(client,"[TS] %T","Not allowed to suicide during current mode",client);
-			return Plugin_Handled;
+			int iGameMode = g_iCurrentMode;
+			if(iGameMode == 3) iGameMode = 4;
+			if(g_iZSDisableGamemode & iGameMode)
+			{
+				PrintHintText(client,"[TS] %T","Not allowed to suicide during current mode",client);
+				return Plugin_Handled;
+			}
 		}
 
 		if(GetEngineTime() - fPlayerSpawnEngineTime[client] < SUICIDE_TIME)
@@ -2958,12 +2970,15 @@ Action Timer_CountSurvivor(Handle timer)
 
 		if(g_ePluginSettings.m_iTankHealth > 0)
 		{
-			if(g_ePluginSettings.m_bAnnounceEnable) CPrintToChatAll("[{olive}TS{default}] %t","Current_status_1",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
+			if (g_bCvarAnnounceChat) CPrintToChatAll("[{olive}TS{default}] %t","Current_status_1",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
+			if (g_bCvarAnnounceServer) PrintToServer("[TS] Survivors=%d, MaxSI=%d, TankHP=%d", iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
 		}
 		else
 		{
-			if(g_ePluginSettings.m_bAnnounceEnable) CPrintToChatAll("[{olive}TS{default}] %t","Current_status_2",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials);
+			if (g_bCvarAnnounceChat) CPrintToChatAll("[{olive}TS{default}] %t","Current_status_2",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials);
+			if (g_bCvarAnnounceServer) PrintToServer("[TS] Survivors=%d, MaxSI=%d", iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials);
 		}
+
 		g_iPlayersInSurvivorTeam = iAliveSurplayers;
 	}
 
@@ -6070,7 +6085,6 @@ void LoadData()
 
 	if(hData.JumpToKey("default"))
 	{
-		ePluginData[0].m_bAnnounceEnable = view_as<bool>(hData.GetNum("announce_enable", 1));
 		ePluginData[0].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", 2);
 		ePluginData[0].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", 2);
 		ePluginData[0].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", 2);
@@ -6141,7 +6155,6 @@ void LoadData()
 		FormatEx(sNumber, sizeof(sNumber), "%d", i);
 		if(hData.JumpToKey(sNumber))
 		{
-			ePluginData[i].m_bAnnounceEnable = view_as<bool>(hData.GetNum("announce_enable", ePluginData[0].m_bAnnounceEnable));
 			ePluginData[i].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", ePluginData[0].m_iSpawnLimit[SI_SMOKER]);
 			ePluginData[i].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", ePluginData[0].m_iSpawnLimit[SI_BOOMER]);
 			ePluginData[i].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", ePluginData[0].m_iSpawnLimit[SI_HUNTER]);

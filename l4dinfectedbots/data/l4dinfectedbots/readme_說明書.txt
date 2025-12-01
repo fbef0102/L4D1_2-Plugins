@@ -1,9 +1,5 @@
 // Explain / 說明書
 
-// 1 = Announce current plugin status in chatbox when the number of alive survivors changes.
-// 1 = 當存活的倖存者數量發生變化時，聊天框提示插件狀態
-"announce_enable" "1"
-
 // Sets the limit
 // 設置特感上限
 "smoker_limit"      "2"
