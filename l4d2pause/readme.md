@@ -32,12 +32,6 @@ Allows admins to force the game to pause, only adm can unpause the game.
 		```
 </details>
 
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [lfd_noTeamSay](/lfd_noTeamSay): Redirecting all 'say_team' messages to 'say'
-		> 沒有團隊聊天頻道只有公開聊天頻道
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* v1.7 (2025-9-11)

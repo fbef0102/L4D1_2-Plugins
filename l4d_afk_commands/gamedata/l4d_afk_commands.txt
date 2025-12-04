@@ -1,0 +1,43 @@
+"Games"
+{
+	"#default"
+	{
+		"Functions"
+		{
+			"CTerrorPlayer::GoAwayFromKeyboard"
+			{
+				"signature"  "CTerrorPlayer::GoAwayFromKeyboard"
+				"callconv"  "thiscall"
+				"return"  "void"
+				"this"  "entity"
+			}
+		}
+	}
+	
+	"left4dead2"
+	{
+		"Signatures"
+		{
+			"CTerrorPlayer::GoAwayFromKeyboard"
+			{
+				"library"		"server"
+				"linux"			"@_ZN13CTerrorPlayer18GoAwayFromKeyboardEv"
+				"windows"		"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x56\x57\x8B\xF1\x8B\x06\x8B\x90\xC8\x08\x00\x00"
+				/* ? ? ? ? ? ? 53 56 57 8B F1 8B 06 8B 90 C8 08 00 00 */
+			}
+		}
+	}
+	"left4dead"
+	{
+		"Signatures"
+		{
+			"CTerrorPlayer::GoAwayFromKeyboard"
+			{
+				"library"		"server"
+				"linux"			"@_ZN13CTerrorPlayer18GoAwayFromKeyboardEv"
+				"windows"		"\x2A\x2A\x2A\x2A\x2A\x2A\x8B\xF1\x8B\x06\x8B\x90\xB8\x07\x00\x00"
+				/* ? ? ? ? ? ? 8B F1 8B 06 8B 90 B8 07 00 00 */
+			}
+		}
+	}
+}

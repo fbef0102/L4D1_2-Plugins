@@ -79,6 +79,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <dhooks>
 #include <multicolors>
 #include <left4dhooks>
 #undef REQUIRE_EXTENSIONS
@@ -175,7 +176,18 @@ int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 bool g_bExtensionActions;
 public void OnPluginStart()
 {
-	g_bExtensionActions = LibraryExists("actionslib");
+	/*GameData hGamedata = new GameData("l4d_afk_commands");
+	if(hGamedata == null) 
+		SetFailState("Failed to load \"%s.txt\" gamedata.", "l4d_afk_commands");
+	
+	DynamicDetour hDetour = DynamicDetour.FromConf(hGamedata, "CTerrorPlayer::GoAwayFromKeyboard");
+	if (!hDetour)
+		SetFailState("Missing detour setup \"%s\"", "CTerrorPlayer::GoAwayFromKeyboard");
+	if (!hDetour.Enable(Hook_Pre, OnGoAFKPre))
+		SetFailState("Failed to pre-detour \"%s\"", "CTerrorPlayer::GoAwayFromKeyboard");
+		
+	delete hDetour;
+	delete hGamedata;*/
 
 	LoadTranslations("common.phrases");
 	LoadTranslations("l4d_afk_commands.phrases");
@@ -318,6 +330,7 @@ public void OnPluginStart()
 public void OnAllPluginsLoaded()
 {
 	g_bUnscramble = LibraryExists("l4d_team_unscramble");
+	g_bExtensionActions = LibraryExists("actionslib");
 }
 
 public void OnPluginEnd()
@@ -1317,6 +1330,27 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 	CreateTimer(0.1, Time_go_away_from_keyboard, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	return Plugin_Continue;
 }
+
+// Dhooks "CTerrorPlayer::GoAwayFromKeyboard"
+// 順序: esc->take a break or go_away_from_keyboard or L4D_GoAwayFromKeyboard() or 玩家待機太久自動被閒置 -> OnGoAFKPre -> OnGoAFKPost
+/*MRESReturn OnGoAFKPre(int pThis, Handle hReturn)
+{
+	//LogError("%d %d", pThis, GetClientTeam(pThis));
+	if(pThis > 0 && pThis <= MaxClients && IsClientInGame(pThis) && !IsFakeClient(pThis) && GetClientTeam(pThis) == 2)
+	{
+		bool bHaveAccess = HasAccessWithoutRoot(pThis, g_sImmuneAcclvl);
+		if(g_bTakeABreakBlock == true && bHaveAccess == false) 
+		{
+			PrintHintText(pThis, "%T","This function has been blocked!",pThis);	
+			return MRES_Supercede;
+		}
+
+		if(g_bHasLeftSafeRoom == false) return MRES_Ignored;
+		if(CanClientChangeTeam(pThis, 1, bHaveAccess) == false) return MRES_Supercede;
+	}
+
+	return MRES_Ignored;
+}*/
 
 Action Time_go_away_from_keyboard(Handle timer, any iUserID)
 {

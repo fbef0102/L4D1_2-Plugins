@@ -25,7 +25,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#define PLUGIN_VERSION 		"1.1h-2025/11/28"
+#define PLUGIN_VERSION 		"1.2h-2025/12/4"
 
 public Plugin myinfo =
 {
@@ -53,6 +53,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	RegPluginLibrary("l4d_heartbeat");
 
+	bLate = late;
 	return APLRes_Success;
 }
 
@@ -67,8 +68,14 @@ int g_iCvarRevives;
 ConVar g_hCvarEnable;
 bool g_bCvarEnable;
 
-int g_iReviveCount[MAXPLAYERS+1];
-bool g_bIsGoingToDie[MAXPLAYERS+1];
+int 
+	g_iReviveCount[MAXPLAYERS+1];
+
+bool 
+	g_bIsGoingToDie[MAXPLAYERS+1];
+
+Handle
+	g_hDrownTimer[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
@@ -84,12 +91,12 @@ public void OnPluginStart()
 	g_hCvarMaxIncap.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
 
-	HookEvent("bot_player_replace",		Event_BotReplace);
-	HookEvent("player_bot_replace",		Event_ReplaceBot);
-	HookEvent("player_death",			Event_Spawned);
-	HookEvent("player_spawn",			Event_Spawned);
-	HookEvent("heal_success",			Event_Healed);
-	HookEvent("revive_success",			Event_Revive);
+	HookEvent("bot_player_replace",		Event_BotReplace); // 玩家取代bot
+	HookEvent("player_bot_replace",		Event_ReplaceBot); // bot取代玩家
+	HookEvent("player_death",			Event_Spawned); // 玩家死亡
+	HookEvent("player_spawn",			Event_Spawned); // 玩家復活
+	HookEvent("heal_success",			Event_Healed); // 玩家被治癒
+	HookEvent("revive_success",			Event_Revive); // 玩家被救起 (掛邊不算)
 
 	AddCommandListener(CommandListener, "give");
 
@@ -97,16 +104,21 @@ public void OnPluginStart()
 	{
 		for( int i = 1; i <= MaxClients; i++ )
 		{
-			if( IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i) )
+			if( IsClientInGame(i))
 			{
-				g_iReviveCount[i] = GetEntProp(i, Prop_Send, "m_currentReviveCount");
+				OnClientPutInServer(i);
 
-				if( g_iReviveCount[i] >= g_iCvarRevives )
+				if(GetClientTeam(i) == 2 && IsPlayerAlive(i) )
 				{
-					SDKUnhook(i, g_bLeft4Dead2 ? SDKHook_OnTakeDamageAlive : SDKHook_OnTakeDamage, OnTakeDamage);
-					SDKUnhook(i, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
-					SDKHook(i, g_bLeft4Dead2 ? SDKHook_OnTakeDamageAlive : SDKHook_OnTakeDamage, OnTakeDamage);
-					SDKHook(i, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+					g_iReviveCount[i] = GetEntProp(i, Prop_Send, "m_currentReviveCount");
+
+					if( g_iReviveCount[i] >= g_iCvarRevives )
+					{
+						SDKUnhook(i, g_bLeft4Dead2 ? SDKHook_OnTakeDamageAlive : SDKHook_OnTakeDamage, OnTakeDamage);
+						SDKUnhook(i, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+						SDKHook(i, g_bLeft4Dead2 ? SDKHook_OnTakeDamageAlive : SDKHook_OnTakeDamage, OnTakeDamage);
+						SDKHook(i, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+					}
 				}
 			}
 		}
@@ -156,10 +168,16 @@ public void OnMapStart()
 	PrecacheSound(SOUND_HEART);
 }
 
+public void OnClientPutInServer(int client)
+{
+    SDKHook(client, SDKHook_OnTakeDamagePost, SurvivorOnTakeDamage_Post);
+}
+
 public void OnClientDisconnect(int client)
 {
 	g_bIsGoingToDie[client] = false;
 	g_iReviveCount[client] = 0;
+	delete g_hDrownTimer[client];
 }
 
 // Event-------------------------------
@@ -232,6 +250,15 @@ void Event_Revive(Event event, const char[] name, bool dontBroadcast)
 
 // SDKHooks-------------------------------
 
+void SurvivorOnTakeDamage_Post(int client, int attacker, int inflictor, float damage, int damagetype, int weapon, float damageForce[3], float damagePosition[3])
+{
+	if(damagetype & DMG_DROWN && GetClientTeam(client) == 2 && IsPlayerAlive(client))
+	{
+		delete g_hDrownTimer[client];
+		g_hDrownTimer[client] = CreateTimer(1.0, Timer_CheckPlayerDrown, client, TIMER_REPEAT);
+	}
+}
+
 void OnTakeDamagePost(int client, int attacker, int inflictor, float damage, int damagetype, int weapon, float damageForce[3], float damagePosition[3])
 {
 	if(!g_bCvarEnable) return;
@@ -289,6 +316,26 @@ Action OnTakeDamage(int client, int &attacker, int &inflictor, float &damage, in
 }
 
 // Timer & Frame-------------------------------
+
+Action Timer_CheckPlayerDrown(Handle timer, int client)
+{
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
+	{
+		g_hDrownTimer[client] = null;
+		return Plugin_Stop;
+	}
+
+	RequestFrame(OnFrameRevive, GetClientUserId(client));
+
+	//PrintToChatAll("%N %d, %d", client, GetEntProp(client, Prop_Data, "m_idrowndmg"), GetEntProp(client, Prop_Data, "m_idrownrestored"));
+	if(GetEntProp(client, Prop_Data, "m_idrowndmg") <= GetEntProp(client, Prop_Data, "m_idrownrestored"))
+	{
+		g_hDrownTimer[client] = null;
+		return Plugin_Stop;
+	}
+
+	return Plugin_Continue;
+}
 
 void OnFrameRevive(int client)
 {

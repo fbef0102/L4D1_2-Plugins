@@ -43,6 +43,9 @@ Fixes survivor_max_incapacitated_count cvar increased values reverting black and
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2h (2025-12-4)
+		* Detect if player healing events after drowning in water
+
 	* v1.1h (2025-11-28)
 		* Fixed 1hp limp movement speed same as <40hp limp
 
