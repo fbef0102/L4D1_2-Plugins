@@ -32,6 +32,7 @@ Fix bugs if not enough slots to spawn bots to take over + Kick Previously human-
             - (After fix) Force infected suicide, release the pinned survivor, infected disapper
         3. Real tank player changes team or loses control, but server is unable to spawn a bot to take over
             - (Bug) Tank disapper
+            - (After fix) Force tank to suicide
     * Kick infected bots after bots replace real infected player
         * To make server clear more slots
         * Won't kick tank bot
@@ -77,6 +78,7 @@ Fix bugs if not enough slots to spawn bots to take over + Kick Previously human-
             - (插件修復) 特感依然消失，如果有控到倖存者，則幫倖存者解除控制
         3. 作為活著的Tank失去控制權時，會有bot生成並取代Tank，但因為伺服器滿位子，bot生成失敗
             - (Bug) 導致Tank直接消失
+            - (插件修復) Tank強制自殺
     * 當Bot成功取代真人特感之後，將AI特感踢出伺服器
         * 為了騰出伺服器位子空間
         * 不會踢AI Tank

@@ -10,9 +10,9 @@
 static ConVar g_hTankThrowForce;
 static float g_fTankThrowForce;
 
-static ConVar g_hCvarEnable, g_hCvarTankBhop, g_hCvarTankRock, g_hCvarTankThrow, g_hAimOffsetSensitivity; 
+static ConVar g_hCvarEnable, g_hCvarTankBhop, g_hCvarTankRock, g_hCvarTankThrow, g_hCvarAimOffsetSensitivity, g_hCvarSmartRockRange; 
 static bool g_bCvarEnable, g_bCvarTankBhop, g_bCvarTankRock, g_bCvarTankThrow;
-static float g_fAimOffsetSensitivity;
+static float g_fCvarAimOffsetSensitivity, g_fCvarSmartRockRange;
 
 methodmap PlayerBody
 {
@@ -28,21 +28,25 @@ methodmap PlayerBody
 void Tank_OnModuleStart() 
 {
 	g_hTankThrowForce =			FindConVar("z_tank_throw_force");
+	GetOfficialCvars();
+	g_hTankThrowForce.AddChangeHook(OfficialCvarChanged);
 
-	g_hCvarEnable 				= CreateConVar("AI_HardSI_Tank_enable",   				"1",   	"0=Improves the Tank behaviour off, 1=Improves the Tank behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarEnable 				= CreateConVar("AI_HardSI_Tank_enable",   				"1",   		"0=Improves the Tank behaviour off, 1=Improves the Tank behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	g_hCvarTankBhop 			= CreateConVar("ai_tank_bhop", 							"1", 	"If 1, enable bhop facsimile on AI tanks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTankRock 			= CreateConVar("ai_tank_rock", 							"1", 	"1=AI tanks throw rock, 0=AI tanks won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTankThrow 			= CreateConVar("ai_tank_smart_throw", 					"1", 	"If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)\nIf 1, AI tank can quickly turn around if someone behind him after throws", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hAimOffsetSensitivity 	= CreateConVar("ai_tank_aim_offset_sensitivity",		"22.5",	"If the tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)", _, true, -1.0, true, 180.0);
-	
+	g_hCvarTankBhop 			= CreateConVar("ai_tank_bhop", 							"1", 		"If 1, enable bhop facsimile on AI tanks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTankRock 			= CreateConVar("ai_tank_rock", 							"1", 		"1=AI tanks throw rock, 0=AI tanks won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTankThrow 			= CreateConVar("ai_tank_smart_throw", 					"1", 		"If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)\nIf 1, AI tank can quickly turn around if someone behind him after throws", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarAimOffsetSensitivity = CreateConVar("ai_tank_smart_rock_offset_sensitivity",	"22.5",		"If the AI Tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)", _, true, -1.0, true, 180.0);
+	g_hCvarSmartRockRange 		= CreateConVar("ai_tank_smart_rock_range",				"1200.0",	"AI Tank rock flies at the closest survivor within this range", FCVAR_NOTIFY, true, 1.0, true, 99999.0);
+
 	GetCvars();
 	g_hTankThrowForce.AddChangeHook(CvarChanged);
 	g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);
 	g_hCvarTankBhop.AddChangeHook(CvarChanged);
 	g_hCvarTankRock.AddChangeHook(CvarChanged);
 	g_hCvarTankThrow.AddChangeHook(CvarChanged);
-	g_hAimOffsetSensitivity.AddChangeHook(CvarChanged);
+	g_hCvarAimOffsetSensitivity.AddChangeHook(CvarChanged);
+	g_hCvarSmartRockRange.AddChangeHook(CvarChanged);
 }
 static void _OnModuleStart()
 {
@@ -51,6 +55,16 @@ static void _OnModuleStart()
 
 void Tank_OnModuleEnd() 
 {
+}
+
+static void OfficialCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue) 
+{
+	GetCvars();
+}
+
+static void GetOfficialCvars()
+{
+	g_fTankThrowForce =			g_hTankThrowForce.FloatValue;
 }
 
 static void ConVarChanged_EnableCvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
@@ -73,13 +87,12 @@ static void CvarChanged(ConVar convar, const char[] oldValue, const char[] newVa
 
 static void GetCvars()
 {
-	g_fTankThrowForce =			g_hTankThrowForce.FloatValue;
-
 	g_bCvarEnable = g_hCvarEnable.BoolValue;
 	g_bCvarTankBhop = g_hCvarTankBhop.BoolValue;
 	g_bCvarTankRock = g_hCvarTankRock.BoolValue;
 	g_bCvarTankThrow = g_hCvarTankThrow.BoolValue;
-	g_fAimOffsetSensitivity = g_hAimOffsetSensitivity.FloatValue;
+	g_fCvarAimOffsetSensitivity = g_hCvarAimOffsetSensitivity.FloatValue;
+	g_fCvarSmartRockRange = g_hCvarSmartRockRange.FloatValue;
 }
 
 // Tank bhop and blocking rock throw
@@ -201,7 +214,7 @@ Action Tank_OnSelectTankAttack(int client, int &sequence)
 // rock 自動轉向最近的倖存者
 Action Tank_TankRock_OnRelease(int tank, int rock, float vecAng[3], float vecVel[3])
 {
-	if(!g_bCvarEnable || g_fAimOffsetSensitivity < 0) return Plugin_Continue;
+	if(!g_bCvarEnable || g_fCvarAimOffsetSensitivity < 0) return Plugin_Continue;
 	
 	if (rock <= MaxClients || !IsValidEntity(rock))
 		return Plugin_Continue;
@@ -216,10 +229,10 @@ Action Tank_TankRock_OnRelease(int tank, int rock, float vecAng[3], float vecVel
 		return Plugin_Continue;
 
 	int target = GetClientAimTarget(tank, true);
-	if (IsAliveSur(target) && !L4D_IsPlayerIncapacitated(target) && !IsPinned(target) && !RockHitWall(tank, rock, target) && !WithinViewAngle(tank, g_fAimOffsetSensitivity, target))
+	if (IsAliveSur(target) && !L4D_IsPlayerIncapacitated(target) && !IsPinned(target) && !RockHitWall(tank, rock, target) && !WithinViewAngle(tank, g_fCvarAimOffsetSensitivity, target))
 		return Plugin_Continue;
 	
-	target = GetClosestSur(tank, rock, 2.0 * g_fTankThrowForce, target);
+	target = GetClosestSur(tank, rock, g_fCvarSmartRockRange, target);
 	if (!IsAliveSur(target))
 		return Plugin_Continue;
 
@@ -376,7 +389,7 @@ stock int GetClosestSur(int client, int ent, float range, int exclude = -1) {
 
 	static ArrayList al_targets;
 	al_targets = new ArrayList(3);
-	float fov = GetFOVDotProduct(g_fAimOffsetSensitivity);
+	float fov = GetFOVDotProduct(g_fCvarAimOffsetSensitivity);
 	for (i = 0; i < num; i++) {
 		if (!clients[i] || clients[i] == exclude)
 			continue;

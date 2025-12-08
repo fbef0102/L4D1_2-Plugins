@@ -37,8 +37,11 @@ Improves the AI behaviour of special infected
             // If 1, AI tank can quickly turn around if someone behind him after throws
             ai_tank_smart_throw "1"
 
-            // If the tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)
-            ai_tank_aim_offset_sensitivity "22.5"
+            // If the AI Tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)
+            ai_tank_smart_rock_offset_sensitivity "22.5"
+
+            // AI Tank rock flies at the closest survivor within this range
+            ai_tank_smart_rock_range "1200.0"
             ```
     </details>
 
@@ -328,9 +331,12 @@ Improves the AI behaviour of special infected
             // 為1時，AI Tank丟完石頭之後馬上轉身打背後的倖存者
             ai_tank_smart_throw "1"
 
-            // 當Tank正在丟石頭時，如果目標不在此數值的視野角度範圍內，將石頭轉向至距離最近的倖存者 (-1=關閉這項功能)
+            // 當AI Tank正在丟石頭時，如果目標不在此數值的視野角度範圍內，石頭改變目標轉向至距離最近的倖存者 (-1=關閉這項功能)
             // 請填0~180, 視野角度
-            ai_tank_aim_offset_sensitivity "22.5"
+            ai_tank_smart_rock_offset_sensitivity "22.5"
+
+            // AI Tank石頭轉向至此距離最近的倖存者 (距離內沒有倖存者則石頭不會改變目標轉向)
+            ai_tank_smart_rock_range "1200.0"
             ```
     </details>
 
