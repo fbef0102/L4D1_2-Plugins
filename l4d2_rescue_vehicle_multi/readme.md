@@ -38,7 +38,7 @@ Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fal
 		* Initial Release
 
 	* Original
-		* [By sorallll](https://forums.alliedmods.net/showthread.php?t=325263)
+		* [By sorallll](https://forums.alliedmods.net/showpost.php?p=2771140&postcount=49)
 		* [By edshot99](https://forums.alliedmods.net/showthread.php?t=350059)
 		* [By V10](https://forums.alliedmods.net/showthread.php?t=121945)
 		* [SirPlease/L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/finalefix.sp)

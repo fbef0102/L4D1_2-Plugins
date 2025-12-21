@@ -42,13 +42,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * Require | 必要安裝
-    1. [Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)
+    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+    3. [Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)
 
 * <details><summary>Support | 支援插件</summary>
 
-	1. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
-		* 可以自由變成其他角色或NPC的模組
+    1. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
+        * 可以自由變成其他角色或NPC的模組
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -238,13 +239,13 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * Translation Support | 支援翻譯
-	```
-	translations/l4d2_item_hint.phrases.txt
-	```
+    ```
+    translations/l4d2_item_hint.phrases.txt
+    ```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d2_infected_hp_hint](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d2_infected_hp_hint): Display corresponding health value hint of all Special Infected
+    1. [l4d2_infected_hp_hint](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d2_infected_hp_hint): Display corresponding health value hint of all Special Infected
         * 在特感身上顯示剩餘血量
 </details>
 

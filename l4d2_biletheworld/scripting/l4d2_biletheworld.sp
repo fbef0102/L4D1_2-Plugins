@@ -313,7 +313,7 @@ bool IsVisibleTo(float position[3], float targetposition[3])
 	GetVectorAngles(vLookAt, vAngles); // get angles from vector for trace
 	
 	// execute Trace
-	Handle trace = TR_TraceRayFilterEx(position, vAngles, MASK_SHOT, RayType_Infinite, _TraceFilter);
+	Handle trace = TR_TraceRayFilterEx(position, vAngles, MASK_VISIBLE, RayType_Infinite, _TraceFilter);
 	bool isVisible = false;
 	if (TR_DidHit(trace))
 	{
@@ -325,16 +325,12 @@ bool IsVisibleTo(float position[3], float targetposition[3])
 			isVisible = true; // if trace ray lenght plus tolerance equal or bigger absolute distance, you hit the target
 		}
 	}
-	else
-	{
-		LogError("Tracer Bug: Player-Zombie Trace did not hit anything, WTF");
-		isVisible = true;
-	}
+
 	delete trace;
 	return isVisible;
 }
 
-public bool _TraceFilter(int entity, int contentsMask)
+bool _TraceFilter(int entity, int contentsMask)
 {
 	if (!entity || !IsValidEntity(entity)) // dont let WORLD, or invalid entities be hit
 	{

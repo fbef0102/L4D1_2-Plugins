@@ -9,6 +9,7 @@
 #include <sdktools>
 #include <sourcemod>
 #include <multicolors>
+#include <left4dhooks>
 #undef REQUIRE_PLUGIN
 #tryinclude <LMCCore> //https://forums.alliedmods.net/showthread.php?t=286987
 
@@ -2200,9 +2201,10 @@ void PlayerMarkHint(int client)
 
 						if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSI))
 						{
-							GetEntPropVector(i, Prop_Data, "m_vecOrigin", vTargetPos);
+							GetClientEyePosition(i, vTargetPos);
 							if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
-							if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
+							//if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
+							if(!L4D2_IsVisibleToPlayer(client, L4D_TEAM_SURVIVOR, L4D_TEAM_INFECTED, 0, vTargetPos)) continue;
 
 							degree = GetFovAngle(client, i);
 							//PrintToChatAll("與%N的夾角度: %.1f", i, degree);
@@ -2271,9 +2273,10 @@ void PlayerMarkHint(int client)
 				if(!IsPlayerAlive(i)) continue;
 				if(GetClientTeam(i) == TEAM_SURVIVOR)
 				{
-					GetEntPropVector(i, Prop_Data, "m_vecOrigin", vTargetPos);
+					GetClientEyePosition(i, vTargetPos);
 					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
-					if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
+					//if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
+					if(!L4D2_IsVisibleToPlayer(client, L4D_TEAM_SURVIVOR, L4D_TEAM_SURVIVOR, 0, vTargetPos)) continue;
 
 					degree = GetFovAngle(client, i);
 					//PrintToChatAll("與%N的夾角度: %.1f", i, degree);
@@ -2451,7 +2454,7 @@ float GetFovAngle(int client, int target)
 
 float  g_fVPlayerMins[3] = {-16.0, -16.0,  0.0};
 float  g_fVPlayerMaxs[3] = { 16.0,  16.0, 71.0};
-bool IsVisibleToPlayer(float vClientEyePos[3], int target)
+stock bool IsVisibleToPlayer(float vClientEyePos[3], int target)
 {
     float vTargetPos[3];
     float vLookAt[3];
