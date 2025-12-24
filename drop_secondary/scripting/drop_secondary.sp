@@ -179,7 +179,7 @@ void OnPlayerDeathPre(Event event, const char[] name, bool dontBroadcast)
 	{
 		if(HiddenWeapon == INVALID_ENT_REFERENCE)
 		{
-			if(secondary != INVALID_ENT_REFERENCE)
+			if(secondary != INVALID_ENT_REFERENCE && GetEntPropEnt(secondary, Prop_Data, "m_hOwnerEntity") == client)
 			{
 				float origin[3];
 				GetClientEyePosition(client, origin);
