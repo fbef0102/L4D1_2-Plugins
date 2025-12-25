@@ -345,7 +345,7 @@ public void OnAllPluginsLoaded()
 public void OnPluginStart()
 {	
 	LoadTranslations("l4d2_spawn_props.phrases");
-	
+
 	g_cvarPhysics 		= CreateConVar("l4d2_spawn_props_physics", 				"1", "Enable the Physics Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvarDynamic 		= CreateConVar("l4d2_spawn_props_dynamic",				"1", "Enable the Dynamic (Non-solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvarStatic 		= CreateConVar("l4d2_spawn_props_static",				"1", "Enable the Static (Solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -360,6 +360,12 @@ public void OnPluginStart()
 	CreateConVar("l4d2_spawn_props_version", GETVERSION, "Version of the Plugin", CVAR_FLAGS_PLUGIN_VERSION); 
 	AutoExecConfig(true, "l4d2_spawn_props");
 
+	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus/survival/scavenge mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //1. all survivors make it to saferoom in and server is about to change next level in coop mode (does not trigger round_end), 2. all survivors make it to saferoom in versus
+	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+
+
 	RegAdminCmd("sm_spawnprop", CmdSpawnProp, DESIRED_ADM_FLAGS, "Spawns an object with the given information, sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]");
 	RegAdminCmd("sm_savemap", CmdSaveMap, DESIRED_ADM_FLAGS, "Save all the spawned object in a stripper file, path: addons/stripper/maps/XXXX.cfg (XXXX is map name)");
 
@@ -373,14 +379,15 @@ public void OnPluginStart()
 	RegAdminCmd("sm_prop_lock", CmdLock, DESIRED_ADM_FLAGS, "Locks the looking spawned object, Use for move and rotate");
 	RegAdminCmd("sm_prop_clone", CmdClone, DESIRED_ADM_FLAGS, "Clone the last spawned object");
 	RegAdminCmd("sm_prop_print", CmdDebugProp, DESIRED_ADM_FLAGS, "Print the looking object information");
-	
-	
+
+	AddCommandListener(ServerCmd_changelevel, "changelevel");
+
 	TopMenu topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
 	{
 		OnAdminMenuReady(topmenu);
 	}
-	
+
 
 	//Create required folders
 	BuildFileDirectories();
@@ -403,38 +410,6 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 void GetCvars()
 {
 	stripper_cfg_path.GetString(g_sCvar_stripper_cfg_path, sizeof(g_sCvar_stripper_cfg_path));
-}
-
-Action CmdDebugProp(int client, int args)
-{
-	if(client == 0) return Plugin_Handled;
-
-	
-	//int Object = g_iLastObject[client];
-	int Object = FindObjectYouAreLooking(client, false); 
-	if(Object <= MaxClients || !IsValidEntity(Object))
-	{
-		CPrintToChat(client, "[TS] %T","You are not looking at a valid object", client);
-		return Plugin_Handled;
-	}
-
-	static char m_ModelName[PLATFORM_MAX_PATH];
-	GetEntPropString(Object, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
-	CPrintToChat(client, "[TS] %T", "Object Model", client, Object, m_ModelName);
-
-	static char name[256];
-	GetEntPropString(Object, Prop_Data, "m_iName", name, sizeof(name));
-	CPrintToChat(client, "[TS] %T", "Object Targetname", client, name);
-
-	static float position[3];
-	GetEntPropVector(Object, Prop_Send, "m_vecOrigin", position);
-	CPrintToChat(client, "[TS] %T", "Object Position", client, position[0], position[1], position[2]);
-
-	static float angle[3];
-	GetEntPropVector(Object, Prop_Data, "m_angRotation", angle);
-	CPrintToChat(client, "[TS] %T", "Object Angle", client, angle[0], angle[1], angle[2]);
-
-	return Plugin_Handled;
 }
 
 public void OnMapStart()
@@ -498,6 +473,38 @@ public void OnMapStart()
 		PrecacheGeneric("scripts/melee/pitchfork.txt", true);
 		PrecacheGeneric("scripts/melee/shovel.txt", true);
 	}
+}
+
+Action CmdDebugProp(int client, int args)
+{
+	if(client == 0) return Plugin_Handled;
+
+	
+	//int Object = g_iLastObject[client];
+	int Object = FindObjectYouAreLooking(client, false); 
+	if(Object <= MaxClients || !IsValidEntity(Object))
+	{
+		CPrintToChat(client, "[TS] %T","You are not looking at a valid object", client);
+		return Plugin_Handled;
+	}
+
+	static char m_ModelName[PLATFORM_MAX_PATH];
+	GetEntPropString(Object, Prop_Data, "m_ModelName", m_ModelName, sizeof(m_ModelName));
+	CPrintToChat(client, "[TS] %T", "Object Model", client, Object, m_ModelName);
+
+	static char name[256];
+	GetEntPropString(Object, Prop_Data, "m_iName", name, sizeof(name));
+	CPrintToChat(client, "[TS] %T", "Object Targetname", client, name);
+
+	static float position[3];
+	GetEntPropVector(Object, Prop_Send, "m_vecOrigin", position);
+	CPrintToChat(client, "[TS] %T", "Object Position", client, position[0], position[1], position[2]);
+
+	static float angle[3];
+	GetEntPropVector(Object, Prop_Data, "m_angRotation", angle);
+	CPrintToChat(client, "[TS] %T", "Object Angle", client, angle[0], angle[1], angle[2]);
+
+	return Plugin_Handled;
 }
 
 Action CmdSpawnProp(int client, int args)
@@ -2973,9 +2980,22 @@ Action CmdSaveMap(int client, int args)
 	return Plugin_Handled;
 }
 
+void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
+{
+	SaveMapStripper(0);
+}
+
+Action ServerCmd_changelevel(int client2, const char[] command, int argc)
+{
+	SaveMapStripper(0);
+
+	return Plugin_Continue;
+}
+
 void SaveMapStripper(int client)
 {
-	LogSpawn("%N saved the objects for this map on a 'Stripper' file format", client);
+	if(client > 0) LogSpawn("%N saved the objects for this map on a 'Stripper' file format", client);
+
 	char FileName[256];
 	char map[256];
 	char classname[256];
@@ -2983,7 +3003,7 @@ void SaveMapStripper(int client)
 	GetCurrentMap(map, sizeof(map));
 	BuildPath(Path_SM, FileName, sizeof(FileName), "../../%s/maps/%s.cfg", g_sCvar_stripper_cfg_path, map);
 	
-	if(FileExists(FileName))
+	if(client > 0 && FileExists(FileName))
 	{
 		PrintHintText(client, "%T", "The file already exists.", client);
 	}
@@ -2991,15 +3011,17 @@ void SaveMapStripper(int client)
 	file = OpenFile(FileName, "a+");
 	if(file == null)
 	{
-		CPrintToChat(client, "[TS] Failed to create or overwrite the map file");
-		CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
-		PrintHintText(client, "[TS] Failed to create or overwrite the map file");
-		PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
-		PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
+		if(client > 0)
+		{
+			CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
+			PrintHintText(client, "[TS] Failed to create or overwrite the map file");
+			PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
+			PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
+		}
 		return;
 	}
 	
-	CPrintToChat(client, "{green}[TS] %T", "Saving the content. Please Wait", client);
+	if(client > 0) CPrintToChat(client, "{green}[TS] %T", "Saving the content. Please Wait", client);
 
 	float vecOrigin[3];
 	float vecAngles[3];
@@ -3008,15 +3030,37 @@ void SaveMapStripper(int client)
 	int count;
 	char melee_name[32];
 	FormatTime(sTime, sizeof(sTime), "%Y_%m_%d");
-	file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
-	file.WriteLine(";----------BY: %N----------------------||", client);
-	file.WriteLine("");
-	file.WriteLine("add:");
+	if(client > 0)
+	{
+		file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
+		file.WriteLine(";----------BY: %N----------------------||", client);
+		file.WriteLine("");
+		file.WriteLine("add:");
+	}
 
+
+	bool bHasObjectNotSavedYet = false;
 	for(int entity=MaxClients; entity < MAX_ENTITY; entity++)
 	{
 		if(g_bSpawned[entity] && IsValidEntity(entity))
 		{
+			if(client == 0 && !bHasObjectNotSavedYet)
+			{
+				LogSpawn("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				CPrintToChatAll("{red}!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				CPrintToChatAll("{red}!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				CPrintToChatAll("{red}!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+
+				file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
+				file.WriteLine(";----------BY: Server Console Auto Save----------------------||");
+				file.WriteLine("");
+				file.WriteLine("add:");
+				bHasObjectNotSavedYet = true;
+			}
+
 			GetEntityClassname(entity, classname, sizeof(classname));
 			if(strncmp(classname, "prop_dynamic", 12, false) == 0 || strncmp(classname, "prop_physics", 12, false) == 0)
 			{
@@ -3102,7 +3146,7 @@ void SaveMapStripper(int client)
 
 	FlushFile(file);
 	CloseHandle(file);
-	CPrintToChat(client, "{lightgreen}[TS] %T (%s/maps/%s.cfg)", "Succesfully saved the map data", client, g_sCvar_stripper_cfg_path, map);
+	if(client > 0) CPrintToChat(client, "{lightgreen}[TS] %T (%s/maps/%s.cfg)", "Succesfully saved the map data", client, g_sCvar_stripper_cfg_path, map); 
 }
 
 Action CmdRotate(int client, int args)

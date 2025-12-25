@@ -63,6 +63,7 @@ Let admins spawn any kind of objects and saved to cfg
 				"classname"	"prop_dynamic"
 			}
 			```
+	* Auto save the objects when map change or round ends. For people who always forget to save objects :(
 </details>
 
 * <details><summary>Q&A</summary>
@@ -254,6 +255,7 @@ Let admins spawn any kind of objects and saved to cfg
 				"classname"	"prop_dynamic"
 			}
 			```
+	* 回合結束或切換地圖時, 自動保存尚未儲存的物件 (因為玩家容易忘記儲存物件)
 </details>
 
 * <details><summary>Q&A</summary>
