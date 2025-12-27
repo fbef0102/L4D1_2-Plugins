@@ -71,6 +71,9 @@ A spectator can now see the special infected model glows though the wall
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v3.2 (2025-12-27)
+        * Force client to transmit so glow entity won't be buggy behind the wall
+
     * v3.1 (2024-10-30)
         * Optimize code 
 

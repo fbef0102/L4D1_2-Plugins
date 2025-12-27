@@ -251,6 +251,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v4.1 (2025-12-27)
+        * Force client and witch to transmit so glow entity won't be buggy behind the wall
+
     * v4.0 (2025-11-21)
     * v3.9 (2025-10-5)
     * v3.8 (2025-9-23)

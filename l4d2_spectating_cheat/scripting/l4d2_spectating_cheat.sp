@@ -54,7 +54,7 @@ public Plugin myinfo =
     name = "l4d2 specating cheat",
     author = "Harry Potter",
     description = "A spectator can now see the special infected model glows though the wall",
-    version = "3.1-2024/10/30",
+    version = "3.2-2025/12/27",
     url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -379,6 +379,11 @@ void CreateInfectedModelGlow(int client)
 		
 	// Delete previous glow first just in case
 	RemoveInfectedModelGlow(client);
+
+	// https://developer.valvesoftware.com/wiki/Networking_Entities
+	// https://forums.alliedmods.net/showthread.php?t=287325
+	// FL_EDICT_ALWAYS: Always transmit (so player won't see buggy glow behind wall) 副作用: SetTransmit always detect
+	SetEdictFlags(client , GetEdictFlags(client ) | FL_EDICT_ALWAYS);
 	
 	// Get Client Model
 	char sModelName[64];

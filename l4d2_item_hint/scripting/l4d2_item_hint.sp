@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "4.0-2025/11/21",
+	version     = "4.1-2025/12/27",
 	url         = "https://forums.alliedmods.net/showpost.php?p=2765332&postcount=30"
 };
 
@@ -1102,6 +1102,11 @@ bool CreateInfectedMarker(int client, int infected, bool bIsWitch = false)
 	// Delete previous glow first
 	RemoveEntityModelGlow(infected);
 	delete g_iModelTimer[infected];
+
+	// https://developer.valvesoftware.com/wiki/Networking_Entities
+	// https://forums.alliedmods.net/showthread.php?t=287325
+	// FL_EDICT_ALWAYS: Always transmit (so player won't see buggy glow behind wall) 副作用: SetTransmit always detect
+	SetEdictFlags(infected , GetEdictFlags(infected ) | FL_EDICT_ALWAYS);
 
 	// Set new fake model
 	SetEntityModel(entity, sModelName);
@@ -2204,6 +2209,11 @@ void PlayerMarkHint(int client)
 							GetClientEyePosition(i, vTargetPos);
 							if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
 							//if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
+							// L4D2 only
+							// 判斷玩家是否對該點可看見 
+							// -使用遊戲簽證判斷，所以準確率很高
+							// -只是判斷玩家是否從正面看得見, 無法判斷玩家的背面
+							// 相較sourcemod自帶的trace快些
 							if(!L4D2_IsVisibleToPlayer(client, L4D_TEAM_SURVIVOR, L4D_TEAM_INFECTED, 0, vTargetPos)) continue;
 
 							degree = GetFovAngle(client, i);
