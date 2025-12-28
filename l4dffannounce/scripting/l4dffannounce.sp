@@ -6,12 +6,12 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-#define PLUGIN_VERSION			"1.8"
+#define PLUGIN_VERSION			"1.9"
 
 public Plugin myinfo = 
 {
 	name = "L4D FF Announce Plugin",
-	author = "Frustian & HarryPotter",
+	author = "Frustian & HarryPotter & apples1949",
 	description = "Display Friendly Fire Announcements",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913"
@@ -28,6 +28,7 @@ int g_iCvarAnnounceType;
 
 int DamageCache[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store Friendly Fire Damage between teammates
 Handle FFTimer[MAXPLAYERS+1]; //Used to be able to disable the FF timer when they do more FF
+int TotalDamage[MAXPLAYERS+1][MAXPLAYERS+1]; // TotalDamage
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
@@ -80,6 +81,18 @@ public void OnMapEnd()
 	ResetTimer();
 }
 
+public void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
+{
+	// clear total damage
+	for (int i = 0; i <= MaxClients; i++)
+	{
+		for (int j = 0; j <= MaxClients; j++)
+		{
+			TotalDamage[i][j] = 0;
+		}
+	}
+}
+
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
 {
 	ResetTimer();
@@ -117,12 +130,14 @@ void Event_HurtConcise(Event event, const char[] name, bool dontBroadcast)
 	if (FFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
 	{
 		DamageCache[attacker][victim] += damage;
+		TotalDamage[attacker][victim] += damage;
 		delete FFTimer[attacker];
 		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 	}
 	else //If it's the first friendly fire by that player, it will start the announce timer and store the damage done.
 	{
 		DamageCache[attacker][victim] = damage;
+		TotalDamage[attacker][victim] += damage;
 		delete FFTimer[attacker];
 		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 		for (int i = 1; i <= MaxClients; i++)
@@ -195,23 +210,23 @@ Action AnnounceFF(Handle timer, int attackerc) //Called if the attacker did not 
 					case 1:
 					{
 						if (IsClientInGame(attackerc) && !IsFakeClient(attackerc))
-							CPrintToChat(attackerc, "[{olive}TS{default}] %T", "FF_dealt (C)", attackerc, DamageCache[attackerc][i], victim);
+							CPrintToChat(attackerc, "[{olive}TS{default}] %T", "FF_dealt (C)", attackerc, DamageCache[attackerc][i], victim, TotalDamage[attackerc][i]);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, attacker, DamageCache[attackerc][i]);
+							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, attacker, DamageCache[attackerc][i], TotalDamage[attackerc][i]);
 					}
 					case 2:
 					{
 						if (IsClientInGame(attackerc) && !IsFakeClient(attackerc))
-							PrintHintText(attackerc, "%T", "FF_dealt", attackerc, DamageCache[attackerc][i],victim);
+							PrintHintText(attackerc, "%T", "FF_dealt", attackerc, DamageCache[attackerc][i],victim, TotalDamage[attackerc][i]);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintHintText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i]);
+							PrintHintText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i], TotalDamage[attackerc][i]);
 					}
 					case 3:
 					{
 						if (IsClientInGame(attackerc) && !IsFakeClient(attackerc))
-							PrintCenterText(attackerc, "%T", "FF_dealt", attackerc, DamageCache[attackerc][i], victim);
+							PrintCenterText(attackerc, "%T", "FF_dealt", attackerc, DamageCache[attackerc][i], victim, TotalDamage[attackerc][i]);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintCenterText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i]);
+							PrintCenterText(i, "%T", "FF_receive", i, attacker, DamageCache[attackerc][i], TotalDamage[attackerc][i]);
 					}
 					default:
 					{
