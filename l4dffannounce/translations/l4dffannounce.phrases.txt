@@ -1,38 +1,38 @@
-﻿"Phrases"
+"Phrases"
 {
 	"KILL"
 	{
 		"en"		"{lightgreen}%N {default}Killed {olive}%N{default}."
 		"zho"		"{lightgreen}%N {default}星爆氣流斬 {olive}%N{default}."
 		"chi"		"{lightgreen}%N {default}星爆气流斩 {olive}%N{default}."
-		"ru"		"{lightgreen}%N {default}убивает: {olive}%N{default}."
+		"ru"		"{lightgreen}%N {default}убивает: {olive}%N{default}(%d in total)."
 	}
 	"FF_dealt (C)"
 	{
-		"en"		"You did {green}%d{default} friendly fire damage to {lightgreen}%s{default}."
-		"zho"		"你剛造成 {green}%d{default} 滴血給 {lightgreen}%s{default}."
-		"chi"		"你刚造成 {green}%d{default} 滴血给 {lightgreen}%s{default}."
-		"ru"		"Вы нанесли {green}%d{default} ед. урона своему: {lightgreen}%s{default}."
+		"en"		"You did {green}%d{default} friendly fire damage to {lightgreen}%s{default}.({green}%d {default}in total)"
+		"zho"		"你剛造成 {green}%d{default} 滴血給 {lightgreen}%s{default}.（累計 {green}%d {default}點血）"
+		"chi"		"你刚造成 {green}%d{default} 滴血给 {lightgreen}%s{default}.（累计 {green}%d {default}滴血）"
+		"ru"		"Вы нанесли {green}%d{default} ед. урона своему: {lightgreen}%s{default}.(%d in total)"
 	}
 	"FF_dealt"
 	{
-		"en"		"You did %d friendly fire damage to %s."
-		"zho"		"你剛造成 %d 滴血給 %s."
-		"chi"		"你刚造成 %d 滴血给 %s."
-		"ru"		"Вы нанесли %d ед. урона своему: %s."
+		"en"		"You did %d friendly fire damage to %s.(%d in total)"
+		"zho"		"你剛造成 %d 滴血給 %s.（累計 %d 點血）"
+		"chi"		"你刚造成 %d 滴血给 %s.（累计 %d 滴血）"
+		"ru"		"Вы нанесли %d ед. урона своему: %s.(%d in total)"
 	}
 	"FF_receive (C)"
 	{
-		"en"		"{lightgreen}%s{default} did {green}%d{default} friendly fire damage to you"
-		"zho"		"{lightgreen}%s{default} 造成了 {green}%d{default} 滴血給你."
-		"chi"		"{lightgreen}%s{default} 造成了 {green}%d{default} 滴血给你."
-		"ru"		"{lightgreen}%s{default} наносит {green}%d{default} ед. урона по вам"
+		"en"		"{lightgreen}%s{default} did {green}%d{default} friendly fire damage to you.({green}%d {default}in total)"
+		"zho"		"{lightgreen}%s{default} 造成了 {green}%d{default} 滴血給你.（累計 {green}%d {default}點血）"
+		"chi"		"{lightgreen}%s{default} 造成了 {green}%d{default} 滴血给你.（累计 {green}%d {default}滴血）"
+		"ru"		"{lightgreen}%s{default} наносит {green}%d{default} ед. урона по вам(%d in total)"
 	}
 	"FF_receive"
 	{
-		"en"		"%s did %d friendly fire damage to you"
-		"zho"		"%s 造成了 %d 滴血給你."
-		"chi"		"%s 造成了 %d 滴血给你."
-		"ru"		"%s наносит %d ед. урона по вам"
+		"en"		"%s did %d friendly fire damage to you.(%d in total)"
+		"zho"		"%s 造成了 %d 滴血給你.（累計 %d 點血）"
+		"chi"		"%s 造成了 %d 滴血给你.（累计 %d 滴血）"
+		"ru"		"%s наносит %d ед. урона по вам(%d in total)"
 	}
 }
