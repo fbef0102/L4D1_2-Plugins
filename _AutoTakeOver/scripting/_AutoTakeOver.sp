@@ -78,7 +78,7 @@ public void OnPluginStart()
 	g_hCvarTakeOverOnBotSpawnSpectator.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarTakeOverOnJoinServer.AddChangeHook(ConVarChanged_Cvars);
 
-	RegAdminCmd("sm_printbestavailablebots", CmdPrintBestAvailableBots, ADMFLAG_ROOT, "Lists all available survivor bots, ordered from best to worst.");
+	RegAdminCmd("sm_printbestavailablebots", CmdPrintBestAvailableBots, ADMFLAG_ROOT, "Lists all available survivor bots, ordered from best to worst. Usage: sm_printbestavailablebots [top]");
 }
 
 void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
