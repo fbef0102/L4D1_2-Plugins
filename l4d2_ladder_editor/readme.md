@@ -250,7 +250,7 @@ Clone and move special infected/survivor ladders.
 			* ```!kill```: 移除梯子
 		4. 完成後，輸入 ```!edit``` 離開編輯模式
 
-	* **Save Ladder**
+	* **儲存梯子**
         1. 準心指向梯子，開啟遊戲控制台，輸入```sm_info```，func_simpleladder 梯子實體的資訊將會打印在上面
 		<br/>![l4d2_ladder_editor_7](image/l4d2_ladder_editor_7.gif)
 

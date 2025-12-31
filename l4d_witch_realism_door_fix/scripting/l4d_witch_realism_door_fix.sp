@@ -4,34 +4,24 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <left4dhooks>
 
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.1-2025/12/31"
 
 public Plugin myinfo = 
 {
 	name = "l4d witch realism door fix",
 	author = "HarryPotter",
-	description = "Fixing witch can't break the door on Realism Normal、Advanced、Expert",
+	description = "Fixing witch can't break the door on Realism mode",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
-ConVar g_hCvarMPGameMode;
-ConVar g_hCvarZDifficulty;
+bool 
+	g_bMapStarted, g_bCvarAllow;
 
 public void OnPluginStart()
 {
-	g_hCvarMPGameMode = FindConVar("mp_gamemode");
-	g_hCvarZDifficulty = FindConVar("z_difficulty");
-	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
-	g_hCvarZDifficulty.AddChangeHook(ConVarChanged_Allow);
-}
-
-
-bool g_bMapStarted;
-public void OnMapStart()
-{
-	g_bMapStarted = true;
 }
 
 public void OnMapEnd()
@@ -41,109 +31,40 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-	IsAllowed();
+	CreateTimer(1.0, Timer_MapChange, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
+Action Timer_MapChange(Handle timer)
 {
-	IsAllowed();
-}
-
-bool g_bCvarAllow;
-void IsAllowed()
-{
-	bool bAllowDifficulty = IsAllowedDifficulty();
-	bool bAllowMode = IsAllowedGameMode();
-
-	if( g_bCvarAllow == false && bAllowDifficulty == true && bAllowMode == true)
+	g_bMapStarted = true;
+	if(L4D2_IsRealismMode())
 	{
-		CreateTimer(0.1, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
+		HookDoors(true);
 		g_bCvarAllow = true;
 	}
-
-	else if( g_bCvarAllow == true && (bAllowDifficulty == false || bAllowMode == false) )
+	else
 	{
 		g_bCvarAllow = false;
 	}
-}
-
-bool IsAllowedDifficulty()
-{
-	static char difficulty[100];
-	g_hCvarZDifficulty.GetString(difficulty, sizeof(difficulty));
-	if (strcmp(difficulty, "easy", false) == 0)  
-	{
-		return false;
-	}
-	else if (strcmp(difficulty, "normal", false) == 0 || strcmp(difficulty, "hard", false) == 0 || strcmp(difficulty, "Impossible", false) == 0)
-	{
-		return true;
-	}
-	
-	return false;
-}
-
-int g_iCurrentMode;
-bool IsAllowedGameMode()
-{
-	if( g_hCvarMPGameMode == null )
-		return false;
-
-	if( g_bMapStarted == false )
-		return false;
-
-	g_iCurrentMode = 0;
-
-	int entity = CreateEntityByName("info_gamemode");
-	if( IsValidEntity(entity) )
-	{
-		DispatchSpawn(entity);
-		HookSingleEntityOutput(entity, "OnCoop", OnGamemode, true);
-		HookSingleEntityOutput(entity, "OnSurvival", OnGamemode, true);
-		HookSingleEntityOutput(entity, "OnVersus", OnGamemode, true);
-		HookSingleEntityOutput(entity, "OnScavenge", OnGamemode, true);
-		ActivateEntity(entity);
-		AcceptEntityInput(entity, "PostSpawnActivate");
-		if( IsValidEntity(entity) ) // Because sometimes "PostSpawnActivate" seems to kill the ent.
-			RemoveEdict(entity); // Because multiple plugins creating at once, avoid too many duplicate ents in the same frame
-	}
-
-	if( g_iCurrentMode == 0 )
-		return false;
-
-	if( g_iCurrentMode != 1 )
-		return false;
-
-	return true;
-}
-
-void OnGamemode(const char[] output, int caller, int activator, float delay)
-{
-	if( strcmp(output, "OnCoop") == 0 )
-		g_iCurrentMode = 1;
-	else if( strcmp(output, "OnSurvival") == 0 )
-		g_iCurrentMode = 2;
-	else if( strcmp(output, "OnVersus") == 0 )
-		g_iCurrentMode = 4;
-	else if( strcmp(output, "OnScavenge") == 0 )
-		g_iCurrentMode = 8;
-}
-
-Action tmrStart(Handle timer)
-{
-	int iDoorEnt = MaxClients +1;
-	while ((iDoorEnt = FindEntityByClassname(iDoorEnt, "prop_door_rotating")) != -1)
-	{
-		if (!IsValidEntity(iDoorEnt))
-		{
-			continue;
-		}
-
-		SDKUnhook(iDoorEnt, SDKHook_OnTakeDamage, DoorOnTakeDamage);
-		SDKHook(iDoorEnt, SDKHook_OnTakeDamage, DoorOnTakeDamage);
-	}
 
 	return Plugin_Continue;
+}
+
+public void L4D_OnGameModeChange(int gamemode)
+{
+	if(g_bMapStarted)
+	{
+		if(L4D2_IsRealismMode())
+		{
+			HookDoors(true);
+			g_bCvarAllow = true;
+		}
+		else
+		{
+			HookDoors(false);
+			g_bCvarAllow = false;
+		}
+	}
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -157,23 +78,21 @@ public void OnEntityCreated(int entity, const char[] classname)
 		{
 			if (strcmp(classname, "prop_door_rotating", false) == 0)
 			{
-				SDKUnhook(entity, SDKHook_OnTakeDamage, DoorOnTakeDamage);
 				SDKHook(entity, SDKHook_OnTakeDamage, DoorOnTakeDamage);
 			}
 		}
 	}
 }
 
-public Action DoorOnTakeDamage(int ent, int &attacker, int &inflictor, float &damage, int &damagetype)
+Action DoorOnTakeDamage(int door, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
-	if(g_bCvarAllow == false) SDKUnhook(ent, SDKHook_OnTakeDamage, DoorOnTakeDamage);
-
-	if(damage <= 0.0 || attacker == ent || inflictor < 0 || !IsValidEntity(inflictor)) return Plugin_Continue;
+	if(damage <= 0.0 || attacker == door || attacker != inflictor) return Plugin_Continue;
 
 	if(IsWitch(attacker))
 	{
-		//PrintToChatAll("door: %d being attacked by %d, damage: %.1f, inflictor: %d, damagetype:%d", ent, attacker, damage, inflictor, damagetype);
-		
+		//PrintToChatAll("door: %d, attacker: %d, damage: %.1f, inflictor: %d, damagetype:%d", door, attacker, damage, inflictor, damagetype);
+		//realism: DMG_PARALYZE + DMG_SLASH, other mode: DMG_SLASH
+
 		damagetype = DMG_SLASH;
 		
 		return Plugin_Changed;
@@ -182,12 +101,27 @@ public Action DoorOnTakeDamage(int ent, int &attacker, int &inflictor, float &da
 	return Plugin_Continue;
 }
 
+void HookDoors(bool bHook)
+{
+	int iDoorEnt = MaxClients +1;
+	while ((iDoorEnt = FindEntityByClassname(iDoorEnt, "prop_door_rotating")) != -1)
+	{
+		if (!IsValidEntity(iDoorEnt))
+		{
+			continue;
+		}
+
+		SDKUnhook(iDoorEnt, SDKHook_OnTakeDamage, DoorOnTakeDamage);
+		if(bHook) SDKHook(iDoorEnt, SDKHook_OnTakeDamage, DoorOnTakeDamage);
+	}
+}
+
 bool IsWitch(int entity)
 {
-    if (entity > MaxClients && IsValidEntity(entity) && IsValidEdict(entity))
+    if (entity > MaxClients && IsValidEntity(entity))
     {
         static char strClassName[64];
-        GetEdictClassname(entity, strClassName, sizeof(strClassName));
+        GetEntityClassname(entity, strClassName, sizeof(strClassName));
         return strcmp(strClassName, "witch") == 0;
     }
     return false;

@@ -7,9 +7,8 @@ Let admins spawn any kind of objects and saved to cfg
 	L4D2
 	```
 
-* [Video | 影片展示](https://youtu.be/4josvz9xJso)
-
-* Work | 作品展示
+* Video | 影片展示
+	* [Demonstration](https://youtu.be/AQ_JZa2u434)
     * [Unlimited Map C8 by Harry](https://youtu.be/I_-QSn8F8Cs)
     * [L4D2-Unlimited-Map](https://github.com/fbef0102/L4D2-Unlimited-Map)
 

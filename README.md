@@ -182,8 +182,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 特感可以釋放被抓住的倖存者
 * <b>[l4d2_rescue_vehicle_multi](/l4d2_rescue_vehicle_multi)</b>: Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fall down, not count as alive, versus score bug
     * 修正第五位以上的玩家無法上救援載具，統計顯示其死亡，無法列入對抗分數
-* <b>[l4d_witch_realism_door_fix](/l4d_witch_realism_door_fix)</b>: Fixing witch can't break the door on Realism Normal、Advanced、Expert
-    * 修正Witch在寫實模式下的一般難度、進階難度、專家難度，無法抓破門
+* <b>[l4d_witch_realism_door_fix](/l4d_witch_realism_door_fix)</b>: Fixing witch can't break the door on Realism mode
+    * 修正Witch在寫實模式下，無法抓破門
 * <b>[jockey_ride_team_switch_teleport_fix](/jockey_ride_team_switch_teleport_fix)</b>: Fixed Teleport bug if jcokey player switches team while ridding the survivor
     * 修正Jockey玩家跳隊時，會發生傳送bug
 * <b>[l4d_flying_car](/l4d_flying_car)</b>: Replaces getaway chopper by flying car in L4D2 C8 No Mercy
@@ -288,6 +288,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修正崩潰: ```server.dll + 0x1d7cbb``` 涵式內的空指針
 * <b>[bot_kick_drop_secondary](/bot_kick_drop_secondary)</b>: Survivor bots will drop their secondary weapon when they were kicked
     * 當倖存者bot被踢出遊戲時，掉落副武器
+* <b>[l4d_witch_bash_wandering](/l4d_witch_bash_wandering)</b>: Fixed that survivors can bash wandering witch without witch being startled
+    * 修復倖存者推開站立的witch不會導致驚嚇
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
