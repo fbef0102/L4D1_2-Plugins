@@ -593,7 +593,7 @@ bool LoadData()
 	{
 		g_iEscapeTime = g_iCvarEscapeTime;
 		delete hFile;
-		return false;
+		return true;
 	}
 	
 	// Retrieve rescue timer
