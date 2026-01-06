@@ -37,6 +37,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	1. [SIPool](https://forums.alliedmods.net/showthread.php?t=349615): (L4D2) SIPool - Aim to improve performance when spawn SI
 		* (L4D2) 插件适用于有需要大量且频繁的特感刷新玩法的服务器，主要目的是提升服务器性能
+
+	2. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
+		* 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
 </details>
 
 * How to set the correct settings in data config ?
@@ -373,6 +376,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		// If 1, including dead players when count the number of survivors.
 		l4d_infectedbots_calculate_including_dead "0"
 
+		// If 1, Automatically suicide infected bots if they are stuck and not fighting survivors.
+		l4d_infectedbots_dispose_cowards "1"
+
 		// Which xxxx.cfg file should this plugin read for settings in data/l4dinfectedbots folder (Ex: "custom_tanks" = reads 'data/l4dinfectedbots/custom_tanks.cfg')
 		// Empty=By default, reads data/l4dinfectedbots/xxxx.cfg (xxxx = gamemode or mutation name).
 		l4d_infectedbots_read_data ""
@@ -425,13 +431,15 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
 	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
 		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-	4. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
-		> 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
-	5. [gamemode-based_configs](/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+	4. [gamemode-based_configs](/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
 		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.0.5 (2026-1-7)
+		* Update cvars
+		* Optimize code to set infected and tank health
 
 	* v3.0.4 (2025-12-1)
 		* Update cvars and data
@@ -914,6 +922,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 		// 為1，計算倖存者數量時也包含死亡的倖存者
 		l4d_infectedbots_calculate_including_dead "0"
+
+		// 為1，AI特感如果一段時間後不攻擊不見到倖存者，將處死
+		l4d_infectedbots_dispose_cowards "1"
 
 		// 自訂此插件位於data/l4dinfectedbots資料夾想要讀取的文件名稱 (譬如: "custom_tanks"，此插件讀取 'data/l4dinfectedbots/custom_tanks.cfg')
 		// 留白=插件預設讀取data/l4dinfectedbots/xxxx.cfg (xxxx = 遊戲模式名稱或突變模式名稱).

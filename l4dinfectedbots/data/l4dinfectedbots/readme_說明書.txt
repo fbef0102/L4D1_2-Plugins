@@ -24,8 +24,11 @@
 "spawn_time_max"    "60.0"
 "spawn_time_min"    "40.0"
 
-// Amount of seconds before a special infected bot is kicked
-// AI特感生成多少秒後，如果沒攻擊倖存者也沒被看見將踢出遊戲（防止AI卡住）
+// Amount of seconds before a special infected bot is kicked if they are stuck and not fighting survivors.
+// Plugin cvar 'l4d_infectedbots_dispose_cowards' must be 1
+// -
+// AI特感生成多少秒後，如果沒攻擊倖存者也沒被看見將踢出遊戲（防止AI卡住)
+// 插件指令 'l4d_infectedbots_dispose_cowards' 數值必須為1
 "life"                  "30.0"
 
 // The spawn time in seconds used when infected bots are spawned for the first time after survivors left saferoom

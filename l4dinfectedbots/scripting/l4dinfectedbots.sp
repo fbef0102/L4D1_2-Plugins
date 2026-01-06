@@ -1,7 +1,7 @@
-//此插件0.1秒後設置血量(Tank與特感)
+//此插件0.0秒後設置血量(Tank與特感)
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.4 (2009-2025)
+* Version	: 3.0.5 (2009-2026)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.0.5 (2026-1-7)
+*		- Update cvars
+*		- Optimize code to set infected and tank health
 *
 * Version 3.0.4 (2025-12-1)
 *	   - Update cvars and data
@@ -802,7 +806,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.4-2025/12/1"
+#define PLUGIN_VERSION 			"3.0.5-2026/1/7"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -865,7 +869,7 @@ bool b_HasRoundStarted, // Used to state if the round started or not
 	PlayerLifeState[MAXPLAYERS+1], // States whether that player has the lifestate changed from switching the gamemode
 	g_bInitialSpawn, // Related to the coordination feature, tells the plugin to let the infected spawn when the survivors leave the safe room
 	g_bL4D2Version, // Holds the version of L4D; false if its L4D, true if its L4D2
-	PlayerHasEnteredStart[MAXPLAYERS+1],
+	g_bForcePlayerToInfectedTeam[MAXPLAYERS+1],
 	bDisableSurvivorModelGlow, 
 	g_bSurvivalStart, 
 	g_bIsCoordination,
@@ -879,11 +883,11 @@ bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_te
 bool g_bConfigsExecuted;
 
 ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarAnnounceChat, g_hCvarAnnounceServer,
-	h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead,
+	h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead, g_hDisposeCowards,
 	g_hCvarReloadSettings;
 bool g_bCvarAllow, g_bCvarAnnounceChat, g_bCvarAnnounceServer, 
 	g_bVersusCoop,
-	g_bInfHUD, g_bAnnounce, g_bIncludingDead;
+	g_bInfHUD, g_bAnnounce, g_bIncludingDead, g_bDisposeCowards;
 int g_iZSDisableGamemode;
 char g_sCvarReloadSettings[64];
 
@@ -934,11 +938,15 @@ int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
 bool 
 	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
-	g_bAdjustSIHealth[MAXPLAYERS+1], //true if SI adjust health already
-	g_bReplaceNewTank[MAXPLAYERS+1]; //true if tank replace another tank
+	g_bSpawnAlive[MAXPLAYERS+1],
+	g_bDeSpawn[MAXPLAYERS+1];
 
 char 
-	g_sCvarMPGameMode[32];
+	g_sCvarMPGameMode[64];
+
+int 
+	g_iZombieHpSet[MAXPLAYERS+1],
+	g_iZombieClass;
 
 #define FUNCTION_PATCH "Tank::GetIntentionInterface::Intention"
 #define FUNCTION_PATCH2 "Action<Tank>::FirstContainedResponder"
@@ -1050,6 +1058,8 @@ public void OnPluginStart()
 
 	GetGameData();
 
+	g_iZombieClass = FindSendPropInfo("CTerrorPlayer", "m_zombieClass");
+
 	// Add a sourcemod command so players can easily join infected in coop/realism/survival
 	RegConsoleCmd("sm_ji", JoinInfectedInCoop, "(Coop/Realism/Survival only) Join Infected");
 	RegConsoleCmd("sm_js", JoinSurvivorsInCoop, "(Coop/Realism/Survival only) Join Survivors");
@@ -1070,15 +1080,17 @@ public void OnPluginStart()
 	g_hCvarModes =						CreateConVar("l4d_infectedbots_modes",									"",			"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", FCVAR_NOTIFY );
 	g_hCvarModesOff =					CreateConVar("l4d_infectedbots_modes_off",								"",			"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", FCVAR_NOTIFY );
 	g_hCvarModesTog =					CreateConVar("l4d_infectedbots_modes_tog",								"0",		"Turn on the plugin in these game modes. 0=All, 1=Coop/Realism, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", FCVAR_NOTIFY );
-	
+
 	g_hCvarAnnounceChat  =				CreateConVar("l4d_infectedbots_announce_chat",							"1",		"If 1, (Chatbox) Announce current plugin status when the number of alive survivors changes.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarAnnounceServer  =			CreateConVar("l4d_infectedbots_announce_server",						"0",		"If 1, (Server Console) Announce current plugin status when the number of alive survivors changes.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	
+
 	h_InfHUD = 							CreateConVar("l4d_infectedbots_infhud_enable", 							"1", 		"Toggle whether Infected HUD is active or not.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_Announce = 						CreateConVar("l4d_infectedbots_infhud_announce", 						"1", 		"Toggle whether Infected HUD announces itself to clients.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	h_VersusCoop = 						CreateConVar("l4d_infectedbots_versus_coop", 							"0", 		"If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge.\nEnable this also allow game to continue with survivor bots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+
 	h_ZSDisableGamemode = 				CreateConVar("l4d_infectedbots_sm_zss_disable_gamemode", 				"6", 		"Disable sm_zss command in these gamemode (0: None, 1: coop/realism, 2: versus/scavenge, 4: survival, add numbers together)", FCVAR_NOTIFY, true, 0.0, true, 7.0);
 	h_IncludingDead = 					CreateConVar("l4d_infectedbots_calculate_including_dead", 				"0", 		"If 1, including dead players when count the number of survivors.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hDisposeCowards = 				CreateConVar("l4d_infectedbots_dispose_cowards", 			            "1", 		"If 1, Automatically suicide infected bots if they are stuck and not fighting survivors.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarReloadSettings = 			CreateConVar("l4d_infectedbots_read_data", 								"", 		"Which xxxx.cfg file should this plugin read for settings in data/l4dinfectedbots folder (Ex: \"custom_tanks\" = reads 'custom_tanks.cfg')\nEmpty=By default, reads xxxx.cfg (xxxx = gamemode or mutation name).", FCVAR_NOTIFY);
 
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
@@ -1099,12 +1111,13 @@ public void OnPluginStart()
 	z_ghost_delay_max.AddChangeHook(ConVarChanged_OfficialCvars);
 
 	GetCvars();
+	g_hCvarAnnounceChat.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAnnounceServer.AddChangeHook(ConVarChanged_Cvars);
 	h_InfHUD.AddChangeHook(ConVarChanged_Cvars);
 	h_Announce.AddChangeHook(ConVarChanged_Cvars);
 	h_ZSDisableGamemode.AddChangeHook(ConVarChanged_Cvars);
 	h_IncludingDead.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarAnnounceChat.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarAnnounceServer.AddChangeHook(ConVarChanged_Cvars);
+	g_hDisposeCowards.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarReloadSettings.AddChangeHook(ConVarChanged_ReloadSettings);
 
 	g_bVersusCoop = h_VersusCoop.BoolValue;
@@ -1263,12 +1276,13 @@ void ConVarChanged_ReloadSettings(ConVar convar, const char[] oldValue, const ch
 
 void GetCvars()
 {
+	g_bCvarAnnounceChat = g_hCvarAnnounceChat.BoolValue;
+	g_bCvarAnnounceServer = g_hCvarAnnounceServer.BoolValue;
 	g_bInfHUD = h_InfHUD.BoolValue;
 	g_bAnnounce = h_Announce.BoolValue;
 	g_iZSDisableGamemode = h_ZSDisableGamemode.IntValue;
 	g_bIncludingDead = h_IncludingDead.BoolValue;
-	g_bCvarAnnounceChat = g_hCvarAnnounceChat.BoolValue;
-	g_bCvarAnnounceServer = g_hCvarAnnounceServer.BoolValue;
+	g_bDisposeCowards = g_hDisposeCowards.BoolValue;
 	g_hCvarReloadSettings.GetString(g_sCvarReloadSettings, sizeof(g_sCvarReloadSettings));
 }
 
@@ -1588,7 +1602,7 @@ void ResetCvars()
 	}
 }
 
-void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
+void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bLeftSaveRoom = false;
 	g_bSurvivalStart = false;
@@ -1605,7 +1619,10 @@ void evtRoundStart(Event event, const char[] name, bool dontBroadcast)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		g_bAdjustSIHealth[i] = false;
+		g_bForcePlayerToInfectedTeam[i] = false;
+		g_bSpawnAlive[i] = false;
+		g_bDeSpawn[i] = false;
+		g_iZombieHpSet[i] = 0;
 	}
 }
 
@@ -1740,45 +1757,14 @@ Action Timer_PluginStart(Handle timer)
 	return Plugin_Continue;
 }
 
-void evtPlayerFirstSpawned(Event event, const char[] name, bool dontBroadcast)
-{
-	// This event's purpose is to execute when a player first enters the server. This eliminates a lot of problems when changing variables setting timers on clients, among fixing many sb_all_bot_team
-	// issues.
-	int userid = event.GetInt("userid");
-	int client = GetClientOfUserId(userid);
-
-	if (!client || IsFakeClient(client) || PlayerHasEnteredStart[client])
-		return;
-
-	//PrintToChatAll("[TS] Player has spawned for the first time");
-
-	// Versus Coop code, puts all players on infected at start, delay is added to prevent a weird glitch
-
-	if (L4D_HasPlayerControlledZombies() && g_bVersusCoop)
-		CreateTimer(0.1, Timer_VersusCoopTeamChanger, userid, TIMER_FLAG_NO_MAPCHANGE);
-
-	// Kill the player if they are infected and its not versus (prevents survival finale bug and player ghosts when there shouldn't be)
-	if (L4D_HasPlayerControlledZombies() == false)
-	{
-		if (GetClientTeam(client)==TEAM_INFECTED)
-		{
-			if (IsPlayerGhost(client))
-			{
-				CreateTimer(0.2, Timer_InfectedKillSelf, userid, TIMER_FLAG_NO_MAPCHANGE);
-			}
-		}
-	}
-
-	PlayerHasEnteredStart[client] = true;
-}
-
 Action Timer_VersusCoopTeamChanger(Handle Timer, int client)
 {
 	client = GetClientOfUserId(client);
-	if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) != TEAM_INFECTED)
+	if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == L4D_TEAM_SURVIVOR)
 	{
 		CleanUpStateAndMusic(client);
 		ChangeClientTeam(client, TEAM_INFECTED);
+		g_bForcePlayerToInfectedTeam[client] = true;
 	}
 	
 	return Plugin_Continue;
@@ -1807,7 +1793,7 @@ Action MaxSpecialsSet(Handle Timer)
 	return Plugin_Continue;
 }
 
-void evtRoundEnd (Event event, const char[] name, bool dontBroadcast)
+void Event_RoundEnd (Event event, const char[] name, bool dontBroadcast)
 {
 	for( int i = 1; i <= MaxClients; i++ )
 		DeleteLight(i);
@@ -1885,40 +1871,34 @@ void IsAllowed()
 
 		SetSpawnDis();
 
-		HookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
-		if(g_bL4D2Version) HookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
-		else HookEvent("create_panic_event" , Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
-		HookEvent("round_end",				evtRoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
-		HookEvent("map_transition", 		evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
-		HookEvent("mission_lost", 			evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
-		HookEvent("finale_vehicle_leaving", evtRoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+		HookEvent("round_start", 								Event_RoundStart,		EventHookMode_PostNoCopy);
+		if(g_bL4D2Version) HookEvent("survival_round_start", 	Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
+		else HookEvent("create_panic_event" , 					Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
+		HookEvent("round_end",									Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+		HookEvent("map_transition", 							Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
+		HookEvent("mission_lost", 								Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+		HookEvent("finale_vehicle_leaving", 					Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
 	
-		HookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
-		HookEvent("player_team", evtPlayerTeam);
-		HookEvent("player_spawn", evtPlayerSpawn);
-		HookEvent("finale_start", 			evtFinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
-		HookEvent("finale_radio_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
-		if(g_bL4D2Version) HookEvent("gauntlet_finale_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
-		HookEvent("player_death", evtInfectedDeath);
-		HookEvent("player_spawn", evtInfectedSpawn);
-		HookEvent("player_hurt", evtInfectedHurt);
-		HookEvent("player_team", evtTeamSwitch);
-		HookEvent("ghost_spawn_time", Event_GhostSpawnTime);
-		HookEvent("player_first_spawn", evtPlayerFirstSpawned);
-		HookEvent("player_entered_start_area", evtPlayerFirstSpawned);
-		HookEvent("player_entered_checkpoint", evtPlayerFirstSpawned);
-		HookEvent("player_transitioned", evtPlayerFirstSpawned);
-		HookEvent("player_left_start_area", evtPlayerFirstSpawned);
-		HookEvent("player_left_checkpoint", evtPlayerFirstSpawned);
-		HookEvent("player_incapacitated", Event_Incap);
-		HookEvent("player_ledge_grab", Event_Incap);
+		HookEvent("player_death", 								Event_PlayerDeath, EventHookMode_Pre);
+		HookEvent("player_team", 								Event_PlayerTeam_1);
+		HookEvent("player_spawn", 								Event_PlayerSpawn);
+		HookEvent("finale_start", 								Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+		HookEvent("finale_radio_start", 						Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+		if(g_bL4D2Version) HookEvent("gauntlet_finale_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		HookEvent("player_death", 								Event_PlayerDeath_Inected);
+		HookEvent("player_spawn", 								Event_PlayerSpawn_Inected);
+		HookEvent("player_hurt", 								Event_PlayerHurt_Inected);
+		HookEvent("player_team", 								Event_PlayerTeam_2);
+		HookEvent("ghost_spawn_time", 							Event_GhostSpawnTime);
+		HookEvent("player_incapacitated", 						Event_Incap);
+		HookEvent("player_ledge_grab", 							Event_Incap);
 		HookEvent("player_now_it", Event_GotVomit);
-		HookEvent("revive_success", Event_revive_success);//救起倒地的or 懸掛的
-		HookEvent("player_ledge_release", Event_ledge_release);//懸掛的玩家放開了
-		HookEvent("player_bot_replace", Event_BotReplacePlayer);
-		HookEvent("bot_player_replace", Event_PlayerReplaceBot);
-		HookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
-		HookEvent("player_disconnect", Event_PlayerDisconnect); //換圖不會觸發該事件
+		HookEvent("revive_success", 							Event_revive_success);//救起倒地的or 懸掛的
+		HookEvent("player_ledge_release", 						Event_ledge_release);//懸掛的玩家放開了
+		HookEvent("player_bot_replace", 						Event_BotReplacePlayer);
+		HookEvent("bot_player_replace", 						Event_PlayerReplaceBot);
+		HookEvent("tank_frustrated", 							OnTankFrustrated, EventHookMode_Post);
+		HookEvent("player_disconnect", 							Event_PlayerDisconnect); //換圖不會觸發該事件
 
 		for (int i = 1; i <= MaxClients; i++)
 		{
@@ -1934,40 +1914,34 @@ void IsAllowed()
 	{
 		OnPluginEnd();
 		g_bCvarAllow = false;
-		UnhookEvent("round_start", evtRoundStart,		EventHookMode_PostNoCopy);
-		if(g_bL4D2Version) UnhookEvent("survival_round_start", Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
-		else UnhookEvent("create_panic_event" , Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
-		UnhookEvent("round_end",				evtRoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
-		UnhookEvent("map_transition", 			evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
-		UnhookEvent("mission_lost", 			evtRoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
-		UnhookEvent("finale_vehicle_leaving", 	evtRoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+		UnhookEvent("round_start", 								Event_RoundStart,		EventHookMode_PostNoCopy);
+		if(g_bL4D2Version) UnhookEvent("survival_round_start", 	Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //生存模式之下計時開始之時 (一代沒有此事件)
+		else UnhookEvent("create_panic_event" , 				Event_SurvivalRoundStart,		EventHookMode_PostNoCopy); //一代生存模式之下計時開始觸發屍潮
+		UnhookEvent("round_end",								Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+		UnhookEvent("map_transition", 							Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
+		UnhookEvent("mission_lost", 							Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+		UnhookEvent("finale_vehicle_leaving", 					Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
 	
-		UnhookEvent("player_death", evtPlayerDeath, EventHookMode_Pre);
-		UnhookEvent("player_team", evtPlayerTeam);
-		UnhookEvent("player_spawn", evtPlayerSpawn);
-		UnhookEvent("finale_start", 			evtFinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
-		UnhookEvent("finale_radio_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
-		if(g_bL4D2Version) UnhookEvent("gauntlet_finale_start", 	evtFinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
-		UnhookEvent("player_death", evtInfectedDeath);
-		UnhookEvent("player_spawn", evtInfectedSpawn);
-		UnhookEvent("player_hurt", evtInfectedHurt);
-		UnhookEvent("player_team", evtTeamSwitch);
-		UnhookEvent("ghost_spawn_time", Event_GhostSpawnTime);
-		UnhookEvent("player_first_spawn", evtPlayerFirstSpawned);
-		UnhookEvent("player_entered_start_area", evtPlayerFirstSpawned);
-		UnhookEvent("player_entered_checkpoint", evtPlayerFirstSpawned);
-		UnhookEvent("player_transitioned", evtPlayerFirstSpawned);
-		UnhookEvent("player_left_start_area", evtPlayerFirstSpawned);
-		UnhookEvent("player_left_checkpoint", evtPlayerFirstSpawned);
-		UnhookEvent("player_incapacitated", Event_Incap);
-		UnhookEvent("player_ledge_grab", Event_Incap);
+		UnhookEvent("player_death", 							Event_PlayerDeath, EventHookMode_Pre);
+		UnhookEvent("player_team", 								Event_PlayerTeam_1);
+		UnhookEvent("player_spawn", 							Event_PlayerSpawn);
+		UnhookEvent("finale_start", 							Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+		UnhookEvent("finale_radio_start", 						Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+		if(g_bL4D2Version) UnhookEvent("gauntlet_finale_start", Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		UnhookEvent("player_death", 							Event_PlayerDeath_Inected);
+		UnhookEvent("player_spawn", 							Event_PlayerSpawn_Inected);
+		UnhookEvent("player_hurt", 								Event_PlayerHurt_Inected);
+		UnhookEvent("player_team", 								Event_PlayerTeam_2);
+		UnhookEvent("ghost_spawn_time", 						Event_GhostSpawnTime);
+		UnhookEvent("player_incapacitated", 					Event_Incap);
+		UnhookEvent("player_ledge_grab", 						Event_Incap);
 		UnhookEvent("player_now_it", Event_GotVomit);
-		UnhookEvent("revive_success", Event_revive_success);//救起倒地的or 懸掛的
-		UnhookEvent("player_ledge_release", Event_ledge_release);//懸掛的玩家放開了
-		UnhookEvent("player_bot_replace", Event_BotReplacePlayer);
-		UnhookEvent("bot_player_replace", Event_PlayerReplaceBot);
-		UnhookEvent("tank_frustrated", OnTankFrustrated, EventHookMode_Post);
-		UnhookEvent("player_disconnect", Event_PlayerDisconnect); //換圖不會觸發該事件
+		UnhookEvent("revive_success", 							Event_revive_success);//救起倒地的or 懸掛的
+		UnhookEvent("player_ledge_release", 					Event_ledge_release);//懸掛的玩家放開了
+		UnhookEvent("player_bot_replace", 						Event_BotReplacePlayer);
+		UnhookEvent("bot_player_replace", 						Event_PlayerReplaceBot);
+		UnhookEvent("tank_frustrated", 							OnTankFrustrated, EventHookMode_Post);
+		UnhookEvent("player_disconnect", 						Event_PlayerDisconnect); //換圖不會觸發該事件
 
 		for( int i = 1; i <= MaxClients; i++ ){
 			if(IsClientInGame(i)) OnClientDisconnect(i);
@@ -2083,7 +2057,7 @@ public void OnClientPutInServer(int client)
 
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 
-	g_bAdjustSIHealth[client] = false;
+	g_iZombieHpSet[client] = 0;
 
 	if (IsFakeClient(client))
 		return;
@@ -2408,7 +2382,7 @@ Action AnnounceJoinInfected(Handle timer, int client)
 }
 
 //playerspawn is triggered even when bot or human takes over each other (even they are already dead state) or a survivor is spawned
-void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	// We get the client id and time
 	int userid = event.GetInt("userid");
@@ -2448,8 +2422,11 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 				}
 				else
 				{
-					delete FightOrDieTimer[client];
-					FightOrDieTimer[client] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, client);
+					if(g_bDisposeCowards)
+					{
+						delete FightOrDieTimer[client];
+						FightOrDieTimer[client] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, client);
+					}
 				}
 			}
 			else
@@ -2476,7 +2453,7 @@ Action DisposeOfCowards(Handle timer, int coward)
 {
 	FightOrDieTimer[coward] = null;
 
-	if( g_bCvarAllow == false)
+	if( !g_bCvarAllow || !g_bDisposeCowards)
 	{
 		return Plugin_Continue;
 	}
@@ -2507,7 +2484,7 @@ Action DisposeOfCowards(Handle timer, int coward)
 	return Plugin_Continue;
 }
 
-void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	// We get the client id and time
 	int userid = event.GetInt("userid");
@@ -2523,7 +2500,9 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
 
-	CreateTimer(0.1, Timer_PlayerDeath, userid, TIMER_FLAG_NO_MAPCHANGE);
+	g_iZombieHpSet[client] = 0;
+	g_bSpawnAlive[client] = false;
+	g_bDeSpawn[client] = false;
 
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
@@ -2633,7 +2612,7 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		CreateTimer(3.0, TimerAnnounce, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 
-	int zClass = GetEntProp(client, Prop_Send, "m_zombieClass");
+	int zClass = GetEntData(client, g_iZombieClass);
 	int iLeftAliveCounts;
 	switch(zClass)
 	{
@@ -2790,41 +2769,30 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-
-Action Timer_PlayerDeath(Handle timer, int client)
-{
-	client = GetClientOfUserId(client);
-	if (!client || !IsClientInGame(client) || IsPlayerAlive(client)) return Plugin_Continue;
-
-	g_bAdjustSIHealth[client] = false;
-	delete g_hPlayerSpawnTimer[client];
-
-	return Plugin_Continue;
-}
-
-void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerTeam_1(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
+	int oldteam = event.GetInt("oldteam");
 	if(!client || !IsClientInGame(client)) return; 
 
 	delete g_hPlayerSpawnTimer[client];
 
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
-
 	CreateTimer(0.4, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
 
-	// We get some data needed ...
-	int oldteam = event.GetInt("oldteam");
-
-	// We get the client id and time
 	DeleteLight(client);
+	g_bSpawnAlive[client] = false;
+	g_bDeSpawn[client] = false;
 
 	DataPack pack;
 	CreateDataTimer(0.6, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
 	pack.WriteCell(userid);
 	pack.WriteCell(oldteam);
+
+	if (!g_bForcePlayerToInfectedTeam[client] && L4D_HasPlayerControlledZombies() && g_bVersusCoop)
+		CreateTimer(0.1, Timer_VersusCoopTeamChanger, userid, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 Action PlayerChangeTeamCheck(Handle timer, int userid)
@@ -2996,7 +2964,7 @@ public void OnClientDisconnect(int client)
 
 	// Reset all other arrays
 	PlayerLifeState[client] = false;
-	PlayerHasEnteredStart[client] = false;
+	g_bForcePlayerToInfectedTeam[client] = false;
 
 	delete g_hPlayerSpawnTimer[client];
 	delete FightOrDieTimer[client];
@@ -3476,8 +3444,7 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
 		player > 0 && player <= MaxClients && IsClientInGame(player)) 
 	{
-		g_bAdjustSIHealth[bot] = g_bAdjustSIHealth[player];
-		g_bAdjustSIHealth[player] = false;
+		ReplaceData(player, bot);
 
 		if(L4D_HasPlayerControlledZombies() == false) //not versus
 		{
@@ -3500,32 +3467,73 @@ void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
 	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) 
 		&& player > 0 && player <= MaxClients && IsClientInGame(player)) 
 	{
-		g_bAdjustSIHealth[player] = g_bAdjustSIHealth[bot];
-		g_bAdjustSIHealth[bot] = false;
+		ReplaceData(bot, player);
 	}
 }
 
-// 需檢查 tank != newtank
-public void L4D_OnReplaceTank(int tank, int newtank)
+void ReplaceData(int replaced, int client)
 {
-	g_bReplaceNewTank[newtank] = true;
-	RequestFrame(NextFrame_ReplaceData, newtank);
+	// double check
+	if (!IsPlayerAlive(client) || GetClientTeam(client) != 3)
+		return;
 
-	if(tank == newtank) return;
+	if(g_iZombieHpSet[replaced] <= 0 || g_iZombieHpSet[client] > 0) return;
 
-	g_bAdjustSIHealth[newtank] = g_bAdjustSIHealth[tank];
-	g_bAdjustSIHealth[tank] = false;
+	g_iZombieHpSet[client] = g_iZombieHpSet[replaced];
+	g_iZombieHpSet[replaced] = 0;
+	SetEntProp(client, Prop_Data, "m_iMaxHealth", g_iZombieHpSet[client]);
 }
 
-void NextFrame_ReplaceData(int client)
+// 需檢查 tank != newtank
+// @Note: 使用L4D_ReplaceTank或L4D_TakeOverZombieBot 會觸發此涵式但接管tank可能會失敗，所以需要等到下一偵確認有轉交tank控制權
+public void L4D_OnReplaceTank(int tank, int newtank)
 {
-	g_bReplaceNewTank[client] = false;
+	if(tank == newtank) return;
+	if(g_iZombieHpSet[tank] <= 0) return;
+
+	DataPack dp = new DataPack();
+	dp.WriteCell(GetClientUserId(newtank));
+	dp.WriteCell(GetClientUserId(tank));
+	dp.WriteCell(g_iZombieHpSet[tank]);
+	RequestFrame(NextFrame_ReplaceTank, dp);
+}
+
+void NextFrame_ReplaceTank(DataPack dp)
+{
+	dp.Reset();
+
+	int userid = dp.ReadCell();
+	int replaced_id = dp.ReadCell();
+	int new_hp = dp.ReadCell();
+
+	delete dp;
+
+	int new_tank = GetClientOfUserId(userid);
+	int old_tank = GetClientOfUserId(replaced_id);
+
+	// tank沒有成功交接
+	if (old_tank && IsClientInGame(old_tank) && IsPlayerAlive(old_tank) && GetClientTeam(old_tank) == 3 && GetEntData(old_tank, g_iZombieClass) == ZOMBIECLASS_TANK)
+		return;
+
+	// 檢查已成功交接
+	if (!new_tank || !IsClientInGame(new_tank) || !IsPlayerAlive(new_tank) || GetClientTeam(new_tank) != 3 || GetEntData(new_tank, g_iZombieClass) != ZOMBIECLASS_TANK)
+		return;
+
+	if(g_iZombieHpSet[new_tank] > 0) return;
+
+	g_iZombieHpSet[new_tank] = new_hp;
+	g_iZombieHpSet[old_tank] = 0;
+	SetEntProp(new_tank, Prop_Data, "m_iMaxHealth", new_hp);
 }
 
 void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
 {
 	lastHumanTankId = event.GetInt("userid");
 	RequestFrame(OnNextFrame_Reset, event.GetInt("userid"));
+
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	g_bSpawnAlive[client] = false;
+	g_bDeSpawn[client] = false;
 }
 
 void OnNextFrame_Reset(int userid)
@@ -3555,6 +3563,16 @@ public Action L4D_OnEnterGhostStatePre(int client)
 
 public void L4D_OnEnterGhostState(int client)
 {
+	g_iZombieHpSet[client] = 0;
+	if(g_bSpawnAlive[client]) //回魂
+	{
+		g_bDeSpawn[client] = true;
+	}
+	else
+	{
+		g_bDeSpawn[client] = false;
+	}
+
 	if(g_bCvarAllow == false) return;
 
 	if(L4D_HasPlayerControlledZombies() == false)
@@ -3569,7 +3587,7 @@ public void L4D_OnEnterGhostState(int client)
 
 // This event serves to make sure the bots spawn at the start of the finale event. The director disallows spawning until the survivors have started the event, so this was
 // definitely needed.
-void evtFinaleStart(Event event, const char[] name, bool dontBroadcast)
+void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast)
 {
 	if(g_bFinaleStarted) return;
 
@@ -4081,49 +4099,49 @@ bool IsPlayerGhost (int client)
 
 bool IsPlayerSmoker (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_SMOKER)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_SMOKER)
 		return true;
 	return false;
 }
 
 bool IsPlayerHunter (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_HUNTER)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_HUNTER)
 		return true;
 	return false;
 }
 
 bool IsPlayerBoomer (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_BOOMER)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_BOOMER)
 		return true;
 	return false;
 }
 
 bool IsPlayerSpitter (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_SPITTER)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_SPITTER)
 		return true;
 	return false;
 }
 
 bool IsPlayerJockey (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_JOCKEY)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_JOCKEY)
 		return true;
 	return false;
 }
 
 bool IsPlayerCharger (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_CHARGER)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_CHARGER)
 		return true;
 	return false;
 }
 
 bool IsPlayerTank (int client)
 {
-	if(GetEntProp(client,Prop_Send,"m_zombieClass") == ZOMBIECLASS_TANK)
+	if(GetEntData(client, g_iZombieClass) == ZOMBIECLASS_TANK)
 		return true;
 	return false;
 }
@@ -4572,7 +4590,7 @@ void ShowInfectedHUD()
 	delete pInfHUD;
 }
 
-void evtTeamSwitch(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerTeam_2(Event event, const char[] name, bool dontBroadcast)
 {
 	// Check to see if player joined infected team and if so refresh the HUD
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -4594,15 +4612,18 @@ void evtTeamSwitch(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);
-	if (client && IsClientInGame(client))
+	if (client && IsClientInGame(client) && IsPlayerAlive(client))
 	{
 		if (GetClientTeam(client) == TEAM_INFECTED)
 		{
+			g_iZombieHpSet[client] = 0;
+			g_bSpawnAlive[client] = true;
 			respawnDelay[client] = 0;
+
 			queueHUDUpdate();
 			// If player joins server and doesn't have to wait to spawn they might not see the announce
 			// until they next die (and have to wait).  As a fallback we check when they spawn if they've
@@ -4611,15 +4632,16 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 			{
 				CreateTimer(3.0, TimerAnnounce, userid, TIMER_FLAG_NO_MAPCHANGE);
 			}
-			if(!IsFakeClient(client) && IsPlayerAlive(client))
+
+			if(!IsFakeClient(client))
 			{
 				CreateTimer(1.0, TimerAnnounce2, userid, TIMER_FLAG_NO_MAPCHANGE);
 				fPlayerSpawnEngineTime[client] = GetEngineTime();
 			}
 
-			// 0.1秒後設置Tank或特感血量
+			// 0.0秒後設置Tank或特感血量
 			delete g_hPlayerSpawnTimer[client];
-			g_hPlayerSpawnTimer[client] = CreateTimer(0.1, Timer_SetHealth, client);
+			g_hPlayerSpawnTimer[client] = CreateTimer(0.0, Timer_SetHealth, client);
 
 			if(IsPlayerTank(client))
 			{
@@ -4637,46 +4659,43 @@ void evtInfectedSpawn(Event event, const char[] name, bool dontBroadcast)
 Action Timer_SetHealth(Handle timer, any client)
 {
 	g_hPlayerSpawnTimer[client] = null;
+	if(g_iZombieHpSet[client] > 0) return Plugin_Continue;
 
-	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client))
+	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
 	{	
+		int new_health = 0;
 		if (IsPlayerTank(client) && g_ePluginSettings.m_iTankHealth > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iTankHealth);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iTankHealth);
+			new_health = g_ePluginSettings.m_iTankHealth;
 		}
 		else if(IsPlayerSmoker(client) && g_ePluginSettings.m_iSIHealth[SI_SMOKER] > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
+			new_health = g_ePluginSettings.m_iSIHealth[SI_SMOKER];
 		}
 		else if(IsPlayerBoomer(client) && g_ePluginSettings.m_iSIHealth[SI_BOOMER] > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
+			new_health = g_ePluginSettings.m_iSIHealth[SI_BOOMER];
 		}
 		else if(IsPlayerHunter(client) && g_ePluginSettings.m_iSIHealth[SI_HUNTER] > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
+			new_health = g_ePluginSettings.m_iSIHealth[SI_HUNTER];
 		}
 		else if(g_bL4D2Version && IsPlayerSpitter(client) && g_ePluginSettings.m_iSIHealth[SI_SPITTER] > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
+			new_health = g_ePluginSettings.m_iSIHealth[SI_SPITTER];
 		}
 		else if(g_bL4D2Version && IsPlayerJockey(client) && g_ePluginSettings.m_iSIHealth[SI_JOCKEY] > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
+			new_health = g_ePluginSettings.m_iSIHealth[SI_JOCKEY];
 		}
 		else if(g_bL4D2Version && IsPlayerCharger(client) && g_ePluginSettings.m_iSIHealth[SI_CHARGER] > 0)
 		{
-			if(!g_bAdjustSIHealth[client]) SetEntProp(client, Prop_Data, "m_iHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
-			SetEntProp(client, Prop_Data, "m_iMaxHealth", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
+			new_health = g_ePluginSettings.m_iSIHealth[SI_CHARGER];
 		}
 
-		g_bAdjustSIHealth[client] = true;
+		if(!g_bDeSpawn[client]) SetEntProp(client, Prop_Data, "m_iHealth", new_health);
+		SetEntProp(client, Prop_Data, "m_iMaxHealth", new_health);
+		g_iZombieHpSet[client] = new_health;
 	}
 
 	return Plugin_Continue;
@@ -4703,7 +4722,7 @@ Action Timer_CheckAngry(Handle timer, int UserId)
 	return Plugin_Stop;
 }
 
-void evtInfectedDeath(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerDeath_Inected(Event event, const char[] name, bool dontBroadcast)
 {
 	// Infected player died, so refresh the HUD
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -4721,7 +4740,7 @@ void evtInfectedDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-void evtInfectedHurt(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerHurt_Inected(Event event, const char[] name, bool dontBroadcast)
 {
 	// The life of a regular special infected is pretty transient, they won't take many shots before they
 	// are dead (unlike the survivors) so we can afford to refresh the HUD reasonably quickly when they take damage.
@@ -4735,11 +4754,14 @@ void evtInfectedHurt(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 
-	delete FightOrDieTimer[client];
-	FightOrDieTimer[client] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, client);
+	if(g_bDisposeCowards)
+	{
+		delete FightOrDieTimer[client];
+		FightOrDieTimer[client] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, client);
 
-	delete FightOrDieTimer[attacker];
-	FightOrDieTimer[attacker] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, attacker);
+		delete FightOrDieTimer[attacker];
+		FightOrDieTimer[attacker] = CreateTimer(g_ePluginSettings.m_fSILife, DisposeOfCowards, attacker);
+	}
 }
 
 void Event_GhostSpawnTime(Event event, const char[] name, bool dontBroadcast)
@@ -4751,7 +4773,9 @@ void Event_GhostSpawnTime(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		g_bAdjustSIHealth[client] = false;
+		g_iZombieHpSet[client] = 0;
+		g_bSpawnAlive[client] = false;
+		g_bDeSpawn[client] = false;
 
 		if (L4D_HasPlayerControlledZombies())
 		{
@@ -5097,7 +5121,6 @@ void ResetTimer()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		PlayerHasEnteredStart[i] = false;
 		delete FightOrDieTimer[i];
 		delete RestoreColorTimer[i];
 		delete g_hPlayerSpawnTimer[i];
@@ -5279,7 +5302,7 @@ void CheckandPrecacheModel(const char[] model)
 	}
 }
 
-static bool IsVisibleTo(int player1, int player2)
+bool IsVisibleTo(int player1, int player2)
 {
 	// check FOV first
 	// if his origin is not within a 60 degree cone in front of us, no need to raytracing.
@@ -5304,7 +5327,7 @@ static bool IsVisibleTo(int player1, int player2)
 	pos2_chest[1] = pos2_feet[1];
 	pos2_chest[2] = pos2_feet[2] + 45.0;
 
-	if (GetEntProp(player2, Prop_Send, "m_zombieClass") != ZOMBIECLASS_JOCKEY)
+	if (GetEntData(player2, g_iZombieClass) != ZOMBIECLASS_JOCKEY)
 	{
 		hTrace = TR_TraceRayFilterEx(pos1_eye, pos2_eye, MASK_VISIBLE, RayType_EndPoint, TraceFilter, player1);
 		if (!TR_DidHit(hTrace) || TR_GetEntityIndex(hTrace) == player2)
@@ -5339,9 +5362,10 @@ static bool TraceFilter(int entity, int mask, int self)
 	return entity != self;
 }
 
-// instead of Netprops "m_hasVisibleThreats", GetEntProp(i, Prop_Send, "m_hasVisibleThreats")
 bool CanBeSeenBySurvivors(int infected)
 {
+	if(GetEntProp(infected, Prop_Send, "m_hasVisibleThreats")) return true;
+
 	for (int client = 1; client <= MaxClients; ++client)
 	{
 		if (IsAliveSurvivor(client) && IsVisibleTo(client, infected))
