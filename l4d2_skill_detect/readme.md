@@ -142,6 +142,10 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.2h (2026-1-7)
+        * Update API
+        * Rename OnWitchDrawCrown function to OnWitchCrownHurt
+
     * v2.1h (2025-8-6)
         * Update API
         * Add hunter skeet assist report

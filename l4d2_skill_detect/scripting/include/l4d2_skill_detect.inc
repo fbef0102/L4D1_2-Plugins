@@ -4,6 +4,31 @@
 #define _l4d2_skill_detect_included_
 
 /**
+ *  CarAlarmTriggerReason: the 'reason' parameter in OnCarAlarmTriggered() forward
+ */
+enum CarAlarmTriggerReason
+{
+	CarAlarmTrigger_Unknown	  = 0,
+	CarAlarmTrigger_Hit		  = 1,
+	CarAlarmTrigger_Touched	  = 2,
+	CarAlarmTrigger_Explosion = 3,
+	CarAlarmTrigger_Boomer	  = 4,
+
+	CarAlarmTrigger_Size	  = 5
+};
+
+/**
+ *  CarAlarmTriggerReason: the name of the 'reason' in OnCarAlarmTriggered() forward
+ */
+stock char sCarAlarmTriggerReason[CarAlarmTrigger_Size][] = {
+	"unknown",
+	"hit",
+	"touched",
+	"explosion",
+	"boomer"
+};
+
+/**
  * @brief Called when survivor skeeted hunter or jockey
  * @remarks Without melee, sniper, magnum, shotgun, grenade launcher
  * 
@@ -241,27 +266,24 @@ forward void OnChargerLevel( int survivor, int charger, bool headshot )
 forward void OnChargerLevelHurt( int survivor, int charger, int damage, bool headshot )
 
 /**
- * @brief Called when survivor crowned the witch
- * @remarks One-Shot Kill
- * 
- * @param survivor 			Client index of survivor
- * @param damage 			The amount of damage done to witch
- * 
- * @noreturn
+ *  Called whenever a witch was crowned without her being angered first.
+ *  說明: 一槍秒殺死沒有被驚嚇的Witch
+ *
+ *  @param  int     survivor    the survivor client that performed the feat
+ *  @param  int     damage      damage done in the killing hit
  */
 forward void OnWitchCrown( int survivor, int damage )
 
 /**
- * @brief Called when survivor crowned the witch
- * @remarks Many-Shots Kill
- * 
- * @param survivor 			Client index of survivor
- * @param damage 			The amount of damage done to witch
- * @param damage 			Chip damage
- * 
- * @noreturn
+ *  Called whenever a witch gets crowned after she got angered/triggered.
+ *  This is referred to (depending on the community) as a 'draw crown' or 'remote'.
+ *  說明: 多槍秒殺已經被驚嚇的Witch
+ *
+ *  @param  int     survivor    the survivor client that performed the feat
+ *  @param  int     damage      damage done in the killing hit
+ *  @param  int     chipdamage  damage done to the witch before she got crowned
  */
-forward void OnWitchDrawCrown( int survivor, int damage, int chipdamage )
+forward void OnWitchCrownHurt( int survivor, int damage, int chipdamage )
 
 /**
  * @brief Called when survivor cut the smoker's tongue
@@ -394,9 +416,9 @@ forward void OnBunnyHopStreak( int survivor, int streak, float maxVelocity )
  /**
  * @brief Called whenever the survivor trigger the alarm car
  * 
- * @param survivor   Client index of survivor
- * @param infected   Client index of special infected (Could be 0 if was not because the special infected)
- * @param reason     The reason why alaram was triggered, 0 = CALARM_UNKNOWN, 1 = CALARM_HIT, 2 = CALARM_TOUCHED, 3 = CALARM_EXPLOSION, 4 = CALARM_BOOMER
+ * @param  survivor    Client index of survivor
+ * @param  infected    Client index of special infected (Could be 0 if was not because the special infected)
+ * @param  reason      the reason for triggering (see the "CarAlarmTrigger_*" enums)
  *
  * @noreturn
  */

@@ -68,7 +68,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager>
 
-#define PLUGIN_VERSION "2.1h-2025/8/6"
+#define PLUGIN_VERSION "2.2h-2026/1/7"
 #define DEBUG 0
 
 #define IS_VALID_CLIENT(%1)		(%1 > 0 && %1 <= MaxClients)
@@ -473,7 +473,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	g_hForwardLevel =				CreateGlobalForward("OnChargerLevel", ET_Ignore, Param_Cell, Param_Cell, Param_Cell );
 	g_hForwardLevelHurt =			CreateGlobalForward("OnChargerLevelHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
 	g_hForwardCrown =				CreateGlobalForward("OnWitchCrown", ET_Ignore, Param_Cell, Param_Cell );
-	g_hForwardDrawCrown =			CreateGlobalForward("OnWitchDrawCrown", ET_Ignore, Param_Cell, Param_Cell, Param_Cell );
+	g_hForwardDrawCrown =			CreateGlobalForward("OnWitchCrownHurt", ET_Ignore, Param_Cell, Param_Cell, Param_Cell );
 	g_hForwardTongueCut =			CreateGlobalForward("OnTongueCut", ET_Ignore, Param_Cell, Param_Cell );
 	g_hForwardSmokerSelfClear = 	CreateGlobalForward("OnSmokerSelfClear", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell );
 	g_hForwardRockSkeeted =			CreateGlobalForward("OnTankRockSkeeted", ET_Ignore, Param_Cell, Param_Cell );
@@ -647,7 +647,7 @@ void GetCvars()
 	g_iCvarVomitNumber = g_hCvarVomitNumber.IntValue;
 }
 
-public OnClientPostAdminCheck(client)
+public OnClientPutInServer(client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamageByWitch);
 }
@@ -794,7 +794,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 						
 						if ( GetTrieValue(g_hTrieWeapons, weaponB, weaponTypeB) && weaponTypeB == WPTYPE_GL )
 						{
-							if ( GetConVarBool(g_hCvarAllowGLSkeet) ) {
+							if ( g_hCvarAllowGLSkeet.BoolValue ) {
 								HandleSkeet( attacker, victim, WPTYPE_GL, 1, false, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
 							}
 						}
@@ -815,7 +815,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 								{
 									if ( damage >= g_iPounceInterrupt )
 									{
-										if ( GetConVarBool(g_hCvarAllowSniper) ) {
+										if ( g_hCvarAllowSniper.BoolValue ) {
 											HandleSkeet( attacker, victim, WPTYPE_SNIPER,
 												g_iHunterShotCount[victim][attacker],
 												false, 
@@ -826,7 +826,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 									else
 									{
 										// hurt skeet
-										if ( GetConVarBool(g_hCvarAllowSniper) ) {
+										if ( g_hCvarAllowSniper.BoolValue ) {
 											HandleNonSkeet( attacker, victim, damage,
 												( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > g_iPounceInterrupt ), 
 												WPTYPE_SNIPER,
@@ -848,7 +848,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 								{
 									if ( damage >= g_iPounceInterrupt )
 									{
-										if ( GetConVarBool(g_hCvarAllowMagnum) ) {
+										if ( g_hCvarAllowMagnum.BoolValue ) {
 											HandleSkeet( attacker, victim, WPTYPE_MAGNUM,
 												g_iHunterShotCount[victim][attacker],
 												false, 
@@ -859,7 +859,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 									else
 									{
 										// hurt skeet
-										if ( GetConVarBool(g_hCvarAllowMagnum) ) {
+										if ( g_hCvarAllowMagnum.BoolValue ) {
 											HandleNonSkeet( attacker, victim, damage,
 												( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > g_iPounceInterrupt ), 
 												WPTYPE_MAGNUM,
@@ -888,7 +888,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 						// melee skeet
 						if ( damage >= g_iPounceInterrupt )
 						{
-							if ( GetConVarBool(g_hCvarAllowMelee) && health == 0 ) {
+							if ( g_hCvarAllowMelee.BoolValue && health == 0 ) {
 								HandleSkeet( attacker, victim, WPTYPE_MELEE, 1, false, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
 							}
 							//g_bHunterKilledPouncing[victim] = true;
@@ -896,7 +896,7 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 						else if ( health == 0 )
 						{
 							// hurt skeet (always overkill)
-							if ( GetConVarBool(g_hCvarAllowMelee) ) {
+							if ( g_hCvarAllowMelee.BoolValue ) {
 								HandleNonSkeet( attacker, 
 									victim, 
 									damage, 
@@ -931,12 +931,12 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 					// check for levels
 					if ( health == 0 && ( damagetype & DMG_CLUB || damagetype & DMG_SLASH ) )
 					{
-						new iChargeHealth = GetConVarInt(g_hCvarChargerHealth);
+						new iChargeHealth = g_hCvarChargerHealth.IntValue;
 						new abilityEnt = GetEntPropEnt( victim, Prop_Send, "m_customAbility" );
 						if ( IsValidEntity(abilityEnt) && GetEntProp(abilityEnt, Prop_Send, "m_isCharging") )
 						{
 							// fix fake damage?
-							if ( GetConVarBool(g_hCvarHideFakeDamage) )
+							if ( g_hCvarHideFakeDamage.BoolValue )
 							{
 								damage = g_iChargerHealth[victim];
 							}
@@ -1084,7 +1084,7 @@ public Action: Event_PlayerSpawn( Handle:event, const String:name[], bool:dontBr
 			SDKUnhook(client, SDKHook_TraceAttack, TraceAttack_Charger);
 			SDKHook(client, SDKHook_TraceAttack, TraceAttack_Charger);
 			
-			g_iChargerHealth[client] = GetConVarInt(g_hCvarChargerHealth);
+			g_iChargerHealth[client] = g_hCvarChargerHealth.IntValue;
 		}
 	}
 	
@@ -1101,11 +1101,13 @@ public Action: Event_IncapStart( Handle:event, const String:name[], bool:dontBro
 	new attackent = GetEventInt(event, "attackerentid");
 	new dmgtype = GetEventInt(event, "type");
 	
-	new String: classname[24];
-	new strOEC: classnameOEC;
-	if ( IsValidEntity(attackent) ) {
+	static char   classname[24];
+	strOEC classnameOEC;
+	if (IsValidEntity(attackent))
+	{
 		GetEntityClassname(attackent, classname, sizeof(classname));
-		if ( GetTrieValue(g_hTrieEntityCreated, classname, classnameOEC)) {
+		if (GetTrieValue(g_hTrieEntityCreated, classname, classnameOEC))
+		{
 			g_iVictimFlags[client] = g_iVictimFlags[client] | VICFLG_TRIGGER;
 		}
 	}
@@ -1248,13 +1250,13 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 				if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 				
 				//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
-				//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, GetConVarInt(g_hCvarSelfClearThresh));
+				//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_hCvarSelfClearThresh.IntValue);
 
 				if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
 				{
 					if (	g_iSmokerVictim[victim] > 0 &&
 							g_iSmokerVictim[victim] == attacker &&
-							g_iSmokerVictimDamage[victim] >= GetConVarInt(g_hCvarSelfClearThresh) ) 
+							g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
 					{
 							HandleSmokerSelfClear( attacker, victim, false, headshot );
 					}
@@ -1281,7 +1283,7 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 				{
 					if (	g_bSmokerClearCheck[victim] &&
 							g_iSmokerVictim[victim] == attacker &&
-							g_iSmokerVictimDamage[victim] >= GetConVarInt(g_hCvarSelfClearThresh) ) 
+							g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
 					{
 							HandleSmokerSelfClear( attacker, victim, false, headshot );
 					}
@@ -1430,13 +1432,13 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 				if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 				
 				//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
-				//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, GetConVarInt(g_hCvarSelfClearThresh));
+				//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_hCvarSelfClearThresh.IntValue);
 
 				if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
 				{
 					if (	g_iSmokerVictim[victim] > 0 &&
 							g_iSmokerVictim[victim] == attacker &&
-							g_iSmokerVictimDamage[victim] >= GetConVarInt(g_hCvarSelfClearThresh) ) 
+							g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
 					{
 							HandleSmokerSelfClear( attacker, victim, false, headshot );
 					}
@@ -1463,7 +1465,7 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 				{
 					if (	g_bSmokerClearCheck[victim] &&
 							g_iSmokerVictim[victim] == attacker &&
-							g_iSmokerVictimDamage[victim] >= GetConVarInt(g_hCvarSelfClearThresh) ) 
+							g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
 					{
 							HandleSmokerSelfClear( attacker, victim, false, headshot );
 					}
@@ -1691,9 +1693,9 @@ public Action: Event_LungePounce( Handle:event, const String:name[], bool:dontBr
 	// distance supplied isn't the actual 2d vector distance needed for damage calculation. See more about it at
 	// http://forums.alliedmods.net/showthread.php?t=93207
 	
-	new Float: fMin = GetConVarFloat(g_hCvarMinPounceDistance);
-	new Float: fMax = GetConVarFloat(g_hCvarMaxPounceDistance);
-	new Float: fMaxDmg = GetConVarFloat(g_hCvarMaxPounceDamage);
+	new Float: fMin = g_hCvarMinPounceDistance.FloatValue;
+	new Float: fMax = g_hCvarMaxPounceDistance.FloatValue;
+	new Float: fMaxDmg = g_hCvarMaxPounceDamage.FloatValue;
 	
 	// calculate 2d distance between previous position and pounce position
 	new distance = RoundToNearest( GetVectorDistance(g_fPouncePosition[client], endPos) );
@@ -1771,7 +1773,7 @@ public Action: Event_PlayerJumped( Handle:event, const String:name[], bool:dontB
 		
 		if ( !g_bIsHopping[client] )
 		{
-			if ( fLengthNew >= GetConVarFloat(g_hCvarBHopMinInitSpeed) )
+			if ( fLengthNew >= g_hCvarBHopMinInitSpeed.FloatValue )
 			{
 				// starting potential hop streak
 				g_fHopTopVelocity[client] = fLengthNew;
@@ -1785,7 +1787,7 @@ public Action: Event_PlayerJumped( Handle:event, const String:name[], bool:dontB
 			fLengthOld = GetVectorLength(g_fLastHop[client]);
 			
 			// if they picked up speed, count it as a hop, otherwise, we're done hopping
-			if ( fLengthNew - fLengthOld > HOP_ACCEL_THRESH || fLengthNew >= GetConVarFloat(g_hCvarBHopContSpeed) )
+			if ( fLengthNew - fLengthOld > HOP_ACCEL_THRESH || fLengthNew >= g_hCvarBHopContSpeed.FloatValue )
 			{
 				g_iHops[client]++;
 				
@@ -2099,7 +2101,7 @@ Action Timer_DeathChargeCheck( Handle timer, int userid )
 					OR took plenty of map damage
 				
 			old.. need?
-				fHeight > GetConVarFloat(g_hCvarDeathChargeHeight)
+				fHeight > g_hCvarDeathChargeHeight.FloatValue
 		*/
 		if (	(	( flags & VICFLG_DROWN || flags & VICFLG_FALL ) &&
 					( flags & VICFLG_HURTLOTS || flags & VICFLG_AIRDEATH ) ||
@@ -2124,7 +2126,7 @@ Action Timer_DeathChargeCheck( Handle timer, int userid )
 	return Plugin_Continue;
 }
 
-stock ResetHunter(client, bool:death = false)
+void ResetHunter(client, bool:death = false)
 {
 	g_iHunterShotDmgTeam[client] = 0;
 	
@@ -2373,7 +2375,7 @@ public Action: Event_WitchSpawned ( Handle:event, const String:name[], bool:dont
 	new witch_dmg_array[MAXPLAYERS+DMGARRAYEXT];
 	decl String:witch_key[10];
 	FormatEx(witch_key, sizeof(witch_key), "%x", witch);
-	witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = GetConVarInt(g_hCvarWitchHealth);
+	witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
 	SetTrieArray(g_hWitchTrie, witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 }
 
@@ -2410,7 +2412,7 @@ public Action: Event_WitchHarasserSet ( Handle:event, const String:name[], bool:
 		{
 			witch_dmg_array[i] = 0;
 		}
-		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = GetConVarInt(g_hCvarWitchHealth);
+		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
 		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_STARTLED)] = 1;	// harasser set
 		SetTrieArray(g_hWitchTrie, witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 	}
@@ -2440,7 +2442,7 @@ public Action: OnTakeDamageByWitch ( victim, &attacker, &inflictor, &Float:damag
 				{
 					witch_dmg_array[i] = 0;
 				}
-				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = GetConVarInt(g_hCvarWitchHealth);
+				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
 				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_GOTSLASH)] = 1;	// failed
 				SetTrieArray(g_hWitchTrie, witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 			}
@@ -2467,7 +2469,7 @@ public OnTakeDamagePost_Witch ( victim, attacker, inflictor, Float:damage, damag
 		{
 			witch_dmg_array[i] = 0;
 		}
-		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = GetConVarInt(g_hCvarWitchHealth);
+		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
 		SetTrieArray(g_hWitchTrie, witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 	}
 	
@@ -2513,7 +2515,7 @@ Action Timer_CheckWitchCrown(Handle timer, DataPack pack)
 	return Plugin_Continue;
 }
 
-stock CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
+void CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
 {
 	decl String:witch_key[10];
 	FormatEx(witch_key, sizeof(witch_key), "%x", witch);
@@ -2524,7 +2526,7 @@ stock CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
 	}
 	
 	new chipDamage = 0;
-	new iWitchHealth = GetConVarInt(g_hCvarWitchHealth);
+	new iWitchHealth = g_hCvarWitchHealth.IntValue;
 	
 	/*
 		the attacker is the last one that did damage to witch
@@ -2561,15 +2563,20 @@ stock CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
 			witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)],
 			witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_STARTLED)],
 			iWitchHealth,
-			GetConVarInt(g_hCvarDrawCrownThresh),
+			g_hCvarDrawCrownThresh..IntValue,
 			bOneShot
 		);*/
 	
 	// full crown? unharrassed
 	if ( !witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_STARTLED)] && ( bOneShot || witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] >= iWitchHealth ) )
 	{
+		/*LogError("Witch Crown Check: Full crown detected. Attacker: %N, Damage: %i, Chip Damage: %i",
+				   attacker,
+				   witch_dmg_array[attacker],
+				   chipDamage);*/
+
 		// make sure that we don't count any type of chip
-		if ( GetConVarBool(g_hCvarHideFakeDamage) )
+		if ( g_hCvarHideFakeDamage.BoolValue )
 		{
 			chipDamage = 0;
 			for ( new i = 0; i <= MAXPLAYERS; i++ )
@@ -2581,8 +2588,13 @@ stock CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
 		}
 		HandleCrown( attacker, witch_dmg_array[attacker] );
 	}
-	else if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] >= GetConVarInt(g_hCvarDrawCrownThresh) )
+	else if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] >= g_hCvarDrawCrownThresh.IntValue )
 	{
+		/*LogError("Witch Crown Check: Draw crown detected. Attacker: %N, Crown Shot: %i, Threshold: %i",
+				   attacker,
+				   witch_dmg_array[MAXPLAYERS + WTCH_CROWNSHOT],
+				   g_hCvarDrawCrownThresh.IntValue);*/
+
 		// draw crown: harassed + over X damage done by one survivor -- in ONE shot
 		
 		for ( new i = 0; i <= MAXPLAYERS; i++ )
@@ -2594,9 +2606,11 @@ stock CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
 				chipDamage += witch_dmg_array[i];
 			}
 		}
+
+		//LogError("Witch Crown Check: Chip Damage Calculated: %i, Total Health: %i", chipDamage, iWitchHealth);
 		
 		// make sure that we don't count any type of chip
-		if ( GetConVarBool(g_hCvarHideFakeDamage) )
+		if ( g_hCvarHideFakeDamage.BoolValue )
 		{
 			// unlikely to happen, but if the chip was A LOT
 			if ( chipDamage >= iWitchHealth ) {
@@ -2606,12 +2620,28 @@ stock CheckWitchCrown ( witch, attacker, bool: bOneShot = false )
 			else {
 				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] = iWitchHealth - chipDamage;
 			}
+
+			/*LogError("Witch Crown Check: Adjusted Crown Shot: %i, Adjusted Chip Damage: %i",
+					   witch_dmg_array[MAXPLAYERS + WTCH_CROWNSHOT],
+					   chipDamage);*/
+
 			// re-check whether it qualifies as a drawcrown:
-			if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] < GetConVarInt(g_hCvarDrawCrownThresh) ) { return; }
+			if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] < g_hCvarDrawCrownThresh.IntValue )
+			{ 
+				//LogError("Witch Crown Check: Adjusted Crown Shot below threshold. No draw crown.");
+				return; 
+			}
 		}
 		
 		// plus, set final shot as 'damage', and the rest as chip
 		HandleDrawCrown( attacker, witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)], chipDamage );
+	}
+	else
+	{
+		/*PrintDebug("Witch Crown Check: No crown detected. Crown Shot: %i, Threshold: %i, Harassed: %i",
+				   witch_dmg_array[MAXPLAYERS + WTCH_CROWNSHOT],
+				   g_hCvarDrawCrownThresh.IntValue,
+				   witch_dmg_array[MAXPLAYERS + WTCH_STARTLED]);*/
 	}
 
 	// remove trie
@@ -3018,7 +3048,7 @@ public Action: L4D_OnCThrowActivate ( ability )
 	----------------------
 */
 // boomer pop
-stock HandlePop( attacker, victim, shoveCount, Float:timeAlive, Float:timeNear )
+void HandlePop( attacker, victim, shoveCount, Float:timeAlive, Float:timeNear )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_POP) && timeNear < 5.0 )
@@ -3044,11 +3074,11 @@ stock HandlePop( attacker, victim, shoveCount, Float:timeAlive, Float:timeNear )
 }
 
 // boomer pop vomit
-stock HandlePopStop(attacker, victim, hits, Float:timeVomit)
+void HandlePopStop(attacker, victim, hits, Float:timeVomit)
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_POPSTOP) &&
-		hits < 1 && timeVomit < GetConVarFloat(g_hCvarInstaTime) )
+		hits < 1 && timeVomit < g_hCvarInstaTime.FloatValue )
 	{
 		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
 		{
@@ -3071,7 +3101,7 @@ stock HandlePopStop(attacker, victim, hits, Float:timeVomit)
 }
 
 // charger level
-stock HandleLevel( attacker, victim, bool headshot )
+void HandleLevel( attacker, victim, bool headshot )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_LEVEL) )
@@ -3100,7 +3130,7 @@ stock HandleLevel( attacker, victim, bool headshot )
 	Call_Finish();
 }
 // charger level hurt
-stock HandleLevelHurt( attacker, victim, damage, bool headshot )
+void HandleLevelHurt( attacker, victim, damage, bool headshot )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_HURTLEVEL) )
@@ -3130,7 +3160,7 @@ stock HandleLevelHurt( attacker, victim, damage, bool headshot )
 }
 
 // deadstops
-stock HandleDeadstop( attacker, victim, bool:hunter = true )
+void HandleDeadstop( attacker, victim, bool:hunter = true )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_DEADSTOP) )
@@ -3168,7 +3198,7 @@ stock HandleDeadstop( attacker, victim, bool:hunter = true )
 		Call_Finish();
 	}
 }
-stock HandleShove( attacker, victim, zombieClass )
+void HandleShove( attacker, victim, zombieClass )
 {
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_SHOVE) )
@@ -3837,12 +3867,12 @@ HandleRockSkeeted( attacker, victim, bool:melee=false, type=ROCK_UNKNOWN )
 }
 
 // highpounces
-stock HandleHunterDP( attacker, victim, actualDamage, Float:calculatedDamage, Float:height)
+void HandleHunterDP( attacker, victim, actualDamage, Float:calculatedDamage, Float:height)
 {
 	// report?
 	if (	g_bCvarReportEnable
 		&&	(g_iCvarReportFlags & REP_HUNTERDP)
-		&&	height >= GetConVarFloat(g_hCvarHunterDPThresh)
+		&&	height >= g_hCvarHunterDPThresh.FloatValue
 	) {
 		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
 		{
@@ -3862,15 +3892,15 @@ stock HandleHunterDP( attacker, victim, actualDamage, Float:calculatedDamage, Fl
 	Call_PushCell(actualDamage);
 	Call_PushFloat(calculatedDamage);
 	Call_PushFloat(height);
-	Call_PushCell( (height >= GetConVarFloat(g_hCvarHunterDPThresh)) ? 1 : 0 );
+	Call_PushCell( (height >= g_hCvarHunterDPThresh.FloatValue) ? 1 : 0 );
 	Call_Finish();
 }
-stock HandleJockeyDP( attacker, victim, Float:height )
+void HandleJockeyDP( attacker, victim, Float:height )
 {
 	// report?
 	if (	g_bCvarReportEnable
 		&&	(g_iCvarReportFlags & REP_JOCKEYDP)
-		&&	height >= GetConVarFloat(g_hCvarJockeyDPThresh)
+		&&	height >= g_hCvarJockeyDPThresh.FloatValue
 	) {
 		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
 		{
@@ -3888,17 +3918,17 @@ stock HandleJockeyDP( attacker, victim, Float:height )
 	Call_PushCell(attacker);
 	Call_PushCell(victim);
 	Call_PushFloat(height);
-	Call_PushCell( (height >= GetConVarFloat(g_hCvarJockeyDPThresh)) ? 1 : 0 );
+	Call_PushCell( (height >= g_hCvarJockeyDPThresh.FloatValue) ? 1 : 0 );
 	Call_Finish();
 }
 
 // deathcharges
-stock HandleDeathCharge( attacker, victim, Float:height, Float:distance, bool:bCarried = true )
+void HandleDeathCharge( attacker, victim, Float:height, Float:distance, bool:bCarried = true )
 {
 	// report?
 	if (	g_bCvarReportEnable &&
 			(g_iCvarReportFlags & REP_DEATHCHARGE) &&
-			height >= GetConVarFloat(g_hCvarDeathChargeHeight) &&
+			height >= g_hCvarDeathChargeHeight.FloatValue &&
 			!g_bDeathChargeIgnore[attacker][victim]
 	) {
 		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
@@ -3954,7 +3984,7 @@ stock HandleDeathCharge( attacker, victim, Float:height, Float:distance, bool:bC
 }
 
 // SI clears	(cleartimeA = pummel/pounce/ride/choke, cleartimeB = tongue drag, charger carry)
-stock HandleClear( attacker, victim, pinVictim, zombieClass, Float:clearTimeA, Float:clearTimeB, bool:bWithShove = false, bool headshot = false )
+void HandleClear( attacker, victim, pinVictim, zombieClass, Float:clearTimeA, Float:clearTimeB, bool:bWithShove = false, bool headshot = false )
 {
 	// sanity check:
 	if ( clearTimeA < 0 && clearTimeA != -1.0 ) { clearTimeA = 0.0; }
@@ -3964,7 +3994,7 @@ stock HandleClear( attacker, victim, pinVictim, zombieClass, Float:clearTimeA, F
 	
 	if ( attacker != pinVictim && g_bCvarReportEnable && (g_iCvarReportFlags & REP_INSTACLEAR) )
 	{
-		new Float: fMinTime = GetConVarFloat(g_hCvarInstaTime);
+		new Float: fMinTime = g_hCvarInstaTime.FloatValue;
 		new Float: fClearTime = clearTimeA;
 		static char attackername[MAX_NAME_LENGTH], victimname[MAX_NAME_LENGTH], pinVictimname[MAX_NAME_LENGTH];
 		if ( zombieClass == ZC_CHARGER || zombieClass == ZC_SMOKER ) { fClearTime = clearTimeB; }
@@ -4019,7 +4049,7 @@ stock HandleClear( attacker, victim, pinVictim, zombieClass, Float:clearTimeA, F
 }
 
 // booms
-stock HandleVomitLanded( attacker, boomCount )
+void HandleVomitLanded( attacker, boomCount )
 {
 	if(g_iCvarVomitNumber <= boomCount && 
 		g_bCvarReportEnable &&
@@ -4035,11 +4065,11 @@ stock HandleVomitLanded( attacker, boomCount )
 }
 
 // bhaps
-stock HandleBHopStreak( survivor, streak, Float: maxVelocity )
+void HandleBHopStreak( survivor, streak, Float: maxVelocity )
 {
 	if (	g_bCvarReportEnable && (g_iCvarReportFlags & REP_BHOPSTREAK) &&
 			IS_VALID_INGAME(survivor) && !IsFakeClient(survivor) &&
-			streak >= GetConVarInt(g_hCvarBHopMinStreak)
+			streak >= g_hCvarBHopMinStreak.IntValue
 	) {
 		static char survivorname[MAX_NAME_LENGTH];
 		GetClientName(survivor, survivorname, sizeof(survivorname));
@@ -4060,7 +4090,7 @@ stock HandleBHopStreak( survivor, streak, Float: maxVelocity )
 	Call_Finish();
 }
 // car alarms
-stock HandleCarAlarmTriggered( survivor, infected, reason )
+void HandleCarAlarmTriggered( survivor, infected, reason )
 {
 	if (	g_bCvarReportEnable && (g_iCvarReportFlags & REP_CARALARM) &&
 			IS_VALID_INGAME(survivor) && !IsFakeClient(survivor)
@@ -4125,26 +4155,11 @@ stock HandleCarAlarmTriggered( survivor, infected, reason )
 // support
 // -------
 
-stock GetSurvivorPermanentHealth(client)
-{
-	return GetEntProp(client, Prop_Send, "m_iHealth");
-}
-
-stock GetSurvivorTempHealth(client)
-{
-	new temphp = RoundToCeil(
-			GetEntPropFloat(client, Prop_Send, "m_healthBuffer")
-			- ( (GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime") )
-			* GetConVarFloat( FindConVar("pain_pills_decay_rate"))) 
-		) - 1;
-	return (temphp > 0 ? temphp : 0);
-}
-
-stock Float: GetSurvivorDistance(client)
+float GetSurvivorDistance(client)
 {
 	return L4D2Direct_GetFlowDistance(client);
 }
-stock ShiftTankThrower()
+int ShiftTankThrower()
 {
 	new tank = -1;
 	
@@ -4194,14 +4209,13 @@ public bool: ChargeTraceFilter (entity, contentsMask)
 }
 */
 
-bool: IsWitch(entity)
+bool IsWitch(int iEntity)
 {
-	if ( !IsValidEntity(entity) ) { return false; }
+	if (iEntity <= MaxClients || !IsValidEntity(iEntity)) {
+		return false;
+	}
 	
-	decl String: classname[24];
-	new strOEC: classnameOEC;
-	GetEntityClassname(entity, classname, sizeof(classname));
-	if ( !GetTrieValue(g_hTrieEntityCreated, classname, classnameOEC) || classnameOEC != OEC_WITCH ) { return false; }
-	
-	return true;
+	static char sClassName[64];
+	GetEntityClassname(iEntity, sClassName, sizeof(sClassName));
+	return (strncmp(sClassName, "witch", 5) == 0);
 }
