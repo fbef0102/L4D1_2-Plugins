@@ -4664,35 +4664,37 @@ Action Timer_SetHealth(Handle timer, any client)
 	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
 	{	
 		int new_health = 0;
-		if (IsPlayerTank(client) && g_ePluginSettings.m_iTankHealth > 0)
+		if (IsPlayerTank(client))
 		{
 			new_health = g_ePluginSettings.m_iTankHealth;
 		}
-		else if(IsPlayerSmoker(client) && g_ePluginSettings.m_iSIHealth[SI_SMOKER] > 0)
+		else if(IsPlayerSmoker(client))
 		{
 			new_health = g_ePluginSettings.m_iSIHealth[SI_SMOKER];
 		}
-		else if(IsPlayerBoomer(client) && g_ePluginSettings.m_iSIHealth[SI_BOOMER] > 0)
+		else if(IsPlayerBoomer(client))
 		{
 			new_health = g_ePluginSettings.m_iSIHealth[SI_BOOMER];
 		}
-		else if(IsPlayerHunter(client) && g_ePluginSettings.m_iSIHealth[SI_HUNTER] > 0)
+		else if(IsPlayerHunter(client))
 		{
 			new_health = g_ePluginSettings.m_iSIHealth[SI_HUNTER];
 		}
-		else if(g_bL4D2Version && IsPlayerSpitter(client) && g_ePluginSettings.m_iSIHealth[SI_SPITTER] > 0)
+		else if(g_bL4D2Version && IsPlayerSpitter(client))
 		{
 			new_health = g_ePluginSettings.m_iSIHealth[SI_SPITTER];
 		}
-		else if(g_bL4D2Version && IsPlayerJockey(client) && g_ePluginSettings.m_iSIHealth[SI_JOCKEY] > 0)
+		else if(g_bL4D2Version && IsPlayerJockey(client))
 		{
 			new_health = g_ePluginSettings.m_iSIHealth[SI_JOCKEY];
 		}
-		else if(g_bL4D2Version && IsPlayerCharger(client) && g_ePluginSettings.m_iSIHealth[SI_CHARGER] > 0)
+		else if(g_bL4D2Version && IsPlayerCharger(client))
 		{
 			new_health = g_ePluginSettings.m_iSIHealth[SI_CHARGER];
 		}
 
+		if(new_health <= 0) return Plugin_Continue;
+		
 		if(!g_bDeSpawn[client]) SetEntProp(client, Prop_Data, "m_iHealth", new_health);
 		SetEntProp(client, Prop_Data, "m_iMaxHealth", new_health);
 		g_iZombieHpSet[client] = new_health;

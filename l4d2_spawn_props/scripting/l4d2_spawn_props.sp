@@ -3003,26 +3003,6 @@ void SaveMapStripper(int client)
 	GetCurrentMap(map, sizeof(map));
 	BuildPath(Path_SM, FileName, sizeof(FileName), "../../%s/maps/%s.cfg", g_sCvar_stripper_cfg_path, map);
 	
-	if(client > 0 && FileExists(FileName))
-	{
-		PrintHintText(client, "%T", "The file already exists.", client);
-	}
-
-	file = OpenFile(FileName, "a+");
-	if(file == null)
-	{
-		if(client > 0)
-		{
-			CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
-			PrintHintText(client, "[TS] Failed to create or overwrite the map file");
-			PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
-			PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
-		}
-		return;
-	}
-	
-	if(client > 0) CPrintToChat(client, "{green}[TS] %T", "Saving the content. Please Wait", client);
-
 	float vecOrigin[3];
 	float vecAngles[3];
 	char sModel[256];
@@ -3030,16 +3010,35 @@ void SaveMapStripper(int client)
 	int count;
 	char melee_name[32];
 	FormatTime(sTime, sizeof(sTime), "%Y_%m_%d");
+
+	bool bHasObjectNotSavedYet = false;
 	if(client > 0)
 	{
+		if(FileExists(FileName)) PrintHintText(client, "%T", "The file already exists.", client);
+
+		file = OpenFile(FileName, "a+");
+		if(file == null)
+		{
+			if(client > 0)
+			{
+				CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
+				PrintHintText(client, "[TS] Failed to create or overwrite the map file");
+				PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
+				PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
+			}
+			return;
+		}
+
+		CPrintToChat(client, "{green}[TS] %T", "Saving the content. Please Wait", client);
+
 		file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
 		file.WriteLine(";----------BY: %N----------------------||", client);
 		file.WriteLine("");
 		file.WriteLine("add:");
+
+		bHasObjectNotSavedYet = true;
 	}
 
-
-	bool bHasObjectNotSavedYet = false;
 	for(int entity=MaxClients; entity < MAX_ENTITY; entity++)
 	{
 		if(g_bSpawned[entity] && IsValidEntity(entity))
@@ -3054,10 +3053,24 @@ void SaveMapStripper(int client)
 				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
 				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
 
+				file = OpenFile(FileName, "a+");
+				if(file == null)
+				{
+					if(client > 0)
+					{
+						CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
+						PrintHintText(client, "[TS] Failed to create or overwrite the map file");
+						PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
+						PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
+					}
+					return;
+				}
+
 				file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
 				file.WriteLine(";----------BY: Server Console Auto Save----------------------||");
 				file.WriteLine("");
 				file.WriteLine("add:");
+
 				bHasObjectNotSavedYet = true;
 			}
 
@@ -3144,6 +3157,8 @@ void SaveMapStripper(int client)
 		}
 	}
 
+	if(!bHasObjectNotSavedYet) return;
+	
 	FlushFile(file);
 	CloseHandle(file);
 	if(client > 0) CPrintToChat(client, "{lightgreen}[TS] %T (%s/maps/%s.cfg)", "Succesfully saved the map data", client, g_sCvar_stripper_cfg_path, map); 

@@ -188,7 +188,7 @@ void Event_BotReplace(Event event, const char[] name, bool dontBroadcast)
 
 	int client = GetClientOfUserId(event.GetInt("player"));
 	int bot = GetClientOfUserId(event.GetInt("bot"));
-	if( client )
+	if( client && IsClientInGame(client) )
 	{
 		ResetSound(client);
 		ResetSound(client);
@@ -214,7 +214,7 @@ void Event_Spawned(Event event, const char[] name, bool dontBroadcast)
 	if(!g_bCvarEnable) return;
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if( client )
+	if( client && IsClientInGame(client) )
 	{
 		ResetCount(client);
 		ResetSound(client);
@@ -240,7 +240,7 @@ void Event_Revive(Event event, const char[] name, bool dontBroadcast)
 	if( (userid = event.GetInt("subject")) && event.GetInt("ledge_hang") == 0 )
 	{
 		int client = GetClientOfUserId(userid);
-		if( client )
+		if( client && IsClientInGame(client) )
 		{
 			// 等待FakeClientCommand(client, "give health");
 			RequestFrame(OnFrameRevive, userid);
@@ -350,7 +350,7 @@ void OnFrameRevive(int client)
 void OnFrameSound(int client)
 {
 	client = GetClientOfUserId(client);
-	if( client )
+	if( client && IsClientInGame(client) )
 	{
 		ResetSound(client);
 	}
@@ -359,7 +359,7 @@ void OnFrameSound(int client)
 Action TimerSound(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
-	if( client )
+	if( client && IsClientInGame(client) )
 	{
 		EmitSoundToClient(client, SOUND_HEART, SOUND_FROM_PLAYER, SNDCHAN_STATIC);
 	}
