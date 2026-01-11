@@ -1686,7 +1686,7 @@ Action Timer_CanJoin(Handle timer, int client)
 	{
 		if(team != clientteam[client])
 		{	
-			if(team == 2 && IsPlayerAlive(team))
+			if(team == 2 && IsPlayerAlive(client))
 			{
 				bClientJoinedTeam[client] = true;
 				CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
