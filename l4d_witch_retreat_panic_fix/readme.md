@@ -11,6 +11,8 @@ Fixed the bug that witch cancels retreat and comes back to chase survivor again 
 	
 * Require | 必要安裝
 	1. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
+	2. [witch_allow_in_safezone](https://forums.alliedmods.net/showthread.php?t=315481)
+	3. [witch_prevent_target_loss](https://forums.alliedmods.net/showthread.php?t=315481)
 
 * <details><summary>How does it work?</summary>
 

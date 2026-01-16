@@ -20,12 +20,9 @@
 #pragma semicolon 1
 #include <sourcemod>
 #include <sdktools>
-
-#define REQUIRE_PLUGIN
 //#include <LMCL4D1CDeathHandler> // doesn't exist
 #include <LMCL4D1SetTransmit>
 #include <LMCCore>
-#undef REQUIRE_PLUGIN
 
 #pragma newdecls required
 

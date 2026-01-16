@@ -21,15 +21,9 @@
 #include <sourcemod>
 #include <sdktools>
 #include <multicolors>
-
-#define REQUIRE_EXTENSIONS
-#include <clientprefs>
-#undef REQUIRE_EXTENSIONS
-
-#define REQUIRE_PLUGIN
 #include <LMCCore>
 #include <LMCL4D2SetTransmit>
-#undef REQUIRE_PLUGIN
+#include <clientprefs>
 
 #pragma newdecls required
 

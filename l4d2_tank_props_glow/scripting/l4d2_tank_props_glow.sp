@@ -86,7 +86,8 @@ bool
 	g_bCvarTankSpec = false,
 	g_bCvarTankSur = false,
 	g_bTankSpawned = false,
-	g_bHittableControlExists = false;
+	g_bHittableControlExists = false,
+	g_bRoundEnd;
 
 bool g_bKillTankProp;
 
@@ -122,8 +123,8 @@ public void OnPluginStart()
 	g_hTankPropsGlowList = new ArrayList();
 	g_hTankPropsHitList = new ArrayList();
 
-	HookEvent("round_start", TankPropRoundReset, EventHookMode_PostNoCopy);
-	HookEvent("round_end", TankPropRoundReset, EventHookMode_PostNoCopy);
+	HookEvent("round_start", TankPropRoundStart, EventHookMode_PostNoCopy);
+	HookEvent("round_end", TankPropRoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("player_spawn", TankPropTankSpawn, EventHookMode_PostNoCopy);
 	
 	//有插件會在此事件時把Tank變成靈魂克，這之後不會觸發後續的player_spawn事件，譬如使用confoglcompmod
@@ -323,16 +324,35 @@ public void OnEntityDestroyed(int entity)
 
 //-------------------------------Event-------------------------------
 
-void TankPropRoundReset(Event hEvent, const char[] sEventName, bool bDontBroadcast)
+void TankPropRoundStart(Event hEvent, const char[] sEventName, bool bDontBroadcast)
 {
 	if(!g_bCvarEnable) return;
 
 	g_bTankSpawned = false;
+	g_bRoundEnd = false;
 
 	UnhookTankProps();
 	DHookRemoveEntityListener(ListenType_Created, PossibleTankPropCreated);
 }
 
+void TankPropRoundEnd(Event hEvent, const char[] sEventName, bool bDontBroadcast)
+{
+	if(!g_bCvarEnable) return;
+	if(g_bRoundEnd) return;
+
+	g_bTankSpawned = false;
+	g_bRoundEnd = true;
+
+	CreateTimer(10.0, Timer_RoundEnd, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+Action Timer_RoundEnd(Handle timer)
+{
+	UnhookTankProps();
+	DHookRemoveEntityListener(ListenType_Created, PossibleTankPropCreated);
+
+	return Plugin_Continue;
+}
 
 void TankPropTankSpawn(Event hEvent, const char[] sEventName, bool bDontBroadcast)
 {

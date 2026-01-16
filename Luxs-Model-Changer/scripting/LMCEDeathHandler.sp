@@ -21,10 +21,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-
-#define REQUIRE_PLUGIN
 #include <LMCCore>
-#undef REQUIRE_PLUGIN
 
 #pragma newdecls required
 
