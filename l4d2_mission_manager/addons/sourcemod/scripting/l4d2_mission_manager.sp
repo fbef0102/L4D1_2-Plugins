@@ -2,6 +2,7 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <l4d2_mission_manager>
+#include <localizer>
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -10,7 +11,7 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.0h - 2023/11/15",
+	version = "v1.1h - 2026/1/20",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -19,8 +20,10 @@ ConVar mp_gamemode;
 char g_sFile[128];
 StringMap g_hMissionsMap;
 
-public void OnPluginStart(){
-
+Localizer loc;
+public void OnPluginStart()
+{
+	loc = new Localizer(LC_INSTALL_MODE_FULLCACHE); 
 	mp_gamemode = FindConVar("mp_gamemode");
 
 	BuildPath(Path_SM, g_sFile, PLATFORM_MAX_PATH, "/logs/l4d2_mission_manager.log");
@@ -29,10 +32,8 @@ public void OnPluginStart(){
 	CacheMissions();
 	LMM_InitLists();
 	ParseMissions();
-	ParseLocalization(LMM_GAMEMODE_COOP);
-	ParseLocalization(LMM_GAMEMODE_VERSUS);
-	ParseLocalization(LMM_GAMEMODE_SCAVENGE);
-	ParseLocalization(LMM_GAMEMODE_SURVIVAL);
+	LoadTranslations("missions.phrases");
+	LoadTranslations("maps.phrases");
 	
 	FireEvent_OnLMMUpdateList();
 		
@@ -41,11 +42,10 @@ public void OnPluginStart(){
 
 public void OnPluginEnd() {
 	LMM_FreeLists();
-	LMM_FreeLocalizedLists();
 	delete g_hMissionsMap;
 }
 
-public Action Command_List(int iClient, int args) {
+Action Command_List(int iClient, int args) {
 	if (args < 1) {
 		for (int i=0; i<4; i++) {
 			LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(i);
@@ -82,7 +82,7 @@ void DumpMissionInfo(int client, LMM_GAMEMODE gamemode) {
 	char mapName[LEN_MAP_FILENAME];
 	char localizedName[LEN_LOCALIZED_NAME];
 	
-	ReplyToCommand(client, "Gamemode = %s (%d missions)", gamemodeName, missionCount);
+	if(client > 0) ReplyToCommand(client, "Gamemode = %s (%d missions)", gamemodeName, missionCount);
 
 	for (int iMission=0; iMission<missionCount; iMission++) {
 		LMM_GetMissionName(gamemode, iMission, missionName, sizeof(missionName));
@@ -102,11 +102,11 @@ void DumpMissionInfo(int client, LMM_GAMEMODE gamemode) {
 			}
 		}
 	}
-	ReplyToCommand(client, "-------------------");
+	if(client > 0) ReplyToCommand(client, "-------------------");
 }
 
 
-public int Native_IsOnFinalMap(Handle plugin, int numParams){
+int Native_IsOnFinalMap(Handle plugin, int numParams){
   return L4D_IsMissionFinalMap(true);
 }
 
@@ -121,7 +121,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
 		return APLRes_SilentFailure;
 	}
-
+	
+	if( !IsDedicatedServer() )
+	{
+		strcopy(error, err_max, "Get a dedicated server. This plugin does not work on Listen servers.");
+		return APLRes_SilentFailure;
+	}
+	
 	CreateNative("LMM_GetCurrentGameMode", Native_GetCurrentGameMode);
 	CreateNative("LMM_StringToGamemode", Native_StringToGamemode);
 	CreateNative("LMM_GamemodeToString", Native_GamemodeToString);
@@ -131,10 +137,17 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("LMM_GetMissionName", Native_GetMissionName);
 	CreateNative("LMM_GetMissionLocalizedName", Native_GetMissionLocalizedName);
 
+	CreateNative("LMM_GetMissionDisplayTitle", Native_GetMissionDisplayTitle);
+	CreateNative("LMM_GetMissionLocalizedDisplayTitle", Native_GetMissionLocalizedDisplayTitle);
+
 	CreateNative("LMM_GetNumberOfMaps", Native_GetNumberOfMaps);
 	CreateNative("LMM_FindMapIndexByName", Native_FindMapIndexByName);
 	CreateNative("LMM_GetMapName", Native_GetMapName);
 	CreateNative("LMM_GetMapLocalizedName", Native_GetMapLocalizedName);
+
+	CreateNative("LMM_GetMapDisplayName", Native_GetMapDisplayName);
+	CreateNative("LMM_GetMapLocalizedDisplayName", Native_GetMapLocalizedDisplayName);
+
 	CreateNative("LMM_GetMapUniqueID", Native_GetMapUniqueID);
 	CreateNative("LMM_DecodeMapUniqueID", Native_DecodeMapUniqueID);	
 	CreateNative("LMM_GetMapUniqueIDCount", Native_GetMapUniqueIDCount);
@@ -155,7 +168,7 @@ void FireEvent_OnLMMUpdateList() {
 	Call_Finish();
 }
 
-public int Native_GetCurrentGameMode(Handle plugin, int numParams) {
+int Native_GetCurrentGameMode(Handle plugin, int numParams) {
 	LMM_GAMEMODE gamemode;
 	//Get the gamemode string from the game
 	char strGameMode[20];
@@ -240,7 +253,7 @@ public int Native_GetCurrentGameMode(Handle plugin, int numParams) {
 	return view_as<int>(gamemode);
 }
 
-public int Native_StringToGamemode(Handle plugin, int numParams) {
+int Native_StringToGamemode(Handle plugin, int numParams) {
 	if (numParams < 1)
 		return -1;
 	
@@ -263,7 +276,7 @@ public int Native_StringToGamemode(Handle plugin, int numParams) {
 	return view_as<int>(LMM_GAMEMODE_UNKNOWN);
 }
 
-public int Native_GamemodeToString(Handle plugin, int numParams) {
+int Native_GamemodeToString(Handle plugin, int numParams) {
 	if (numParams < 1)
 		return -1;
 	
@@ -297,11 +310,13 @@ public int Native_GamemodeToString(Handle plugin, int numParams) {
 }
 
 /* ========== Mission Parser Outputs ========== */
-ArrayList g_hStr_InvalidMissionNames;
-
-ArrayList g_hStr_MissionNames[COUNT_LMM_GAMEMODE];	// g_hStr_CoopMissionNames.Length = Number of Coop Missions
-ArrayList g_hInt_Entries[COUNT_LMM_GAMEMODE];		// g_hInt_CoopEntries.Length = Number of Coop Missions + 1
-ArrayList g_hStr_Maps[COUNT_LMM_GAMEMODE];			// The value of nth element in g_hInt_CoopEntries is the offset of nth mission's first map 
+ArrayList 
+	g_hStr_InvalidMissionNames,
+	g_hStr_MissionNames[COUNT_LMM_GAMEMODE],	// g_hStr_CoopMissionNames.Length = Number of Coop Missions
+	g_hStr_MissionDisplayTitles[COUNT_LMM_GAMEMODE],
+	g_hInt_Entries[COUNT_LMM_GAMEMODE],		// g_hInt_CoopEntries.Length = Number of Coop Missions + 1
+	g_hStr_Maps[COUNT_LMM_GAMEMODE],			// The value of nth element in g_hInt_CoopEntries is the offset of nth mission's first map 
+	g_hStr_MapDisplayNames[COUNT_LMM_GAMEMODE];
 
 void LMM_InitLists() {
 	delete g_hStr_InvalidMissionNames;
@@ -311,12 +326,18 @@ void LMM_InitLists() {
 		delete g_hStr_MissionNames[i];
 		g_hStr_MissionNames[i] = new ArrayList(LEN_MISSION_NAME);
 
+		delete g_hStr_MissionDisplayTitles[i];
+		g_hStr_MissionDisplayTitles[i] = new ArrayList(LEN_DISPLAYTITLE_NAME);
+
 		delete g_hInt_Entries[i];
 		g_hInt_Entries[i] = new ArrayList(1);
 		g_hInt_Entries[i].Push(0);
 
 		delete g_hStr_Maps[i];
 		g_hStr_Maps[i] = new ArrayList(LEN_MAP_FILENAME);
+
+		delete g_hStr_MapDisplayNames[i];
+		g_hStr_MapDisplayNames[i] = new ArrayList(LEN_MAP_DISPLAYNAME);
 	}
 }
 
@@ -325,13 +346,19 @@ void LMM_FreeLists() {
 
 	for (int i=0; i<COUNT_LMM_GAMEMODE; i++) {
 		delete g_hStr_MissionNames[i];
+		delete g_hStr_MissionDisplayTitles[i];
 		delete g_hInt_Entries[i];
 		delete g_hStr_Maps[i];
+		delete g_hStr_MapDisplayNames[i];
 	}
 }
 
 ArrayList LMM_GetMissionNameList(LMM_GAMEMODE gamemode) {
 	return g_hStr_MissionNames[view_as<int>(gamemode)];
+}
+
+ArrayList LMM_GetMissionDisplayTitleList(LMM_GAMEMODE gamemode) {
+	return g_hStr_MissionDisplayTitles[view_as<int>(gamemode)];
 }
 
 ArrayList LMM_GetEntryList(LMM_GAMEMODE gamemode) {
@@ -342,7 +369,11 @@ ArrayList LMM_GetMapList(LMM_GAMEMODE gamemode) {
 	return g_hStr_Maps[view_as<int>(gamemode)];
 }
 
-public int Native_GetNumberOfMissions(Handle plugin, int numParams) {
+ArrayList LMM_GetMapDisplayNameList(LMM_GAMEMODE gamemode) {
+	return g_hStr_MapDisplayNames[view_as<int>(gamemode)];
+}
+
+int Native_GetNumberOfMissions(Handle plugin, int numParams) {
 	if (numParams < 1)
 		return -1;
 	
@@ -353,7 +384,7 @@ public int Native_GetNumberOfMissions(Handle plugin, int numParams) {
 	return g_hStr_MissionNames[gamemode].Length;	
 }
 
-public int Native_FindMissionIndexByName(Handle plugin, int numParams) {
+int Native_FindMissionIndexByName(Handle plugin, int numParams) {
 	if (numParams < 2)
 		return -1;
 	
@@ -371,7 +402,25 @@ public int Native_FindMissionIndexByName(Handle plugin, int numParams) {
 	return missionNameList.FindString(missionName);
 }
 
-public int Native_GetMissionName(Handle plugin, int numParams) {
+/*int Native_FindMissionIndexByDisplayTitle(Handle plugin, int numParams) {
+	if (numParams < 2)
+		return -1;
+	
+	// Get parameters
+	LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(GetNativeCell(1));
+	int length;
+	GetNativeStringLength(2, length);
+	char[] displayTitleName = new char[length+1];
+	GetNativeString(2, displayTitleName, length+1);
+	
+	ArrayList missionDisplayTitleList = LMM_GetMissionDisplayTitleList(gamemode);
+	if (missionDisplayTitleList == null)
+		return -1;
+	
+	return missionDisplayTitleList.FindString(displayTitleName);
+}*/
+
+int Native_GetMissionName(Handle plugin, int numParams) {
 	if (numParams < 4)
 		return -1;
 	
@@ -394,7 +443,68 @@ public int Native_GetMissionName(Handle plugin, int numParams) {
 	return 0;
 }
 
-public int Native_GetMissionLocalizedName(Handle plugin, int numParams) {
+int Native_GetMissionDisplayTitle(Handle plugin, int numParams) {
+	if (numParams < 4)
+		return -1;
+	
+	// Get parameters
+	LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(GetNativeCell(1));
+	int missionIndex = GetNativeCell(2);
+	int length = GetNativeCell(4);
+	
+	ArrayList missionDisplayTitleList = LMM_GetMissionDisplayTitleList(gamemode);
+	if (missionDisplayTitleList == null)
+		return -1;
+	
+	char displayTitleName[LEN_DISPLAYTITLE_NAME];
+	missionDisplayTitleList.GetString(missionIndex, displayTitleName, sizeof(displayTitleName));
+	
+	if (SetNativeString(3, displayTitleName, length, false) != SP_ERROR_NONE)
+		return -1;
+		
+	return 0;
+}
+
+int Native_GetMissionLocalizedDisplayTitle(Handle plugin, int numParams) {
+	if (numParams < 4)
+		return -1;
+	
+	// Get parameters
+	LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(GetNativeCell(1));
+	int missionIndex = GetNativeCell(2);
+	int length = GetNativeCell(4);
+	int client = GetNativeCell(5);
+	
+	ArrayList missionDisplayTitleList = LMM_GetMissionDisplayTitleList(gamemode);
+	if (missionDisplayTitleList == null)
+		return -1;
+	
+	char displayTitleName[LEN_DISPLAYTITLE_NAME];
+	missionDisplayTitleList.GetString(missionIndex, displayTitleName, sizeof(displayTitleName));
+	
+	char localizedName[LEN_LOCALIZED_NAME];
+
+	if(displayTitleName[0] != '#' || loc.PhraseTranslateToLang(displayTitleName, localizedName, sizeof(localizedName), client, _, _, displayTitleName) == false)
+	{
+		if(TranslationPhraseExists(displayTitleName))
+		{
+			Format(localizedName, sizeof(localizedName), "%T", displayTitleName, client);
+		}
+		else
+		{
+			if (SetNativeString(3, displayTitleName, length, false) != SP_ERROR_NONE)
+				return -1;
+			return 0;
+		}
+	}
+
+	if (SetNativeString(3, localizedName, length, false) != SP_ERROR_NONE)
+		return -1;
+		
+	return 1;
+}
+
+int Native_GetMissionLocalizedName(Handle plugin, int numParams) {
 	if (numParams < 4)
 		return -1;
 	
@@ -412,28 +522,26 @@ public int Native_GetMissionLocalizedName(Handle plugin, int numParams) {
 	char missionName[LEN_MISSION_NAME];
 	missionNameList.GetString(missionIndex, missionName, sizeof(missionName));
 	
-	ArrayList missionLocalizedList = LMM_GetMissionLocalizedList(gamemode);
-	if (missionLocalizedList.Get(missionIndex) > 0) {
-		char localizedName[LEN_LOCALIZED_NAME];
-		if(TranslationPhraseExists(missionName))
-		{
-			Format(localizedName, sizeof(localizedName), "%T", missionName, client);
-		}
-		else
-		{
-			Format(localizedName, sizeof(localizedName), "%s", missionName, client);
-		}
-		if (SetNativeString(3, localizedName, length, false) != SP_ERROR_NONE)
-			return -1;
-		return 1;
-	} else {
+	char localizedName[LEN_LOCALIZED_NAME];
+	if(TranslationPhraseExists(missionName))
+	{
+		Format(localizedName, sizeof(localizedName), "%T", missionName, client);
+	}
+	else
+	{
 		if (SetNativeString(3, missionName, length, false) != SP_ERROR_NONE)
 			return -1;
+
 		return 0;
 	}
+
+	if (SetNativeString(3, localizedName, length, false) != SP_ERROR_NONE)
+		return -1;
+
+	return 1;
 }
 
-public int Native_GetNumberOfMaps(Handle plugin, int numParams) {
+int Native_GetNumberOfMaps(Handle plugin, int numParams) {
 	if (numParams < 2)
 		return -1;
 	
@@ -454,7 +562,7 @@ public int Native_GetNumberOfMaps(Handle plugin, int numParams) {
 	return endMapIndex - startMapIndex;
 }
 
-public int Native_FindMapIndexByName(Handle plugin, int numParams) {
+int Native_FindMapIndexByName(Handle plugin, int numParams) {
 	if (numParams < 3)
 		return -1;
 	
@@ -493,7 +601,7 @@ public int Native_FindMapIndexByName(Handle plugin, int numParams) {
 	return -1;
 }
 
-public int Native_GetMapName(Handle plugin, int numParams) {
+int Native_GetMapName(Handle plugin, int numParams) {
 	if (numParams < 5)
 		return -1;
 	
@@ -522,7 +630,36 @@ public int Native_GetMapName(Handle plugin, int numParams) {
 	return 0;
 }
 
-public int Native_GetMapLocalizedName(Handle plugin, int numParams) {
+int Native_GetMapDisplayName(Handle plugin, int numParams) {
+	if (numParams < 5)
+		return -1;
+	
+	// Get parameters
+	LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(GetNativeCell(1));
+	int missionIndex = GetNativeCell(2);
+	int mapIndex = GetNativeCell(3);
+	int length = GetNativeCell(5);
+	
+	ArrayList entryList = LMM_GetEntryList(gamemode);
+	if (entryList == null)
+		return -1;
+		
+	if (missionIndex > entryList.Length - 1)
+		return -1;
+		
+	int mapIndexOffset = entryList.Get(missionIndex);
+	ArrayList mapDisplayNameList = LMM_GetMapDisplayNameList(gamemode);
+	
+	char mapDisplayName[LEN_MAP_DISPLAYNAME];
+	mapDisplayNameList.GetString(mapIndexOffset+mapIndex, mapDisplayName, sizeof(mapDisplayName));
+	
+	if (SetNativeString(4, mapDisplayName, length, false) != SP_ERROR_NONE)
+		return -1;
+		
+	return 0;
+}
+
+int Native_GetMapLocalizedName(Handle plugin, int numParams) {
 	if (numParams < 4)
 		return -1;
 	
@@ -543,8 +680,7 @@ public int Native_GetMapLocalizedName(Handle plugin, int numParams) {
 	int offset = entryList.Get(missionIndex);
 	mapList.GetString(offset + mapIndex, mapFileName, sizeof(mapFileName));
 	
-	ArrayList mapLocalizedList = LMM_GetMapLocalizedList(gamemode);
-	if (mapLocalizedList.Get(offset + mapIndex) > 0) {
+	if (TranslationPhraseExists(mapFileName)) {
 		char localizedName[LEN_LOCALIZED_NAME];
 		Format(localizedName, sizeof(localizedName), "%T", mapFileName, client);
 		if (SetNativeString(4, localizedName, length, false) != SP_ERROR_NONE)
@@ -557,7 +693,50 @@ public int Native_GetMapLocalizedName(Handle plugin, int numParams) {
 	}
 }
 
-public int Native_GetMapUniqueID(Handle plugin, int numParams) {
+int Native_GetMapLocalizedDisplayName(Handle plugin, int numParams) {
+	if (numParams < 4)
+		return -1;
+	
+	// Get parameters
+	LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(GetNativeCell(1));
+	int missionIndex = GetNativeCell(2);
+	int mapIndex = GetNativeCell(3);
+	int length = GetNativeCell(5);
+	int client = GetNativeCell(6);
+	
+	ArrayList entryList = LMM_GetEntryList(gamemode);
+	if (entryList == null)
+		return -1;
+	
+	
+	ArrayList mapDisplayNameList = LMM_GetMapDisplayNameList(gamemode);
+	char mapDisplayName[LEN_MAP_DISPLAYNAME];
+	int offset = entryList.Get(missionIndex);
+	mapDisplayNameList.GetString(offset + mapIndex, mapDisplayName, sizeof(mapDisplayName));
+
+	char localizedName[LEN_LOCALIZED_NAME];
+
+	if(mapDisplayName[0] != '#' || loc.PhraseTranslateToLang(mapDisplayName, localizedName, sizeof(localizedName), client, _, _, mapDisplayName) == false)
+	{
+		if(TranslationPhraseExists(mapDisplayName))
+		{
+			Format(localizedName, sizeof(localizedName), "%T", mapDisplayName, client);
+		}
+		else
+		{
+			if (SetNativeString(4, mapDisplayName, length, false) != SP_ERROR_NONE)
+				return -1;
+			return 0;
+		}
+	}
+
+	if (SetNativeString(4, localizedName, length, false) != SP_ERROR_NONE)
+		return -1;
+
+	return 1;
+}
+
+int Native_GetMapUniqueID(Handle plugin, int numParams) {
 	if (numParams < 3)
 		return -1;
 	
@@ -580,7 +759,7 @@ public int Native_GetMapUniqueID(Handle plugin, int numParams) {
 	return offset + mapIndex;
 }
 
-public int Native_DecodeMapUniqueID(Handle plugin, int numParams) {
+int Native_DecodeMapUniqueID(Handle plugin, int numParams) {
 	if (numParams < 3)
 		return -1;
 	
@@ -609,7 +788,7 @@ public int Native_DecodeMapUniqueID(Handle plugin, int numParams) {
 	return -1;
 }
 
-public int Native_GetMapUniqueIDCount(Handle plugin, int numParams) {
+int Native_GetMapUniqueIDCount(Handle plugin, int numParams) {
 	if (numParams < 1)
 		return -1;
 	
@@ -623,11 +802,11 @@ public int Native_GetMapUniqueIDCount(Handle plugin, int numParams) {
 	return mapList.Length;
 }
 
-public int Native_GetNumberOfInvalidMissions(Handle plugin, int numParams) {
+int Native_GetNumberOfInvalidMissions(Handle plugin, int numParams) {
 	return g_hStr_InvalidMissionNames.Length;
 }
 
-public int Native_GetInvalidMissionName(Handle plugin, int numParams) {
+int Native_GetInvalidMissionName(Handle plugin, int numParams) {
 	if (numParams < 2)
 		return -1;
 	
@@ -648,20 +827,27 @@ public int Native_GetInvalidMissionName(Handle plugin, int numParams) {
 int g_MissionParser_UnknownCurLayer;
 int g_MissionParser_UnknownPreState;
 int g_MissionParser_State;
-#define MPS_UNKNOWN -1
-#define MPS_ROOT 0
-#define MPS_MISSION 1
-#define MPS_MODES 2
-#define MPS_GAMEMODE 3
-#define MPS_MAP 4
+
+enum 
+{
+	MPS_UNKNOWN = -1,
+	MPS_ROOT = 0,
+	MPS_MISSION,
+	MPS_MODES,
+	MPS_GAMEMODE,
+	MPS_MAP,
+}
 
 LMM_GAMEMODE g_MissionParser_CurGameMode;
-char g_MissionParser_MissionName[LEN_MISSION_NAME];
+char g_MissionParser_MissionName[LEN_MISSION_NAME],
+	g_MissionParser_DisplayTitle[LEN_DISPLAYTITLE_NAME];
 int g_MissionParser_CurMapID;
-ArrayList g_hIntMap_Index;
-ArrayList g_hStrMap_FileName;
+ArrayList 
+	g_hIntMap_Index,
+	g_hStrMap_FileName,
+	g_hStrMap_DisplayName;
 
-public SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_quotes) {
+SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_quotes) {
 	switch (g_MissionParser_State) {
 		case MPS_ROOT: {
 			if(strcmp("mission", name, false)==0) {
@@ -694,8 +880,10 @@ public SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool
 			} else {
 				delete g_hIntMap_Index;
 				delete g_hStrMap_FileName;
+				delete g_hStrMap_DisplayName;
 				g_hIntMap_Index = new ArrayList(1);
 				g_hStrMap_FileName = new ArrayList(LEN_MAP_FILENAME);
+				g_hStrMap_DisplayName = new ArrayList(LEN_MAP_DISPLAYNAME);
 
 				g_MissionParser_State = MPS_GAMEMODE;
 			}
@@ -731,11 +919,14 @@ public SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool
 	return SMCParse_Continue;
 }
 
-public SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes) {
+SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes) {
 	switch (g_MissionParser_State) {
 		case MPS_MISSION: {
 			if (strcmp("Name", key, false)==0) {
 				strcopy(g_MissionParser_MissionName, LEN_MISSION_NAME, value);
+			}
+			else if (strcmp("DisplayTitle", key, false)==0) {
+				strcopy(g_MissionParser_DisplayTitle, LEN_DISPLAYTITLE_NAME, value);
 			}
 		}
 		case MPS_MAP: {
@@ -746,13 +937,18 @@ public SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const c
 				g_hStrMap_FileName.PushString(mapFileName);
 				// PrintToServer("Map %d: %s", g_MissionParser_CurMapID, value);
 			}
+			else if (strcmp("DisplayName", key, false)==0) {
+				char mapDisplayName[LEN_MAP_FILENAME];
+				FormatEx(mapDisplayName, LEN_MAP_DISPLAYNAME, value);
+				g_hStrMap_DisplayName.PushString(mapDisplayName);
+			}
 		}
 	}
 	
 	return SMCParse_Continue;
 }
 
-public SMCResult MissionParser_EndSection(SMCParser smc) {
+SMCResult MissionParser_EndSection(SMCParser smc) {
 	switch (g_MissionParser_State) {
 		case MPS_MISSION: {
 			g_MissionParser_State = MPS_ROOT;
@@ -809,13 +1005,19 @@ public SMCResult MissionParser_EndSection(SMCParser smc) {
 			}
 			
 			// Add them to corresponding map lists
+			// Add them to corresponding map display name lists
 			ArrayList mapList = LMM_GetMapList(g_MissionParser_CurGameMode);
+			ArrayList mapDisplayNameList = LMM_GetMapDisplayNameList(g_MissionParser_CurGameMode);
+			char mapDisplayName[LEN_MAP_DISPLAYNAME];
 			
 			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) {
 				int index = g_hIntMap_Index.FindValue(iMap);
 				
 				g_hStrMap_FileName.GetString(index, mapFile, sizeof(mapFile));
 				mapList.PushString(mapFile);
+
+				g_hStrMap_DisplayName.GetString(index, mapDisplayName, sizeof(mapDisplayName));
+				mapDisplayNameList.PushString(mapDisplayName);
 			}
 			
 			// Add a new entry
@@ -826,6 +1028,10 @@ public SMCResult MissionParser_EndSection(SMCParser smc) {
 			// Add to mission name list
 			ArrayList missionName = LMM_GetMissionNameList(g_MissionParser_CurGameMode);
 			missionName.PushString(g_MissionParser_MissionName);
+
+			// Add to display title list
+			ArrayList missionDisplayTitleList = LMM_GetMissionDisplayTitleList(g_MissionParser_CurGameMode);
+			missionDisplayTitleList.PushString(g_MissionParser_DisplayTitle);
 		}
 		
 		case MPS_MAP: {
@@ -946,169 +1152,6 @@ void ParseMissions() {
 		delete dirList;	
 		delete parser;
 	}
-}
-
-/* ========== Localization File Parser ========== */
-ArrayList g_hBool_MissionNameLocalized[COUNT_LMM_GAMEMODE];
-ArrayList g_hBool_MapNameLocalized[COUNT_LMM_GAMEMODE];
-
-void LMM_NewLocalizedList(LMM_GAMEMODE gamemode) {
-	ArrayList missionLocalizedList = new ArrayList(1, LMM_GetNumberOfMissions(gamemode));
-	ArrayList mapLocalizedList = new ArrayList(1, LMM_GetMapList(gamemode).Length);
-	
-	delete g_hBool_MissionNameLocalized[view_as<int>(gamemode)];
-	g_hBool_MissionNameLocalized[view_as<int>(gamemode)] = missionLocalizedList;
-
-	delete g_hBool_MapNameLocalized[view_as<int>(gamemode)];
-	g_hBool_MapNameLocalized[view_as<int>(gamemode)] = mapLocalizedList;
-	
-	for (int i=0; i<missionLocalizedList.Length; i++) {
-		missionLocalizedList.Set(i, 0, 0);
-	}
-	
-	for (int i=0; i<mapLocalizedList.Length; i++) {
-		mapLocalizedList.Set(i, 0, 0);
-	}
-}
-
-void LMM_FreeLocalizedLists() {
-	for (int gamemode=0; gamemode<COUNT_LMM_GAMEMODE; gamemode++) {
-		delete g_hBool_MissionNameLocalized[gamemode];
-		delete g_hBool_MapNameLocalized[gamemode];
-	}
-}
-
-ArrayList LMM_GetMissionLocalizedList(LMM_GAMEMODE gamemode) {
-	return g_hBool_MissionNameLocalized[view_as<int>(gamemode)];
-}
-
-ArrayList LMM_GetMapLocalizedList(LMM_GAMEMODE gamemode) {
-	return g_hBool_MapNameLocalized[view_as<int>(gamemode)];
-}
-/*================================================================
-#########       Mission Name Localization Parsing        #########
-=================================================================*/
-bool g_MissionNameLocalization_ParsingMissionLocalization;
-LMM_GAMEMODE g_MissionNameLocalization_Gamemode;
-int g_MissionNameLocalization_State;
-int g_MissionNameLocalization_UnknownCurLayer;
-int g_MissionNameLocalization_UnknownPreState;
-#define MNLS_UNKNOWN -1
-#define MNLS_ROOT 0
-#define MNLS_PHRASES 1
-public SMCResult LocalizationParser_NewSection(SMCParser smc, const char[] name, bool opt_quotes) {
-	switch (g_MissionNameLocalization_State) {
-		case MNLS_ROOT: {
-			if(strcmp("Phrases", name, false)==0) {
-				g_MissionNameLocalization_State = MNLS_PHRASES;
-			} else {
-				g_MissionNameLocalization_UnknownPreState = g_MissionNameLocalization_State;
-				g_MissionNameLocalization_UnknownCurLayer = 1;
-				g_MissionNameLocalization_State = MNLS_UNKNOWN;
-			}
-		}
-		case MNLS_PHRASES: {
-			if (g_MissionNameLocalization_ParsingMissionLocalization) {
-				int missionIndex = LMM_FindMissionIndexByName(g_MissionNameLocalization_Gamemode, name);
-				if (missionIndex > -1) {
-					
-					ArrayList missionLocalizationList = LMM_GetMissionLocalizedList(g_MissionNameLocalization_Gamemode);
-					missionLocalizationList.Set(missionIndex, 1, 0);
-				}
-			} else {
-				// We are parsing map name localization
-				int missionIndex;
-				int mapIndex = LMM_FindMapIndexByName(g_MissionNameLocalization_Gamemode, missionIndex, name);
-				if (mapIndex > -1 && missionIndex > -1) {
-					ArrayList entryList = LMM_GetEntryList(g_MissionNameLocalization_Gamemode);
-					ArrayList mapLocalizationList = LMM_GetMapLocalizedList(g_MissionNameLocalization_Gamemode);
-					int offset = entryList.Get(missionIndex);
-					mapLocalizationList.Set(offset + mapIndex, 1, 0);
-				}
-			}
-			
-			
-			// Do not traverse further
-			g_MissionNameLocalization_UnknownPreState = g_MissionNameLocalization_State;
-			g_MissionNameLocalization_UnknownCurLayer = 1;
-			g_MissionNameLocalization_State = MNLS_UNKNOWN;
-		}
-		
-		case MNLS_UNKNOWN: { // Traverse through unknown structures
-			g_MissionNameLocalization_UnknownCurLayer++;
-		}
-	}
-	
-	return SMCParse_Continue;
-}
-
-public SMCResult LocalizationParser_KeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes) {
-	return SMCParse_Continue;
-}
-
-public SMCResult LocalizationParser_EndSection(SMCParser parser) {
-	switch (g_MissionNameLocalization_State) {
-		case MNLS_PHRASES: {
-			return SMCParse_Halt;
-		}
-		
-		case MNLS_UNKNOWN: { // Traverse through unknown structures
-			g_MissionNameLocalization_UnknownCurLayer--;
-			if (g_MissionNameLocalization_UnknownCurLayer == 0) {
-				g_MissionNameLocalization_State = g_MissionNameLocalization_UnknownPreState;
-			}
-		}
-	}
-	
-	return SMCParse_Continue;
-}
-
-void ParseLocalization(LMM_GAMEMODE gamemode) {
-	// Check existance of default(English) localization
-	char missonsPhrasesEnglish[PLATFORM_MAX_PATH];
-	char mapsPhrasesEnglish[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, missonsPhrasesEnglish, sizeof(missonsPhrasesEnglish), "translations/missions.phrases.txt");
-	BuildPath(Path_SM, mapsPhrasesEnglish, sizeof(mapsPhrasesEnglish), "translations/maps.phrases.txt");
-	
-	if (!FileExists(missonsPhrasesEnglish)) {
-		SaveMessage("Mission name localization file %s does not exist!", missonsPhrasesEnglish);
-		// TO-DO:
-	}
-	
-	if (!FileExists(mapsPhrasesEnglish)) {
-		SaveMessage("Map name localization file %s does not exist!", mapsPhrasesEnglish);
-		// TO-DO:
-	}
-	
-	LoadTranslations("missions.phrases");
-	LoadTranslations("maps.phrases");
-	
-	// Init array
-	LMM_NewLocalizedList(gamemode);
-	
-	SMCParser parser = SMC_CreateParser();
-	parser.OnEnterSection = LocalizationParser_NewSection;
-	parser.OnKeyValue = LocalizationParser_KeyValue;
-	parser.OnLeaveSection = LocalizationParser_EndSection;
- 
-	g_MissionNameLocalization_Gamemode = gamemode;
-	g_MissionNameLocalization_ParsingMissionLocalization = true;
-	g_MissionNameLocalization_State = MNLS_ROOT;
-	
-	SMCError err = parser.ParseFile(missonsPhrasesEnglish);
-	if (err != SMCError_Okay) {
-		SaveMessage("An error occured while parsing missions.phrases.txt(English), code:%d", err);
-	}
-	
-	g_MissionNameLocalization_ParsingMissionLocalization = false;
-	g_MissionNameLocalization_State = MNLS_ROOT;
-	
-	err = parser.ParseFile(mapsPhrasesEnglish);
-	if (err != SMCError_Okay) {
-		SaveMessage("An error occured while parsing maps.phrases.txt(English), code:%d", err);
-	}
-
-	delete parser;
 }
 
 /* ========== Utils ========== */

@@ -12,12 +12,28 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>How does it work?</summary>
 
-    * For better description, read [this](https://github.com/rikka0w0/l4d2_mission_manager#function-description)
+    * Provides a set of APIs which allows other plugins to access the third-party mission/map list
+        * e.g. which map comes after the current one. Coop, versus, scavenge and survival modes are currently supported.
+        * For better description, read [this](https://github.com/rikka0w0/l4d2_mission_manager#function-description)
     * Install only when other plugin requires this plugin
+    * It requires some time to initialize map list at first time server launch. (20 - 60 sec, and < 2 sec. next times)
+    * The plugin would auto-generate mission file in left4dead2\missions.cache folder
 </details>
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+	2. [[INC] localizer](https://github.com/dragokas/SM-Localizer/blob/master/localizer.inc)
+
+* FAQ
+    1. <details><summary>Why there are erros in logs\l4d2_mission_manager.log?</summary>
+
+        * Analysis: This plugin checks third-party map mission files. When format errors, missing levels, or similar issues are detected, error reports are written to logs\l4d2_mission_manager.log.
+        ![1](image/1.jpg) 
+        * Cause: Mission files define a map's level order, names, game modes, and more. They are usually written by the map author, but some third-party map authors write them carelessly, resulting in incorrect formats and related issues.
+        * Solution 1: The problem lies entirely with the map. Please contact or complain to the map author.
+        * Solution 2: Try reading the error messages and manually editing the map’s mission file in left4dead2\missions.cache\, then save it. Repeat until no errors are reported.
+        * Solution 3: 🟥 This error report does not affect the server in any way and can be safely ignored.
+    </details>
 
 * <details><summary>Command | 命令</summary>
 
@@ -53,6 +69,10 @@ Mission manager for L4D2, provide information about map orders for other plugins
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.1h (2026-1-20)
+        * Update API and add native to get "DisplayTitle" of mission file
+        * Official translation support
 
     * v1.0h (2023-11-15)
         * Fix memory leak
@@ -90,19 +110,14 @@ Mission manager for L4D2, provide information about map orders for other plugins
 * 功能
     * 給開發者使用，提供許多API串接 
     * 所有關於地圖mission文件的錯誤報告都寫在logs\l4d2_mission_manager.log
-
-
-* 注意事項
-    1. <details><summary>安裝新的三方圖</summary>
-
-        * 每當安裝新的三方圖時，left4dead2\missions.cache\會有新的.txt檔案產生，是三方圖對應的mission文件備份
-    </details>
+    * 第一次啟動伺服器時，插件需要花30~60秒讀取分析地圖，因此伺服器卡住是正常的現象，請等待插件跑完
+    * 每當安裝新的三方圖時，left4dead2\missions.cache\會有新的.txt檔案產生，是三方圖對應的mission文件備份
 
 * FAQ
     1. <details><summary>為甚麼logs\l4d2_mission_manager.log會有一堆錯誤訊息</summary>
 
         * 分析：這個插件會檢查三方地圖mission文件，當格式錯誤或者關卡不存在等等，會將錯誤報告寫在logs\l4d2_mission_manager.log
-        ![image](https://user-images.githubusercontent.com/12229810/232275149-62919e95-d83b-4aa8-b2c5-8fa7b4202f1f.png) 
+        ![1](image/1.jpg) 
         * 原因：Mission文件是決定地圖的關卡順序、名稱、遊戲模式等等，通常是由地圖作者撰寫，但是有的三方圖作者會亂寫，放飛自我，導致地圖格式不正確等等問題
         * 解決方式法一：所以鍋都是地圖問題，請去跟地圖作者抱怨
         * 解決方式法一：嘗試閱讀錯誤並修改left4dead2\missions.cache\ 的地圖mission文件然後儲存，直到沒有錯誤報告為止

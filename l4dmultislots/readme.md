@@ -94,7 +94,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// If 1, allow extra first aid kits for 5+ players when the finale is activated, One extra kit per player above four. (0=No extra kits)
 		l4d_multislots_finale_extra_first_aid "1"
 
-		// When the player reconnects to the server or rejoins survivor team but no any bot can be taken over.
+		// When the same player reconnects to the server or rejoins survivor team in same round, but no any bot can be taken over.
 		// 0=Free Spawn (Alive bot anytime)
 		// 1=Dead bot after survivor has left safe zone
 		// 2=Dead bot anytime
@@ -354,7 +354,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
 		l4d_multislots_finale_extra_first_aid "1"
 
-		// 當玩家已經當過倖存者並嘗試第二次重新加入倖存者時
+		// 當玩家在相同的遊戲回合中已經當過倖存者並嘗試第二次重新加入倖存者時
 		// 0=無論何時給活著的bot
 		// 1=離開安全室之前給活著的bot, 離開安全室之後給死亡bot
 		// 2=無論何時都給死亡Bot

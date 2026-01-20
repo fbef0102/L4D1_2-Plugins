@@ -3,10 +3,12 @@
 #endif
 #define _lmm_included_
 
-#define LEN_MISSION_NAME 64		// e.g. L4D2C1
-#define LEN_MAP_FILENAME 64		// e.g. c1m1_hotel
-#define LEN_GAMEMODE_NAME 32	// e.g. coop, versus, scavenge, survival
-#define LEN_LOCALIZED_NAME 64
+#define LEN_MISSION_NAME 64			// e.g. "Name" - L4D2C1
+#define LEN_DISPLAYTITLE_NAME 256	// e.g. "DisplayTitle" - #L4D360UI_Campaign_Airport, 广西-南宁 V1.15.1
+#define LEN_MAP_FILENAME 64			// e.g. "Map" - c1m1_hotel
+#define LEN_MAP_DISPLAYNAME 256		// e.g. "DisplayName" - #L4D360UI_Chapter_Greenhouse, 2: 广场/Square
+#define LEN_GAMEMODE_NAME 32		// e.g. "modes" supports - coop, versus, scavenge, survival
+#define LEN_LOCALIZED_NAME 256
 
 #define COUNT_LMM_GAMEMODE 4
 
@@ -36,20 +38,42 @@ native int LMM_FindMissionIndexByName(LMM_GAMEMODE gamemode, const char[] missio
 native int LMM_GetMissionName(LMM_GAMEMODE gamemode, int missionIndex, char[] missionName, int length);
 
 /**
-* Attempt to localize the mission name
+* Attempt to localize the mission name via custom translation
+* @Translate "Name" 經過自製的翻譯文件翻譯後的文字
 * @return	return 1 for success, 0 for no localization and -1 for error.
 */
 native int LMM_GetMissionLocalizedName(LMM_GAMEMODE gamemode, int missionIndex, char[] missionName, int length, int client);
+
+native int LMM_GetMissionDisplayTitle(LMM_GAMEMODE gamemode, int missionIndex, char[] missionName, int length);
+
+/**
+* Attempt to localize the mission name via source game official translation and custom translation
+* @Translate "DisplayTitle" 經過遊戲官方的翻譯與自製的翻譯文件翻譯後的文字
+* @return	return 1 for success, 0 for no localization and -1 for error.
+*/
+native int LMM_GetMissionLocalizedDisplayTitle(LMM_GAMEMODE gamemode, int missionIndex, char[] missionName, int length, int client);
 
 native int LMM_GetNumberOfMaps(LMM_GAMEMODE gamemode, int missionIndex);
 native int LMM_FindMapIndexByName(LMM_GAMEMODE gamemode, int& missionIndex, const char[] mapName);
 native int LMM_GetMapName(LMM_GAMEMODE gamemode, int missionIndex, int mapIndex, char[] mapName, int length);
 
 /** 
-* Attempt to localize the map name, return 1 for success, 0 for no localization and -1 for error. 
-* mapName will be converted to lower case internally. Entries in maps.phrases.txt can only have lower case English letters and numbers
+* Attempt to localize the map name via custom translation
+* @Note mapName will be converted to lower case internally. Entries in maps.phrases.txt can only have lower case English letters and numbers
+* @Translate "Map" 經過自製的翻譯文件翻譯後的文字
+* @return	return 1 for success, 0 for no localization and -1 for error.
 */
 native int LMM_GetMapLocalizedName(LMM_GAMEMODE gamemode, int missionIndex, int mapIndex, char[] mapName, int length, int client);
+
+native int LMM_GetMapDisplayName(LMM_GAMEMODE gamemode, int missionIndex, int mapIndex, char[] mapName, int length);
+
+/** 
+* Attempt to localize the map display name via source game official translation and custom translation
+* @Translate "DisplayName" 經過遊戲官方的翻譯與自製的翻譯文件翻譯後的文字
+* @return	return 1 for success, 0 for no localization and -1 for error.
+*/
+native int LMM_GetMapLocalizedDisplayName(LMM_GAMEMODE gamemode, int missionIndex, int mapIndex, char[] mapName, int length, int client);
+
 
 /**
 * Get the unique ID of the map, which contains the information of both missionIndex and mapIndex
