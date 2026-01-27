@@ -70,7 +70,6 @@ int
 	g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
 
 bool g_bTankDied[MAXPLAYERS+1], //tank already dead
-	g_bReplaceNewTank[MAXPLAYERS+1], //tank was replaced
 	g_bSmokerTakeDamageAlive[MAXPLAYERS+1]; //smoker OnTakeDamageAlive
 
 public void OnPluginStart()
@@ -377,8 +376,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		
 	if(client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
 	{
-		if(g_bReplaceNewTank[client]) return;
-
 		g_bTankDied[client] = false;
 		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
 		for( int i = 1; i <= MaxClients; i++ ) g_iDamage[i][client] = 0;
@@ -540,15 +537,55 @@ void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
 
 public void L4D_OnReplaceTank(int tank, int newtank)
 {
-	g_bReplaceNewTank[newtank] = true;
-	RequestFrame(NextFrame_ReplaceData, newtank);
-	
-	if(tank == newtank)
+	if(tank == newtank) return;
+ 
+	DataPack dp = new DataPack();
+	dp.WriteCell(GetClientUserId(newtank));
+	dp.WriteCell(GetClientUserId(tank));
+	for(int i = 1; i <= MaxClients; i++)
 	{
+		dp.WriteCell(g_iDamage[i][tank]);
+	}
+	dp.WriteCell(g_bTankDied[tank]);
+	dp.WriteCell(g_iSIHealth[tank]);
+	dp.WriteCell(g_iOtherDamage[tank]);
+	RequestFrame(NextFrame_ReplaceTank, dp);
+}
+
+void NextFrame_ReplaceTank(DataPack dp)
+{
+	dp.Reset();
+
+	int userid = dp.ReadCell();
+	int replaced_id = dp.ReadCell();
+
+	int new_tank = GetClientOfUserId(userid);
+	int old_tank = GetClientOfUserId(replaced_id);
+
+	// tank沒有成功交接
+	if (old_tank && IsClientInGame(old_tank) && IsPlayerAlive(old_tank) && GetClientTeam(old_tank) == 3 && GetEntProp(old_tank, Prop_Send, "m_zombieClass") == ZC_TANK)
+	{
+		delete dp;
 		return;
 	}
 
-	ReplaceData(tank, newtank);
+	// 檢查已成功交接
+	if (!new_tank || !IsClientInGame(new_tank) || !IsPlayerAlive(new_tank) || GetClientTeam(new_tank) != 3 || GetEntProp(new_tank, Prop_Send, "m_zombieClass") != ZC_TANK)
+	{
+		delete dp;
+		return;
+	}
+
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		g_iDamage[i][new_tank] = dp.ReadCell(); g_iDamage[i][old_tank] = 0;
+	}
+
+	g_bTankDied[new_tank] = dp.ReadCell(); g_bTankDied[old_tank] = false;
+	g_iSIHealth[new_tank] = dp.ReadCell(); g_iSIHealth[old_tank] = 0;
+	g_iOtherDamage[new_tank] = dp.ReadCell(); g_iOtherDamage[old_tank] = 0;
+
+	delete dp;
 }
 
 void ReplaceData(int tank, int newtank)
@@ -561,11 +598,6 @@ void ReplaceData(int tank, int newtank)
 	g_bTankDied[newtank] = g_bTankDied[tank]; g_bTankDied[tank] = false;
 	g_iSIHealth[newtank] = g_iSIHealth[tank]; g_iSIHealth[tank] = 0;
 	g_iOtherDamage[newtank] = g_iOtherDamage[tank]; g_iOtherDamage[tank] = 0;
-}
-
-void NextFrame_ReplaceData(int client)
-{
-	g_bReplaceNewTank[client] = false;
 }
 
 void ResetPlugin()

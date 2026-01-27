@@ -18,7 +18,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
 * <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
 * <b>[l4d2_Death_Survivor](/l4d2_Death_Survivor)</b>: If a player die as a survivor, this model survior bot keep death until map change or server shutdown
-* <b>[l4d2_vocalizebasedmodel](/l4d2_vocalizebasedmodel)</b>: Survivors will vocalize based on their model
 * <b>[clear_dead_body](/clear_dead_body)</b>: Remove Dead Body Entity
     * 倖存者死亡之後過一段時間，移除屍體
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
@@ -290,6 +289,14 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 當倖存者bot被踢出遊戲時，掉落副武器
 * <b>[l4d_witch_bash_wandering](/l4d_witch_bash_wandering)</b>: Fixed that survivors can bash wandering witch without witch being startled
     * 修復倖存者推開站立的witch不會導致驚嚇
+* <b>[l4d2_gascan_flame_fix](/l4d2_gascan_flame_fix)</b>: Fixed unable to ignite gascan sometimes due to poorly written official code
+    * 修復汽油桶有時候無法被火焰點燃
+* <b>[l4d2_trigger_flow_fix](/l4d2_trigger_flow_fix)</b>: Prevents custom maps from softlocking due to a poorly filter_activator_model's logic when playing with different survivor models
+    * 修復不同模組的倖存者在三方地圖啟動地圖上的機關會出現問題
+* <b>[l4d2_vocalizebasedmodel](/l4d2_vocalizebasedmodel)</b>: Survivors will vocalize based on their model + Fixes conversation stucks when playing with l4d1+2 survivor models in custom maps
+    * 倖存者根據自身模組發出對應的角色語音+修復不同模組的倖存者在三方地圖無法出現語音劇情對話
+* <b>[l4d_transition_forward](/l4d_transition_forward)</b>: Provides forward to determine transitioned entities between map
+    * 輔助插件，可以知道哪些實體是從上一關攜帶過來的
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

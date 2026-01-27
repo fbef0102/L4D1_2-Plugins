@@ -582,6 +582,7 @@ public OnPluginStart()
 	SetTrieValue(g_hTrieWeapons, "shotgun_chrome", 				WPTYPE_SHOTGUN);
 	SetTrieValue(g_hTrieWeapons, "autoshotgun", 				WPTYPE_SHOTGUN);
 	SetTrieValue(g_hTrieWeapons, "shotgun_spas", 				WPTYPE_SHOTGUN);
+	SetTrieValue(g_hTrieWeapons, "grenade_launcher_projectile", WPTYPE_GL);
 	
 	g_hTrieEntityCreated = CreateTrie();
 	SetTrieValue(g_hTrieEntityCreated, "tank_rock",				OEC_TANKROCK);
@@ -791,7 +792,6 @@ void Event_PlayerHurt( Handle:event, const String:name[], bool:dontBroadcast )
 						decl String: weaponB[32];
 						new strWeaponType: weaponTypeB;
 						GetEventString(event, "weapon", weaponB, sizeof(weaponB));
-						
 						if ( GetTrieValue(g_hTrieWeapons, weaponB, weaponTypeB) && weaponTypeB == WPTYPE_GL )
 						{
 							if ( g_hCvarAllowGLSkeet.BoolValue ) {
