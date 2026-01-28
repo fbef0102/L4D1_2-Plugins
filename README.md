@@ -297,6 +297,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 倖存者根據自身模組發出對應的角色語音+修復不同模組的倖存者在三方地圖無法出現語音劇情對話
 * <b>[l4d_transition_forward](/l4d_transition_forward)</b>: Provides forward to determine transitioned entities between map
     * 輔助插件，可以知道哪些實體是從上一關攜帶過來的
+* <b>[l4d_tank_pass](/l4d_tank_pass)</b>: Allows the Tank to pass control to another player.
+    * 允許Tank轉移控制權給隊友
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder

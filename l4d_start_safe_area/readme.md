@@ -23,7 +23,7 @@ Add Custom safe area for any map on start
 </details>
 
 * Require | 必要安裝
-<br/>None
+    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	
 * <details><summary>API | 串接</summary>
 
@@ -42,6 +42,9 @@ Add Custom safe area for any map on start
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.2h (2026-1-28)
+		* Detect if the intro cutscene is playing
 
 	* v1.1h (2025-1-3)
 		* Updata data

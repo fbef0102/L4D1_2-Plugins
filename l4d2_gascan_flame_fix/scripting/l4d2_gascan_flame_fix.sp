@@ -533,7 +533,7 @@ public void OnEntityDestroyed(int entity)
 {
     if(!g_bCvarEnable) return;
 
-    if (entity > MaxClients && IsValidEdict(entity))
+    if (entity > MaxClients && IsValidEntity(entity))
     {
         char classname[64];
         GetEntityClassname(entity, classname, sizeof(classname));
@@ -543,7 +543,7 @@ public void OnEntityDestroyed(int entity)
             int target = GetEntPropEnt(entity, Prop_Data, "m_hEntAttached");
 
             classname = "*INVALID*";
-            if (target == -1 || !IsValidEntity(target)) return;
+            if (target <= MaxClients || !IsValidEntity(target)) return;
 
             GetEntityClassname(target, classname, sizeof(classname));
 

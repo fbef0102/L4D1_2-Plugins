@@ -20,7 +20,7 @@ public SharedPlugin __pl_l4d_transition_forward =
  * @note This will be called once the level failed and restarted.
  * 
  * @param oldindex   		old entity index in last map
- * @param strClassSize      new entity index
+ * @param newindex      	new entity index
  *
  * @noreturn
  */
@@ -31,7 +31,7 @@ public SharedPlugin __pl_l4d_transition_forward =
  * @note 滅團之後重來恢復上一關物品時也會觸發
  *  
  * @param oldindex   		上一關的entity索引
- * @param strClassSize      新的entity索引
+ * @param newindex      	新的entity索引
  * 
  * @noreturn
 */
