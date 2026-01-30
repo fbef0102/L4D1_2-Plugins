@@ -54,6 +54,10 @@ Show damage done to S.I. by survivors
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.7 (2026-1-30)
+		* Update translation
+		* Add special infected class name if victim is real player
+
 	* v2.6 (2025-1-27)
 		* Fixed incorrect damage if killing smoker while pull
 

@@ -102,7 +102,8 @@ public Action CH_PassFilter(int ent1, int ent2, bool &result)
 		}
 	}
 
-	if (IsValidEntity(ent1) && IsValidEntity(ent2))
+	if (ent1 > MaxClients && IsValidEntity(ent1) 
+		&& ent2 > MaxClients && IsValidEntity(ent2) )
 	{
 		GetEntityClassname(ent1, sEntityCNameOne, 20);
 		GetEntityClassname(ent2, sEntityCNameTwo, 20);

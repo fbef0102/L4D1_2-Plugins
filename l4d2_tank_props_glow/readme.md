@@ -134,10 +134,10 @@ Tank打到的物件都會產生光圈，只有特感能看見 + Tank死亡之後
         // 為0時，特感隊伍中所有人都能看見
         l4d2_tank_props_glow_tank_only "0"
 
-        // 為1時，旁觀者隊伍中可以看見
+        // 為1時，旁觀者隊伍可以看見
         l4d2_tank_props_glow_spectators "1"
 
-        // 為1時，倖存者隊伍中只有Tank可以看見
+        // 為1時，倖存者隊伍可以看見
         l4d2_tank_props_glow_surs "0"
 
         // Tank死掉之後要過多久時間車子才消失

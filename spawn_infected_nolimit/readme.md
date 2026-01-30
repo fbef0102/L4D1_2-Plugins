@@ -12,6 +12,9 @@ Provide natives, spawn special infected without the director limits!
 	* 🟥 This plugin does not unlock your server special infected limit automatically. Don't install this plugin until other plugins require this plugin
 	* Provide API for other plugins to help spawn special infected without the director limits.
 	* Admin can type ```!sm_mdzs``` to open menu to spawn special infected without the director limits.
+	* If server slot is full, still unable to spawn special infected
+		* [You can install l4dtoolz to unlock and increase more server slot](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz)
+		* But due to source engine limit, the max server slot can only be up to 31
 </details>
 
 * Require | 必要安裝
@@ -81,6 +84,9 @@ Provide natives, spawn special infected without the director limits!
 * 原理
 	* 🟥 這插件只是一個輔助插件，不是自動幫你的伺服器解鎖數量與限制，等其他插件需要的時候再安裝此插件
 	* 提供API給其他插件生成特感
+	* 如果伺服器空位已滿，依然無法生成特感
+		* [可以安裝l4dtoolz解鎖更多的伺服器位子](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz)
+		* 因為遊戲引擎限制，伺服器最大人數只能到31位
 
 * <details><summary>命令中文介紹 (點我展開)</summary>
 

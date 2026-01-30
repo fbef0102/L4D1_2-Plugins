@@ -295,8 +295,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復不同模組的倖存者在三方地圖啟動地圖上的機關會出現問題
 * <b>[l4d2_vocalizebasedmodel](/l4d2_vocalizebasedmodel)</b>: Survivors will vocalize based on their model + Fixes conversation stucks when playing with l4d1+2 survivor models in custom maps
     * 倖存者根據自身模組發出對應的角色語音+修復不同模組的倖存者在三方地圖無法出現語音劇情對話
-* <b>[l4d_transition_forward](/l4d_transition_forward)</b>: Provides forward to determine transitioned entities between map
-    * 輔助插件，可以知道哪些實體是從上一關攜帶過來的
+* <b>[l4d2_transition_forward](/l4d2_transition_forward)</b>: Provides forward to determine player inventory transitioned entities between map
+    * 輔助插件，可以知道從上一關玩家物品欄攜帶過來的武器實體
 * <b>[l4d_tank_pass](/l4d_tank_pass)</b>: Allows the Tank to pass control to another player.
     * 允許Tank轉移控制權給隊友
 

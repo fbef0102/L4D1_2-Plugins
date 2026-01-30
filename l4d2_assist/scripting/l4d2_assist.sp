@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.6-2025/1/27"
+#define PLUGIN_VERSION "2.7-2026/1/30"
 
 public Plugin myinfo = 
 {
@@ -57,6 +57,27 @@ ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog,
 	g_hCvarInfectedFlag, g_hCvarDisplayNum;
 ConVar g_hCvarMPGameMode;
 int g_iCvarInfectedFlag, g_iCvarDisplayNum;
+
+static const char sInfectedName_L4D2[][] =
+{
+	"Unknown",
+	"Smoker",
+	"Boomer",
+	"Hunter",
+	"Spitter",
+	"Jockey",
+	"Charger",
+	"Tank", //7
+};
+
+static const char sInfectedName_L4D1[][] =
+{
+	"Unknown",
+	"Smoker",
+	"Boomer",
+	"Hunter",
+	"Tank", //4
+};
 
 
 char Temp2[] = ", ";
@@ -431,7 +452,24 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 			char sName[MAX_NAME_LENGTH], sTempMessage[64];
 			int count;
 
-			CPrintToChatAll("%t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
+			if(IsFakeClient(victim))
+			{
+				CPrintToChatAll("%t", "Got_Killed_By", victim, attacker, g_iDamage[attacker][victim]);
+			}
+			else
+			{
+				static char sTran[64];
+				for(int i = 1; i <= MaxClients; i++)
+				{
+					if(!IsClientInGame(i)) continue;
+					if(IsFakeClient(i)) continue;
+					
+					FormatEx(sTran, sizeof(sTran), "%T", (g_bL4D2Version) ? sInfectedName_L4D2[class] : sInfectedName_L4D1[class], i);
+
+					CPrintToChat(i, "%T", "Got_Killed_By_2", i, victim, sTran, attacker, g_iDamage[attacker][victim]);
+				}
+			}
+			
 			bool next = false;
 			for (int i = 1; i <= MaxClients; i++)
 			{

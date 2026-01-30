@@ -10,11 +10,63 @@
 	}
 	"Got_Killed_By"
 	{
-		"en"		"{green}%N{default} got killed by {lightgreen}%N{default} (%d dmg)."
-		"zho"		"{green}%N{default} 主要擊殺者 {lightgreen}%N{default} (%d 傷害)."
-		"chi"		"{green}%N{default} 主要击杀者 {lightgreen}%N{default} (%d 伤害)."
-		"ru"		"{green}%N{default} погибает от: {lightgreen}%N{default} (%d ед. УРН)."
-		"hu"		"{green}%N{default} megölte {lightgreen}%N{default} (%d sbz)."		
+		"#format"	"{1:N},{2:N},{3:d}"
+		"en"		"{green}{1}{default} got killed by {lightgreen}{2}{default} ({3} dmg)."
+		"zho"		"{green}{1}{default} 主要擊殺者 {lightgreen}{2}{default} ({3} 傷害)."
+		"chi"		"{green}{1}{default} 主要击杀者 {lightgreen}{2}{default} ({3} 伤害)."
+		"ru"		"{green}{1}{default} погибает от: {lightgreen}{2}{default} ({3} ед. УРН)."
+		"hu"		"{green}{1}{default} megölte {lightgreen}{2}{default} ({3} sbz)."		
+	}
+	"Got_Killed_By_2"
+	{
+		"#format"	"{1:N},{2:s},{3:N},{4:d}"
+		"en"		"{green}{1}-{2}{default} got killed by {lightgreen}{3}{default} ({4} dmg)."
+		"zho"		"{green}{1}-{2}{default} 主要擊殺者 {lightgreen}{3}{default} ({4} 傷害)."
+		"chi"		"{green}{1}-{2}{default} 主要击杀者 {lightgreen}{3}{default} ({4} 伤害)."
+		"ru"		"{green}{1}-{2}{default} погибает от: {lightgreen}{3}{default} ({4} ед. УРН)."
+		"hu"		"{green}{1}-{2}{default} megölte {lightgreen}{3}{default} ({4} sbz)."		
+	}
+	"Smoker"
+	{
+		"en"	"Smoker"
+		"zho"	"Smoker"
+		"chi"	"舌头"
+	}
+	"Boomer"
+	{
+		"en"	"Boomer"
+		"zho"	"Boomer"
+		"chi"	"胖子"
+	}
+	"Hunter"
+	{
+		"en"	"Hunter"
+		"zho"	"Hunter"
+		"chi"	"猎人"
+	}
+	"Spitter"
+	{
+		"en"	"Spitter"
+		"zho"	"Spitter"
+		"chi"	"口水"
+	}
+	"Jockey"
+	{
+		"en"	"Jockey"
+		"zho"	"Jockey"
+		"chi"	"猴子"
+	}
+	"Charger"
+	{
+		"en"	"Charger"
+		"zho"	"Charger"
+		"chi"	"牛"
+	}
+	"Tank"
+	{
+		"en"	"Tank"
+		"zho"	"Tank"
+		"chi"	"Tank"
 	}
 	"Assist"
 	{
