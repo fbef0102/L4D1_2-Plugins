@@ -14,7 +14,7 @@ Allows players to drop the weapon they are holding
 </details>
 
 * Require | 必要安裝
-<br/>None
+	1. [Weapon Prop Give Fix](https://forums.alliedmods.net/showthread.php?t=331053)
 
 * <details><summary>ConVar | 指令</summary>
 

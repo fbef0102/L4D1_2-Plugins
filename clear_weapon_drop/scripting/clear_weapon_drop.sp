@@ -3,7 +3,8 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#define PLUGIN_VERSION			"3.2-2025-1-30"
+#include <left4dhooks>
+#define PLUGIN_VERSION			"3.3-2026-2-1"
 #define PLUGIN_NAME			    "clear_weapon_drop"
 #define DEBUG 0
 
@@ -35,19 +36,22 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 	
-	CreateNative("Timer_Delete_Weapon", Native_Timer_Delete_Weapon);
+	CreateNative("L4D_RemoveWeaponOnGround", Native_L4D_RemoveWeaponOnGround);
+
 	bLate = late;
 	return APLRes_Success; 
 }
 
-// native void Timer_Delete_Weapon(int weapon);
-int Native_Timer_Delete_Weapon(Handle plugin, int numParams)
+int Native_L4D_RemoveWeaponOnGround(Handle plugin, int numParams)
 {
 	int entity = GetNativeCell(1);
-	SetTimer_DeleteWeapon(entity);
+	float time = GetNativeCell(2);
+	SetTimer_DeleteWeapon(entity, time);
 
 	return 0;
 }
+
+#define DATA_CONFIG		"data/" ... PLUGIN_NAME ... ".cfg"
 
 #define MAXENTITIES                   2048
 #define CLASSNAME_WEAPON_GNOME        		"weapon_gnome"
@@ -75,19 +79,16 @@ static int    	g_iModel_OxygenTank = -1;
 static int    	g_iModel_FireworksCrate = -1;
 static int    	g_iModel_FireAmmo = -1;
 static int    	g_iModel_ExplodeAmmo = -1;
-static int 		g_iModel_Tonfa;
 
-#define CVAR_FLAGS			FCVAR_NOTIFY
+#define CVAR_FLAGS                    FCVAR_NOTIFY
+#define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
 
-ConVar g_hCvar_ClearSurvivorWeaponTime, g_hCvar_ClearInfectedWeaponTime,
-	g_hCvar_ClearUpradeGroundPackTime, g_hCvar_ClearGnome, g_hCvar_ClearCola;
+ConVar g_hCvarEnable, g_hCvarSurDeathNot;
+bool g_bCvarEnable, g_bCvarSurDeathNot;
 
 Handle g_ItemDeleteTimer[MAXENTITIES+1];
-float g_fClearSurvivorWeaponTime, g_fClearInfectedWeaponTime;
-float g_fUpradeGroundPack_Time;
-bool g_bClearGnome, g_bClearCola;
 
-static char ItemDeleteList[][] =
+static char g_sItemDeleteList[][] =
 {
 	"weapon_smg_mp5",
 	"weapon_smg",
@@ -122,43 +123,44 @@ static char ItemDeleteList[][] =
 	CLASSNAME_WEAPON_GASCAN, //does not remove scavenge gascan
 	CLASSNAME_WEAPON_FIREWORKCRATE,
 	CLASSNAME_WEAPON_PROTANK,
-	CLASSNAME_WEAPON_OXYTANK
+	CLASSNAME_WEAPON_OXYTANK,
+	CLASSNAME_WEAPON_GNOME,
+	CLASSNAME_WEAPON_COLA,
+	"upgrade_ammo_explosive",
+	"upgrade_ammo_incendiary"
 };
 
-StringMap g_smItemDeleteList;
+StringMap 
+	g_smWeaponDeleteTime,
+	g_smUnCommonDeleteTime;
+
+bool 
+	g_bDeathFrame[MAXPLAYERS+1];
+
+int 
+	g_iDeathWeapons[MAXPLAYERS+1][6];
 
 public void OnPluginStart()
 {
-	g_hCvar_ClearSurvivorWeaponTime = CreateConVar("sm_drop_clear_survivor_weapon_time", "60", "Time in seconds to remove weapon after dropped by survivor. (0=off)", CVAR_FLAGS, true, 0.0);
-	if (g_bL4D2Version){
-		g_hCvar_ClearInfectedWeaponTime = CreateConVar("sm_drop_clear_infected_weapon_time", "180", "Time in seconds to remove weapon after dropped by uncommon infected. (0=off)", CVAR_FLAGS, true, 0.0);
-		g_hCvar_ClearUpradeGroundPackTime = CreateConVar("sm_drop_clear_ground_upgrade_pack_time", "60", "Time in seconds to remove upgrade pack after deployed on the ground. (0=off)", CVAR_FLAGS, true, 0.0);
-		g_hCvar_ClearGnome = CreateConVar("sm_drop_clear_survivor_weapon_gnome", "0", "If 1, remove gnome after dropped by survivor.", CVAR_FLAGS, true, 0.0);
-		g_hCvar_ClearCola = CreateConVar("sm_drop_clear_survivor_weapon_cola_bottles", "0", "If 1, remove cola bottles after dropped by survivor.", CVAR_FLAGS, true, 0.0);
-	}
-	
+	g_hCvarEnable 			= CreateConVar( PLUGIN_NAME ... "_enable",        	"1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarSurDeathNot 		= CreateConVar( PLUGIN_NAME ... "_death_not", 		"1",   "1=Do not remove weapons if dropped when player death\n0=Remove", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarEnable 			= CreateConVar( PLUGIN_NAME ... "_enable",        	"1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
+	CreateConVar(                       	PLUGIN_NAME ... "_version",       	PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
+	AutoExecConfig(true,                	PLUGIN_NAME);
+
 	GetCvars();
-	g_hCvar_ClearSurvivorWeaponTime.AddChangeHook(ConVarChanged_Cvars);
-	if(g_bL4D2Version)
-	{
-		g_hCvar_ClearInfectedWeaponTime.AddChangeHook(ConVarChanged_Cvars);
-		g_hCvar_ClearUpradeGroundPackTime.AddChangeHook(ConVarChanged_Cvars);
-		g_hCvar_ClearGnome.AddChangeHook(ConVarChanged_Cvars);
-		g_hCvar_ClearCola.AddChangeHook(ConVarChanged_Cvars);
-	}
+	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarSurDeathNot.AddChangeHook(ConVarChanged_Cvars);
 	AutoExecConfig(true, "clear_weapon_drop");
-	
-	HookEvent("weapon_drop", Event_Weapon_Drop);
-	
+
+	HookEvent("weapon_drop", Event_WeaponDrop);
+
 	if (g_bL4D2Version){
 		HookEvent ("upgrade_pack_used",	Event_UpgradePack);
 	}
 
-	g_smItemDeleteList = CreateTrie();
-	for(int i = 0; i < sizeof(ItemDeleteList); i++)
-	{
-		g_smItemDeleteList.SetValue(ItemDeleteList[i], true);
-	}
+	g_smWeaponDeleteTime = new StringMap();
+	g_smUnCommonDeleteTime = new StringMap();
 	
 	if (bLate)
 	{
@@ -179,14 +181,8 @@ void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newV
 
 void GetCvars()
 {
-	g_fClearSurvivorWeaponTime = g_hCvar_ClearSurvivorWeaponTime.FloatValue;
-	if(g_bL4D2Version)
-	{
-		g_fClearInfectedWeaponTime = g_hCvar_ClearInfectedWeaponTime.FloatValue;
-		g_fUpradeGroundPack_Time = g_hCvar_ClearUpradeGroundPackTime.FloatValue;
-		g_bClearGnome = g_hCvar_ClearGnome.BoolValue;
-		g_bClearCola = g_hCvar_ClearCola.BoolValue;
-	}
+	g_bCvarEnable = g_hCvarEnable.BoolValue;
+	g_bCvarSurDeathNot = g_hCvarSurDeathNot.BoolValue;
 }
 
 public void OnMapStart()
@@ -200,8 +196,6 @@ public void OnMapStart()
 		g_iModel_FireworksCrate = PrecacheModel(MODEL_FIREWORKS_CRATE, true);
 		g_iModel_FireAmmo = PrecacheModel(MODEL_FIRE_AMMO, true);
 		g_iModel_ExplodeAmmo = PrecacheModel(MODEL_EXPLODE_AMMO, true);
-
-		g_iModel_Tonfa = PrecacheModel(MODEL_TONFA, true);
 	}
 }
 
@@ -213,7 +207,9 @@ public void OnMapEnd()
 
 public void OnConfigsExecuted()
 {
-    g_bConfigLoaded = true;
+	g_bConfigLoaded = true;
+
+	LoadData();
 }
 
 public void OnClientPutInServer(int client)
@@ -223,6 +219,9 @@ public void OnClientPutInServer(int client)
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
+	if (!g_bCvarEnable) 
+		return;
+
 	if (!g_bConfigLoaded)
 		return;
 
@@ -231,20 +230,19 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 	//LogError("OnEntityCreated %d-%s", entity, classname);
 
-	bool bTemp;
-	if(g_bL4D2Version && g_fClearInfectedWeaponTime > 0.0)
+	if(g_bL4D2Version)
 	{
 		switch (classname[0])
 		{
 			case 'w':
 			{
-				if ( (StrEqual(classname, "weapon_molotov") && g_smItemDeleteList.GetValue("weapon_molotov", bTemp)) ||
-					(StrEqual(classname, "weapon_pipe_bomb") && g_smItemDeleteList.GetValue("weapon_pipe_bomb", bTemp)) ||
-					(StrEqual(classname, "weapon_vomitjar") && g_smItemDeleteList.GetValue("weapon_vomitjar", bTemp)) ||
-					(StrEqual(classname, "weapon_pain_pills") && g_smItemDeleteList.GetValue("weapon_pain_pills", bTemp)) ||
-					(StrEqual(classname, "weapon_adrenaline") && g_smItemDeleteList.GetValue("weapon_adrenaline", bTemp)) ||
-					(StrEqual(classname, "weapon_first_aid_kit") && g_smItemDeleteList.GetValue("weapon_first_aid_kit", bTemp)) ||
-					(StrEqual(classname, "weapon_melee") && g_smItemDeleteList.GetValue("weapon_melee", bTemp)) )
+				if ( (StrEqual(classname, "weapon_molotov") && g_smUnCommonDeleteTime.ContainsKey("weapon_molotov")) ||
+					(StrEqual(classname, "weapon_pipe_bomb") && g_smUnCommonDeleteTime.ContainsKey("weapon_pipe_bomb")) ||
+					(StrEqual(classname, "weapon_vomitjar") && g_smUnCommonDeleteTime.ContainsKey("weapon_vomitjar")) ||
+					(StrEqual(classname, "weapon_pain_pills") && g_smUnCommonDeleteTime.ContainsKey("weapon_pain_pills")) ||
+					(StrEqual(classname, "weapon_adrenaline") && g_smUnCommonDeleteTime.ContainsKey("weapon_adrenaline")) ||
+					(StrEqual(classname, "weapon_first_aid_kit") && g_smUnCommonDeleteTime.ContainsKey("weapon_first_aid_kit")) ||
+					(StrEqual(classname, "weapon_melee") && g_smUnCommonDeleteTime.ContainsKey("weapon_melee")) )
 				{
 					SDKHook(entity, SDKHook_SpawnPost, OnSpawnPost_ByInfected);
 				}
@@ -272,33 +270,49 @@ public void OnEntityDestroyed(int entity)
 	delete g_ItemDeleteTimer[entity];
 }
 
-void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
+void Event_WeaponDrop(Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_fClearSurvivorWeaponTime == 0.0) return;
-	
-	//int client = GetClientOfUserId(event.GetInt("userid"));
-	//if (!IsValidClient(client) || GetClientTeam(client) != 2) return;
-		
+	if (!g_bCvarEnable) return;
+
 	int entity = event.GetInt("propid");	
+	if(entity <= MaxClients) return;
+
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if (IsValidClient(client) && GetClientTeam(client) == 2 && g_bDeathFrame[client]) //人類死亡時掉的武器
+	{
+		//PrintToChatAll("Event_WeaponDrop %N-%d", client, entity);
+
+		if(g_bCvarSurDeathNot) return;
+	}
+	
 	SetTimer_DeleteWeapon(entity);
 }
 
 void Event_UpgradePack(Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_fUpradeGroundPack_Time == 0.0) return;
+	if (!g_bCvarEnable) return;
 	
 	int entity = event.GetInt("upgradeid");
 	if (!IsValidEntityIndex(entity)) return;
+	
 
-	if(Is_UpgradeGroundPack(entity))
-	{	
-		delete g_ItemDeleteTimer[entity];
-
-		DataPack hPack;
-		g_ItemDeleteTimer[entity] = CreateDataTimer(g_fUpradeGroundPack_Time, Timer_KillGroundPackEntity, hPack);
-		hPack.WriteCell(entity);
-		hPack.WriteCell(EntIndexToEntRef(entity));
+	float fTime = 0.0;
+	int modelIndex = GetEntProp(entity, Prop_Send, "m_nModelIndex");
+	if( modelIndex == g_iModel_FireAmmo)
+	{
+		g_smWeaponDeleteTime.GetValue("upgrade_ammo_incendiary", fTime);
 	}
+	else if(modelIndex == g_iModel_ExplodeAmmo)
+	{
+		g_smWeaponDeleteTime.GetValue("upgrade_ammo_explosive", fTime);
+	}
+
+	if(fTime <= 0.0) return;
+	delete g_ItemDeleteTimer[entity];
+	DataPack hPack;
+	g_ItemDeleteTimer[entity] = CreateDataTimer(fTime, Timer_KillGroundPackEntity, hPack);
+	hPack.WriteCell(entity);
+	hPack.WriteCell(EntIndexToEntRef(entity));
 }
 
 void OnWeaponEquipPost(int client, int weapon)
@@ -331,26 +345,29 @@ void OnNextFrame_ByInfected(int entityRef)
 	{
 		if(GetEntProp(weapon, Prop_Send, "m_DroppedByInfectedGender") > 0) //Dropped By Uncommon Infected
 		{
+			float fTime = 0.0;
+			static char sClassName[64];
+			GetEntityClassname(weapon, sClassName, sizeof(sClassName));
+
+			g_smUnCommonDeleteTime.GetValue(sClassName, fTime);
+			
+			if(fTime <= 0.0) return; 
+			
 			delete g_ItemDeleteTimer[weapon];
 
 			DataPack hPack;
-			g_ItemDeleteTimer[weapon] = CreateDataTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, hPack);
+			g_ItemDeleteTimer[weapon] = CreateDataTimer(fTime, Timer_KillWeapon, hPack);
 			hPack.WriteCell(weapon);
 			hPack.WriteCell(EntIndexToEntRef(weapon));
 			return;
 		}
 	}
 
-	int modelIndex = GetEntProp(weapon, Prop_Send, "m_nModelIndex");
-	if(modelIndex == g_iModel_Tonfa) //警棍
+	/*int modelIndex = GetEntProp(weapon, Prop_Send, "m_nModelIndex");
+	if(modelIndex == g_iModel_Tonfa) //從警察身上掉落的警棍抓不到m_DroppedByInfectedGender
 	{
-		delete g_ItemDeleteTimer[weapon];
-
-		DataPack hPack;
-		g_ItemDeleteTimer[weapon] = CreateDataTimer(g_fClearInfectedWeaponTime, Timer_KillWeapon, hPack);
-		hPack.WriteCell(weapon);
-		hPack.WriteCell(EntIndexToEntRef(weapon));
-	}
+		
+	}*/
 }
 
 void OnSpawnPost_BySurvivior(int entity)
@@ -370,21 +387,26 @@ void OnNextFrame_BySurvivior(int entityRef)
 	if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == -1) // Ignore entities with hammerid -1
 		return;
 
-	if (GetEntPropEnt(weapon, Prop_Data, "m_hOwnerEntity") <= 0) //prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
+	if (GetEntPropEnt(weapon, Prop_Data, "m_hOwnerEntity") <= 0) //prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
 		return;
 
-	bool bTemp;
+	
 	int modelIndex = GetEntProp(weapon, Prop_Send, "m_nModelIndex");
-	if( (modelIndex == g_iModel_Gascan && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_GASCAN, bTemp)) ||
-		(modelIndex == g_iModel_PropaneCanister && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_OXYTANK, bTemp)) || 
-		(modelIndex == g_iModel_OxygenTank && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_PROTANK, bTemp)) || 
-		(g_bL4D2Version && modelIndex == g_iModel_FireworksCrate && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_FIREWORKCRATE, bTemp)) ||
-		(g_bL4D2Version && modelIndex == g_iModel_Gnome && g_bClearGnome))
+	if(modelIndex == g_iModel_Gascan && IsScavengeGascan(weapon)) return;
+
+	float fTime = 0.0;
+	if( (modelIndex == g_iModel_Gascan && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_GASCAN, fTime)) ||
+		(modelIndex == g_iModel_PropaneCanister && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_OXYTANK, fTime)) || 
+		(modelIndex == g_iModel_OxygenTank && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_PROTANK, fTime)) || 
+		(g_bL4D2Version && modelIndex == g_iModel_FireworksCrate && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_FIREWORKCRATE, fTime)) ||
+		(g_bL4D2Version && modelIndex == g_iModel_Gnome && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_GNOME, fTime)) )
 	{
+		if(fTime <= 0.0) return;
+
 		delete g_ItemDeleteTimer[weapon];
 
 		DataPack hPack;
-		g_ItemDeleteTimer[weapon] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+		g_ItemDeleteTimer[weapon] = CreateDataTimer(fTime, Timer_KillWeapon, hPack);
 		hPack.WriteCell(weapon);
 		hPack.WriteCell(EntIndexToEntRef(weapon));
 	}
@@ -432,49 +454,88 @@ Action KillEntity(Handle timer, int ref)
 	return Plugin_Continue;
 }
 
-void SetTimer_DeleteWeapon(int entity)
+void SetTimer_DeleteWeapon(int entity, float fSetTime = -1.0)
 {
 	if (!IsValidEntityIndex(entity) || !IsValidEntity(entity)) return;
 
 	static char sClassName[64];
-	bool bTemp;
 	GetEntityClassname(entity, sClassName, sizeof(sClassName));
 	//LogError("SetTimer_DeleteWeapon %d - %s",entity, sClassName);
 
-	if( strncmp(sClassName, "prop_physics", 12, false) == 0 || strncmp(sClassName, "physics_prop", 12, false) == 0)
+	if(fSetTime >= 0.0)
 	{
-		int modelIndex = GetEntProp(entity, Prop_Send, "m_nModelIndex");
-		//LogError("modelIndex - %d", modelIndex);
-		if( (modelIndex == g_iModel_Gascan && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_GASCAN, bTemp)) ||
-			(modelIndex == g_iModel_PropaneCanister && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_OXYTANK, bTemp)) || 
-			(modelIndex == g_iModel_OxygenTank && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_PROTANK, bTemp)) || 
-			(g_bL4D2Version && modelIndex == g_iModel_FireworksCrate && g_smItemDeleteList.GetValue(CLASSNAME_WEAPON_FIREWORKCRATE, bTemp)) ||
-			(g_bL4D2Version && modelIndex == g_iModel_Gnome && g_bClearGnome))
+		if( strncmp(sClassName, "prop_physics", 12, false) == 0 || strncmp(sClassName, "physics_prop", 12, false) == 0)
 		{
+			int modelIndex = GetEntProp(entity, Prop_Send, "m_nModelIndex");
+			//LogError("modelIndex - %d", modelIndex);
 			if(modelIndex == g_iModel_Gascan && IsScavengeGascan(entity)) return;
 
-			delete g_ItemDeleteTimer[entity];
-
-			DataPack hPack;
-			g_ItemDeleteTimer[entity] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
-			hPack.WriteCell(entity);
-			hPack.WriteCell(EntIndexToEntRef(entity));
+			if( modelIndex == g_iModel_Gascan ||
+				modelIndex == g_iModel_PropaneCanister ||
+				modelIndex == g_iModel_OxygenTank ||
+				(g_bL4D2Version && modelIndex == g_iModel_FireworksCrate) ||
+				(g_bL4D2Version && modelIndex == g_iModel_Gnome)
+			)
+			{
+				//nothing
+			}
+			else
+			{
+				return;
+			}
 		}
-	}
-	else if(g_smItemDeleteList.GetValue(sClassName, bTemp) == true)
-	{
-		if(strcmp(sClassName, CLASSNAME_WEAPON_GASCAN, false) == 0 && IsScavengeGascan(entity)) return;
+		else if(g_smWeaponDeleteTime.ContainsKey(sClassName))
+		{
+			if(strcmp(sClassName, CLASSNAME_WEAPON_GASCAN, false) == 0 && IsScavengeGascan(entity)) return;
+		}
+		else
+		{
+			return;
+		}
+
+		delete g_ItemDeleteTimer[entity];
 
 		DataPack hPack;
-		g_ItemDeleteTimer[entity] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+		g_ItemDeleteTimer[entity] = CreateDataTimer(fSetTime, Timer_KillWeapon, hPack);
 		hPack.WriteCell(entity);
 		hPack.WriteCell(EntIndexToEntRef(entity));
 	}
-	else if( (g_bClearGnome && strcmp(sClassName, CLASSNAME_WEAPON_GNOME) == 0) ||
-		(g_bClearCola && strcmp(sClassName, CLASSNAME_WEAPON_COLA) == 0) )
+	else
 	{
+		float fTime = 0.0;
+		if( strncmp(sClassName, "prop_physics", 12, false) == 0 || strncmp(sClassName, "physics_prop", 12, false) == 0)
+		{
+			int modelIndex = GetEntProp(entity, Prop_Send, "m_nModelIndex");
+			//LogError("modelIndex - %d", modelIndex);
+			if(modelIndex == g_iModel_Gascan && IsScavengeGascan(entity)) return;
+
+			if( (modelIndex == g_iModel_Gascan && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_GASCAN, fTime)) ||
+				(modelIndex == g_iModel_PropaneCanister && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_OXYTANK, fTime)) || 
+				(modelIndex == g_iModel_OxygenTank && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_PROTANK, fTime)) || 
+				(g_bL4D2Version && modelIndex == g_iModel_FireworksCrate && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_FIREWORKCRATE, fTime)) ||
+				(g_bL4D2Version && modelIndex == g_iModel_Gnome && g_smWeaponDeleteTime.GetValue(CLASSNAME_WEAPON_GNOME, fTime)) )
+			{
+				//nothing
+			}
+			else
+			{
+				return;
+			}
+		}
+		else if(g_smWeaponDeleteTime.GetValue(sClassName, fTime))
+		{
+			if(strcmp(sClassName, CLASSNAME_WEAPON_GASCAN, false) == 0 && IsScavengeGascan(entity)) return;
+		}
+		else
+		{
+			return;
+		}
+
+		if(fTime <= 0.0) return;
+		delete g_ItemDeleteTimer[entity];
+
 		DataPack hPack;
-		g_ItemDeleteTimer[entity] = CreateDataTimer(g_fClearSurvivorWeaponTime, Timer_KillWeapon, hPack);
+		g_ItemDeleteTimer[entity] = CreateDataTimer(fTime, Timer_KillWeapon, hPack);
 		hPack.WriteCell(entity);
 		hPack.WriteCell(EntIndexToEntRef(entity));
 	}
@@ -506,7 +567,7 @@ bool IsInUse(int entity)
 	}
 	
 	/*
-	//prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (汽油桶, 瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
+	//prop_physics物品從人類身上掉落或丟出去時這個值會變成1 (瓦斯桶, 氧氣罐, 煙火盒, 精靈小矮人)
 	if(HasEntProp(entity, Prop_Data, "m_hOwnerEntity"))
 	{
 		client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity"); 
@@ -540,12 +601,97 @@ bool IsValidClient(int client)
     return true; 
 }
 
-bool Is_UpgradeGroundPack(int entity)
+
+void LoadData()
 {
-	int modelIndex = GetEntProp(entity, Prop_Send, "m_nModelIndex");
+	delete g_smWeaponDeleteTime;
+	g_smWeaponDeleteTime = new StringMap();
 
-	if( modelIndex == g_iModel_FireAmmo || modelIndex == g_iModel_ExplodeAmmo)
-		return true;
+	delete g_smUnCommonDeleteTime;
+	g_smUnCommonDeleteTime = new StringMap();
 
-	return false;
+	char sPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, sPath, sizeof(sPath), DATA_CONFIG);
+	if( !FileExists(sPath) )
+	{
+		SetFailState("File Not Found: %s", sPath);
+		return;
+	}
+
+	// Load config
+	KeyValues hFile = new KeyValues(PLUGIN_NAME);
+	if( !hFile.ImportFromFile(sPath) )
+	{
+		SetFailState("File Format Not Correct: %s", sPath);
+		delete hFile;
+		return;
+	}
+
+	char sMainKey[12];
+	sMainKey = g_bL4D2Version ? "Left4Dead2" : "Left4Dead1";
+	if(!hFile.JumpToKey(sMainKey))
+	{
+		SetFailState("keyvalue '%s' Not found: %s", sMainKey, sPath);
+		delete hFile;
+		return;
+	}
+
+
+	float fDeleteSeconds;
+	if(hFile.JumpToKey("survivor"))
+	{
+		for(int i = 0; i < sizeof(g_sItemDeleteList); i++)
+		{
+			fDeleteSeconds = hFile.GetFloat(g_sItemDeleteList[i], 0.0);
+			g_smWeaponDeleteTime.SetValue(g_sItemDeleteList[i], fDeleteSeconds);
+		}
+
+		hFile.GoBack();
+	}
+	else
+	{
+		SetFailState("keyvalue '%s' Not found: %s", "survivor", sPath);
+		delete hFile;
+		return;
+	}
+
+	if(g_bL4D2Version && hFile.JumpToKey("uncommon"))
+	{
+		for(int i = 0; i < sizeof(g_sItemDeleteList); i++)
+		{
+			fDeleteSeconds = hFile.GetFloat(g_sItemDeleteList[i], 0.0);
+			g_smUnCommonDeleteTime.SetValue(g_sItemDeleteList[i], fDeleteSeconds);
+		}
+
+		hFile.GoBack();
+	}
+	else
+	{
+		SetFailState("keyvalue '%s' Not found: %s", "uncommon", sPath);
+		delete hFile;
+		return;
+	}
+
+	delete hFile;
+}
+
+// (二代) bot取代玩家時 -> 玩家觸發
+// (二代) 玩家取代bot時 -> bot觸發
+// 死前觸發 (L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_death" pre -> "player_death" post )
+// bot被踢出遊戲前觸發 (OnClientDisconnect() -> L4D_OnDeathDroppedWeapons -> "weapon_drop")
+public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
+{
+	g_bDeathFrame[client] = true;
+	g_iDeathWeapons[client][0] = weapons[0];
+	g_iDeathWeapons[client][1] = weapons[1];
+	g_iDeathWeapons[client][2] = weapons[2];
+	g_iDeathWeapons[client][3] = weapons[3];
+	g_iDeathWeapons[client][4] = weapons[4];
+	g_iDeathWeapons[client][5] = weapons[5];
+	RequestFrame(NextFrame_L4D_OnDeathDroppedWeapons, client);
+}
+
+void NextFrame_L4D_OnDeathDroppedWeapons(int client)
+{
+	g_bDeathFrame[client] = false;
 }

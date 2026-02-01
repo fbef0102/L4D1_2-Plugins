@@ -14,12 +14,12 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 		* Will not remove Scavenge Gascan/cola/gnome.
 	* When surivior deployed upgrade packs on the gound.
 		* They will be removed after the certain time passed
-	* Modify weapon/item delete list
-		* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
+	* Modify weapon/item delete list or time: [data/clear_weapon_drop.cfg](data/clear_weapon_drop.cfg)
+		* Manual in this file, click for more details...
 </details>
 
 * Require | 必要安裝
-<br/>None
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
@@ -31,38 +31,29 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 	* cfg/sourcemod/clear_weapon_drop.cfg
 		```php
-		// Time in seconds to remove weapon after dropped by survivor. (0=off)
-		sm_drop_clear_survivor_weapon_time "60"
+		// 0=Plugin off, 1=Plugin on.
+		clear_weapon_drop_enable "1"
 
-		// Time in seconds to remove weapon after dropped by uncommon infected. (0=off)
-		sm_drop_clear_infected_weapon_time "180"
-
-		// Time in seconds to remove upgrade pack after deployed on the ground. (0=off)
-		sm_drop_clear_ground_upgrade_pack_time "60"
-
-		// If 1, remove gnome after dropped by survivor.
-		sm_drop_clear_survivor_weapon_gnome "0"
-
-		// If 1, remove cola bottles after dropped by survivor.
-		sm_drop_clear_survivor_weapon_cola_bottles "0"
+		// 1=Do not remove weapons if dropped when player death
+		// 0=Remove
+		clear_weapon_drop_death_not "1"
 		```
 </details>
 
 * <details><summary>API | 串接</summary>
 
-	```c
-	/**
-	* @brief Remove weapon if no one picks up after a short time. (time depending on the convar you set)
-	*
-	* @param weapon        weapon index to be removed
-	*
-	* @return              nothing
-	*/
-	native void Timer_Delete_Weapon(int weapon);
-	```
+	* [clear_weapon_drop.inc](scripting/include/clear_weapon_drop.inc)
+		```php
+		library name: clear_weapon_drop
+		```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.3 (2026-2-1)
+		* Add data to control weapon list and remoe time
+		* Update cvars
+		* Won't remove weapons if dropped when player death
 
 	* v3.2 (2025-1-30)
 		* Optimize code
@@ -100,6 +91,8 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 		* 防暴警察的警棍
 		* 墮落生還者的醫療與投擲物品
 	* 不影響地圖上原本的武器與物品，只有當武器與物品從人類或者感染者身上掉落之後才會觸發移除
+	* 如要更改移除時間或是移除的武器項目，查看文件: [data/clear_weapon_drop.cfg](data/clear_weapon_drop.cfg)
+		* 內有中文說明書
 
 * 用意在哪?
 	* 避免伺服器塞滿過多的武器與物品導致崩潰 (伺服器實體物件空間不足)
@@ -109,63 +102,11 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 	* cfg/sourcemod/clear_weapon_drop.cfg
 		```php
-		// 人類從手上掉落物器或物品時，一段時間過後如果沒有人撿起或者使用將自動移除 (0=不移除)
-		sm_drop_clear_survivor_weapon_time "60"
+		// 0=關閉插件, 1=啟動插件
+		clear_weapon_drop_enable "1"
 
-		// 當特殊一般感染者掉落武器或物品時，一段時間過後如果沒有人撿起或者使用將自動移除 (0=不移除)
-		sm_drop_clear_infected_weapon_time "180"
-
-		// 人類放置燃燒彈包與高爆彈包於地上. X秒之後移除 (0=不移除)
-		sm_drop_clear_ground_upgrade_pack_time "60"
-
-		// 為1時，刪除掉落的精靈小矮人
-		sm_drop_clear_survivor_weapon_gnome "0"
-
-		// 為1時，刪除掉落的可樂瓶
-		sm_drop_clear_survivor_weapon_cola_bottles "0"
+		// 1=不會移除倖存者死亡時掉落之物器或物品
+		// 0=會移除倖存者死亡時掉落之物器或物品
+		clear_weapon_drop_death_not "1"
 		```
 </details>
-
-* 修改武器與物品刪除的列表
-	* [scripting/clear_weapon_drop.sp line 92~125](scripting/clear_weapon_drop.sp#L92-L125)
-	* 修改完後重新編譯
-
-    * 所有武器與物品名稱
-		```php
-		手槍 => weapon_pistol
-		麥格農手槍 => weapon_pistol_magnum
-		木製單發散彈槍 => weapon_pumpshotgun
-		鐵製單發散彈槍 => weapon_shotgun_chrome
-		Uzi烏茲衝鋒槍 => weapon_smg
-		消音衝鋒槍 => weapon_smg_silenced
-		自動連發散彈槍 => weapon_autoshotgun
-		自動連發戰鬥散彈槍=> weapon_shotgun_spas
-		獵槍 => weapon_hunting_rifle
-		軍用狙擊槍 => weapon_sniper_military
-		Uzi烏茲衝鋒槍 => weapon_smg
-		M16步槍 => weapon_rifle
-		三連發步槍 => weapon_rifle_desert
-		AK47 => weapon_rifle_ak47
-		榴彈發射器 => weapon_grenade_launcher
-		M60機關槍 => weapon_rifle_m60
-		近戰武器 => weapon_melee
-		電鋸 => weapon_chainsaw
-		CSS-MP5衝鋒槍 => weapon_smg_mp5
-		CSS-SG552步槍 => weapon_rifle_sg552
-		CSS-Scout狙擊槍 => weapon_sniper_scout
-		CSS-AWP狙擊槍 => weapon_sniper_awp
-		汽油彈 => weapon_molotov
-		土製炸彈 => weapon_pipe_bomb
-		膽汁瓶 => weapon_vomitjar
-		電擊器 => weapon_defibrillator
-		藥丸 => weapon_pain_pills
-		腎上腺素 => weapon_adrenaline
-		近戰武器 => weapon_melee
-		電鋸 => weapon_chainsaw
-		燃燒彈包 => weapon_upgradepack_incendiary
-		高爆彈包 => weapon_upgradepack_explosive
-		汽油桶 => weapon_gascan
-		煙火盒 => weapon_fireworkcrate
-		瓦斯罐 => weapon_propanetank
-		氧氣罐 => weapon_oxygentan
-		```
