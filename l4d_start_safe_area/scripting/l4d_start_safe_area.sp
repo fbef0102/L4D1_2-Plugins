@@ -260,39 +260,96 @@ Action Timer_PluginStart(Handle timer)
 
 Action DelayTelepAndGetStartArea(Handle timer, int client)
 {
-	if(g_bHasIntroCamera && L4D_IsInIntro())
+	//left4dhooks sucks, broken in l4d1 linux
+	if(!g_bL4D2Version && L4D_GetServerOS() == 1)
 	{
-		return Plugin_Continue;
-	}
-
-	for(int i = 1; i <= MaxClients; i++)
-	{
-		if(!IsClientInGame(i)) continue;
-		if(GetClientTeam(i) != 2) continue;
-		if(!IsPlayerAlive(i)) continue;
-
-		// 看intro cutscene
-		if (!g_bHasIntroCamera && GetEntPropEnt(i, Prop_Send, "m_hViewEntity") != -1)
+		if(g_bHasIntroCamera)
 		{
-			g_bHasIntroCamera = true;
+			for(int i = 1; i <= MaxClients; i++)
+			{
+				if(!IsClientInGame(i)) continue;
+				if(GetClientTeam(i) != 2) continue;
+				if(!IsPlayerAlive(i)) continue;
+
+				if (GetEntPropEnt(i, Prop_Send, "m_hViewEntity") != -1) return Plugin_Continue;
+			}
+
+			g_bHasIntroCamera = false;
+		}
+
+		for(int i = 1; i <= MaxClients; i++)
+		{
+			if(!IsClientInGame(i)) continue;
+			if(GetClientTeam(i) != 2) continue;
+			if(!IsPlayerAlive(i)) continue;
+
+			// 有intro cutscene
+			if (!g_bHasIntroCamera && GetEntPropEnt(i, Prop_Send, "m_hViewEntity") != -1)
+			{
+				g_bHasIntroCamera = true;
+				return Plugin_Continue;
+			}
+
+			for(int j = 1; j <= MaxClients; j++)
+			{
+				if(!IsClientInGame(j)) continue;
+				if(GetClientTeam(j) != 2) continue;
+				if(!IsPlayerAlive(j)) continue;
+
+				AcceptEntityInput(j, "DisableLedgeHang");
+				CheatCommand(j, "warp_to_start_area");
+			}
+
+			GetClientAbsOrigin(i, center_point);
+			center_point[2] += 50.0;
+			//LogError("%N,  %.1f %.1f %.1f", i, center_point[0], center_point[1], center_point[2]);
+			g_hStartTimer = CreateTimer(0.1, CheckAnyOneLeftSafeArea, _, TIMER_REPEAT);
+
+			if(g_bCreateBeam)
+			{
+				delete g_hRingTimer;
+				g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
+			}
+
+			return Plugin_Stop;
+		}
+	}
+	else
+	{
+		if(g_bHasIntroCamera && L4D_IsInIntro())
+		{
 			return Plugin_Continue;
 		}
 
-		//AcceptEntityInput(i, "DisableLedgeHang");
-		//CheatCommand(i, "warp_to_start_area");
-
-		GetClientAbsOrigin(i, center_point);
-		center_point[2] += 50.0;
-		//LogError("%N,  %.1f %.1f %.1f", i, center_point[0], center_point[1], center_point[2]);
-		g_hStartTimer = CreateTimer(0.1, CheckAnyOneLeftSafeArea, _, TIMER_REPEAT);
-
-		if(g_bCreateBeam)
+		for(int i = 1; i <= MaxClients; i++)
 		{
-			delete g_hRingTimer;
-			g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
-		}
+			if(!IsClientInGame(i)) continue;
+			if(GetClientTeam(i) != 2) continue;
+			if(!IsPlayerAlive(i)) continue;
 
-		return Plugin_Stop;
+			// 看intro cutscene
+			if (!g_bHasIntroCamera && GetEntPropEnt(i, Prop_Send, "m_hViewEntity") != -1)
+			{
+				g_bHasIntroCamera = true;
+				return Plugin_Continue;
+			}
+
+			//AcceptEntityInput(i, "DisableLedgeHang");
+			//CheatCommand(i, "warp_to_start_area");
+
+			GetClientAbsOrigin(i, center_point);
+			center_point[2] += 50.0;
+			//LogError("%N,  %.1f %.1f %.1f", i, center_point[0], center_point[1], center_point[2]);
+			g_hStartTimer = CreateTimer(0.1, CheckAnyOneLeftSafeArea, _, TIMER_REPEAT);
+
+			if(g_bCreateBeam)
+			{
+				delete g_hRingTimer;
+				g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
+			}
+
+			return Plugin_Stop;
+		}
 	}
 
 	return Plugin_Continue;

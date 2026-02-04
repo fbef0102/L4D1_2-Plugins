@@ -299,6 +299,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 輔助插件，可以知道從上一關玩家物品欄攜帶過來的武器實體
 * <b>[l4d_tank_pass](/l4d_tank_pass)</b>: Allows the Tank to pass control to another player.
     * 允許Tank轉移控制權給隊友
+* <b>[l4d2_survivor_mourn_fix](/l4d2_survivor_mourn_fix)</b>: Fixes the bug where any survivor is unable to mourn a L4D1 survivor on the L4D2 set
+    * 修復一代倖存者互相看見屍體時沒有語音反應
+* <b>[l4d2_team_kill_reactions](/l4d2_team_kill_reactions)</b>: Implements unused TeamKillAccident reaction lines for all 8 survivors
+    * 玩家TK導致隊友倒地或死亡，能有更多的角色語音互動
 
 # Scripting Compiler
 * [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
