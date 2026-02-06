@@ -22,7 +22,7 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-	2. [[INC] localizer](https://github.com/dragokas/SM-Localizer/blob/master/localizer.inc)
+	2. [[INC] localizer](https://github.com/dragokas/SM-Localizer/)
 
 * FAQ
     1. <details><summary>Why there are erros in logs\l4d2_mission_manager.log?</summary>
@@ -35,14 +35,23 @@ Mission manager for L4D2, provide information about map orders for other plugins
         * Solution 3: 🟥 This error report does not affect the server in any way and can be safely ignored.
     </details>
 
+* <details><summary>ConVar | 指令</summary>
+
+	* cfg/sourcemod/l4d2_mission_manager.cfg
+		```php
+        // If 1, write error message in logs/l4d2_mission_manager.log when parsing mission files
+        l4d2_mission_manager_log_message "1"
+		```
+</details>
+
 * <details><summary>Command | 命令</summary>
 
-	* **List all installed maps on the server**
+	* **List all installed maps on the server (ADMFLAG_ROOT)**
         ```c
         sm_lmm_list [<coop|versus|scavenge|survival>]
         ```
 
-	* **Give you a list of maps that cannot be recognized in "mission.cache" folder**
+	* **Give you a list of maps that cannot be recognized in "mission.cache" folder (ADMFLAG_ROOT)**
         ```c
         sm_lmm_list invalid
         ```
@@ -69,6 +78,9 @@ Mission manager for L4D2, provide information about map orders for other plugins
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.3h (2026-2-6)
+        * Add cvars
 
     * v1.2h (2026-2-4)
         * Update api
@@ -119,7 +131,7 @@ Mission manager for L4D2, provide information about map orders for other plugins
 * FAQ
     1. <details><summary>為甚麼logs\l4d2_mission_manager.log會有一堆錯誤訊息</summary>
 
-        * 分析：這個插件會檢查三方地圖mission文件，當格式錯誤或者關卡不存在等等，會將錯誤報告寫在logs\l4d2_mission_manager.log
+        * 分析：這個插件會分析並檢查三方地圖mission文件，當格式錯誤或者關卡不存在等等，會將錯誤報告寫在logs\l4d2_mission_manager.log
         ![1](image/1.jpg) 
         * 原因：Mission文件是決定地圖的關卡順序、名稱、遊戲模式等等，通常是由地圖作者撰寫，但是有的三方圖作者會亂寫，放飛自我，導致地圖格式不正確等等問題
         * 解決方式法一：所以鍋都是地圖問題，請去跟地圖作者抱怨
@@ -127,3 +139,24 @@ Mission manager for L4D2, provide information about map orders for other plugins
         * 解決方式法三：🟥這份錯誤報告不會對伺服器產生任何影響，可以選擇忽略
     </details>
         
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/l4d2_mission_manager.cfg
+		```php
+        // 為1時，分析並檢查三方地圖mission文件，將錯誤報告寫在logs\l4d2_mission_manager.log
+        l4d2_mission_manager_log_message "1"
+		```
+</details>
+
+* <details><summary>命令中文介紹 (點我展開)</summary>
+
+	* **列出遊戲模式可支援的地圖列表 (權限: ADMFLAG_ROOT)**
+        ```c
+        sm_lmm_list [<coop|versus|scavenge|survival>]
+        ```
+
+	* **在"mission.cache"資料夾內無法被分析或不合法的地圖列表 (權限: ADMFLAG_ROOT)**
+        ```c
+        sm_lmm_list invalid
+        ```
+</details>

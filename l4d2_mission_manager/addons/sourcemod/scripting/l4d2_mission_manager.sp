@@ -11,10 +11,16 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.2h - 2026/2/4",
+	version = "v1.3h - 2026/2/6",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
+
+ConVar
+	g_hCvarLogFile;
+
+bool 
+	g_bCvarLogFile;
 
 ConVar mp_gamemode;
 char g_sFile[128];
@@ -26,6 +32,12 @@ public void OnPluginStart()
 	loc = new Localizer(LC_INSTALL_MODE_FULLCACHE); 
 	mp_gamemode = FindConVar("mp_gamemode");
 
+	g_hCvarLogFile 	= CreateConVar( "l4d2_mission_manager_log_message",        "1",   "If 1, write error message in logs/l4d2_mission_manager.log when parsing mission files", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	AutoExecConfig(true,            "l4d2_mission_manager");
+	
+	GetCvars();
+	g_hCvarLogFile.AddChangeHook(ConVarChanged_Cvars);
+
 	BuildPath(Path_SM, g_sFile, PLATFORM_MAX_PATH, "/logs/l4d2_mission_manager.log");
 	g_hMissionsMap = new StringMap();
 
@@ -34,15 +46,25 @@ public void OnPluginStart()
 	ParseMissions();
 	LoadTranslations("missions.phrases");
 	LoadTranslations("maps.phrases");
-	
+
 	FireEvent_OnLMMUpdateList();
 		
-	RegConsoleCmd("sm_lmm_list", Command_List, "Usage: sm_lmm_list [<coop|versus|scavenge|survival|invalid>]");
+	RegAdminCmd("sm_lmm_list", Command_List, ADMFLAG_ROOT, "Usage: sm_lmm_list [<coop|versus|scavenge|survival|invalid>]");
 }
 
 public void OnPluginEnd() {
 	LMM_FreeLists();
 	delete g_hMissionsMap;
+}
+
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+    g_bCvarLogFile = g_hCvarLogFile.BoolValue;
 }
 
 Action Command_List(int iClient, int args) {
@@ -1281,6 +1303,8 @@ int String_ToLower(const char[] input, char[] output, int size) {
 
 void SaveMessage(const char[] message, any ...)
 {
+	if(!g_bCvarLogFile) return;
+
 	static char DebugBuff[256];
 	VFormat(DebugBuff, sizeof(DebugBuff), message, 2);
 
