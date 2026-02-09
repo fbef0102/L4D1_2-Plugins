@@ -11,7 +11,7 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.3h - 2026/2/6",
+	version = "v1.4h - 2026/2/9",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -265,12 +265,6 @@ int Native_GetCurrentGameMode(Handle plugin, int numParams) {
 		gamemode = LMM_GAMEMODE_VERSUS;
 	else if(StrEqual(strGameMode, "rocketdude", false))	//RocketDude
 		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "dash", false))	//Dash
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "holdout", false))	//Holdout
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "shootzones", false))	//Shootzones
-		gamemode = LMM_GAMEMODE_COOP;
 	else if(StrEqual(strGameMode, "gunbrain", false))	//GunBrain
 		gamemode = LMM_GAMEMODE_COOP;
 	else if(StrEqual(strGameMode, "tankrun", false))	//TankRun
@@ -281,6 +275,12 @@ int Native_GetCurrentGameMode(Handle plugin, int numParams) {
 		gamemode = LMM_GAMEMODE_VERSUS;
 	else if(StrEqual(strGameMode, "l4d1survival", false))	//L4D1 Survival
 		gamemode = LMM_GAMEMODE_SURVIVAL;
+	else if(StrEqual(strGameMode, "dash", false))	//Dash (parishdash.txt)
+		gamemode = LMM_GAMEMODE_UNKNOWN;
+	else if(StrEqual(strGameMode, "holdout", false))	//Holdout (holdouttraining.txtoldoutchallenge.txt)
+		gamemode = LMM_GAMEMODE_UNKNOWN;
+	else if(StrEqual(strGameMode, "shootzones", false))	//Shootzones (shootzones.txt)
+		gamemode = LMM_GAMEMODE_UNKNOWN;
 	else
 	{
 		if(L4D_IsCoopMode() || L4D2_IsRealismMode()) gamemode = LMM_GAMEMODE_COOP;
@@ -371,12 +371,6 @@ int Native_StringToGamemode(Handle plugin, int numParams) {
 		return view_as<int>(LMM_GAMEMODE_VERSUS);
 	else if(StrEqual(gamemodeName, "rocketdude", false))	//RocketDude
 		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "dash", false))	//Dash
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "holdout", false))	//Holdout
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "shootzones", false))	//Shootzones
-		return view_as<int>(LMM_GAMEMODE_COOP);
 	else if(StrEqual(gamemodeName, "gunbrain", false))	//GunBrain
 		return view_as<int>(LMM_GAMEMODE_COOP);
 	else if(StrEqual(gamemodeName, "tankrun", false))	//TankRun
@@ -387,6 +381,12 @@ int Native_StringToGamemode(Handle plugin, int numParams) {
 		return view_as<int>(LMM_GAMEMODE_VERSUS);
 	else if(StrEqual(gamemodeName, "l4d1survival", false))	//L4D1 Survival
 		return view_as<int>(LMM_GAMEMODE_SURVIVAL);
+	else if(StrEqual(gamemodeName, "dash", false))	//Dash (parishdash.txt)
+		return view_as<int>(LMM_GAMEMODE_UNKNOWN);
+	else if(StrEqual(gamemodeName, "holdout", false))	//Holdout (holdouttraining.txtoldoutchallenge.txt)
+		return view_as<int>(LMM_GAMEMODE_UNKNOWN);
+	else if(StrEqual(gamemodeName, "shootzones", false)) //Shootzones  (shootzones.txt)
+		return view_as<int>(LMM_GAMEMODE_UNKNOWN);
 
 	return view_as<int>(LMM_GAMEMODE_UNKNOWN);
 }
@@ -1121,6 +1121,9 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 				SaveMessage("Mission %s does not contain any valid map in gamemode: \"%s\"", g_MissionParser_MissionName, gamemodeName);
 				return SMCParse_Continue;
 			}
+
+			ArrayList missionName = LMM_GetMissionNameList(g_MissionParser_CurGameMode);
+			if(missionName.FindString(g_MissionParser_MissionName) >= 0) return SMCParse_Continue;
 			
 			// Add them to corresponding map lists
 			// Add them to corresponding map display name lists
@@ -1144,7 +1147,6 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			entryList.Push(lastOffset+g_hIntMap_Index.Length);
 			
 			// Add to mission name list
-			ArrayList missionName = LMM_GetMissionNameList(g_MissionParser_CurGameMode);
 			missionName.PushString(g_MissionParser_MissionName);
 
 			// Add to display title list

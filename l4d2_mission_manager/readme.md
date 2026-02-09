@@ -79,11 +79,12 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.4h (2026-2-9)
     * v1.3h (2026-2-6)
-        * Add cvars
-
     * v1.2h (2026-2-4)
         * Update api
+        * Add cvars
+        * Optimize code
 
     * v1.1h (2026-1-20)
         * Update API and add native to get "DisplayTitle" of mission file
