@@ -127,6 +127,9 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		
 		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
 		l4d_afk_commands_versus_teams_unbalance_limit "2"
+
+		// If 1, Display messages to players
+		l4d_afk_commands_show_messages "1"
 		```
 </details>
 
@@ -393,6 +396,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 		// 在對抗/清道夫模式中，雙方隊伍的真人玩家數量差距超過2位以上時，則視為不平衡
 		l4d_afk_commands_versus_teams_unbalance_limit "2"
+
+		// 為1時，顯示訊息給玩家
+		// 0=不顯示
+		l4d_afk_commands_show_messages "1"
 		```
 </details>
 

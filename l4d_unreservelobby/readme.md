@@ -42,21 +42,63 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 	* How to install 8+ slots coop/versus server?
 		* [Read this](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Game/L4D2/8+_Survivors_In_Coop)
 
+	* How to connect to server from game lobby
+		* Create a lobby -> Server Type: ```Best Avaliable Dedicated``` -> Types ```mm_dedicated_force_servers x.x.x.x:yyyyy``` in game console -> Start The Game -> Connect to server from game lobby
+			* ```x.x.x.x:yyyyy``` is ip
+		* Once connect to server from game lobby, the server automatically is lobby reserved
+
 	* What is lobby reserved?
-		* Create a lobby -> Server Type: ```Best Avaliable Dedicated``` -> Types ```mm_dedicated_force_servers xxxxxx``` in game console -> Start The Game
-			* xxxxx is ip
 		* The dedicated server will register with **Steam master server**, and Steam master will send the reserved cookie to your dedicated server
 		* Steam master server always tracks and checks your server if your server keeps reserved.
 		* Once your server is reserved and not full, Steam master server will try to send random players to your server via matchmaking (finding random game)
 	
-	* How to check if server is reserved?
+	* How to check if server is lobby reserved?
 		* Type ```status``` in server console
 			* If you see ```(reserved xxxxxxx)```, then server is reserved
 			* If you see ```(unreserved)```, then server is unreserved
 
+	* Once server is lobby reserved
+		1. When server is not full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
+			* New players that uses game lobby or 'Quick Match' (without server browser) can join server
+			* Players can connect via ```connect ip```
+			* Players can connect via friend lobby
+			* Players can connect via server browser 
+		2. When server is full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
+			* 9+ players can not connect via 'Quick Match' or game lobby
+			* 9+ players can not connect via ```connect ip```
+			* 9+ players can not connect via friend lobby
+			* 9+ players can not connect via server browser 
+			* 9+ players can not join server even if the server is set to 30 slots
+
+	* Once server is unreserved
+		1. When server is not full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
+			* Players can not connect via 'Quick Match' or game lobby
+			* Players can connect via ```connect ip```
+			* Players can connect via friend lobby
+			* Players can connect via server browser  
+		2. When server is full in gamemode (8 for versus/scavenge lobby, 4 for survival/coop/realism lobby)
+			* 9+ players can not connect via 'Quick Match' or game lobby
+			* 9+ players can connect via ```connect ip```
+			* 9+ players can connect via friend lobby
+			* 9+ players can connect via server browser 
+
+	* When will server be lobby reserved?
+		1. Set official cvar ```sv_allow_lobby_connect_only 1```, and first player joins server
+			* ```connect ip```
+			* ```openserverbrowser``` or ```steam group```
+			* Connect to server from game lobby
+
+		2.  Set official cvar ```sv_allow_lobby_connect_only 0```, and first player joins server
+			* Connect to server from game lobby
+
+	* Relationship graph between ```sv_allow_lobby_connect_only``` and ```lobby reserved```, [source: Hatsune-Imagine](https://github.com/Hatsune-Imagine/l4d2-plugins/tree/main/l4d2_unreservelobby)
+	<br/>![l4d_unreservelobby_2](image/l4d_unreservelobby_2.jpg)
+
 	* What is ```heartbeat``` command?
 		* All it does is to force updated server status to steam master server (Such as amount of players, latency and so fort, useful for matchmaking and serverbrowser). 
 		* Basically yelling to master server "HEY, I'M STILL ALIVE AND PLEASE GIVE ME PLAYERS"
+
+	> For more details, ask valve
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -119,7 +161,7 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 
 	* (裝插件之前)
 		1. 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)
-			* 其他玩家均不能再加入伺服器，即使有設置伺服器30個位子依然無法加入
+			* 其他玩家均不能透過任何方式再加入伺服器，即使有設置伺服器30個位子依然無法加入
 		2. 當伺服器有大廳reserved cookie且沒人時(所有玩家已離開)
 			* 無法從大廳匹配到伺服器
 
@@ -127,7 +169,8 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		1. 當伺服器有大廳reserved cookie且模式滿人時(對抗/清道夫: 8人已滿, 戰役/生存/寫實: 4人已滿)
 			* 自動移除動態大廳reserved cookie
 			* 設置指令```sv_allow_lobby_connect_only 0```
-			* 其他玩家可透過IP直連或是伺服器瀏覽加入遊戲
+			* 其他玩家可透過IP直連
+			* 其他玩家可透過伺服器瀏覽列表加入遊戲(openserverbrowser列表)
 		2. 當伺服器所有玩家離開沒人時，自動移除大廳reserved cookie，不再恢復
 			* 玩家可以再次從大廳匹配到伺服器
 			* 指令 ```sv_allow_lobby_connect_only``` 恢復預設
@@ -147,7 +190,10 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		* [教學文章](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game/L4D2/8位玩家遊玩戰役模式)
 
 	* 什麼是大廳匹配?
-		* [開大廳，匹配](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝伺服器與插件#如何從大廳匹配到專屬伺服器)
+		* [開大廳，匹配到伺服器](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝伺服器與插件#如何從大廳匹配到專屬伺服器)
+		* 啟動遊戲－＞創建遊戲大廳－＞伺服器類型選擇 "最佳可用專屬"－＞打開控制台－＞輸入```mm_dedicated_force_servers x.x.x.x:yyyyy```－＞開始遊戲－＞會連到指定的伺服器
+			* x.x.x.x:yyyyy 是IP
+		* 當從遊戲大廳匹配到伺服器後，伺服器會自動產生大廳reserved cookie
 
 	* 什麼是大廳reserved cookie?
 		1. 中文是預定的餅乾(X)，表示飯店已預設房間，已經被訂走的房間無法給其他人入住
@@ -156,37 +202,45 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		4. 當Steam Master發現你伺服器狀態是reserved且還有空位時，就會持續吸引路人進來 (路人找遊戲匹配時會被騙進來的意思)
 
 	* 怎麼知道伺服器有大廳reserved cookie?
-		1. 遊戲控制台或伺服器後台輸入```status```，如果看到```(reserved xxxxx)```，那就是有，反之亦然
+		1. 遊戲控制台或伺服器後台輸入```status```
+			* 如果看到```(reserved xxxxx)```，那就是有
+			* 如果沒有看到```(reserved xxxxx)```，那就是沒有
 
 	* 有大廳reserved cookie時
 		1. 模式沒有滿人時
-			* 伺服器會吸路人匹配進來
+			* 伺服器會吸路人匹配進來 (譬如路人使用'快速匹配')
+			* 可直連
+			* 可加入好友房
+			* 可從伺服器瀏覽列表加入(openserverbrowser列表)
 		2. 模式滿人時 (對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家均不能再加入伺服器，即使伺服器設置30個位子依然無法加入
+			* 伺服器停止吸路人匹配進來 (譬如路人使用'快速匹配')
 			* 無法直連
 			* 無法加入好友房間
-			* 無法從伺服器瀏覽加入
-			* 伺服器停止吸路人匹配進來
+			* 無法從伺服器瀏覽列表加入(openserverbrowser列表)
 
 	* 無大廳reserved cookie時
 		1. 模式沒有滿人時
-			* 伺服器停止吸路人匹配進來
+			* 伺服器停止吸路人匹配進來 (譬如路人使用'快速匹配')
+			* 可直連
+			* 可加入好友房
+			* 可從伺服器瀏覽列表加入 (openserverbrowser列表)
 		2. 模式滿人時(對抗/清道夫: 8人, 戰役/生存/寫實: 4人)，其他玩家可以加入伺服器
+			* 伺服器停止吸路人匹配進來 (譬如路人使用'快速匹配')
 			* 可直連
 			* 可加入好友房間
-			* 可從伺服器瀏覽加入
-			* 伺服器停止吸路人匹配進來
+			* 可從伺服器瀏覽列表加入 (openserverbrowser列表)
 
 	* 何時會有大廳reserved cookie?
 		1. 設置指令```sv_allow_lobby_connect_only 1```，且第一位玩家透過以下方式加入伺服器
 			* 直連```connect```
-			* 從```openserverbrowser列表```或```steam群組伺服器```瀏覽加入
+			* 從```伺服器瀏覽列表加入(openserverbrowser列表)```或```steam群組伺服器```瀏覽加入
 			* 大廳匹配
 
 		2. 設置指令```sv_allow_lobby_connect_only 0```，且第一位玩家透過以下方式加入伺服器
 			* 大廳匹配
 
-	* ```sv_allow_lobby_connect_only```與大廳之間的關係圖, [圖來源: Hatsune-Imagine/l4d2-plugins/l4d2_unreservelobby](https://github.com/Hatsune-Imagine/l4d2-plugins/tree/main/l4d2_unreservelobby)
-	<br/>![l4d_unreservelobby_2](image/l4d_unreservelobby_2.jpg)
+	* ```sv_allow_lobby_connect_only```與大廳之間的關係圖, [圖來源: Hatsune-Imagine](https://github.com/Hatsune-Imagine/l4d2-plugins/tree/main/l4d2_unreservelobby)
+	<br/>![l4d_unreservelobby_3](image/l4d_unreservelobby_3.jpg)
 
 	* 什麼是 ```heartbeat``` 指令?
 		* 強制更新伺服器狀態至 Steam Master Server (譬如: 玩家數量、延遲、地區...). 

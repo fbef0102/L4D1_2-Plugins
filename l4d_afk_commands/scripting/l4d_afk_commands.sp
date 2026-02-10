@@ -137,14 +137,14 @@ ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSe
 	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
 	g_hObsCommandAccess,
 	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableBlock, g_hGrenadeBlock, g_hInfectedSpawnCooldown,
-	g_hVSCommandBalance, g_hVSUnBalanceLimit;
+	g_hVSCommandBalance, g_hVSUnBalanceLimit, g_hShowMessages;
 
 //value
 char g_sImmuneAcclvl[AdminFlags_TOTAL], g_sSpecCommandAccesslvl[AdminFlags_TOTAL], g_sInfCommandAccesslvl[AdminFlags_TOTAL], 
 	g_sSurCommandAccesslvl[AdminFlags_TOTAL], g_sObsCommandAccesslvl[AdminFlags_TOTAL];
 bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpStaggerBlock, g_bThrowableBlock, g_bGrenadeBlock,
 	g_bInfectedAttackBlock, g_bGetVomitBlock, g_bInfectedCapBlock,
-	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance;
+	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance, g_bShowMessages;
 float g_fBreakPropCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
 int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies, g_iVSUnBalanceLimit;
 
@@ -261,6 +261,7 @@ public void OnPluginStart()
 	g_hObsCommandAccess = 		CreateConVar("l4d_afk_commands_observer_access_flag", 			"z", 	"Players with these flags have access to use command to be an observer. (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
 	g_hVSCommandBalance = 		CreateConVar("l4d_afk_commands_versus_teams_balance_enable", 	"1", 	"If 1, Check team balance when player tries to use command to join survivor/infected team in versus/scavenge.\nIf team is unbanlance, will fail to join team!", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hVSUnBalanceLimit = 		CreateConVar("l4d_afk_commands_versus_teams_unbalance_limit", 	"2", 	"Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.", FCVAR_NOTIFY, true, 1.0);
+	g_hShowMessages = 			CreateConVar("l4d_afk_commands_show_messages", 					"1", 	"If 1, Display messages to players", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "l4d_afk_commands");
 
 	GetCvars();
@@ -289,6 +290,7 @@ public void OnPluginStart()
 	g_hZMaxPlayerZombies.AddChangeHook(ConVarChanged_Cvars);
 	g_hVSCommandBalance.AddChangeHook(ConVarChanged_Cvars);
 	g_hVSUnBalanceLimit.AddChangeHook(ConVarChanged_Cvars);
+	g_hShowMessages.AddChangeHook(ConVarChanged_Cvars);
 	
 	HookEvent("witch_harasser_set", OnWitchWokeup);
 	HookEvent("round_start", Event_RoundStart);
@@ -441,7 +443,7 @@ Action Command_SwapTo(int client, int args)
 		}
 
 			
-		if(client != player_id) CPrintToChatAll("[{olive}TS{default}] %t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
+		if(g_bShowMessages && client != player_id) CPrintToChatAll("[{olive}TS{default}] %t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
 	}
 	
 	return Plugin_Handled;
@@ -453,29 +455,29 @@ Action ForceSurvivorSuicide(int client, int args)
 	{
 		if(g_bHasLeftSafeRoom == false)
 		{
-			PrintHintText(client, "%T","You wish!",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","You wish!",client);
 			return Plugin_Handled;
 		}
 
 		if(my_GetInfectedAttacker(client) != -1)
 		{
-			PrintHintText(client, "%T","In your dreams!",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","In your dreams!",client);
 			return Plugin_Handled;
 		}
 		
 		if( g_alClientAttackedByWitch[client].Length != 0 )
 		{
-			PrintHintText(client, "%T","Not on your life!",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Not on your life!",client);
 			return Plugin_Handled;
 		}
 
 		if( GetEngineTime() - ClientJoinSurvivorTime[client] < g_fSurvivorSuicideSeconds)
 		{
-			PrintHintText(client, "%T","Not gonna happen!",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Not gonna happen!",client);
 			return Plugin_Handled;
 		}
 
-		CPrintToChatAll("[{olive}TS{default}] %t","Suicide",client);
+		if(g_bShowMessages) CPrintToChatAll("[{olive}TS{default}] %t","Suicide",client);
 		ForcePlayerSuicide(client);
 	}
 	return Plugin_Handled;
@@ -686,6 +688,7 @@ void GetCvars()
 	g_iZMaxPlayerZombies = g_hZMaxPlayerZombies.IntValue;
 	g_bVSCommandBalance = g_hVSCommandBalance.BoolValue;
 	g_iVSUnBalanceLimit = g_hVSUnBalanceLimit.IntValue;
+	g_bShowMessages = g_hShowMessages.BoolValue;
 }
 
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
@@ -831,7 +834,7 @@ Action TurnClientToSpectate(int client, int argCount)
 	int iTeam = GetClientTeam(client);
 	if (iTeam == 1 && IsClientIdle(client))
 	{
-		PrintHintText(client, "%T","Idle",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","Idle",client);
 		return Plugin_Handled;
 	}
 
@@ -839,7 +842,7 @@ Action TurnClientToSpectate(int client, int argCount)
 	
 	if(HasAccessWithoutRoot(client, g_sSpecCommandAccesslvl) == false)
 	{
-		PrintHintText(client, "%T","You don't have access to change team to spectator",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","You don't have access to change team to spectator",client);
 		return Plugin_Handled;
 	}
 
@@ -892,7 +895,7 @@ Action TurnClientToObserver(int client, int args)
 	
 	if(HasAccessWithoutRoot(client, g_sObsCommandAccesslvl) == false)
 	{
-		PrintHintText(client, "%T","You don't have access to be an observer",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","You don't have access to be an observer",client);
 		return Plugin_Handled;
 	}
 
@@ -940,12 +943,12 @@ Action TurnClientToSurvivors(int client, int args)
 	int team = GetClientTeam(client);
 	if (team == 2)			//if client is survivor
 	{
-		PrintHintText(client, "%T","You are already in survivor team.",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","You are already in survivor team.",client);
 		return Plugin_Handled;
 	}
 	if (team == 1 && IsClientIdle(client))
 	{
-		PrintHintText(client, "%T","You are in idle, Press Left Mouse to play",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","You are in idle, Press Left Mouse to play",client);
 		return Plugin_Handled;
 	}
 	
@@ -953,7 +956,7 @@ Action TurnClientToSurvivors(int client, int args)
 	
 	if(HasAccessWithoutRoot(client, g_sSurCommandAccesslvl) == false)
 	{
-		PrintHintText(client, "%T.","You don't have access to change team to survivor",client);
+		if(g_bShowMessages) PrintHintText(client, "%T.","You don't have access to change team to survivor",client);
 		return Plugin_Handled;
 	}
 
@@ -976,7 +979,7 @@ Action TurnClientToSurvivors(int client, int args)
 			{
 				if(freeInfectedSlots > 0) //特感還有位子
 				{
-					PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
+					if(g_bShowMessages) PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
 					return Plugin_Handled;
 				}
 			}
@@ -993,7 +996,7 @@ Action TurnClientToSurvivors(int client, int args)
 		{
 			if(survivorUsedSlots >= infectedUsedSlots + g_iVSUnBalanceLimit ) //特感比較少人
 			{
-				PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
+				if(g_bShowMessages) PrintHintText(client, "%T", "Too many survivors, unbalance", client); 
 				return Plugin_Handled;
 			}
 			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
@@ -1009,7 +1012,7 @@ Action TurnClientToSurvivors(int client, int args)
 
 	if (freeSurvivorSlots <= 0)
 	{
-		PrintHintText(client, "%T","Survivor team is full now.",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","Survivor team is full now.",client);
 		return Plugin_Handled;
 	}
 	else
@@ -1069,7 +1072,7 @@ Action TurnClientToInfected(int client, int args)
 	int team = GetClientTeam(client);
 	if (team == 3)			//if client is Infected
 	{
-		PrintHintText(client, "%T","You are already in infected team.",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","You are already in infected team.",client);
 		return Plugin_Handled;
 	}
 	
@@ -1077,7 +1080,7 @@ Action TurnClientToInfected(int client, int args)
 	
 	if(HasAccessWithoutRoot(client, g_sInfCommandAccesslvl) == false)
 	{
-		PrintHintText(client, "%T","You don't have access to change team to Infected",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","You don't have access to change team to Infected",client);
 		return Plugin_Handled;
 	}
 
@@ -1103,7 +1106,7 @@ Action TurnClientToInfected(int client, int args)
 			{
 				if(freeSurvivorSlots > 0) //人類還有位子
 				{
-					PrintHintText(client, "%T", "Too many infected, unbalance", client); 
+					if(g_bShowMessages) PrintHintText(client, "%T", "Too many infected, unbalance", client); 
 					return Plugin_Handled;
 				}
 			}
@@ -1120,7 +1123,7 @@ Action TurnClientToInfected(int client, int args)
 			}
 			else if(survivorUsedSlots + g_iVSUnBalanceLimit <= infectedUsedSlots) //人類比較少人
 			{
-				PrintHintText(client, "%T", "Too many infected, unbalance", client); 
+				if(g_bShowMessages) PrintHintText(client, "%T", "Too many infected, unbalance", client); 
 				return Plugin_Handled;
 			}
 			else //雙方隊伍數量相等
@@ -1132,7 +1135,7 @@ Action TurnClientToInfected(int client, int args)
 
 	if (freeInfectedSlots <= 0)
 	{
-		PrintHintText(client, "%T","Infected team is full now.",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","Infected team is full now.",client);
 		return Plugin_Handled;
 	}
 
@@ -1218,7 +1221,7 @@ Action jointeam(int client, int args) //press m (jointeam)
 	bool bHaveAccess = HasAccessWithoutRoot(client, g_sImmuneAcclvl);
 	if(g_bPressMBlock == true && bHaveAccess == false) 
 	{
-		PrintHintText(client, "%T","This function has been blocked!",client);	
+		if(g_bShowMessages) PrintHintText(client, "%T","This function has been blocked!",client);	
 		return Plugin_Handled;
 	}
 
@@ -1303,7 +1306,7 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 	{
 		if(IsClientIdle(client))
 		{
-			PrintHintText(client, "%T","Idle",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Idle",client);
 		}
 		
 		return Plugin_Handled;
@@ -1311,7 +1314,7 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 
 	if (GetClientTeam(client) == 3)			//if client is Infected
 	{
-		PrintHintText(client, "%T","Infected can't go idle",client);
+		if(g_bShowMessages) PrintHintText(client, "%T","Infected can't go idle",client);
 		return Plugin_Handled;
 	}
 	
@@ -1320,7 +1323,7 @@ Action go_away_from_keyboard(int client, const char[] command, int args) //esc->
 	bool bHaveAccess = HasAccessWithoutRoot(client, g_sImmuneAcclvl);
 	if(g_bTakeABreakBlock == true && bHaveAccess == false) 
 	{
-		PrintHintText(client, "%T","This function has been blocked!",client);	
+		if(g_bShowMessages) PrintHintText(client, "%T","This function has been blocked!",client);	
 		return Plugin_Handled;
 	}
 
@@ -1432,7 +1435,7 @@ Action CommandListener_SpecNext(int client, char[] command, int argc)
 			if(g_hInCoolDownTimer[client] != null)
 			{
 				bClientJoinedTeam[client] = true;
-				PrintHintText(client, "%T", "Idle Wait" , client, g_iSpectatePenaltTime[client]);
+				if(g_bShowMessages) PrintHintText(client, "%T", "Idle Wait" , client, g_iSpectatePenaltTime[client]);
 				return Plugin_Handled;
 			}
 		}
@@ -1507,13 +1510,13 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 	if(g_hInCoolDownTimer[client] != null)
 	{
 		bClientJoinedTeam[client] = true;
-		CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+		if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
 		return false;
 	}
 
 	if((g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0) && g_bHasLeftSafeRoom && GetClientTeam(client) != 1 && changeteam != 1) 
 	{
-		CPrintToChat(client, "[{olive}TS{default}] %T","Can not change team during the game!!",client);
+		if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Can not change team during the game!!",client);
 		return false;
 	}
 
@@ -1521,37 +1524,37 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 	{
 		if ( my_GetInfectedAttacker(client) != -1 && g_bInfectedAttackBlock == true)
 		{
-			PrintHintText(client, "%T","Infected Attack Block",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Infected Attack Block",client);
 			return false;
 		}	
 		
 		if( g_bWitchAttackBlock == true && g_alClientAttackedByWitch[client].Length > 0)
 		{
-			PrintHintText(client, "%T","Witch Attack Block",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Witch Attack Block",client);
 			return false;
 		}
 
 		if( g_fBreakPropCooldown > 0.0 && (fBreakPropTime[client] - GetEngineTime() > 0.0) )
 		{
-			PrintHintText(client, "%T", "Can not change team after ignite",client);
+			if(g_bShowMessages) PrintHintText(client, "%T", "Can not change team after ignite",client);
 			return false;
 		}
 
 		if( g_bThrowableBlock && g_alClientThrowable[client].Length > 0 )
 		{
-			PrintHintText(client, "%T","Can not change team after throw",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Can not change team after throw",client);
 			return false;	
 		}
 
 		if( g_bL4D2Version && g_bGrenadeBlock && g_alClientGrenade[client].Length > 0 )
 		{
-			PrintHintText(client, "%T","Can not change team after grenade",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Can not change team after grenade",client);
 			return false;	
 		}
 
 		if(g_bDeadSurvivorBlock == true && IsPlayerAlive(client) == false)
 		{
-			PrintHintText(client, "%T","Can not change team as dead survivor",client);
+			if(g_bShowMessages) PrintHintText(client, "%T","Can not change team as dead survivor",client);
 			return false;
 		}
 		
@@ -1561,7 +1564,7 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 			if (iActiveWeapon > MaxClients && IsValidEntity(iActiveWeapon)) {
 				if(GetEntProp(iActiveWeapon, Prop_Send, "m_bInReload")) //Survivor reloading
 				{
-					PrintHintText(client, "%T","Can not change team while reloading weapon",client);
+					if(g_bShowMessages) PrintHintText(client, "%T","Can not change team while reloading weapon",client);
 					return false;
 				}
 			}
@@ -1569,13 +1572,13 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 
 		if ( g_bGetUpStaggerBlock && IsPlayerAlive(client) && (IsGettingUpOrStumble(client) || L4D_IsPlayerStaggering(client)) )
 		{
-			PrintHintText(client, "%T", "Get Up Stagger Block", client);
+			if(g_bShowMessages) PrintHintText(client, "%T", "Get Up Stagger Block", client);
 			return false;
 		}
 
 		if (g_bGetVomitBlock && IsPlayerAlive(client) && IsClientGetVomit(client))
 		{
-			PrintHintText(client, "%T", "Bile Block", client);
+			if(g_bShowMessages) PrintHintText(client, "%T", "Bile Block", client);
 			return false;
 		}
 	}
@@ -1583,13 +1586,13 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 	{
 		if(my_GetSurvivorVictim(client) != -1 && g_bInfectedCapBlock == true)
 		{
-			PrintHintText(client, "%T", "Infected Cap Block",client);
+			if(g_bShowMessages) PrintHintText(client, "%T", "Infected Cap Block",client);
 			return false;
 		}
 
 		if( g_fInfectedSpawnCooldown > 0.0 && (fInfectedSpawnTime[client] - GetEngineTime() > 0.0) && IsPlayerAlive(client) && !IsPlayerGhost(client))
 		{
-			PrintHintText(client, "%T", "Can not change team after Spawn as a special infected",client);
+			if(g_bShowMessages) PrintHintText(client, "%T", "Can not change team after Spawn as a special infected",client);
 			return false;	
 		}
 	}
@@ -1647,7 +1650,7 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 				if(newteam != oldteam)
 				{
 					ChangeClientTeam(client,1);
-					CPrintToChat(client,"[{olive}TS{default}] %T","Go Back Your Team",client,(oldteam == 3) ? "Infected" : "Survivor");
+					if(g_bShowMessages) CPrintToChat(client,"[{olive}TS{default}] %T","Go Back Your Team",client,(oldteam == 3) ? "Infected" : "Survivor");
 					
 					return Plugin_Continue;
 				}
@@ -1689,7 +1692,7 @@ Action Timer_CanJoin(Handle timer, int client)
 			if(team == 2 && IsPlayerAlive(client))
 			{
 				bClientJoinedTeam[client] = true;
-				CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+				if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
 
 				if(L4D_HasPlayerControlledZombies())
 				{
@@ -1706,7 +1709,7 @@ Action Timer_CanJoin(Handle timer, int client)
 			else if(team == 3)
 			{
 				bClientJoinedTeam[client] = true;
-				CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+				if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
 
 				ChangeClientTeam(client, 1);
 				clientteam[client]=1;
@@ -1719,7 +1722,7 @@ Action Timer_CanJoin(Handle timer, int client)
 	{
 		if (bClientJoinedTeam[client])
 		{
-			PrintHintText(client, "%T","You can change team now.",client);	//only print this hint text to the spectator if he tried to join team, and got swapped before
+			if(g_bShowMessages) PrintHintText(client, "%T","You can change team now.",client);	//only print this hint text to the spectator if he tried to join team, and got swapped before
 		}
 
 		bClientJoinedTeam[client] = false;
