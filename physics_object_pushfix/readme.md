@@ -1,5 +1,5 @@
 # Description | 內容
-Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pushed when players walk into them
+Prevents firework crates, gascans, oxygen, propane tanks being pushed when players walk into them
 
 * Apply to | 適用於
 	```
@@ -9,21 +9,21 @@ Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pu
 
 * Image | 圖示
     <br/>![physics_object_pushfix_1](image/physics_object_pushfix_1.gif)
-    <br/>![physics_object_pushfix_2](image/physics_object_pushfix_2.gif)
 
 * <details><summary>How does it work?</summary>
 
-	* To to fix the bug where survivor push gascans or pipebomb projectiles by accident
+	* To fix the bug where survivor push gascans, oxygen, propane tanks, firework crates by accident
 	* How to reproduce the bug?
 		* Find a gascan on the map, don't grab, just walk into it
-		* Throw a pipebomb, your teammates walk into it
-	* After install this plugin, pipebombs would fly through the tank body.
 </details>
 
 * Require | 必要安裝
 <br/>None
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.1h (2026-2-11)
+		* Remove pipebomb (use l4d_collision_adjustments instead)
 
 	* v1.0h (2025-1-4)
 		* Remake code
@@ -36,11 +36,9 @@ Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pu
 
 - - - -
 # 中文說明
-修復玩家走路就能推擠地上物品或土製炸彈
+修復玩家走路就能推擠地上物品
 
 * 原理
-	* 官方的Bug: 玩家走路就能推擠地上的物品 (汽油桶、瓦斯桶、煙火盒、氧氣罐、土製炸彈)
+	* 官方的Bug: 玩家走路就能推擠地上的物品 (汽油桶、瓦斯桶、煙火盒、氧氣罐)
 	* 如何復現?
 		* 找到地圖上的汽油桶，不要拿取，直接走過去
-		* 丟出一個土製炸彈，你的隊友直接走過去
-	* 安裝此插件後的副作用: 土製炸彈會穿透Tank身體

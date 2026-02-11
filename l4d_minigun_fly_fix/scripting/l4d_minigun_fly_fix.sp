@@ -71,6 +71,17 @@ void LateLoad()
         GetEntityClassname(entity, classname, sizeof(classname));
         OnEntityCreated(entity, classname);
     }
+
+    // exist in l4d1
+    entity = INVALID_ENT_REFERENCE;
+    while ((entity = FindEntityByClassname(entity, "prop_mounted_machine_gun*")) != INVALID_ENT_REFERENCE)
+    {
+        if (!IsValidEntity(entity))
+            continue;
+
+        GetEntityClassname(entity, classname, sizeof(classname));
+        OnEntityCreated(entity, classname);
+    }
 }
 
 // Cvars-------------------------------

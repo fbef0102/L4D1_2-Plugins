@@ -281,7 +281,7 @@ int ReadRestrictedFiles ()
 
 stock bool RealPlayerExist (int iExclude = 0)
 {
-	for (int client = 1; client < MaxClients; client++)
+	for (int client = 1; client <= MaxClients; client++)
 	{
 		if ( client != iExclude && IsClientConnected(client) && !IsFakeClient(client) )
 		{

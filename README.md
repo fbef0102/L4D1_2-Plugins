@@ -175,8 +175,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 遊戲開局時，強制將出生點周圍區域判定為安全區，以確保玩家安全
 * <b>[l4d_fastdl_delay_downloader](/l4d_fastdl_delay_downloader)</b>: Downloading fastdl custom files only when map change/transition
     * 只有在換圖或過關時，才讓玩家下載Fastdl自製的檔案
-* <b>[physics_object_pushfix](/physics_object_pushfix)</b>: Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pushed when players walk into them
-    * 修復玩家走路就能推擠地上物品或土製炸彈
+* <b>[physics_object_pushfix](/physics_object_pushfix)</b>: Prevents firework crates, gascans, oxygen, propane tanks being pushed when players walk into them
+    * 修復玩家走路就能推擠地上物品
 * <b>[l4d2_release_victim](/l4d2_release_victim)</b>: Allow to release victim
     * 特感可以釋放被抓住的倖存者
 * <b>[l4d2_rescue_vehicle_multi](/l4d2_rescue_vehicle_multi)</b>: Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fall down, not count as alive, versus score bug

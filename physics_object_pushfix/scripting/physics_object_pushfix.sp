@@ -24,7 +24,7 @@
 #include <sdkhooks>
 #include <dhooks>
 
-#define PLUGIN_VERSION	"1.0h-2025/1/4"
+#define PLUGIN_VERSION	"1.1h-2026/2/11"
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -42,7 +42,7 @@ public Plugin myinfo =
 {
 	name = "[L4D1/2] physics_object_pushfix",
 	author = "Lux, Harry",
-	description = "Prevents firework crates, gascans, oxygen, propane tanks and pipe bombs being pushed when players walk into them",
+	description = "Prevents firework crates, gascans, oxygen, propane tanks being pushed when players walk into them",
 	version = PLUGIN_VERSION,
 	url = "https://github.com/LuxLuma/Left-4-fix"
 };
@@ -66,13 +66,8 @@ bool
 	g_bIsPhysics[MAX_EDICTS+1],
 	g_bIsHittable[MAX_EDICTS+1];
 
-int 
-	OFFSET_COLLISION_GROUP;
-
 public void OnPluginStart()
 {
-	OFFSET_COLLISION_GROUP = FindSendPropInfo("CBaseEntity", "m_CollisionGroup");
-
 	Handle hGamedata = LoadGameConfigFile(GAMEDATA);
 	if(hGamedata == null) 
 		SetFailState("Failed to load \"%s.txt\" gamedata.", GAMEDATA);
@@ -116,10 +111,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		RequestFrame(OnNextFrame_prop, EntIndexToEntRef(entity));
 	}
-	else if( strncmp(classname, "pipe_bomb_projectile", 20, false) == 0 ) //pipe bomb
-	{
-		RequestFrame(OnNextFrame_pipe_bomb_projectile, EntIndexToEntRef(entity));
-	}
 }
 
 void OnNextFrame_prop(int entityRef)
@@ -138,17 +129,6 @@ void OnNextFrame_prop(int entityRef)
 			return;
 		}
 	}
-}
-
-void OnNextFrame_pipe_bomb_projectile(int entityRef)
-{
-	int entity = EntRefToEntIndex(entityRef);
-
-	if (entity == INVALID_ENT_REFERENCE)
-		return;
-
-	//副作用: 土製炸彈穿透Tank
-	SetEntData(entity, OFFSET_COLLISION_GROUP, 3, 1, true);
 }
 
 MRESReturn MovePropAwayPre(Handle hReturn, Handle hParams)
