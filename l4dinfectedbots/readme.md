@@ -437,6 +437,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.0.6 (2026-2-13)
+		* Update data, Any matching map names will overwrite duplicate data from the "Settings" section.
+
 	* v3.0.5 (2026-1-7)
 		* Update cvars
 		* Optimize code to set infected and tank health

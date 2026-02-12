@@ -1,7 +1,7 @@
 //此插件0.0秒後設置血量(Tank與特感)
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.5 (2009-2026)
+* Version	: 3.0.6 (2009-2026)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.0.6 (2026-1-7)
+*		- Update data, Any matching map names will overwrite duplicate data from the "Settings" section.
 *
 * Version 3.0.5 (2026-1-7)
 *		- Update cvars
@@ -806,7 +809,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.5-2026/1/7"
+#define PLUGIN_VERSION 			"3.0.6-2026/2/13"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -942,7 +945,8 @@ bool
 	g_bDeSpawn[MAXPLAYERS+1];
 
 char 
-	g_sCvarMPGameMode[64];
+	g_sCvarMPGameMode[64],
+	g_sMap[64];
 
 int 
 	g_iZombieHpSet[MAXPLAYERS+1],
@@ -1820,9 +1824,8 @@ public void OnMapStart()
 	CheckandPrecacheModel(MODEL_TANK);
 
 	g_bSpawnWitchBride = false;
-	char sMap[64];
-	GetCurrentMap(sMap, sizeof(sMap));
-	if(StrEqual("c6m1_riverbank", sMap, false))
+	GetCurrentMap(g_sMap, sizeof(g_sMap));
+	if(StrEqual("c6m1_riverbank", g_sMap, false))
 		g_bSpawnWitchBride = true;
 
 	lastHumanTankId = 0;
@@ -6109,145 +6112,316 @@ void LoadData()
 		delete hData;
 	}
 
-	if(hData.JumpToKey("default"))
+	if(hData.JumpToKey("Settings" ))
 	{
-		ePluginData[0].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", 2);
-		ePluginData[0].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", 2);
-		ePluginData[0].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", 2);
-		ePluginData[0].m_iSpawnLimit[SI_SPITTER] = hData.GetNum("spitter_limit", 2);
-		ePluginData[0].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", 2);
-		ePluginData[0].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", 2);
-		ePluginData[0].m_iMaxSpecials = hData.GetNum("max_specials", 2);
-		ePluginData[0].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", 1));
-
-		ePluginData[0].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", 60.0);
-		ePluginData[0].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", 40.0);
-		ePluginData[0].m_fSILife = hData.GetFloat("life", 30.0);
-		ePluginData[0].m_fInitialSpawnTime = hData.GetFloat("initial_spawn_time", 10.0);
-
-		ePluginData[0].m_iSpawnWeight[SI_SMOKER] = hData.GetNum("smoker_weight", 100);
-		ePluginData[0].m_iSpawnWeight[SI_BOOMER] = hData.GetNum("boomer_weight", 100);
-		ePluginData[0].m_iSpawnWeight[SI_HUNTER] = hData.GetNum("hunter_weight", 100);
-		ePluginData[0].m_iSpawnWeight[SI_SPITTER] = hData.GetNum("spitter_weight", 100);
-		ePluginData[0].m_iSpawnWeight[SI_JOCKEY] = hData.GetNum("jockey_weight", 100);
-		ePluginData[0].m_iSpawnWeight[SI_CHARGER] = hData.GetNum("charger_weight", 100);
-		ePluginData[0].m_bScaleWeights = view_as<bool>(hData.GetNum("scale_weights", 1));
-
-		ePluginData[0].m_iSIHealth[SI_SMOKER] = hData.GetNum("smoker_health", 250);
-		ePluginData[0].m_iSIHealth[SI_BOOMER] = hData.GetNum("boomer_health", 50);
-		ePluginData[0].m_iSIHealth[SI_HUNTER] = hData.GetNum("hunter_health", 250);
-		ePluginData[0].m_iSIHealth[SI_SPITTER] = hData.GetNum("spitter_health", 100);
-		ePluginData[0].m_iSIHealth[SI_JOCKEY] = hData.GetNum("jockey_health", 325);
-		ePluginData[0].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", 600);
-
-		ePluginData[0].m_iTankLimit = hData.GetNum("tank_limit", 1);
-		ePluginData[0].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", 0));
-		ePluginData[0].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", 5);
-		ePluginData[0].m_iTankHealth = hData.GetNum("tank_health", 4000);
-		ePluginData[0].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", 0));
-
-		ePluginData[0].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", 1);
-		ePluginData[0].m_fWitchSpawnTimeMax = hData.GetFloat("witch_spawn_time_max", 120.0);
-		ePluginData[0].m_fWitchSpawnTimeMin = hData.GetFloat("witch_spawn_time_min", 90.0);
-		ePluginData[0].m_fWitchLife = hData.GetFloat("witch_life", 200.0);
-		ePluginData[0].m_bWitchSpawnFinal = view_as<bool>(hData.GetNum("witch_spawn_final", 0));
-
-		ePluginData[0].m_bSpawnSameFrame = view_as<bool>(hData.GetNum("spawn_same_frame", 0));
-		ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected = hData.GetFloat("spawn_time_increase_on_human_infected", 3.0);
-		ePluginData[0].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", 0));
-		ePluginData[0].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", 0);
-		ePluginData[0].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", 350.0);
-		ePluginData[0].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", 0));
-		ePluginData[0].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", 0));
-		ePluginData[0].m_bCoordination = view_as<bool>(hData.GetNum("coordination", 0));
-
-		ePluginData[0].m_bCoopVersusEnable = view_as<bool>(hData.GetNum("coop_versus_enable", 0));
-		ePluginData[0].m_fCoopVersSpawnTimeMax = hData.GetFloat("coop_versus_spawn_time_max", 30.0);
-		ePluginData[0].m_fCoopVersSpawnTimeMin = hData.GetFloat("coop_versus_spawn_time_max", 25.0);
-		ePluginData[0].m_bCoopTankPlayable = view_as<bool>(hData.GetNum("coop_versus_tank_playable", 0));
-		ePluginData[0].m_bCoopVersusAnnounce = view_as<bool>(hData.GetNum("coop_versus_announce", 1));
-		ePluginData[0].m_iCoopVersusHumanLimit = hData.GetNum("coop_versus_human_limit", 1);
-		hData.GetString("coop_versus_join_access", ePluginData[0].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), "z");
-		ePluginData[0].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", 1));
-		ePluginData[0].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", 1));
-		ePluginData[0].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", 60.0);
-
-		hData.GoBack();
-	}
-
-	char sNumber[4];
-	for(int i = 1; i <= L4D_MAXPLAYERS; i++)
-	{
-		FormatEx(sNumber, sizeof(sNumber), "%d", i);
-		if(hData.JumpToKey(sNumber))
+		if(hData.JumpToKey("default"))
 		{
-			ePluginData[i].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", ePluginData[0].m_iSpawnLimit[SI_SMOKER]);
-			ePluginData[i].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", ePluginData[0].m_iSpawnLimit[SI_BOOMER]);
-			ePluginData[i].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", ePluginData[0].m_iSpawnLimit[SI_HUNTER]);
-			ePluginData[i].m_iSpawnLimit[SI_SPITTER] = hData.GetNum("spitter_limit", ePluginData[0].m_iSpawnLimit[SI_SPITTER]);
-			ePluginData[i].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", ePluginData[0].m_iSpawnLimit[SI_JOCKEY]);
-			ePluginData[i].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", ePluginData[0].m_iSpawnLimit[SI_CHARGER]);
-			ePluginData[i].m_iMaxSpecials = hData.GetNum("max_specials", ePluginData[0].m_iMaxSpecials);
-			ePluginData[i].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", ePluginData[0].m_bMaxSpecialsIncludingTank));
+			ePluginData[0].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", 2);
+			ePluginData[0].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", 2);
+			ePluginData[0].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", 2);
+			ePluginData[0].m_iSpawnLimit[SI_SPITTER] = hData.GetNum("spitter_limit", 2);
+			ePluginData[0].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", 2);
+			ePluginData[0].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", 2);
+			ePluginData[0].m_iMaxSpecials = hData.GetNum("max_specials", 2);
+			ePluginData[0].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", 1));
 
-			ePluginData[i].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", ePluginData[0].m_fSpawnTimeMax);
-			ePluginData[i].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", ePluginData[0].m_fSpawnTimeMin);
-			ePluginData[i].m_fSILife = hData.GetFloat("life", ePluginData[0].m_fSILife);
-			ePluginData[i].m_fInitialSpawnTime = hData.GetFloat("initial_spawn_time", ePluginData[0].m_fInitialSpawnTime);
+			ePluginData[0].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", 60.0);
+			ePluginData[0].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", 40.0);
+			ePluginData[0].m_fSILife = hData.GetFloat("life", 30.0);
+			ePluginData[0].m_fInitialSpawnTime = hData.GetFloat("initial_spawn_time", 10.0);
 
-			ePluginData[i].m_iSpawnWeight[SI_SMOKER] = hData.GetNum("smoker_weight", ePluginData[0].m_iSpawnWeight[SI_SMOKER]);
-			ePluginData[i].m_iSpawnWeight[SI_BOOMER] = hData.GetNum("boomer_weight", ePluginData[0].m_iSpawnWeight[SI_BOOMER]);
-			ePluginData[i].m_iSpawnWeight[SI_HUNTER] = hData.GetNum("hunter_weight", ePluginData[0].m_iSpawnWeight[SI_HUNTER]);
-			ePluginData[i].m_iSpawnWeight[SI_SPITTER] = hData.GetNum("spitter_weight", ePluginData[0].m_iSpawnWeight[SI_SPITTER]);
-			ePluginData[i].m_iSpawnWeight[SI_JOCKEY] = hData.GetNum("jockey_weight", ePluginData[0].m_iSpawnWeight[SI_JOCKEY]);
-			ePluginData[i].m_iSpawnWeight[SI_CHARGER] = hData.GetNum("charger_weight", ePluginData[0].m_iSpawnWeight[SI_CHARGER]);
-			ePluginData[i].m_bScaleWeights = view_as<bool>(hData.GetNum("scale_weights", ePluginData[0].m_bScaleWeights));
+			ePluginData[0].m_iSpawnWeight[SI_SMOKER] = hData.GetNum("smoker_weight", 100);
+			ePluginData[0].m_iSpawnWeight[SI_BOOMER] = hData.GetNum("boomer_weight", 100);
+			ePluginData[0].m_iSpawnWeight[SI_HUNTER] = hData.GetNum("hunter_weight", 100);
+			ePluginData[0].m_iSpawnWeight[SI_SPITTER] = hData.GetNum("spitter_weight", 100);
+			ePluginData[0].m_iSpawnWeight[SI_JOCKEY] = hData.GetNum("jockey_weight", 100);
+			ePluginData[0].m_iSpawnWeight[SI_CHARGER] = hData.GetNum("charger_weight", 100);
+			ePluginData[0].m_bScaleWeights = view_as<bool>(hData.GetNum("scale_weights", 1));
 
-			ePluginData[i].m_iSIHealth[SI_SMOKER] = hData.GetNum("smoker_health", ePluginData[0].m_iSIHealth[SI_SMOKER]);
-			ePluginData[i].m_iSIHealth[SI_BOOMER] = hData.GetNum("boomer_health", ePluginData[0].m_iSIHealth[SI_BOOMER]);
-			ePluginData[i].m_iSIHealth[SI_HUNTER] = hData.GetNum("hunter_health", ePluginData[0].m_iSIHealth[SI_HUNTER]);
-			ePluginData[i].m_iSIHealth[SI_SPITTER] = hData.GetNum("spitter_health", ePluginData[0].m_iSIHealth[SI_SPITTER]);
-			ePluginData[i].m_iSIHealth[SI_JOCKEY] = hData.GetNum("jockey_health", ePluginData[0].m_iSIHealth[SI_JOCKEY]);
-			ePluginData[i].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", ePluginData[0].m_iSIHealth[SI_CHARGER]);
-			
-			ePluginData[i].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
-			ePluginData[i].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
-			ePluginData[i].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
-			ePluginData[i].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
-			ePluginData[i].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
+			ePluginData[0].m_iSIHealth[SI_SMOKER] = hData.GetNum("smoker_health", 250);
+			ePluginData[0].m_iSIHealth[SI_BOOMER] = hData.GetNum("boomer_health", 50);
+			ePluginData[0].m_iSIHealth[SI_HUNTER] = hData.GetNum("hunter_health", 250);
+			ePluginData[0].m_iSIHealth[SI_SPITTER] = hData.GetNum("spitter_health", 100);
+			ePluginData[0].m_iSIHealth[SI_JOCKEY] = hData.GetNum("jockey_health", 325);
+			ePluginData[0].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", 600);
 
-			ePluginData[i].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
-			ePluginData[i].m_fWitchSpawnTimeMax = hData.GetFloat("witch_spawn_time_max", ePluginData[0].m_fWitchSpawnTimeMax);
-			ePluginData[i].m_fWitchSpawnTimeMin = hData.GetFloat("witch_spawn_time_min", ePluginData[0].m_fWitchSpawnTimeMin);
-			ePluginData[i].m_fWitchLife = hData.GetFloat("witch_life", ePluginData[0].m_fWitchLife);
-			ePluginData[i].m_bWitchSpawnFinal = view_as<bool>(hData.GetNum("witch_spawn_final", ePluginData[0].m_bWitchSpawnFinal));
+			ePluginData[0].m_iTankLimit = hData.GetNum("tank_limit", 1);
+			ePluginData[0].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", 0));
+			ePluginData[0].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", 5);
+			ePluginData[0].m_iTankHealth = hData.GetNum("tank_health", 4000);
+			ePluginData[0].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", 0));
 
-			ePluginData[i].m_bSpawnSameFrame = view_as<bool>(hData.GetNum("spawn_same_frame", ePluginData[0].m_bSpawnSameFrame));
-			ePluginData[i].m_fSpawnTimeIncreased_OnHumanInfected = hData.GetFloat("spawn_time_increase_on_human_infected", ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected);
-			ePluginData[i].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", ePluginData[0].m_bSpawnSafeZone));
-			ePluginData[i].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", ePluginData[0].m_iSpawnWhereMethod);
-			ePluginData[i].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", ePluginData[0].m_fSpawnRangeMin);
-			ePluginData[i].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", ePluginData[0].m_bSpawnDisableBots));
-			ePluginData[i].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", ePluginData[0].m_bTankDisableSpawn));
-			ePluginData[i].m_bCoordination = view_as<bool>(hData.GetNum("coordination", ePluginData[0].m_bCoordination));
+			ePluginData[0].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", 1);
+			ePluginData[0].m_fWitchSpawnTimeMax = hData.GetFloat("witch_spawn_time_max", 120.0);
+			ePluginData[0].m_fWitchSpawnTimeMin = hData.GetFloat("witch_spawn_time_min", 90.0);
+			ePluginData[0].m_fWitchLife = hData.GetFloat("witch_life", 200.0);
+			ePluginData[0].m_bWitchSpawnFinal = view_as<bool>(hData.GetNum("witch_spawn_final", 0));
 
-			ePluginData[i].m_bCoopVersusEnable = view_as<bool>(hData.GetNum("coop_versus_enable", ePluginData[0].m_bCoopVersusEnable));
-			ePluginData[i].m_fCoopVersSpawnTimeMax = hData.GetFloat("coop_versus_spawn_time_max", ePluginData[0].m_fCoopVersSpawnTimeMax);
-			ePluginData[i].m_fCoopVersSpawnTimeMin = hData.GetFloat("coop_versus_spawn_time_min", ePluginData[0].m_fCoopVersSpawnTimeMin);
-			ePluginData[i].m_bCoopTankPlayable = view_as<bool>(hData.GetNum("coop_versus_tank_playable", ePluginData[0].m_bCoopTankPlayable));
-			ePluginData[i].m_bCoopVersusAnnounce = view_as<bool>(hData.GetNum("coop_versus_announce", ePluginData[0].m_bCoopVersusAnnounce));
-			ePluginData[i].m_iCoopVersusHumanLimit = hData.GetNum("coop_versus_human_limit", ePluginData[0].m_iCoopVersusHumanLimit);
-			hData.GetString("coop_versus_join_access", ePluginData[i].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), ePluginData[0].m_sCoopVersusJoinAccess);
-			ePluginData[i].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", ePluginData[0].m_bCoopVersusHumanLight));
-			ePluginData[i].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", ePluginData[0].m_bCoopVersusHumanGhost));
-			ePluginData[i].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", ePluginData[0].m_fCoopVersusHumanCoolDown);
+			ePluginData[0].m_bSpawnSameFrame = view_as<bool>(hData.GetNum("spawn_same_frame", 0));
+			ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected = hData.GetFloat("spawn_time_increase_on_human_infected", 3.0);
+			ePluginData[0].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", 0));
+			ePluginData[0].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", 0);
+			ePluginData[0].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", 350.0);
+			ePluginData[0].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", 0));
+			ePluginData[0].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", 0));
+			ePluginData[0].m_bCoordination = view_as<bool>(hData.GetNum("coordination", 0));
+
+			ePluginData[0].m_bCoopVersusEnable = view_as<bool>(hData.GetNum("coop_versus_enable", 0));
+			ePluginData[0].m_fCoopVersSpawnTimeMax = hData.GetFloat("coop_versus_spawn_time_max", 30.0);
+			ePluginData[0].m_fCoopVersSpawnTimeMin = hData.GetFloat("coop_versus_spawn_time_max", 25.0);
+			ePluginData[0].m_bCoopTankPlayable = view_as<bool>(hData.GetNum("coop_versus_tank_playable", 0));
+			ePluginData[0].m_bCoopVersusAnnounce = view_as<bool>(hData.GetNum("coop_versus_announce", 1));
+			ePluginData[0].m_iCoopVersusHumanLimit = hData.GetNum("coop_versus_human_limit", 1);
+			hData.GetString("coop_versus_join_access", ePluginData[0].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), "z");
+			ePluginData[0].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", 1));
+			ePluginData[0].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", 1));
+			ePluginData[0].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", 60.0);
 
 			hData.GoBack();
 		}
 		else
 		{
-			ePluginData[i] = ePluginData[0];
+			SetFailState("%s: keyvalue '%s' not found", sPath, "default");
+			delete hData;
 		}
+
+		char sNumber[4];
+		for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+		{
+			FormatEx(sNumber, sizeof(sNumber), "%d", i);
+			if(hData.JumpToKey(sNumber))
+			{
+				ePluginData[i].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", ePluginData[0].m_iSpawnLimit[SI_SMOKER]);
+				ePluginData[i].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", ePluginData[0].m_iSpawnLimit[SI_BOOMER]);
+				ePluginData[i].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", ePluginData[0].m_iSpawnLimit[SI_HUNTER]);
+				ePluginData[i].m_iSpawnLimit[SI_SPITTER] = hData.GetNum("spitter_limit", ePluginData[0].m_iSpawnLimit[SI_SPITTER]);
+				ePluginData[i].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", ePluginData[0].m_iSpawnLimit[SI_JOCKEY]);
+				ePluginData[i].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", ePluginData[0].m_iSpawnLimit[SI_CHARGER]);
+				ePluginData[i].m_iMaxSpecials = hData.GetNum("max_specials", ePluginData[0].m_iMaxSpecials);
+				ePluginData[i].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", ePluginData[0].m_bMaxSpecialsIncludingTank));
+
+				ePluginData[i].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", ePluginData[0].m_fSpawnTimeMax);
+				ePluginData[i].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", ePluginData[0].m_fSpawnTimeMin);
+				ePluginData[i].m_fSILife = hData.GetFloat("life", ePluginData[0].m_fSILife);
+				ePluginData[i].m_fInitialSpawnTime = hData.GetFloat("initial_spawn_time", ePluginData[0].m_fInitialSpawnTime);
+
+				ePluginData[i].m_iSpawnWeight[SI_SMOKER] = hData.GetNum("smoker_weight", ePluginData[0].m_iSpawnWeight[SI_SMOKER]);
+				ePluginData[i].m_iSpawnWeight[SI_BOOMER] = hData.GetNum("boomer_weight", ePluginData[0].m_iSpawnWeight[SI_BOOMER]);
+				ePluginData[i].m_iSpawnWeight[SI_HUNTER] = hData.GetNum("hunter_weight", ePluginData[0].m_iSpawnWeight[SI_HUNTER]);
+				ePluginData[i].m_iSpawnWeight[SI_SPITTER] = hData.GetNum("spitter_weight", ePluginData[0].m_iSpawnWeight[SI_SPITTER]);
+				ePluginData[i].m_iSpawnWeight[SI_JOCKEY] = hData.GetNum("jockey_weight", ePluginData[0].m_iSpawnWeight[SI_JOCKEY]);
+				ePluginData[i].m_iSpawnWeight[SI_CHARGER] = hData.GetNum("charger_weight", ePluginData[0].m_iSpawnWeight[SI_CHARGER]);
+				ePluginData[i].m_bScaleWeights = view_as<bool>(hData.GetNum("scale_weights", ePluginData[0].m_bScaleWeights));
+
+				ePluginData[i].m_iSIHealth[SI_SMOKER] = hData.GetNum("smoker_health", ePluginData[0].m_iSIHealth[SI_SMOKER]);
+				ePluginData[i].m_iSIHealth[SI_BOOMER] = hData.GetNum("boomer_health", ePluginData[0].m_iSIHealth[SI_BOOMER]);
+				ePluginData[i].m_iSIHealth[SI_HUNTER] = hData.GetNum("hunter_health", ePluginData[0].m_iSIHealth[SI_HUNTER]);
+				ePluginData[i].m_iSIHealth[SI_SPITTER] = hData.GetNum("spitter_health", ePluginData[0].m_iSIHealth[SI_SPITTER]);
+				ePluginData[i].m_iSIHealth[SI_JOCKEY] = hData.GetNum("jockey_health", ePluginData[0].m_iSIHealth[SI_JOCKEY]);
+				ePluginData[i].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", ePluginData[0].m_iSIHealth[SI_CHARGER]);
+				
+				ePluginData[i].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
+				ePluginData[i].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
+				ePluginData[i].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
+				ePluginData[i].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
+				ePluginData[i].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
+
+				ePluginData[i].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
+				ePluginData[i].m_fWitchSpawnTimeMax = hData.GetFloat("witch_spawn_time_max", ePluginData[0].m_fWitchSpawnTimeMax);
+				ePluginData[i].m_fWitchSpawnTimeMin = hData.GetFloat("witch_spawn_time_min", ePluginData[0].m_fWitchSpawnTimeMin);
+				ePluginData[i].m_fWitchLife = hData.GetFloat("witch_life", ePluginData[0].m_fWitchLife);
+				ePluginData[i].m_bWitchSpawnFinal = view_as<bool>(hData.GetNum("witch_spawn_final", ePluginData[0].m_bWitchSpawnFinal));
+
+				ePluginData[i].m_bSpawnSameFrame = view_as<bool>(hData.GetNum("spawn_same_frame", ePluginData[0].m_bSpawnSameFrame));
+				ePluginData[i].m_fSpawnTimeIncreased_OnHumanInfected = hData.GetFloat("spawn_time_increase_on_human_infected", ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected);
+				ePluginData[i].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", ePluginData[0].m_bSpawnSafeZone));
+				ePluginData[i].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", ePluginData[0].m_iSpawnWhereMethod);
+				ePluginData[i].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", ePluginData[0].m_fSpawnRangeMin);
+				ePluginData[i].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", ePluginData[0].m_bSpawnDisableBots));
+				ePluginData[i].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", ePluginData[0].m_bTankDisableSpawn));
+				ePluginData[i].m_bCoordination = view_as<bool>(hData.GetNum("coordination", ePluginData[0].m_bCoordination));
+
+				ePluginData[i].m_bCoopVersusEnable = view_as<bool>(hData.GetNum("coop_versus_enable", ePluginData[0].m_bCoopVersusEnable));
+				ePluginData[i].m_fCoopVersSpawnTimeMax = hData.GetFloat("coop_versus_spawn_time_max", ePluginData[0].m_fCoopVersSpawnTimeMax);
+				ePluginData[i].m_fCoopVersSpawnTimeMin = hData.GetFloat("coop_versus_spawn_time_min", ePluginData[0].m_fCoopVersSpawnTimeMin);
+				ePluginData[i].m_bCoopTankPlayable = view_as<bool>(hData.GetNum("coop_versus_tank_playable", ePluginData[0].m_bCoopTankPlayable));
+				ePluginData[i].m_bCoopVersusAnnounce = view_as<bool>(hData.GetNum("coop_versus_announce", ePluginData[0].m_bCoopVersusAnnounce));
+				ePluginData[i].m_iCoopVersusHumanLimit = hData.GetNum("coop_versus_human_limit", ePluginData[0].m_iCoopVersusHumanLimit);
+				hData.GetString("coop_versus_join_access", ePluginData[i].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), ePluginData[0].m_sCoopVersusJoinAccess);
+				ePluginData[i].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", ePluginData[0].m_bCoopVersusHumanLight));
+				ePluginData[i].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", ePluginData[0].m_bCoopVersusHumanGhost));
+				ePluginData[i].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", ePluginData[0].m_fCoopVersusHumanCoolDown);
+
+				hData.GoBack();
+			}
+			else
+			{
+				ePluginData[i] = ePluginData[0];
+			}
+		}
+
+		hData.GoBack();
+	}
+	else
+	{
+		SetFailState("%s: keyvalue '%s' not found", sPath, "Settings");
+		delete hData;
+	}
+
+	if(hData.JumpToKey("Maps"))
+	{
+		if(hData.JumpToKey(g_sMap))
+		{
+			if(hData.JumpToKey("default"))
+			{
+				ePluginData[0].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", ePluginData[0].m_iSpawnLimit[SI_SMOKER]);
+				ePluginData[0].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", ePluginData[0].m_iSpawnLimit[SI_BOOMER]);
+				ePluginData[0].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", ePluginData[0].m_iSpawnLimit[SI_HUNTER]);
+				ePluginData[0].m_iSpawnLimit[SI_SPITTER] = hData.GetNum("spitter_limit", ePluginData[0].m_iSpawnLimit[SI_SPITTER]);
+				ePluginData[0].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", ePluginData[0].m_iSpawnLimit[SI_JOCKEY]);
+				ePluginData[0].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", ePluginData[0].m_iSpawnLimit[SI_CHARGER]);
+				ePluginData[0].m_iMaxSpecials = hData.GetNum("max_specials", ePluginData[0].m_iMaxSpecials);
+				ePluginData[0].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", ePluginData[0].m_bMaxSpecialsIncludingTank));
+
+				ePluginData[0].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", ePluginData[0].m_fSpawnTimeMax);
+				ePluginData[0].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", ePluginData[0].m_fSpawnTimeMin);
+				ePluginData[0].m_fSILife = hData.GetFloat("life", ePluginData[0].m_fSILife);
+				ePluginData[0].m_fInitialSpawnTime = hData.GetFloat("initial_spawn_time", ePluginData[0].m_fInitialSpawnTime);
+
+				ePluginData[0].m_iSpawnWeight[SI_SMOKER] = hData.GetNum("smoker_weight", ePluginData[0].m_iSpawnWeight[SI_SMOKER]);
+				ePluginData[0].m_iSpawnWeight[SI_BOOMER] = hData.GetNum("boomer_weight", ePluginData[0].m_iSpawnWeight[SI_BOOMER]);
+				ePluginData[0].m_iSpawnWeight[SI_HUNTER] = hData.GetNum("hunter_weight", ePluginData[0].m_iSpawnWeight[SI_HUNTER]);
+				ePluginData[0].m_iSpawnWeight[SI_SPITTER] = hData.GetNum("spitter_weight", ePluginData[0].m_iSpawnWeight[SI_SPITTER]);
+				ePluginData[0].m_iSpawnWeight[SI_JOCKEY] = hData.GetNum("jockey_weight", ePluginData[0].m_iSpawnWeight[SI_JOCKEY]);
+				ePluginData[0].m_iSpawnWeight[SI_CHARGER] = hData.GetNum("charger_weight", ePluginData[0].m_iSpawnWeight[SI_CHARGER]);
+				ePluginData[0].m_bScaleWeights = view_as<bool>(hData.GetNum("scale_weights", ePluginData[0].m_bScaleWeights));
+
+				ePluginData[0].m_iSIHealth[SI_SMOKER] = hData.GetNum("smoker_health", ePluginData[0].m_iSIHealth[SI_SMOKER]);
+				ePluginData[0].m_iSIHealth[SI_BOOMER] = hData.GetNum("boomer_health", ePluginData[0].m_iSIHealth[SI_BOOMER]);
+				ePluginData[0].m_iSIHealth[SI_HUNTER] = hData.GetNum("hunter_health", ePluginData[0].m_iSIHealth[SI_HUNTER]);
+				ePluginData[0].m_iSIHealth[SI_SPITTER] = hData.GetNum("spitter_health", ePluginData[0].m_iSIHealth[SI_SPITTER]);
+				ePluginData[0].m_iSIHealth[SI_JOCKEY] = hData.GetNum("jockey_health", ePluginData[0].m_iSIHealth[SI_JOCKEY]);
+				ePluginData[0].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", ePluginData[0].m_iSIHealth[SI_CHARGER]);
+
+				ePluginData[0].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
+				ePluginData[0].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
+				ePluginData[0].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
+				ePluginData[0].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
+				ePluginData[0].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
+
+				ePluginData[0].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
+				ePluginData[0].m_fWitchSpawnTimeMax = hData.GetFloat("witch_spawn_time_max", ePluginData[0].m_fWitchSpawnTimeMax);
+				ePluginData[0].m_fWitchSpawnTimeMin = hData.GetFloat("witch_spawn_time_min", ePluginData[0].m_fWitchSpawnTimeMin);
+				ePluginData[0].m_fWitchLife = hData.GetFloat("witch_life", ePluginData[0].m_fWitchLife);
+				ePluginData[0].m_bWitchSpawnFinal = view_as<bool>(hData.GetNum("witch_spawn_final", ePluginData[0].m_bWitchSpawnFinal));
+
+				ePluginData[0].m_bSpawnSameFrame = view_as<bool>(hData.GetNum("spawn_same_frame", ePluginData[0].m_bSpawnSameFrame));
+				ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected = hData.GetFloat("spawn_time_increase_on_human_infected", ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected);
+				ePluginData[0].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", ePluginData[0].m_bSpawnSafeZone ));
+				ePluginData[0].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", ePluginData[0].m_iSpawnWhereMethod);
+				ePluginData[0].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", ePluginData[0].m_fSpawnRangeMin);
+				ePluginData[0].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", ePluginData[0].m_bSpawnDisableBots));
+				ePluginData[0].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", ePluginData[0].m_bTankDisableSpawn));
+				ePluginData[0].m_bCoordination = view_as<bool>(hData.GetNum("coordination", ePluginData[0].m_bCoordination));
+
+				ePluginData[0].m_bCoopVersusEnable = view_as<bool>(hData.GetNum("coop_versus_enable", ePluginData[0].m_bCoopVersusEnable));
+				ePluginData[0].m_fCoopVersSpawnTimeMax = hData.GetFloat("coop_versus_spawn_time_max", ePluginData[0].m_fCoopVersSpawnTimeMax);
+				ePluginData[0].m_fCoopVersSpawnTimeMin = hData.GetFloat("coop_versus_spawn_time_max", ePluginData[0].m_fCoopVersSpawnTimeMin);
+				ePluginData[0].m_bCoopTankPlayable = view_as<bool>(hData.GetNum("coop_versus_tank_playable", ePluginData[0].m_bCoopTankPlayable));
+				ePluginData[0].m_bCoopVersusAnnounce = view_as<bool>(hData.GetNum("coop_versus_announce", ePluginData[0].m_bCoopVersusAnnounce));
+				ePluginData[0].m_iCoopVersusHumanLimit = hData.GetNum("coop_versus_human_limit", ePluginData[0].m_iCoopVersusHumanLimit);
+				hData.GetString("coop_versus_join_access", ePluginData[0].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), ePluginData[0].m_sCoopVersusJoinAccess);
+				ePluginData[0].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", ePluginData[0].m_bCoopVersusHumanLight));
+				ePluginData[0].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", ePluginData[0].m_bCoopVersusHumanGhost));
+				ePluginData[0].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", ePluginData[0].m_fCoopVersusHumanCoolDown);
+
+				hData.GoBack();
+			}
+
+			char sNumber[4];
+			for(int i = 1; i <= L4D_MAXPLAYERS; i++)
+			{
+				FormatEx(sNumber, sizeof(sNumber), "%d", i);
+				if(hData.JumpToKey(sNumber))
+				{
+					ePluginData[i].m_iSpawnLimit[SI_SMOKER] = hData.GetNum("smoker_limit", ePluginData[0].m_iSpawnLimit[SI_SMOKER]);
+					ePluginData[i].m_iSpawnLimit[SI_BOOMER] = hData.GetNum("boomer_limit", ePluginData[0].m_iSpawnLimit[SI_BOOMER]);
+					ePluginData[i].m_iSpawnLimit[SI_HUNTER] = hData.GetNum("hunter_limit", ePluginData[0].m_iSpawnLimit[SI_HUNTER]);
+					ePluginData[i].m_iSpawnLimit[SI_SPITTER] = hData.GetNum("spitter_limit", ePluginData[0].m_iSpawnLimit[SI_SPITTER]);
+					ePluginData[i].m_iSpawnLimit[SI_JOCKEY] = hData.GetNum("jockey_limit", ePluginData[0].m_iSpawnLimit[SI_JOCKEY]);
+					ePluginData[i].m_iSpawnLimit[SI_CHARGER] = hData.GetNum("charger_limit", ePluginData[0].m_iSpawnLimit[SI_CHARGER]);
+					ePluginData[i].m_iMaxSpecials = hData.GetNum("max_specials", ePluginData[0].m_iMaxSpecials);
+					ePluginData[i].m_bMaxSpecialsIncludingTank = view_as<bool>(hData.GetNum("max_specials_tank_including", ePluginData[0].m_bMaxSpecialsIncludingTank));
+
+					ePluginData[i].m_fSpawnTimeMax = hData.GetFloat("spawn_time_max", ePluginData[0].m_fSpawnTimeMax);
+					ePluginData[i].m_fSpawnTimeMin = hData.GetFloat("spawn_time_min", ePluginData[0].m_fSpawnTimeMin);
+					ePluginData[i].m_fSILife = hData.GetFloat("life", ePluginData[0].m_fSILife);
+					ePluginData[i].m_fInitialSpawnTime = hData.GetFloat("initial_spawn_time", ePluginData[0].m_fInitialSpawnTime);
+
+					ePluginData[i].m_iSpawnWeight[SI_SMOKER] = hData.GetNum("smoker_weight", ePluginData[0].m_iSpawnWeight[SI_SMOKER]);
+					ePluginData[i].m_iSpawnWeight[SI_BOOMER] = hData.GetNum("boomer_weight", ePluginData[0].m_iSpawnWeight[SI_BOOMER]);
+					ePluginData[i].m_iSpawnWeight[SI_HUNTER] = hData.GetNum("hunter_weight", ePluginData[0].m_iSpawnWeight[SI_HUNTER]);
+					ePluginData[i].m_iSpawnWeight[SI_SPITTER] = hData.GetNum("spitter_weight", ePluginData[0].m_iSpawnWeight[SI_SPITTER]);
+					ePluginData[i].m_iSpawnWeight[SI_JOCKEY] = hData.GetNum("jockey_weight", ePluginData[0].m_iSpawnWeight[SI_JOCKEY]);
+					ePluginData[i].m_iSpawnWeight[SI_CHARGER] = hData.GetNum("charger_weight", ePluginData[0].m_iSpawnWeight[SI_CHARGER]);
+					ePluginData[i].m_bScaleWeights = view_as<bool>(hData.GetNum("scale_weights", ePluginData[0].m_bScaleWeights));
+
+					ePluginData[i].m_iSIHealth[SI_SMOKER] = hData.GetNum("smoker_health", ePluginData[0].m_iSIHealth[SI_SMOKER]);
+					ePluginData[i].m_iSIHealth[SI_BOOMER] = hData.GetNum("boomer_health", ePluginData[0].m_iSIHealth[SI_BOOMER]);
+					ePluginData[i].m_iSIHealth[SI_HUNTER] = hData.GetNum("hunter_health", ePluginData[0].m_iSIHealth[SI_HUNTER]);
+					ePluginData[i].m_iSIHealth[SI_SPITTER] = hData.GetNum("spitter_health", ePluginData[0].m_iSIHealth[SI_SPITTER]);
+					ePluginData[i].m_iSIHealth[SI_JOCKEY] = hData.GetNum("jockey_health", ePluginData[0].m_iSIHealth[SI_JOCKEY]);
+					ePluginData[i].m_iSIHealth[SI_CHARGER] = hData.GetNum("charger_health", ePluginData[0].m_iSIHealth[SI_CHARGER]);
+					
+					ePluginData[i].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
+					ePluginData[i].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
+					ePluginData[i].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
+					ePluginData[i].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
+					ePluginData[i].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
+
+					ePluginData[i].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
+					ePluginData[i].m_fWitchSpawnTimeMax = hData.GetFloat("witch_spawn_time_max", ePluginData[0].m_fWitchSpawnTimeMax);
+					ePluginData[i].m_fWitchSpawnTimeMin = hData.GetFloat("witch_spawn_time_min", ePluginData[0].m_fWitchSpawnTimeMin);
+					ePluginData[i].m_fWitchLife = hData.GetFloat("witch_life", ePluginData[0].m_fWitchLife);
+					ePluginData[i].m_bWitchSpawnFinal = view_as<bool>(hData.GetNum("witch_spawn_final", ePluginData[0].m_bWitchSpawnFinal));
+
+					ePluginData[i].m_bSpawnSameFrame = view_as<bool>(hData.GetNum("spawn_same_frame", ePluginData[0].m_bSpawnSameFrame));
+					ePluginData[i].m_fSpawnTimeIncreased_OnHumanInfected = hData.GetFloat("spawn_time_increase_on_human_infected", ePluginData[0].m_fSpawnTimeIncreased_OnHumanInfected);
+					ePluginData[i].m_bSpawnSafeZone = view_as<bool>(hData.GetNum("spawn_safe_zone", ePluginData[0].m_bSpawnSafeZone));
+					ePluginData[i].m_iSpawnWhereMethod = hData.GetNum("spawn_where_method", ePluginData[0].m_iSpawnWhereMethod);
+					ePluginData[i].m_fSpawnRangeMin = hData.GetFloat("spawn_range_min", ePluginData[0].m_fSpawnRangeMin);
+					ePluginData[i].m_bSpawnDisableBots = view_as<bool>(hData.GetNum("spawn_disable_bots", ePluginData[0].m_bSpawnDisableBots));
+					ePluginData[i].m_bTankDisableSpawn = view_as<bool>(hData.GetNum("tank_disable_spawn", ePluginData[0].m_bTankDisableSpawn));
+					ePluginData[i].m_bCoordination = view_as<bool>(hData.GetNum("coordination", ePluginData[0].m_bCoordination));
+
+					ePluginData[i].m_bCoopVersusEnable = view_as<bool>(hData.GetNum("coop_versus_enable", ePluginData[0].m_bCoopVersusEnable));
+					ePluginData[i].m_fCoopVersSpawnTimeMax = hData.GetFloat("coop_versus_spawn_time_max", ePluginData[0].m_fCoopVersSpawnTimeMax);
+					ePluginData[i].m_fCoopVersSpawnTimeMin = hData.GetFloat("coop_versus_spawn_time_min", ePluginData[0].m_fCoopVersSpawnTimeMin);
+					ePluginData[i].m_bCoopTankPlayable = view_as<bool>(hData.GetNum("coop_versus_tank_playable", ePluginData[0].m_bCoopTankPlayable));
+					ePluginData[i].m_bCoopVersusAnnounce = view_as<bool>(hData.GetNum("coop_versus_announce", ePluginData[0].m_bCoopVersusAnnounce));
+					ePluginData[i].m_iCoopVersusHumanLimit = hData.GetNum("coop_versus_human_limit", ePluginData[0].m_iCoopVersusHumanLimit);
+					hData.GetString("coop_versus_join_access", ePluginData[i].m_sCoopVersusJoinAccess, sizeof(EPluginData::m_sCoopVersusJoinAccess), ePluginData[0].m_sCoopVersusJoinAccess);
+					ePluginData[i].m_bCoopVersusHumanLight = view_as<bool>(hData.GetNum("coop_versus_human_light", ePluginData[0].m_bCoopVersusHumanLight));
+					ePluginData[i].m_bCoopVersusHumanGhost = view_as<bool>(hData.GetNum("coop_versus_human_ghost", ePluginData[0].m_bCoopVersusHumanGhost));
+					ePluginData[i].m_fCoopVersusHumanCoolDown = hData.GetFloat("coop_versus_cool_down", ePluginData[0].m_fCoopVersusHumanCoolDown);
+
+					hData.GoBack();
+				}
+				else
+				{
+					ePluginData[i] = ePluginData[0];
+				}
+			}
+
+			hData.GoBack();
+		}
+
+		hData.GoBack();
+	}
+	else
+	{
+		SetFailState("%s: keyvalue '%s' not found", sPath, "Maps");
+		delete hData;
 	}
 
 	delete hData;
