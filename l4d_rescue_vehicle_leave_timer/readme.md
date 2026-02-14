@@ -76,6 +76,9 @@ When rescue vehicle arrived and a timer will display how many time left before v
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.3 (2026-2-14)
+        * Ignore the sacrifice final in l4d1
+
     * v2.2 (2024-11-25)
         * Update gamedata
         * Support L4D1 again

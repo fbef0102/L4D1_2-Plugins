@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION 		"2.2-2024/11/25"
+#define PLUGIN_VERSION 		"2.3-2026/2/14"
 #define PLUGIN_NAME			"l4d_rescue_vehicle_leave_timer"
 #define DEBUG 0
 
@@ -16,7 +16,7 @@ public Plugin myinfo =
 {
 	name = "[L4D1/2] Rescue vehicle leave timer",
 	author = "HarryPotter",
-	description = "When rescue vehicle arrived and a timer will display how many time left for vehicle leaving. If a player is not on rescue vehicle or zone, slay him",
+	description = "When rescue vehicle arrived and a timer will display how many time left before vehicle leaving. If a player is not on rescue vehicle or zone, slay him.",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
@@ -328,9 +328,14 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		case 't':
 		{
-			if (strncmp(classname, "trigger_finale", 14) == 0) //late spawn
+			if (strcmp(classname, "trigger_finale") == 0) //late spawn
 			{
 				RequestFrame(OnNextFrame_trigger_finale, EntIndexToEntRef(entity));
+			}
+			// (L4D1) trigger_finale_dlc3 
+			else if (!g_bL4D2Version && strcmp(classname, "trigger_finale_dlc3") == 0) 
+			{
+				RequestFrame(OnNextFrame_trigger_finale_dlc3, EntIndexToEntRef(entity));
 			}
 			else if (strncmp(classname, "trigger_multiple", 16) == 0) //late spawn
 			{
@@ -356,8 +361,7 @@ void OnNextFrame_trigger_finale(int entityRef)
 
 	if(g_bL4D2Version)
 	{
-		bool bIsSacrificeFinale = view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsSacrificeFinale"));
-		if(bIsSacrificeFinale)
+		if(view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsSacrificeFinale")))
 		{
 			#if DEBUG
 				LogMessage("\x05Map is sacrifice finale, disable the plugin");
@@ -382,6 +386,27 @@ void OnNextFrame_trigger_finale(int entityRef)
 		g_bFinalHasTrigger_Multiple = true;
 		break;
 	}
+}
+
+void OnNextFrame_trigger_finale_dlc3(int entityRef)
+{
+	int entity = EntRefToEntIndex(entityRef);
+	
+	if (entity == INVALID_ENT_REFERENCE)
+		return;
+
+	#if DEBUG
+		LogMessage("\x05trigger_finale late spawn here");
+	#endif
+
+	if(g_bValidMap == false) return;
+	if(g_iEscapeTime == 0) return;
+
+	#if DEBUG
+		LogMessage("\x05Map is sacrifice finale in l4d1, disable the plugin");
+	#endif
+
+	g_bFinalHasTrigger_Multiple = false;
 }
 
 void OnNextFrame_trigger_multiple(int entityRef)
@@ -593,7 +618,7 @@ bool LoadData()
 	{
 		g_iEscapeTime = g_iCvarEscapeTime;
 		delete hFile;
-		return true;
+		return false;
 	}
 	
 	// Retrieve rescue timer
@@ -742,25 +767,37 @@ void InitRescueEntity()
 	if(LoadData() == false) return;
 	if(g_iEscapeTime == 0) return;
 
-	int entity = FindEntityByClassname(MaxClients + 1, "trigger_finale");
-	if(entity > MaxClients && IsValidEntity(entity))
+	int entity;
+	if(g_bL4D2Version)
 	{
-		if(g_bL4D2Version)
+	 	entity = FindEntityByClassname(MaxClients + 1, "trigger_finale");
+		if(entity > MaxClients && IsValidEntity(entity))
 		{
-			bool bIsSacrificeFinale = view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsSacrificeFinale"));
-			if(bIsSacrificeFinale)
+			if(view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsSacrificeFinale")))
 			{
 				#if DEBUG
-					LogMessage("\x05Map is sacrifice finale, disable the plugin");
+					LogMessage("\x05Map is sacrifice finale in l4d2, disable the plugin");
 				#endif
 
 				return;
 			}
 		}
+		else
+		{
+			return;
+		}
 	}
 	else
 	{
-		return;
+		entity = FindEntityByClassname(MaxClients + 1, "trigger_finale_dlc3");
+		if(entity > MaxClients && IsValidEntity(entity))
+		{
+			#if DEBUG
+				LogMessage("\x05Map is sacrifice finale in l4d1, disable the plugin");
+			#endif
+			
+			return;
+		}
 	}
 
 	entity = MaxClients + 1;

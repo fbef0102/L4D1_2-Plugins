@@ -17,7 +17,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4d2_rescue_vehicle_multi"
-#define PLUGIN_VERSION 			"1.0h-2025/1/13"
+#define PLUGIN_VERSION 			"1.1h-2026/2/14"
 
 public Plugin myinfo=
 {
@@ -68,11 +68,11 @@ public void OnPluginStart()
 		if(hGamedata == null)
 			SetFailState( "Can't load gamedata \"%s.txt\" or not found", PLUGIN_NAME);
 
-		Handle hDetour = DHookCreateFromConf(hGamedata, "CTerrorGameRules::CalculateSurvivalMultiplier");
+		DynamicDetour hDetour = DynamicDetour.FromConf(hGamedata, "CTerrorGameRules::CalculateSurvivalMultiplier");
 		if(!hDetour)
 			SetFailState("Failed to find 'CTerrorGameRules::CalculateSurvivalMultiplier' signature");
 		
-		if(!DHookEnableDetour(hDetour, true, CalculateSurvivalMultiplier_Post))
+		if(!hDetour.Enable(Hook_Post, CalculateSurvivalMultiplier_Post))
 			SetFailState("Failed to detour 'CTerrorGameRules::CalculateSurvivalMultiplier'");
 
 		delete hDetour;
@@ -90,9 +90,15 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		case 't':
 		{
-			if (strncmp(classname, "trigger_finale", 14) == 0) //late spawn
+			// trigger_finale
+			if (g_bL4D2Version && strcmp(classname, "trigger_finale") == 0)
 			{
 				RequestFrame(OnNextFrame_trigger_finale, EntIndexToEntRef(entity));
+			}
+			// (L4D1) trigger_finale_dlc3 
+			else if (!g_bL4D2Version && strcmp(classname, "trigger_finale_dlc3") == 0) 
+			{
+				RequestFrame(OnNextFrame_trigger_finale_dlc3, EntIndexToEntRef(entity));
 			}
 		}
 	}
@@ -111,6 +117,21 @@ void OnNextFrame_trigger_finale(int entityRef)
 void OnFinaleEscapeStarted(const char[] output, int caller, int activator, float delay)
 {
 	g_bIsSacrificeFinale = view_as<bool>(GetEntProp(caller, Prop_Data, "m_bIsSacrificeFinale"));
+}
+
+void OnNextFrame_trigger_finale_dlc3(int entityRef)
+{
+	int entity = EntRefToEntIndex(entityRef);
+
+	if (entity == INVALID_ENT_REFERENCE)
+		return;
+
+	HookSingleEntityOutput(entity, "FinaleEscapeStarted", OnFinaleEscapeStarted_DLC3);
+}
+
+void OnFinaleEscapeStarted_DLC3(const char[] output, int caller, int activator, float delay)
+{
+	g_bIsSacrificeFinale = true;
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
@@ -188,7 +209,7 @@ Action SurvivorOnTakeDamage(int victim, int &attacker, int &inflictor, float &da
 }
 
 // (versus) fix score bug
-MRESReturn CalculateSurvivalMultiplier_Post(Address pThis, Handle hParams)
+MRESReturn CalculateSurvivalMultiplier_Post(Address pThis, DHookParam hParams)
 {
 	if(!g_bFinalLeaving) return MRES_Ignored;
 	if(L4D_HasPlayerControlledZombies() == false) return MRES_Ignored;
