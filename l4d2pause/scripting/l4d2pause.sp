@@ -38,6 +38,7 @@ int g_iPauseAdmin;
 
 public void OnPluginStart()
 {
+	LoadTranslations("l4d2pause.phrases");
 	g_hForceOnly = CreateConVar("l4d2pause_forceonly", "1", "Only allow the game to be paused by the forcepause command(Admin only).", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "l4d2pause"); //Create and/or load the plugin config
 
