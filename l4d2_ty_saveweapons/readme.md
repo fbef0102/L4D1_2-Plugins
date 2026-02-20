@@ -9,7 +9,7 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 
 * <details><summary>How does it work?</summary>
 
-	* When survivors reach the end safe room and map transition
+    * When survivors reach the end safe room and map transition
         * Save health/incap count
         * Save character
         * Save weapons
@@ -20,6 +20,8 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [l4d_heartbeat](/l4d_heartbeat)
+    3. [Transition Restore Fix](https://forums.alliedmods.net/showthread.php?t=336287)
+    4. [Transition Entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
 
 * <details><summary>Support | 支援插件</summary>
 
@@ -36,9 +38,6 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
         ```php
         // If 1, restore 100 full health when end of chapter.
         l4d2_ty_saveweapons_health "0"
-
-        // Do not restore weapons and health to a player after survivors have left start safe area for at least x seconds. (0=Always restore)
-        l4d2_ty_saveweapons_game_seconds_block "60"
 
         // If 1, save weapons and health for bots as well.
         l4d2_ty_saveweapons_save_bot "1"
@@ -58,7 +57,7 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
         // If 1, survivor bots will be used as placeholders for survivors who are still changing levels
         // If 0, prevent bots from moving, changing weapons, using kits while human survivors are still changing levels
         // Default: 1
-        sm_cvar sb_transition 0 
+        sm_cvar sb_transition 1
         ```
 </details>
 
@@ -71,6 +70,11 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v6.6 (2026-2-20)
+        * Try different way to restore health and weapon, rewrite code
+        * Reqire Transition Restore Fix, Transition Entity
+        * Update cvar
 
     * v6.5 (2025-10-12)
         * Support L4D1
@@ -127,10 +131,6 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
         // 為1時，過關時回復所有倖存者的血量
         l4d2_ty_saveweapons_health "0"
 
-        // 倖存者出去安全室60秒之後不能再恢复血量與武器 (避免有人載入關卡太慢)
-        // 0=永遠恢复上一關保存的血量與武器
-        l4d2_ty_saveweapons_game_seconds_block "60"
-
         // 為1時，也幫AI Bots保存武器與血量
         l4d2_ty_saveweapons_save_bot "1"
 
@@ -149,6 +149,6 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
         // 為1時, 過關後玩家的Bot會走動並更換身上的武器與物品
         // 為0時, 過關後玩家的Bot不會走動也不會更換身上的武器與物品 (推薦使用)
         // 預設值: 1
-        sm_cvar sb_transition 0
+        sm_cvar sb_transition 1
         ```
 </details>

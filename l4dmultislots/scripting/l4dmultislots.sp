@@ -1,5 +1,5 @@
 /************************************************
-* Plugin name:		[L4D(2)] MultiSlots 2010~2025
+* Plugin name:		[L4D(2)] MultiSlots 2010~2026
 * Plugin author:	SwiftReal, MI 5, ururu, KhMaIBQ, HarryPotter
 ************************************************/
 #pragma semicolon 1
@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #include <l4d_CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"7.1-2025/9/17"
+#define PLUGIN_VERSION 				"7.2-2026/2/20"
 
 public Plugin myinfo = 
 {
@@ -74,11 +74,14 @@ float g_fSpecCheckInterval, g_fInvincibleTime;
 Handle SpecCheckTimer, PlayerLeftStartTimer, CountDownTimer;
 float clinetSpawnGodTime[ MAXPLAYERS + 1 ];
 int g_iSurvivorTransition;
-bool 
-	g_bIsObserver[ MAXPLAYERS + 1 ],
-	g_bLimit[ MAXPLAYERS + 1 ];
 
-StringMap g_hSteamIDs;
+bool 
+	g_bMaxLimitReached[MAXPLAYERS+1],
+	g_bSteamAuthorized[MAXPLAYERS+1];
+
+StringMap 
+	g_smSteamIDToRecord,
+	g_smSteamIDToOverserver;
 
 #define	MAX_WEAPONS			10
 #define	MAX_WEAPONS2		29
@@ -248,7 +251,8 @@ public void OnPluginStart()
 
 	AddCommandListener(ServerCmd_changelevel, "changelevel");
 
-	g_hSteamIDs = new StringMap();
+	g_smSteamIDToRecord = new StringMap();
+	g_smSteamIDToOverserver = new StringMap();
 	
 	if (bLate)
 	{
@@ -283,7 +287,7 @@ public void OnPluginEnd()
 {
 	g_bPluginEnd = true;
 
-	delete g_hSteamIDs;
+	delete g_smSteamIDToRecord;
 	ClearDefault();
 	ResetTimer();
 }
@@ -315,8 +319,8 @@ public void OnMapStart()
 
 public void OnMapEnd()
 {
-	delete g_hSteamIDs;
-	g_hSteamIDs = new StringMap();
+	delete g_smSteamIDToRecord;
+	g_smSteamIDToRecord = new StringMap();
 	ClearDefault();
 	ResetTimer();
 }
@@ -448,11 +452,17 @@ Action JoinTeam(int client,int args)
 		return Plugin_Handled;
 	}
 
-	if(!IsClientInGame(client))
+	if(IsFakeClient(client) || !IsClientInGame(client))
 		return Plugin_Continue;
 
 	if(g_bCvar_JoinCommandBlock == true)
 		return Plugin_Handled;
+
+	if(g_iNoSecondChane > 0 && g_bSteamAuthorized[client] == false)
+	{
+		PrintHintText(client, "%T", "Your steam id not authorized", client);
+		return Plugin_Handled;
+	}
 
 	if(g_bCvar_VSCommandBalance && L4D_HasPlayerControlledZombies())
 	{
@@ -469,30 +479,12 @@ Action JoinTeam(int client,int args)
 public void OnClientPutInServer(int client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-	
-	if(client && IsClientInGame(client) && !IsFakeClient(client))
-	{
-		if(g_bIsObserver[client] == false)
-		{
-			if(L4D_HasPlayerControlledZombies())
-			{
-				//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-			}
-			else
-			{
-				g_bLimit[client] = false;
-				CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-			}
-		}
-	}
-
-	g_bIsObserver[client] = false;
 }
 
 public void OnClientPostAdminCheck(int client)
 {
 	if(IsFakeClient(client)) return;
-	
+
 	static char steamid[32];
 	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
 
@@ -502,7 +494,31 @@ public void OnClientPostAdminCheck(int client)
 		KickClient(client, "Mentally retarded, leave");
 		return;
 	}
+
+	if(g_smSteamIDToOverserver.ContainsKey(steamid) == false)
+	{
+		if(L4D_HasPlayerControlledZombies())
+		{
+			//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+		}
+		else
+		{
+			g_bMaxLimitReached[client] = false;
+			CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+
+	g_smSteamIDToOverserver.Remove(steamid);
+
+	g_bSteamAuthorized[client] = true;
 }
+
+public void OnClientDisconnect(int client)
+{
+    if(!IsClientInGame(client)) return;
+
+    g_bSteamAuthorized[client] = false;
+} 
 
 void evtPlayerTeam(Event event, const char[] name, bool dontBroadcast) 
 {
@@ -614,13 +630,13 @@ void evtPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		{
 			CreateTimer(1.0, Timer_ChangeTeam, userid, TIMER_FLAG_NO_MAPCHANGE);  // Record SteamID of player.
 
-			if(g_bSpawnSurvivorsAtStart)
+			if(g_bPluginHasStarted && g_bSpawnSurvivorsAtStart)
 				CreateTimer(0.2, Timer_KickNoNeededBot2);
 		}
 	}
 
 	if( g_iPlayerSpawn == 0 && g_iRoundStart == 1 )
-		CreateTimer(0.25, Timer_PluginStart);
+		CreateTimer(2.0, Timer_PluginStart);
 	g_iPlayerSpawn = 1;	
 }
 
@@ -642,8 +658,8 @@ void evtPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
-	delete g_hSteamIDs;
-	g_hSteamIDs = new StringMap();
+	delete g_smSteamIDToRecord;
+	g_smSteamIDToRecord = new StringMap();
 	g_bEnableKick = false;
 	ClearDefault();
 	ResetTimer();
@@ -662,7 +678,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}	
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
-		CreateTimer(0.25, Timer_PluginStart);
+		CreateTimer(2.0, Timer_PluginStart);
 	g_iRoundStart = 1;
 }
 
@@ -707,6 +723,9 @@ void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client || !IsClientInGame(client) || IsFakeClient(client) ) return;
 
+	static char steamid[32];
+	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
 	if(g_bCrashPlayer)
 	{
 		static char reason[64];
@@ -717,14 +736,12 @@ void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
 			strcmp(reason, "No Steam logon", false) == 0 || 
 			StrContains(reason, "Your client has failed to reply to a query in time", false) > 0 )
 		{
-			static char steamid[32];
-			if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
 
-			g_hSteamIDs.Remove(steamid);
+			g_smSteamIDToRecord.Remove(steamid);
 		}
 	}
 
-	g_bIsObserver[client] = false;
+	g_smSteamIDToOverserver.Remove(steamid);
 }
 
 void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
@@ -806,7 +823,7 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 					else
 					{
 						PrintHintText(client, "%T", "Sorry! No survivor slots", client);
-						g_bLimit[client] = true;
+						g_bMaxLimitReached[client] = true;
 						return Plugin_Continue;
 					}
 				}
@@ -1082,7 +1099,7 @@ Action Timer_NewPlayerAutoJoinTeam_Coop(Handle timer, int userid)
 	if(!client || !IsClientInGame(client))
 		return Plugin_Stop;
 
-	if(g_bLimit[client] == true)
+	if(g_bMaxLimitReached[client] == true)
 		return Plugin_Stop;
 	
 	if(GetClientTeam(client) == TEAM_SURVIVORS || GetClientTeam(client) == TEAM_INFECTED)
@@ -1634,9 +1651,7 @@ bool IsSecondTime(int client)
 	
 	if (valid == false) return false;
 
-	bool bSecondTime = false;
-	g_hSteamIDs.GetValue(SteamID, bSecondTime);
-	return bSecondTime;
+	return g_smSteamIDToRecord.ContainsKey(SteamID);
 }
 
 // ------------------------------------------------------------------------
@@ -1647,9 +1662,9 @@ void RecordSteamID(int client)
 	// Stores the Steam ID, so if reconnect/rejoin we don't allow free respawn
 	char SteamID[64];
 	bool valid = GetClientAuthId(client, AuthId_SteamID64, SteamID, sizeof(SteamID));
-	if (valid && !g_hSteamIDs.GetValue(SteamID, valid))
+	if (valid && !g_smSteamIDToRecord.GetValue(SteamID, valid))
 	{
-		g_hSteamIDs.SetValue(SteamID, true, true);
+		g_smSteamIDToRecord.SetValue(SteamID, true, true);
 	}
 }
 
@@ -1773,13 +1788,16 @@ int GetTeamHumanCount(int team)
 
 void SaveObservers()
 {
+	static char steamid[32];
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsClientInGame(client) && !IsFakeClient(client))
 		{
 			if(GetClientTeam(client) == 1 && !IsClientIdle(client))
 			{
-				g_bIsObserver[client] = true;
+				if (GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+
+				g_smSteamIDToOverserver.SetValue(steamid, true, true);
 			}
 		}
 	}

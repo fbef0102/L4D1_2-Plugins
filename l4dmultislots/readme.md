@@ -15,8 +15,10 @@ Allows additional survivor players in server when 5+ player joins the server
 * <details><summary>How does it work?</summary>
 
 	* (Coop/Survival/Realism) When 5+ player joins the server but no any bot can be taken over, this plugin will spawn an alive survivor bot for him.
-	* (Versus/Scavenge) the plugin won't spawn bots for new playersm they must type ```!join``` in versus/scavenge.
-	* (Versus/Scavenge) Check team balance when player tries to use 'Join Survivors' command to join survivor team 
+		* If player is spectator, he can type ```!join``` and this plugin will spawn an alive survivor bot for him.
+	* (Versus/Scavenge) the plugin won't spawn bots for new players, they must type ```!join``` in versus/scavenge.
+	* (Versus/Scavenge) Check team balance when player tries to use ```!join``` command to join survivor team 
+		* If team is unbalance(e.g. 8 sur/4 inf), unable to use ```!join``` command
 </details>
 
 * Require
@@ -193,6 +195,9 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v7.2 (2026-2-20)
+		* The player's steam id must be fully authenticated before join survivor team
+
 	* v7.1 (2025-9-17)
 		* Update cvars
 
@@ -277,8 +282,10 @@ Allows additional survivor players in server when 5+ player joins the server
 
 * 原理
 	* (戰役/寫實/生存) 當第五位玩家加入伺服器之後，此插件會創造第五個倖存者Bot並且給新來的玩家取代
+		* 如果玩家是旁觀者，可以輸入 ```!join```，此插件會創造倖存者Bot給玩家取代
 	* (對抗/清道夫模式) 不會自動創造第五個倖存者Bot給新來的玩家取代，玩家必須手動輸入```!join```加入倖存者陣營
-	* (對抗/清道夫模式) 當有人使用插件的命令嘗試加入倖存者陣營時，先檢查特感與人類隊伍平衡，如果隊伍不平衡，加入倖存者陣營將會失敗
+	* (對抗/清道夫模式) 當有人使用```!join```嘗試加入倖存者陣營時，先檢查特感與人類隊伍平衡，如果隊伍不平衡，加入倖存者陣營將會失敗
+		* 如果隊伍不平衡(舉例: 8位倖存者/4位特感)，則無法使用 ```!join``` 加入倖存者陣營
 
 * 必要安裝
 	1. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz): 解鎖伺服器人數上限，有八位以上的玩家可以進入伺服器遊玩

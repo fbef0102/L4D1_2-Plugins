@@ -11,7 +11,7 @@ public Plugin myinfo =
 	name = "[L4D2] Transition Forward",
 	author = "BHaType, Harry",
 	description = "Provides forward to determine player inventory transitioned entities between map",
-	version = "1.1h-2026/1/30"
+	version = "1.2h-2026/2/20 (discontinued)"
 };
 
 GlobalForward 

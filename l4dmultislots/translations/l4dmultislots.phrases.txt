@@ -1,49 +1,131 @@
-//English by Mi.Cura
+//English by Mi.Cura, Harry
+//繁體中文 by Harry
+//简体中文 by Target, Harry
+//spanish language by hckr
+//Suomalainen by HekuT
+//日本語 by HekuT, faketuna
+//Russian by HekuT, berry
+//ukrainian by HekuT
 
 "Phrases"
 {
 	"A surviving Bot was added."
 	{
 		"en" "A survivor bot was added to the team!"
+		"zho" "已召喚一個倖存者Bot."
+		"chi" "已生成一个生还者Bot."
+        "es" "Se añadió un Bot sobreviviente."
+		"fi" "Eloonjäänyt botti lisättiin."
+		"jp" "生存者botがチームに追加されました!"
+		"ru" "Добавлен бот за выживших."
+		"ua" "Доданий бот за тих, що вижили."
 	}
 	"Impossible to generate a bot at the moment."
 	{
 		"en" "A survivor bot can't be spawned right now."
+		"zho" "此時此刻無法召喚一個倖存者Bot."
+		"chi" "这时候无法生成一个生还者Bot."
+        "es" "Imposible generar un bot en este momento."
+		"fi" "Ei voi tuottaa botti tällä hetkellä."
+		"jp" "生存者botは現在スポーン出来ません。"
+		"ru" "Сейчас невозможно создать бота."
+		"ua" "Зараз неможливо створити бота."
 	}
 	"Please wait to be revived or rescued"
 	{
 		"en" "Please wait to be revived or rescued."
+		"zho" "請等待救援或復活."
+		"chi" "请等待救援或复活."
+        "es" "Por favor, espera a ser revivido o rescatado."
+		"fi" "Odota, että sinun menee elvytetään tai pelastetaan."
+		"jp" "蘇生もしくは救助されるまでお待ち下さい。"
+		"ru" "Подождите, пока вас поднимут или спасут."
+		"ru" "Вы бездействуете. Нажмите ЛКМ для возврата к выжившим!"
+		"ua" "Почекайте, поки Вас піднімуть або врятують."
 	}
 	"You are idle. press the left mouse button to join the survivors!"
 	{
 		"en" "Press left mouse button to join survivors!"
+		"zho" "你正在閒置. 請按滑鼠左鍵加入倖存者!"
+		"chi" "你正在闲置. 请按鼠标左键加入生还者!"
+        "es" "Estás ocioso. ¡Presiona el botón izquierdo del ratón para unirte a los supervivientes!"
+		"fi" "Olet tyhjäkäynnillä. Paina hiiren vasenta painiketta liittyäksesit selviytyjiin!"
+		"jp" "現在休憩中です。左クリックで生存者としてゲームに参加できます!"
+		"ru" "Вы уже в команде выживших."
+		"ua" "Ви відійшли. Натисніть ЛКМ, щоб повернутися в команду!"
 	}
 	"You are already on the team of survivors."
 	{
 		"en" "You are already on the survivor team!"
+		"zho" "你已在倖存者隊伍."
+		"chi" "你已在生还者队伍."
+        "es" "Ya estás en el equipo de sobrevivientes."
+		"fi" "Olet selviytyneiden joukkueessa."
+		"jp" "すでに生存者チームに参加しています!"
+		"ru" "Вы уже в команде выживших."
+		"ua" "Ви вже в команді тих, що вижили."
 	}
 	"Type in chat !join To join the survivors"
 	{
 		"en" "Type {olive}!join{default} to join the survivors!"
+		"zho" "聊天視窗輸入 {olive}!join{default} 來加入倖存者隊伍."
+		"chi" "聊天窗口输入 {olive}!join{default} 来加入生还者队伍."
+        "es" "Escribe en el chat {olive}!join{default} para unirse a los supervivientes."
+		"fi" "Kirjoita chatissa {olive}!join{default} Liity selviytyneisiin."
+		"jp" "生存者チームに参加するにはチャットに{olive}!join{default}と入力してください!"
+		"ru" "Введите в чате {olive}!join{default} для присоединения к выжившим."
+		"ua" "Введіть в чаті {olive}!join{default} , щоб приєднатися до тих, що вижили."
 	}
 	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
 		"en" "Your team already started the map.\nYou need reviving or rescuing."
+		"zho" "倖存者已開始遊戲一陣子，請等待救援或復活"
+		"chi" "生还者已开始游戏一段时间，请等待救援或复活"
+        "es" "Los sobrevivientes han comenzado el juego, por favor espere a ser resucitado o rescatado."
+		"fi" "Selviytyneet tulevat pelin alkamisen leikki aikana, odottavat, että heidät herätetään kuolleista"
+		"jp" "すでにマップが開始されています。蘇生もしくは救助されるまでお待ち下さい。"
+		"ru" "Выживший зашёл во время начатой игры, ожидайте воскрешения или спасения"
+		"ua" "Той, що вижив зайшов під час початої гри, чекайте воскресіння або порятунку"
 	}
 	"No Bots for replacement."
 	{
 		"en" "There are no bots to takeover right now."
+		"zho" "沒有倖存者Bot能取代."
+		"chi" "没有生还者Bot能控制."
+        "es" "No hay bots de reemplazo."
+		"fi" " Ei botteja korvaamista varten."
+		"jp" "現在入れ替われるbotが存在しません。"
+		"ru" "Нет ботов для замены."
+		"ua" "Немає ботів для заміни."
 	}
 	"No Second Chance"
 	{
 		"en" "You already played on the {blue}Survivor Team{default} this round. You will spawn {green}dead{default}."
+		"zho" "你已於當前回合當過{blue}生還者隊伍{default}. 給予 {green}死亡{default} Bot."
+		"chi" "你已于当前回合当过{blue}生还者队伍{default}. 给予 {green}死亡{default} Bot."
+		"jp" "このラウンドで既に{blue}生存者チーム{default}として参加していたため、{green}死亡{default}した状態でスポーンします。"
+		"ru" "В этом раунде вы уже играли в {blue}команде выживших{default}. Вы появитесь {green}мёртвым{default}."
 	}
 	"Sorry! No survivor slots"
 	{
 		"en" "Sorry! Numbers of survivor has reached limit!"
+		"zho" "抱歉! 倖存者數量已達上限!"
+		"chi" "抱歉! 生还者数量已达上限!"
+		"jp" "ごめんなさい! 生存者の人数が制限に達しました!"
+		"ru" "Извините! Количество выживших достигло предела!"
 	}
 	"Too many survivors, unbalance"
 	{
 		"en" "Sorry! Team is unbalance, too many players in survivor team!"
+		"zho" "抱歉! 隊伍目前不平衡, 太多玩家在倖存者隊伍!"
+		"chi" "抱歉! 队伍目前不平衡, 太多玩家在生还者队伍!"
+		"jp" "ごめんなさい! 生存者チームの人数が多すぎるためバランスを取る必要があります!"
+		"ru" "Извините! Баланс команды нарушен, слишком много игроков в команде выживших!"	
+	}
+	"Your steam id not authorized"
+	{
+		"en" "Unable to join survivor! your steamid isn't fully authenticated, please WAIT!"
+		"zho" "無法加入倖存者! 你的steamid尚未完全驗證, 請等待steam驗證!"
+		"chi" "无法加入幸存者! 你的steamid尚未完全验证, 请等待steam验证!"
 	}
 }
