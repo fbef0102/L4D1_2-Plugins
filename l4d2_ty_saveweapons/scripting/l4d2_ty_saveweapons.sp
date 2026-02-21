@@ -444,31 +444,24 @@ void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 	{
 		for (int client = 1; client <= MaxClients; client++)
 		{
-			if (IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
+			if (IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_SURVIVOR && IsPlayerAlive(client))
 			{
+				int attacker = my_GetInfectedAttacker(client);
+				if(attacker > 0) ForcePlayerSuicide(attacker);
+
 				if (L4D_IsPlayerIncapacitated(client))
 				{
-					if(L4D2_GetInfectedAttacker(client) < 0) //沒被控
-					{
-						CheatCommand(client, "give", "health");
-						SetEntProp(client, Prop_Send, "m_iHealth", 100, 1);
-						SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
-						SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
-					}
-					else //被控
-					{
-						SetEntProp(client, Prop_Send, "m_isIncapacitated", 0);	
-						SetEntProp(client, Prop_Send, "m_iHealth", 100, 1);
-						SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
-						SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
-					}
+					CheatCommand(client, "give", "health");
+					//SetEntProp(client, Prop_Data, "m_iHealth", GetEntProp(client, Prop_Data, "m_iMaxHealth"));
+					SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
+					SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
 				}
 				else
 				{
-					if(GetEntProp(client, Prop_Send, "m_iHealth") + RoundToNearest( GetEntPropFloat(client, Prop_Send, "m_healthBuffer") ) < 100)
+					if(GetEntProp(client, Prop_Send, "m_iHealth") + RoundToNearest( GetEntPropFloat(client, Prop_Send, "m_healthBuffer") ) < GetEntProp(client, Prop_Data, "m_iMaxHealth"))
 					{
 						CheatCommand(client, "give", "health");
-						SetEntProp(client, Prop_Send, "m_iHealth", 100, 1);
+						//SetEntProp(client, Prop_Data, "m_iHealth", GetEntProp(client, Prop_Data, "m_iMaxHealth"));
 						SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
 						SetEntPropFloat(client, Prop_Send, "m_healthBufferTime",  GetGameTime());
 					}
@@ -491,7 +484,7 @@ void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 	{
 		if (!IsClientInGame(client)) continue;
 
-		if (GetClientTeam(client) == 1 && !IsFakeClient(client))
+		if (GetClientTeam(client) == L4D_TEAM_SPECTATOR && !IsFakeClient(client))
 		{
 			if (IsClientIdle(client))
 			{
@@ -508,7 +501,7 @@ void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		HxCleaning(i);
-		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
+		if (IsClientInGame(i) && GetClientTeam(i) == L4D_TEAM_SURVIVOR && IsPlayerAlive(i))
 		{
 			if(IsFakeClient(i) && !g_bSaveBot) continue;
 				
@@ -522,7 +515,7 @@ void Event_MapTransition(Event event, const char[] name, bool dontBroadcast)
 /*void Event_BotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
 {
 	int bot = GetClientOfUserId(event.GetInt("bot"));
-	if(bot && IsClientInGame(bot) && GetClientTeam(bot) == 2 && IsPlayerAlive(bot)) g_bMapGiven[bot] = true;
+	if(bot && IsClientInGame(bot) && GetClientTeam(bot) == L4D_TEAM_SURVIVOR && IsPlayerAlive(bot)) g_bMapGiven[bot] = true;
 }*/
 
 /*void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
@@ -610,10 +603,10 @@ void HxGiveC(int client, int oldindex)
 		}
 	}*/
 
-	PrintToChatAll("here");
 	int weapon;
 	bool IsIncap = L4D_IsPlayerIncapacitated(client) && !L4D_IsPlayerHangingFromLedge(client);
-	if (sg_slot1[oldindex][0] != '\0' && GetPlayerWeaponSlot(client, 1) <= MaxClients)
+
+	if (sg_slot1[oldindex][0] != '\0' && GetPlayerWeaponSlot(client, 1) == -1)
 	{
 		if(g_bL4D2Version)
 		{
@@ -809,7 +802,7 @@ void HxSaveC(int client)
 			//g_iHealthInfo[client][iGoingToDie]  =  1;
 			//g_iHealthInfo[client][iReviveCount] =  GetEntProp(client, Prop_Send, "m_currentReviveCount") + 1;
 			//g_iHealthInfo[client][iThirdStrike] =  g_iHealthInfo[client][iReviveCount] >= g_iSurvivorMaxInc ? 1 : 0;
-			g_iHealthInfo[client][iReviveCount] = Heartbeat_GetRevives(client);
+			g_iHealthInfo[client][iReviveCount] = Heartbeat_GetRevives(client) + 1;
 		}
 		else 
 		{
@@ -1090,7 +1083,7 @@ bool IsClientIdle(int client)
 {
 	for(int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == 1 && IsPlayerAlive(i))
+		if(IsClientInGame(i) && IsFakeClient(i) && GetClientTeam(i) == L4D_TEAM_SPECTATOR && IsPlayerAlive(i))
 		{
 			if(HasEntProp(i, Prop_Send, "m_humanSpectatorUserID"))
 			{
@@ -1113,6 +1106,24 @@ void CheatCommand(int client, const char[] command, const char[] argument1 = "",
 	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
 }
 
+int my_GetInfectedAttacker(int client)
+{
+	int attacker = L4D_GetPinnedInfected(client);
+
+	if(attacker > 0)
+	{
+		return attacker;
+	}
+
+	attacker = L4D2_GetQueuedPummelAttacker(client);
+	if(attacker > 0)
+	{
+		return attacker;
+	}
+
+	return -1;
+}
+
 // other API----
 
 // 保存玩家的資訊(血量 黑白等等)
@@ -1124,8 +1135,8 @@ public void L4D_OnPlayerTransitioning(int client)
 	HxCleaning(client);
 
 	if(L4D_GetGameModeType() != GAMEMODE_COOP) return;
+	if(!IsPlayerAlive(client) || GetClientTeam(client) != L4D_TEAM_SURVIVOR) return;
 	if(!g_bMapTransition) return;
-	if(!IsPlayerAlive(client)) return;
 
 	if(IsFakeClient(client) && !g_bSaveBot) return;
 
@@ -1138,11 +1149,12 @@ public void L4D_OnPlayerTransitioning(int client)
 public void L4D_OnPlayerTransitioned(int client, int oldindex, int olduserid)
 {
 	if(L4D_GetGameModeType() != GAMEMODE_COOP) return;
+	if(GetClientTeam(client) != L4D_TEAM_SURVIVOR) return;
 
 	delete g_hCheckPlayerTimer[client];
 
 	DataPack hPack;
-	g_hCheckPlayerTimer[client] = CreateDataTimer(0.1, HxTimerRestore, hPack);
+	g_hCheckPlayerTimer[client] = CreateDataTimer(0.5, HxTimerRestore, hPack);
 	hPack.WriteCell(client);
 	hPack.WriteCell(GetClientUserId(client));
 	hPack.WriteCell(oldindex);

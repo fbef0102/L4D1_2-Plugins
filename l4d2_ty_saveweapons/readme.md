@@ -20,8 +20,8 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [l4d_heartbeat](/l4d_heartbeat)
-    3. [Transition Restore Fix](https://forums.alliedmods.net/showthread.php?t=336287)
-    4. [Transition Entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
+    3. [transition_restore_fix](https://forums.alliedmods.net/showthread.php?t=336287)
+    4. [l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
 
 * <details><summary>Support | 支援插件</summary>
 

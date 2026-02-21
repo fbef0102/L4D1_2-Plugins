@@ -3,7 +3,7 @@ Provides forward to determine player inventory transitioned entities between map
 
 > __Note__ <br/>
 This Plugin has been discontinued, Use 
-<br/>[l4d_transition_entity](/https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
+<br/>[l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
 
 * <details><summary>How does it work?</summary>
 
@@ -48,7 +48,7 @@ This Plugin has been discontinued, Use
 
 > __Note__ <br/>
 此插件已停止更新，請使用
-<br/>[l4d_transition_entity](/https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
+<br/>[l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
 
 * 原理
     * 🟥 這插件只是一個輔助插件，等其他插件需要的時候再安裝此插件

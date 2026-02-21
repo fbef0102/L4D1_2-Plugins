@@ -836,6 +836,8 @@ void RandomChooseCaptain()
 	if(g_iSurvivorCaptain == 0 || g_iInfectedCaptain == 0)
 	{
 		CPrintToChatAll("[{olive}Mix{default}] Unable to randomly select captain in survivor/infected team.");
+		MixStatus_Changed(5);
+		return;
 	}
 
 	MixStatus_Changed(3);
@@ -924,10 +926,11 @@ void MixStatus_Changed(int iMixCurStatus)
 		SwapPlayersToDesignatedTeams();
 		MixStatus_Changed(0);
 	}
-	else if (iMixCurStatus == 5)
+	else
 	{
 		MixStatus_Changed(0);
 	}
+	
 }
 
 //Left4Dhooks API-------------------------------
