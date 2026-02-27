@@ -1,6 +1,28 @@
+/*
+	支援以下顏色:
+	 - {default}	(白色)
+	 - {green}		(橘色)
+	 - {olive}		(綠色)
+	 - {lightgreen}	(淺綠色)
+	 - {red}		(紅色) - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+	 - {blue}		(藍色) - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
+	 注意事項: 藍色, 紅色, 淺綠色，這三種顏色的其中任意兩種不可出現在同一句話裡
+*/
+
+/*
+	Following named colors are supported:
+	 - {default}	(whilte)
+	 - {green}		(olive color)
+	 - {olive}		(green color)
+	 - {lightgreen}	(light green)
+	 - {red}		(red) - There must be at least one player or bot in infected team，or red will turn into {green} color
+	 - {blue}		(blue) - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
+	 Warning:  2 of (Blue, Red, Lightgreen) colors can not be used together in one sentence
+*/
+
 "Phrases"
 {
-	"kills1"
+	"kills_1"
 	{
 		"#format"	"{1:i},{2:i},{3:i},{4:i},{5:i}"
 		"en"	"{default}SI: {olive}{1}{default}[{green}headshot{default}: {olive}{2}{default}],Common: {olive}{3}{default}[{green}headshot{default}: {olive}{4}{default}],FF: {olive}{5}{default} - {olive}%N"
@@ -9,5 +31,29 @@
 		"es"	"{default}SI: {olive}{1}{default}[{green}headshot{default}: {olive}{2}{default}],Common: {olive}{3}{default}[{green}headshot{default}: {olive}{4}{default}],FF: {olive}{5}{default} - {olive}%N"
 		"pt"	"{default}SI: {olive}{1}{default}[{green}headshot{default}: {olive}{2}{default}],Common: {olive}{3}{default}[{green}headshot{default}: {olive}{4}{default}],FF: {olive}{5}{default} - {olive}%N"
 		"ru"	"{default}Особые: {olive}{1}{default}[{green}в голову{default}: {olive}{2}{default}],обычные: {olive}{3}{default}[{green}в голову{default}: {olive}{4}{default}],огонь по своим: {olive}{5}{default} - {olive}%N"
+	}
+
+	"FF_MVP"
+	{
+		"#format"	"{1:N},{2:i}"
+		"en"	"FF MVP: {olive}{1}{default} - {green}{2}{default} dmg"
+		"zho"	"黑槍王: {olive}{1}{default} - {green}{2}{default} dmg"
+		"chi"	"黑枪王: {olive}{1}{default} - {green}{2}{default} dmg"
+	}
+	
+	"SIKILL_MVP"
+	{
+		"#format"	"{1:N},{2:i}"
+		"en"	"SI Kill MVP: {olive}{1}{default} - {green}{2}{default}"
+		"zho"	"殺特MVP: {olive}{1}{default} - {green}{2}{default}"
+		"chi"	"杀特MVP: {olive}{1}{default} - {green}{2}{default}"
+	}
+	
+	"CIKILL_MVP"
+	{
+		"#format"	"{1:N},{2:i}"
+		"en"	"CI Kill MVP: {olive}{1}{default} - {green}{2}{default}"
+		"zho"	"殺殭屍MVP: {olive}{1}{default} - {green}{2}{default}"
+		"chi"	"杀僵尸MVP: {olive}{1}{default} - {green}{2}{default}"
 	}
 }
