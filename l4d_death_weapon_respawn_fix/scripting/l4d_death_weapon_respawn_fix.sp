@@ -138,7 +138,7 @@ public void Event_PlayerDeath (Event event, const char[] name, bool dontBroadcas
     if (!victim || !IsClientInGame(victim) || GetClientTeam(victim) != TEAM_SURVIVOR) return;
 
     int PrimaryWeaponIDPreDead = GetPrimaryWeaponIDPreDead(victim);
-    DebugPrint("%N's primary weapon ID: %d, ammo: %d", victim, PrimaryWeaponIDPreDead, GetPrimaryWeaponAmmo(victim));
+    //LogError("%N's primary weapon ID: %d, ammo: %d", victim, PrimaryWeaponIDPreDead, GetPrimaryWeaponAmmo(victim));
     if(g_bMissionLost)
     {
         SetPrimaryWeaponIDPreDead(victim, 0);
@@ -194,7 +194,7 @@ void SetPrimaryWeaponIDPreDead(int client, int weaponID)
 	SetEntData(client, iOffs_m_PrimaryWeaponIDPreDead, weaponID);
 }
 
-int GetPrimaryWeaponAmmo(int client)
+stock int GetPrimaryWeaponAmmo(int client)
 {
 	return GetEntData(client, iOffs_m_PrimaryWeaponAmmo);
 }
@@ -202,15 +202,4 @@ int GetPrimaryWeaponAmmo(int client)
 void SetPrimaryWeaponAmmo(int client, int ammo)
 {
 	SetEntData(client, iOffs_m_PrimaryWeaponAmmo, ammo);
-}
-
-stock void DebugPrint(const char[] Message, any ...)
-{
-    #if DEBUG
-        char DebugBuff[128];
-        VFormat(DebugBuff, sizeof(DebugBuff), Message, 2);
-        PrintToChatAll("%s",DebugBuff);
-        PrintToServer(DebugBuff);
-        LogMessage(DebugBuff);
-    #endif 
 }

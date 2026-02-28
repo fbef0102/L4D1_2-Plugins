@@ -355,7 +355,7 @@ void DisplayVoteMenuCaptainSurvivor()
 				if(!g_bCvarVoteSpectator && GetClientTeam(i) <= L4D_TEAM_SPECTATOR) continue;
 
 				Format(name, 32, "%N", i);
-				Format(number, 10, "%i", i);
+				Format(number, 10, "%i", GetClientUserId(i));
 				SurvivorCaptainMenu.AddItem(number, name, 0);
 				players++;
 			}
@@ -368,11 +368,11 @@ void DisplayVoteMenuCaptainSurvivor()
 			{
 				if(!g_bCvarSpectatorVote && GetClientTeam(i) <= L4D_TEAM_SPECTATOR) continue;
 
-				SurvivorCaptainMenu.Display(i, 10);
+				SurvivorCaptainMenu.Display(i, 15);
 			}
 		}
 
-		CreateTimer(10.1, TimerCheckSurvivorCaptainVote);
+		CreateTimer(15.1, TimerCheckSurvivorCaptainVote);
 	}
 }
 
@@ -414,11 +414,16 @@ int Handler_SurvivorCaptainCallback(Menu menu, MenuAction action, int param1, in
 		{
 			char item[16];
 			menu.GetItem(param2, item, 16);
-			int target = StringToInt(item, 10);
-			if (IsClientInGame(target) && !IsFakeClient(target))
+			int target = StringToInt(item);
+			target = GetClientOfUserId(target);
+			if (target && IsClientInGame(target) && !IsFakeClient(target))
 			{
 				g_iVotesSurvivorCaptain[target]++;
 				g_bHasOneVoted = true;
+			}
+			else
+			{
+				CPrintToChat(param1, "Target is not in game!");
 			}
 		}
 		case MenuAction_End:
@@ -432,51 +437,45 @@ int Handler_SurvivorCaptainCallback(Menu menu, MenuAction action, int param1, in
 
 void DisplayVoteMenuPlayerSelect()
 {
-	if (g_iMixCurStatus > 0)
+	Menu PlayerSelectMenu = new Menu(Handler_PlayerSelectionCallback, MENU_ACTIONS_DEFAULT);
+	PlayerSelectMenu.SetTitle("選隊員(Choose wisely...)");
+	char name[32];
+	char number[12];
+	for(int i = 1; i <= MaxClients; i++) 
 	{
-		MixStatus_Changed(3);
-		Menu PlayerSelectMenu = new Menu(Handler_PlayerSelectionCallback, MENU_ACTIONS_DEFAULT);
-		PlayerSelectMenu.SetTitle("選隊員(Choose wisely...)");
-		char name[32];
-		char number[12];
-		for(int i = 1; i <= MaxClients; i++) 
+		if ( IsClientInGame(i) && !IsFakeClient(i) && !g_bHasBeenChosen[i] && i != g_iSurvivorCaptain && i != g_iInfectedCaptain )
 		{
-			if ( IsClientInGame(i) && !IsFakeClient(i) && !g_bHasBeenChosen[i] && i != g_iSurvivorCaptain && i != g_iInfectedCaptain )
-			{
-				if(!g_bCvarVoteSpectator && GetClientTeam(i) <= L4D_TEAM_SPECTATOR) continue;
+			if(!g_bCvarVoteSpectator && GetClientTeam(i) <= L4D_TEAM_SPECTATOR) continue;
 
-				Format(name, 32, "%N", i);
-				Format(number, 10, "%i", i);
-				PlayerSelectMenu.AddItem(number, name, 0);
-			}
+			Format(name, 32, "%N", i);
+			Format(number, 10, "%i", GetClientUserId(i));
+			PlayerSelectMenu.AddItem(number, name, 0);
 		}
-		PlayerSelectMenu.ExitButton = true;
-		if (!IsValidClient(g_iSurvivorCaptain))
-		{
-			CPrintToChatAll("[{olive}Mix{default}] Surprise! First Captain left the server, stopped the mix process.");
-			MixStatus_Changed(5);
-			return;
-		}
-		if (!IsValidClient(g_iInfectedCaptain))
-		{
-			CPrintToChatAll("[{olive}Mix{default}] Surprise! Second Captain left the server, stopped the mix process.");
-			MixStatus_Changed(5);
-			return;
-		}
-		
-		if (IsValidClient(g_iSurvivorCaptain) && IsValidClient(g_iInfectedCaptain))
-		{
-			if (!g_bSelectToggle)
-			{
-				PlayerSelectMenu.Display(g_iSurvivorCaptain, 1);
-			}
-			if (g_bSelectToggle)
-			{
-				PlayerSelectMenu.Display(g_iInfectedCaptain, 1);
-			}
-		}
-		CreateTimer(1.1, Timer_PlayerSelection);
 	}
+	PlayerSelectMenu.ExitButton = true;
+	if (!IsValidClient(g_iSurvivorCaptain))
+	{
+		CPrintToChatAll("[{olive}Mix{default}] Surprise! First Captain left the server, stopped the mix process.");
+		MixStatus_Changed(5);
+		return;
+	}
+	if (!IsValidClient(g_iInfectedCaptain))
+	{
+		CPrintToChatAll("[{olive}Mix{default}] Surprise! Second Captain left the server, stopped the mix process.");
+		MixStatus_Changed(5);
+		return;
+	}
+	
+	if (!g_bSelectToggle)
+	{
+		PlayerSelectMenu.Display(g_iSurvivorCaptain, 3);
+	}
+	if (g_bSelectToggle)
+	{
+		PlayerSelectMenu.Display(g_iInfectedCaptain, 3);
+	}
+
+	CreateTimer(3.1, Timer_PlayerSelection);
 }
 
 int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int param1, int param2)
@@ -487,8 +486,9 @@ int Handler_PlayerSelectionCallback(Menu menu, MenuAction action, int param1, in
 		{
 			char item[16];
 			menu.GetItem(param2, item, 16);
-			int target = StringToInt(item, 10);
-			if (IsClientInGame(target) && !IsFakeClient(target))
+			int target = StringToInt(item);
+			target = GetClientOfUserId(target);
+			if (target && IsClientInGame(target) && !IsFakeClient(target))
 			{
 				g_bHasBeenChosen[target] = true;
 				if (!g_bSelectToggle)
@@ -546,7 +546,7 @@ Action Timer_PlayerSelection(Handle timer)
 		if (g_iSelectedPlayers[g_iSurvivorCaptain] >= SurvivorLimit -1 && g_iSelectedPlayers[g_iInfectedCaptain] >= InfectedLimit -1)
 		{
 			MixStatus_Changed(4);
-			return Plugin_Stop;
+			return Plugin_Continue;
 		}
 		
 		int freeslots =  SurvivorLimit + InfectedLimit;
@@ -555,13 +555,14 @@ Action Timer_PlayerSelection(Handle timer)
 		{
 			CPrintToChatAll("[{olive}Mix{default}] Not enough players in server({red}%d{default}/{green}%d{default}), stopped the mix process.", real_players,freeslots);
 			MixStatus_Changed(5);
-			return Plugin_Handled;
+			return Plugin_Continue;
 		}
 	
 		DisplayVoteMenuPlayerSelect();
 		return Plugin_Continue;
 	}
-	return Plugin_Stop;
+
+	return Plugin_Continue;
 }
 
 void DisplayVoteMenuCaptainInfected()
@@ -580,7 +581,7 @@ void DisplayVoteMenuCaptainInfected()
 			if(!g_bCvarVoteSpectator && GetClientTeam(i) <= L4D_TEAM_SPECTATOR) continue;
 			
 			Format(name, 32, "%N", i);
-			Format(number, 10, "%i", i);
+			Format(number, 10, "%i", GetClientUserId(i));
 			InfectedCaptainMenu.AddItem(number, name, 0);
 			players++;
 		}
@@ -591,11 +592,11 @@ void DisplayVoteMenuCaptainInfected()
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
-			InfectedCaptainMenu.Display(i, 10);
+			InfectedCaptainMenu.Display(i, 15);
 		}
 	}
 			
-	CreateTimer(10.1, TimerCheckInfectedCaptainVote);
+	CreateTimer(15.1, TimerCheckInfectedCaptainVote);
 }
 
 Action TimerCheckInfectedCaptainVote(Handle timer)
@@ -631,11 +632,16 @@ int Handler_InfectedCaptainCallback(Menu menu, MenuAction action, int param1, in
 		{
 			char item[16];
 			menu.GetItem(param2, item, 16);
-			int target = StringToInt(item, 10);
-			if (IsClientInGame(target) && !IsFakeClient(target))
+			int target = StringToInt(item);
+			target = GetClientOfUserId(target);
+			if (target && IsClientInGame(target) && !IsFakeClient(target))
 			{
 				g_iVotesInfectedCaptain[target]++;
 				g_bHasOneVoted = true;
+			}
+			else
+			{
+				CPrintToChat(param1, "Target is not in game!");
 			}
 		}
 		case MenuAction_End:
@@ -870,12 +876,12 @@ int GetRandomCaptain(bool bSurvivorTeam)
 	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 }
 
-// 0=重置
-// 1=選隊長1
-// 2=選隊長2
-// 3=隊長開始選人
+// 0=重置,
+// 1=選隊長1,
+// 2=選隊長2,
+// 3=隊長開始選人,
 // 4=隊長都選好了, 設置隊員
-// 5=Mix被終止
+// 5=Mix被終止,
 void MixStatus_Changed(int iMixCurStatus)
 {
 	g_iMixCurStatus = iMixCurStatus;
