@@ -105,7 +105,7 @@ int g_iRoundStart, g_iPlayerSpawn, g_iEscapeTime, g_iCvarEscapeTime;
 
 int iSystemTime;
 int g_iRescueVehicle;
-bool g_bFinalHasTrigger_Multiple, g_bFinalVehicleLeaving, g_bCvarAirStrike;
+bool g_bFinalHasTrigger_Multiple, g_bFinalEnd, g_bCvarAirStrike;
 bool g_bMapStarted, g_bValidMap, g_bHookStart;
 Handle AntiPussyTimer, _AntiPussyTimer, AirstrikeTimer;
 
@@ -442,8 +442,8 @@ void HookEvents()
 	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Finale_Vehicle_Leaving,		EventHookMode_PostNoCopy);
+	HookEvent("finale_vehicle_leaving", Finale_FinalEnd,		EventHookMode_PostNoCopy);
+	HookEvent("finale_win", 			Finale_FinalEnd,		EventHookMode_PostNoCopy);
 	HookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready,		EventHookMode_PostNoCopy);
 }
 
@@ -454,14 +454,14 @@ void UnhookEvents()
 	UnhookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 	UnhookEvent("map_transition", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (沒有觸發round_end)
 	UnhookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd,		EventHookMode_PostNoCopy); //救援載具離開之時  (沒有觸發round_end)
-	UnhookEvent("finale_vehicle_leaving", 	Finale_Vehicle_Leaving,		EventHookMode_PostNoCopy);
+	UnhookEvent("finale_vehicle_leaving", 	Finale_FinalEnd,		EventHookMode_PostNoCopy);
+	UnhookEvent("finale_win", 				Finale_FinalEnd,		EventHookMode_PostNoCopy);
 	UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready,		EventHookMode_PostNoCopy);
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	g_bFinalVehicleLeaving = false;
+	g_bFinalEnd = false;
 	g_bHookStart = false;
 	g_iEscapeTime = 0;
 	g_iRescueVehicle = 0;
@@ -493,9 +493,10 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 	ResetPlugin();
 }
 
-void Finale_Vehicle_Leaving(Event event, const char[] name, bool dontBroadcast)
+void Finale_FinalEnd(Event event, const char[] name, bool dontBroadcast)
 {
-	g_bFinalVehicleLeaving = true;
+	ResetPlugin();
+	g_bFinalEnd = true;
 }
 
 void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast)
@@ -669,7 +670,7 @@ void PrecacheParticle(const char[] sEffectName)
 Action Timer_FadeIn(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client) && !g_bFinalVehicleLeaving)
+	if(client && IsClientInGame(client) && !g_bFinalEnd)
 	{
 		CreateFade(FFADE_IN, client);
 	}

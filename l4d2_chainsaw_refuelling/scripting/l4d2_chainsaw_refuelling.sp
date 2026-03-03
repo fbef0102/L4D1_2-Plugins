@@ -14,7 +14,7 @@ public Plugin myinfo =
 	author = "DJ_WEST, Lossy (Round Start Fix), Shao (downstate support), HarryPotter (Improve)",
 	description = "Allow refuelling of a chainsaw",
 	version = PLUGIN_VERSION,
-	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_chainsaw_refuelling"
+	url = "https://github.com/fbef0102/L4D2-Plugins/tree/master/l4d2_chainsaw_refuelling"
 }
 
 bool bLate;
@@ -83,7 +83,7 @@ public void OnPluginStart()
 	HookEvent("round_end", evtRoundEnd, EventHookMode_PostNoCopy); //對抗上下回合結束的時候觸發
 	HookEvent("map_transition", evtRoundEnd, EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (之後沒有觸發round_end)
 	HookEvent("mission_lost", evtRoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", evtRoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時  (之後沒有觸發round_end)
+	HookEvent("finale_win", evtRoundEnd, EventHookMode_PostNoCopy); 
 
 	g_ActiveWeaponOffset = FindSendPropInfo("CBasePlayer", "m_hActiveWeapon");
 	g_ShotsFiredOffset = FindSendPropInfo("CCSPlayer", "m_iShotsFired");

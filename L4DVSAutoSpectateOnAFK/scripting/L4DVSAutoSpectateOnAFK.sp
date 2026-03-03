@@ -86,7 +86,7 @@ public void OnPluginStart()
 	// For roundstart and roundend..
 	HookEvent("round_start", 			Event_RoundStart, 	EventHookMode_PostNoCopy);
 	HookEvent("round_end", 				Event_RoundEnd,		EventHookMode_PostNoCopy);
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd,		EventHookMode_PostNoCopy);
+	HookEvent("finale_win", 			Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("player_spawn",			Event_PlayerSpawn,	EventHookMode_PostNoCopy);

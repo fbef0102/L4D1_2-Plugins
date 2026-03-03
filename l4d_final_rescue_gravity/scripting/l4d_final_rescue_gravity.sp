@@ -149,10 +149,10 @@ void IsAllowed()
 		HookEvent("round_start", 			Event_RoundStart, EventHookMode_PostNoCopy);
 		HookEvent("round_end", 				Event_RoundEnd, EventHookMode_PostNoCopy); //回合結束之時(對抗模式回合結束會觸發)
 		HookEvent("mission_lost", 			Event_RoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		HookEvent("finale_vehicle_leaving", Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時 (沒有觸發round_end)
+		HookEvent("finale_win", 			Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時 (沒有觸發round_end)
 		HookEvent("finale_start", 			OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 		HookEvent("finale_radio_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
-		if(g_bL4D2Version) HookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
+		if(g_bL4D2Version) HookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //(L4D2 only) final starts, only rushing maps trigger (C5M5, C13M4)
 		HookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready, EventHookMode_PostNoCopy);
 		HookEvent("player_spawn", 			Event_PlayerSpawn);
 	}
@@ -163,12 +163,11 @@ void IsAllowed()
 		UnhookEvent("round_start", 				Event_RoundStart, EventHookMode_PostNoCopy);
 		UnhookEvent("round_end", 				Event_RoundEnd, EventHookMode_PostNoCopy); //回合結束之時
 		UnhookEvent("mission_lost", 			Event_RoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候
-		UnhookEvent("finale_vehicle_leaving", 	Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時
+		UnhookEvent("finale_win", 				Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時
 		UnhookEvent("finale_start",				OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 		UnhookEvent("finale_radio_start", 		OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 		if(g_bL4D2Version) UnhookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 		UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready, EventHookMode_PostNoCopy);
-		UnhookEvent("finale_vehicle_ready", 	Finale_Vehicle_Ready);
 		UnhookEvent("player_spawn", 			Event_PlayerSpawn);
 	}
 }
@@ -344,7 +343,7 @@ void PerformGravity(int client, float amount)
 	SetEntityGravity(client, amount);
 }
 
-public Action Timer_SetGravity(Handle Timer, int client)
+Action Timer_SetGravity(Handle Timer, int client)
 {
 	if(!bFinalHasStart) return Plugin_Stop;
 

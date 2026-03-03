@@ -82,7 +82,7 @@ public void OnPluginStart()
 	HookEvent("player_death",           Event_PlayerDeath);
 	HookEvent("round_end",       		Event_RoundEnd,  		EventHookMode_PostNoCopy);
 	HookEvent("mission_lost", 			Event_RoundEnd,			EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd,			EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+	HookEvent("finale_win", 			Event_RoundEnd,			EventHookMode_PostNoCopy);
 
 	HookEvent("finale_start", 			OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 	HookEvent("finale_radio_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger

@@ -237,12 +237,12 @@ public void OnPluginStart()
 	HookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
 	HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("finale_win", Event_RoundEnd);
 	HookEvent("finale_start", 			Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
 	HookEvent("finale_radio_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, all final maps trigger
 	if(g_bLeft4Dead2) HookEvent("gauntlet_finale_start", 	Event_FinaleStart, EventHookMode_PostNoCopy); //final starts, only rushing maps trigger (C5M5, C13M4)
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre); //換圖不會觸發該事件
-	HookEvent("finale_vehicle_leaving", finale_vehicle_leaving); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("finale_win", finale_win);
 	HookEvent("map_transition", Event_MapTransition); //戰役過關到下一關的時候 (沒有觸發round_end)	
 
 	RegAdminCmd("sm_muladdbot", ADMAddBot, ADMFLAG_ROOT, "Usage: sm_muladdbot <number> - Attempt to add a survivor bot (will not be kicked by this plugin until someone takes over)");
@@ -766,7 +766,7 @@ Action Timer_Event_MapTransition(Handle timer)
 	return Plugin_Continue;
 }
 
-void finale_vehicle_leaving(Event event, const char[] name, bool dontBroadcast)
+void finale_win(Event event, const char[] name, bool dontBroadcast)
 {
 	SaveObservers();
 }

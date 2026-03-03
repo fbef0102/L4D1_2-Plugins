@@ -326,7 +326,7 @@
 *	   - special max limit now counts tank in all gamemode.
 *	   - added PlayerLeftStartTimer.
 *	   - fixed no infected bots issue when reload/load this plugin during the game.
-*	   - added new event "round_end", "map_transition", "mission_lost", "finale_vehicle_leaving" as round end.
+*	   - added new event "round_end", "map_transition", "mission_lost", "finale_win" as round end.
 *	   - fixed special max limit not correct when map change or reload/load this plugin during the game .
 *	   - check infected team max slots limit for players when player changes team to infected team in coop/realism/survival.
 *	   - deleted TankFrustStop.
@@ -1880,8 +1880,8 @@ void IsAllowed()
 		HookEvent("round_end",									Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
 		HookEvent("map_transition", 							Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
 		HookEvent("mission_lost", 								Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
-		HookEvent("finale_vehicle_leaving", 					Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
-	
+		HookEvent("finale_win", 								Event_RoundEnd,		EventHookMode_PostNoCopy); 
+
 		HookEvent("player_death", 								Event_PlayerDeath, EventHookMode_Pre);
 		HookEvent("player_team", 								Event_PlayerTeam_1);
 		HookEvent("player_spawn", 								Event_PlayerSpawn);
@@ -1923,8 +1923,8 @@ void IsAllowed()
 		UnhookEvent("round_end",								Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
 		UnhookEvent("map_transition", 							Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
 		UnhookEvent("mission_lost", 							Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
-		UnhookEvent("finale_vehicle_leaving", 					Event_RoundEnd,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
-	
+		UnhookEvent("finale_win", 								Event_RoundEnd,		EventHookMode_PostNoCopy); 
+
 		UnhookEvent("player_death", 							Event_PlayerDeath, EventHookMode_Pre);
 		UnhookEvent("player_team", 								Event_PlayerTeam_1);
 		UnhookEvent("player_spawn", 							Event_PlayerSpawn);

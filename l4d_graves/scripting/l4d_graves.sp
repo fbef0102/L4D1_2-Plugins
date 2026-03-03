@@ -155,7 +155,7 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy); //對抗上下回合結束的時候觸發
 	HookEvent("map_transition", Event_RoundEnd, EventHookMode_PostNoCopy); //戰役過關到下一關的時候 (之後沒有觸發round_end)
 	HookEvent("mission_lost", Event_RoundEnd, EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd, EventHookMode_PostNoCopy); //救援載具離開之時  (之後沒有觸發round_end)
+	HookEvent("finale_win", Event_RoundEnd, EventHookMode_PostNoCopy); 
 
 	GetCvars();
 	g_hGravesEnabled.AddChangeHook(ConVarChanged_Cvars);
@@ -247,8 +247,9 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 			float origin[3];
 			GetClientAbsOrigin(victim, origin);
 			
-			DataPack pack;
 			delete SpawnGrave_Timer[victim];
+			
+			DataPack pack;
 			SpawnGrave_Timer[victim] = CreateDataTimer(g_fGraveDelay, Timer_SpawnGrave, pack);
 			pack.WriteFloat(origin[0]);
 			pack.WriteFloat(origin[1]);

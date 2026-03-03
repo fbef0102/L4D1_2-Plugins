@@ -845,6 +845,8 @@ void RandomChooseCaptain()
 		MixStatus_Changed(5);
 		return;
 	}
+	
+	CPrintToChatAll("[{olive}Mix{default}] Sur. Captain: {lightgreen}%N{default}, Inf. Captain: {lightgreen}%N{default}", g_iSurvivorCaptain, g_iInfectedCaptain);
 
 	MixStatus_Changed(3);
 }

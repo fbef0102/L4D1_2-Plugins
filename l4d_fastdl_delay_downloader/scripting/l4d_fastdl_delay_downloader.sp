@@ -56,7 +56,7 @@ public void OnPluginStart()
 	
 	//HookEvent("player_disconnect", eDiconnect, EventHookMode_Pre);
 	//HookEvent("map_transition", eStart, EventHookMode_Pre); //1. all survivors make it to saferoom in and server is about to change next level in coop mode (does not trigger round_end), 2. all survivors make it to saferoom in versus
-	//HookEvent("finale_vehicle_leaving", eStart,		EventHookMode_PostNoCopy); //final map final rescue vehicle leaving  (does not trigger round_end)
+	//HookEvent("finale_win", eStart,		EventHookMode_PostNoCopy); 
 
 	AddCommandListener(ServerCmd_changelevel, "changelevel");
 

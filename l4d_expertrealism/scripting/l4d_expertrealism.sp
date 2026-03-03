@@ -84,7 +84,7 @@ public void OnPluginStart()
 	HookEvent("round_end", evtRoundEnd);
 	HookEvent("map_transition", evtRoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 	HookEvent("mission_lost", evtRoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-	HookEvent("finale_vehicle_leaving", evtRoundEnd); //救援載具離開之時  (沒有觸發round_end)
+	HookEvent("finale_win", evtRoundEnd);
 	
 
 	AutoExecConfig(true, "l4d_expertrealism");

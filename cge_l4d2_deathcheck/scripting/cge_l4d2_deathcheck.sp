@@ -84,7 +84,7 @@ void IsAllowed()
 		HookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
 		HookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 		HookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		HookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
+		HookEvent("finale_win", Event_RoundEnd);
 		HookEvent("player_bot_replace", Event_DeathCheck); 
 		HookEvent("bot_player_replace", Event_DeathCheck); 
 		HookEvent("player_team", Event_DeathCheck);
@@ -102,7 +102,7 @@ void IsAllowed()
 		UnhookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
 		UnhookEvent("map_transition", Event_RoundEnd); //戰役過關到下一關的時候 (沒有觸發round_end)
 		UnhookEvent("mission_lost", Event_RoundEnd); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
-		UnhookEvent("finale_vehicle_leaving", Event_RoundEnd); //救援載具離開之時  (沒有觸發round_end)
+		UnhookEvent("finale_win", Event_RoundEnd);
 		UnhookEvent("player_bot_replace", Event_DeathCheck); 
 		UnhookEvent("bot_player_replace", Event_DeathCheck); 
 		UnhookEvent("player_team", Event_DeathCheck);
@@ -191,7 +191,7 @@ public void Event_DeathCheck(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(3.0, Timer_DeathCheck);
 }  
 
-public Action Timer_DeathCheck(Handle timer)
+Action Timer_DeathCheck(Handle timer)
 {
 	if (g_bCvarAllow && bLeftSafeRoom)
 	{

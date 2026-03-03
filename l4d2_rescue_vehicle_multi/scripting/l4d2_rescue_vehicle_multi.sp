@@ -54,7 +54,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 bool
 	g_bIsSacrificeFinale,
-	g_bFinalLeaving;
+	g_bFinalEnd,
+	g_bIsFinalMap;
 
 int 
 	g_iSurvivorCount;
@@ -81,7 +82,13 @@ public void OnPluginStart()
 	}
 
 	HookEvent("round_start",            Event_RoundStart, EventHookMode_PostNoCopy);
-	HookEvent("finale_vehicle_leaving", Event_FinaleVehicleLeaving, EventHookMode_Pre);
+	HookEvent("finale_vehicle_leaving", Event_FinaleEnd, EventHookMode_Pre);
+	HookEvent("finale_win", 			Event_FinaleEnd, EventHookMode_Pre);
+}
+
+public void OnMapStart()
+{
+	g_bIsFinalMap = L4D_IsMissionFinalMap(true);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -136,7 +143,7 @@ void OnFinaleEscapeStarted_DLC3(const char[] output, int caller, int activator, 
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
 {
-	g_bFinalLeaving = false;
+	g_bFinalEnd = false;
 	g_iSurvivorCount = 0;
 	g_bIsSacrificeFinale = false;
 
@@ -149,9 +156,10 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-void Event_FinaleVehicleLeaving(Event event, const char[] name, bool dontBroadcast)
+void Event_FinaleEnd(Event event, const char[] name, bool dontBroadcast)
 {
-	g_bFinalLeaving = true;
+	g_bFinalEnd = true;
+	if(g_bFinalEnd) return;
 
 	for(int i = 1; i <= MaxClients; i++)
 	{
@@ -211,7 +219,7 @@ Action SurvivorOnTakeDamage(int victim, int &attacker, int &inflictor, float &da
 // (versus) fix score bug
 MRESReturn CalculateSurvivalMultiplier_Post(Address pThis, DHookParam hParams)
 {
-	if(!g_bFinalLeaving) return MRES_Ignored;
+	if(!g_bIsFinalMap) return MRES_Ignored;
 	if(L4D_HasPlayerControlledZombies() == false) return MRES_Ignored;
 
 	int iTeamFliped = GameRules_GetProp("m_bAreTeamsFlipped");

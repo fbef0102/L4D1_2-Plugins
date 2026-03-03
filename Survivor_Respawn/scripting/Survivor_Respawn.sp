@@ -214,7 +214,7 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("map_transition", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("mission_lost", Event_RoundEnd, EventHookMode_PostNoCopy);
-	HookEvent("finale_vehicle_leaving", Event_RoundEnd, EventHookMode_PostNoCopy);
+	HookEvent("finale_win", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("finale_escape_start", Finale_Escape_Start);
 	HookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
 	
