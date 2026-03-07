@@ -192,13 +192,13 @@ Action AnnounceFF(Handle timer, int attacker) //Called if the attacker did not f
 {
 	g_hFFTimer[attacker] = null;
 
-	char victim[128];
-	char sAttacker[128];
+	char sVictimName[128];
+	char sAttackerName[128];
 
 	if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-		GetClientName(attacker, sAttacker, sizeof(sAttacker));
+		GetClientName(attacker, sAttackerName, sizeof(sAttackerName));
 	else
-		FormatEx(sAttacker, sizeof(sAttacker), "Disconnected Player");
+		FormatEx(sAttackerName, sizeof(sAttackerName), "Disconnected Player");
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -206,29 +206,29 @@ Action AnnounceFF(Handle timer, int attacker) //Called if the attacker did not f
 		{
 			if (IsClientInGame(i))
 			{
-				GetClientName(i, victim, sizeof(victim));
+				GetClientName(i, sVictimName, sizeof(sVictimName));
 				switch(g_iCvarAnnounceType)
 				{
 					case 1:
 					{
 						if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-							CPrintToChat(attacker, "[{olive}TS{default}] %T", "FF_dealt (C)", attacker, g_iDamageTempCache[attacker][i], victim, g_iTotalDamage[attacker][i]);
+							CPrintToChat(attacker, "[{olive}TS{default}] %T", "FF_dealt (C)", attacker, g_iDamageTempCache[attacker][i], sVictimName, g_iTotalDamage[attacker][i]);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, attacker, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
+							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, sAttackerName, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
 					}
 					case 2:
 					{
 						if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-							PrintHintText(attacker, "%T", "FF_dealt", attacker, g_iDamageTempCache[attacker][i],victim, g_iTotalDamage[attacker][i]);
+							PrintHintText(attacker, "%T", "FF_dealt", attacker, g_iDamageTempCache[attacker][i], sVictimName, g_iTotalDamage[attacker][i]);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintHintText(i, "%T", "FF_receive", i, attacker, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
+							PrintHintText(i, "%T", "FF_receive", i, sAttackerName, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
 					}
 					case 3:
 					{
 						if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-							PrintCenterText(attacker, "%T", "FF_dealt", attacker, g_iDamageTempCache[attacker][i], victim, g_iTotalDamage[attacker][i]);
+							PrintCenterText(attacker, "%T", "FF_dealt", attacker, g_iDamageTempCache[attacker][i], sVictimName, g_iTotalDamage[attacker][i]);
 						if (IsClientInGame(i) && !IsFakeClient(i))
-							PrintCenterText(i, "%T", "FF_receive", i, attacker, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
+							PrintCenterText(i, "%T", "FF_receive", i, sAttackerName, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
 					}
 					default:
 					{
