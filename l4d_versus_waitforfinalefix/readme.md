@@ -42,7 +42,7 @@ Fixing ghost infected spawn bug "Waiting For the finale to begin"
 
 - - - -
 # 中文說明
-管理員可以強制暫停遊戲，也只有管理員能解除暫停
+修復靈魂特感無法復活的bug "Waiting For the finale to begin"
 
 * 圖示
 	* 愚蠢的Valve

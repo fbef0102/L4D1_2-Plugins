@@ -79,6 +79,9 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.5h (2026-3-7)
+        * Fixed error when parsing mission file "survival", "scavenge"
+
     * v1.4h (2026-2-9)
     * v1.3h (2026-2-6)
     * v1.2h (2026-2-4)

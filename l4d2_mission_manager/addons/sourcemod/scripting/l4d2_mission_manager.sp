@@ -11,7 +11,7 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.4h - 2026/2/9",
+	version = "v1.5h - 2026/3/7",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -1087,13 +1087,17 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			// And validate maps
 			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) {
 				int index = g_hIntMap_Index.FindValue(iMap);
-				if (index < 0) {
-					char gamemodeName[LEN_GAMEMODE_NAME];
-					LMM_GamemodeToString(g_MissionParser_CurGameMode, gamemodeName, sizeof(gamemodeName));
-					if (g_hStr_InvalidMissionNames.FindString(g_MissionParser_MissionName) < 0) {
-						g_hStr_InvalidMissionNames.PushString(g_MissionParser_MissionName);
+				if (index < 0) 
+				{
+					if(g_MissionParser_CurGameMode == LMM_GAMEMODE_COOP || g_MissionParser_CurGameMode == LMM_GAMEMODE_VERSUS)
+					{
+						char gamemodeName[LEN_GAMEMODE_NAME];
+						LMM_GamemodeToString(g_MissionParser_CurGameMode, gamemodeName, sizeof(gamemodeName));
+						if (g_hStr_InvalidMissionNames.FindString(g_MissionParser_MissionName) < 0) {
+							g_hStr_InvalidMissionNames.PushString(g_MissionParser_MissionName);
+						}
+						SaveMessage("Mission %s contains invalid \"%s\" section (Does not have map #%d)", g_MissionParser_MissionName, gamemodeName, iMap);
 					}
-					SaveMessage("Mission %s contains invalid \"%s\" section", g_MissionParser_MissionName, gamemodeName);
 					continue;
 					//return SMCParse_HaltFail;
 				}
@@ -1133,6 +1137,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			
 			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) {
 				int index = g_hIntMap_Index.FindValue(iMap);
+				if (index < 0) continue;
 				
 				g_hStrMap_FileName.GetString(index, mapFile, sizeof(mapFile));
 				mapList.PushString(mapFile);

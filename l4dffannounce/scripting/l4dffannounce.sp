@@ -1,4 +1,3 @@
-
 #pragma semicolon 1
 #pragma newdecls required //強制1.7以後的新語法
 
@@ -6,12 +5,12 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-#define PLUGIN_VERSION			"1.8"
+#define PLUGIN_VERSION			"1.9-2026/3/7"
 
 public Plugin myinfo = 
 {
 	name = "L4D FF Announce Plugin",
-	author = "Frustian & HarryPotter",
+	author = "Frustian & HarryPotter & apples1949",
 	description = "Display Friendly Fire Announcements",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913"
@@ -26,8 +25,9 @@ ConVar g_hCvarEnable, g_hCvarAnnounceType;
 bool g_bCvarEnable;
 int g_iCvarAnnounceType;
 
-int DamageCache[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store Friendly Fire Damage between teammates
-Handle FFTimer[MAXPLAYERS+1]; //Used to be able to disable the FF timer when they do more FF
+int g_iDamageTempCache[MAXPLAYERS+1][MAXPLAYERS+1]; //Used to temporarily store Friendly Fire Damage between teammates
+Handle g_hFFTimer[MAXPLAYERS+1]; //Used to be able to disable the FF timer when they do more FF
+int g_iTotalDamage[MAXPLAYERS+1][MAXPLAYERS+1]; // g_iTotalDamage
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
@@ -54,14 +54,15 @@ public void OnPluginStart()
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarAnnounceType.AddChangeHook(ConVarChanged_Cvars);
 
-	HookEvent("player_hurt_concise", Event_HurtConcise, EventHookMode_Post);
+	HookEvent("player_hurt_concise", 		Event_HurtConcise, EventHookMode_Post);
 	HookEvent("player_incapacitated_start", Event_IncapacitatedStart);
 
-	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
-	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
-	HookEvent("mission_lost", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
-	HookEvent("finale_win", 			Event_RoundEnd,		EventHookMode_PostNoCopy);
+	HookEvent("round_start", 				Event_RoundStart);
+	HookEvent("player_death", 				Event_PlayerDeath);
+	HookEvent("round_end",					Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
+	HookEvent("map_transition", 			Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors make it to saferoom, and server is about to change next level in coop mode (does not trigger round_end) 
+	HookEvent("mission_lost", 				Event_RoundEnd,		EventHookMode_PostNoCopy); //all survivors wipe out in coop mode (also triggers round_end)
+	HookEvent("finale_win", 				Event_RoundEnd,		EventHookMode_PostNoCopy); 
 }
 
 void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
@@ -78,6 +79,18 @@ void GetCvars()
 public void OnMapEnd()
 {
 	ResetTimer();
+}
+
+void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
+{
+	// clear total damage
+	for (int i = 0; i <= MaxClients; i++)
+	{
+		for (int j = 0; j <= MaxClients; j++)
+		{
+			g_iTotalDamage[i][j] = 0;
+		}
+	}
 }
 
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) 
@@ -114,22 +127,24 @@ void Event_HurtConcise(Event event, const char[] name, bool dontBroadcast)
 		return;  
 	
 	int damage = event.GetInt("dmg_health");
-	if (FFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
+	if (g_hFFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
 	{
-		DamageCache[attacker][victim] += damage;
-		delete FFTimer[attacker];
-		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
+		g_iDamageTempCache[attacker][victim] += damage;
+		g_iTotalDamage[attacker][victim] += damage;
+		delete g_hFFTimer[attacker];
+		g_hFFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 	}
 	else //If it's the first friendly fire by that player, it will start the announce timer and store the damage done.
 	{
-		DamageCache[attacker][victim] = damage;
-		delete FFTimer[attacker];
-		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
+		g_iDamageTempCache[attacker][victim] = damage;
+		g_iTotalDamage[attacker][victim] += damage;
+		delete g_hFFTimer[attacker];
+		g_hFFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (i != attacker && i != victim)
 			{
-				DamageCache[attacker][i] = 0;
+				g_iDamageTempCache[attacker][i] = 0;
 			}
 		}
 	}
@@ -152,22 +167,22 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 		return;  
 
 	int damage = GetClientHealth(victim) + RoundToFloor(GetTempHealth(victim));
-	if (FFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
+	if (g_hFFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
 	{
-		DamageCache[attacker][victim] += damage;
-		delete FFTimer[attacker];
-		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
+		g_iDamageTempCache[attacker][victim] += damage;
+		delete g_hFFTimer[attacker];
+		g_hFFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 	}
 	else //If it's the first friendly fire by that player, it will start the announce timer and store the damage done.
 	{
-		DamageCache[attacker][victim] = damage;
-		delete FFTimer[attacker];
-		FFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
+		g_iDamageTempCache[attacker][victim] = damage;
+		delete g_hFFTimer[attacker];
+		g_hFFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (i != attacker && i != victim)
 			{
-				DamageCache[attacker][i] = 0;
+				g_iDamageTempCache[attacker][i] = 0;
 			}
 		}
 	}
@@ -175,17 +190,19 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 
 Action AnnounceFF(Handle timer, int attacker) //Called if the attacker did not friendly fire recently, and announces all FF they did
 {
+	g_hFFTimer[attacker] = null;
+
 	char victim[128];
 	char sAttacker[128];
 
 	if (IsClientInGame(attacker) && !IsFakeClient(attacker))
 		GetClientName(attacker, sAttacker, sizeof(sAttacker));
 	else
-		sAttacker = "Disconnected Player";
+		FormatEx(sAttacker, sizeof(sAttacker), "Disconnected Player");
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (DamageCache[attacker][i] != 0 && attacker != i)
+		if (g_iDamageTempCache[attacker][i] != 0 && attacker != i)
 		{
 			if (IsClientInGame(i))
 			{
@@ -195,23 +212,23 @@ Action AnnounceFF(Handle timer, int attacker) //Called if the attacker did not f
 					case 1:
 					{
 						if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-							CPrintToChat(attacker, "[{olive}TS{default}] %T", "FF_dealt (C)", attacker, DamageCache[attacker][i], victim);
-						if (!IsFakeClient(i))
-							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, sAttacker, DamageCache[attacker][i]);
+							CPrintToChat(attacker, "[{olive}TS{default}] %T", "FF_dealt (C)", attacker, g_iDamageTempCache[attacker][i], victim, g_iTotalDamage[attacker][i]);
+						if (IsClientInGame(i) && !IsFakeClient(i))
+							CPrintToChat(i, "[{olive}TS{default}] %T", "FF_receive (C)", i, attacker, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
 					}
 					case 2:
 					{
 						if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-							PrintHintText(attacker, "%T", "FF_dealt", attacker, DamageCache[attacker][i],victim);
-						if (!IsFakeClient(i))
-							PrintHintText(i, "%T", "FF_receive", i, sAttacker, DamageCache[attacker][i]);
+							PrintHintText(attacker, "%T", "FF_dealt", attacker, g_iDamageTempCache[attacker][i],victim, g_iTotalDamage[attacker][i]);
+						if (IsClientInGame(i) && !IsFakeClient(i))
+							PrintHintText(i, "%T", "FF_receive", i, attacker, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
 					}
 					case 3:
 					{
 						if (IsClientInGame(attacker) && !IsFakeClient(attacker))
-							PrintCenterText(attacker, "%T", "FF_dealt", attacker, DamageCache[attacker][i], victim);
-						if (!IsFakeClient(i))
-							PrintCenterText(i, "%T", "FF_receive", i, sAttacker, DamageCache[attacker][i]);
+							PrintCenterText(attacker, "%T", "FF_dealt", attacker, g_iDamageTempCache[attacker][i], victim, g_iTotalDamage[attacker][i]);
+						if (IsClientInGame(i) && !IsFakeClient(i))
+							PrintCenterText(i, "%T", "FF_receive", i, attacker, g_iDamageTempCache[attacker][i], g_iTotalDamage[attacker][i]);
 					}
 					default:
 					{
@@ -219,12 +236,10 @@ Action AnnounceFF(Handle timer, int attacker) //Called if the attacker did not f
 					}
 				}
 			}
-
-			DamageCache[attacker][i] = 0;
+			g_iDamageTempCache[attacker][i] = 0;
 		}
 	}
 
-	FFTimer[attacker] = null;
 	return Plugin_Continue;
 }
 
@@ -232,7 +247,7 @@ void ResetTimer()
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		delete FFTimer[i];
+		delete g_hFFTimer[i];
 	}
 }
 

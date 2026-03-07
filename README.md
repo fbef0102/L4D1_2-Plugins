@@ -104,10 +104,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復Source引擎的踩頭跳躍bug
 * <b>[l4d_kickloadstuckers](/l4d_kickloadstuckers)</b>: Kicks Clients that get stuck in server connecting state
     * 踢出卡Loading連線中的玩家
-* <b>[pounce_database](/pounce_database)</b>: (Archived) Top Hunter Pounce Announce (Data Support)
-    * (棄案) 統計高撲的數量與顯示前五名高撲的大佬 (支援文件儲存)
-* <b>[skeet_database](/skeet_database)</b>: (Archived) Top Skeet Hunter Announce (Data Support)
-    * (棄案) 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)
+* <s><b>[pounce_database](/pounce_database)</b>: (Archived) Top Hunter Pounce Announce (Data Support)</s>
+    * <s>(棄案) 統計高撲的數量與顯示前五名高撲的大佬 (支援文件儲存)</s>
+* <s><b>[skeet_database](/skeet_database)</b>: (Archived) Top Skeet Hunter Announce (Data Support)</s>
+    * <s>(棄案) 統計一槍秒殺Hunter的數量與顯示前五名擊殺的大佬 (支援文件儲存)</s>
 * <b>[l4d2_powerups_rush](/l4d2_powerups_rush)</b>: When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)
     * 服用腎上腺素或藥丸，提升裝彈速度、開槍速度、近戰砍速、動畫起身速度
 * <b>[l4d1_block_player_swim](/l4d1_block_player_swim)</b>: Disable the 'water hopping' spam in l4d1.
@@ -235,8 +235,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 解決最後救援卡關，永遠不能來救援載具的問題
 * <b>[l4d2_gun_damage_modify](/l4d2_gun_damage_modify)</b>: Modify every weapon damage done to Tank, SI, Witch, Common in l4d2
     * 修改每一種槍械武器對普通殭屍/Tank/Witch/特感 的傷害倍率
-* <b>[l4d2_ai_damagefix](/l4d2_ai_damagefix)</b>: (Archived) Makes AI SI take (and do) damage like human SI.
-    * (棄案) 對AI Hunter與 AI Charger造成的傷害數據跟真人玩家一樣
+* <s><b>[l4d2_ai_damagefix](/l4d2_ai_damagefix)</b>: (Archived) Makes AI SI take (and do) damage like human SI.</s>
+    * <s>(棄案) 對AI Hunter與 AI Charger造成的傷害數據跟真人玩家一樣</s>
 * <b>[lfd_both_fixUpgradePack](/lfd_both_fixUpgradePack)</b>: Fixes upgrade packs pickup bug when there are 5+ survivors
     * 修正高爆彈與燃燒彈無法被重複角色模組的倖存者撿起來
 * <b>[l4d2_chainsaw_refuelling](/l4d2_chainsaw_refuelling)</b>: Allow refuelling of a chainsaw
@@ -295,8 +295,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復不同模組的倖存者在三方地圖啟動地圖上的機關會出現問題
 * <b>[l4d2_vocalizebasedmodel](/l4d2_vocalizebasedmodel)</b>: Survivors will vocalize based on their model + Fixes conversation stucks when playing with l4d1+2 survivor models in custom maps
     * 倖存者根據自身模組發出對應的角色語音+修復不同模組的倖存者在三方地圖無法出現語音劇情對話
-* <b>[l4d2_transition_forward](/l4d2_transition_forward)</b>: (Archived) Provides forward to determine player inventory transitioned entities between map
-    * (棄案) 輔助插件，可以知道從上一關玩家物品欄攜帶過來的武器實體
+* <s><b>[l4d2_transition_forward](/l4d2_transition_forward)</b>: (Archived) Provides forward to determine player inventory transitioned entities between map</s>
+    * <s>(棄案) 輔助插件，可以知道從上一關玩家物品欄攜帶過來的武器實體</s>
 * <b>[l4d_tank_pass](/l4d_tank_pass)</b>: Allows the Tank to pass control to another player.
     * 允許Tank轉移控制權給隊友
 * <b>[l4d2_survivor_mourn_fix](/l4d2_survivor_mourn_fix)</b>: Fixes the bug where any survivor is unable to mourn a L4D1 survivor on the L4D2 set

@@ -48,6 +48,10 @@ Adds Friendly Fire Announcements (who kills teammates)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.9 (2026-3-7)
+		* Add total ff damage
+		* Update translation
+
 	* v1.8 (2022-12-6)
 		* Translation Support
 

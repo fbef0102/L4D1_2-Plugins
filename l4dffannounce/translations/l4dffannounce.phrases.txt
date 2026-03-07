@@ -1,38 +1,65 @@
+/*
+	支援以下顏色:
+	 - {default}	(白色)
+	 - {green}		(橘色)
+	 - {olive}		(綠色)
+	 - {lightgreen}	(淺綠色)
+	 - {red}		(紅色) - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+	 - {blue}		(藍色) - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
+	 注意事項: 藍色, 紅色, 淺綠色，這三種顏色的其中任意兩種不可出現在同一句話裡
+*/
+
+/*
+	Following named colors are supported:
+	 - {default}	(whilte)
+	 - {green}		(olive color)
+	 - {olive}		(green color)
+	 - {lightgreen}	(light green)
+	 - {red}		(red) - There must be at least one player or bot in infected team，or red will turn into {green} color
+	 - {blue}		(blue) - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
+	 Warning:  2 of (Blue, Red, Lightgreen) colors can not be used together in one sentence
+*/
+
 "Phrases"
 {
 	"KILL"
 	{
-		"en"		"{lightgreen}%N {default}Killed {olive}%N{default}."
-		"zho"		"{lightgreen}%N {default}星爆氣流斬 {olive}%N{default}."
-		"chi"		"{lightgreen}%N {default}星爆气流斩 {olive}%N{default}."
-		"ru"		"{lightgreen}%N {default}убивает: {olive}%N{default}(%d in total)."
+		"#format"	"{1:N},{2:N}"
+		"en"		"{lightgreen}{1} {default}Killed {olive}{2}{default}."
+		"zho"		"{lightgreen}{1} {default}星爆氣流斬 {olive}{2}{default}."
+		"chi"		"{lightgreen}{1} {default}星爆气流斩 {olive}{2}{default}."
+		"ru"		"{lightgreen}{1} {default}убивает: {olive}{2}{default}."
 	}
 	"FF_dealt (C)"
 	{
-		"en"		"You did {green}%d{default} friendly fire damage to {lightgreen}%s{default}.({green}%d {default}in total)"
-		"zho"		"你剛造成 {green}%d{default} 滴血給 {lightgreen}%s{default}.（累計 {green}%d {default}點血）"
-		"chi"		"你刚造成 {green}%d{default} 滴血给 {lightgreen}%s{default}.（累计 {green}%d {default}滴血）"
-		"ru"		"Вы нанесли {green}%d{default} ед. урона своему: {lightgreen}%s{default}.(%d in total)"
+		"#format"	"{1:d},{2:s},{3:d}"
+		"en"		"You did {green}{1}{default} friendly fire damage to {lightgreen}{2}{default}.({green}{3} {default}in total)"
+		"zho"		"你剛造成 {green}{1}{default} 滴血給 {lightgreen}{2}{default}.（累計 {green}{3} {default}點血）"
+		"chi"		"你刚造成 {green}{1}{default} 滴血给 {lightgreen}{2}{default}.（累计 {green}{3} {default}滴血）"
+		"ru"		"Вы нанесли {green}{1}{default} ед. урона своему: {lightgreen}{2}{default}.({3} in total)"
 	}
 	"FF_dealt"
 	{
-		"en"		"You did %d friendly fire damage to %s.(%d in total)"
-		"zho"		"你剛造成 %d 滴血給 %s.（累計 %d 點血）"
-		"chi"		"你刚造成 %d 滴血给 %s.（累计 %d 滴血）"
-		"ru"		"Вы нанесли %d ед. урона своему: %s.(%d in total)"
+		"#format"	"{1:d},{2:s},{3:d}"
+		"en"		"You did {1} friendly fire damage to {2}.({3} in total)"
+		"zho"		"你剛造成 {1} 滴血給 {2}.（累計 {3} 點血）"
+		"chi"		"你刚造成 {1} 滴血给 {2}.（累计 {3} 滴血）"
+		"ru"		"Вы нанесли {1}ед. урона своему: {2}.({3} in total)"
 	}
 	"FF_receive (C)"
 	{
-		"en"		"{lightgreen}%s{default} did {green}%d{default} friendly fire damage to you.({green}%d {default}in total)"
-		"zho"		"{lightgreen}%s{default} 造成了 {green}%d{default} 滴血給你.（累計 {green}%d {default}點血）"
-		"chi"		"{lightgreen}%s{default} 造成了 {green}%d{default} 滴血给你.（累计 {green}%d {default}滴血）"
-		"ru"		"{lightgreen}%s{default} наносит {green}%d{default} ед. урона по вам(%d in total)"
+		"#format"	"{1:s},{2:d},{3:d}"
+		"en"		"{lightgreen}{1}{default} did {green}{2}{default} friendly fire damage to you.({green}{3} {default}in total)"
+		"zho"		"{lightgreen}{1}{default} 造成了 {green}{2}{default} 滴血給你.（累計 {green}{3} {default}點血）"
+		"chi"		"{lightgreen}{1}{default} 造成了 {green}{2}{default} 滴血给你.（累计 {green}{3} {default}滴血）"
+		"ru"		"{lightgreen}{1}{default} наносит {green}{2}{default} ед. урона по вам({3} in total)"
 	}
 	"FF_receive"
 	{
-		"en"		"%s did %d friendly fire damage to you.(%d in total)"
-		"zho"		"%s 造成了 %d 滴血給你.（累計 %d 點血）"
-		"chi"		"%s 造成了 %d 滴血给你.（累计 %d 滴血）"
-		"ru"		"%s наносит %d ед. урона по вам(%d in total)"
+		"#format"	"{1:s},{2:d},{3:d}"
+		"en"		"{1} did {2} friendly fire damage to you.({3} in total)"
+		"zho"		"{1} 造成了 {2} 滴血給你.（累計 {3} 點血）"
+		"chi"		"{1} 造成了 {2} 滴血给你.（累计 {3} 滴血）"
+		"ru"		"{1} наносит {2} ед. урона по вам({3} in total)"
 	}
 }
