@@ -11,7 +11,7 @@
 #include <multicolors>
 #include <left4dhooks>
 #undef REQUIRE_PLUGIN
-#tryinclude <LMCCore> //https://forums.alliedmods.net/showthread.php?t=286987
+#tryinclude <LMCCore> //https://github.com/fbef0102/L4D1_2-Plugins/blob/master/Luxs-Model-Changer
 
 #if !defined _LMCCore_included
 	native int LMC_GetClientOverlayModel(int iClient);
@@ -23,7 +23,7 @@ public Plugin myinfo =
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
 	version     = "4.1-2025/12/27",
-	url         = "https://forums.alliedmods.net/showpost.php?p=2765332&postcount=30"
+	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
 bool bLate;
