@@ -878,6 +878,7 @@ models/props_c17/metalladder001.mdl TAG- Gray Ladder - 8 Steps
 models/props_equipment/metalladder002.mdl TAG- Red Ladder - 8 Steps
 models/props/cs_office/ladder1.mdl TAG- Yellow Ladder - 9 Steps
 models/props_vehicles/train_ladder.mdl TAG- Train Ladder - 9 Steps
+models/props_highway/billboard_ladder.mdl TAG- BillBoard Ladder - 25 Steps
 models/props/de_train/ladderaluminium.mdl TAG- Aluminum Ladder - Double Decker
 models/props/cs_assault/ladderaluminium128.mdl TAG- Aluminum Ladder - Double Decker - Short
 models/props_exteriors/stairs_house_01.mdl TAG- Stairs in the House 18 Steps

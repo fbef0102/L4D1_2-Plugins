@@ -890,6 +890,7 @@ models/props_urban/hotel_stairs001.mdl TAG- 旅館階梯 c2m1
 models/props_urban/fire_escape_wide_upper.mdl TAG- 逃生梯 - 上半部
 models/props_urban/fire_escape_lower.mdl TAG- 逃生梯 - 下半部
 models/props/cs_militia/ladderrung.mdl TAG- 下水道梯 - 8階
+models/props_highway/billboard_ladder.mdl TAG- 廣告牌梯子 - 25階
 models/props_unique/generator_switch_01.mdl TAG- 電源開關
 models/props/cs_militia/shelves.mdl TAG- AA柱條貨架
 models/props/cs_office/Shelves_metal.mdl TAG- 貨架 - 無擺放

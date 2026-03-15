@@ -115,7 +115,7 @@ Allows the Tank to pass control to another player.
 * 原理
     * 當特感玩家變成Tank時
         * 自動顯示菜單，選擇轉讓控制權
-        * 手動輸入 ```!pass`` 打開菜單
+        * 手動輸入 ```!pass``` 打開菜單
         * 需經過對方玩家同意，Tank才會轉讓
     * 管理員可以強制轉讓控制權不需經過玩家同意
         * ```!admin``` -> "玩家指令" -> "轉移Tank控制權" 或 "控制 AI 坦克"
@@ -162,7 +162,7 @@ Allows the Tank to pass control to another player.
         ```
 </details>
 
-* <details><summary>Command | 命令</summary>
+* <details><summary>命令中文介紹 (點我展開)</summary>
 
     * **打開菜單轉讓控制權 (需要對方同意).**
         ```php

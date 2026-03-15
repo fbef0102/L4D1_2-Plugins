@@ -6,7 +6,7 @@
 #include <left4dhooks>
 #include <multicolors>
 #define DEBUG 0
-#define GETVERSION "4.2-2025/5/23"
+#define GETVERSION "4.3-2026/3/15"
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -282,16 +282,27 @@ int g_iOthersMenuPosition[MAXPLAYERS+1]		= {0};
 ConVar stripper_cfg_path;
 char g_sCvar_stripper_cfg_path[128];
 
-ConVar g_cvarPhysics;
-ConVar g_cvarDynamic;
-ConVar g_cvarStatic, g_cvarItem;
-ConVar g_cvarVehicles;
-ConVar g_cvarFoliage;
-ConVar g_cvarInterior;
-ConVar g_cvarExterior;
-ConVar g_cvarDecorative;
-ConVar g_cvarMisc;
-ConVar g_cvarLog;
+ConVar g_cvarPhysics,
+	g_cvarDynamic,
+	g_cvarStatic, g_cvarItem,
+	g_cvarVehicles,
+	g_cvarFoliage,
+	g_cvarInterior,
+	g_cvarExterior,
+	g_cvarDecorative,
+	g_cvarMisc,
+	g_cvarLog, g_cvarModelFile;
+bool g_bCvarPhysics,
+	g_bCvarDynamic,
+	g_bCvarStatic, g_bCvarItem,
+	g_bCvarVehicles,
+	g_bCvarFoliage,
+	g_bCvarInterior,
+	g_bCvarExterior,
+	g_bCvarDecorative,
+	g_bCvarMisc,
+	g_bCvarLog;
+char g_sCvarModelFile[256];
 
 int LOCK_COLORS[3] = {255, 140, 0};
 
@@ -326,39 +337,39 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
-public void OnAllPluginsLoaded()
-{
-	// stripper extension
-	if( FindConVar("stripper_version") == null )
-	{
-		SetFailState("\n==========\nWarning: You should install \"Stripper:Source\" to spawn objects permanently to the map: https://www.bailopan.net/stripper/snapshots/1.2/\n==========\n");
-	}
-
-	stripper_cfg_path = FindConVar("stripper_cfg_path");
-	if(stripper_cfg_path != null)
-	{
-		GetCvars();
-		stripper_cfg_path.AddChangeHook(ConVarChanged_Cvars);
-	}
-}
-
 public void OnPluginStart()
 {	
 	LoadTranslations("l4d2_spawn_props.phrases");
 
-	g_cvarPhysics 		= CreateConVar("l4d2_spawn_props_physics", 				"1", "Enable the Physics Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarDynamic 		= CreateConVar("l4d2_spawn_props_dynamic",				"1", "Enable the Dynamic (Non-solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarStatic 		= CreateConVar("l4d2_spawn_props_static",				"1", "Enable the Static (Solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarItem 			= CreateConVar("l4d2_spawn_props_items",				"1", "Enable the Items & Weapons Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarVehicles 		= CreateConVar("l4d2_spawn_props_category_vehicles",	"1", "Enable the Vehicles category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarFoliage 		= CreateConVar("l4d2_spawn_props_category_foliage",		"1", "Enable the Foliage category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarInterior 		= CreateConVar("l4d2_spawn_props_category_interior",	"1", "Enable the Interior category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarExterior 		= CreateConVar("l4d2_spawn_props_category_exterior",	"1", "Enable the Exterior category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarDecorative 	= CreateConVar("l4d2_spawn_props_category_decorative",	"1", "Enable the Decorative category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarMisc 			= CreateConVar("l4d2_spawn_props_category_misc", 		"1", "Enable the Misc category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarLog 			= CreateConVar("l4d2_spawn_props_log_actions", 			"0", "Log if an admin spawns an object?", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarPhysics 		= CreateConVar("l4d2_spawn_props_physics", 				"1", "If 1, Enable the Physics Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarDynamic 		= CreateConVar("l4d2_spawn_props_dynamic",				"1", "If 1, Enable the Dynamic (Non-solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarStatic 		= CreateConVar("l4d2_spawn_props_static",				"1", "If 1, Enable the Static (Solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarItem 			= CreateConVar("l4d2_spawn_props_items",				"1", "If 1, Enable the Items & Weapons Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarVehicles 		= CreateConVar("l4d2_spawn_props_category_vehicles",	"1", "If 1, Enable the Vehicles category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarFoliage 		= CreateConVar("l4d2_spawn_props_category_foliage",		"1", "If 1, Enable the Foliage category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarInterior 		= CreateConVar("l4d2_spawn_props_category_interior",	"1", "If 1, Enable the Interior category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarExterior 		= CreateConVar("l4d2_spawn_props_category_exterior",	"1", "If 1, Enable the Exterior category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarDecorative 	= CreateConVar("l4d2_spawn_props_category_decorative",	"1", "If 1, Enable the Decorative category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarMisc 			= CreateConVar("l4d2_spawn_props_category_misc", 		"1", "If 1, Enable the Misc category", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarLog 			= CreateConVar("l4d2_spawn_props_log_actions", 			"0", "If 1, Log if an admin spawns an object?", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarModelFile 	= CreateConVar("l4d2_spawn_props_model_file", 			"data/l4d2_spawn_props_models_english.txt", "Model file to read, default: data/l4d2_spawn_props_models_english.txt", CVAR_FLAGS);
+
 	CreateConVar("l4d2_spawn_props_version", GETVERSION, "Version of the Plugin", CVAR_FLAGS_PLUGIN_VERSION); 
 	AutoExecConfig(true, "l4d2_spawn_props");
+
+	GetCvars();
+	g_cvarPhysics.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarDynamic.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarStatic.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarItem.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarVehicles.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarFoliage.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarInterior.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarExterior.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarDecorative.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarMisc.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarLog.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarModelFile.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus/survival/scavenge mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //1. all survivors make it to saferoom in and server is about to change next level in coop mode (does not trigger round_end), 2. all survivors make it to saferoom in versus
@@ -369,13 +380,13 @@ public void OnPluginStart()
 	RegAdminCmd("sm_spawnprop", CmdSpawnProp, DESIRED_ADM_FLAGS, "Spawns an object with the given information, sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]");
 	RegAdminCmd("sm_savemap", CmdSaveMap, DESIRED_ADM_FLAGS, "Save all the spawned object in a stripper file, path: addons/stripper/maps/XXXX.cfg (XXXX is map name)");
 
-	RegAdminCmd("sm_prop_rotate", CmdRotate, DESIRED_ADM_FLAGS, "Rotates the looking spawned object with the desired angles, Usage: sm_prop_rotate <axys> <angles> [EX: !prop_rotate x 30]");
+	RegAdminCmd("sm_prop_rotate", CmdRotate, DESIRED_ADM_FLAGS, "Rotates the looking spawned object with the desired angles, Usage: sm_prop_rotate <axys> <angles> [e.g.: !prop_rotate x 30]");
 	RegAdminCmd("sm_prop_removelast", CmdRemoveLast, DESIRED_ADM_FLAGS, "Remove last spawned object");
 	RegAdminCmd("sm_prop_removelook", CmdRemoveLook, DESIRED_ADM_FLAGS, "Remove the looking object");
 	RegAdminCmd("sm_prop_removeall", CmdRemoveAll, DESIRED_ADM_FLAGS, "Remove all spawned objects");
-	RegAdminCmd("sm_prop_move", CmdMove, DESIRED_ADM_FLAGS, "Move the looking spawned object with the desired movement type, Usage: sm_prop_move <axys> <distance> [EX: !prop_move x 30]");
-	RegAdminCmd("sm_prop_setang", CmdSetAngles, DESIRED_ADM_FLAGS, "Forces the looking spawned object angles, Usage: sm_prop_setang <X Y Z> [EX: !prop_setang 30 0 34]");
-	RegAdminCmd("sm_prop_setpos", CmdSetPosition, DESIRED_ADM_FLAGS, "Sets the looking spawned object position, Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17");
+	RegAdminCmd("sm_prop_move", CmdMove, DESIRED_ADM_FLAGS, "Move the looking spawned object with the desired movement type, Usage: sm_prop_move <axys> <distance> [e.g.: !prop_move x 30]");
+	RegAdminCmd("sm_prop_setang", CmdSetAngles, DESIRED_ADM_FLAGS, "Forces the looking spawned object angles, Usage: sm_prop_setang <X Y Z> [e.g.: !prop_setang 30 0 34]");
+	RegAdminCmd("sm_prop_setpos", CmdSetPosition, DESIRED_ADM_FLAGS, "Sets the looking spawned object position, Usage: sm_prop_setpos <X Y Z> [e.g.: !prop_setpos 505 -34 17]");
 	RegAdminCmd("sm_prop_lock", CmdLock, DESIRED_ADM_FLAGS, "Locks the looking spawned object, Use for move and rotate");
 	RegAdminCmd("sm_prop_clone", CmdClone, DESIRED_ADM_FLAGS, "Clone the last spawned object");
 	RegAdminCmd("sm_prop_print", CmdDebugProp, DESIRED_ADM_FLAGS, "Print the looking object information");
@@ -400,6 +411,25 @@ public void OnPluginEnd()
 	delete g_smModelCount;
 }
 
+public void OnAllPluginsLoaded()
+{
+	// stripper extension
+	if( FindConVar("stripper_version") == null )
+	{
+		SetFailState("\n==========\nWarning: You should install \"Stripper:Source\" to spawn objects permanently to the map: https://www.bailopan.net/stripper/snapshots/1.2/\n==========\n");
+	}
+
+	stripper_cfg_path = FindConVar("stripper_cfg_path");
+	if(stripper_cfg_path == null)
+	{
+		SetFailState("\n==========\nWarning: You should install \"stripper-1.2.2-git141-xxxxx.zip\": https://www.bailopan.net/stripper/snapshots/1.2/\n==========\n");
+	}
+
+
+	GetOtherCvars();
+	stripper_cfg_path.AddChangeHook(ConVarChanged_OtherCvars);
+}
+
 //-------------------------------Cvars-------------------------------
 
 void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
@@ -407,10 +437,32 @@ void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVa
 	GetCvars();
 }
 
-void GetCvars()
+void ConVarChanged_OtherCvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetOtherCvars();
+}
+
+void GetOtherCvars()
 {
 	stripper_cfg_path.GetString(g_sCvar_stripper_cfg_path, sizeof(g_sCvar_stripper_cfg_path));
 }
+
+void GetCvars()
+{
+	g_bCvarPhysics = g_cvarPhysics.BoolValue;
+	g_bCvarDynamic = g_cvarDynamic.BoolValue;
+	g_bCvarStatic = g_cvarStatic.BoolValue;
+	g_bCvarItem = g_cvarItem.BoolValue;
+	g_bCvarVehicles = g_cvarVehicles.BoolValue;
+	g_bCvarFoliage = g_cvarFoliage.BoolValue;
+	g_bCvarInterior = g_cvarInterior.BoolValue;
+	g_bCvarExterior = g_cvarExterior.BoolValue;
+	g_bCvarDecorative = g_cvarDecorative.BoolValue;
+	g_bCvarMisc = g_cvarMisc.BoolValue;
+	g_bCvarLog = g_cvarLog.BoolValue;
+	g_cvarModelFile.GetString(g_sCvarModelFile, sizeof(g_sCvarModelFile));
+}
+
 
 public void OnMapStart()
 {
@@ -867,22 +919,22 @@ void BuildSpawnMenu(int client)
 	Menu menu = new Menu(MenuHandler_Spawn);
 	menu.SetTitle("%T", "Select the spawn method", client);
 	
-	if(g_cvarPhysics.BoolValue)
+	if(g_bCvarPhysics)
 	{
 		menu.AddItem("sm_spawnpc", Translate(client, "%t", "Spawn Physics On Cursor"));
 		menu.AddItem("sm_spawnpo", Translate(client, "%t", "Spawn Physics On Origin"));
 	}
-	if(g_cvarDynamic.BoolValue)
+	if(g_bCvarDynamic)
 	{
 		menu.AddItem("sm_spawndc", Translate(client, "%t", "Spawn Non-solid On Cursor"));
 		menu.AddItem("sm_spawndo", Translate(client, "%t", "Spawn Non-solid On Origin"));
 	}
-	if(g_cvarStatic.BoolValue)
+	if(g_bCvarStatic)
 	{
 		menu.AddItem("sm_spawnsc", Translate(client, "%t", "Spawn Solid On Cursor"));
 		menu.AddItem("sm_spawnso", Translate(client, "%t", "Spawn Solid On Origin"));
 	}
-	if(g_cvarItem.BoolValue)
+	if(g_bCvarItem)
 	{
 		menu.AddItem("sm_spawnic", Translate(client, "%t", "Spawn Items On Cursor"));
 		menu.AddItem("sm_spawnio", Translate(client, "%t", "Spawn Items On Origin"));
@@ -1059,27 +1111,27 @@ void BuildItemPositionMenu(int client)
 
 void CheckSecondaryMenuCategories(Menu menu, int client)
 {	
-	if(g_cvarVehicles.BoolValue)
+	if(g_bCvarVehicles)
 	{
 		menu.AddItem("vehicles", Translate(client, "%t", "Vehicles"));
 	}
-	if(g_cvarFoliage.BoolValue)
+	if(g_bCvarFoliage)
 	{
 		menu.AddItem("foliage", Translate(client, "%t", "Foliage"));
 	}
-	if(g_cvarInterior.BoolValue)
+	if(g_bCvarInterior)
 	{
 		menu.AddItem("interior", Translate(client, "%t", "Interior"));
 	}
-	if(g_cvarExterior.BoolValue)
+	if(g_bCvarExterior)
 	{
 		menu.AddItem("exterior", Translate(client, "%t", "Exterior"));
 	}
-	if(g_cvarDecorative.BoolValue)
+	if(g_bCvarDecorative)
 	{
 		menu.AddItem("decorative", Translate(client, "%t", "Decorative"));
 	}
-	if(g_cvarMisc.BoolValue)
+	if(g_bCvarMisc)
 	{
 		menu.AddItem("misc", Translate(client, "%t", "Misc"));
 	}
@@ -1671,11 +1723,11 @@ void SetFileCategory(Menu menu, int client)
 	char ItemModel[256];
 	char ItemTag[256];
 	char buffer[1024];
-	BuildPath(Path_SM, FileName, sizeof(FileName), "data/l4d2_spawn_props_models.txt");
+	BuildPath(Path_SM, FileName, sizeof(FileName), g_sCvarModelFile);
 	int len;
 	if(!FileExists(FileName))
 	{
-		SetFailState("Unable to find the l4d2_spawn_props_models.txt file");
+		SetFailState("Unable to find: %s", g_sCvarModelFile);
 	}
 	file = OpenFile(FileName, "r");
 	if(file == null)
@@ -2953,7 +3005,7 @@ void DeleteLastProp(int client)
 
 void LogSpawn(const char[] format, any ...)
 {
-	if(!g_cvarLog.BoolValue)
+	if(!g_bCvarLog)
 	{
 		return;
 	}

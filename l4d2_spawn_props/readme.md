@@ -62,63 +62,65 @@ Let admins spawn any kind of objects and saved to cfg
 				"classname"	"prop_dynamic"
 			}
 			```
+
 	* Auto save the objects when map change or round ends. For people who always forget to save objects :(
 </details>
 
 * <details><summary>Q&A</summary>
 
-	* Why I can't read object names in the menu?
-		* The [data/l4d2_spawn_props_models.txt](data/l4d2_spawn_props_models.txt) is Chinese language
-		* Delete file and Use [data/l4d2_spawn_props_models_english.txt](data/l4d2_spawn_props_models_english.txt), rename to ```data/l4d2_spawn_props_models.txt```
-
-	* How to add more models?
-		* Modify ```data/l4d2_spawn_props_models.txt```
+	* How to add more models and translate name?
+		* Modify [data/l4d2_spawn_props_models_english.txt](data/l4d2_spawn_props_models_english.txt)
 </details>
 
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d2_spawn_props.cfg
 		```php
-        // Enable the Decorative category
+        // If 1, Enable the Decorative category
         l4d2_spawn_props_category_decorative "1"
 
-        // Enable the Exterior category
+        // If 1, Enable the Exterior category
         l4d2_spawn_props_category_exterior "1"
 
-        // Enable the Foliage category
+        // If 1, Enable the Foliage category
         l4d2_spawn_props_category_foliage "1"
 
-        // Enable the Interior category
+        // If 1, Enable the Interior category
         l4d2_spawn_props_category_interior "1"
 
-        // Enable the Misc category
+        // If 1, Enable the Misc category
         l4d2_spawn_props_category_misc "1"
 
-        // Enable the Vehicles category
+        // If 1, Enable the Vehicles category
         l4d2_spawn_props_category_vehicles "1"
 
-        // Enable the Dynamic (Non-solid) Objects in the menu
+        // If 1, Enable the Dynamic (Non-solid) Objects in the menu
         l4d2_spawn_props_dynamic "1"
 
-        // Enable the Items & Weapons Objects in the menu
-        l4d2_spawn_props_items "1"
+        // If 1, Enable the Static (Solid) Objects in the menu
+        l4d2_spawn_props_static "1"
 
-        // Log if an admin spawns an object?
-        l4d2_spawn_props_log_actions "0"
-
-        // Enable the Physics Objects in the menu
+        // If 1, Enable the Physics Objects in the menu
         l4d2_spawn_props_physics "1"
 
-        // Enable the Static (Solid) Objects in the menu
-        l4d2_spawn_props_static "1"
+        // If 1, Enable the Items & Weapons Objects in the menu
+        l4d2_spawn_props_items "1"
+
+        // If 1, Log if an admin spawns an object?
+        l4d2_spawn_props_log_actions "0"
+
+		// Model file to read, default: data/l4d2_spawn_props_models_english.txt
+		// -
+		// Default: "data/l4d2_spawn_props_models_english.txt"
+		l4d2_spawn_props_model_file "data/l4d2_spawn_props_models_english.txt"
 		```
 </details>
 
 * <details><summary>Command | 命令</summary>
 
-	* **Spawns an object with the given information, sm_spawnprop <model> [static | dynamic | physics] [cursor | origin] (Adm required: ADMFLAG_UNBAN)**
+	* **Spawns an object with the given information (Adm required: ADMFLAG_UNBAN)**
 		```php
-		sm_spawnprop
+		sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]
 		```
 
 	* **Save all the spawned object in a stripper file, path: addons/stripper/maps/XXXX.cfg (XXXX is map name) (Adm required: ADMFLAG_UNBAN)**
@@ -126,9 +128,9 @@ Let admins spawn any kind of objects and saved to cfg
 		sm_savemap
 		```
 
-	* **Rotates the looking spawned object with the desired angles, Usage: sm_prop_rotate <axys> <angles> [EX: !prop_rotate x 30] (Adm required: ADMFLAG_UNBAN)**
+	* **Rotates the looking spawned object with the desired angles, e.g.: !prop_rotate x 30 (Adm required: ADMFLAG_UNBAN)**
 		```php
-		sm_prop_rotate
+		sm_prop_rotate sm_prop_rotate <axys> <angles> [e.g.: !prop_rotate x 30]
 		```
 
 	* **Remove last spawned object (Adm required: ADMFLAG_UNBAN)**
@@ -146,19 +148,19 @@ Let admins spawn any kind of objects and saved to cfg
 		sm_prop_removeall
 		```
 
-	* **Move the looking spawned object with the desired movement type, Usage: sm_prop_move <axys> <distance> [EX: !prop_move x 30] (Adm required: ADMFLAG_UNBAN)**
+	* **Move the looking spawned object with the desired movement type [EX: !prop_move x 30] (Adm required: ADMFLAG_UNBAN)**
 		```php
-		sm_prop_move
+		sm_prop_move <axys> <distance>
 		```
 
-	* **Forces the looking spawned object angles, Usage: sm_prop_setang <X Y Z> [EX: !prop_setang 30 0 34] (Adm required: ADMFLAG_UNBAN)**
+	* **Forces the looking spawned object angles [e.g.: !prop_setang 30 0 34] (Adm required: ADMFLAG_UNBAN)**
 		```php
-		sm_prop_setang
+		sm_prop_setang <X Y Z>
 		```
 
-	* **Sets the looking spawned object position, Usage: sm_prop_setpos <X Y Z> [EX: !prop_setpos 505 -34 17 (Adm required: ADMFLAG_UNBAN)**
+	* **Sets the looking spawned object position [e.g.: !prop_setpos 505 -34 17] (Adm required: ADMFLAG_UNBAN)**
 		```php
-		sm_prop_setpos
+		sm_prop_setpos <X Y Z>
 		```
 
 	* **Locks the looking spawned object, Use for move and rotate (Adm required: ADMFLAG_UNBAN)**
@@ -184,8 +186,10 @@ Let admins spawn any kind of objects and saved to cfg
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v4.3 (2025-10-7)
+	* v4.3 (2026-3-15)
 		* Update translation
+		* Update cvars
+		* Add Chinese and English model data file
 
 	* v4.2 (2025-5-23)
 		* Suppprt float number
@@ -225,7 +229,7 @@ Let admins spawn any kind of objects and saved to cfg
 
 	* 如何創造物件?
 		1. 管理員輸入```!admin```->生成物件->生成物件->選擇其中一項
-		2. 動態（會受重力影響），穿透（擺好看），固態（不受重力影響），物品（槍械、近戰、醫療物品、投擲物品、彈藥堆、雷射裝置）
+		2. 動態（會受重力影響），穿透（擺好看），固定（不受重力影響），物品（槍械、近戰、醫療物品、投擲物品、彈藥堆、雷射裝置）
 			* 非所有模型都能變成動態
 			* 非所有模型都能變成穿透
 			* 非所有模型都能變成固態 (去問Valve，認真你就輸了)
@@ -254,13 +258,128 @@ Let admins spawn any kind of objects and saved to cfg
 				"classname"	"prop_dynamic"
 			}
 			```
+
 	* 回合結束或切換地圖時, 自動保存尚未儲存的物件 (因為玩家容易忘記儲存物件)
 </details>
 
 * <details><summary>Q&A</summary>
 
+	* 如何變成中文模組菜單?
+		* 修改插件的指令
+			```c
+			// 取模組的文件檔案，換成中文菜單請修改成 "data/l4d2_spawn_props_models_chinese.txt"
+			l4d2_spawn_props_model_file "data/l4d2_spawn_props_models_chinese.txt"
+			```
+
 	* 如何增加更多模組?
-		* 編輯檔案 [data/l4d2_spawn_props_models.txt](data/l4d2_spawn_props_models.txt)
+		* 編輯檔案 [data/l4d2_spawn_props_models_english.txt](data/l4d2_spawn_props_models_english.txt)
+		* 編輯檔案 [data/l4d2_spawn_props_models_chinese.txt](data/l4d2_spawn_props_models_chinese.txt)
 </details>
 
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/l4d2_spawn_props.cfg
+		```php
+        // 為1時, 啟用 "裝飾類"
+        l4d2_spawn_props_category_decorative "1"
+
+        // 為1時, 啟用 "室外類"
+        l4d2_spawn_props_category_exterior "1"
+
+        // 為1時, 啟用 "植物類"
+        l4d2_spawn_props_category_foliage "1"
+
+        // 為1時, 啟用 "室內類"
+        l4d2_spawn_props_category_interior "1"
+
+        // 為1時, 啟用 "雜項類"
+        l4d2_spawn_props_category_misc "1"
+
+        // 為1時, 啟用 "載具類"
+        l4d2_spawn_props_category_vehicles "1"
+
+        // 為1時, 啟用 "生成穿透物件"（擺好看）
+        l4d2_spawn_props_dynamic "1"
+
+        // 為1時, 啟用 "生成固定物件"（不受重力影響）
+        l4d2_spawn_props_static "1"
+
+        // 為1時, 啟用 "生成動態物件"（受重力影響）
+        l4d2_spawn_props_physics "1"
+
+        // 為1時, 啟用 "生成物品物件" (槍械、近戰、醫療物品、投擲物品、彈藥堆、雷射裝置）
+        l4d2_spawn_props_items "1"
+
+        // 為1時, 任何管理員的動作(生成或刪除)都會紀錄文件，位於addons/souremod/logs資料夾
+        l4d2_spawn_props_log_actions "0"
+
+		// 取模組的文件檔案，想要換成中文菜單請修改成 "data/l4d2_spawn_props_models_chinese.txt"
+		// 預設: data/l4d2_spawn_props_models_english.txt
+		l4d2_spawn_props_model_file "data/l4d2_spawn_props_models_english.txt"
+		```
+</details>
+
+* <details><summary>命令中文介紹 (點我展開)</summary>
+
+	* **生成模型 (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_spawnprop <model> [static | dynamic | physics] [cursor | origin]
+		```
+
+	* **儲存所有物件到 stripper 文件, 路徑: addons/stripper/maps/XXXX.cfg (XXXX是地圖名稱) (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_savemap
+		```
+
+	* **準心指向的物件指定X/Y/Z軸旋轉角度 [範例: !prop_rotate x 30] (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_rotate <x y z> <角度>
+		```
+
+	* **移除最後一個生成的物件 (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_removelast
+		```
+
+	* **移除準心指向的物件 (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_removelook
+		```
+
+	* **移除所有生成過的物件 (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_removeall
+		```
+
+	* **準心指向的生成過的物件指定X/Y/Z軸移動位置 <distance> [範例:  !prop_move x 30] (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_move <寫x y z> <距離>
+		```
+
+	* **準心指向的生成過的物件設置旋轉角度 [範例:  !prop_setang 30 0 34] (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_setang <寫三個數字>
+		```
+
+	* **準心指向的生成過的物件移動位置 [範例:  !prop_setpos 505 -34 17] (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_setpos <寫三個數字>
+		```
+
+	* **鎖定準心指向的生成過的物件, 用於移動或是旋轉角度 (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_lock
+		```
+
+	* **複製被鎖定的物件 (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_clone
+		```
+
+	* **列印準心指向的物件各種資訊 (打印於聊天框上) (權限: ADMFLAG_UNBAN)**
+		```php
+		sm_prop_print
+		```
+</details>
 

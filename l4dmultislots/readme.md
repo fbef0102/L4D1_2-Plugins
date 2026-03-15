@@ -355,10 +355,10 @@ Allows additional survivor players in server when 5+ player joins the server
 		// (L4D1) 給予新生成的倖存者Bot副醫療物品 (1 - 藥丸, 0=關閉)
 		l4d_multislots_fifthweapon "0"
 
-		// 為1時，最後一關救援開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
+		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
 		l4d_multislots_saferoom_extra_first_aid "1"
 
-		// 為1時，回合開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
+		// 為1時，最後一關救援開始時給予第五位以上的倖存者額外的治療包. (0=沒有額外治療包)
 		l4d_multislots_finale_extra_first_aid "1"
 
 		// 當玩家在相同的遊戲回合中已經當過倖存者並嘗試第二次重新加入倖存者時
