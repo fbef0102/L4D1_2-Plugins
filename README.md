@@ -1,6 +1,6 @@
 ﻿# Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me
 
-# Require
+# Require Server Install
 * [L4D1 Server Install](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D1#server-install)
 * [L4D2 Server Install](https://github.com/fbef0102/Sourcemod-Server/tree/main/L4D2#server-install)
 
@@ -307,8 +307,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修復靈魂特感無法復活的bug "Waiting For the finale to begin"
 
 # Scripting Compiler
-* [sourcemod v1.11 compiler](https://www.sourcemod.net/downloads.php?branch=1.11-dev): scripting folder
-    * 使用 sourcemod v1.11 的編譯環境
+* [sourcemod v1.12 compiler](https://www.sourcemod.net/downloads.php?branch=1.12-dev): scripting folder
+    * 使用 sourcemod v1.12 的編譯環境
 * SourceMod is licensed under the [GNU General Public License, version 3](https://www.sourcemod.net/license.php).
     * 此專案內所有開源碼皆在授權條款下: [GNU General Public License, version 3](https://www.sourcemod.net/license.php)
 

@@ -11,7 +11,7 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.5h - 2026/3/7",
+	version = "v1.6h - 2026/3/26",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -104,7 +104,7 @@ void DumpMissionInfo(int client, LMM_GAMEMODE gamemode) {
 	char mapName[LEN_MAP_FILENAME];
 	char localizedName[LEN_LOCALIZED_NAME];
 	
-	if(client > 0) ReplyToCommand(client, "Gamemode = %s (%d missions)", gamemodeName, missionCount);
+	ReplyToCommand(client, "--GAMEMODE = %s (%d MISSIONS)--", gamemodeName, missionCount);
 
 	for (int iMission=0; iMission<missionCount; iMission++) {
 		LMM_GetMissionName(gamemode, iMission, missionName, sizeof(missionName));
@@ -1085,7 +1085,8 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			char mapFile[LEN_MAP_FILENAME];
 			// Make sure that all map indexes are consecutive and start from 1
 			// And validate maps
-			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) {
+			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) 
+			{
 				int index = g_hIntMap_Index.FindValue(iMap);
 				if (index < 0) 
 				{
@@ -1140,6 +1141,8 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 				if (index < 0) continue;
 				
 				g_hStrMap_FileName.GetString(index, mapFile, sizeof(mapFile));
+				if (!IsMapValid(mapFile)) continue;
+
 				mapList.PushString(mapFile);
 
 				g_hStrMap_DisplayName.GetString(index, mapDisplayName, sizeof(mapDisplayName));
@@ -1149,7 +1152,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			// Add a new entry
 			ArrayList entryList = LMM_GetEntryList(g_MissionParser_CurGameMode);
 			int lastOffset = entryList.Get(entryList.Length-1);
-			entryList.Push(lastOffset+g_hIntMap_Index.Length);
+			entryList.Push(lastOffset+numOfValidMaps);
 			
 			// Add to mission name list
 			missionName.PushString(g_MissionParser_MissionName);

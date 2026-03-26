@@ -209,7 +209,7 @@ Improves the AI behaviour of special infected
         // 0=Plugin off, 1=Plugin on.
         AI_HardSI_enable "1"
 
-        // Frequency(sec) at which the 'nb_assault' command is fired to make SI attack
+        // Frequency(sec) at which the 'nb_assault' command is fired to make AI S.I. attack instead of ambush (0=off)
         ai_assault_reminder_interval "2"
 
         // File to execute for AI aggressive cvars (in cfg/AI_HardSI folder)
@@ -474,7 +474,7 @@ Improves the AI behaviour of special infected
         // 0=關閉插件, 1=啟動插件
         AI_HardSI_enable "1"
 
-        // 每兩秒執行 nb_assault 命令，強迫所有特感Bots主動往前攻擊倖存者
+        // 每兩秒執行 nb_assault 命令，強迫所有特感Bots主動往前攻擊倖存者而非原地埋伏 (0=關閉這項功能)
         ai_assault_reminder_interval "2"
 
         // 修改官方指令強化AI智商的文件 (位於 cfg/AI_HardSI 資料夾)

@@ -21,8 +21,6 @@ Fixed Teleport bug if jcokey player switches team while riding the survivor (Ano
 
 	1. [Jockey Ride Stuck Fix](https://forums.alliedmods.net/showthread.php?t=334127): When the survivor bot controlled by jockey is kicked out of the game, jockey will get stuck in the air, this plugin fixes it
 		> 修正當jockey正在騎的倖存者被踢出遊戲的時候，Jockey會卡住
-	2. [Jockey teleport bug](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/archive/l4d2_jockey_teleport_fix.sp): A fix for Jockeys teleporting (whether done maliciously with cheats, or caused by a glitch)
-		> 修復在Linux系統中，時常發生jockey騎人類莫名被傳送到地圖外面的位置
 </details>
 
 - - - -

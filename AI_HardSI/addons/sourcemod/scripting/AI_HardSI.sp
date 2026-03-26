@@ -85,7 +85,7 @@ public void OnPluginStart()
 	g_hCvarEnable 				 	= CreateConVar( "AI_HardSI_enable",        		"1",   	"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	if(g_bL4D2Version)
 	{
-		g_hCvarAssaultReminderInterval 	= CreateConVar( "ai_assault_reminder_interval", "2", 	"Frequency(sec) at which the 'nb_assault' command is fired to make SI attack", CVAR_FLAGS, true, 0.0 );
+		g_hCvarAssaultReminderInterval 	= CreateConVar( "ai_assault_reminder_interval", "2", 	"Frequency(sec) at which the 'nb_assault' command is fired to make AI S.I. attack instead of ambush (0=off)", CVAR_FLAGS, true, 0.0 );
 	}
 	g_hCvarExecAggressiveCfg 		= CreateConVar( "AI_HardSI_aggressive_cfg", 	"aggressive_ai.cfg", 	"File to execute for AI aggressive cvars (in cfg/AI_HardSI folder)\nExecute file every map changed", CVAR_FLAGS );
 
@@ -179,16 +179,22 @@ public void OnConfigsExecuted()
 																	
 ***********************************************************************************************************************************************************************************/
 
+Handle g_hForceInfectedAssaultTimer;
 public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client) 
 {	
-	if(!g_bL4D2Version) return;
+	if(!g_bL4D2Version || !g_bCvarEnable) return;
 
-	CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
+	delete g_hForceInfectedAssaultTimer;
+	g_hForceInfectedAssaultTimer = CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
 }
 
 Action Timer_ForceInfectedAssault( Handle timer ) 
 {
-	if(!g_bCvarEnable) return Plugin_Continue;
+	if(g_fCvarAssaultReminderInterval <= 0)
+	{
+		g_hForceInfectedAssaultTimer = null;
+		return Plugin_Stop;
+	}
 
 	CheatServerCommand("nb_assault");
 
