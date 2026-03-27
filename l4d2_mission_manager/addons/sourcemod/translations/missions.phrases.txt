@@ -99,122 +99,28 @@
 		"zho" 	"最後一刻"
 		"chi" 	"临死一搏"
 	}
-	"dbd2dc"
+	"广州增城Lv7.3"
 	{
-		"en" 	"Dead Before Dawn DC"
-		"zho" 	"活人生吃: 導演版"
-		"chi" 	"活死人黎明: 导演版"
+		"en"		"广州增城Lv7.3"
 	}
-	"QuestionableEthics"
+	"广西-南宁 V1.15.1"
 	{
-		"en" "Questionable Ethics 1"
+		"en"		"广西-南宁 V1.15.1"
 	}
-	"QuestionableEthicsAlphaTest"
+	"广西灵山V2.9"
 	{
-		"en" "Questionable Ethics 2"
+		"en"		"广西灵山V2.9"
 	}
-	"CrashBandicootTheReturn"
+	"The Cure"
 	{
-		"en" "CrashBandicoot 1"
+		"en"		"The Cure"
+		"zho"		"治癒"
+		"chi"		"治愈"
 	}
-	"l4d2CrashBandicoot2"
+	"Vienna Calling 2"
 	{
-		"en" "CrashBandicoot 2"
-	}
-	"TanksPlayground"
-	{
-		"en" "Tanks Playground"
-	}
-	"WhiteForest"
-	{
-		"en" "White Forest"
-	}
-	"YamaMSE"
-	{
-		"en" "Yama"
-	}
-	"ddntr1"
-	{
-		"en" "Deadenator"
-	}
-	"Diescraper36"
-	{
-		"en" "Diescraper"
-	}
-	"SaltHellPark"
-	{
-		"en" "Salt Hell Park"
-	}
-	"TheBloodyMoors"
-	{
-		"en" "The Bloody Moors"
-	}
-	"FarewellChenming"
-	{
-		"en" "Farewell Chenming"
-	}
-	"darkwood"
-	{
-		"en" "Dark Wood"
-	}
-	"DevilMountain"
-	{
-		"en" "Devil Mountain"
-	}
-	"fallen"
-	{
-		"en" "Fallen"
-	}
-	"Cure2"
-	{
-		"en" "Cure 2"
-	}
-	"deadvacation2"
-	{
-		"en" "Dead Vacation 2"
-	}
-	"Derailed"
-	{
-		"en" "Derailed"
-	}
-	"hauntedforest"
-	{
-		"en" "Haunted Forest"
-	}
-	"TheCure"
-	{
-		"en" "The Cure"
-	}
-	"2evileyes"
-	{
-		"en" "Evil Eyes"
-	}
-	"BloodTracks"
-	{
-		"en" "Blood Tracks"
-	}
-	"drdegov21"
-	{
-		"en" "Drop Dead Gorges"
-	}
-	"DeadSeries"
-	{
-		"en" "Dead Series"
-	}
-	"HighwayToHell"
-	{
-		"en" "Highway To Hell"
-	}
-	"ihatemountains2"
-	{
-		"en" "I Hate Moutains 2"
-	}
-	"JourneyToSplashMountain"
-	{
-		"en" "Journey To Splash Mountain"
-	}
-	"undeadzone"
-	{
-		"en" "Undead Zone"
+		"en" 	"Vienna Calling 2"
+		"zho" 	"维也纳"
+		"chi" 	"维也纳"
 	}
 }
