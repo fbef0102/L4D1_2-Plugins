@@ -1101,11 +1101,11 @@ void ForceWitchJump( int witch, const float vVelocity[3], bool add = false )
 
     AddVectors(vVec, vVelocity, vVec);
     
-    Jump(witch, locomotion);
+    Jump(locomotion);
     SetWitchVelocity(locomotion, vVec);
 }
 
-stock void Jump( int witch, Address locomotion )
+stock void Jump( Address locomotion )
 {
 	if(L4D2Version)
 		StoreToAddress(locomotion + view_as<Address>(0xC0), 0, NumberType_Int8);
