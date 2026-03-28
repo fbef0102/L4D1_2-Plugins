@@ -36,6 +36,11 @@ Auto Takes Over an alive free bot UponDeath or OnBotSpawn in 5+ survivor
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.4 (2026-3-28)
+        * Thanks to Marttt
+        * Added "AutoTakeOver_take_over_random" cvar to control if the selected bot should be randomized or by best available (not incap and highest HP) Removed some extra spaces
+        * Added Z flag command to "debug" the best bots by ranking Renamed the AutoTakeOver_take_over_UponDeath cvar description
+
 	* v2.3
         * [AlliedModders Post](https://forums.alliedmods.net/showpost.php?p=2773718&postcount=16)
         * Remake Code
