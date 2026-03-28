@@ -604,8 +604,6 @@ int Native_GetMissionLocalizedDisplayTitle(Handle plugin, int numParams) {
 		if(TranslationPhraseExists(displayTitleName))
 		{
 			Format(localizedName, sizeof(localizedName), "%T", displayTitleName, client);
-
-			return 1;
 		}
 		else
 		{
