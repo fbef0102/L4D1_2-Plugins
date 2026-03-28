@@ -283,7 +283,7 @@ public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3
 			
 			NormalizeVector(velocity, velocity);
 			ScaleVector(velocity, z_tank_throw_force_speed * 1.4);
-			int new_helper = CreateSI(tank, vecPos, vecAng, velocity);
+			int new_helper = CreateSI(tank, vecPos, velocity);
 			if(new_helper > 0)
 			{
 				TeleportEntity(rock, g_99999Position);
@@ -362,7 +362,7 @@ bool IsRockStuck(int ent, const float pos[3])
 	return true;
 }
 
-stock int CreateSI(int thetank, const float pos[3], const float ang[3], const float velocity[3])
+stock int CreateSI(int thetank, const float pos[3], const float velocity[3])
 {
 	int selected=0;
 	int chooseclass=0;
