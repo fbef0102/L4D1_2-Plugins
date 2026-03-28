@@ -50,9 +50,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define SOUND_THROWN_MISSILE 		"player/tank/attack/thrown_missile_loop_1.wav"
 
-#define MAXENTITIES                   2048
-#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
-
 #define ZC_SMOKER	1
 #define ZC_BOOMER	2
 #define ZC_HUNTER	3
