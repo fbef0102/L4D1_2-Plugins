@@ -113,12 +113,6 @@
 #define ZC_TANK			8
 #define HITGROUP_HEAD	1
 
-#define DMG_CRUSH				(1 << 0)		// crushed by falling or moving object. 
-#define DMG_BULLET				(1 << 1)		// shot
-#define DMG_SLASH				(1 << 2)		// cut, clawed, stabbed
-#define DMG_CLUB				(1 << 7)		// crowbar, punch, headbutt
-#define DMG_BUCKSHOT			(1 << 29)		// not quite a bullet. Little, rounder, different. 
-
 #define DMGARRAYEXT		7						// MAXPLAYERS+# -- extra indices in witch_dmg_array + 1
 
 #define CUT_SHOVED		1						// smoker got shoved
