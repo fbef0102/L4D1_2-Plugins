@@ -50,9 +50,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define SOUND_THROWN_MISSILE 		"player/tank/attack/thrown_missile_loop_1.wav"
 
-#define MAXENTITIES                   2048
-#define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
-
 #define ZC_SMOKER	1
 #define ZC_BOOMER	2
 #define ZC_HUNTER	3
@@ -286,7 +283,7 @@ public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3
 			
 			NormalizeVector(velocity, velocity);
 			ScaleVector(velocity, z_tank_throw_force_speed * 1.4);
-			int new_helper = CreateSI(tank, vecPos, vecAng, velocity);
+			int new_helper = CreateSI(tank, vecPos, velocity);
 			if(new_helper > 0)
 			{
 				TeleportEntity(rock, g_99999Position);
@@ -365,7 +362,7 @@ bool IsRockStuck(int ent, const float pos[3])
 	return true;
 }
 
-stock int CreateSI(int thetank, const float pos[3], const float ang[3], const float velocity[3])
+stock int CreateSI(int thetank, const float pos[3], const float velocity[3])
 {
 	int selected=0;
 	int chooseclass=0;
@@ -1104,11 +1101,11 @@ void ForceWitchJump( int witch, const float vVelocity[3], bool add = false )
 
     AddVectors(vVec, vVelocity, vVec);
     
-    Jump(witch, locomotion);
+    Jump(locomotion);
     SetWitchVelocity(locomotion, vVec);
 }
 
-stock void Jump( int witch, Address locomotion )
+stock void Jump( Address locomotion )
 {
 	if(L4D2Version)
 		StoreToAddress(locomotion + view_as<Address>(0xC0), 0, NumberType_Int8);
