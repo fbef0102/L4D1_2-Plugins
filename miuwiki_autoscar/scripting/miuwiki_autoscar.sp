@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <miuwiki_autoscar>
 
-#define PLUGIN_VERSION "1.3h-2025/10/8"
+#define PLUGIN_VERSION "1.4h-2026/3/29"
 
 public Plugin myinfo =
 {
@@ -54,6 +54,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define DEFAULT_RELOAD_TIME  3.2
 #define DEFAULT_ATTACK2_TIME 0.4
 #define NOT_IN_RELOAD        0.0
+
+ConVar ammo_assaultrifle_max;
+
+int
+	g_iOfficialCvar_ammo_assaultrifle_max;
 
 int
 	g_scar_precache_index,
@@ -116,6 +121,11 @@ float
 public void OnPluginStart()
 {
 	LoadGameData();
+
+	ammo_assaultrifle_max = FindConVar("ammo_assaultrifle_max");
+	GetOfficialCvars();
+	ammo_assaultrifle_max.AddChangeHook(ConVarChanged_OfficialCvars);
+
 	cvar_l4d2_scar_cycletime    = CreateConVar("miuwiki_autoscar_cycletime", 	"0.11", 	"Scar full Auto cycle time. [min 0.03, 0=Same as Triple Tap default cycle time]", FCVAR_NOTIFY, true, 0.0);
 	cvar_l4d2_scar_reloadtime   = CreateConVar("miuwiki_autoscar_reloadtime", 	"0",    	"Scar full Auto reload time. [min 0.5, 0=Same as Triple Tap default reload time]", FCVAR_NOTIFY, true, 0.0);
 	cvar_l4d2_scar_notify		= CreateConVar("miuwiki_autoscar_notify", 		"1", 		"1=Enable chat notify, 0=Disable chat notify", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -160,6 +170,16 @@ void LateLoad()
 
         g_DynamicHook_ItemPostFrame.HookEntity(Hook_Post, entity, DhookCallback_ItemPostFrame);
     }
+}
+
+void ConVarChanged_OfficialCvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetOfficialCvars();
+}
+
+void GetOfficialCvars()
+{ 	
+	g_iOfficialCvar_ammo_assaultrifle_max = ammo_assaultrifle_max.IntValue;
 }
 
 void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
@@ -443,7 +463,7 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 	int reserverammo = L4D_GetReserveAmmo(client, pThis);
 	if( CanReload(client, clip))
 	{
-		if(clip == 0 && reserverammo > 0 
+		if(clip == 0 && (reserverammo > 0 || g_iOfficialCvar_ammo_assaultrifle_max == -2)
 		&& currenttime > player[client].secondaryattacktime )
 		{
 			SDKCall(g_SDKCall_AbortReload, pThis);
@@ -465,9 +485,10 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			return MRES_Ignored; 
 		}
 
-		if( (button & IN_RELOAD) && clip > 0 && reserverammo > 0 )
+		if( (button & IN_RELOAD) && clip > 0 && (reserverammo > 0 || g_iOfficialCvar_ammo_assaultrifle_max == -2) )
 		{
-			L4D_SetReserveAmmo(client, pThis, reserverammo + clip);
+			if(g_iOfficialCvar_ammo_assaultrifle_max != -2) L4D_SetReserveAmmo(client, pThis, reserverammo + clip);
+
 			SetEntProp(pThis, Prop_Send, "m_iClip1", 0); // 不等下一偵
 
 			SDKCall(g_SDKCall_AbortReload, pThis);

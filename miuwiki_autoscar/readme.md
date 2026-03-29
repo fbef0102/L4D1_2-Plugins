@@ -63,6 +63,9 @@ Full auto mode for SCAR
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.4h (2026-3-29)
+		* Fixed unable to shoot or reload if official cvar "ammo_assaultrifle_max" is -2
+
 	* v1.3h (2025-10-8)
 		* Update cvars
 
