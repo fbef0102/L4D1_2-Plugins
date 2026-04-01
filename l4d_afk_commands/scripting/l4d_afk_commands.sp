@@ -82,15 +82,21 @@
 #include <dhooks>
 #include <multicolors>
 #include <left4dhooks>
+
 #undef REQUIRE_EXTENSIONS
 #include <actions>
 #define REQUIRE_EXTENSIONS
 
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
+#tryinclude <l4dmultislots>
 
 #if !defined _l4d_team_unscramble_included
 	native bool l4d_team_unscramble_IsUnscrambled();
+#endif
+
+#if !defined _l4dmultislots_included_
+	native int L4DMultiSlots_MaxSurvivors();
 #endif
 
 public Plugin myinfo =
@@ -102,7 +108,7 @@ public Plugin myinfo =
 	url = PLUGIN_URL
 };
 
-bool g_bLateLoad, g_bL4D2Version, g_bUnscramble = false;
+bool g_bLateLoad, g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -117,6 +123,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	}
 
 	MarkNativeAsOptional("l4d_team_unscramble_IsUnscrambled");
+	MarkNativeAsOptional("L4DMultiSlots_MaxSurvivors");
 
 	g_bLateLoad = late;
 	return APLRes_Success;
@@ -129,7 +136,8 @@ static const char WITCH_NAME[]		= "witch";
 #define MODEL_GASCAN			"models/props_junk/gascan001a.mdl"
 #define MODEL_BARREL			"models/props_industrial/barrel_fuel.mdl"
 
-ConVar g_hZMaxPlayerZombies;
+ConVar g_hZMaxPlayerZombies, g_hZMaxSurLimit;
+int g_iZMaxPlayerZombies, g_iZMaxSurLimit;
 
 ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSeconds, g_hWeaponReloadBlock, g_hGetUpStaggerBlock, 
 	g_hGetVomitBlock,
@@ -146,7 +154,7 @@ bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpSt
 	g_bInfectedAttackBlock, g_bGetVomitBlock, g_bInfectedCapBlock,
 	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance, g_bShowMessages;
 float g_fBreakPropCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
-int g_iCvarGameTimeBlock, g_iCountDownTime, g_iZMaxPlayerZombies, g_iVSUnBalanceLimit;
+int g_iCvarGameTimeBlock, g_iCountDownTime, g_iVSUnBalanceLimit;
 
 bool g_bHasLeftSafeRoom, g_bGameTeamSwitchBlock;
 
@@ -173,7 +181,6 @@ float ClientJoinSurvivorTime[MAXPLAYERS+1] ;//加入倖存者隊伍的時間
 float g_fCoolTime;
 int clientteam[MAXPLAYERS+1];//玩家換隊成功之後的隊伍
 
-bool g_bExtensionActions;
 public void OnPluginStart()
 {
 	/*GameData hGamedata = new GameData("l4d_afk_commands");
@@ -237,6 +244,8 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_observe", TurnClientToObserver, "Switch team to fully an observer.");
 
 	g_hZMaxPlayerZombies = 		FindConVar("z_max_player_zombies");
+	g_hZMaxSurLimit 	 = 		FindConVar("survivor_limit");
+
 	g_hCoolTime = 				CreateConVar("l4d_afk_commands_changeteam_cooltime_block", 		"10.0", "Cold Down Time in seconds a player can not change team again after switches team. (0=off)", FCVAR_NOTIFY, true, 0.0);
 	g_hDeadSurvivorBlock = 		CreateConVar("l4d_afk_commands_deadplayer_block", 				"1", 	"If 1, Dead Survivor player can not switch team.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hGameTimeBlock = 			CreateConVar("l4d_afk_commands_during_game_seconds_block", 		"0", 	"Player can not switch team after players have left start safe area for at least x seconds (0=off).", FCVAR_NOTIFY, true, 0.0);
@@ -265,6 +274,9 @@ public void OnPluginStart()
 	AutoExecConfig(true, "l4d_afk_commands");
 
 	GetCvars();
+	g_hZMaxPlayerZombies.AddChangeHook(ConVarChanged_Cvars);
+	g_hZMaxSurLimit.AddChangeHook(ConVarChanged_Cvars);
+
 	g_hCoolTime.AddChangeHook(ConVarChanged_Cvars);
 	g_hDeadSurvivorBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hGameTimeBlock.AddChangeHook(ConVarChanged_Cvars);
@@ -287,7 +299,6 @@ public void OnPluginStart()
 	g_hInfCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hSurCommandAccess.AddChangeHook(ConVarChanged_Cvars);
 	g_hObsCommandAccess.AddChangeHook(ConVarChanged_Cvars);
-	g_hZMaxPlayerZombies.AddChangeHook(ConVarChanged_Cvars);
 	g_hVSCommandBalance.AddChangeHook(ConVarChanged_Cvars);
 	g_hVSUnBalanceLimit.AddChangeHook(ConVarChanged_Cvars);
 	g_hShowMessages.AddChangeHook(ConVarChanged_Cvars);
@@ -329,10 +340,12 @@ public void OnPluginStart()
 	}
 }
 
+bool g_bExtensionActions, g_bL4DMultiSlotsAvailable, g_bUnscramble;
 public void OnAllPluginsLoaded()
 {
 	g_bUnscramble = LibraryExists("l4d_team_unscramble");
 	g_bExtensionActions = LibraryExists("actionslib");
+	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnPluginEnd()
@@ -352,14 +365,16 @@ public void OnPluginEnd()
 
 public void OnLibraryAdded(const char[] name)
 {
-	if(StrEqual(name, "l4d_team_unscramble"))
-		g_bUnscramble = true;
+	g_bUnscramble = LibraryExists("l4d_team_unscramble");
+	g_bExtensionActions = LibraryExists("actionslib");
+	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnLibraryRemoved(const char[] name)
 {
-	if(StrEqual(name, "l4d_team_unscramble"))
-		g_bUnscramble = false;
+	g_bUnscramble = LibraryExists("l4d_team_unscramble");
+	g_bExtensionActions = LibraryExists("actionslib");
+	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnMapStart()
@@ -422,13 +437,11 @@ Action Command_SwapTo(int client, int args)
 			}
 
 			int bot = FindBotToTakeOver(true);
+			if (bot==0) bot = FindBotToTakeOver(false);
+
 			if (bot==0)
 			{
-				bot = FindBotToTakeOver(false);
-			}
-			if (bot==0)
-			{
-				//ChangeClientTeam(player_id, 2);
+				if(g_bShowMessages) CPrintToChat(client, "%T", "No Bots For Player", client, player_id);
 				continue;
 			}
 
@@ -443,7 +456,7 @@ Action Command_SwapTo(int client, int args)
 		}
 
 			
-		if(g_bShowMessages && client != player_id) CPrintToChatAll("[{olive}TS{default}] %t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
+		if(g_bShowMessages && client != player_id) CPrintToChatAll("%t", "ADM Swap Player Team", client, player_id, L4D_TEAM_NAME(team));
 	}
 	
 	return Plugin_Handled;
@@ -477,7 +490,7 @@ Action ForceSurvivorSuicide(int client, int args)
 			return Plugin_Handled;
 		}
 
-		if(g_bShowMessages) CPrintToChatAll("[{olive}TS{default}] %t","Suicide",client);
+		if(g_bShowMessages) CPrintToChatAll("%t","Suicide",client);
 		ForcePlayerSuicide(client);
 	}
 	return Plugin_Handled;
@@ -663,6 +676,9 @@ void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newV
 
 void GetCvars()
 {
+	g_iZMaxPlayerZombies 	= g_hZMaxPlayerZombies.IntValue;
+	g_iZMaxSurLimit 		= g_hZMaxSurLimit.IntValue;
+
 	g_bDeadSurvivorBlock = g_hDeadSurvivorBlock.BoolValue;
 	g_iCvarGameTimeBlock = g_hGameTimeBlock.IntValue;
 	g_bInfectedAttackBlock = g_hInfectedAttackBlock.BoolValue;
@@ -685,7 +701,6 @@ void GetCvars()
 	g_bThrowableBlock = g_hThrowableBlock.BoolValue;
 	g_bGrenadeBlock = g_hGrenadeBlock.BoolValue;
 	g_fInfectedSpawnCooldown = g_hInfectedSpawnCooldown.FloatValue;
-	g_iZMaxPlayerZombies = g_hZMaxPlayerZombies.IntValue;
 	g_bVSCommandBalance = g_hVSCommandBalance.BoolValue;
 	g_iVSUnBalanceLimit = g_hVSUnBalanceLimit.IntValue;
 	g_bShowMessages = g_hShowMessages.BoolValue;
@@ -940,6 +955,13 @@ Action TurnClientToSurvivors(int client, int args)
 
 	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
 
+	if(g_bL4DMultiSlotsAvailable)
+	{
+		char sName[12];
+		GetCmdArg(0, sName, sizeof(sName));
+		if(strcmp(sName, "sm_join", false) == 0 || strcmp(sName, "sm_js", false) == 0) return Plugin_Continue;
+	}
+
 	int team = GetClientTeam(client);
 	if (team == 2)			//if client is survivor
 	{
@@ -962,9 +984,9 @@ Action TurnClientToSurvivors(int client, int args)
 
 	if(CanClientChangeTeam(client, 2) == false) return Plugin_Handled;
 	
-	int maxSurvivorSlots = GetTeamMaxSlots(2);
+	//int maxSurvivorSlots = GetTeamMaxSlots(2);
 	int survivorUsedSlots = GetTeamHumanCount(2);
-	int freeSurvivorSlots = (maxSurvivorSlots - survivorUsedSlots);
+	//int freeSurvivorSlots = (maxSurvivorSlots - survivorUsedSlots);
 	int maxInfectedSlots = GetTeamMaxSlots(3);
 	int infectedUsedSlots = GetTeamHumanCount(3);
 	int freeInfectedSlots = (maxInfectedSlots - infectedUsedSlots);
@@ -1010,47 +1032,49 @@ Action TurnClientToSurvivors(int client, int args)
 		}
 	}
 
-	if (freeSurvivorSlots <= 0)
+	/*if (freeSurvivorSlots <= 0)
 	{
 		if(g_bShowMessages) PrintHintText(client, "%T","Survivor team is full now.",client);
 		return Plugin_Handled;
 	}
 	else
+	{*/
+	int bot = FindBotToTakeOver(true);
+	if (bot==0) bot = FindBotToTakeOver(false);
+
+	if (bot==0)
 	{
-		int bot = FindBotToTakeOver(true);
-		if (bot==0)
-		{
-			bot = FindBotToTakeOver(false);
-		}
-		if (bot==0) return Plugin_Handled;
-		
-		if(L4D_HasPlayerControlledZombies() == false) //coop/survival
-		{
-			if(team == 3) ChangeClientTeam(client,1);
+		if(g_bShowMessages) PrintHintText(client, "%T","No Bots",client);
+		return Plugin_Handled;
+	}
+	
+	if(L4D_HasPlayerControlledZombies() == false) //coop/survival
+	{
+		if(team == 3) ChangeClientTeam(client,1);
 
-			if(IsPlayerAlive(bot))
-			{
-				L4D_SetHumanSpec(bot, client);
-				SetEntProp(client, Prop_Send, "m_iObserverMode", 5);
-			}
-			else
-			{
-				L4D_SetHumanSpec(bot, client);
-				L4D_TakeOverBot(client);	
-				clientteam[client] = 2;	
-				StartChangeTeamCoolDown(client);
-			}
-		}
-		else //versus
+		if(IsPlayerAlive(bot))
 		{
-			if(team == 3) ChangeClientTeam(client,1);
-
+			L4D_SetHumanSpec(bot, client);
+			SetEntProp(client, Prop_Send, "m_iObserverMode", 5);
+		}
+		else
+		{
 			L4D_SetHumanSpec(bot, client);
 			L4D_TakeOverBot(client);	
 			clientteam[client] = 2;	
 			StartChangeTeamCoolDown(client);
 		}
 	}
+	else //versus
+	{
+		if(team == 3) ChangeClientTeam(client,1);
+
+		L4D_SetHumanSpec(bot, client);
+		L4D_TakeOverBot(client);	
+		clientteam[client] = 2;	
+		StartChangeTeamCoolDown(client);
+	}
+	//}
 	return Plugin_Handled;
 }
 
@@ -1154,13 +1178,20 @@ int GetTeamMaxSlots(int team)
 	int teammaxslots = 0;
 	if(team == 2)
 	{
-		for(int i = 1; i < (MaxClients + 1); i++)
+		if(g_bL4DMultiSlotsAvailable)
+		{
+			return L4DMultiSlots_MaxSurvivors();
+		}
+
+		/*for(int i = 1; i < (MaxClients + 1); i++)
 		{
 			if(IsClientInGame(i) && GetClientTeam(i) == team)
 			{
 				teammaxslots++;
 			}
-		}
+		}*/
+
+		return g_iZMaxSurLimit;
 	}
 	else if (team == 3)
 	{
@@ -1510,13 +1541,13 @@ bool CanClientChangeTeam(int client, int changeteam = 0, bool bIsAdm = false)
 	if(g_hInCoolDownTimer[client] != null)
 	{
 		bClientJoinedTeam[client] = true;
-		if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+		if(g_bShowMessages) CPrintToChat(client, "%T","Please wait",client, g_iSpectatePenaltTime[client]);
 		return false;
 	}
 
 	if((g_bGameTeamSwitchBlock == true && g_iCvarGameTimeBlock > 0) && g_bHasLeftSafeRoom && GetClientTeam(client) != 1 && changeteam != 1) 
 	{
-		if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Can not change team during the game!!",client);
+		if(g_bShowMessages) CPrintToChat(client, "%T","Can not change team during the game!!",client);
 		return false;
 	}
 
@@ -1650,7 +1681,7 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 				if(newteam != oldteam)
 				{
 					ChangeClientTeam(client,1);
-					if(g_bShowMessages) CPrintToChat(client,"[{olive}TS{default}] %T","Go Back Your Team",client,(oldteam == 3) ? "Infected" : "Survivor");
+					if(g_bShowMessages) CPrintToChat(client,"%T","Go Back Your Team",client,(oldteam == 3) ? "Infected" : "Survivor");
 					
 					return Plugin_Continue;
 				}
@@ -1692,7 +1723,7 @@ Action Timer_CanJoin(Handle timer, int client)
 			if(team == 2 && IsPlayerAlive(client))
 			{
 				bClientJoinedTeam[client] = true;
-				if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+				if(g_bShowMessages) CPrintToChat(client, "%T","Please wait",client, g_iSpectatePenaltTime[client]);
 
 				if(L4D_HasPlayerControlledZombies())
 				{
@@ -1709,7 +1740,7 @@ Action Timer_CanJoin(Handle timer, int client)
 			else if(team == 3)
 			{
 				bClientJoinedTeam[client] = true;
-				if(g_bShowMessages) CPrintToChat(client, "[{olive}TS{default}] %T","Please wait",client, g_iSpectatePenaltTime[client]);
+				if(g_bShowMessages) CPrintToChat(client, "%T","Please wait",client, g_iSpectatePenaltTime[client]);
 
 				ChangeClientTeam(client, 1);
 				clientteam[client]=1;

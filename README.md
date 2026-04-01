@@ -13,11 +13,14 @@ Help server to record, make server more fun, and more useful plugins for adm.
 > <br/> 歡迎自由使用，可以自行更改源碼。亦或付費請求修改。
 > <br/> **[>>點擊我查看更多私人插件<<](https://github.com/fbef0102/Game-Private_Plugin?tab=readme-ov-file#%E7%A7%81%E4%BA%BA%E6%8F%92%E4%BB%B6%E5%88%97%E8%A1%A8-private-plugins-list)**
 
-* <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement.
+* <b>[l4d_achievement_trophy](/l4d_achievement_trophy)</b>: Displays the TF2 trophy when a player unlocks an achievement or kill tank/witch
+    * 場上有人擊殺Tank或是Witch時，頭上顯示華麗的獎盃特效
 * <b>[cge_l4d2_deathcheck](/cge_l4d2_deathcheck)</b>: Prevents mission loss(Round_End) until all human players have died.
+    * 場上所有真人倖存者+AI bots死亡才會回合結束
 * <b>[l4d_tanklimit](/l4d_tanklimit)</b>: limit tank in server
-* <b>[l4d_rock_lagcomp](/l4d_rock_lagcomp)</b>: Provides lag compensation for tank rock entities
-* <b>[l4d2_Death_Survivor](/l4d2_Death_Survivor)</b>: If a player die as a survivor, this model survior bot keep death until map change or server shutdown
+    * 在場上的Tank數量有限制，超過便處死
+* <b>[l4d2_Death_Survivor](/l4d2_Death_Survivor)</b>: If a player die as a survivor, this model character(Nick/Ellis/Bill/Zoey...) keep death until campaign change or server shutdown
+    * 該角色死亡之後，相同模型的角色(Nick/Ellis/Bill/Zoey...)會一直保持死亡，直到更換大地圖或是伺服器重啟
 * <b>[clear_dead_body](/clear_dead_body)</b>: Remove Dead Body Entity
     * 倖存者死亡之後過一段時間，移除屍體
 * <b>[kills](/kills)</b>: show statistics of surviviors (kill S.I, C.I. and FF)on round end
@@ -54,8 +57,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 回合開始播放音樂，使用!music點歌系統，可播放自製的音樂
 * <b>[l4d_shotgun_sound_fix](/l4d_shotgun_sound_fix)</b>: Thirdpersonshoulder Shotgun Sound Fix
     * 修復第三人稱下，散彈槍射擊沒有槍聲
-* <b>[l4d_votes_5](/l4d_votes_5)</b>: L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)
-    * L4D1/2 投票選單 (換圖、踢人、重新回合、回血、全頻語音)
+* <s><b>[l4d_votes_5](/l4d_votes_5)</b>: (Archived) L4D1/2 Vote Menu (Change map、Kick、Restart、Give HP、Alltalk)</s>
+    * <s>(棄案) L4D1/2 投票選單 (換圖、踢人、重新回合、回血、全頻語音)</s>
 * <b>[l4d_wind](/l4d_wind)</b>: Create a survivor bot in game. + Teleport Player
     * 新增Bot + 傳送玩家到其他位置上
 * <b>[l4d_witch_behind_fix](/l4d_witch_behind_fix)</b>: The witch turns back if nearby survivor scares her behind
@@ -136,8 +139,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 沒有權限的玩家不能隨意發起官方投票
 * <b>[l4d_spectator_prefix](/l4d_spectator_prefix)</b>: when player in spec team, add prefix.
     * 旁觀者的名字前，加上前缀符號
-* <b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: Once everyone has used the same ammo pile at least once, it is removed.
-    * 子彈堆只能拿一次子彈，當每個人都拿過一遍之後移除子彈堆
+* <s><b>[l4d_limited_ammo_pile](/l4d_limited_ammo_pile)</b>: (Archived) Once everyone has used the same ammo pile at least once, it is removed.</s>
+    * <s>(棄案) 子彈堆只能拿一次子彈，當每個人都拿過一遍之後移除子彈堆</s>
 * <b>[l4d_weapon_editor_fix](/l4d_weapon_editor_fix)</b>: Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
     * 修復一些武器的 weapon_*.txt 參數沒有作用
 * <b>[l4d2_spec_stays_spec](/l4d2_spec_stays_spec)</b>: Spectator will stay as spectators on mapchange/new round.
@@ -150,9 +153,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修正5+多人遊戲裡，當真人玩家閒置的時候如果他的Bot死亡，真人玩家不會取代死亡Bot而是變成完全旁觀者
 * <b>[l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix)</b>: Makes AI Hunter take damage like human SI while pouncing.
     * 對AI Hunter(正在飛撲的途中) 造成的傷害數據跟真人玩家一樣
-* <b>[vocal_block](/vocal_block)</b>: Blocks the stupid griefers who spam vocalize commands throughout campaigns.
-    pouncing.
-    * 禁止玩家頻繁使用角色雷達語音
+* <s><b>[vocal_block](/vocal_block)</b>: (Archived) Blocks the stupid griefers who spam vocalize commands throughout campaigns.
+    pouncing.</s>
+    * <s>(棄案) 禁止玩家頻繁使用角色雷達語音</s>
 * <b>[l4d_switch_team_survivor_dead_fix](/l4d_switch_team_survivor_dead_fix)</b>: Fixed a bug that exists over 12 years in l4d1/2, sometimes infected player switchs team to survivor, the survivor gets incapped/killed instantly
     * 修復切換陣營之後會導致倖存者死亡或倒地的Bug (官方的bug)
 * <b>[l4d_unreservelobby](/l4d_unreservelobby)</b>: Removes lobby reservation when server is full, allow 9+ players to join server
@@ -221,8 +224,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 地圖管理器，提供給其他插件做依賴與API串接
 * <b>[AI_HardSI](/AI_HardSI)</b>: Improves the AI behaviour of special infected
     * 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
-* <b>[pill_passer](/pill_passer)</b>: Lets players pass pills and adrenaline with +Reload key
-    * 用R鍵直接傳送藥丸與腎上腺素給隊友
+* <s><b>[pill_passer](/pill_passer)</b>: (Archived) Lets players pass pills and adrenaline with +Reload key</s>
+    * <s>(棄案) 用R鍵直接傳送藥丸與腎上腺素給隊友</s>
 * <b>[l4d2_cs_kill_hud](/l4d2_cs_kill_hud)</b>: HUD with cs kill info list.
     * L4D2擊殺提示改成CS遊戲的擊殺列表
 * <b>[hunter_growl_sound_fix](/hunter_growl_sound_fix)</b>: Fix silence Hunter produces growl sound when player MIC on

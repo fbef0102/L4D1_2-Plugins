@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #include <l4d_CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"7.2-2026/2/20"
+#define PLUGIN_VERSION 				"7.3-2026/4/1"
 
 public Plugin myinfo = 
 {
@@ -33,6 +33,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
+
+	CreateNative("L4DMultiSlots_Join",				Native_L4DMultiSlots_Join);
+	CreateNative("L4DMultiSlots_MaxSurvivors",		Native_L4DMultiSlots_MaxSurvivors);
+
+	RegPluginLibrary("l4dmultislots");
 
 	bLate = late;
 	return APLRes_Success; 
@@ -260,7 +265,6 @@ public void OnPluginStart()
 		{
 			if (IsClientInGame(i))
 			{
-				OnClientPutInServer(i);
 				OnClientPostAdminCheck(i);
 			}
 		}
@@ -476,11 +480,6 @@ Action JoinTeam(int client,int args)
 	return Plugin_Handled;
 }
 
-public void OnClientPutInServer(int client)
-{
-	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-}
-
 public void OnClientPostAdminCheck(int client)
 {
 	if(IsFakeClient(client)) return;
@@ -577,11 +576,15 @@ void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
 		{
 			clinetSpawnGodTime[bot] = clinetSpawnGodTime[player];
 			clinetSpawnGodTime[player] = 0.0;	
+			SDKUnhook(bot, SDKHook_OnTakeDamage, OnTakeDamage);
+			SDKHook(bot, SDKHook_OnTakeDamage, OnTakeDamage);
 		}
 		else 
 		{
 			clinetSpawnGodTime[player] = clinetSpawnGodTime[bot];
 			clinetSpawnGodTime[bot] = 0.0;	
+			SDKUnhook(player, SDKHook_OnTakeDamage, OnTakeDamage);
+			SDKHook(player, SDKHook_OnTakeDamage, OnTakeDamage);
 		}
 	}
 }
@@ -675,6 +678,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	for ( int client = 1; client <= MaxClients; client ++ )
 	{
 		clinetSpawnGodTime[client] = 0.0;
+		SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 	}	
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
@@ -783,13 +787,13 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 		}
 		else if(GetClientTeam(client) == TEAM_SURVIVORS)
 		{	
-			if(DispatchKeyValue(client, "classname", "player") == true)
-			{
-				//PrintHintText(client, "%T", "You are already on the team of survivors.", client);
-			}
-			else if((DispatchKeyValue(client, "classname", "info_survivor_position") == true) && !IsPlayerAlive(client))
+			if(!IsPlayerAlive(client))
 			{
 				PrintHintText(client, "%T", "Please wait to be revived or rescued", client);
+			}
+			else
+			{
+				//PrintHintText(client, "%T", "You are already on the team of survivors.", client);
 			}
 		}
 		else if(IsClientIdle(client))
@@ -878,13 +882,13 @@ Action JoinTeam_VSCommandBalance(Handle timer, int userid)
 	int team = GetClientTeam(client);
 	if(team == TEAM_SURVIVORS)
 	{	
-		if(DispatchKeyValue(client, "classname", "player") == true)
-		{
-			//PrintHintText(client, "%T", "You are already on the team of survivors.", client);
-		}
-		else if((DispatchKeyValue(client, "classname", "info_survivor_position") == true) && !IsPlayerAlive(client))
+		if(!IsPlayerAlive(client))
 		{
 			PrintHintText(client, "%T", "Please wait to be revived or rescued", client);
+		}
+		else
+		{
+			//PrintHintText(client, "%T", "You are already on the team of survivors.", client);
 		}
 	}
 	else if(IsClientIdle(client))
@@ -1414,6 +1418,8 @@ void OnNextFrame(DataPack hPack)
 	if(g_bLeftSafeRoom && g_fInvincibleTime > 0.0)
 	{
 		clinetSpawnGodTime[bot] = GetEngineTime() + g_fInvincibleTime;
+		SDKUnhook(bot, SDKHook_OnTakeDamage, OnTakeDamage);
+		SDKHook(bot, SDKHook_OnTakeDamage, OnTakeDamage);
 	}
 
 	if(player_client > 0)
@@ -1686,8 +1692,13 @@ int NumbersOfPlayersInSurvivorTeam()
 Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
 {
 	if(!IsValidEntity(inflictor) || damage <= 0.0) return Plugin_Continue;
+	if(clinetSpawnGodTime[victim] < GetEngineTime())
+	{
+		SDKUnhook(victim, SDKHook_OnTakeDamage, OnTakeDamage);
+		return Plugin_Continue;
+	}
 
-	if(victim > 0 && victim <= MaxClients && IsClientInGame(victim) && GetClientTeam(victim) == TEAM_SURVIVORS && clinetSpawnGodTime[victim] > GetEngineTime() )
+	if(GetClientTeam(victim) == TEAM_SURVIVORS )
 	{
 		if( attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) != TEAM_SPECTATORS)
 		{
@@ -1704,6 +1715,7 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 			}
 		}
 	}
+
 	return Plugin_Continue;
 }
 
@@ -1882,4 +1894,83 @@ void CheatCommand(int client, const char[] command, const char[] arguments = "",
 	FakeClientCommand(client, "%s %s %s", command, arguments, extra);
 	SetCommandFlags(command, flags);
 	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
+}
+
+// Native----------
+
+int Native_L4DMultiSlots_Join(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client))
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index %d", client);
+	}
+
+	if(GetClientTeam(client) == TEAM_SURVIVORS)
+	{	
+		if(!IsPlayerAlive(client))
+		{
+			PrintHintText(client, "%T", "Please wait to be revived or rescued", client);
+			return 0;
+		}
+		else
+		{
+			//PrintHintText(client, "%T", "You are already on the team of survivors.", client);
+			return 0;
+		}
+	}
+	else if(GetClientTeam(client) == TEAM_SPECTATORS)
+	{
+		if(IsClientIdle(client))
+		{
+			PrintHintText(client, "%T", "You are idle. press the left mouse button to join the survivors!", client); 
+			return 0;
+		}
+	}
+
+	if(TotalAliveFreeBots() == 0)
+	{
+		if(NumbersOfPlayersInSurvivorTeam() < 4)
+		{
+			int bot = FindBotToTakeOver(false);
+			if(bot > 0) // 2 player + 2 dead bots => new player takes over dead bot
+			{
+				L4D_SetHumanSpec(bot, client);
+				L4D_TakeOverBot(client);
+				return 0;
+			}
+		}
+
+		if(TotalSurvivors() >= g_iMaxSurvivors)
+		{
+			int bot = FindBotToTakeOver(false);
+			if(bot > 0) // 2 player + 2 dead bots => new player takes over dead bot
+			{
+				L4D_SetHumanSpec(bot, client);
+				L4D_TakeOverBot(client);
+				return 0;
+			}
+			else
+			{
+				PrintHintText(client, "%T", "Sorry! No survivor slots", client);
+				return 0;
+			}
+		}
+
+		if(SpawnFakeClient(false, client, 0) <= 0)
+		{
+			PrintHintText(client, "%T", "Impossible to generate a bot at the moment.", client);
+		}
+	}
+	else
+	{
+		TakeOverBotIfAny(client);
+	}
+
+	return 0;
+}
+
+int Native_L4DMultiSlots_MaxSurvivors(Handle plugin, int numParams)
+{
+	return g_iMaxSurvivors;
 }

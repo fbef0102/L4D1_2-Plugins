@@ -21,12 +21,12 @@
 	}
 	"ADM Swap Player Team"
 	{
-		"en"			"{lightgreen}%N{default}(ADM): %N has been swapped to the %s team."
-		"es"			"{lightgreen}%N{default}(ADM): %N ha sido cambiado al equipo %s."
-		"ru"			"{lightgreen}%N{default}(АДМ): Переводит %N в команду: %s."
-		"zho"			"{lightgreen}%N{default}(管理員): %N 已被強制更換到 %s 隊伍."
-		"chi"			"{lightgreen}%N{default}(管理员): %N 已被强制更换到 %s 队伍."
-		"hu"			"{lightgreen}%N{default}(ADM): %N át lett helyezve a %s csapatába."
+		"en"			"[{olive}TS{default}] {lightgreen}%N{default}(ADM): %N has been swapped to the %s team."
+		"es"			"[{olive}TS{default}] {lightgreen}%N{default}(ADM): %N ha sido cambiado al equipo %s."
+		"ru"			"[{olive}TS{default}] {lightgreen}%N{default}(АДМ): Переводит %N в команду: %s."
+		"zho"			"[{olive}TS{default}] {lightgreen}%N{default}(管理員): %N 已被強制更換到 %s 隊伍."
+		"chi"			"[{olive}TS{default}] {lightgreen}%N{default}(管理员): %N 已被强制更换到 %s 队伍."
+		"hu"			"[{olive}TS{default}] {lightgreen}%N{default}(ADM): %N át lett helyezve a %s csapatába."
 	}
 	"You wish!"
 	{
@@ -57,12 +57,12 @@
 	}
 	"Suicide"
 	{
-		"en"			"{olive}%N {default}use command {green}!zs{default} to suicide!"
-		"es"			"{olive}%N {default}usa el comando {green}!zs{default} para suicidarte!"
-		"ru"			"{olive}%N{default}, используйте команду {green}!zs{default} для самоубийства!"
-		"zho"			"{olive}%N {default}使用指令 {green}!zs{default} 自殺了!"
-		"chi"			"{olive}%N {default}使用指令 {green}!zs{default} 自杀了!"
-		"hu"			"{olive}%N {default}használd a {green}!zs{default} parancsot az öngyilkossághoz!"
+		"en"			"[{olive}TS{default}] {olive}%N {default}use command {green}!zs{default} to suicide!"
+		"es"			"[{olive}TS{default}] {olive}%N {default}usa el comando {green}!zs{default} para suicidarte!"
+		"ru"			"[{olive}TS{default}] {olive}%N{default}, используйте команду {green}!zs{default} для самоубийства!"
+		"zho"			"[{olive}TS{default}] {olive}%N {default}使用指令 {green}!zs{default} 自殺了!"
+		"chi"			"[{olive}TS{default}] {olive}%N {default}使用指令 {green}!zs{default} 自杀了!"
+		"hu"			"[{olive}TS{default}] {olive}%N {default}használd a {green}!zs{default} parancsot az öngyilkossághoz!"
 	}
 	"Idle"
 	{
@@ -184,21 +184,21 @@
 	"Please wait"
 	{
 		"#format"		"{1:.0f}"
-		"en"			"Please wait {green}{1}{default} second(s) to change team again!!"
-		"es"			"Por favor espera {green}{1}{default} segundo(s) para cambiar de equipo nuevamente!!"
-		"ru"			"Пожалуйста, подождите {green}{1}{default} сек. для повторной смены команды!!"
-		"zho"			"無法快速換隊! 請等待 {green}{1}{default} 秒."
-		"chi"			"无法快速换队! 请等待 {green}{1}{default} 秒."
-		"hu"			"Kérlek várj {green}{1}{default} másodpercet mielőtt csapatott váltasz!!"
+		"en"			"[{olive}TS{default}] Please wait {green}{1}{default} second(s) to change team again!!"
+		"es"			"[{olive}TS{default}] Por favor espera {green}{1}{default} segundo(s) para cambiar de equipo nuevamente!!"
+		"ru"			"[{olive}TS{default}] Пожалуйста, подождите {green}{1}{default} сек. для повторной смены команды!!"
+		"zho"			"[{olive}TS{default}] 無法快速換隊! 請等待 {green}{1}{default} 秒."
+		"chi"			"[{olive}TS{default}] 无法快速换队! 请等待 {green}{1}{default} 秒."
+		"hu"			"[{olive}TS{default}] Kérlek várj {green}{1}{default} másodpercet mielőtt csapatott váltasz!!"
 	}
 	"Can not change team as dead survivor"
 	{
-		"en"			"Can not change team as dead survivor"
-		"es"			"No te puedes cambiar de equipo estando muerto como superviviente"
-		"ru"			"Невозможно сменить команду, так как выживший мёртв"
-		"zho"			"死亡倖存者禁止換隊."
-		"chi"			"死亡的生还禁止换队."
-		"hu"			"Halott túlélőként nem válthatsz csapatott"
+		"en"			"[{olive}TS{default}] Can not change team as dead survivor"
+		"es"			"[{olive}TS{default}] No te puedes cambiar de equipo estando muerto como superviviente"
+		"ru"			"[{olive}TS{default}] Невозможно сменить команду, так как выживший мёртв"
+		"zho"			"[{olive}TS{default}] 死亡倖存者禁止換隊."
+		"chi"			"[{olive}TS{default}] 死亡的生还禁止换队."
+		"hu"			"[{olive}TS{default}] Halott túlélőként nem válthatsz csapatott"
 	}
 	"Can not change team during the game!!"
 	{
@@ -221,12 +221,12 @@
 	"Go Back Your Team"
 	{
 		"#format"		"{1:t}"
-		"en"			"Go Back to {green}{1} {default}Team, Switching team is prohibited after survivors have left safe area!!"
-		"es"			"Vuelve al equipo {green}{1} {default}, Cambiarse de equipo esta prohibido despues de que los supervivientes hayan dejado la zona segura!!"
-		"ru"			"Возвращайтесь в команду ({green}{1}{default}), смена команды запрещена после того, как выжившие покинули убежище!!"
-		"zho"			"請回到 {green}{1} {default}隊伍, 倖存者離開安全區域後{red}禁止跳隊{default}!!"
-		"chi"			"请回到 {green}{1} {default}队伍, 生还者离开安全区域后{red}禁止换队{default}!!"
-		"hu"			"Menny vissza a {green}{1} {default}csapatába, A csapatváltás nem megengedett miután a túlélők elhagyták a biztonságos területet!!"
+		"en"			"[{olive}TS{default}] Go Back to {green}{1} {default}Team, Switching team is prohibited after survivors have left safe area!!"
+		"es"			"[{olive}TS{default}] Vuelve al equipo {green}{1} {default}, Cambiarse de equipo esta prohibido despues de que los supervivientes hayan dejado la zona segura!!"
+		"ru"			"[{olive}TS{default}] Возвращайтесь в команду ({green}{1}{default}), смена команды запрещена после того, как выжившие покинули убежище!!"
+		"zho"			"[{olive}TS{default}] 請回到 {green}{1} {default}隊伍, 倖存者離開安全區域後{red}禁止跳隊{default}!!"
+		"chi"			"[{olive}TS{default}] 请回到 {green}{1} {default}队伍, 生还者离开安全区域后{red}禁止换队{default}!!"
+		"hu"			"[{olive}TS{default}] Menny vissza a {green}{1} {default}csapatába, A csapatváltás nem megengedett miután a túlélők elhagyták a biztonságos területet!!"
 	}
 	"You can change team now."
 	{
@@ -325,7 +325,6 @@
         "ru" 	"Извините! Баланс команды нарушен, слишком много игроков в команде выживших!"
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在生還者隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在生还者队伍!"
-                "hu" 	"Sajnálom! A csapat kiegyensúlyozatlan, túl sok játékos van a fertőzött csapatban!"
 	}
 	"Too many infected, unbalance"
 	{
@@ -334,7 +333,6 @@
 		"ru" 	"Извините! Баланс команды нарушен, слишком много игроков в команде заражённых!"
 		"zho" 	"抱歉! 隊伍目前不平衡, 太多玩家在特感隊伍!"
 		"chi" 	"抱歉! 队伍目前不平衡, 太多玩家在特感队伍!"
-                "hu" 	"Nem lehet csapatot váltani felállás vagy tántorgás közben!"
 	}
 	"Get Up Stagger Block"
 	{
@@ -343,7 +341,6 @@
 		"ru" 	"Нельзя сменить команду, вставая или пошатываясь!"
 		"zho" 	"起身或硬直狀態中禁止換隊!"
 		"chi" 	"起身或硬直状态中禁止换队!"
-                "hu"	"Nem lehet csapatot váltani a gránátvető lövése után"
 	}
 	"Can not change team after grenade"
 	{
@@ -352,7 +349,6 @@
 		"ru"			"Невозможно сменить команду после выстрела из гранатомёта"
 		"zho"			"榴彈發射期間禁止換隊."
 		"chi"			"榴弹发射期间禁止换队."
-                "hu"			"Nem lehet csapatot váltani a gránátvető lövése után"
 	}
 	"Idle Wait"
 	{
@@ -362,13 +358,24 @@
 		"ru"			"Пожалуйста, подождите {1} сек., чтобы играть!!"
 		"zho"			"請等待 {1} 秒遊玩倖存者."
 		"chi"			"请等待 {1} 秒游玩幸存者."
-                "hu"			"Kérlek várj {1} másodperc(et) a játékhoz!!"
 	}
 	"Bile Block"
 	{
 		"en" 	"Can not change team while covered in bile!"
 		"zho" 	"被膽汁淋在身上時禁止換隊"
 		"chi" 	"被胆汁淋在身上时禁止换队"
-                "hu" 	"Nem tudsz csapatott váltani, miközben epével vagy borítva!"
+	}
+	"No Bots"
+	{
+		"en" 	"Not any bots in survivor team!"
+		"zho" 	"倖存者隊伍沒有可以取代的Bot! "
+		"chi" 	"生还者队伍没有可以取代的Bot! "
+	}	
+	"No Bots For Player"
+	{
+		"#format"		"{1:N}"
+		"en" 	"[{olive}TS{default}] Not any bots in survivor team! Unable to swap {olive}{1}"
+		"zho" 	"[{olive}TS{default}] 沒有可以取代的Bot! 無法更換玩家陣營為倖存者: {olive}{1}"
+		"chi" 	"[{olive}TS{default}] 没有可以取代的Bot! 无法更换玩家阵营为幸存者: {olive}{1}"
 	}
 }

@@ -35,9 +35,9 @@ char sModel_Name[view_as<int>(MODEL_MAX)][PLATFORM_MAX_PATH];
 		
 public Plugin myinfo = 
 {
-	name = "L4D2 death survivor",
+	name = "L4D1/2 death survivor",
 	author = "Harry Potter",
-	description = "If a player die as a survivor, this model character(Nick/Ellis/Bill/Zoey...) keep death until map change or server shutdown",
+	description = "If a player die as a survivor, this model character(Nick/Ellis/Bill/Zoey...) keep death until campaign change or server shutdown",
 	version = "1.3",
 	url = "Harry Potter myself, you bitch shit"
 };
@@ -46,9 +46,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 {
 	EngineVersion test = GetEngineVersion();
 	
-	if( test != Engine_Left4Dead2 )
+	if( test != Engine_Left4Dead && test != Engine_Left4Dead2 )
 	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1/2.");
 		return APLRes_SilentFailure;
 	}
 	

@@ -902,9 +902,9 @@ Handle FightOrDieTimer[MAXPLAYERS+1],
 	RestoreColorTimer[MAXPLAYERS+1], 
 	g_hPlayerSpawnTimer[MAXPLAYERS+1],
 	hSpawnWitchTimer,
-	DisplayTimer, InitialSpawnResetTimer;
+	g_hCountSurvivorTimer, InitialSpawnResetTimer;
 
-#define L4D_MAXPLAYERS 32
+#define L4D_MAXPLAYERS 31
 Handle SpawnInfectedBotTimer[MAXPLAYERS+1] = {null};
 
 //signature call
@@ -1231,20 +1231,23 @@ public void OnPluginEnd()
 	}
 }
 
-bool g_bSIPoolAvailable;
+bool g_bSIPoolAvailable, g_bL4DMultiSlotsAvailable;
 public void OnAllPluginsLoaded()
 {
 	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
+	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnLibraryRemoved(const char[] name)
 {
-	if (strcmp(name, "si_pool_plus") == 0) g_bSIPoolAvailable = false;
+	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
+	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnLibraryAdded(const char[] name)
 {
-	if (StrEqual(name, "si_pool_plus")) g_bSIPoolAvailable = true;
+	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
+	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 void ConVarChanged_OfficialCvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -1273,8 +1276,8 @@ void ConVarChanged_ReloadSettings(ConVar convar, const char[] oldValue, const ch
 		LoadData();
 
 		g_iPlayersInSurvivorTeam = -1;
-		delete DisplayTimer;
-		DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
+		delete g_hCountSurvivorTimer;
+		g_hCountSurvivorTimer = CreateTimer(1.0, Timer_CountSurvivor);
 	}
 }
 
@@ -1315,8 +1318,8 @@ void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
 	}
 
 	g_iPlayersInSurvivorTeam = -1;
-	delete DisplayTimer;
-	DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
+	delete g_hCountSurvivorTimer;
+	g_hCountSurvivorTimer = CreateTimer(1.0, Timer_CountSurvivor);
 
 	if(g_bCvarAllow == false) return;
 
@@ -1726,12 +1729,12 @@ Action Timer_PluginStart(Handle timer)
 		}
 	}
 
-	g_ePluginSettings = ePluginData[CheckAliveSurvivorPlayers_InSV()];
+	g_ePluginSettings = ePluginData[CheckAliveSurvivorPlayers_InSV(g_bIncludingDead)];
 	TweakSettings();
 
 	g_iPlayersInSurvivorTeam = -1;
-	delete DisplayTimer;
-	DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
+	delete g_hCountSurvivorTimer;
+	g_hCountSurvivorTimer = CreateTimer(1.0, Timer_CountSurvivor);
 
 	roundInProgress = true;
 	delete infHUDTimer;
@@ -2154,6 +2157,11 @@ Action JoinSurvivorsInCoop(int client, int args)
 {
 	if( g_bCvarAllow == false) return Plugin_Continue;
 
+	if(g_bL4DMultiSlotsAvailable)
+	{
+		return Plugin_Continue;
+	}
+
 	if (client && L4D_HasPlayerControlledZombies() == false)
 	{
 		SwitchToSurvivors(client);
@@ -2405,8 +2413,8 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		{
 			RemoveSurvivorModelGlow(client);
 			CreateTimer(0.3, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
-			delete DisplayTimer;
-			DisplayTimer = CreateTimer(1.0, Timer_CountSurvivor);
+			delete g_hCountSurvivorTimer;
+			g_hCountSurvivorTimer = CreateTimer(1.0, Timer_CountSurvivor);
 		}
 		case TEAM_INFECTED:
 		{
@@ -2499,8 +2507,8 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	if(GetClientTeam(client) == TEAM_SURVIVOR)
 	{
 		RemoveSurvivorModelGlow(client);
-		delete DisplayTimer;
-		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
+		delete g_hCountSurvivorTimer;
+		g_hCountSurvivorTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
 
 	g_iZombieHpSet[client] = 0;
@@ -2803,8 +2811,8 @@ Action PlayerChangeTeamCheck(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		delete DisplayTimer;
-		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
+		delete g_hCountSurvivorTimer;
+		g_hCountSurvivorTimer = CreateTimer(1.0,Timer_CountSurvivor);
 
 		if(L4D_HasPlayerControlledZombies() == false)
 		{
@@ -2914,11 +2922,11 @@ Action Timer_CountSurvivor(Handle timer)
 {
 	if(g_bCvarAllow == false)
 	{
-		DisplayTimer = null;
+		g_hCountSurvivorTimer = null;
 		return Plugin_Continue;
 	}
 	
-	int iAliveSurplayers = CheckAliveSurvivorPlayers_InSV();
+	int iAliveSurplayers = CheckAliveSurvivorPlayers_InSV(g_bIncludingDead);
 
 	if(iAliveSurplayers != g_iPlayersInSurvivorTeam)
 	{
@@ -2953,7 +2961,7 @@ Action Timer_CountSurvivor(Handle timer)
 		g_iPlayersInSurvivorTeam = iAliveSurplayers;
 	}
 
-	DisplayTimer = null;
+	g_hCountSurvivorTimer = null;
 	return Plugin_Continue;
 }
 
@@ -2996,8 +3004,8 @@ public void OnClientDisconnect(int client)
 
 	if(GetClientTeam(client) == TEAM_SURVIVOR)
 	{
-		delete DisplayTimer;
-		DisplayTimer = CreateTimer(1.0,Timer_CountSurvivor);
+		delete g_hCountSurvivorTimer;
+		g_hCountSurvivorTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
 
 	if(!g_bHasRoundEnded && !g_bInitialSpawn)
@@ -4952,7 +4960,7 @@ bool IsInteger(char[] buffer)
     return true;
 }
 
-int CheckAliveSurvivorPlayers_InSV()
+int CheckAliveSurvivorPlayers_InSV(bool bInlcudingDead = false)
 {
 	int iPlayersInAliveSurvivors=0;
 	for (int i = 1; i <= MaxClients; i++)
@@ -4963,7 +4971,7 @@ int CheckAliveSurvivorPlayers_InSV()
 			case TEAM_SURVIVOR:
 			{
 				if(IsPlayerAlive(i)) iPlayersInAliveSurvivors++;
-				else if(g_bIncludingDead && !IsPlayerAlive(i)) iPlayersInAliveSurvivors++;
+				else if(bInlcudingDead && !IsPlayerAlive(i)) iPlayersInAliveSurvivors++;
 			}
 		}
 	}
@@ -5135,7 +5143,7 @@ void ResetTimer()
 	delete PlayerLeftStartTimer;
 	delete infHUDTimer;
 	delete g_hCheckSpawnTimer;
-	delete DisplayTimer;
+	delete g_hCountSurvivorTimer;
 	delete InitialSpawnResetTimer;
 
 	for(int i = 0; i <= MaxClients; i++)

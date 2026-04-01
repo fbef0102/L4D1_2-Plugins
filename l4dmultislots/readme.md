@@ -176,6 +176,15 @@ Allows additional survivor players in server when 5+ player joins the server
 		Read [8+_Survivors_In_Coop](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Game/L4D2/8%2B_Survivors_In_Coop#navigation)
 	</details>
 
+* <details><summary>API | 串接</summary>
+
+	* [l4dmultislots.inc](scripting/include/l4dmultislots.inc)
+		```php
+		library name: l4dmultislots
+		```
+</details>
+
+
 * Translation Support | 支援翻譯
 	```
 	translations/l4dmultislots.phrases.txt
@@ -194,6 +203,9 @@ Allows additional survivor players in server when 5+ player joins the server
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v7.3 (2026-4-1)
+		* Add API
 
 	* v7.2 (2026-2-20)
 		* The player's steam id must be fully authenticated before join survivor team

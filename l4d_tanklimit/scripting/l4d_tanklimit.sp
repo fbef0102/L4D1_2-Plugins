@@ -10,9 +10,9 @@ static int ZOMBIECLASS_TANK;
 
 public Plugin myinfo = 
 {
-	name = "L4D2 Limit Tank",
+	name = "L4D1/2 Limit Tank",
 	author = "Harry Potter",
-	description = "limit tank in server",
+	description = "Limit Tanks in server",
 	version = "1.2",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
@@ -49,7 +49,7 @@ public void OnPluginStart()
 	AutoExecConfig(true, "l4d_tanklimit");
 }
 
-public void PD_ev_TankSpawn(Event event, const char[] name, bool dontBroadcast) 
+void PD_ev_TankSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!IsClientInGame(client) || !IsFakeClient(client)) return;
@@ -57,13 +57,15 @@ public void PD_ev_TankSpawn(Event event, const char[] name, bool dontBroadcast)
 	
 	if(g_iLimitTank >= 0)
 	{
-		CreateTimer(1.5, CheckAndKickTank,client);
+		CreateTimer(1.5, CheckAndKickTank, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
 }
-public Action CheckAndKickTank(Handle timer,any client)
+
+Action CheckAndKickTank(Handle timer,any client)
 {
-	if(IsClientInGame(client)&&IsPlayerTank(client)&&IsFakeClient(client))
+	client = GetClientOfUserId(client);
+	if(client && IsClientInGame(client) && IsPlayerTank(client) && IsFakeClient(client))
 	{
 		int tank_count = 0;
 		for (int i=1;i<=MaxClients;i++)
@@ -83,7 +85,8 @@ public Action CheckAndKickTank(Handle timer,any client)
 
 	return Plugin_Continue;
 }
-public void Limit_CvarChange(ConVar convar, const char[] oldValue, const char[] newValue)
+
+void Limit_CvarChange(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	g_iLimitTank = GetConVarInt(g_hLimitTank);
 }

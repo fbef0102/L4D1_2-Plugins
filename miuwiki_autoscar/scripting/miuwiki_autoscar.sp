@@ -56,13 +56,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define NOT_IN_RELOAD        0.0
 
 ConVar ammo_assaultrifle_max;
-
-int
-	g_iOfficialCvar_ammo_assaultrifle_max;
-
-int
-	g_scar_precache_index,
-	g_Offset_BrustAttackTime;
+int g_iOfficialCvar_ammo_assaultrifle_max;
 
 Handle
 	g_SDKCall_FinishReload,
@@ -111,8 +105,22 @@ enum struct PlayerData
 PlayerData
 	player[MAXPLAYERS + 1];
 
-int 
-	g_iMaxScarClip;
+int
+	g_scar_precache_index,
+	g_Offset_BrustAttackTime,
+	g_iMaxScarClip,
+	g_iNextPAttO,
+	g_iNextSAttO,
+	g_iActiveWO,
+	g_iPlayRateO,
+	g_iViewModelO,
+	g_iVMStartTimeO,
+	g_iVMLayerO,
+	g_iVMLayerSequenceO,
+	g_iVMAnimationParityO,
+	g_iClipO,
+	g_iWorldModelIndexO,
+	g_iOwnerEntityO;
 
 float 
 	g_fScarReloadTime,
@@ -120,6 +128,19 @@ float
 
 public void OnPluginStart()
 {
+	g_iNextPAttO			=	FindSendPropInfo("CBaseCombatWeapon","m_flNextPrimaryAttack");
+	g_iNextSAttO			=	FindSendPropInfo("CBaseCombatWeapon","m_flNextSecondaryAttack");
+	g_iActiveWO				=	FindSendPropInfo("CBaseCombatCharacter","m_hActiveWeapon");
+	g_iPlayRateO			=	FindSendPropInfo("CBaseCombatWeapon","m_flPlaybackRate");
+	g_iViewModelO			=	FindSendPropInfo("CTerrorPlayer","m_hViewModel");
+	g_iVMStartTimeO			=	FindSendPropInfo("CTerrorViewModel","m_flLayerStartTime");
+	g_iVMLayerO				=	FindSendPropInfo("CTerrorViewModel","m_nLayer");
+	g_iVMLayerSequenceO		=	FindSendPropInfo("CTerrorViewModel","m_nLayerSequence");
+	g_iVMAnimationParityO	=	FindSendPropInfo("CTerrorViewModel","m_nAnimationParity");
+	g_iClipO				= 	FindSendPropInfo("CBaseCombatWeapon", "m_iClip1");
+	g_iWorldModelIndexO		= 	FindSendPropInfo("CBaseCombatWeapon", "m_iWorldModelIndex");
+	g_iOwnerEntityO 		= 	FindSendPropInfo("CBaseEntity", "m_hOwnerEntity");
+
 	LoadGameData();
 
 	ammo_assaultrifle_max = FindConVar("ammo_assaultrifle_max");
@@ -270,20 +291,20 @@ void SDKCallback_SwitchDesert(int client, int weapon)
 	if( weapon < 1 || !IsValidEntity(weapon) )
 		return;
 
-	if( GetEntProp(weapon, Prop_Send, "m_iWorldModelIndex") != g_scar_precache_index )
+	if( GetEntData(weapon, g_iWorldModelIndexO) != g_scar_precache_index )
 	{
-		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
+		ChangeClientPredictWeapons(client, 1);
 		return;
 	}
 
 	if( player[client].fullautomode )
 	{
 		// since predict will cause sound problem and no ammo trace, we predict scar whatever which mode it use.
-		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
+		ChangeClientPredictWeapons(client, 0);
 	}
 	else
 	{
-		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
+		ChangeClientPredictWeapons(client, 1);
 	}
 
 	float currenttime = GetEngineTime();
@@ -296,22 +317,22 @@ void SDKCallback_SwitchDesert(int client, int weapon)
 
 void SDKCallback_OnClientPostThink(int client)
 {
-	int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	int weapon = GetEntDataEnt2(client, g_iActiveWO);
 
 	if( weapon < 1 || !IsValidEntity(weapon) )
 		return;
 
-	if( GetEntProp(weapon, Prop_Send, "m_iWorldModelIndex") != g_scar_precache_index )
+	if( GetEntData(weapon, g_iWorldModelIndexO) != g_scar_precache_index )
 		return;
 
-	int viewmodel = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
+	int viewmodel = GetEntDataEnt2(client, g_iViewModelO);
 	if( viewmodel < 1 || !IsValidEntity(viewmodel) )
 		return;
 
-	int animcount = GetEntProp(viewmodel, Prop_Send, "m_nAnimationParity");
+	int animcount = GetEntData(viewmodel, g_iVMAnimationParityO);
 	if( player[client].fullautomode
 		&& player[client].animcount != animcount 
-		&& GetEntProp(viewmodel, Prop_Send, "m_nLayerSequence") == SCAR_SWITCH_SEQUENCE )
+		&& GetEntData(viewmodel, g_iVMLayerSequenceO) == SCAR_SWITCH_SEQUENCE )
 	{
 		player[client].lastAction = 1;
 		player[client].needrelease = true;
@@ -369,7 +390,7 @@ void Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast)
  */
 MRESReturn DhookCallback_ItemPostFrame(int pThis)
 {
-	int client = GetEntPropEnt(pThis, Prop_Send, "m_hOwnerEntity");
+	int client = GetEntDataEnt2(pThis, g_iOwnerEntityO);
 	if( client < 1 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client) )
 		return MRES_Ignored;
 
@@ -387,11 +408,11 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		SetEntData(pThis, g_Offset_BrustAttackTime + (4 * i), 0);
 	}
 
-	int clip             = GetEntProp(pThis, Prop_Send, "m_iClip1");
+	int clip             = GetEntData(pThis, g_iClipO);
 	float currenttime    = GetGameTime();
 
-	SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100);
-	SetEntPropFloat(pThis, Prop_Send, "m_flNextSecondaryAttack", currenttime + 100);
+	SetEntDataFloat(pThis, g_iNextPAttO, currenttime + 100);
+	SetEntDataFloat(pThis, g_iNextSAttO, currenttime + 100);
 	
 
 	if(player[client].lastAction == 0)
@@ -400,7 +421,7 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		player[client].switchendtime = currenttime + 0.3; 
 		player[client].reloadendtime = NOT_IN_RELOAD;
 		player[client].lastAction	= 2;
-		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
+		ChangeClientPredictWeapons(client, 0);
 		
 		return MRES_Ignored;
 	}
@@ -408,7 +429,7 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 	{
 		player[client].needrelease = true;
 		player[client].lastAction	= 2;
-		SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
+		ChangeClientPredictWeapons(client, 0);
 		return MRES_Ignored;
 	}
 	else
@@ -417,13 +438,13 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		{
 			player[client].reloadendtime = NOT_IN_RELOAD;
 			player[client].lastAction	= 0;
-			SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
+			ChangeClientPredictWeapons(client, 0);
 			
 			return MRES_Ignored;
 		}
 	}
 	
-	int viewmodel = GetEntPropEnt(client, Prop_Send, "m_hViewModel");
+	int viewmodel = GetEntDataEnt2(client, g_iViewModelO);
 
 	static int button;
 	button = GetClientButtons(client);
@@ -433,7 +454,7 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		if( currenttime > player[client].secondaryattacktime )
 		{
 			// PrintToChat(client, "attacking, time %f", currenttime);
-			SetEntPropFloat(pThis, Prop_Send, "m_flNextSecondaryAttack", currenttime);
+			SetEntDataFloat(pThis, g_iNextSAttO, currenttime);
 			SDKCall(g_SDKCall_SeondaryAttack, pThis);
 			player[client].secondaryattacktime = currenttime + DEFAULT_ATTACK2_TIME;
 			if( player[client].reloadendtime != NOT_IN_RELOAD )
@@ -448,9 +469,9 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 			&& currenttime > player[client].secondaryattacktime ) // not allow in attack2
 		{
 			// PrintToChat(client, "attacking, time %f", currenttime);
-			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime);
+			SetEntDataFloat(pThis, g_iNextPAttO, currenttime);
 			SDKCall(g_SDKCall_PrimaryAttack, pThis);
-			SetEntPropFloat(pThis, Prop_Send, "m_flNextPrimaryAttack", currenttime + 100.0);
+			SetEntDataFloat(pThis, g_iNextPAttO, currenttime + 100.0);
 			if(cvar.cycletime <= 0.0)
 				player[client].primaryattacktime = currenttime + g_fScarCycleTime;
 			else
@@ -468,16 +489,16 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		{
 			SDKCall(g_SDKCall_AbortReload, pThis);
 			EmitSoundToClient(client, SCAR_SHOOT_EMPTY);
-			SetEntProp(viewmodel, Prop_Send, "m_nLayerSequence", 8);
-			SetEntPropFloat(viewmodel, Prop_Send, "m_flLayerStartTime", currenttime);
+			SetEntData(viewmodel, g_iVMLayerSequenceO, 8);
+			SetEntDataFloat(viewmodel, g_iVMStartTimeO, currenttime);
 			if(cvar.reloadtime <= 0.0)
 			{
-				SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", DEFAULT_RELOAD_TIME / g_fScarReloadTime);
+				SetEntDataFloat(pThis, g_iPlayRateO, DEFAULT_RELOAD_TIME / g_fScarReloadTime);
 				player[client].reloadendtime = currenttime + g_fScarReloadTime;
 			}
 			else
 			{
-				SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", DEFAULT_RELOAD_TIME / cvar.reloadtime);
+				SetEntDataFloat(pThis, g_iPlayRateO, DEFAULT_RELOAD_TIME / cvar.reloadtime);
 				player[client].reloadendtime = currenttime + cvar.reloadtime;
 			}
 			player[client].shoveinreload = false;
@@ -489,20 +510,20 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		{
 			if(g_iOfficialCvar_ammo_assaultrifle_max != -2) L4D_SetReserveAmmo(client, pThis, reserverammo + clip);
 
-			SetEntProp(pThis, Prop_Send, "m_iClip1", 0); // 不等下一偵
+			SetEntData(pThis, g_iClipO, 0); // 不等下一偵
 
 			SDKCall(g_SDKCall_AbortReload, pThis);
 			//EmitSoundToClient(client, SCAR_SHOOT_EMPTY);
-			SetEntProp(viewmodel, Prop_Send, "m_nLayerSequence", 8);
-			SetEntPropFloat(viewmodel, Prop_Send, "m_flLayerStartTime", currenttime);
+			SetEntData(viewmodel, g_iVMLayerSequenceO, 8);
+			SetEntDataFloat(viewmodel, g_iVMStartTimeO, currenttime);
 			if(cvar.reloadtime <= 0.0)
 			{
-				SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", DEFAULT_RELOAD_TIME / g_fScarReloadTime);
+				SetEntDataFloat(pThis, g_iPlayRateO, DEFAULT_RELOAD_TIME / g_fScarReloadTime);
 				player[client].reloadendtime = currenttime + g_fScarReloadTime;
 			}
 			else
 			{
-				SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", DEFAULT_RELOAD_TIME / cvar.reloadtime);
+				SetEntDataFloat(pThis, g_iPlayRateO, DEFAULT_RELOAD_TIME / cvar.reloadtime);
 				player[client].reloadendtime = currenttime + cvar.reloadtime;
 			}
 			player[client].shoveinreload = false;
@@ -515,10 +536,10 @@ MRESReturn DhookCallback_ItemPostFrame(int pThis)
 		SDKCall(g_SDKCall_FinishReload, pThis);
 		player[client].reloadendtime = NOT_IN_RELOAD;
 		if( player[client].shoveinreload )
-			SetEntProp(viewmodel, Prop_Send, "m_nLayer", 0);
+			SetEntData(viewmodel, g_iVMLayerO, 0);
 
-		SetEntPropFloat(viewmodel, Prop_Send, "m_flLayerStartTime", 0.0);
-		SetEntPropFloat(pThis, Prop_Send, "m_flPlaybackRate", 1.0);
+		SetEntDataFloat(viewmodel, g_iVMStartTimeO, 0.0);
+		SetEntDataFloat(pThis, g_iPlayRateO, 1.0);
 	}
 
 	return MRES_Ignored;
@@ -660,11 +681,11 @@ public void OnPlayerRunCmdPost(int client, int buttons)
 		if( player[client].inzoom )
 			return;
 		
-		int active_weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		int active_weapon = GetEntDataEnt2(client, g_iActiveWO);
 		if( active_weapon < 1 || !IsValidEntity(active_weapon) )
 			return;
 
-		if( GetEntProp(active_weapon, Prop_Send, "m_iWorldModelIndex") != g_scar_precache_index )
+		if( GetEntData(active_weapon, g_iWorldModelIndexO) != g_scar_precache_index )
 			return;
 
 		float now = GetGameTime();
@@ -678,7 +699,7 @@ public void OnPlayerRunCmdPost(int client, int buttons)
 		}
 		else
 		{
-			if(GetEntPropFloat(active_weapon, Prop_Data, "m_flNextPrimaryAttack") >= GetGameTime())
+			if(GetEntDataFloat(active_weapon, g_iNextPAttO) >= GetGameTime())
 			{
 				return;
 			}
@@ -690,18 +711,18 @@ public void OnPlayerRunCmdPost(int client, int buttons)
 		PlaySoundAroundClient(client, ZOOM_Sound);
 		if( !player[client].fullautomode )
 		{
-			SetEntPropFloat(active_weapon, Prop_Send, "m_flNextPrimaryAttack", GetGameTime() + 0.1);
-			SetEntPropFloat(active_weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.2);
+			SetEntDataFloat(active_weapon, g_iNextPAttO, GetGameTime() + 0.2);
+			SetEntDataFloat(active_weapon, g_iNextSAttO, GetGameTime() + 0.2);
 			if(cvar.bNotify) PrintToChat(client, "\x04[★]\x05Your SCAR mode is \x04'Triple Tap'");
 
-			SetEntProp(client, Prop_Data, "m_bPredictWeapons", 1);
+			ChangeClientPredictWeapons(client, 1);
 			player[client].lastAction = 0;
 		}
 		else
 		{
 			if(cvar.bNotify) PrintToChat(client, "\x04[★]\x05Your SCAR mode is \x04'Full Auto'");
 
-			SetEntProp(client, Prop_Data, "m_bPredictWeapons", 0);
+			ChangeClientPredictWeapons(client, 0);
 			player[client].lastAction = 1;
 			player[client].needrelease = true;
 			player[client].switchendtime = GetGameTime() + 0.2;
@@ -769,6 +790,17 @@ bool IsValidEntityIndex(int entity)
     return (MaxClients+1 <= entity <= GetMaxEntities());
 }
 
+void ChangeClientPredictWeapons(int client, int change)
+{
+	static int m_iPredictWeapons_offset = -1;
+	if(m_iPredictWeapons_offset == -1)
+	{
+		m_iPredictWeapons_offset = FindDataMapInfo(client, "m_bPredictWeapons");
+	}
+
+	SetEntData(client, m_iPredictWeapons_offset, change);
+}
+
 // Native
 
 int Native_IsClientHoldAutoScar(Handle plugin, int numParams)
@@ -789,11 +821,11 @@ int Native_IsClientHoldAutoScar(Handle plugin, int numParams)
 		return false;
 	}
 
-	int active_weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	int active_weapon = GetEntDataEnt2(client, g_iActiveWO);
 	if( active_weapon < 1 || !IsValidEntity(active_weapon) )
 		return false;
 
-	if( GetEntProp(active_weapon, Prop_Send, "m_iWorldModelIndex") != g_scar_precache_index )
+	if( GetEntData(active_weapon, g_iWorldModelIndexO) != g_scar_precache_index )
 		return false;
 
 	return player[client].fullautomode;

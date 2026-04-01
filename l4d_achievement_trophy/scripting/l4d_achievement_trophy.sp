@@ -1,9 +1,9 @@
-#define PLUGIN_VERSION 		"2.6"
+#define PLUGIN_VERSION 		"1.0h-2026/4/1"
 
 /*======================================================================================
 	Plugin Info:
 
-*	Name	:	[L4D2] Achivement Trophy
+*	Name	:	[L4D2] Achievement Trophy
 *	Author	:	SilverShot
 *	Descrp	:	Displays the TF2 trophy when a player unlocks an achievement.
 *	Link	:	https://forums.alliedmods.net/showthread.php?t=136174
@@ -11,6 +11,9 @@
 
 ========================================================================================
 	Change Log:
+
+2.7 (11-Dec-2022)
+	- Various changes to tidy up code.
 
 2.6 (10-May-2020)
 	- Extra checks to prevent "IsAllowedGameMode" throwing errors.
@@ -190,12 +193,12 @@ void RemoveEffects(int client)
 
 	entity = g_iParticles[client][0];
 	if( IsValidEntRef(entity) )
-		AcceptEntityInput(entity, "Kill");
+		RemoveEntity(entity);
 	g_iParticles[client][0] = 0;
 
 	entity = g_iParticles[client][1];
 	if( IsValidEntRef(entity) )
-		AcceptEntityInput(entity, "Kill");
+		RemoveEntity(entity);
 	g_iParticles[client][1] = 0;
 }
 
@@ -209,12 +212,12 @@ public void OnConfigsExecuted()
 	IsAllowed();
 }
 
-public void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	IsAllowed();
 }
 
-public void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
 {
 	GetCvars();
 }
@@ -235,19 +238,16 @@ void IsAllowed()
 	bool bAllowMode = IsAllowedGameMode();
 	GetCvars();
 
-	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true)
+	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true )
 	{
 		g_bCvarAllow = true;
 		HookEvent("achievement_earned",		Event_Achievement);
 		HookEvent("player_death",			Event_Remove);
 		HookEvent("player_team",			Event_Remove);
 		HookEvent("round_end",				Event_RemoveAll,	EventHookMode_PostNoCopy);
-		if(g_bLeft4Dead2)
-			HookEvent("tank_killed",            Event_AchievementTank);
-		else
-			HookEvent("player_death", eventplayer_death);
-		HookEvent("player_now_it",            Event_AchievementBoomer);
-		HookEvent("witch_killed",            Event_AchievementWitch);
+		HookEvent("player_death", 			Event_PlayerDeath);
+		HookEvent("player_now_it",          Event_AchievementBoomer);
+		HookEvent("witch_killed",           Event_AchievementWitch);
 	}
 
 	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false) )
@@ -258,12 +258,9 @@ void IsAllowed()
 		UnhookEvent("player_death",			Event_Remove);
 		UnhookEvent("player_team",			Event_Remove);
 		UnhookEvent("round_end",			Event_RemoveAll,	EventHookMode_PostNoCopy);
-		if(g_bLeft4Dead2)
-			UnhookEvent("tank_killed",            Event_AchievementTank);
-		else
-			UnhookEvent("player_death", eventplayer_death);
+		UnhookEvent("player_death", 		Event_PlayerDeath);
 		UnhookEvent("player_now_it",        Event_AchievementBoomer);
-		UnhookEvent("witch_killed",            Event_AchievementWitch);
+		UnhookEvent("witch_killed",         Event_AchievementWitch);
 	}
 }
 
@@ -325,7 +322,7 @@ bool IsAllowedGameMode()
 	return true;
 }
 
-public void OnGamemode(const char[] output, int caller, int activator, float delay)
+void OnGamemode(const char[] output, int caller, int activator, float delay)
 {
 	if( strcmp(output, "OnCoop") == 0 )
 		g_iCurrentMode = 1;
@@ -342,20 +339,19 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 // ====================================================================================================
 //					EVENTS
 // ====================================================================================================
-public void Event_Remove(Event event, const char[] name, bool dontBroadcast)
+void Event_Remove(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	RemoveEffects(client);
-    
 }
 
-public void Event_RemoveAll(Event event, const char[] name, bool dontBroadcast)
+void Event_RemoveAll(Event event, const char[] name, bool dontBroadcast)
 {
 	for( int i = 1; i <= MaxClients; i++ )
 		RemoveEffects(i);
 }
 
-public void Event_Achievement(Event event, const char[] name, bool dontBroadcast)
+void Event_Achievement(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = event.GetInt("player");
 	CreateEffects(client, true);
@@ -376,15 +372,7 @@ public void Event_AchievementWitch(Event event, const char[] name, bool dontBroa
     CreateEffects(client, false);
 }
 
-//l4d2
-public void Event_AchievementTank(Event event, const char[] name, bool dontBroadcast)
-{
-    int client = GetClientOfUserId(GetEventInt(event, "attacker"));
-    CreateEffects(client, false);
-}
-
-//l4d1
-public void eventplayer_death(Event event, const char[] name, bool dontBroadcast)
+void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
@@ -700,7 +688,7 @@ public Action Timer_RemoveHat(Handle timer, int client)
 	return Plugin_Continue;
 }
 
-public Action CmdTrophy(int client, int args)
+Action CmdTrophy(int client, int args)
 {
 	if( args == 0 )
 	{
