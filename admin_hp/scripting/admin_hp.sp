@@ -5,7 +5,7 @@
 #include <adminmenu>
 #include <sdktools>
 #include <multicolors>
-#define PLUGIN_VERSION "2.7-2025/8/27"
+#define PLUGIN_VERSION "2.8-2026/4/2"
 
 enum
 {
@@ -45,11 +45,28 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
+ConVar first_aid_kit_max_heal;
+int g_iCvar_first_aid_kit_max_heal;
+
 public void OnPluginStart()
 {
+	first_aid_kit_max_heal = FindConVar("first_aid_kit_max_heal");
+	GetOfficialCvars();
+	first_aid_kit_max_heal.AddChangeHook(ConVarChanged_OfficialCvars);
+
 	LoadTranslations("admin_hp.phrases");
 	RegAdminCmd("sm_hp", restore_hp, ADMFLAG_ROOT, "Restore all survivors full hp");
 	RegAdminCmd("sm_givehp", restore_hp, ADMFLAG_ROOT, "Restore all survivors full hp");
+}
+
+void ConVarChanged_OfficialCvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetOfficialCvars();
+}
+
+void GetOfficialCvars()
+{
+	g_iCvar_first_aid_kit_max_heal = first_aid_kit_max_heal.IntValue;
 }
 
 Action restore_hp(int client, int args){
@@ -97,7 +114,7 @@ void CheatCommanGiveHealth(int client)
 			SetEntPropFloat(client, Prop_Send, "m_healthBuffer", 0.0);
 		}
 	}
-	else if(GetClientHealth(client)<100) //血量低於100
+	else if(GetClientHealth(client) < g_iCvar_first_aid_kit_max_heal) //血量低於最大值
 	{
 		FakeClientCommand(client, "give health");
 		SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime());

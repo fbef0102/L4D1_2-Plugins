@@ -665,6 +665,7 @@ models/w_models/weapons/w_eq_Medkit.mdl TAG- 治療包模型
 models/w_models/weapons/w_eq_painpills.mdl TAG- 止痛藥丸模型
 models/w_models/weapons/w_eq_pipebomb.mdl TAG- 土製炸彈模型
 models/w_models/weapons/w_eq_molotov.mdl TAG- 火焰瓶模型
+models/props_unique/wooden_barricade_gascans.mdl TAG- 障礙汽油桶模型 (C11M3)
 models/props_junk/gascan001a.mdl TAG- 汽油桶模型
 models/props_equipment/oxygentank01.mdl TAG- 氧氣罐模型
 models/props_junk/propanecanister001a.mdl TAG- 瓦斯桶模型

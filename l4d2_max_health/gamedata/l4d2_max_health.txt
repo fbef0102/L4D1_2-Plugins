@@ -1,0 +1,239 @@
+// Many thanks to Psykotikism for sharing the Windows signature (https://github.com/Psykotikism/L4D1-2_Signatures)
+"Games"
+{
+	"left4dead2"
+    {
+		"Functions"
+		{
+			"NextBotCreatePlayerBot<SurvivorBot>"
+            {
+                "signature"         "NextBotCreatePlayerBot<SurvivorBot>"
+                "callconv"          "thiscall"
+                "return"            "cbaseentity"
+                "this"              "ignore"
+                "arguments"
+                {
+                    "a1"
+                    {
+                        "type"      "charptr"
+                    }
+                }
+            }
+			
+			"CTerrorPlayer::GoAwayFromKeyboard"
+			{
+				"signature"	"CTerrorPlayer::GoAwayFromKeyboard"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+			}
+			
+			"SurvivorBot::SetHumanSpectator"
+			{
+				"signature"	"SurvivorBot::SetHumanSpectator"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+				"arguments"
+				{
+					"AFKPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+
+			"CTerrorPlayer::TakeOverBot"
+			{
+				"signature"		"CTerrorPlayer::TakeOverBot"
+				"callconv"		"thiscall"
+				"return"		"bool"
+				"this"			"entity"
+				"arguments"
+				{
+					"a1"
+					{
+						"type"	"bool"
+					}
+				}
+			}
+
+			"PlayerSaveData::Restore"
+			{
+				"signature"		"PlayerSaveData::Restore"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				"arguments"
+				{
+					"Player"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+
+			"CDirector::Restart"
+			{
+				"signature"		"CDirector::Restart"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"address"
+			}
+
+			"CTerrorPlayer::RoundRespawn"
+			{
+				"signature"		"CTerrorPlayer::RoundRespawn"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+			}
+
+			"CTerrorPlayer::TransitionRestore"
+			{
+				"signature"		"CTerrorPlayer::TransitionRestore"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+			}
+
+			"CFirstAidKit::ShouldStartAction"
+			{
+				"signature"		"CFirstAidKit::ShouldStartAction"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"ignore"
+				"arguments"
+				{
+					"actionType"
+					{
+						"type"	"int"
+					}
+					"client"
+					{
+						"type"	"cbaseentity"
+					}
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+
+			"DD::CTerrorPlayer::GiveDefaultItems"
+			{
+				"signature"	"CTerrorPlayer::GiveDefaultItems"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+			}
+		}
+
+		"Signatures"
+		{
+			/**
+			* C++ Function:		CBaseEntity* __cdecl NextBotCreatePlayerBotSurvivorBot(const char *src)
+			* Search string:	CreatePlayerBot: Could not Instance() from the bot edict
+			*
+			* Where call this function: 
+			* RestoreTransitionedSurvivorBots(void);	CDirector::AddSurvivorBot(SurvivorCharacterType)
+			**/
+			"NextBotCreatePlayerBot<SurvivorBot>"
+			{	
+				"library"	"server"
+				"linux"		"@_Z22NextBotCreatePlayerBotI11SurvivorBotEPT_PKc"
+				"windows"	"\xE8\x2A\x2A\x2A\x2A\x83\x2A\x2A\x85\x2A\x74\x2A\x8B\x2A\x8B\x92"
+				/* E8 ? ? ? ? 83 ? ? 85 ? 74 ? 8B ? 8B 92 */
+				/* (addr+5) + *(addr+1) = call function addr -> this  signature into <CDirector::AddSurvivorBot> */
+				/* Sig. should point to "call" opcode E8, not to the func. start */
+			}
+			
+			/* CTerrorPlayer::GoAwayFromKeyboard(CTerrorPlayer *__hidden this) */
+			"CTerrorPlayer::GoAwayFromKeyboard"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer18GoAwayFromKeyboardEv"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x56\x57\x8B\x2A\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x8B"
+				/* ? ? ? ? ? ? 53 56 57 8B ? 8B ? 8B 90 ? ? ? ? 8B */
+			}
+			
+			/* SurvivorBot::SetHumanSpectator(SurvivorBot *__hidden this, CTerrorPlayer *) */
+			"SurvivorBot::SetHumanSpectator"
+			{
+				"library"	"server"
+				"linux"		"@_ZN11SurvivorBot17SetHumanSpectatorEP13CTerrorPlayer"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x83\xBE\x2A\x2A\x2A\x2A\x2A\x7E\x2A\x32\x2A\x5E\x5D\xC2\x2A\x2A\x8B\x0D"
+                /* ? ? ? ? ? ? 83 BE ? ? ? ? ? 7E ? 32 ? 5E 5D C2 ? ? 8B 0D */
+			}
+
+			/*
+			 * CTerrorPlayer::TakeOverBot
+			 * unique string "[TAKEOVER]: %s (%d) possessed %s"
+			 */
+			"CTerrorPlayer::TakeOverBot"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer11TakeOverBotEb"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\xC5\x89\x45\xFC\x53\x56\x8D\x85"
+				/* ? ? ? ? ? ? ? ? ? A1 ? ? ? ? 33 C5 89 45 FC 53 56 8D 85 */
+			}
+
+			/* PlayerSaveData::Restore(PlayerSaveData *__hidden this, CTerrorPlayer *) */
+			"PlayerSaveData::Restore"
+			{
+				"library"	"server"
+				"linux"		"@_ZN14PlayerSaveData7RestoreEP13CTerrorPlayer"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x8B\x2A\x2A\x8B\x2A\x2A\x56\x8B\x2A\x8B\x0D"
+				/* ? ? ? ? ? ? 53 8B ? ? 8B ? ? 56 8B ? 8B 0D */
+			}
+
+			/* CDirector::Restart(CDirector *__hidden this) */
+			"CDirector::Restart"
+			{
+				"library"	"server"
+				"linux"		"@_ZN9CDirector7RestartEv"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\x2A\x89\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x53\x56\x57\x8B"
+				/* ? ? ? ? ? ? ? ? ? A1 ? ? ? ? 33 ? 89 ? ? A1 ? ? ? ? 8B ? ? 53 56 57 8B */
+			}
+
+			/* CTerrorPlayer::RoundRespawn(void) */
+			"CTerrorPlayer::RoundRespawn"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer12RoundRespawnEv"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x84\x2A\x75\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\xC6\x86"
+				/* ? ? ? ? ? ? ? ? E8 ? ? ? ? 84 ? 75 ? 8B ? E8 ? ? ? ? C6 86 */
+			}
+
+			/* CTerrorPlayer::TransitionRestore(CTerrorPlayer *__hidden this) */
+			"CTerrorPlayer::TransitionRestore"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer17TransitionRestoreEv"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x80\xBE\x2A\x2A\x2A\x2A\x2A\x75\x2A\x33\x2A\x5E\x8B\x2A\x5D\xC3"
+				/* ? ? ? ? ? ? ? 80 BE ? ? ? ? ? 75 ? 33 ? 5E 8B ? 5D C3 */
+			}
+
+			/*
+			 *	CFirstAidKit::ShouldStartAction(CBaseBackpackItem::BackpackItemActionType,CTerrorPlayer *,CBaseEntity *)
+			 */
+			"CFirstAidKit::ShouldStartAction"
+			{
+				"library"	"server"
+				"linux"		"@_ZN12CFirstAidKit17ShouldStartActionEN17CBaseBackpackItem22BackpackItemActionTypeEP13CTerrorPlayerP11CBaseEntity"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x57\x8B\x2A\x8B\x2A\xFF\x2A\x84\x2A\x75\x2A\x5F"
+				/* ? ? ? ? ? ? ? 8B ? 8B 90 ? ? ? ? 57 8B ? 8B ? FF ? 84 ? 75 ? 5F */
+				/* Search: https://github.com/Psykotikism/L4D1-2_Signatures/blob/main/l4d2/gamedata/l4d2_signatures.txt#L1630 */
+			}
+
+			/* CTerrorPlayer::GiveDefaultItems(CTerrorPlayer *__hidden this) */
+			"CTerrorPlayer::GiveDefaultItems"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13CTerrorPlayer16GiveDefaultItemsEv"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x50\xE8\x2A\x2A\x2A\x2A\x83\x2A\x2A\x84\x2A\x0F\x84\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x8B\x88"
+				/* ? ? ? ? ? ? ? ? 50 E8 ? ? ? ? 83 ? ? 84 ? 0F 84 ? ? ? ? A1 ? ? ? ? 8B 88 */
+			}
+		}
+    }
+}

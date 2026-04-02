@@ -29,6 +29,9 @@ Adm type !hp to set survivor team full health
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.8 (2026-4-2)
+		* Support official cvar "first_aid_kit_max_heal"
+
 	* v2.7 (2025-8-27)
 		* Add translation
 

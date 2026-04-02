@@ -665,7 +665,8 @@ models/w_models/weapons/w_eq_Medkit.mdl TAG- Med Kit Model
 models/w_models/weapons/w_eq_painpills.mdl TAG- Pain Pill Model
 models/w_models/weapons/w_eq_pipebomb.mdl TAG- Improvised Bomb Model
 models/w_models/weapons/w_eq_molotov.mdl TAG- Molotov Model
-models/props_junk/gascan001a.mdl TAG- Gasoline Tank Model
+models/props_unique/wooden_barricade_gascans.mdl TAG- Barricade Gascan Model (C11M3)
+models/props_junk/gascan001a.mdl TAG- Gascan Model
 models/props_equipment/oxygentank01.mdl TAG- Oxygen Tank Model
 models/props_junk/propanecanister001a.mdl TAG- Gas Tank Model
 models/props_interiors/medicalcabinet02.mdl TAG- Medical Cabinet Model

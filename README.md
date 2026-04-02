@@ -308,6 +308,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 玩家TK導致隊友倒地或死亡，能有更多的角色語音互動
 * <b>[l4d_versus_waitforfinalefix](/l4d_versus_waitforfinalefix)</b>: Fixing ghost infected spawn bug "Waiting For the finale to begin"
     * 修復靈魂特感無法復活的bug "Waiting For the finale to begin"
+* <b>[l4d2_max_health](/l4d2_max_health)</b>: Custom maximum survivor health 
+    * 自定義生還者最大血量
 
 # Scripting Compiler
 * [sourcemod v1.12 compiler](https://www.sourcemod.net/downloads.php?branch=1.12-dev): scripting folder
