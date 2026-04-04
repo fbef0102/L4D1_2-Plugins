@@ -10,37 +10,23 @@
 #include <multicolors>
 #include <l4d_heartbeat>
 
-native int LMC_GetClientOverlayModel(int iClient);
+#undef REQUIRE_PLUGIN
+#tryinclude <LMCCore> //https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer
 
-#define PLUGIN_VERSION "1.2h-2025/6/8"
+#if !defined _LMCCore_included
+	native int LMC_GetClientOverlayModel(int client);
+#endif
 
-ConVar hCvar_Enabled = null;
-ConVar hCvar_GlowEnabled = null;
-ConVar hCvar_GlowColour = null;
-ConVar hCvar_GlowRange = null;
-ConVar hCvar_GlowFlash = null;
-ConVar hCvar_NoticeType = null;
-ConVar hCvar_TeamNoticeType = null;
-ConVar hCvar_HintRange = null;
-ConVar hCvar_HintTime = null;
-ConVar hCvar_HintColour = null;
-ConVar hMaxReviveCount;
+#define PLUGIN_VERSION "1.3h-2026/4/4"
 
-bool bEnabled = false;
-bool bGlowEnabled = false;
-int iGlowColour;
-int iGlowRange = 1800;
-int iGlowFlash = 30;
-int iNoticeType = 2;
-int iTeamNoticeType = 2;
-int iHintRange = 600;
-float fHintTime = 5.0;
-char sHintColour[17];
-
-//char sCharName[17];
-bool bGlow[MAXPLAYERS+1] = {false, ...};
-
-bool bLMC_Available = false;
+public Plugin myinfo =
+{
+	name = "LMC_Black_and_White_Notifier",
+	author = "Lux, Harry",
+	description = "Notify people when player is black and white (Support LMC model if any)",
+	version = PLUGIN_VERSION,
+	url = "https://forums.alliedmods.net/showthread.php?p=2449184#post2449184"
+}
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -53,6 +39,27 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	MarkNativeAsOptional("LMC_GetClientOverlayModel");
 	return APLRes_Success;
 }
+
+ConVar hCvar_Enabled,
+	hCvar_GlowEnabled,
+	hCvar_GlowColour,
+	hCvar_GlowRange,
+	hCvar_GlowFlash,
+	hCvar_NoticeTypeHeal, hCvar_NoticeWhoHeal, hCvar_HintRangeHeal, hCvar_HintTimeHeal, hCvar_HintColourHeal,
+	hCvar_NoticeTypeBW, hCvar_NoticeWhoBW, hCvar_HintRangeBW, hCvar_HintTimeBW, hCvar_HintColourBW,
+	hMaxReviveCount;
+
+bool bEnabled, bGlowEnabled;
+int g_iGlowColour, g_iGlowRange, g_iGlowFlash, 
+	g_iNoticeTypeHeal, g_iNoticeWhoHeal, g_iHintRangeHeal,
+	g_iNoticeTypeBW, g_iNoticeWhoBW, g_iHintRangeBW;
+float g_fHintTimeHeal, g_fHintTimeBW;
+char g_sHintColourHeal[17], g_sHintColourBW[17];
+
+//char sCharName[17];
+bool bGlow[MAXPLAYERS+1] = {false, ...};
+
+bool bLMC_Available = false;
 
 public void OnAllPluginsLoaded()
 {
@@ -74,15 +81,6 @@ public void OnLibraryRemoved(const char[] sName)
 	bLMC_Available = false;
 }
 
-public Plugin myinfo =
-{
-	name = "LMC_Black_and_White_Notifier",
-	author = "Lux",
-	description = "Notify people when player is black and white Using LMC model if any",
-	version = PLUGIN_VERSION,
-	url = "https://forums.alliedmods.net/showthread.php?p=2449184#post2449184"
-}
-
 #define AUTO_EXEC true
 public void OnPluginStart()
 {
@@ -91,16 +89,21 @@ public void OnPluginStart()
 	hMaxReviveCount = FindConVar("survivor_max_incapacitated_count");
 
 	CreateConVar("lmc_bwnotice_version", PLUGIN_VERSION, "Version of black and white notification plugin", FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	hCvar_Enabled = CreateConVar("lmc_blackandwhite", "1", "Enable black and white notification plugin?(1/0 = yes/no)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_GlowEnabled = CreateConVar("lmc_glow", "1", "Enable making black white players glow?(1/0 = yes/no)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hCvar_GlowColour = CreateConVar("lmc_glowcolour", "255 255 255", "Glow(255 255 255)", FCVAR_NOTIFY);
-	hCvar_GlowRange = CreateConVar("lmc_glowrange", "800.0", "Glow range before you don't see the glow max distance", FCVAR_NOTIFY, true, 1.0);
-	hCvar_GlowFlash = CreateConVar("lmc_glowflash", "20", "while black and white if below 20(Def) start pulsing (0 = disable)", FCVAR_NOTIFY, true, 0.0);
-	hCvar_NoticeType = CreateConVar("lmc_noticetype", "3", "Type to use for notification. (0= off, 1=chat, 2=hint text, 3=director hint)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	hCvar_TeamNoticeType = CreateConVar("lmc_teamnoticetype", "0", "Method of notification. (0=survivors only, 1=infected only, 2=all players)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
-	hCvar_HintRange = CreateConVar("lmc_hintrange", "600", "Director hint range On Black and white", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
-	hCvar_HintTime = CreateConVar("lmc_hinttime", "5.0", "Director hint Timeout (in seconds)", FCVAR_NOTIFY, true, 1.0, true, 20.0);
-	hCvar_HintColour = CreateConVar("lmc_hintcolour", "255 0 0", "Director hint colour Layout(255 255 255)", FCVAR_NOTIFY);
+	hCvar_Enabled 				= CreateConVar("lmc_blackandwhite_enable", 				"1", 			"Enable plugin? (1/0 = yes/no)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_GlowEnabled 			= CreateConVar("lmc_blackandwhite_glow", 				"1", 			"Enable making black white players glow?(1/0 = yes/no)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_GlowColour 			= CreateConVar("lmc_blackandwhite_glowcolour", 			"255 255 255", 	"Black and white Glow color (255 255 255)", FCVAR_NOTIFY);
+	hCvar_GlowRange 			= CreateConVar("lmc_blackandwhite_glowrange", 			"800.0", 		"Black and white Glow range", FCVAR_NOTIFY, true, 1.0);
+	hCvar_GlowFlash 			= CreateConVar("lmc_blackandwhite_glowflash", 			"20", 			"While black and white if below 20(Def) start pulsing (0 = disable)", FCVAR_NOTIFY, true, 0.0);
+	hCvar_NoticeTypeHeal 		= CreateConVar("lmc_blackandwhite_announce_type_heal", 	"3", 			"(Heal B&W) How to display notification. (0=off, 1=chat, 2=hint text, 3=director hint in survivor team, hint text in infected team)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	hCvar_NoticeWhoHeal 		= CreateConVar("lmc_blackandwhite_announce_who_heal", 	"0", 			"(Heal B&W) Display notification to who? (0=survivors only, 1=infected only, 2=all players)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	hCvar_HintRangeHeal 		= CreateConVar("lmc_blackandwhite_hintrange_heal", 		"700", 			"(Heal B&W) Director hint range", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
+	hCvar_HintTimeHeal 			= CreateConVar("lmc_blackandwhite_hinttime_heal", 		"7.0", 			"(Heal B&W) Director hint Timeout (in seconds)", FCVAR_NOTIFY, true, 1.0, true, 20.0);
+	hCvar_HintColourHeal 		= CreateConVar("lmc_blackandwhite_hintcolour_heal", 	"0 255 0", 		"(Heal B&W) Director hint colour (255 255 255)", FCVAR_NOTIFY);
+	hCvar_NoticeTypeBW 			= CreateConVar("lmc_blackandwhite_announce_type_bw", 	"3", 			"(Become B&W) How to display notification. (0=off, 1=chat, 2=hint text, 3=director hint in survivor team, hint text in infected team)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	hCvar_NoticeWhoBW 			= CreateConVar("lmc_blackandwhite_announce_who_bw", 	"0", 			"(Become B&W) Display notification to who? (0=survivors only, 1=infected only, 2=all players)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	hCvar_HintRangeBW 			= CreateConVar("lmc_blackandwhite_hintrange_bw", 		"1000", 		"(Become B&W) Director hint range", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
+	hCvar_HintTimeBW 			= CreateConVar("lmc_blackandwhite_hinttime_bw", 		"10.0", 		"(Become B&W) Director hint Timeout (in seconds)", FCVAR_NOTIFY, true, 1.0, true, 20.0);
+	hCvar_HintColourBW 			= CreateConVar("lmc_blackandwhite_hintcolour_bw", 		"255 0 0", 		"(Become B&W) Director hint colour (255 255 255)", FCVAR_NOTIFY);
 	
 	HookEvent("revive_success", eReviveSuccess);
 	HookEvent("heal_success", eHealSuccess);
@@ -115,11 +118,16 @@ public void OnPluginStart()
 	hCvar_GlowColour.AddChangeHook(eConvarChanged);
 	hCvar_GlowRange.AddChangeHook(eConvarChanged);
 	hCvar_GlowFlash.AddChangeHook(eConvarChanged);
-	hCvar_NoticeType.AddChangeHook(eConvarChanged);
-	hCvar_TeamNoticeType.AddChangeHook(eConvarChanged);
-	hCvar_HintRange.AddChangeHook(eConvarChanged);
-	hCvar_HintTime.AddChangeHook(eConvarChanged);
-	hCvar_HintColour.AddChangeHook(eConvarChanged);
+	hCvar_NoticeTypeHeal.AddChangeHook(eConvarChanged);
+	hCvar_NoticeWhoHeal.AddChangeHook(eConvarChanged);
+	hCvar_HintRangeHeal.AddChangeHook(eConvarChanged);
+	hCvar_HintTimeHeal.AddChangeHook(eConvarChanged);
+	hCvar_HintColourHeal.AddChangeHook(eConvarChanged);
+	hCvar_NoticeTypeBW.AddChangeHook(eConvarChanged);
+	hCvar_NoticeWhoBW.AddChangeHook(eConvarChanged);
+	hCvar_HintRangeBW.AddChangeHook(eConvarChanged);
+	hCvar_HintTimeBW.AddChangeHook(eConvarChanged);
+	hCvar_HintColourBW.AddChangeHook(eConvarChanged);
 	
 	#if AUTO_EXEC
 	AutoExecConfig(true, "LMC_Black_and_White_Notifier");
@@ -144,14 +152,20 @@ void CvarsChanged()
 	bGlowEnabled = hCvar_GlowEnabled.BoolValue;
 	char sGlowColour[13];
 	GetConVarString(hCvar_GlowColour, sGlowColour, sizeof(sGlowColour));
-	iGlowColour = GetColor(sGlowColour);
-	iGlowRange = hCvar_GlowRange.IntValue;
-	iGlowFlash = hCvar_GlowFlash.IntValue;
-	iNoticeType = hCvar_NoticeType.IntValue;
-	iTeamNoticeType = hCvar_TeamNoticeType.IntValue;
-	iHintRange = hCvar_HintRange.IntValue;
-	fHintTime = hCvar_HintTime.FloatValue;
-	GetConVarString(hCvar_HintColour, sHintColour, sizeof(sHintColour));
+	g_iGlowColour = GetColor(sGlowColour);
+	g_iGlowRange = hCvar_GlowRange.IntValue;
+	g_iGlowFlash = hCvar_GlowFlash.IntValue;
+	g_iNoticeTypeHeal = hCvar_NoticeTypeHeal.IntValue;
+	g_iNoticeWhoHeal = hCvar_NoticeWhoHeal.IntValue;
+	g_iHintRangeHeal = hCvar_HintRangeHeal.IntValue;
+	g_fHintTimeHeal = hCvar_HintTimeHeal.FloatValue;
+	GetConVarString(hCvar_HintColourHeal, g_sHintColourHeal, sizeof(g_sHintColourHeal));
+
+	g_iNoticeTypeBW = hCvar_NoticeTypeBW.IntValue;
+	g_iNoticeWhoBW = hCvar_NoticeWhoBW.IntValue;
+	g_iHintRangeBW = hCvar_HintRangeBW.IntValue;
+	g_fHintTimeBW = hCvar_HintTimeBW.FloatValue;
+	GetConVarString(hCvar_HintColourBW, g_sHintColourBW, sizeof(g_sHintColourBW));
 }
 
 void eReviveSuccess(Event event, const char[] name, bool dontBroadcast) 
@@ -166,123 +180,67 @@ void eReviveSuccess(Event event, const char[] name, bool dontBroadcast)
 	RequestFrame(NextFrame_ReviveSuccess, event.GetInt("subject"));
 }
 
-void NextFrame_ReviveSuccess(int iClient)
+void NextFrame_ReviveSuccess(int client)
 {
-	iClient = GetClientOfUserId(iClient);
+	client = GetClientOfUserId(client);
 	
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 		return;
 	
-	if(!IsClientInGame(iClient) || !IsPlayerAlive(iClient))
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 		return;
 
-	if(Heartbeat_GetRevives(iClient) < L4D_GetMaxReviveCount())
+	if(Heartbeat_GetRevives(client) < L4D_GetMaxReviveCount())
 		return;
 	
 	int iEntity = -1;
 	
 	if(bGlowEnabled)
 	{
-		bGlow[iClient] = true;
+		bGlow[client] = true;
 		if(bLMC_Available)
 		{
-			iEntity = LMC_GetClientOverlayModel(iClient);
+			iEntity = LMC_GetClientOverlayModel(client);
 			if(iEntity > MaxClients)
 			{
 				SetEntProp(iEntity, Prop_Send, "m_iGlowType", 3);
-				SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", iGlowColour);
-				SetEntProp(iEntity, Prop_Send, "m_nGlowRange", iGlowRange);
+				SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", g_iGlowColour);
+				SetEntProp(iEntity, Prop_Send, "m_nGlowRange", g_iGlowRange);
 				
 			}
 			else
 			{
-				SetEntProp(iClient, Prop_Send, "m_iGlowType", 3);
-				SetEntProp(iClient, Prop_Send, "m_glowColorOverride", iGlowColour);
-				SetEntProp(iClient, Prop_Send, "m_nGlowRange", iGlowRange);
+				SetEntProp(client, Prop_Send, "m_iGlowType", 3);
+				SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
+				SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
 			}
 		}
 		else
 		{
-			SetEntProp(iClient, Prop_Send, "m_iGlowType", 3);
-			SetEntProp(iClient, Prop_Send, "m_glowColorOverride", iGlowColour);
-			SetEntProp(iClient, Prop_Send, "m_nGlowRange", iGlowRange);
+			SetEntProp(client, Prop_Send, "m_iGlowType", 3);
+			SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
+			SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
 		}
 	}
 	
-	//GetModelName(iClient, iEntity);
-	
-	// switch(iTeamNoticeType)
-	// {
-	// 	case 0:
-	// 	{
-	// 		for(int i = 1; i <= MaxClients;i++)
-	// 		{
-	// 			if(!IsClientInGame(i) || GetClientTeam(iClient) != 2 || IsFakeClient(i) || i == iClient)
-	// 			continue;
-				
-	// 			if(iNoticeType == 1)
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) is Black&White", iClient, sCharName);
-	// 			if(iNoticeType == 2)
-	// 			PrintHintText(i, "[BW] %N(%s\x04) is Black&White", iClient, sCharName);
-	// 			if(iNoticeType == 3)
-	// 			DirectorHintRevive(iClient, i);
-	// 		}
-			
-	// 	}
-	// 	case 1:
-	// 	{
-	// 		for(int i = 1; i <= MaxClients;i++)
-	// 		{
-	// 			if(!IsClientInGame(i) || GetClientTeam(iClient) != 3 || IsFakeClient(i))
-	// 			continue;
-				
-	// 			if(iNoticeType == 1)
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) is Black&White", iClient, sCharName);
-	// 			if(iNoticeType == 2)
-	// 			PrintHintText(i, "[BW] %N(%s\x04) is Black&White", iClient, sCharName);
-	// 			if(iNoticeType == 3)
-	// 			PrintHintText(i, "[BW] %N(%s\x04) is Black&White", iClient, sCharName);
-	// 		}
-	// 	}
-	// 	case 2:
-	// 	{
-	// 		for(int i = 1; i <= MaxClients;i++)
-	// 		{
-	// 			if(!IsClientInGame(i) || IsFakeClient(i) || i == iClient)
-	// 			continue;
-				
-	// 			if(iNoticeType == 1)
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) is Black&White", iClient, sCharName);
-	// 			if(iNoticeType == 2)
-	// 			PrintHintText(i, "[BW] %N(%s) is Black&White", iClient, sCharName);
-	// 			if(GetClientTeam(i) !=2)
-	// 			{
-	// 				PrintHintText(i, "[BW] %N(%s) is Black&White", iClient, sCharName);
-	// 				continue;
-	// 			}
-	// 			if(iNoticeType == 3)
-	// 			DirectorHintRevive(iClient, i);
-	// 		}
-	// 	}
-	// }
-	switch(iTeamNoticeType)
+	switch(g_iNoticeWhoBW)
 	{
 		case 0:
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(iClient) != 2 || IsFakeClient(i))
-				continue;
+				if(!IsClientInGame(i) || GetClientTeam(client) != 2 || IsFakeClient(i))
+					continue;
 				
-				if(iNoticeType == 1)
-				CPrintToChat(i, "{green}[BW] %T", "BAW_1 (C)", i, iClient);
-				if(iNoticeType == 2)
-				PrintHintText(i, "[BW] %T", "BAW_1", i, iClient);
+				if(g_iNoticeTypeBW == 1)
+					CPrintToChat(i, "%T", "BAW_1 (C)", i, client);
+				if(g_iNoticeTypeBW == 2)
+					PrintHintText(i, "%T", "BAW_1", i, client);
 
-				if(i == iClient) continue;
+				if(i == client) continue;
 
-				if(iNoticeType == 3)
-					DirectorHintRevive(iClient, i);
+				if(g_iNoticeTypeBW == 3)
+					BW_DirectorHintToChat(client, i);
 			}
 			
 		}
@@ -290,15 +248,15 @@ void NextFrame_ReviveSuccess(int iClient)
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(iClient) != 3 || IsFakeClient(i))
-				continue;
+				if(!IsClientInGame(i) || GetClientTeam(client) != 3 || IsFakeClient(i))
+					continue;
 				
-				if(iNoticeType == 1)
-				CPrintToChat(i, "{green}[BW] %T", "BAW_1 (C)", i, iClient);
-				if(iNoticeType == 2)
-				PrintHintText(i, "[BW] %T", "BAW_1", i, iClient);
-				if(iNoticeType == 3)
-				PrintHintText(i, "[BW] %T", "BAW_1", i, iClient);
+				if(g_iNoticeTypeBW == 1)
+					CPrintToChat(i, "%T", "BAW_1 (C)", i, client);
+				if(g_iNoticeTypeBW == 2)
+					PrintHintText(i, "%T", "BAW_1", i, client);
+				if(g_iNoticeTypeBW == 3)
+					PrintHintText(i, "%T", "BAW_1", i, client);
 			}
 		}
 		case 2:
@@ -306,22 +264,23 @@ void NextFrame_ReviveSuccess(int iClient)
 			for(int i = 1; i <= MaxClients;i++)
 			{
 				if(!IsClientInGame(i) || IsFakeClient(i))
-				continue;
+					continue;
 				
-				if(iNoticeType == 1)
-				CPrintToChat(i, "{green}[BW] %T", "BAW_1 (C)", i, iClient);
-				if(iNoticeType == 2)
-				PrintHintText(i, "[BW] %T", "BAW_1", i, iClient);
-				if(GetClientTeam(i) !=2)
+				if(g_iNoticeTypeBW == 1)
+					CPrintToChat(i, "%T", "BAW_1 (C)", i, client);
+				if(g_iNoticeTypeBW == 2)
+					PrintHintText(i, "%T", "BAW_1", i, client);
+
+				if(GetClientTeam(i) != 2)
 				{
-					PrintHintText(i, "[BW] %T", "BAW_1", i, iClient);
+					PrintHintText(i, "%T", "BAW_1", i, client);
 					continue;
 				}
 
-				if(i == iClient) continue;
+				if(i == client) continue;
 
-				if(iNoticeType == 3)
-					DirectorHintRevive(iClient, i);
+				if(g_iNoticeTypeBW == 3)
+					BW_DirectorHintToChat(client, i);
 			}
 		}
 	}
@@ -332,218 +291,148 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 	if(!bEnabled)
 	return;
 	
-	int iClient;
-	iClient = GetClientOfUserId(event.GetInt("subject"));
+	int client;
+	client = GetClientOfUserId(event.GetInt("subject"));
 	
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 	return;
 	
-	if(!IsClientInGame(iClient) || !IsPlayerAlive(iClient))
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 	return;
 	
-	if(!bGlow[iClient])
+	if(!bGlow[client])
 	return;
 	
 	int iEntity = -1;
 	if(bGlowEnabled)
 	{
-		bGlow[iClient] = false;
+		bGlow[client] = false;
 		if(bLMC_Available)
 		{
-			iEntity = LMC_GetClientOverlayModel(iClient);
+			iEntity = LMC_GetClientOverlayModel(client);
 			if(iEntity > MaxClients)
 			{
 				ResetGlows(iEntity);
 			}
 			else
 			{
-				ResetGlows(iClient);
+				ResetGlows(client);
 			}
 		}
 		else
 		{
-			ResetGlows(iClient);
+			ResetGlows(client);
 		}
 	}
 	
-	//GetModelName(iClient, iEntity);
+	//GetModelName(client, iEntity);
 	int iHealer;
 	iHealer = GetClientOfUserId(event.GetInt("userid"));
-	
-	// switch(iTeamNoticeType)
-	// {
-	// 	case 0:
-	// 	{
-	// 		for(int i = 1; i <= MaxClients;i++)
-	// 		{
-	// 			if(!IsClientInGame(i) || GetClientTeam(iClient) != 2 || IsFakeClient(i) || i == iClient /*|| i == iHealer*/)
-	// 			continue;
-				
-	// 			if(iNoticeType == 1)
-	// 			if(iClient != iHealer)
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) is no longer Black&White (Thanks to \x04%N\x01)", iClient, sCharName, iHealer);
-	// 			else
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) healed themselves", iClient, sCharName);
-				
-	// 			if(iNoticeType == 2)
-	// 			if(iClient != iHealer)
-	// 			PrintHintText(i, "[BW] %N(%s) is no longer Black&White (Thanks to %N)", iClient, sCharName, iHealer);
-	// 			else
-	// 			PrintHintText(i, "[BW] %N(%s) healed themselves", iClient, sCharName);
-				
-	// 			if(iNoticeType == 3)
-	// 			DirectorHintReviveHeal(iClient, iHealer, i);
-	// 		}
-	// 	}
-	// 	case 1:
-	// 	{
-	// 		for(int i = 1; i <= MaxClients;i++)
-	// 		{
-	// 			if(!IsClientInGame(i) || GetClientTeam(iClient) != 3 || IsFakeClient(i) || i == iClient /*|| i == iHealer*/)
-	// 			continue;
-				
-	// 			if(iNoticeType == 1)
-	// 			if(iClient != iHealer)
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) is no longer Black&White (Thanks to \x04%N\x01)", iClient, sCharName, iHealer);
-	// 			else
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) healed themselves", iClient, sCharName);
-				
-	// 			if(iNoticeType == 2)
-	// 			if(iClient != iHealer)
-	// 			PrintHintText(i, "[BW] %N(%s) is no longer Black&White (Thanks to %N)", iClient, iHealer);
-	// 			else
-	// 			PrintHintText(i, "[BW] %N(%s) healed themselves", iClient, sCharName);
-				
-	// 			if(iNoticeType == 3)
-	// 			if(iClient != iHealer)
-	// 			PrintHintText(i, "[BW] %N(%s) is no longer Black&White (Thanks to %N)", iClient, iHealer);
-	// 			else
-	// 			PrintHintText(i, "[BW] %N(%s) healed themselves", iClient, sCharName);
-	// 		}
-	// 	}
-	// 	case 2:
-	// 	{
-	// 		for(int i = 1; i <= MaxClients;i++)
-	// 		{
-	// 			if(!IsClientInGame(i) || IsFakeClient(i) || i == iClient /*|| i == iHealer*/)
-	// 			continue;
-				
-	// 			if(iNoticeType == 1)
-	// 			if(iClient != iHealer)
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) is no longer Black&White (Thanks to \x04%N\x01)", iClient, sCharName, iHealer);
-	// 			else
-	// 			CPrintToChat(i, "\x04[BW] \x03%N\x04(\x03%s\x04) healed themselves", iClient, sCharName);
-				
-	// 			if(iNoticeType == 2)
-	// 			if(iClient != iHealer)
-	// 			PrintHintText(i, "[BW] %N(%s) is no longer Black&White (Thanks to %N)", iClient, sCharName, iHealer);
-	// 			else
-	// 			PrintHintText(i, "[BW] %N(%s) healed themselves", iClient, sCharName);
-				
-	// 			if(GetClientTeam(i) !=2)
-	// 			if(iClient != iHealer)
-	// 			{
-	// 				PrintHintText(i, "[BW] %N(%s) is no longer Black&White (Thanks to %N)", iClient, sCharName, iHealer);
-	// 				continue;
-	// 			}
-	// 			else
-	// 			{
-	// 				PrintHintText(i, "[BW] %N(%s) healed themselves", iClient, sCharName);
-	// 				continue;
-	// 			}
-	// 			if(iNoticeType == 3)
-	// 			DirectorHintReviveHeal(iClient, iHealer, i);
-	// 		}
-	// 	}
-	// }
-	switch(iTeamNoticeType)
+
+	switch(g_iNoticeWhoHeal)
 	{
 		case 0:
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(iClient) != 2 || IsFakeClient(i) /*|| i == iClient || i == iHealer*/)
-				continue;
+				if(!IsClientInGame(i) || GetClientTeam(client) != 2 || IsFakeClient(i) /*|| i == client || i == iHealer*/)
+					continue;
 				
-				if(iNoticeType == 1)
-				if(iClient != iHealer)
-				CPrintToChat(i, "{green}[BW] %T", "BAW_2 (C)", i, iClient, iHealer);
-				else
-				CPrintToChat(i, "{green}[BW] %T", "BAW_3 (C)", i, iClient);
-				
-				if(iNoticeType == 2)
-				if(iClient != iHealer)
-				PrintHintText(i, "[BW] %T", "BAW_2", i, iClient, iHealer);
-				else
-				PrintHintText(i, "[BW] %T", "BAW_3", i, iClient);
-				
-				//if(i == iClient) continue;
+				if(g_iNoticeTypeHeal == 1)
+				{
+					if(client != iHealer)
+						CPrintToChat(i, "%T", "BAW_2 (C)", i, client, iHealer);
+					else
+						CPrintToChat(i, "%T", "BAW_3 (C)", i, client);
+				}
 
-				if(iNoticeType == 3)
-					DirectorHintReviveHeal(iClient, iHealer, i);
+				if(g_iNoticeTypeHeal == 2)
+				{
+					if(client != iHealer)
+						PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
+					else
+						PrintHintText(i, "%T", "BAW_3", i, client);
+				}
+
+				//if(i == client) continue;
+
+				if(g_iNoticeTypeHeal == 3)
+					Heal_DirectorHintToChat(client, iHealer, i);
 			}
 		}
 		case 1:
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(iClient) != 3 || IsFakeClient(i) /*|| i == iClient || i == iHealer*/)
-				continue;
+				if(!IsClientInGame(i) || GetClientTeam(client) != 3 || IsFakeClient(i) /*|| i == client || i == iHealer*/)
+					continue;
 				
-				if(iNoticeType == 1)
-				if(iClient != iHealer)
-				CPrintToChat(i, "{green}[BW] %T", "BAW_2 (C)", i, iClient, iHealer);
-				else
-				CPrintToChat(i, "{green}[BW] %T", "BAW_3 (C)", i, iClient);
-				
-				if(iNoticeType == 2)
-				if(iClient != iHealer)
-				PrintHintText(i, "[BW] %T", "BAW_2", i, iClient, iHealer);
-				else
-				PrintHintText(i, "[BW] %T", "BAW_3", i, iClient);
-				
-				if(iNoticeType == 3)
-				if(iClient != iHealer)
-				PrintHintText(i, "[BW] %T", "BAW_2", i, iClient, iHealer);
-				else
-				PrintHintText(i, "[BW] %T", "BAW_3", i, iClient);
+				if(g_iNoticeTypeHeal == 1)
+				{
+					if(client != iHealer)
+						CPrintToChat(i, "%T", "BAW_2 (C)", i, client, iHealer);
+					else
+						CPrintToChat(i, "%T", "BAW_3 (C)", i, client);
+				}
+
+				if(g_iNoticeTypeHeal == 2)
+				{
+					if(client != iHealer)
+						PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
+					else
+						PrintHintText(i, "%T", "BAW_3", i, client);
+				}
+
+				if(g_iNoticeTypeHeal == 3)
+				{
+					if(client != iHealer)
+						PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
+					else
+						PrintHintText(i, "%T", "BAW_3", i, client);
+				}
 			}
 		}
 		case 2:
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || IsFakeClient(i) /*|| i == iClient || i == iHealer*/)
-				continue;
+				if(!IsClientInGame(i) || IsFakeClient(i) /*|| i == client || i == iHealer*/)
+					continue;
 				
-				if(iNoticeType == 1)
-				if(iClient != iHealer)
-				CPrintToChat(i, "{green}[BW] %T", "BAW_2 (C)", i, iClient, iHealer);
-				else
-				CPrintToChat(i, "{green}[BW] %T", "BAW_3 (C)", i, iClient);
-				
-				if(iNoticeType == 2)
-				if(iClient != iHealer)
-				PrintHintText(i, "[BW] %T", "BAW_2", i, iClient, iHealer);
-				else
-				PrintHintText(i, "[BW] %T", "BAW_3", i, iClient);
+				if(g_iNoticeTypeHeal == 1)
+				{
+					if(client != iHealer)
+						CPrintToChat(i, "%T", "BAW_2 (C)", i, client, iHealer);
+					else
+						CPrintToChat(i, "%T", "BAW_3 (C)", i, client);
+				}
+
+				if(g_iNoticeTypeHeal == 2)
+				{
+					if(client != iHealer)
+						PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
+					else
+						PrintHintText(i, "%T", "BAW_3", i, client);
+				}
 				
 				if(GetClientTeam(i) !=2)
-				if(iClient != iHealer)
 				{
-					PrintHintText(i, "[BW] %T", "BAW_2", i, iClient, iHealer);
-					continue;
-				}
-				else
-				{
-					PrintHintText(i, "[BW] %T", "BAW_3", i, iClient);
+					if(client != iHealer)
+					{
+						PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
+					}
+					else
+					{
+						PrintHintText(i, "%T", "BAW_3", i, client);
+					}
+
 					continue;
 				}
 
-				//if(i == iClient) continue;
+				//if(i == client) continue;
 
-				if(iNoticeType == 3)
-					DirectorHintReviveHeal(iClient, iHealer, i);
+				if(g_iNoticeTypeHeal == 3)
+					Heal_DirectorHintToChat(client, iHealer, i);
 			}
 		}
 	}
@@ -555,36 +444,36 @@ void ePlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	if(!bEnabled)
 	return;
 	
-	int iClient;
-	iClient = GetClientOfUserId(event.GetInt("userid"));
+	int client;
+	client = GetClientOfUserId(event.GetInt("userid"));
 	
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 	return;
 	
-	if(!IsClientInGame(iClient) || GetClientTeam(iClient) != 2)
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2)
 	return;
 	
-	if(!bGlow[iClient])
+	if(!bGlow[client])
 	return;
 	
-	bGlow[iClient] = false;
+	bGlow[client] = false;
 	
 	if(bLMC_Available)
 	{
 		int iEntity;
-		iEntity = LMC_GetClientOverlayModel(iClient);
+		iEntity = LMC_GetClientOverlayModel(client);
 		if(iEntity > MaxClients)
 		{
 			ResetGlows(iEntity);
 		}
 		else
 		{
-			ResetGlows(iClient);
+			ResetGlows(client);
 		}
 	}
 	else
 	{
-		ResetGlows(iClient);
+		ResetGlows(client);
 	}
 }
 
@@ -598,63 +487,63 @@ void ePlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 
 Action Timer_ePlayerSpawn(Handle timer, int userid)
 {
-	int iClient = GetClientOfUserId(userid);
+	int client = GetClientOfUserId(userid);
 
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 		return Plugin_Continue;
 	
-	if(!IsClientInGame(iClient) || GetClientTeam(iClient) != 2 || !IsPlayerAlive(iClient))
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
 		return Plugin_Continue;
 
-	//PrintToChatAll("%d %d", GetEntProp(iClient, Prop_Send, "m_currentReviveCount"), L4D_GetMaxReviveCount());
+	//PrintToChatAll("%d %d", Heartbeat_GetRevives(client), L4D_GetMaxReviveCount());
 		
-	if(GetEntProp(iClient, Prop_Send, "m_currentReviveCount") < L4D_GetMaxReviveCount())
+	if(Heartbeat_GetRevives(client) < L4D_GetMaxReviveCount())
 	{
 		if(bLMC_Available)
 		{
 			int iEntity;
-			iEntity = LMC_GetClientOverlayModel(iClient);
+			iEntity = LMC_GetClientOverlayModel(client);
 			if(iEntity > MaxClients)
 			{
 				ResetGlows(iEntity);
 			}
 			else
 			{
-				ResetGlows(iClient);
+				ResetGlows(client);
 			}
 		}
 		else
 		{
-			ResetGlows(iClient);
+			ResetGlows(client);
 		}
-		bGlow[iClient] = false;
+		bGlow[client] = false;
 		return Plugin_Continue;
 	}
 	
-	bGlow[iClient] = true;
+	bGlow[client] = true;
 	if(bLMC_Available)
 	{
 		int iEntity;
-		iEntity = LMC_GetClientOverlayModel(iClient);
+		iEntity = LMC_GetClientOverlayModel(client);
 		if(iEntity > MaxClients)
 		{
 			SetEntProp(iEntity, Prop_Send, "m_iGlowType", 3);
-			SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", iGlowColour);
-			SetEntProp(iEntity, Prop_Send, "m_nGlowRange", iGlowRange);
+			SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", g_iGlowColour);
+			SetEntProp(iEntity, Prop_Send, "m_nGlowRange", g_iGlowRange);
 			
 		}
 		else
 		{
-			SetEntProp(iClient, Prop_Send, "m_iGlowType", 3);
-			SetEntProp(iClient, Prop_Send, "m_glowColorOverride", iGlowColour);
-			SetEntProp(iClient, Prop_Send, "m_nGlowRange", iGlowRange);
+			SetEntProp(client, Prop_Send, "m_iGlowType", 3);
+			SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
+			SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
 		}
 	}
 	else
 	{
-		SetEntProp(iClient, Prop_Send, "m_iGlowType", 3);
-		SetEntProp(iClient, Prop_Send, "m_glowColorOverride", iGlowColour);
-		SetEntProp(iClient, Prop_Send, "m_nGlowRange", iGlowRange);
+		SetEntProp(client, Prop_Send, "m_iGlowType", 3);
+		SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
+		SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
 	}
 
 	return Plugin_Continue;
@@ -665,19 +554,19 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 	if(!bEnabled)
 		return;
 	
-	int iClient;
-	iClient = GetClientOfUserId(event.GetInt("userid"));
+	int client;
+	client = GetClientOfUserId(event.GetInt("userid"));
 	
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 	return;
 	
-	if(!IsClientInGame(iClient) || GetClientTeam(iClient) != 2 || !IsPlayerAlive(iClient))
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
 	return;
 	
 	if(bLMC_Available)
 	{
 		int iEntity;
-		iEntity = LMC_GetClientOverlayModel(iClient);
+		iEntity = LMC_GetClientOverlayModel(client);
 		if(iEntity > MaxClients)
 		{
 			SetEntProp(iEntity, Prop_Send, "m_iGlowType", 0);
@@ -687,226 +576,123 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 		}
 		else
 		{
-			SetEntProp(iClient, Prop_Send, "m_iGlowType", 0);
-			SetEntProp(iClient, Prop_Send, "m_glowColorOverride", 0);
-			SetEntProp(iClient, Prop_Send, "m_nGlowRange", 0);
-			SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+			SetEntProp(client, Prop_Send, "m_iGlowType", 0);
+			SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
+			SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
+			SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 		}
 	}
 	else
 	{
-		SetEntProp(iClient, Prop_Send, "m_iGlowType", 0);
-		SetEntProp(iClient, Prop_Send, "m_glowColorOverride", 0);
-		SetEntProp(iClient, Prop_Send, "m_nGlowRange", 0);
-		SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+		SetEntProp(client, Prop_Send, "m_iGlowType", 0);
+		SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
+		SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
+		SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 	}
 	
 }
 
 
-public void LMC_OnClientModelApplied(int iClient, int iEntity, const char sModel[PLATFORM_MAX_PATH], int bBaseReattach)
+public void LMC_OnClientModelApplied(int client, int iEntity, const char sModel[PLATFORM_MAX_PATH], bool bBaseReattach)
 {
-	if(!IsClientInGame(iClient) || GetClientTeam(iClient) != 2)
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2)
 	return;
 	
-	if(!bGlow[iClient])
+	if(!bGlow[client])
 	return;
 	
-	SetEntProp(iEntity, Prop_Send, "m_iGlowType", GetEntProp(iClient, Prop_Send, "m_iGlowType"));
-	SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", GetEntProp(iClient, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(iEntity, Prop_Send, "m_nGlowRange", GetEntProp(iClient, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(iEntity, Prop_Send, "m_bFlashing", GetEntProp(iClient, Prop_Send, "m_bFlashing", 1), 1);
+	SetEntProp(iEntity, Prop_Send, "m_iGlowType", GetEntProp(client, Prop_Send, "m_iGlowType"));
+	SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", GetEntProp(client, Prop_Send, "m_glowColorOverride"));
+	SetEntProp(iEntity, Prop_Send, "m_nGlowRange", GetEntProp(client, Prop_Send, "m_glowColorOverride"));
+	SetEntProp(iEntity, Prop_Send, "m_bFlashing", GetEntProp(client, Prop_Send, "m_bFlashing", 1), 1);
 	
-	SetEntProp(iClient, Prop_Send, "m_iGlowType", 0);
-	SetEntProp(iClient, Prop_Send, "m_glowColorOverride", 0);
-	SetEntProp(iClient, Prop_Send, "m_nGlowRange", 0);
-	SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+	SetEntProp(client, Prop_Send, "m_iGlowType", 0);
+	SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
+	SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
+	SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 }
 
-public void LMC_OnClientModelDestroyed(int iClient, int iEntity)
+public void LMC_OnClientModelDestroyed(int client, int iEntity)
 {
-	if(!IsClientInGame(iClient) || !IsPlayerAlive(iClient) || GetClientTeam(iClient) != 2)
+	if(!IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 2)
 	return;
 	
 	if(!IsValidEntity(iEntity))
 	return;
 	
-	if(!bGlow[iClient])
+	if(!bGlow[client])
 	return;
 	
-	SetEntProp(iClient, Prop_Send, "m_iGlowType", GetEntProp(iEntity, Prop_Send, "m_iGlowType"));
-	SetEntProp(iClient, Prop_Send, "m_glowColorOverride", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(iClient, Prop_Send, "m_nGlowRange", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(iClient, Prop_Send, "m_bFlashing", GetEntProp(iEntity, Prop_Send, "m_bFlashing", 1), 1);
+	SetEntProp(client, Prop_Send, "m_iGlowType", GetEntProp(iEntity, Prop_Send, "m_iGlowType"));
+	SetEntProp(client, Prop_Send, "m_glowColorOverride", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
+	SetEntProp(client, Prop_Send, "m_nGlowRange", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
+	SetEntProp(client, Prop_Send, "m_bFlashing", GetEntProp(iEntity, Prop_Send, "m_bFlashing", 1), 1);
 }
 
-/*
-int GetModelName(int iClient, int iEntity)
-{
-	char sModel[64];
-	if(!IsValidEntity(iEntity))
-	{
-		GetEntPropString(iClient, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-		
-		if(StrContains(sModel, "teenangst", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Zoey");
-		else if(StrContains(sModel, "biker", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Francis");
-		else if(StrContains(sModel, "manager", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Louis");
-		else if(StrContains(sModel, "namvet", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Bill");
-		else if(StrContains(sModel, "producer", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Rochelle");
-		else if(StrContains(sModel, "mechanic", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Ellis");
-		else if(StrContains(sModel, "coach", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Coach");
-		else if(StrContains(sModel, "gambler", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Nick");
-		else if(StrContains(sModel, "adawong", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "AdaWong");
-		else
-		strcopy(sCharName, sizeof(sCharName), "Unknown");
-	}
-	else if(IsValidEntity(iEntity))
-	{
-		GetEntPropString(iEntity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
-		
-		if(StrContains(sModel, "Bride", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Witch Bride");
-		else if(StrContains(sModel, "Witch", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Witch");
-		else if(StrContains(sModel, "hulk", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Tank");
-		else if(StrContains(sModel, "boomer", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Boomer");
-		else if(StrContains(sModel, "boomette", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Female Boomer");
-		else if(StrContains(sModel, "hunter", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Hunter");
-		else if(StrContains(sModel, "smoker", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Smoker");
-		else if(StrContains(sModel, "teenangst", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Zoey");
-		else if(StrContains(sModel, "biker", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Francis");
-		else if(StrContains(sModel, "manager", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Louis");
-		else if(StrContains(sModel, "namvet", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Bill");
-		else if(StrContains(sModel, "producer", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Rochelle");
-		else if(StrContains(sModel, "mechanic", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Ellis");
-		else if(StrContains(sModel, "coach", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Coach");
-		else if(StrContains(sModel, "gambler", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Nick");
-		else if(StrContains(sModel, "adawong", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "AdaWong");
-		else if(StrContains(sModel, "rescue", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Chopper Pilot");
-		else if(StrContains(sModel, "common", false) > 0)
-		strcopy(sCharName, sizeof(sCharName), "Infected");
-		else
-		strcopy(sCharName, sizeof(sCharName), "Unknown");
-	}
-}
-*/
-
-void DirectorHintRevive(int iClient, int i)
+void BW_DirectorHintToChat(int client, int i)
 {
 	int iEntity = CreateEntityByName("env_instructor_hint");
 	if(iEntity == -1)
-	return;
+		return;
 	
 	char sValues[128];
-	FormatEx(sValues, sizeof(sValues), "hint%d", iClient);
-	DispatchKeyValue(iClient, "targetname", sValues);
+	FormatEx(sValues, sizeof(sValues), "hint%d", client);
+	DispatchKeyValue(client, "targetname", sValues);
 	DispatchKeyValue(iEntity, "hint_target", sValues);
 	
-	FormatEx(sValues, sizeof(sValues), "%i", iHintRange);
+	FormatEx(sValues, sizeof(sValues), "%i", g_iHintRangeBW);
 	DispatchKeyValue(iEntity, "hint_range", sValues);
 	DispatchKeyValue(iEntity, "hint_icon_onscreen", "icon_alert");
+	DispatchKeyValue(iEntity, "hint_instance_type", "2"); //2=新的提示出現時結束上一個提示
+	DispatchKeyValue(iEntity, "hint_forcecaption", "1"); //1=隔著牆依然提示
 	
-	FormatEx(sValues, sizeof(sValues), "%f", fHintTime);
+	FormatEx(sValues, sizeof(sValues), "%f", g_fHintTimeBW);
 	DispatchKeyValue(iEntity, "hint_timeout", sValues);
 	
-	//FormatEx(sValues, sizeof(sValues), "%N(%s) is Black&White", iClient, sCharName);
-	FormatEx(sValues, sizeof(sValues), "%T", "BAW_1", i, iClient);
+	//FormatEx(sValues, sizeof(sValues), "%N(%s) is Black&White", client, sCharName);
+	FormatEx(sValues, sizeof(sValues), "%T", "BAW_1", i, client);
 	DispatchKeyValue(iEntity, "hint_caption", sValues);
-	DispatchKeyValue(iEntity, "hint_color", sHintColour);
+	DispatchKeyValue(iEntity, "hint_color", g_sHintColourBW);
 	DispatchSpawn(iEntity);
 	AcceptEntityInput(iEntity, "ShowHint", i);
 	
-	FormatEx(sValues, sizeof(sValues), "OnUser1 !self:Kill::%f:1", fHintTime);
+	FormatEx(sValues, sizeof(sValues), "OnUser1 !self:Kill::%f:1", g_fHintTimeBW);
 	SetVariantString(sValues);
 	AcceptEntityInput(iEntity, "AddOutput");
 	AcceptEntityInput(iEntity, "FireUser1");
 }
 
-// void DirectorHintReviveHeal(iClient, iHealer, i)
-// {
-// 	int iEntity;
-// 	iEntity = CreateEntityByName("env_instructor_hint");
-// 	if(iEntity == -1)
-// 	return;
-	
-// 	char sValues[128];
-// 	FormatEx(sValues, sizeof(sValues), "hint%d", i);
-// 	DispatchKeyValue(i, "targetname", sValues);
-// 	DispatchKeyValue(iEntity, "hint_target", sValues);
-	
-// 	DispatchKeyValue(iEntity, "hint_range", "0.1");
-// 	DispatchKeyValue(iEntity, "hint_icon_onscreen", "icon_info");
-	
-// 	FormatEx(sValues, sizeof(sValues), "%f", fHintTime);
-// 	DispatchKeyValue(iEntity, "hint_timeout", sValues);
-	
-// 	if(iClient == iHealer)
-// 	FormatEx(sValues, sizeof(sValues), "%N(%s) healed themselves", iClient, sCharName);
-// 	else
-// 	FormatEx(sValues, sizeof(sValues), "%N(%s) is no longer Black&White (Thanks to %N)", iClient, sCharName, iHealer);
-	
-// 	DispatchKeyValue(iEntity, "hint_caption", sValues);
-// 	DispatchKeyValue(iEntity, "hint_color", sHintColour);
-// 	DispatchSpawn(iEntity);
-// 	AcceptEntityInput(iEntity, "ShowHint", i);
-	
-// 	FormatEx(sValues, sizeof(sValues), "OnUser1 !self:Kill::%f:1", fHintTime);
-// 	SetVariantString(sValues);
-// 	AcceptEntityInput(iEntity, "AddOutput");
-// 	AcceptEntityInput(iEntity, "FireUser1");
-// }
-void DirectorHintReviveHeal(int iClient, int iHealer, int i)
+void Heal_DirectorHintToChat(int client, int iHealer, int i)
 {
 	int iEntity = CreateEntityByName("env_instructor_hint");
 	if(iEntity == -1)
-	return;
+		return;
 	
 	char sValues[128];
 	FormatEx(sValues, sizeof(sValues), "hint%d", i);
-	DispatchKeyValue(i, "targetname", sValues);
+	DispatchKeyValue(client, "targetname", sValues);
 	DispatchKeyValue(iEntity, "hint_target", sValues);
 	
-	DispatchKeyValue(iEntity, "hint_range", "0.1");
+	FormatEx(sValues, sizeof(sValues), "%i", g_iHintRangeHeal);
+	DispatchKeyValue(iEntity, "hint_range", sValues);
 	DispatchKeyValue(iEntity, "hint_icon_onscreen", "icon_info");
+	DispatchKeyValue(iEntity, "hint_instance_type", "2");
+	DispatchKeyValue(iEntity, "hint_forcecaption", "1"); //1=隔著牆依然提示
 	
-	FormatEx(sValues, sizeof(sValues), "%f", fHintTime);
+	FormatEx(sValues, sizeof(sValues), "%f", g_fHintTimeHeal);
 	DispatchKeyValue(iEntity, "hint_timeout", sValues);
 	
-	if(iClient == iHealer)
-	FormatEx(sValues, sizeof(sValues), "%T", "BAW_3", i, iClient);
+	if(client == iHealer)
+		FormatEx(sValues, sizeof(sValues), "%T", "BAW_3", i, client);
 	else
-	FormatEx(sValues, sizeof(sValues), "%T", "BAW_2", i, iClient, iHealer);
+		FormatEx(sValues, sizeof(sValues), "%T", "BAW_2", i, client, iHealer);
 	
 	DispatchKeyValue(iEntity, "hint_caption", sValues);
-	DispatchKeyValue(iEntity, "hint_color", sHintColour);
+	DispatchKeyValue(iEntity, "hint_color", g_sHintColourHeal);
 	DispatchSpawn(iEntity);
 	AcceptEntityInput(iEntity, "ShowHint", i);
 	
-	FormatEx(sValues, sizeof(sValues), "OnUser1 !self:Kill::%f:1", fHintTime);
+	FormatEx(sValues, sizeof(sValues), "OnUser1 !self:Kill::%f:1", g_fHintTimeHeal);
 	SetVariantString(sValues);
 	AcceptEntityInput(iEntity, "AddOutput");
 	AcceptEntityInput(iEntity, "FireUser1");
@@ -925,9 +711,9 @@ int GetColor(char sTemp[13])
 	return color;
 }
 
-public void OnClientPutInServer(int iClient)
+public void OnClientPutInServer(int client)
 {
-	SDKHook(iClient, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
+	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 }
 
 void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype)
@@ -949,7 +735,7 @@ void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int
 	iEntity = LMC_GetClientOverlayModel(victim);
 	
 	
-	if(L4D_GetPlayerTempHealth(victim) + GetEntProp(victim, Prop_Send, "m_iHealth") <= iGlowFlash)
+	if(L4D_GetPlayerTempHealth(victim) + GetEntProp(victim, Prop_Send, "m_iHealth") <= g_iGlowFlash)
 	{
 		if(bLMC_Available)
 		{
@@ -987,11 +773,6 @@ void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int
 
 int L4D_GetMaxReviveCount()
 {
-	if (hMaxReviveCount == null)
-	{
-		return -1;
-	}
-	
 	return hMaxReviveCount.IntValue;
 }
 
@@ -1000,22 +781,22 @@ void eItemUsedPill(Event event, const char[] name, bool dontBroadcast)
 	if(!bEnabled)
 		return;
 	
-	int iClient = GetClientOfUserId(event.GetInt("subject"));
+	int client = GetClientOfUserId(event.GetInt("subject"));
 	
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 	return;
 	
-	if(!IsClientInGame(iClient) || GetClientTeam(iClient) != 2 || !IsPlayerAlive(iClient))
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
 	return;
 	
-	if(!bGlow[iClient])
+	if(!bGlow[client])
 	return;
 	
 	int iEntity = -1;
 	if(bLMC_Available)
-	iEntity = LMC_GetClientOverlayModel(iClient);
+	iEntity = LMC_GetClientOverlayModel(client);
 	
-	if(L4D_GetPlayerTempHealth(iClient) + GetEntProp(iClient, Prop_Send, "m_iHealth") <= iGlowFlash)
+	if(L4D_GetPlayerTempHealth(client) + GetEntProp(client, Prop_Send, "m_iHealth") <= g_iGlowFlash)
 	{
 		if(bLMC_Available)
 		{
@@ -1026,11 +807,11 @@ void eItemUsedPill(Event event, const char[] name, bool dontBroadcast)
 			}
 			else
 			{
-				SetEntProp(iClient, Prop_Send, "m_bFlashing", 1, 1);
+				SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
 				return;
 			}
 		}
-		SetEntProp(iClient, Prop_Send, "m_bFlashing", 1, 1);
+		SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
 		
 	}
 	else
@@ -1044,11 +825,11 @@ void eItemUsedPill(Event event, const char[] name, bool dontBroadcast)
 			}
 			else
 			{
-				SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+				SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 				return;
 			}
 		}
-		SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+		SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 	}
 }
 
@@ -1057,22 +838,22 @@ void eItemUsed(Event event, const char[] name, bool dontBroadcast)
 	if(!bEnabled)
 		return;
 	
-	int iClient = GetClientOfUserId(event.GetInt("userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	
-	if(iClient < 1 || iClient > MaxClients)
+	if(client < 1 || client > MaxClients)
 	return;
 	
-	if(!IsClientInGame(iClient) || GetClientTeam(iClient) != 2 || !IsPlayerAlive(iClient))
+	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
 	return;
 	
-	if(!bGlow[iClient])
+	if(!bGlow[client])
 	return;
 	
 	int iEntity = -1;
 	if(bLMC_Available)
-	iEntity = LMC_GetClientOverlayModel(iClient);
+	iEntity = LMC_GetClientOverlayModel(client);
 	
-	if(L4D_GetPlayerTempHealth(iClient) + GetEntProp(iClient, Prop_Send, "m_iHealth") <= iGlowFlash)
+	if(L4D_GetPlayerTempHealth(client) + GetEntProp(client, Prop_Send, "m_iHealth") <= g_iGlowFlash)
 	{
 		if(bLMC_Available)
 		{
@@ -1083,11 +864,11 @@ void eItemUsed(Event event, const char[] name, bool dontBroadcast)
 			}
 			else
 			{
-				SetEntProp(iClient, Prop_Send, "m_bFlashing", 1, 1);
+				SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
 				return;
 			}
 		}
-		SetEntProp(iClient, Prop_Send, "m_bFlashing", 1, 1);
+		SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
 		
 	}
 	else
@@ -1101,11 +882,11 @@ void eItemUsed(Event event, const char[] name, bool dontBroadcast)
 			}
 			else
 			{
-				SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+				SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 				return;
 			}
 		}
-		SetEntProp(iClient, Prop_Send, "m_bFlashing", 0, 1);
+		SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
 	}
 }
 
@@ -1120,7 +901,7 @@ Action CheckBlackAndWhiteGlows_Timer(Handle timer)
 		if(!IsClientInGame(client)) continue;
 		if(GetClientTeam(client) != 2) continue;
 
-		lastLife = (L4D_GetPlayerReviveCount(client) >= L4D_GetMaxReviveCount() && L4D_GetMaxReviveCount() > 0);
+		lastLife = (Heartbeat_GetRevives(client) >= L4D_GetMaxReviveCount() && L4D_GetMaxReviveCount() > 0);
 
 		if(bGlow[client] && lastLife == false)
 		{

@@ -4,14 +4,21 @@
 #include <sdkhooks>
 #include <sdktools>
 #include <left4dhooks>
-#define PLUGIN_VERSION	"2.3"
+#undef REQUIRE_PLUGIN
+#tryinclude <l4d_weapon_clear_reload>
+
+#if !defined _l4d_weapon_clear_reload_included_
+	native bool L4D_WCR_Enable();
+#endif
+
+#define PLUGIN_VERSION	"2.4-2026/4/4"
 #define DEBUG 0
 
 public Plugin myinfo = 
 {
-	name = "L4D2 weapon csgo reload",
+	name = "L4D2 weapon cs2 reload",
 	author = "Harry Potter",
-	description = "reload like csgo weapon",
+	description = "reload like cs2 weapon",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
@@ -26,6 +33,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
 		return APLRes_SilentFailure;
 	}
+
+	MarkNativeAsOptional("L4D_WCR_Enable");
 
 	bLate = late;
 	return APLRes_Success;
@@ -179,6 +188,22 @@ void LateLoad()
         GetEntityClassname(entity, classname, sizeof(classname));
         OnEntityCreated(entity, classname);
     }
+}
+
+bool g_bAvailable_l4d_weapon_clear_reload;
+public void OnAllPluginsLoaded()
+{
+	g_bAvailable_l4d_weapon_clear_reload = LibraryExists("l4d_weapon_clear_reload");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	g_bAvailable_l4d_weapon_clear_reload = LibraryExists("l4d_weapon_clear_reload");
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	g_bAvailable_l4d_weapon_clear_reload = LibraryExists("l4d_weapon_clear_reload");
 }
 
 void ConVarChanged_AmmoCvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -414,7 +439,8 @@ void OnWeaponReload_Event(Event event, const char[] name, bool dontBroadcast)
 
 Action OnWeaponReload_Pre(int weapon)
 {
-	if(g_bEnable == false || g_EnableClipRecoverCvar == false) return Plugin_Continue;
+	if(g_bEnable == false || g_EnableClipRecoverCvar == false
+	||(g_bAvailable_l4d_weapon_clear_reload && L4D_WCR_Enable())) return Plugin_Continue;
 
 	int client = InUseClient(weapon);
 	if ( client != -1)

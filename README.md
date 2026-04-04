@@ -45,8 +45,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 隊友黑槍會反彈友傷
 * <b>[l4d_afk_commands](/l4d_afk_commands)</b>: Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.),but no abuse.
     * 提供多種命令轉換隊伍陣營 (譬如: !afk, !survivors, !infected), 但不可濫用.
-* <b>[l4d_blackandwhite](/l4d_blackandwhite)</b>: Notify people when player is black and white.
-    * 誰是黑白狀態(最後一條生命)
 * <b>[l4d_cso_zombie_Regeneration](/l4d_cso_zombie_Regeneration)</b>: The zombies have grown stronger, now they are able to heal their injuries by standing still without receiving any damage.
     * 殭屍變得更強大，他們只要站著不動便可以自癒傷勢　(仿CSO惡靈降世 殭屍技能)
 * <b>[l4d_drop](/l4d_drop)</b>: Allows players to drop the weapon they are holding
@@ -214,7 +212,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * Tank打到的物件都會產生光圈，只有特感能看見 + Tank死亡之後車子自動消失
 * <b>[l4d2_weapon_csgo_reload](/l4d2_weapon_csgo_reload)</b>: Quickswitch Reloading like CS2 in L4D2
     * 將武器改成現代遊戲的裝子彈機制 (仿CS2切槍裝彈設定)
-* <b>[LMC_Black_and_White_Notifier](/LMC_Black_and_White_Notifier)</b>: Notifies selected team(s) when someone is on final strike and add glow 
+* <b>[LMC_Black_and_White_Notifier](/LMC_Black_and_White_Notifier)</b>: Notifies selected team(s) when someone is on final strike and add glow (Support LMC model if any)
     * 顯示誰是黑白狀態，有更多的提示與支援LMC模組
 * <b>[show_mic](/show_mic)</b>: Voice Announce in centr text + create hat to Show Who is speaking.
     * 顯示誰在語音並且在說話的玩家頭上帶帽子

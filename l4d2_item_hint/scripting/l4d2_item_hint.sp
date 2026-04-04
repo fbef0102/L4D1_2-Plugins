@@ -2007,7 +2007,7 @@ void Create_env_instructor_hint(int iEntity, EHintType eType, const float vOrigi
 	DispatchKeyValue(entity, "hint_auto_start", "1"); //1=當玩家的LOS（視線）第一次看見時，會自動顯示給所有人
 	DispatchKeyValue(entity, "hint_color", hint_color);
 	DispatchKeyValue(entity, "hint_icon_offscreen", icon_name);
-	DispatchKeyValue(entity, "hint_instance_type", "0"); //(範圍僅限具有相同hint_instance_type的hint entity) 0=不會被新的director hint覆蓋掉, 1=同一時間只能顯示一個提示, 2=結束上一個提示, 3=隱藏上一個提示
+	DispatchKeyValue(entity, "hint_instance_type", "0"); //(範圍僅限具有相同hint_instance_type的hint entity) 0=不會被新的director hint覆蓋掉, 1=同一時間只能顯示一個提示, 阻止新的提示出現, 2=新的提示出現時結束上一個提示, 3=新的提示出現時隱藏上一個提示
 	DispatchKeyValue(entity, "hint_icon_onscreen", icon_name);
 	//DispatchKeyValue(entity, "hint_binding", "+use"); // only work if "hint_icon_onscreen" is "use_binding", 輸入+/- Commands: https://developer.valvesoftware.com/wiki/Bind
 	DispatchKeyValue(entity, "hint_caption", caption);

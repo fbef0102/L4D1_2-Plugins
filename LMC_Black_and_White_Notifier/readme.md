@@ -1,5 +1,5 @@
 # Description | 內容
-Notifies selected team(s) when someone is on final strike and add glow
+Notifies selected team(s) when someone is on final strike and add glow (Support LMC model if any)
 
 * Apply to | 適用於
     ```
@@ -7,49 +7,77 @@ Notifies selected team(s) when someone is on final strike and add glow
     ```
 
 * Image | 圖示
-    * display who is black and white (顯示哪個玩家黑白)
+    * Display who is black and white (顯示哪個玩家黑白)
     <br/>![LMC_Black_and_White_Notifier_1](image/LMC_Black_and_White_Notifier_1.jpg)
-    * display who healed (顯示誰治癒了黑白)
+    * Display who healed (顯示誰治癒了黑白)
     <br/>![LMC_Black_and_White_Notifier_2](image/LMC_Black_and_White_Notifier_2.jpg)
+
+* <details><summary>How does it work?</summary>
+
+	* Notify all survivors who becomes black and white
+    * Notify all survivors who heals the black and white player
+    * Support "Lux's Model Changer" plugin
+</Chargedetails>
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
     3. [l4d_heartbeat](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_heartbeat)
 
+* <details><summary>Support | 支援插件</summary>
+
+    1. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
+		* 可以自由變成其他角色或NPC的模組
+</details>
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/LMC_Black_and_White_Notifier.cfg
         ```php
-        // Enable black and white notification plugin?(1/0 = yes/no)
-        lmc_blackandwhite "1"
+        // Enable plugin? (1/0 = yes/no)
+        lmc_blackandwhite_enable "1"
 
         // Enable making black white players glow?(1/0 = yes/no)
-        lmc_glow "1"
+        lmc_blackandwhite_glow "1"
 
-        // Glow(255 255 255)
-        lmc_glowcolour "255 255 255"
+        // Black and white Glow color (255 255 255)
+        lmc_blackandwhite_glowcolour "255 255 255"
 
-        // Glow range before you don't see the glow max distance
-        lmc_glowrange "800.0"
+        // Black and white Glow range
+        lmc_blackandwhite_glowrange "800.0"
 
-        // while black and white if below 20(Def) start pulsing (0 = disable)
-        lmc_glowflash "20"
+        // If 1, add a flashing effect on Black and white Glow
+        lmc_blackandwhite_glowflash "1"
 
-        // Type to use for notification. (0= off, 1=chat, 2=hint text, 3=director hint)
-        lmc_noticetype "3"
+        // (Heal B&W) How to display notification. (0=off, 1=chat, 2=hint text, 3=director hint in survivor team, hint text in infected team)
+        lmc_blackandwhite_announce_type_heal "3"
 
-        // Method of notification. (0=survivors only, 1=infected only, 2=all players)
-        lmc_teamnoticetype "0"
+        // (Heal B&W) Display notification to who? (0=survivors only, 1=infected only, 2=all players)
+        lmc_blackandwhite_announce_who_heal "0"
 
-        // Director hint range On Black and white
-        lmc_hintrange "600"
+        // (Heal B&W) Director hint range
+        lmc_blackandwhite_hintrange_heal "700"
 
-        // Director hint Timeout (in seconds)
-        lmc_hinttime "5.0"
+        // (Heal B&W) Director hint Timeout (in seconds)
+        lmc_blackandwhite_hinttime_heal "7.0"
 
-        // Director hint colour Layout(255 255 255)
-        lmc_hintcolour "255 0 0"
+        // (Heal B&W) Director hint colour (255 255 255)
+        lmc_blackandwhite_hintcolour_heal "0 255 0"
+
+        // (Become B&W) How to display notification. (0=off, 1=chat, 2=hint text, 3=director hint in survivor team, hint text in infected team)
+        lmc_blackandwhite_announce_type_bw "3"
+
+        // (Become B&W) Display notification to who? (0=survivors only, 1=infected only, 2=all players)
+        lmc_blackandwhite_announce_who_bw "0"
+
+        // (Become B&W) Director hint range
+        lmc_blackandwhite_hintrange_bw "1000"
+
+        // (Become B&W) Director hint Timeout (in seconds)
+        lmc_blackandwhite_hinttime_bw "10.0"
+
+        // (Become B&W) Director hint colour (255 255 255)
+        lmc_blackandwhite_hintcolour_bw "250 0 0"
         ```
 </details>
 
@@ -58,15 +86,11 @@ Notifies selected team(s) when someone is on final strike and add glow
 	translations/LMC_Black_and_White_Notifier.phrases.txt
 	```
 
-* <details><summary>Related Plugin | 相關插件</summary>
-
-    1. [l4d_blackandwhite](/l4d_blackandwhite): Notify people when player is black and white.
-		* 顯示誰是黑白狀態，比較少的提示與支援
-	2. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
-		* 可以自由變成其他角色或NPC的模組
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.3h (2026-4-4)
+        * Update cvars, translations
+        * Use code from l4d_heartbeat to detect if player is black and white
 
     * v1.2h (2025-6-8)
         * Require l4d_heartbeat
@@ -92,39 +116,55 @@ Notifies selected team(s) when someone is on final strike and add glow
 * 原理
     * 救起玩家之後判定玩家是否為黑白狀態
     * 支援其他恢复玩家血量的插件
+    * 支援LMC模組插件 (也可不裝LMC)
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
     * cfg/sourcemod/LMC_Black_and_White_Notifier.cfg
         ```php
         // 0=關閉插件, 1=啟動插件
-        lmc_blackandwhite "1"
+        lmc_blackandwhite_enable "1"
 
         // 為1時，黑白玩家有光圈效果
-        lmc_glow "1"
+        lmc_blackandwhite_glow "1"
 
-        // 光圈的顏色，填入RGB三色 (三個數值介於0~255，需要空格) [-1: 隨機顏色]
-        lmc_glowcolour "255 255 255"
+        // 光圈的顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+        lmc_blackandwhite_glowcolour "255 255 255"
 
         // 光圈最遠可見範圍
-        lmc_glowrange "800.0"
+        lmc_blackandwhite_glowrange "800.0"
 
-        // 黑白玩家生命值低於此數值時，光圈開始閃爍 (0 = 關閉這項功能)
-        lmc_glowflash "20"
+        // 為1時，光圈會閃爍 (0 = 關閉這項功能)
+        lmc_blackandwhite_glowflash "1"
 
-        // 黑白提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 導演系統提示-玩家需要開啟遊戲指導系統)
-        lmc_noticetype "3"
+        // (治癒黑白) 提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 倖存者隊伍導演系統提示, 感染者隊伍黑底白字框)
+        lmc_blackandwhite_announce_type_heal "3"
 
-        // 提示給誰看? (0=倖存者隊伍, 1=特感隊伍, 2=所有玩家)
-        lmc_teamnoticetype "0"
+        // (治癒黑白) 提示給誰看? (0=倖存者隊伍, 1=特感隊伍, 2=所有玩家)
+        lmc_blackandwhite_announce_who_heal "0"
 
-        // 導演系統提示的範圍
-        lmc_hintrange "600"
+        // (治癒黑白) 導演系統提示的範圍
+        lmc_blackandwhite_hintrange_heal "700"
 
-        // 導演系統提示的時間 (單位: 秒)
-        lmc_hinttime "5.0"
+        // (治癒黑白) 導演系統提示的時間 (單位: 秒)
+        lmc_blackandwhite_hinttime_heal "7.0"
 
-        // 導演系統提示的顏色
-        lmc_hintcolour "255 0 0"
+        // (治癒黑白) 導演系統提示文字的顏色
+        lmc_blackandwhite_hintcolour_heal "0 255 0"
+
+        // (變成黑白) 提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 倖存者隊伍導演系統提示, 感染者隊伍黑底白字框)
+        lmc_blackandwhite_announce_type_bw "3"
+
+        // (變成黑白) 提示給誰看? (0=倖存者隊伍, 1=特感隊伍, 2=所有玩家)
+        lmc_blackandwhite_announce_who_bw "0"
+
+        // (變成黑白) 導演系統提示的範圍
+        lmc_blackandwhite_hintrange_bw "1000"
+
+        // (變成黑白) 導演系統提示的時間 (單位: 秒)
+        lmc_blackandwhite_hinttime_bw "10.0"
+
+        // (變成黑白) 導演系統提示文字的顏色
+        lmc_blackandwhite_hintcolour_bw "250 0 0"
         ```
 </details>

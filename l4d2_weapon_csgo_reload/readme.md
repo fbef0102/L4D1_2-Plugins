@@ -11,6 +11,12 @@ Quickswitch Reloading like CS2 in L4D2
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696) 
 
+* <details><summary>Support | 支援插件</summary>
+
+	1. [l4d_weapon_clear_reload](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_clear_reload): Abandon magazine when reload weapon
+		* 仿CS2裝彈機制，武器裝彈時放棄彈夾內的所有子彈
+</details>
+
 * <details><summary>Other Version | 其他版本</summary>
 
     1. [l4d_weapon_csgo_reload](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/l4d_weapon_csgo_reload.sp): (L4D1) Quickswitch Reloading like CS2
@@ -85,6 +91,9 @@ Quickswitch Reloading like CS2 in L4D2
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.4 (2026-4-4)
+        * Support l4d_weapon_clear_reload by Harry
 
     * v2.3 (2023-5-15)
         * Optimize Code

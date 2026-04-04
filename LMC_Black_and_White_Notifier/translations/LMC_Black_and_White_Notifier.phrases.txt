@@ -2,9 +2,9 @@
 {
 	"BAW_1 (C)"
 	{
-		"en"		"{lightgreen}%N{green} is Black&White"
-		"zho"		"{lightgreen}%N{green} 黑白了"
-		"chi"		"{lightgreen}%N{green} 黑白了"
+		"en"		"{green}[BW] {lightgreen}%N{green} is Black&White"
+		"zho"		"{green}[BW] {lightgreen}%N{green} 黑白了"
+		"chi"		"{green}[BW] {lightgreen}%N{green} 黑白了"
 	}
 	"BAW_1"
 	{
@@ -14,9 +14,9 @@
 	}
 	"BAW_2 (C)"
 	{
-		"en"		"{lightgreen}%N{green} is no longer Black&White (Thanks to {olive}%N{green})"
-		"zho"		"{lightgreen}%N{green} 治癒了黑白狀態 (感謝 {olive}%N{green})"
-		"chi"		"{lightgreen}%N{green} 治愈了黑白状态 (感谢 {olive}%N{green})"
+		"en"		"{green}[BW] {lightgreen}%N{green} is no longer Black&White (Thanks to {olive}%N{green})"
+		"zho"		"{green}[BW] {lightgreen}%N{green} 治癒了黑白狀態 (感謝 {olive}%N{green})"
+		"chi"		"{green}[BW] {lightgreen}%N{green} 治愈了黑白状态 (感谢 {olive}%N{green})"
 	}
 	"BAW_2"
 	{
@@ -26,9 +26,9 @@
 	}
 	"BAW_3 (C)"
 	{
-		"en"		"{lightgreen}%N{green} healed themselves"
-		"zho"		"{lightgreen}%N{green} 治癒了自己"
-		"chi"		"{lightgreen}%N{green} 治愈了自己"
+		"en"		"{green}[BW] {lightgreen}%N{green} healed themselves"
+		"zho"		"{green}[BW] {lightgreen}%N{green} 治癒了自己"
+		"chi"		"{green}[BW] {lightgreen}%N{green} 治愈了自己"
 	}
 	"BAW_3"
 	{

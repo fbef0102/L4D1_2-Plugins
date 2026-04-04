@@ -16,7 +16,7 @@
 
 public Plugin myinfo =
 {
-	name		= "L4D2 Drop Secondary",
+	name		= "L4D2 Bot Kick Drop Secondary",
 	author		= "HarryPotter",
 	version		= "1.0-2025/11/8",
 	description	= "Survivor bots will drop their secondary weapon when they were kicked",
