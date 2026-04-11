@@ -50,6 +50,9 @@ Vomit Jars hit Survivors, Boomer Explosions slime Infected.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.1h (2026-4-11)
+        * Use better trace to detect if bilejar can hit players
+
     * v1.0h (2024-2-24)
         * Update Cvars
 

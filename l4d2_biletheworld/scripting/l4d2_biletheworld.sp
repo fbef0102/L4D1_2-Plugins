@@ -1,4 +1,4 @@
-// AtomicStryker, foxhound27, HarryPotter @ 2010-2022
+// AtomicStryker, foxhound27, HarryPotter @ 2010-2026
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -7,7 +7,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <left4dhooks>
-#define PLUGIN_VERSION 	"1.0h-2024/2/24"
+#define PLUGIN_VERSION 	"1.1h-2026/4/11"
 #define PLUGIN_NAME		"l4d2_biletheworld"
 #define DEBUG 0
 
@@ -63,7 +63,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 static const char INFECTED_NAME[]	= "infected";
 static const char WITCH_NAME[]		= "witch";
 
-float TRACE_TOLERANCE = 25.0;
 float BILE_POS_HEIGHT_FIX = 70.0;
 
 ConVar g_hCvarEnable, 
@@ -73,7 +72,11 @@ bool g_bCvarEnable, g_bCvarVomitJarSelf, g_bCvarVomitJarTeammate;
 int g_iCvarBoomerDeathType;
 float g_fCvarBoomerDeath_Radius, g_fCvarVomitJar_Radius, g_fCvarVomitJar_TeammateHp;
 
-static int    ge_iType[MAXENTITIES+1];
+int  
+	g_iEntityOwnerUerId[MAXENTITIES+1];
+
+bool 
+	ge_bInvalidTrace[MAXENTITIES+1];
 
 public void OnPluginStart()
 {
@@ -117,13 +120,34 @@ void GetCvars()
 public void OnEntityCreated(int entity, const char[] classname)
 {
 	if (!IsValidEntityIndex(entity))
-		return;
+	return;
 
-	if(g_bCvarVomitJarSelf == false && g_bCvarVomitJarTeammate == false) return;
-
-	if (StrEqual(classname, CLASSNAME_VOMITJAR))
+	switch (classname[0])
 	{
-		SDKHook(entity, SDKHook_SpawnPost, OnSpawnPost);
+		case 'w':
+		{
+			if (StrEqual(classname, WITCH_NAME))
+			{
+				ge_bInvalidTrace[entity] = true;
+			}
+		}
+		case 'i':
+		{
+			if (StrEqual(classname, INFECTED_NAME))
+			{
+				ge_bInvalidTrace[entity] = true;
+			}
+		}
+		case 't':
+		{
+			if (StrEqual(classname, "tank_rock"))
+				ge_bInvalidTrace[entity] = true;
+		}
+		case 'v':
+		{
+			if (StrEqual(classname, "vomitjar_projectile"))
+				SDKHook(entity, SDKHook_SpawnPost, OnSpawnPost);
+		}
 	}
 }
 
@@ -165,7 +189,7 @@ void OnSpawnPost(int entity)
 	if(client <= 0 || !IsClientInGame(client)) 
 		return;
 		
-	ge_iType[entity] = GetClientUserId(client);
+	g_iEntityOwnerUerId[entity] = GetClientUserId(client);
 	//PrintToChatAll("OnSpawnPost() %N throws a bilejar", client);
 }
 
@@ -188,11 +212,11 @@ public void OnEntityDestroyed(int entity)
 				GetEntityAbsOrigin(entity, pos);
 				pos[2] += BILE_POS_HEIGHT_FIX;
 				
-				int client = ge_iType[entity];
-				ge_iType[entity] = 0;
+				int client = g_iEntityOwnerUerId[entity];
+				g_iEntityOwnerUerId[entity] = 0;
 				client = GetClientOfUserId(client);
 
-				//PrintToChatAll("OnEntityDestroyed() %N throws a bilejar", client);
+				//PrintToChatAll("OnEntityDestroyed() %N throws a bilejar at %f %f %f", client, pos[0], pos[1], pos[2]);
 				VomitSplash(false, pos, client);
 			}
 		}
@@ -226,7 +250,7 @@ void VomitSplash(bool BoomerDeath, float pos[3], int client)
 			}
 			
 			GetEntityAbsOrigin(i, targetpos);
-			if (GetVectorDistance(pos, targetpos) > g_fCvarBoomerDeath_Radius || !IsVisibleTo(pos, targetpos))
+			if (GetVectorDistance(pos, targetpos) > g_fCvarBoomerDeath_Radius || !ClientCanSeeEntity(pos, targetpos))
 			{
 				continue;
 			}
@@ -245,7 +269,7 @@ void VomitSplash(bool BoomerDeath, float pos[3], int client)
 					continue;	
 
 				GetEntityAbsOrigin(witch, targetpos);
-				if (GetVectorDistance(pos, targetpos) > g_fCvarBoomerDeath_Radius || !IsVisibleTo(pos, targetpos))
+				if (GetVectorDistance(pos, targetpos) > g_fCvarBoomerDeath_Radius || !ClientCanSeeEntity(pos, targetpos))
 				{
 					continue;
 				}
@@ -263,7 +287,7 @@ void VomitSplash(bool BoomerDeath, float pos[3], int client)
 					continue;	
 
 				GetEntityAbsOrigin(common, targetpos);
-				if (GetVectorDistance(pos, targetpos) > g_fCvarBoomerDeath_Radius || !IsVisibleTo(pos, targetpos))
+				if (GetVectorDistance(pos, targetpos) > g_fCvarBoomerDeath_Radius || !ClientCanSeeEntity(pos, targetpos))
 				{
 					continue;
 				}
@@ -277,7 +301,7 @@ void VomitSplash(bool BoomerDeath, float pos[3], int client)
 		if(g_bCvarVomitJarSelf && client > 0 && GetClientTeam(client) == TEAM_SURVIVOR)
 		{
 			GetEntityAbsOrigin(client, targetpos);
-			if (GetVectorDistance(pos, targetpos) <= g_fCvarVomitJar_Radius && IsVisibleTo(pos, targetpos))
+			if (GetVectorDistance(pos, targetpos) <= g_fCvarVomitJar_Radius && ClientCanSeeEntity(pos, targetpos))
 			{
 				L4D_CTerrorPlayer_OnVomitedUpon(client, client);
 			}
@@ -293,7 +317,7 @@ void VomitSplash(bool BoomerDeath, float pos[3], int client)
 				}
 				
 				GetEntityAbsOrigin(i, targetpos);
-				if (GetVectorDistance(pos, targetpos) > g_fCvarVomitJar_Radius || !IsVisibleTo(pos, targetpos))
+				if (GetVectorDistance(pos, targetpos) > g_fCvarVomitJar_Radius || !ClientCanSeeEntity(pos, targetpos))
 				{
 					continue;
 				}
@@ -305,39 +329,30 @@ void VomitSplash(bool BoomerDeath, float pos[3], int client)
 	}
 }
 
-bool IsVisibleTo(float position[3], float targetposition[3])
+bool ClientCanSeeEntity(float fClientPosition[3], float fTargetPos[3])
 {
-	float vAngles[3], vLookAt[3];
+	// MASK_SOLID_BRUSHONLY -> MASK_VISIBLE
+	Handle hTrace = TR_TraceRayFilterEx(fClientPosition, fTargetPos, MASK_VISIBLE, RayType_EndPoint, Base_TraceFilter);
 	
-	MakeVectorFromPoints(position, targetposition, vLookAt); // compute vector from start to target
-	GetVectorAngles(vLookAt, vAngles); // get angles from vector for trace
-	
-	// execute Trace
-	Handle trace = TR_TraceRayFilterEx(position, vAngles, MASK_VISIBLE, RayType_Infinite, _TraceFilter);
-	bool isVisible = false;
-	if (TR_DidHit(trace))
+	if (TR_DidHit(hTrace))
 	{
-		float vStart[3];
-		TR_GetEndPosition(vStart, trace); // retrieve our trace endpoint
-		
-		if ((GetVectorDistance(position, vStart, false) + TRACE_TOLERANCE) >= GetVectorDistance(position, targetposition))
-		{
-			isVisible = true; // if trace ray lenght plus tolerance equal or bigger absolute distance, you hit the target
-		}
-	}
-
-	delete trace;
-	return isVisible;
-}
-
-bool _TraceFilter(int entity, int contentsMask)
-{
-	if (!entity || !IsValidEntity(entity)) // dont let WORLD, or invalid entities be hit
-	{
+		delete hTrace;
 		return false;
 	}
 	
+	delete hTrace;
 	return true;
+}
+
+bool Base_TraceFilter(int iEntity, int iContentsMask, int iData)
+{
+	if (IsValidClientIndex(iEntity))
+		return false;
+
+	if (!IsValidEntityIndex(iEntity) )
+		return false;
+
+	return ge_bInvalidTrace[iEntity] ? false : true;
 }
 
 //entity abs origin code from here
@@ -365,4 +380,9 @@ bool IsValidEntityIndex(int entity)
 int GetZombieClass(int client) 
 {
 	return GetEntProp(client, Prop_Send, "m_zombieClass");
+}
+
+bool IsValidClientIndex(int client)
+{
+    return (1 <= client <= MaxClients);
 }
