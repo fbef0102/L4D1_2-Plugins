@@ -1,0 +1,31 @@
+"Games"
+{
+	"left4dead2"
+	{
+		"Functions"
+		{
+			"SurvivorBot::IsReachable"
+			{
+				"signature"		"SurvivorBot::IsReachable"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"ignore"
+				"arguments"
+				{
+					"a2"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+		}
+		"Signatures"
+		{
+			"SurvivorBot::IsReachable"
+			{
+				"library"		"server"
+				"linux"			"@_ZNK11SurvivorBot11IsReachableEP11CBaseEntity"
+			}
+		}
+	}
+}

@@ -25,6 +25,7 @@ Fixing the crash with null pointer dereference in ```CM_GetCollideableTriggerTes
 		server_srv.so!CBaseEntity::PhysicsTouchTriggers(Vector const*) + 0x15d
 		server_srv.so!CBaseEntity::PhysicsRigidChild() + 0x1a2
 		```
+	* [Other useful fixes to prevent crashes](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Fix)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -53,3 +54,4 @@ Fixing the crash with null pointer dereference in ```CM_GetCollideableTriggerTes
 		server_srv.so!CBaseEntity::PhysicsTouchTriggers(Vector const*) + 0x15d
 		server_srv.so!CBaseEntity::PhysicsRigidChild() + 0x1a2
 		```
+	* [安裝其他實用的修復崩潰列表](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝實用的修復)

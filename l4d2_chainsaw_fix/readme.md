@@ -12,6 +12,7 @@ Fixed server crash due to chainsaw sound issue in l4d2 linux
 * How does it fix?
 	* [Issue: [L4D2] Chainsaw server crash](https://github.com/ValveSoftware/Source-1-Games/issues/2526)
 	* [Issue: [L4D2] Chainsaw server crash (again)](https://github.com/ValveSoftware/Source-1-Games/issues/3607)
+	* [Other useful fixes to prevent crashes](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Fix)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -31,3 +32,4 @@ Fixed server crash due to chainsaw sound issue in l4d2 linux
 	* L4D2 linux系統下使用電鋸，產生的音效會導致伺服器崩潰 (別問我，去問valve)
 		* [詳細崩潰1: [L4D2] Chainsaw server crash](https://github.com/ValveSoftware/Source-1-Games/issues/2526)
 		* [詳細崩潰2: [L4D2] Chainsaw server crash (again)](https://github.com/ValveSoftware/Source-1-Games/issues/3607)
+	* [安裝其他實用的修復崩潰列表](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝實用的修復)

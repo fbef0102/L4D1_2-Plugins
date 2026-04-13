@@ -1,0 +1,21 @@
+This unsafe code:
+      v9 = *((_DWORD *)this + 13);
+      v10 = 0;
+      if ( v9 != -1 )
+      {
+        v11 = (char *)g_pEntityList + 16 * (*((_DWORD *)this + 13) & 0xFFF);
+        if ( *((_DWORD *)v11 + 2) == v9 >> 12 )
+          v10 = (CBaseEntity *)*((_DWORD *)v11 + 1);
+      }
+      v6 = 0;
+      if ( !(unsigned __int8)SurvivorBot::IsReachable(a3, v10) ) 
+No check for if( v10 != NULL)
+
+See:
+	>   edac084b  f6 86 4d 01 00 00 08     test byte [esi+0x14d], 0x8
+	esi: 0x00000000
+	
+as result:
+	server_srv.so!CMoveableCamera::FollowTarget() + 0x3b
+
+In your case it can be easily bypassed with argument check by detouring SurvivorBot::IsReachable func.

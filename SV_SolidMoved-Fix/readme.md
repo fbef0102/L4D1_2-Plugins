@@ -25,6 +25,7 @@ Fixing the null pointer dereference in ```SV_SolidMoved```
 		server_srv.so!CBaseEntity::PhysicsRigidChild() + 0x1a2
 		server_srv.so!CBaseEntity::PhysicsSimulate() + 0xb70
 		```
+	* [Other useful fixes to prevent crashes](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Fix)
 
 * <details><summary>Changelog | 版本日誌</summary>
 
@@ -45,7 +46,6 @@ Fixing the null pointer dereference in ```SV_SolidMoved```
 		```c
 		engine.dll + 0x20fb6f
 		```
-
 	* Linux 崩潰堆疊追蹤
 		```c
 		engine_srv.so!SV_SolidMoved(edict_t*, ICollideable*, Vector const*, bool) + 0x7b
@@ -53,3 +53,4 @@ Fixing the null pointer dereference in ```SV_SolidMoved```
 		server_srv.so!CBaseEntity::PhysicsRigidChild() + 0x1a2
 		server_srv.so!CBaseEntity::PhysicsSimulate() + 0xb70
 		```
+	* [安裝其他實用的修復崩潰列表](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝實用的修復)

@@ -25,7 +25,8 @@ Fixed server crash caused by zero pointer of model_t passed to ```CM_VCollideFor
 		engine.so!CEngineTrace::ClipRayToVPhysics(Ray_t const&, unsigned int, ICollideable*, studiohdr_t*, CGameTrace*) + 0x11d
 		engine.so!CEngineTrace::ClipRayToCollideable(Ray_t const&, unsigned int, ICollideable*, CGameTrace*) + 0xe9
 		```
-
+	* [Other useful fixes to prevent crashes](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Fix)
+	
 * <details><summary>Changelog | 版本日誌</summary>
 
 	* v1.2 (2025-10-27)
@@ -53,3 +54,4 @@ Fixed server crash caused by zero pointer of model_t passed to ```CM_VCollideFor
 		engine.so!CEngineTrace::ClipRayToVPhysics(Ray_t const&, unsigned int, ICollideable*, studiohdr_t*, CGameTrace*) + 0x11d
 		engine.so!CEngineTrace::ClipRayToCollideable(Ray_t const&, unsigned int, ICollideable*, CGameTrace*) + 0xe9
 		```
+	* [安裝其他實用的修復崩潰列表](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝實用的修復)

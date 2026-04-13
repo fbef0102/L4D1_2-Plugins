@@ -286,6 +286,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修正崩潰: ```CM_TriggerWorldSpaceBounds()``` 涵式內的空指針
 * <b>[Server_sub_101D7CB0_Detour](/Server_sub_101D7CB0_Detour)</b>: Fix Crash ```server.dll + 0x1d7cbb``` null pointer
     * 修正崩潰: ```server.dll + 0x1d7cbb``` 涵式內的空指針
+* <b>[IsReachable_Detour](/IsReachable_Detour)</b>: Fixing null pointer dereference when it call ```SurvivorBot::IsReachable``` with NULL argument
+    * 修正崩潰: ```SurvivorBot::IsReachable``` 涵式內的空指針
 * <b>[bot_kick_drop_secondary](/bot_kick_drop_secondary)</b>: Survivor bots will drop their secondary weapon when they were kicked
     * 當倖存者bot被踢出遊戲時，掉落副武器
 * <b>[l4d_witch_bash_wandering](/l4d_witch_bash_wandering)</b>: Fixed that survivors can bash wandering witch without witch being startled

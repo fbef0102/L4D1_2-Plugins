@@ -16,7 +16,7 @@ Allows the Tank to pass control to another player.
 
     * When infected player becomes tank
         * Auto display menu to select which teammate player you want to pass tank
-        * Type ```!pass`` to display menu manually
+        * Type ```!pass``` to display menu manually
         * After another player confirms, pass tank
     * Admin can force pass the tank without confirmation
         * ```!admin``` -> "Player commands" -> "Pass the Tank" or "Control Tank Bot"

@@ -83,13 +83,6 @@ Quickswitch Reloading like CS2 in L4D2
         ```
 </details>
 
-* <details><summary>Known Conflicts</summary>
-	
-	If you don't use any of these plugins at all, no need to worry about conflicts.
-	1. [l4d_weapon_clear_reload](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_clear_reload)
-		* Remove 
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
 
     * v2.4 (2026-4-4)
@@ -178,11 +171,4 @@ Quickswitch Reloading like CS2 in L4D2
         // sniper military 裝彈時彈夾會填滿的時間
         l4d2_snipermilitary_reload_clip_time "1.8"
         ```
-</details>
-
-* <details><summary>會衝突的插件</summary>
-	
-    如果沒安裝以下插件就不需要擔心衝突
-    1. [l4d_weapon_clear_reload](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Weapons_%E6%AD%A6%E5%99%A8/l4d_weapon_clear_reload)
-		* 移除插件
 </details>
