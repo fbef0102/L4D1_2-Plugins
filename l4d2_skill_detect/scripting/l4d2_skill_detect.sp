@@ -2720,8 +2720,8 @@ public Action: Event_TonguePullStopped (Handle:event, const String:name[], bool:
 			ZC_SMOKER,
 			(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
 			( GetEngineTime() - g_fPinTime[smoker][0]),
-			bool:( reason != CUT_SLASH && reason != CUT_KILL, 
-			false )
+			bool:( reason != CUT_SLASH && reason != CUT_KILL ), 
+			false
 		);
 	
 	if ( attacker == victim )
@@ -2811,8 +2811,8 @@ public Action: Event_ChokeStop (Handle:event, const String:name[], bool:dontBroa
 			ZC_SMOKER,
 			(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
 			( GetEngineTime() - g_fPinTime[smoker][0]),
-			bool:( reason != CUT_SLASH && reason != CUT_KILL
-			, false )
+			bool:( reason != CUT_SLASH && reason != CUT_KILL ),
+			false
 		);
 
 	g_bSmokerClearCheck[smoker] = false;
