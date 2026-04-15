@@ -11,7 +11,7 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.6h - 2026/3/26",
+	version = "v1.7h - 2026/4/16",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -959,9 +959,10 @@ char g_MissionParser_MissionName[LEN_MISSION_NAME],
 	g_MissionParser_DisplayTitle[LEN_DISPLAYTITLE_NAME];
 int g_MissionParser_CurMapID;
 ArrayList 
-	g_hIntMap_Index,
-	g_hStrMap_FileName,
-	g_hStrMap_DisplayName;
+	g_aMissionParser_MapIndex,
+	g_aMissionParser_MapName,
+	g_aMissionParser_MapDisplayNameIndex,
+	g_aMissionParser_DisplayName;
 
 SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_quotes) {
 	switch (g_MissionParser_State) {
@@ -994,12 +995,14 @@ SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_qu
 				g_MissionParser_State = MPS_UNKNOWN;
 				// PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
 			} else {
-				delete g_hIntMap_Index;
-				delete g_hStrMap_FileName;
-				delete g_hStrMap_DisplayName;
-				g_hIntMap_Index = new ArrayList(1);
-				g_hStrMap_FileName = new ArrayList(LEN_MAP_FILENAME);
-				g_hStrMap_DisplayName = new ArrayList(LEN_MAP_DISPLAYNAME);
+				delete g_aMissionParser_MapIndex;
+				delete g_aMissionParser_MapName;
+				delete g_aMissionParser_MapDisplayNameIndex;
+				delete g_aMissionParser_DisplayName;
+				g_aMissionParser_MapIndex = new ArrayList(1);
+				g_aMissionParser_MapName = new ArrayList(LEN_MAP_FILENAME);
+				g_aMissionParser_MapDisplayNameIndex = new ArrayList(1);
+				g_aMissionParser_DisplayName = new ArrayList(LEN_MAP_DISPLAYNAME);
 
 				g_MissionParser_State = MPS_GAMEMODE;
 			}
@@ -1035,28 +1038,37 @@ SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_qu
 	return SMCParse_Continue;
 }
 
-SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes) {
-	switch (g_MissionParser_State) {
-		case MPS_MISSION: {
-			if (strcmp("Name", key, false)==0) {
+SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes) 
+{
+	switch (g_MissionParser_State) 
+	{
+		case MPS_MISSION: 
+		{
+			if (strcmp("Name", key, false)==0) 
+			{
 				strcopy(g_MissionParser_MissionName, LEN_MISSION_NAME, value);
 			}
-			else if (strcmp("DisplayTitle", key, false)==0) {
+			else if (strcmp("DisplayTitle", key, false)==0) 
+			{
 				strcopy(g_MissionParser_DisplayTitle, LEN_DISPLAYTITLE_NAME, value);
 			}
 		}
-		case MPS_MAP: {
-			if (StrEqual("Map", key, false)) {
-				g_hIntMap_Index.Push(g_MissionParser_CurMapID);
+		case MPS_MAP: 
+		{
+			if (strcmp("Map", key, false)==0) 
+			{
+				g_aMissionParser_MapIndex.Push(g_MissionParser_CurMapID);
 				char mapFileName[LEN_MAP_FILENAME];
 				String_ToLower(value, mapFileName, sizeof(mapFileName));
-				g_hStrMap_FileName.PushString(mapFileName);
+				g_aMissionParser_MapName.PushString(mapFileName);
 				// PrintToServer("Map %d: %s", g_MissionParser_CurMapID, value);
 			}
-			else if (strcmp("DisplayName", key, false)==0) {
+			else if (strcmp("DisplayName", key, false)==0) 
+			{
+				g_aMissionParser_MapDisplayNameIndex.Push(g_MissionParser_CurMapID);
 				char mapDisplayName[LEN_MAP_FILENAME];
 				FormatEx(mapDisplayName, LEN_MAP_DISPLAYNAME, value);
-				g_hStrMap_DisplayName.PushString(mapDisplayName);
+				g_aMissionParser_DisplayName.PushString(mapDisplayName);
 			}
 		}
 	}
@@ -1081,11 +1093,12 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			
 			int numOfValidMaps = 0;
 			char mapFile[LEN_MAP_FILENAME];
+			int index, index2;
 			// Make sure that all map indexes are consecutive and start from 1
 			// And validate maps
-			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) 
+			for (int iMap=1; iMap<=g_aMissionParser_MapIndex.Length; iMap++) 
 			{
-				int index = g_hIntMap_Index.FindValue(iMap);
+				index = g_aMissionParser_MapIndex.FindValue(iMap);
 				if (index < 0) 
 				{
 					if(g_MissionParser_CurGameMode == LMM_GAMEMODE_COOP || g_MissionParser_CurGameMode == LMM_GAMEMODE_VERSUS)
@@ -1095,20 +1108,20 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 						if (g_hStr_InvalidMissionNames.FindString(g_MissionParser_MissionName) < 0) {
 							g_hStr_InvalidMissionNames.PushString(g_MissionParser_MissionName);
 						}
-						SaveMessage("Mission %s contains invalid \"%s\" section (Does not have map #%d)", g_MissionParser_MissionName, gamemodeName, iMap);
+						SaveMessage("Error! Mission %s contains invalid \"%s\" section (Does not have map #%d)", g_MissionParser_MissionName, gamemodeName, iMap);
 					}
 					continue;
 					//return SMCParse_HaltFail;
 				}
 				
-				g_hStrMap_FileName.GetString(index, mapFile, sizeof(mapFile));
+				g_aMissionParser_MapName.GetString(index, mapFile, sizeof(mapFile));
 				if (!IsMapValid(mapFile)) {
 					char gamemodeName[LEN_GAMEMODE_NAME];
 					LMM_GamemodeToString(g_MissionParser_CurGameMode, gamemodeName, sizeof(gamemodeName));
 					if (g_hStr_InvalidMissionNames.FindString(g_MissionParser_MissionName) < 0) {
 						g_hStr_InvalidMissionNames.PushString(g_MissionParser_MissionName);
 					}
-					SaveMessage("Mission %s contains invalid map: \"%s\", gamemode: \"%s\"", g_MissionParser_MissionName, mapFile, gamemodeName);
+					SaveMessage("Error! Mission %s contains invalid map: \"%s\", gamemode: \"%s\"", g_MissionParser_MissionName, mapFile, gamemodeName);
 					continue;
 					//return SMCParse_HaltFail;
 				}
@@ -1121,7 +1134,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			if (numOfValidMaps < 1) {
 				char gamemodeName[LEN_GAMEMODE_NAME];
 				LMM_GamemodeToString(g_MissionParser_CurGameMode, gamemodeName, sizeof(gamemodeName));
-				SaveMessage("Mission %s does not contain any valid map in gamemode: \"%s\"", g_MissionParser_MissionName, gamemodeName);
+				SaveMessage("Error! Mission %s does not contain any valid map in gamemode: \"%s\"", g_MissionParser_MissionName, gamemodeName);
 				return SMCParse_Continue;
 			}
 
@@ -1134,16 +1147,24 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			ArrayList mapDisplayNameList = LMM_GetMapDisplayNameList(g_MissionParser_CurGameMode);
 			char mapDisplayName[LEN_MAP_DISPLAYNAME];
 			
-			for (int iMap=1; iMap<=g_hIntMap_Index.Length; iMap++) {
-				int index = g_hIntMap_Index.FindValue(iMap);
+			for (int iMap=1; iMap<=g_aMissionParser_MapIndex.Length; iMap++) 
+			{
+				index = g_aMissionParser_MapIndex.FindValue(iMap);
 				if (index < 0) continue;
 				
-				g_hStrMap_FileName.GetString(index, mapFile, sizeof(mapFile));
+				g_aMissionParser_MapName.GetString(index, mapFile, sizeof(mapFile));
 				if (!IsMapValid(mapFile)) continue;
-
 				mapList.PushString(mapFile);
 
-				g_hStrMap_DisplayName.GetString(index, mapDisplayName, sizeof(mapDisplayName));
+				index2 = g_aMissionParser_MapDisplayNameIndex.FindValue(iMap);
+				if (index2 < 0)
+				{
+					SaveMessage("Error! Mission %s does not have key \"DisplayName\" in map #%d", g_MissionParser_MissionName, iMap);
+					mapDisplayNameList.PushString(mapFile);
+					continue;
+				}
+
+				g_aMissionParser_DisplayName.GetString(index2, mapDisplayName, sizeof(mapDisplayName));
 				mapDisplayNameList.PushString(mapDisplayName);
 			}
 			
@@ -1247,11 +1268,17 @@ void ParseMissions() {
 		parser.OnLeaveSection = MissionParser_EndSection;
 		parser.OnKeyValue = MissionParser_KeyValue;
 		
-		delete g_hIntMap_Index;
-		g_hIntMap_Index = new ArrayList(1);
+		delete g_aMissionParser_MapIndex;
+		g_aMissionParser_MapIndex = new ArrayList(1);
 		
-		delete g_hStrMap_FileName;
-		g_hStrMap_FileName = new ArrayList(LEN_MAP_FILENAME);
+		delete g_aMissionParser_MapName;
+		g_aMissionParser_MapName = new ArrayList(LEN_MAP_FILENAME);
+
+		delete g_aMissionParser_MapDisplayNameIndex;
+		g_aMissionParser_MapDisplayNameIndex = new ArrayList(1);
+		
+		delete g_aMissionParser_DisplayName;
+		g_aMissionParser_DisplayName = new ArrayList(LEN_MAP_DISPLAYNAME);
 	
 		char missionCache[PLATFORM_MAX_PATH];
 		char missionFileName[PLATFORM_MAX_PATH];
@@ -1273,8 +1300,10 @@ void ParseMissions() {
 			}
 		}
 		
-		delete g_hIntMap_Index;
-		delete g_hStrMap_FileName;
+		delete g_aMissionParser_MapIndex;
+		delete g_aMissionParser_MapName;
+		delete g_aMissionParser_MapDisplayNameIndex;
+		delete g_aMissionParser_DisplayName;
 		delete dirList;	
 		delete parser;
 	}

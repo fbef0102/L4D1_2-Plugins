@@ -9,10 +9,11 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 * Image | 圖示
 	<br/>![l4d2_mixmap_1](image/l4d2_mixmap_1.jpg)
+	<br/>![l4d2_mixmap_2](image/l4d2_mixmap_2.jpg)
 
 * <details><summary>How does it work?</summary>
 
-	* Type ```!mixmap``` or ```!mixmap <xxxxx>``` to vote to start a mixmap
+	* Type ```!mixmap``` to open menu, choose map pool and vote to start a mixmap
 	* After vote passed, the plugin will randomly select five maps from map pool -> switch to first mix map.
 	* (Versus) After second round ends, switch to next mix map
 	* (Coop/Realism) After survivors have made it to end safe room, switch to next mix map
@@ -45,10 +46,11 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 	* cfg/sourcemod/l4d2_mixmap.cfg
 		```php
-		// If 1, show what the next map will be
+		// 1=Show what the next map will be
+		// 0=Secret
 		l4d2mm_nextmap_print "1"
 
-		// Determine how many maps of one campaign can be selected; 0 = no limits;
+		// Determine how many maps of one campaign can be selected, 0 = no limits
 		l4d2mm_max_maps_num "2"
 		```
 </details>
@@ -57,15 +59,9 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 	* **Vote to start a mixmap**
 		```php
-		// load 'default' maps pool
-		// If l4d2, execute cfg/l4d2_mixmap/l4d2/default.cfg
-		// If l4d1, execute cfg/l4d2_mixmap/l4d1/default.cfg
+		// If l4d2, cfg/l4d2_mixmap/l4d2 folder
+		// If l4d1, cfg/l4d2_mixmap/l4d1 folder
 		sm_mixmap
-
-		// load 'xxxx' maps pool
-		// If l4d2, execute cfg/l4d2_mixmap/l4d2/xxxx.cfg
-		// If l4d1, execute cfg/l4d2_mixmap/l4d1/xxxx.cfg
-		sm_mixmap <xxxx>
 		```
 
 	* **Vote to Stop a mixmap**
@@ -78,26 +74,11 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		sm_mixmaplist
 		```
 
-	* **Start mixmap with specified maps (Adm required: ADMFLAG_ROOT)**
-		```php
-		// map_name1 is map 1
-		// map_name2 is map 2
-		// map_name3 is map 3
-		// ... etc
-		sm_manualmixmap <map_name1> <map_name2> <map_name3>......
-		```
-
 	* **Force start mixmap (Adm required: ADMFLAG_ROOT)**
 		```php
-		// load 'default' maps pool
-		// If l4d2, execute cfg/l4d2_mixmap/l4d2/default.cfg
-		// If l4d1, execute cfg/l4d2_mixmap/l4d1/default.cfg
+		// If l4d2, cfg/l4d2_mixmap/l4d2 folder
+		// If l4d1, cfg/l4d2_mixmap/l4d1 folder
 		sm_fmixmap
-
-		// load 'xxxx' maps pool
-		// If l4d2, execute cfg/l4d2_mixmap/l4d2/xxxx.cfg
-		// If l4d1, execute cfg/l4d2_mixmap/l4d1/xxxx.cfg
-		sm_fmixmap <xxxx>
 		```
 
 	* **Force stop a mixmap (Adm required: ADMFLAG_ROOT)**
@@ -131,6 +112,9 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.4h (2026-4-16)
+		* Make a menu to list all map pools when use !mixmap cmd
+
 	* v1.3h (2025-3-8)
 		* Fixed server unable to change map in survival/scavenge
 
@@ -157,9 +141,10 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 * 圖示
 	<br/>![zho/l4d2_mixmap_1](image/zho/l4d2_mixmap_1.jpg)
+	<br/>![zho/l4d2_mixmap_2](image/zho/l4d2_mixmap_2.jpg)
 
 * 原理
-	* 輸入 ```!mixmap``` 或 ```!mixmap <xxxxx>``` 投票啟用Mixmap
+	* 輸入 ```!mixmap``` 打開菜單，選擇地圖組織後投票啟用Mixmap
 	* 投票通過後，插件從地圖池隨機選擇五個關卡 -> 切換到Mixmap列表的第一關
 	* (對抗) 當第二個回合結束後 -> 切換到Mixmap列表的下一關
 	* (戰役/寫實) 當倖存者抵達安全室之後 -> 切換到Mixmap列表的下一關
@@ -172,10 +157,11 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 	* cfg/sourcemod/l4d2_mixmap.cfg
 		```php
-		// 為1時，顯示剩餘的關卡名稱
+		// 1=顯示剩餘的關卡名稱
+		// 0=保持秘密
 		l4d2mm_nextmap_print "1"
 
-		// 同一張地圖最多能被抽取幾次？; 0 = 無限制;
+		// 同一張地圖最多能被抽取幾次？ 0 = 無限制;
 		l4d2mm_max_maps_num "2"
 		```
 </details>
@@ -184,15 +170,9 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 
 	* **投票啟用Mixmap**
 		```php
-		// 載入 'default' 地圖池
-		// (l4d2) cfg/l4d2_mixmap/l4d2/default.cfg
-		// (l4d1) cfg/l4d2_mixmap/l4d1/default.cfg
+		// (l4d2) cfg/l4d2_mixmap/l4d2 
+		// (l4d1) cfg/l4d2_mixmap/l4d1 
 		sm_mixmap
-
-		// 載入 'xxxx' 地圖池
-		// (l4d2) cfg/l4d2_mixmap/l4d2/xxxx.cfg
-		// (l4d1) cfg/l4d2_mixmap/l4d1/xxxx.cfg
-		sm_mixmap <xxxx>
 		```
 
 	* **投票停止Mixmap**
@@ -205,26 +185,11 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		sm_mixmaplist
 		```
 
-	* **管理員自己輸入地圖池 (權限: ADMFLAG_ROOT)**
-		```php
-		// 地圖名1 為關卡1
-		// 地圖名2 為關卡2
-		// 地圖名3 為關卡3
-		// ... 依此類推
-		sm_manualmixmap <地圖名1> <地圖名2> <地圖名3>......
-		```
-
 	* **管理員強制載入Mixmap地圖池 (權限: ADMFLAG_ROOT)**
 		```php
-		// 載入 'default' 地圖池
-		// (l4d2) cfg/l4d2_mixmap/l4d2/default.cfg
-		// (l4d1) cfg/l4d2_mixmap/l4d1/default.cfg
+		// (l4d2) cfg/l4d2_mixmap/l4d2 
+		// (l4d1) cfg/l4d2_mixmap/l4d1 
 		sm_fmixmap
-
-		// 載入 'xxxx' 地圖池
-		// (l4d2) cfg/l4d2_mixmap/l4d2/xxxx.cfg
-		// (l4d1) cfg/l4d2_mixmap/l4d1/xxxx.cfg
-		sm_fmixmap <xxxx>
 		```
 
 	* **管理員強制停止Mixmap (權限: ADMFLAG_ROOT)**

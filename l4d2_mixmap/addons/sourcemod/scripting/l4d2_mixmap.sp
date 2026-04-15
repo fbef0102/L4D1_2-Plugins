@@ -29,7 +29,7 @@ public Plugin myinfo =
 	name = "[L4D1/L4D2] Mix Map",
 	author = "Bred, Harry",
 	description = "Randomly select five maps for versus/coop/realism. Adding for fun",
-	version = "1.3h-2025/3/8",
+	version = "1.4h-2026/4/16",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mixmap"
 };
 
@@ -92,7 +92,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define	CFG_UNOF_ST			"uof"
 #define	CFG_DOUNOF			"disorderunofficial"
 #define	CFG_DOUNOF_ST		"douof"
-#define BUF_SZ   			128
+#define BUF_SZ   			256
 
 ConVar 	g_cvNextMapPrint,
 		g_cvMaxMapsNum;
@@ -109,7 +109,6 @@ ArrayList g_hArrayMapOrder;			// Stores finalised map list in order 存放抽取
 KeyValues g_hKvMapNames;
 
 bool 
-	g_bServerForceStart,
 	g_bRoundIsLive, 
 	g_bReadyUpFooterAdded,
 	g_bMaplistFinalized,
@@ -135,8 +134,8 @@ public void OnPluginStart()
 {
 	LoadTranslations("l4d2_mixmap.phrases");
 
-	g_cvNextMapPrint		= CreateConVar("l4d2mm_nextmap_print",		"1",	"If 1, show what the next map will be", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_cvMaxMapsNum			= CreateConVar("l4d2mm_max_maps_num",		"2",	"Determine how many maps of one campaign can be selected; 0 = no limits;", FCVAR_NOTIFY, true, 0.0, true, 5.0);
+	g_cvNextMapPrint		= CreateConVar("l4d2mm_nextmap_print",		"1",	"1=Show what the next map will be\n0=Secret", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_cvMaxMapsNum			= CreateConVar("l4d2mm_max_maps_num",		"2",	"Determine how many maps of one campaign can be selected, 0 = no limits", FCVAR_NOTIFY, true, 0.0, true, 5.0);
 	//g_cvFinaleEndCoop		= CreateConVar("l4d2mm_finale_end_coop",	"0",	"If 1, auto force start mixmap in the end of finale in coop/realism mode (When mixmap is alreaedy on)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	//g_cvFinaleEndVersus	= CreateConVar("l4d2mm_finale_end_verus",	"0",	"If 1, auto force start mixmap in the end of finale in versus mode (When mixmap is alreaedy on)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	AutoExecConfig(true, 			   	   "l4d2_mixmap");
@@ -147,8 +146,8 @@ public void OnPluginStart()
 
 	//Start/Stop 启用/中止指令
 	RegAdminCmd( "sm_manualmixmap", ManualMixmap, ADMFLAG_ROOT, "Start mixmap with specified maps 启用mixmap加载特定地图顺序的地图组");
-	RegAdminCmd( "sm_fmixmap", ForceMixmap, ADMFLAG_ROOT, "Force start mixmap (arg1 empty for 'default' maps pool) 强制启用mixmap（随机官方地图）");
-	RegConsoleCmd( "sm_mixmap", Mixmap_Cmd, "Vote to start a mixmap (arg1 empty for 'default' maps pool);通过投票启用Mixmap，并可加载特定的地图池；无参数则启用官图顺序随机");
+	RegAdminCmd( "sm_fmixmap", ForceMixmap, ADMFLAG_ROOT, "Force start mixmap 强制启用mixmap（随机官方地图）");
+	RegConsoleCmd( "sm_mixmap", Mixmap_Cmd, "Vote to start a mixmap;通过投票启用Mixmap，并可加载特定的地图池；无参数则启用官图顺序随机");
 	RegConsoleCmd( "sm_stopmixmap",	StopMixmap_Cmd, "Vote to Stop a mixmap;中止mixmap，并初始化地图列表");
 	RegAdminCmd( "sm_fstopmixmap",	StopMixmap, ADMFLAG_ROOT, "Force stop a mixmap ;强制中止mixmap，并初始化地图列表");
 
@@ -324,43 +323,15 @@ Action Timer_ShowMaplist(Handle timer, int client)
 // Loads a specified set of maps
 Action ForceMixmap(int client, int args) 
 {
-	Format(cfg_exec, sizeof(cfg_exec), CFG_DEFAULT);
-	
-	if (args >=1)
+	if (client == 0)
 	{
-		char sbuffer[BUF_SZ];
-		char arg[BUF_SZ];
-		GetCmdArg(1, arg, BUF_SZ);
-		if(g_bL4D2Version) Format(sbuffer, sizeof(sbuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D2, arg);
-		else Format(sbuffer, sizeof(sbuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D1, arg);
-		if (FileExists(sbuffer)) Format(cfg_exec, sizeof(cfg_exec), arg);
-		else
-		{
-			if (StrEqual(arg,CFG_DODEFAULT_ST))
-				Format(cfg_exec, sizeof(cfg_exec), CFG_DODEFAULT);
-			else if (StrEqual(arg, CFG_ALLOF_ST))
-				Format(cfg_exec, sizeof(cfg_exec), CFG_ALLOF);
-			else if (StrEqual(arg, CFG_DOALLOF_ST))
-				Format(cfg_exec, sizeof(cfg_exec), CFG_DOALLOF);
-			else if (StrEqual(arg, CFG_UNOF_ST))
-					Format(cfg_exec, sizeof(cfg_exec), CFG_UNOF);
-			else if (StrEqual(arg, CFG_DOUNOF_ST))
-				Format(cfg_exec, sizeof(cfg_exec), CFG_DOUNOF);
-			else
-			{
-				CReplyToCommand(client, "%T", "Invalid_Cfg", client);
-				return Plugin_Handled;
-			}
-		}
+		PrintToServer("[TS] This command cannot be used by server.");
+		return Plugin_Handled;
 	}
-	if (client) CPrintToChatAllEx(client, "%t", "Force_Start", client, cfg_exec);
-	PluginStartInit();
-	if (client == 0) g_bServerForceStart = true;
-	if(g_bL4D2Version) ServerCommand("exec %s%s.cfg", DIR_CFGS_L4D2, cfg_exec);
-	else ServerCommand("exec %s%s.cfg", DIR_CFGS_L4D1, cfg_exec);
-	
-	g_bMapsetInitialized = true;
-	CreateTimer(0.1, Timed_PostMapSet, _, TIMER_FLAG_NO_MAPCHANGE);
+
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
+
+	GoToMainMenu(client, true);
 
 	return Plugin_Handled;
 }
@@ -425,92 +396,35 @@ Action ShowAllMaps(int client, int Args)
 
 Action Mixmap_Cmd(int client, int args) 
 {
-	if (IsClientAndInGame(client))
+	if (client == 0)
 	{
-		if(L4D_IsSurvivalMode() || (g_bL4D2Version && L4D2_IsScavengeMode()))
-		{
-			CPrintToChat(client, "%T", "Mode not support", client);
-			return Plugin_Handled;
-		}
-
-		if(g_ReadyUpAvailable && g_bRoundIsLive)
-		{
-			CPrintToChat(client, "%T", "Round is live", client);
-			return Plugin_Handled;
-		}
-		
-		if(GetClientTeam(client) <= 1)
-		{
-			CPrintToChat(client, "%T", "Spectator Blocked", client);
-			return Plugin_Handled;
-		}
-
-		if (!IsBuiltinVoteInProgress())
-		{
-			Format(cfg_exec, sizeof(cfg_exec), CFG_DEFAULT);
-	
-			if (args >=1)
-			{
-				char sbuffer[BUF_SZ];
-				char arg[BUF_SZ];
-				GetCmdArg(1, arg, BUF_SZ);
-				if(g_bL4D2Version) Format(sbuffer, sizeof(sbuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D2, arg);
-				else Format(sbuffer, sizeof(sbuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D1, arg);
-				if (FileExists(sbuffer)) Format(cfg_exec, sizeof(cfg_exec), arg);
-				else
-				{
-					if (StrEqual(arg,CFG_DODEFAULT_ST))
-						Format(cfg_exec, sizeof(cfg_exec), CFG_DODEFAULT);
-					else if (StrEqual(arg, CFG_ALLOF_ST))
-						Format(cfg_exec, sizeof(cfg_exec), CFG_ALLOF);
-					else if (StrEqual(arg, CFG_DOALLOF_ST))
-						Format(cfg_exec, sizeof(cfg_exec), CFG_DOALLOF);
-					else if (StrEqual(arg, CFG_UNOF_ST))
-							Format(cfg_exec, sizeof(cfg_exec), CFG_UNOF);
-					else if (StrEqual(arg, CFG_DOUNOF_ST))
-						Format(cfg_exec, sizeof(cfg_exec), CFG_DOUNOF);
-					else
-					{
-						CPrintToChat(client, "%T", "Invalid_Cfg", client);
-						return Plugin_Handled;
-					}
-				}
-			}
-			
-			int iNumPlayers;
-			int[] iPlayers = new int[MaxClients];
-			for (int i = 1; i <= MaxClients; i++)
-			{
-				if (!IsClientAndInGame(i) || (GetClientTeam(i) == 1))
-				{
-					continue;
-				}
-				iPlayers[iNumPlayers++] = i;
-			}
-			
-			char cVoteTitle[64];
-			Format(cVoteTitle, sizeof(cVoteTitle), "%T", "Cvote_Title", LANG_SERVER, cfg_exec);
-
-			Handle hVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
-
-			SetBuiltinVoteArgument(hVote, cVoteTitle);
-			SetBuiltinVoteInitiator(hVote, client);
-			SetBuiltinVoteResultCallback(hVote, VoteMixmapResultHandler);
-			DisplayBuiltinVote(hVote, iPlayers, iNumPlayers, 20);
-
-			CPrintToChatAllEx(client, "%t", "Start_Mixmap", client, cfg_exec);
-			if(g_bL4D2Version) FakeClientCommand(client, "Vote Yes");
-			if(!g_bL4D2Version) EmitSoundToAll("ui/beep_synthtone01.wav");
-		}
-		else
-		{
-			CPrintToChat(client, "%T", "Vote_Blocked", client);
-		}
-
+		PrintToServer("[TS] This command cannot be used by server.");
 		return Plugin_Handled;
 	}
 
-	return Plugin_Continue;
+	if(!IsClientInGame(client) || IsFakeClient(client)) return Plugin_Continue;
+
+	if(L4D_IsSurvivalMode() || (g_bL4D2Version && L4D2_IsScavengeMode()))
+	{
+		CPrintToChat(client, "%T", "Mode not support", client);
+		return Plugin_Handled;
+	}
+
+	if(g_ReadyUpAvailable && g_bRoundIsLive)
+	{
+		CPrintToChat(client, "%T", "Round is live", client);
+		return Plugin_Handled;
+	}
+	
+	if(GetClientTeam(client) <= 1)
+	{
+		CPrintToChat(client, "%T", "Spectator Blocked", client);
+		return Plugin_Handled;
+	}
+
+	GoToMainMenu(client);
+
+	return Plugin_Handled;
 }
 
 // Specifiy a rank for a given tag
@@ -669,7 +583,7 @@ Action StopMixmap_Cmd(int client, int args)
 			SetBuiltinVoteResultCallback(hVote, VoteStopMixmapResultHandler);
 			DisplayBuiltinVote(hVote, iPlayers, iNumPlayers, 20);
 
-			CPrintToChatAllEx(client, "%t", "Vote_Stop", client);
+			CPrintToChatAll("%t", "Vote_Stop", client);
 			if(g_bL4D2Version) FakeClientCommand(client, "Vote Yes");
 			if(!g_bL4D2Version) EmitSoundToAll("ui/beep_synthtone01.wav");
 		}
@@ -694,7 +608,7 @@ Action StopMixmap(int client, int args)
 
 	PluginStartInit();
 
-	CPrintToChatAllEx(client, "%t", "Stop_Mixmap_Admin", client);
+	CPrintToChatAll("%t", "Stop_Mixmap_Admin", client);
 	return Plugin_Handled;
 }
 
@@ -820,6 +734,174 @@ void VoteStopMixmapResultHandler(Handle vote, int num_votes, int num_clients, co
 	
 	DisplayBuiltinVoteFail(vote, BuiltinVoteFail_Loses);
 	if(!g_bL4D2Version) EmitSoundToAll("ui/beep_error01.wav");
+}
+
+// Menu -----
+
+void GoToMainMenu(int client, bool bForce = false)
+{
+	Menu menu = null;
+	
+	if(bForce)
+	 	menu = new Menu(ForceMixMap_Menu_Handle);
+	else 
+		menu = new Menu(MixMap_Menu_Handle);
+
+	menu.SetTitle("%T", "Menu Title", client);
+	char sItemName[64], sDisplayName[64], sPath[256];
+	char sFileBuffer[256];
+	DirectoryListing hDir;
+	if(g_bL4D2Version) 
+	{
+		FormatEx(sPath, sizeof sPath, "cfg/%s", DIR_CFGS_L4D2);
+	}
+	else
+	{
+		FormatEx(sPath, sizeof sPath, "cfg/%s", DIR_CFGS_L4D1);
+	}
+
+	hDir = OpenDirectory(sPath);
+	if (hDir == null)
+	{
+		ReplyToCommand(client, "Could not open directory: %s", sPath);
+		return;
+	}
+
+	FileType type;
+	// Iterate through all files and folders
+	while (hDir.GetNext(sFileBuffer, sizeof(sFileBuffer), type))
+	{
+		// 略過資料夾
+		if (type == FileType_Directory)
+		{
+			continue;
+		}
+
+		// 略過開頭是.的檔案
+		if (strcmp(sFileBuffer, ".") == 0 || strcmp(sFileBuffer, "..") == 0)
+		{
+			continue;
+		}
+
+		// 略過mapnames.txt檔案
+		if (strcmp(sFileBuffer, "mapnames.txt", false) == 0)
+		{
+			continue;
+		}
+
+		ReplaceStringEx(sFileBuffer, sizeof sFileBuffer, ".cfg", "", _, _, false);
+		FormatEx(sItemName, sizeof(sItemName), "%s", sFileBuffer);
+		if(TranslationPhraseExists(sFileBuffer))
+		{
+			FormatEx(sDisplayName, sizeof(sDisplayName), "%T", sFileBuffer, client);
+		}
+		else
+		{
+			FormatEx(sDisplayName, sizeof(sDisplayName), "%s", sFileBuffer);
+		}
+		menu.AddItem(sItemName, sDisplayName);
+	}
+	delete hDir;
+
+	menu.ExitButton = true;
+	menu.Display(client, 20);
+}
+
+int ForceMixMap_Menu_Handle(Menu menu, MenuAction action, int client, int param2)
+{
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			char item[64];
+			menu.GetItem(param2, item, sizeof(item));
+
+			char sFileBuffer[BUF_SZ];
+			if(g_bL4D2Version) Format(sFileBuffer, sizeof(sFileBuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D2, item);
+			else Format(sFileBuffer, sizeof(sFileBuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D1, item);
+			if (!FileExists(sFileBuffer))
+			{
+				CPrintToChat(client, "%T", "File Not Exist", client, sFileBuffer);
+				GoToMainMenu(client);
+
+				return 0;
+			}
+
+			CPrintToChatAll("%t", "Force_Start", client, cfg_exec);
+			PluginStartInit();
+			if(g_bL4D2Version) ServerCommand("exec %s%s.cfg", DIR_CFGS_L4D2, cfg_exec);
+			else ServerCommand("exec %s%s.cfg", DIR_CFGS_L4D1, cfg_exec);
+			
+			g_bMapsetInitialized = true;
+			CreateTimer(0.1, Timed_PostMapSet, _, TIMER_FLAG_NO_MAPCHANGE);
+		}
+		case MenuAction_End:
+			delete menu;
+	}	
+
+	return 0;
+}
+
+int MixMap_Menu_Handle(Menu menu, MenuAction action, int client, int param2)
+{
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			char item[64];
+			menu.GetItem(param2, item, sizeof(item));
+			
+			if (IsBuiltinVoteInProgress())
+			{
+				CPrintToChat(client, "%T", "Vote_Blocked", client);
+				GoToMainMenu(client);
+
+				return 0;
+			}
+
+			char sFileBuffer[BUF_SZ];
+			if(g_bL4D2Version) Format(sFileBuffer, sizeof(sFileBuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D2, item);
+			else Format(sFileBuffer, sizeof(sFileBuffer), "cfg/%s%s.cfg", DIR_CFGS_L4D1, item);
+			if (!FileExists(sFileBuffer))
+			{
+				CPrintToChat(client, "%T", "File Not Exist", client, sFileBuffer);
+				GoToMainMenu(client);
+
+				return 0;
+			}
+
+			Format(cfg_exec, sizeof(cfg_exec), item);
+
+			int iNumPlayers;
+			int[] iPlayers = new int[MaxClients];
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (!IsClientAndInGame(i) || (GetClientTeam(i) == 1))
+				{
+					continue;
+				}
+				iPlayers[iNumPlayers++] = i;
+			}
+			
+			char cVoteTitle[64];
+			Format(cVoteTitle, sizeof(cVoteTitle), "%T", "Cvote_Title", LANG_SERVER, cfg_exec);
+
+			Handle hVote = CreateBuiltinVote(VoteActionHandler, BuiltinVoteType_Custom_YesNo, BuiltinVoteAction_Cancel | BuiltinVoteAction_VoteEnd | BuiltinVoteAction_End);
+
+			SetBuiltinVoteArgument(hVote, cVoteTitle);
+			SetBuiltinVoteInitiator(hVote, client);
+			SetBuiltinVoteResultCallback(hVote, VoteMixmapResultHandler);
+			DisplayBuiltinVote(hVote, iPlayers, iNumPlayers, 20);
+
+			CPrintToChatAll("%t", "Start_Mixmap", client, cfg_exec);
+			if(g_bL4D2Version) FakeClientCommand(client, "Vote Yes");
+			if(!g_bL4D2Version) EmitSoundToAll("ui/beep_synthtone01.wav");
+		}
+		case MenuAction_End:
+			delete menu;
+	}	
+
+	return 0;
 }
 
 // Timer & Frame-------------------------------
@@ -1007,13 +1089,12 @@ Action Timed_PostMapSet(Handle timer)
 Action Timed_GiveThemTimeToReadTheMapList(Handle timer) 
 {
 	g_hCountDownTimer = null;
-	if (IsBuiltinVoteInProgress() && !g_bServerForceStart)
+	if (IsBuiltinVoteInProgress())
 	{
 		CPrintToChatAll("%t", "Vote_Progress_delay", 20);
 		g_hCountDownTimer = CreateTimer(20.0, Timed_GiveThemTimeToReadTheMapList);
 		return Plugin_Continue;
 	}
-	if (g_bServerForceStart) g_bServerForceStart = false;
 
 	// call starting forward
 	char buffer[BUF_SZ];
@@ -1119,9 +1200,9 @@ void SelectRandomMap()
 	}
 
 
-	CPrintToChatAll("%t", "Change_Map_First", g_bServerForceStart ? 5 : 15);	//Alternative for remixmap
+	CPrintToChatAll("%t", "Change_Map_First", 15);	//Alternative for remixmap
 	delete g_hCountDownTimer;
-	g_hCountDownTimer = CreateTimer(g_bServerForceStart ? 5.0 : 15.0, Timed_GiveThemTimeToReadTheMapList);	//Alternative for remixmap
+	g_hCountDownTimer = CreateTimer(15.0, Timed_GiveThemTimeToReadTheMapList);	//Alternative for remixmap
 }
 
 void GotoNextMap(bool force = false) 

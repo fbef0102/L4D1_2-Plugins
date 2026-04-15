@@ -2,9 +2,9 @@
 {
 	"Auto_Show_Maplist"
 	{
-		"en"		"{olive}<Mixmap>{default}Using Mixmap plugin (show maplist {orange}!mixmaplist{default})."
-		"zho" 		"{olive}<Mixmap>{default}正在使用Mixmap插件, 每一關隨機挑選（地圖一覽指令 {orange}!mixmaplist{default})。"
-		"chi"		"{olive}<Mixmap>{default}正在使用Mixmap插件, 每一关随机挑选（地图一览指令 {orange}!mixmaplist{default})。"
+		"en"		"{olive}<Mixmap>{default}Using Mixmap plugin (show maplist {green}!mixmaplist{default})."
+		"zho" 		"{olive}<Mixmap>{default}正在使用Mixmap插件, 每一關隨機挑選（地圖一覽指令 {green}!mixmaplist{default})。"
+		"chi"		"{olive}<Mixmap>{default}正在使用Mixmap插件, 每一关随机挑选（地图一览指令 {green}!mixmaplist{default})。"
 	}
 
 	"Differ_Abort"
@@ -39,9 +39,10 @@
 
 	"Force_Start"
 	{
-		"en"		"{olive}<Mixmap>{default}Admin {teamcolor}%N {default}forces to start Mixmap, {orange}Map Pool: %s"
-		"zho"		"{olive}<Mixmap>{default}管理者 {teamcolor}%N {default}強制啟用Mixmap, {orange}地圖池: %s"
-		"chi"		"{olive}<Mixmap>{default}管理员 {teamcolor}%N {default}强制启用Mixmap, {orange}地图池: %s"
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}<Mixmap>{default}Admin {lightgreen}{1} {default}forces to start Mixmap, {green}Map Pool: {2}"
+		"zho"		"{olive}<Mixmap>{default}管理者 {lightgreen}{1} {default}強制啟用Mixmap, {green}地圖池: {2}"
+		"chi"		"{olive}<Mixmap>{default}管理员 {lightgreen}{1} {default}强制启用Mixmap, {green}地图池: {2}"
 	}
 
 	"Manualmixmap_Syntax"
@@ -67,9 +68,10 @@
 
 	"Vote_Stop"
 	{
-		"en"		"{olive}<Mixmap>{default}Player {teamcolor}%N{default} initiates a vote to stop Mixmap."
-		"zho"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 發起投票關閉Mixmap。"
-		"chi"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 发起投票关闭Mixmap。"
+		"#format"	"{1:N}"
+		"en"		"{olive}<Mixmap>{default}Player {lightgreen}{1}{default} initiates a vote to stop Mixmap."
+		"zho"		"{olive}<Mixmap>{default}玩家 {lightgreen}{1}{default} 發起投票關閉Mixmap。"
+		"chi"		"{olive}<Mixmap>{default}玩家 {lightgreen}{1}{default} 发起投票关闭Mixmap。"
 	}
 
 	"Vote_Blocked"
@@ -81,9 +83,10 @@
 
 	"Vote_Progress_delay"
 	{
-		"en"		"{olive}<Mixmap>{default}There is a vote in progress! Changing map delays {orange}%d{default} seconds! "
-		"zho"		"{olive}<Mixmap>{default}有投票正在進行！地圖切換延遲 {orange}%d{default} 秒！"
-		"chi"		"{olive}<Mixmap>{default}有投票正在进行！地图切换延迟 {orange}%d{default} 秒！ "
+		"#format"	"{1:d}"
+		"en"		"{olive}<Mixmap>{default}There is a vote in progress! Changing map delays {green}{1}{default} seconds! "
+		"zho"		"{olive}<Mixmap>{default}有投票正在進行！地圖切換延遲 {green}{1}{default} 秒！"
+		"chi"		"{olive}<Mixmap>{default}有投票正在进行！地图切换延迟 {green}{1}{default} 秒！"
 	}
 
 	"Stop_Mixmap"
@@ -95,16 +98,18 @@
 
 	"Stop_Mixmap_Admin"
 	{
-		"en"		"{olive}<Mixmap>{default} Admin{teamcolor} %N {default}force-stop Mixmap and Maps initiate，abort……"
-		"zho"		"{olive}<Mixmap>{default} 管理員{teamcolor} %N {default}強制關閉Mixmap，地圖初始化，插件中止…"
-		"chi"		"{olive}<Mixmap>{default} 管理员{teamcolor} %N {default}强制关闭Mixmap，地图初始化，插件中止……"
+		"#format"	"{1:N}"
+		"en"		"{olive}<Mixmap>{default} Admin{lightgreen} {1} {default}force-stop Mixmap and Maps initiate，abort……"
+		"zho"		"{olive}<Mixmap>{default} 管理員{lightgreen} {1} {default}強制關閉Mixmap，地圖初始化，插件中止…"
+		"chi"		"{olive}<Mixmap>{default} 管理员{lightgreen} {1} {default}强制关闭Mixmap，地图初始化，插件中止……"
 	}
 
 	"Start_Mixmap"
 	{
-		"en"		"{olive}<Mixmap>{default}Player {teamcolor}%N{default} initiates a vote to start Mixmap, {orange}Map Pool: %s"
-		"zho"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 發起投票啟用Mixmap，{orange}地圖池: %s"
-		"chi"		"{olive}<Mixmap>{default}玩家 {teamcolor}%N{default} 发起投票启用Mixmap，{orange}地图池: %s"
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}<Mixmap>{default}Player {lightgreen}{1}{default} initiates a vote to start Mixmap, {green}Map Pool: {2}"
+		"zho"		"{olive}<Mixmap>{default}玩家 {lightgreen}{1}{default} 發起投票啟用Mixmap，{green}地圖池: {2}"
+		"chi"		"{olive}<Mixmap>{default}玩家 {lightgreen}{1}{default} 发起投票启用Mixmap，{green}地图池: {2}"
 	}
 
 	"Show_Maplist_Not_Start"
@@ -116,9 +121,9 @@
 	
 	"Show_Maplist_Cmd"
 	{
-		"en"		"{olive}Show maplist {orange}!mixmaplist {default}| {olive}Abort Cmd{orange} !stopmixmap"
-		"zho"		"{olive}地圖一覽指令 {orange}!mixmaplist {default}| {olive}中止指令{orange} !stopmixmap"
-		"chi"		"{olive}地图一览指令 {orange}!mixmaplist {default}| {olive}中止指令{orange} !stopmixmap"
+		"en"		"{olive}Show maplist {green}!mixmaplist {default}| {olive}Abort Cmd{green} !stopmixmap"
+		"zho"		"{olive}地圖一覽指令 {green}!mixmaplist {default}| {olive}中止指令{green} !stopmixmap"
+		"chi"		"{olive}地图一览指令 {green}!mixmaplist {default}| {olive}中止指令{green} !stopmixmap"
 	}
 
 	"Select_Maps_Succeed"
@@ -130,21 +135,22 @@
 
 	"Change_Map_First"
 	{
-		"en"		"{olive}<Mixmap>{default}Changing map after{orange} %d {default}seconds."
-		"zho"		"{olive}<Mixmap>{default}將在{orange} %d {default}秒後開始切換地圖。"
-		"chi"		"{olive}<Mixmap>{default}将在{orange} %d {default}秒后开始切换地图。"
+		"#format"	"{1:d}"
+		"en"		"{olive}<Mixmap>{default}Changing map after{green} {1} {default}seconds."
+		"zho"		"{olive}<Mixmap>{default}將在{green} {1} {default}秒後開始切換地圖。"
+		"chi"		"{olive}<Mixmap>{default}将在{green} {1} {default}秒后开始切换地图。"
 	}
 	"AllMaps_Official"
 	{
-		"en"		"{orange}[-----list of all official maps-----]"
-		"zho"		"{orange}[-----所有官方地圖代碼列表-----]"
-		"chi"		"{orange}[-----所有官方地图代码列表-----]"
+		"en"		"{green}[-----list of all official maps-----]"
+		"zho"		"{green}[-----所有官方地圖代碼列表-----]"
+		"chi"		"{green}[-----所有官方地图代码列表-----]"
 	}
 	"AllMaps_Usage"
 	{
-		"en"		"{orange}Usage: {default}!manualmixmap <map1> <map2>..."
-		"zho"		"{orange}用法：{default}!manualmixmap <地圖1> <地圖2>......"
-		"chi"		"{orange}用法：{default}!manualmixmap <地图1> <地图2>......"
+		"en"		"{green}Usage: {default}!manualmixmap <map1> <map2>..."
+		"zho"		"{green}用法：{default}!manualmixmap <地圖1> <地圖2>......"
+		"chi"		"{green}用法：{default}!manualmixmap <地图1> <地图2>......"
 	}
 	"Fail_Load_Preset"
 	{
@@ -154,15 +160,16 @@
 	}
 	"Maps_Not_Match_Rank"
 	{
-		"en"		"{olive}<Mixmap>{default}Preset has {orange}improper tagranks{default}: the number of maps to be played does not match the highest rank. Should have N+1 tagranks for highest rank N."
-		"zho"		"{olive}<Mixmap>{default}地圖組的{orange}標籤有誤{default}：設定的地圖數量和標籤數量不一致。當標籤最大值為N+1時，地圖數量應為N。"
-		"chi"		"{olive}<Mixmap>{default}地图组的{orange}标签有误{default}：设定的地图数量和标签数量不一致。当标签最大值为N+1时，地图数量应为N。"
+		"en"		"{olive}<Mixmap>{default}Preset has {green}improper tagranks{default}: the number of maps to be played does not match the highest rank. Should have N+1 tagranks for highest rank N."
+		"zho"		"{olive}<Mixmap>{default}地圖組的{green}標籤有誤{default}：設定的地圖數量和標籤數量不一致。當標籤最大值為N+1時，地圖數量應為N。"
+		"chi"		"{olive}<Mixmap>{default}地图组的{green}标签有误{default}：设定的地图数量和标签数量不一致。当标签最大值为N+1时，地图数量应为N。"
 	}
 	"Cvote_Title"
 	{
-		"en"		"Start a Mixmap? (%s)"
-		"zho"		"啟用Mixmap插件？（%s）"
-		"chi"		"启用Mixmap插件？（%s）"
+		"#format"	"{1:s}"
+		"en"		"Start a Mixmap? ({1})"
+		"zho"		"啟用Mixmap插件？（{1}）"
+		"chi"		"启用Mixmap插件？（{1}）"
 	}
 	"Cvote_Title_Off"
 	{
@@ -206,10 +213,33 @@
 		"zho"		"只有在準備階段才能發起投票"
 		"chi"		"只有在准备阶段才能发起投票"
 	}	
-	"Mode not support"
+	
+	"Menu Title"
 	{
-		"en"		"Not support Survival/Scavenge"
-		"zho"		"不支援生存/清道夫模式"
-		"chi"		"不支援生存/清道夫模式"
+		"en"		"Choose MixMap"
+		"zho"		"選擇MixMap"
+		"chi"		"选择MixMap"
+	}	
+	
+	"File Not Exist"
+	{
+		"#format"	"{1:s}"
+		"en"		"File does not exist: {1}"
+		"zho"		"檔案不存在: {1}"
+		"chi"		"档案不存在: {1}"
+	}
+	
+	"official"
+	{
+		"en"		"Official Map Pool"
+		"zho"		"官方地圖池"
+		"chi"		"官方地图池"
+	}
+	
+	"unofficial"
+	{
+		"en"		"Unofficial Map Pool"
+		"zho"		"非官方地圖池"
+		"chi"		"非官方地图池"
 	}
 }

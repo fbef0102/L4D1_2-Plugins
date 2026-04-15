@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #include <l4d_CreateSurvivorBot>
 
-#define PLUGIN_VERSION 				"7.3-2026/4/1"
+#define PLUGIN_VERSION 				"7.4-2026/4/16"
 
 public Plugin myinfo = 
 {
@@ -63,7 +63,8 @@ ConVar g_hMaxSurvivors, g_hMinSurvivors, hDeadBotTime, hSpecCheckInterval,
 	hRespawnHP, hRespawnBuffHP, hStripBotWeapons, hSpawnSurvivorsAtStart,
 	g_hGiveKitSafeRoom, g_hGiveKitFinalStart, g_hNoSecondChane, g_hCrashPlayer, g_hCvar_InvincibleTime, g_hCvar_DeadBotMethod,
 	g_hCvar_JoinCommandBlock, 
-	g_hCvar_VSCommandBalance, g_hCvar_VSUnBalanceLimit;
+	g_hCvar_VSCommandBalance, g_hCvar_VSUnBalanceLimit,
+	g_hCvar_SteamID;
 
 //ConVar g_hCvar_VSAutoBalance;
 
@@ -73,7 +74,8 @@ int g_iRoundStart, g_iPlayerSpawn, BufferHP = -1;
 bool bKill, g_bLeftSafeRoom, g_bStripBotWeapons, g_bSpawnSurvivorsAtStart, g_bEnableKick,
 	g_bGiveKitSafeRoom, g_bGiveKitFinalStart, g_bFinalHasStarted, g_bPluginHasStarted,
 	g_bCrashPlayer,
-	g_bCvar_JoinCommandBlock, g_bCvar_VSCommandBalance;
+	g_bCvar_JoinCommandBlock, g_bCvar_VSCommandBalance,
+	g_bCvar_SteamID;
 //bool g_bCvar_VSAutoBalance;
 float g_fSpecCheckInterval, g_fInvincibleTime;
 Handle SpecCheckTimer, PlayerLeftStartTimer, CountDownTimer;
@@ -82,7 +84,8 @@ int g_iSurvivorTransition;
 
 bool 
 	g_bMaxLimitReached[MAXPLAYERS+1],
-	g_bSteamAuthorized[MAXPLAYERS+1];
+	g_bSteamAuthorized[MAXPLAYERS+1],
+	g_bIsObserver[MAXPLAYERS+1];
 
 StringMap 
 	g_smSteamIDToRecord,
@@ -195,6 +198,7 @@ public void OnPluginStart()
 	//g_hCvar_VSAutoBalance  		= CreateConVar(	"l4d_multislots_versus_auto_balance", 		"0", 	"If 1, Enable auto team balance when new player joins the server in versus/scavenge.\nThis could cause both team mess after map change", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvar_VSCommandBalance  	= CreateConVar(	"l4d_multislots_versus_command_balance", 		"1", 	"If 1, Check team balance when player tries to use 'Join Survivors' command to join survivor team in versus/scavenge.\nIf team is unbanlance, will fail to join survivor team!", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvar_VSUnBalanceLimit  	= CreateConVar(	"l4d_multislots_versus_teams_unbalance_limit", 	"1", 	"Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.", CVAR_FLAGS, true, 1.0);
+	g_hCvar_SteamID  			= CreateConVar(	"l4d_multislots_steamid_validate", 				"1", 	"If 1, The player's steam id must be fully authenticated before attempt to join survivor team", CVAR_FLAGS, true, 0.0, true, 1.0);
 	CreateConVar(								"l4d_multislots_version",						PLUGIN_VERSION,	"MultiSlots Improved plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AutoExecConfig(true, 						"l4dmultislots");
 
@@ -228,6 +232,7 @@ public void OnPluginStart()
 	//g_hCvar_VSAutoBalance.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvar_VSCommandBalance.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvar_VSUnBalanceLimit.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvar_SteamID.AddChangeHook(ConVarChanged_Cvars);
 	
 	HookEvent("player_bot_replace", OnBotSwap);
 	HookEvent("bot_player_replace", OnBotSwap);
@@ -265,6 +270,7 @@ public void OnPluginStart()
 		{
 			if (IsClientInGame(i))
 			{
+				OnClientPutInServer(i);
 				OnClientPostAdminCheck(i);
 			}
 		}
@@ -376,6 +382,7 @@ void GetCvars()
 	//g_bCvar_VSAutoBalance = g_hCvar_VSAutoBalance.BoolValue;
 	g_bCvar_VSCommandBalance = g_hCvar_VSCommandBalance.BoolValue;
 	g_iCvar_VSUnBalanceLimit = g_hCvar_VSUnBalanceLimit.IntValue;
+	g_bCvar_SteamID = g_hCvar_SteamID.BoolValue;
 
 	iOffiicalCvar_survivor_respawn_with_guns = survivor_respawn_with_guns.IntValue;
 	g_iInfectedLimit = z_max_player_zombies.IntValue;
@@ -462,7 +469,7 @@ Action JoinTeam(int client,int args)
 	if(g_bCvar_JoinCommandBlock == true)
 		return Plugin_Handled;
 
-	if(g_iNoSecondChane > 0 && g_bSteamAuthorized[client] == false)
+	if(g_bCvar_SteamID && g_bSteamAuthorized[client] == false)
 	{
 		PrintHintText(client, "%T", "Your steam id not authorized", client);
 		return Plugin_Handled;
@@ -480,6 +487,29 @@ Action JoinTeam(int client,int args)
 	return Plugin_Handled;
 }
 
+public void OnClientPutInServer(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	if(!g_bCvar_SteamID)
+	{
+		if(g_bIsObserver[client] == false)
+		{
+			if(L4D_HasPlayerControlledZombies())
+			{
+				//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			}
+			else
+			{
+				g_bMaxLimitReached[client] = false;
+				CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			}
+		}
+	}
+
+	g_bIsObserver[client] = false;
+}
+
 public void OnClientPostAdminCheck(int client)
 {
 	if(IsFakeClient(client)) return;
@@ -494,21 +524,23 @@ public void OnClientPostAdminCheck(int client)
 		return;
 	}
 
-	if(g_smSteamIDToOverserver.ContainsKey(steamid) == false)
+	if(g_bCvar_SteamID)
 	{
-		if(L4D_HasPlayerControlledZombies())
+		if(g_smSteamIDToOverserver.ContainsKey(steamid) == false)
 		{
-			//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-		}
-		else
-		{
-			g_bMaxLimitReached[client] = false;
-			CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			if(L4D_HasPlayerControlledZombies())
+			{
+				//if(g_bCvar_VSAutoBalance) CreateTimer(3.0, Timer_NewPlayerAutoJoinTeam_Versus, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			}
+			else
+			{
+				g_bMaxLimitReached[client] = false;
+				CreateTimer(DELAY_CHANGETEAM_NEWPLAYER, Timer_NewPlayerAutoJoinTeam_Coop, GetClientUserId(client), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+			}
 		}
 	}
 
 	g_smSteamIDToOverserver.Remove(steamid);
-
 	g_bSteamAuthorized[client] = true;
 }
 
@@ -726,6 +758,7 @@ void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client || !IsClientInGame(client) || IsFakeClient(client) ) return;
+	g_bIsObserver[client] = false;
 
 	static char steamid[32];
 	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
@@ -1803,14 +1836,13 @@ void SaveObservers()
 	static char steamid[32];
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && !IsFakeClient(client))
+		if (IsClientInGame(client) && !IsFakeClient(client)
+			&& GetClientTeam(client) == 1 && !IsClientIdle(client))
 		{
-			if(GetClientTeam(client) == 1 && !IsClientIdle(client))
-			{
-				if (GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+			if (GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
 
-				g_smSteamIDToOverserver.SetValue(steamid, true, true);
-			}
+			g_smSteamIDToOverserver.SetValue(steamid, true, true);
+			g_bIsObserver[client] = true;
 		}
 	}
 }

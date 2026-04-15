@@ -49,15 +49,15 @@ ConVar hCvar_Enabled,
 	hCvar_NoticeTypeBW, hCvar_NoticeWhoBW, hCvar_HintRangeBW, hCvar_HintTimeBW, hCvar_HintColourBW,
 	hMaxReviveCount;
 
-bool bEnabled, bGlowEnabled;
-int g_iGlowColour, g_iGlowRange, g_iGlowFlash, 
+bool bEnabled, bGlowEnabled, g_bGlowFlash;
+int g_iGlowColour, g_iGlowRange, 
 	g_iNoticeTypeHeal, g_iNoticeWhoHeal, g_iHintRangeHeal,
 	g_iNoticeTypeBW, g_iNoticeWhoBW, g_iHintRangeBW;
 float g_fHintTimeHeal, g_fHintTimeBW;
 char g_sHintColourHeal[17], g_sHintColourBW[17];
 
 //char sCharName[17];
-bool bGlow[MAXPLAYERS+1] = {false, ...};
+bool g_bGlow[MAXPLAYERS+1] = {false, ...};
 
 bool bLMC_Available = false;
 
@@ -93,7 +93,7 @@ public void OnPluginStart()
 	hCvar_GlowEnabled 			= CreateConVar("lmc_blackandwhite_glow", 				"1", 			"Enable making black white players glow?(1/0 = yes/no)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_GlowColour 			= CreateConVar("lmc_blackandwhite_glowcolour", 			"255 255 255", 	"Black and white Glow color (255 255 255)", FCVAR_NOTIFY);
 	hCvar_GlowRange 			= CreateConVar("lmc_blackandwhite_glowrange", 			"800.0", 		"Black and white Glow range", FCVAR_NOTIFY, true, 1.0);
-	hCvar_GlowFlash 			= CreateConVar("lmc_blackandwhite_glowflash", 			"20", 			"While black and white if below 20(Def) start pulsing (0 = disable)", FCVAR_NOTIFY, true, 0.0);
+	hCvar_GlowFlash 			= CreateConVar("lmc_blackandwhite_glowflash", 			"1", 			"If 1, add a flashing effect on Black and white Glow", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_NoticeTypeHeal 		= CreateConVar("lmc_blackandwhite_announce_type_heal", 	"3", 			"(Heal B&W) How to display notification. (0=off, 1=chat, 2=hint text, 3=director hint in survivor team, hint text in infected team)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	hCvar_NoticeWhoHeal 		= CreateConVar("lmc_blackandwhite_announce_who_heal", 	"0", 			"(Heal B&W) Display notification to who? (0=survivors only, 1=infected only, 2=all players)", FCVAR_NOTIFY, true, 0.0, true, 2.0);
 	hCvar_HintRangeHeal 		= CreateConVar("lmc_blackandwhite_hintrange_heal", 		"700", 			"(Heal B&W) Director hint range", FCVAR_NOTIFY, true, 1.0, true, 9999.0);
@@ -110,8 +110,6 @@ public void OnPluginStart()
 	HookEvent("player_death", ePlayerDeath);
 	HookEvent("player_spawn", ePlayerSpawn);
 	HookEvent("player_team", eTeamChange);
-	HookEvent("pills_used", eItemUsedPill);
-	HookEvent("adrenaline_used", eItemUsed);
 	
 	hCvar_Enabled.AddChangeHook(eConvarChanged);
 	hCvar_GlowEnabled.AddChangeHook(eConvarChanged);
@@ -154,7 +152,7 @@ void CvarsChanged()
 	GetConVarString(hCvar_GlowColour, sGlowColour, sizeof(sGlowColour));
 	g_iGlowColour = GetColor(sGlowColour);
 	g_iGlowRange = hCvar_GlowRange.IntValue;
-	g_iGlowFlash = hCvar_GlowFlash.IntValue;
+	g_bGlowFlash = hCvar_GlowFlash.BoolValue;
 	g_iNoticeTypeHeal = hCvar_NoticeTypeHeal.IntValue;
 	g_iNoticeWhoHeal = hCvar_NoticeWhoHeal.IntValue;
 	g_iHintRangeHeal = hCvar_HintRangeHeal.IntValue;
@@ -173,11 +171,13 @@ void eReviveSuccess(Event event, const char[] name, bool dontBroadcast)
 	if(!bEnabled)
 		return;
 	
-	// 如果最後一次倒地時使用give health, 此參數依然為true (必須使用Heartbeat_GetRevives 判定)
-	if(!event.GetBool("lastlife"))
-		return;
+	// 如果最後一次倒地時使用give health, "lastlife"=true (必須等到下一偵使用Heartbeat_GetRevives 判定)
+	// 黑白掛邊時被拉起來, "lastlife"=false
+	if(event.GetBool("lastlife") || event.GetBool("ledge_hang"))
+	{
+		RequestFrame(NextFrame_ReviveSuccess, event.GetInt("subject"));
 
-	RequestFrame(NextFrame_ReviveSuccess, event.GetInt("subject"));
+	}
 }
 
 void NextFrame_ReviveSuccess(int client)
@@ -197,7 +197,7 @@ void NextFrame_ReviveSuccess(int client)
 	
 	if(bGlowEnabled)
 	{
-		bGlow[client] = true;
+		g_bGlow[client] = true;
 		if(bLMC_Available)
 		{
 			iEntity = LMC_GetClientOverlayModel(client);
@@ -206,6 +206,7 @@ void NextFrame_ReviveSuccess(int client)
 				SetEntProp(iEntity, Prop_Send, "m_iGlowType", 3);
 				SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 				SetEntProp(iEntity, Prop_Send, "m_nGlowRange", g_iGlowRange);
+				if(g_bGlowFlash) SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1);
 				
 			}
 			else
@@ -213,6 +214,7 @@ void NextFrame_ReviveSuccess(int client)
 				SetEntProp(client, Prop_Send, "m_iGlowType", 3);
 				SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 				SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
+				if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 			}
 		}
 		else
@@ -220,6 +222,8 @@ void NextFrame_ReviveSuccess(int client)
 			SetEntProp(client, Prop_Send, "m_iGlowType", 3);
 			SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 			SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
+			SetEntProp(client, Prop_Send, "m_bFlashing", 1);
+			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 		}
 	}
 	
@@ -300,13 +304,13 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 	return;
 	
-	if(!bGlow[client])
+	if(!g_bGlow[client])
 	return;
 	
 	int iEntity = -1;
 	if(bGlowEnabled)
 	{
-		bGlow[client] = false;
+		g_bGlow[client] = false;
 		if(bLMC_Available)
 		{
 			iEntity = LMC_GetClientOverlayModel(client);
@@ -453,10 +457,10 @@ void ePlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	if(!IsClientInGame(client) || GetClientTeam(client) != 2)
 	return;
 	
-	if(!bGlow[client])
+	if(!g_bGlow[client])
 	return;
 	
-	bGlow[client] = false;
+	g_bGlow[client] = false;
 	
 	if(bLMC_Available)
 	{
@@ -516,11 +520,11 @@ Action Timer_ePlayerSpawn(Handle timer, int userid)
 		{
 			ResetGlows(client);
 		}
-		bGlow[client] = false;
+		g_bGlow[client] = false;
 		return Plugin_Continue;
 	}
 	
-	bGlow[client] = true;
+	g_bGlow[client] = true;
 	if(bLMC_Available)
 	{
 		int iEntity;
@@ -530,6 +534,7 @@ Action Timer_ePlayerSpawn(Handle timer, int userid)
 			SetEntProp(iEntity, Prop_Send, "m_iGlowType", 3);
 			SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 			SetEntProp(iEntity, Prop_Send, "m_nGlowRange", g_iGlowRange);
+			if(g_bGlowFlash) SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1);
 			
 		}
 		else
@@ -537,6 +542,7 @@ Action Timer_ePlayerSpawn(Handle timer, int userid)
 			SetEntProp(client, Prop_Send, "m_iGlowType", 3);
 			SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 			SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
+			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 		}
 	}
 	else
@@ -544,6 +550,7 @@ Action Timer_ePlayerSpawn(Handle timer, int userid)
 		SetEntProp(client, Prop_Send, "m_iGlowType", 3);
 		SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 		SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
+		if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 	}
 
 	return Plugin_Continue;
@@ -572,14 +579,14 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 			SetEntProp(iEntity, Prop_Send, "m_iGlowType", 0);
 			SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", 0);
 			SetEntProp(iEntity, Prop_Send, "m_nGlowRange", 0);
-			SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0, 1);
+			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 		}
 		else
 		{
 			SetEntProp(client, Prop_Send, "m_iGlowType", 0);
 			SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
 			SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
-			SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
+			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 		}
 	}
 	else
@@ -587,7 +594,7 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 		SetEntProp(client, Prop_Send, "m_iGlowType", 0);
 		SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
 		SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
-		SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
+		if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 	}
 	
 }
@@ -596,37 +603,40 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 public void LMC_OnClientModelApplied(int client, int iEntity, const char sModel[PLATFORM_MAX_PATH], bool bBaseReattach)
 {
 	if(!IsClientInGame(client) || GetClientTeam(client) != 2)
-	return;
+		return;
 	
-	if(!bGlow[client])
-	return;
+	if(!g_bGlow[client])
+		return;
 	
 	SetEntProp(iEntity, Prop_Send, "m_iGlowType", GetEntProp(client, Prop_Send, "m_iGlowType"));
 	SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", GetEntProp(client, Prop_Send, "m_glowColorOverride"));
 	SetEntProp(iEntity, Prop_Send, "m_nGlowRange", GetEntProp(client, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(iEntity, Prop_Send, "m_bFlashing", GetEntProp(client, Prop_Send, "m_bFlashing", 1), 1);
+	if(g_bGlowFlash) SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1);
+	else SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0);
 	
 	SetEntProp(client, Prop_Send, "m_iGlowType", 0);
 	SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
 	SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
-	SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
+	if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
+	else SetEntProp(client, Prop_Send, "m_bFlashing", 0);
 }
 
 public void LMC_OnClientModelDestroyed(int client, int iEntity)
 {
 	if(!IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 2)
-	return;
+		return;
 	
 	if(!IsValidEntity(iEntity))
-	return;
+		return;
 	
-	if(!bGlow[client])
-	return;
+	if(!g_bGlow[client])
+		return;
 	
 	SetEntProp(client, Prop_Send, "m_iGlowType", GetEntProp(iEntity, Prop_Send, "m_iGlowType"));
 	SetEntProp(client, Prop_Send, "m_glowColorOverride", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
 	SetEntProp(client, Prop_Send, "m_nGlowRange", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(client, Prop_Send, "m_bFlashing", GetEntProp(iEntity, Prop_Send, "m_bFlashing", 1), 1);
+	if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
+	else SetEntProp(client, Prop_Send, "m_bFlashing", 0);
 }
 
 void BW_DirectorHintToChat(int client, int i)
@@ -711,183 +721,9 @@ int GetColor(char sTemp[13])
 	return color;
 }
 
-public void OnClientPutInServer(int client)
-{
-	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
-}
-
-void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype)
-{
-	if(!bEnabled)
-		return;
-	
-	if(victim < 1 || victim > MaxClients)
-	return;
-	
-	if(!IsClientInGame(victim) || GetClientTeam(victim) != 2)
-	return;
-	
-	if(!bGlow[victim])
-	return;
-	
-	int iEntity = -1;
-	if(bLMC_Available)
-	iEntity = LMC_GetClientOverlayModel(victim);
-	
-	
-	if(L4D_GetPlayerTempHealth(victim) + GetEntProp(victim, Prop_Send, "m_iHealth") <= g_iGlowFlash)
-	{
-		if(bLMC_Available)
-		{
-			if(iEntity > MaxClients)
-			{
-				SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1, 1);
-				return;
-			}
-			else
-			{
-				SetEntProp(victim, Prop_Send, "m_bFlashing", 1, 1);
-				return;
-			}
-		}
-		SetEntProp(victim, Prop_Send, "m_bFlashing", 1, 1);
-	}
-	else
-	{
-		if(bLMC_Available)
-		{
-			if(iEntity > MaxClients)
-			{
-				SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0, 1);
-				return;
-			}
-			else
-			{
-				SetEntProp(victim, Prop_Send, "m_bFlashing", 0, 1);
-				return;
-			}
-		}
-		SetEntProp(victim, Prop_Send, "m_bFlashing", 0, 1);
-	}
-}
-
 int L4D_GetMaxReviveCount()
 {
 	return hMaxReviveCount.IntValue;
-}
-
-void eItemUsedPill(Event event, const char[] name, bool dontBroadcast) 
-{
-	if(!bEnabled)
-		return;
-	
-	int client = GetClientOfUserId(event.GetInt("subject"));
-	
-	if(client < 1 || client > MaxClients)
-	return;
-	
-	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
-	return;
-	
-	if(!bGlow[client])
-	return;
-	
-	int iEntity = -1;
-	if(bLMC_Available)
-	iEntity = LMC_GetClientOverlayModel(client);
-	
-	if(L4D_GetPlayerTempHealth(client) + GetEntProp(client, Prop_Send, "m_iHealth") <= g_iGlowFlash)
-	{
-		if(bLMC_Available)
-		{
-			if(iEntity > MaxClients)
-			{
-				SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1, 1);
-				return;
-			}
-			else
-			{
-				SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
-				return;
-			}
-		}
-		SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
-		
-	}
-	else
-	{
-		if(bLMC_Available)
-		{
-			if(iEntity > MaxClients)
-			{
-				SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0, 1);
-				return;
-			}
-			else
-			{
-				SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
-				return;
-			}
-		}
-		SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
-	}
-}
-
-void eItemUsed(Event event, const char[] name, bool dontBroadcast) 
-{
-	if(!bEnabled)
-		return;
-	
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	
-	if(client < 1 || client > MaxClients)
-	return;
-	
-	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
-	return;
-	
-	if(!bGlow[client])
-	return;
-	
-	int iEntity = -1;
-	if(bLMC_Available)
-	iEntity = LMC_GetClientOverlayModel(client);
-	
-	if(L4D_GetPlayerTempHealth(client) + GetEntProp(client, Prop_Send, "m_iHealth") <= g_iGlowFlash)
-	{
-		if(bLMC_Available)
-		{
-			if(iEntity > MaxClients)
-			{
-				SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1, 1);
-				return;
-			}
-			else
-			{
-				SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
-				return;
-			}
-		}
-		SetEntProp(client, Prop_Send, "m_bFlashing", 1, 1);
-		
-	}
-	else
-	{
-		if(bLMC_Available)
-		{
-			if(iEntity > MaxClients)
-			{
-				SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0, 1);
-				return;
-			}
-			else
-			{
-				SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
-				return;
-			}
-		}
-		SetEntProp(client, Prop_Send, "m_bFlashing", 0, 1);
-	}
 }
 
 Action CheckBlackAndWhiteGlows_Timer(Handle timer)
@@ -900,12 +736,13 @@ Action CheckBlackAndWhiteGlows_Timer(Handle timer)
 	{
 		if(!IsClientInGame(client)) continue;
 		if(GetClientTeam(client) != 2) continue;
+		if(!IsPlayerAlive(client)) continue;
 
 		lastLife = (Heartbeat_GetRevives(client) >= L4D_GetMaxReviveCount() && L4D_GetMaxReviveCount() > 0);
 
-		if(bGlow[client] && lastLife == false)
+		if(g_bGlow[client] && (lastLife == false || L4D_IsPlayerIncapacitated(client)) )
 		{
-			bGlow[client] = false;
+			g_bGlow[client] = false;
 			if(bLMC_Available)
 			{
 				iEntity = LMC_GetClientOverlayModel(client);

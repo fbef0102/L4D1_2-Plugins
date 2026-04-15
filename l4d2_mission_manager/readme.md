@@ -79,6 +79,9 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.7h (2026-4-16)
+        * Report error if map does not have key "DisplayName"
+
     * v1.6h (2026-3-26)
         * Fixed error when use sm_lmm_list cmd
 
