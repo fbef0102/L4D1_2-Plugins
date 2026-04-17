@@ -8,12 +8,12 @@
 #include <l4d2_weapons>
 #include <multicolors>
 
-#define PLUGIN_VERSION		"3.5-2024/5/5"
+#define PLUGIN_VERSION		"3.6-2026/4/17"
 
 public Plugin myinfo = 
 {
 	name = "[L4D2] Gifts Drop & Spawn",
-	author = "Aceleracion & Harry Potter",
+	author = "Aceleracion & Harry Potter & apples1949",
 	description = "Drop gifts when a special infected or a tank/witch killed by survivor.",
 	version = PLUGIN_VERSION,
 	url = "https://forums.alliedmods.net/showthread.php?t=302731"
@@ -50,25 +50,26 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define TEAM_SURVIVOR		2
 #define TEAM_INFECTED		3
 
-static char g_sOfficialWeaponClassName[][64] =
+//WeaponName/AmmoOffset/AmmoGive
+static char weapon_ammo[][3][64] =
 {
-	"weapon_smg",
-	"weapon_smg_silenced",
-	"weapon_smg_mp5",
-	"weapon_pumpshotgun",
-	"weapon_shotgun_chrome",
-	"weapon_autoshotgun",
-	"weapon_shotgun_spas",
-	"weapon_rifle",
-	"weapon_rifle_ak47",
-	"weapon_rifle_desert",
-	"weapon_rifle_sg552",
-	"weapon_hunting_rifle",
-	"weapon_sniper_military",
-	"weapon_sniper_awp",
-	"weapon_sniper_scout",
-	"weapon_grenade_launcher",
-	"weapon_rifle_m60",
+	{"weapon_smg",		 				"5", 	"250"},
+	{"weapon_pumpshotgun",				"7", 	"40"},
+	{"weapon_rifle",					"3", 	"200"},
+	{"weapon_autoshotgun",				"8", 	"50"},
+	{"weapon_hunting_rifle",			"9", 	"75"},
+	{"weapon_smg_silenced",				"5", 	"250"},
+	{"weapon_smg_mp5", 	 				"5", 	"250"},
+	{"weapon_shotgun_chrome",	 		"7", 	"40"},
+	{"weapon_rifle_ak47",  				"3",	"200"},
+	{"weapon_rifle_desert",				"3", 	"200"},
+	{"weapon_sniper_military",			"10", 	"90"},
+	{"weapon_grenade_launcher", 	 	"17", 	"15"},
+	{"weapon_rifle_sg552",	 			"3", 	"200"},
+	{"weapon_rifle_m60",  				"6",	"200"},
+	{"weapon_sniper_awp", 	 			"10", 	"80"},
+	{"weapon_sniper_scout",	 			"10", 	"80"},
+	{"weapon_shotgun_spas",  			"8",	"50"}
 };
 
 #define	MAX_WEAPONS		30
@@ -112,9 +113,6 @@ int ColorCyan[3], ColorBlue[3], ColorGreen[3], ColorPink[3], ColorRed[3],
 
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
-ConVar g_hAmmoRifle, g_hAmmoSmg, g_hAmmoHunting, g_hAmmoGL, g_hAmmoM60, g_hAmmoSniper, g_hAmmoShotgun, g_hAmmoAutoShotgun;
-int g_iAmmoRifle, g_iAmmoSmg, g_iAmmoHunting, g_iAmmoGL, g_iAmmoM60, g_iAmmoSniper, g_iAmmoShotgun, g_iAmmoAutoShotgun;
-
 ConVar g_hCvar_gift_enable, g_hCvar_gift_life, g_hCvar_gift_chance,
 	g_hCvar_special_gift_chance,
 	g_hCvar_gift_infected_hp, g_hCvar_special_gift_infected_hp,
@@ -127,6 +125,9 @@ int g_iGiftChance, g_iSpecialGiftChance,
 	g_iGiftHP, g_iSpecialGiftHP;
 int g_iCvarAnnounce;
 char g_sCvarStandSoundFile[256], g_sCvarSpecialSoundFile[256];
+ConVar g_hCvarConfigFile;
+char g_sCvarConfigFile[PLATFORM_MAX_PATH];
+
 
 char g_sModel[MAX_GIFTS][MAX_STRING_WIDTH];
 char g_sType[MAX_GIFTS][10];
@@ -141,11 +142,9 @@ int g_iGiftGlowRange[MAX_GIFTS],
 int g_iGifType[MAXENTITIES + 1];
 
 char sPath_gifts[PLATFORM_MAX_PATH];
-int 
-	g_iCountGifts,
-	g_iOffset_Incapacitated,        // Used to check if tank is dying
-	g_iOffsetAmmo,
-	g_iPrimaryAmmoType;
+int g_iCountGifts;
+int g_iOffset_Incapacitated;        // Used to check if tank is dying
+int ammoOffset;	
 
 bool 
 	g_bGiftGlowEnable[MAX_GIFTS],
@@ -155,19 +154,11 @@ bool
 	g_bHooked[MAXPLAYERS+1],
 	g_bMapStart;
 
-enum struct CWeaponAmmoData
-{
-	char m_sWeaponClassName[64];
-	int m_iGive;
-	int m_iMaxLimit;
-}
-
 StringMap 
-	g_smItemsToTranslation,
-	g_smWeaponAmmoData,
-	g_smWeaponAmmoCvar;
+	g_smItemsToTranslation;
 
 ArrayList 
+	g_aMapMeleeTable,
 	g_aStandItemsList,
 	g_aSpecialItemsList,
 	g_aGiftModelStandard,
@@ -182,30 +173,9 @@ char
 public void OnPluginStart()
 {
 	LoadTranslations("l4d2_gifts.phrases");
-	BuildPath(Path_SM, sPath_gifts, PLATFORM_MAX_PATH, "data/l4d2_gifts.cfg");
 
-	g_iOffsetAmmo = FindSendPropInfo("CTerrorPlayer", "m_iAmmo");
-	g_iPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+	ammoOffset = FindSendPropInfo("CCSPlayer", "m_iAmmo");
 	g_iOffset_Incapacitated = FindSendPropInfo("Tank", "m_isIncapacitated");
-
-	g_hAmmoRifle =				FindConVar("ammo_assaultrifle_max");
-	g_hAmmoSmg =				FindConVar("ammo_smg_max");
-	g_hAmmoHunting =			FindConVar("ammo_huntingrifle_max");
-	g_hAmmoGL =					FindConVar("ammo_grenadelauncher_max");
-	g_hAmmoM60 =				FindConVar("ammo_m60_max");
-	g_hAmmoSniper =				FindConVar("ammo_sniperrifle_max");
-	g_hAmmoShotgun =			FindConVar("ammo_shotgun_max");
-	g_hAmmoAutoShotgun =		FindConVar("ammo_autoshotgun_max");
-	
-	GetOfficialCvars();
-	g_hAmmoRifle.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoSmg.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoHunting.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoGL.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoM60.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoSniper.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoShotgun.AddChangeHook(OnConVarChanged_Official);
-	g_hAmmoAutoShotgun.AddChangeHook(OnConVarChanged_Official);
 
 	g_hCvar_gift_enable	 				= CreateConVar( "l4d2_gifts_enabled",					 	"1", 	"Enable gifts 0: Disable, 1: Enable", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvar_gift_life 					= CreateConVar( "l4d2_gifts_gift_life",					 	"30",	"How long the gift stay on ground (seconds)", FCVAR_NOTIFY, true, 0.0);
@@ -217,6 +187,8 @@ public void OnPluginStart()
 	g_hCvar_blockSwitch 				= CreateConVar( "l4d2_gifts_block_switch",				 	"0",	"If 1, prevent survivors from switching into new weapons and items when they open gifts", FCVAR_NOTIFY, true, 0.0);
 	g_hCvarStandSoundFile 				= CreateConVar( "l4d2_gifts_soundfile_standard", 			"level/loud/climber.wav", 	"Standard gift - pick up sound file (relative to to sound/, empty=disable)", FCVAR_NOTIFY);
 	g_hCvarSpecialSoundFile 			= CreateConVar( "l4d2_gifts_soundfile_special", 			"level/gnomeftw.wav", 		"Special gift - pick up sound file (relative to to sound/, empty=disable)", FCVAR_NOTIFY);
+	g_hCvarConfigFile = CreateConVar("l4d2_gifts_config_file", "l4d2_gifts.cfg", "Configuration file name in data folder (e.g., l4d2_gifts.cfg)", FCVAR_NOTIFY);
+
 	AutoExecConfig(true, "l4d2_gifts");
 
 	GetCvars();
@@ -230,6 +202,8 @@ public void OnPluginStart()
 	g_hCvar_blockSwitch.AddChangeHook(Cvar_Changed);
 	g_hCvarStandSoundFile.AddChangeHook(Cvar_Changed);
 	g_hCvarSpecialSoundFile.AddChangeHook(Cvar_Changed);
+	g_hCvarConfigFile.AddChangeHook(Cvar_Changed);
+
 
 	HookEvent("round_start", Event_RoundStart);
 	HookEvent("round_end", Event_RoundEnd);
@@ -238,7 +212,7 @@ public void OnPluginStart()
 	HookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
 
 	RegAdminCmd("sm_gifts", Command_Gift, ADMFLAG_CHEATS, "Spawn a gift in your position");
-	RegAdminCmd("sm_reloadgifts", Command_ReloadGift, ADMFLAG_CONFIG, " Reload the config file of gifts (data/l4d2_gifts.cfg)");
+	RegAdminCmd("sm_reloadgifts", Command_ReloadGift, ADMFLAG_CONFIG, " Reload the config file of gifts (data/<config file>)");
 
 	SetRandomColor();
 
@@ -315,47 +289,16 @@ void LateLoad()
     }
 }
 
-void OnConVarChanged_Official(Handle convar, const char[] oldValue, const char[] newValue)
-{
-	GetOfficialCvars();
-}
-
-void GetOfficialCvars()
-{
-	g_iAmmoRifle		= g_hAmmoRifle.IntValue;
-	g_iAmmoSmg			= g_hAmmoSmg.IntValue;
-	g_iAmmoHunting		= g_hAmmoHunting.IntValue;
-	g_iAmmoGL			= g_hAmmoGL.IntValue;
-	g_iAmmoM60			= g_hAmmoM60.IntValue;
-	g_iAmmoSniper		= g_hAmmoSniper.IntValue;
-	g_iAmmoShotgun		= g_hAmmoShotgun.IntValue;
-	g_iAmmoAutoShotgun	= g_hAmmoAutoShotgun.IntValue;
-
-	delete g_smWeaponAmmoCvar;
-	g_smWeaponAmmoCvar = new StringMap();
-	g_smWeaponAmmoCvar.SetValue("weapon_smg", g_iAmmoSmg);
-	g_smWeaponAmmoCvar.SetValue("weapon_smg_silenced", g_iAmmoSmg);
-	g_smWeaponAmmoCvar.SetValue("weapon_smg_mp5", g_iAmmoSmg);
-	g_smWeaponAmmoCvar.SetValue("weapon_pumpshotgun", g_iAmmoShotgun);
-	g_smWeaponAmmoCvar.SetValue("weapon_shotgun_chrome", g_iAmmoShotgun);
-	g_smWeaponAmmoCvar.SetValue("weapon_autoshotgun", g_iAmmoAutoShotgun);
-	g_smWeaponAmmoCvar.SetValue("weapon_shotgun_spas", g_iAmmoAutoShotgun);
-	g_smWeaponAmmoCvar.SetValue("weapon_rifle", g_iAmmoRifle);
-	g_smWeaponAmmoCvar.SetValue("weapon_rifle_ak47", g_iAmmoRifle);
-	g_smWeaponAmmoCvar.SetValue("weapon_rifle_desert", g_iAmmoRifle);
-	g_smWeaponAmmoCvar.SetValue("weapon_rifle_sg552", g_iAmmoRifle);
-	g_smWeaponAmmoCvar.SetValue("weapon_hunting_rifle", g_iAmmoHunting);
-	g_smWeaponAmmoCvar.SetValue("weapon_sniper_military", g_iAmmoSniper);
-	g_smWeaponAmmoCvar.SetValue("weapon_sniper_awp", g_iAmmoSniper);
-	g_smWeaponAmmoCvar.SetValue("weapon_sniper_scout", g_iAmmoSniper);
-	g_smWeaponAmmoCvar.SetValue("weapon_grenade_launcher", g_iAmmoGL);
-	g_smWeaponAmmoCvar.SetValue("weapon_rifle_m60", g_iAmmoM60);
-}
-
 void Cvar_Changed(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	GetCvars();
+    GetCvars();
+    
+    if (convar == g_hCvarConfigFile)
+    {
+        LoadConfigGifts();
+    }
 }
+
 
 void GetCvars()
 {
@@ -370,6 +313,8 @@ void GetCvars()
 	g_bCvarBlockSwitch = g_hCvar_blockSwitch.BoolValue;
 	g_hCvarStandSoundFile.GetString(g_sCvarStandSoundFile, sizeof(g_sCvarStandSoundFile));
 	g_hCvarSpecialSoundFile.GetString(g_sCvarSpecialSoundFile, sizeof(g_sCvarSpecialSoundFile));
+	g_hCvarConfigFile.GetString(g_sCvarConfigFile, sizeof(g_sCvarConfigFile));
+
 
 	if(g_bMapStart)
 	{
@@ -466,225 +411,234 @@ Action Command_ReloadGift(int client, int args)
 
 void LoadConfigGifts()
 {
-	delete g_smWeaponAmmoData;
-	g_smWeaponAmmoData = new StringMap();
+    char configFile[PLATFORM_MAX_PATH];
+    strcopy(configFile, sizeof(configFile), g_sCvarConfigFile);
+    
+    if (StrContains(configFile, "..") != -1 || StrContains(configFile, "\\") != -1)
+    {
+        LogError("Invalid config file name '%s', using default 'l4d2_gifts.cfg'", configFile);
+        strcopy(configFile, sizeof(configFile), "l4d2_gifts.cfg");
+    }
+    
+    BuildPath(Path_SM, sPath_gifts, PLATFORM_MAX_PATH, "data/%s", configFile);
+    
+    KeyValues hFile = new KeyValues("Gifts");
+    
+    if(!hFile.ImportFromFile(sPath_gifts) )
+    {
+        char error[256];
+        Format(error, sizeof(error), "Cannot load the data file '%s'", sPath_gifts);
+        SetFailState(error);
+        delete hFile;
+        return;
+    }
 
-	delete g_aStandItemsList;
-	g_aStandItemsList = new ArrayList(ByteCountToCells(64));
+    delete g_aStandItemsList;
+    g_aStandItemsList = new ArrayList(ByteCountToCells(64));
 
-	delete g_aSpecialItemsList;
-	g_aSpecialItemsList = new ArrayList(ByteCountToCells(64));
+    delete g_aSpecialItemsList;
+    g_aSpecialItemsList = new ArrayList(ByteCountToCells(64));
 
-	delete g_aGiftModelStandard;
-	g_aGiftModelStandard = new ArrayList();
+    delete g_aGiftModelStandard;
+    g_aGiftModelStandard = new ArrayList();
 
-	delete g_aGiftModelSpecial;
-	g_aGiftModelSpecial = new ArrayList();
+    delete g_aGiftModelSpecial;
+    g_aGiftModelSpecial = new ArrayList();
 
-	KeyValues hFile = new KeyValues("Gifts");
-	
-	if(!hFile.ImportFromFile(sPath_gifts) )
-	{
-		SetFailState("Cannot load the data file 'data/l4d2_gifts.cfg'");
-		delete hFile;
-		return;
-	}
+    char sNumber[4];
+    if( hFile.JumpToKey("models") )
+    {
+        g_iCountGifts = hFile.GetNum("num", 0);
 
-	char sNumber[4];
-	if( hFile.JumpToKey("models") )
-	{
-		g_iCountGifts = hFile.GetNum("num", 0);
+        // Max 
+        if( g_iCountGifts > MAX_GIFTS )
+            g_iCountGifts = MAX_GIFTS;
 
-		// Max 
-		if( g_iCountGifts > MAX_GIFTS )
-			g_iCountGifts = MAX_GIFTS;
+        char sTemp[MAX_STRING_WIDTH];
+        for(int i = 1; i <= g_iCountGifts; i++)
+        {
+            IntToString(i, sNumber, sizeof(sNumber));
+            if(hFile.JumpToKey(sNumber))
+            {
+                hFile.GetString("model", sTemp, MAX_STRING_WIDTH);
+                    
+                if(strlen(sTemp) == 0)
+                    continue;
+                
+                if(FileExists(sTemp, true))
+                {
+                    strcopy(g_sModel[i-1], MAX_STRING_WIDTH, sTemp);
+                    hFile.GetString("type", g_sType[i-1], sizeof(g_sType[]), "static");
+                    hFile.GetString("gift", g_sGift[i-1], sizeof(g_sGift[]));
+                    if(strcmp(g_sGift[i-1], STRING_SPECIAL, false) == 0)
+                    {
+                        g_aGiftModelSpecial.Push(i-1);
+                    }
+                    else
+                    {
+                        g_aGiftModelStandard.Push(i-1);
+                    }
 
-		char sTemp[MAX_STRING_WIDTH];
-		for(int i = 1; i <= g_iCountGifts; i++)
-		{
-			IntToString(i, sNumber, sizeof(sNumber));
-			if(hFile.JumpToKey(sNumber))
-			{
-				hFile.GetString("model", sTemp, MAX_STRING_WIDTH);
-					
-				if(strlen(sTemp) == 0)
-					continue;
-				
-				if(FileExists(sTemp, true))
-				{
-					strcopy(g_sModel[i-1], MAX_STRING_WIDTH, sTemp);
-					hFile.GetString("type", g_sType[i-1], sizeof(g_sType[]), "static");
-					hFile.GetString("gift", g_sGift[i-1], sizeof(g_sGift[]));
-					if(strcmp(g_sGift[i-1], STRING_SPECIAL, false) == 0)
-					{
-						g_aGiftModelSpecial.Push(i-1);
-					}
-					else
-					{
-						g_aGiftModelStandard.Push(i-1);
-					}
+                    g_fScale[i-1] = hFile.GetFloat("scale", 1.0);
 
-					g_fScale[i-1] = hFile.GetFloat("scale", 1.0);
+                    g_bGiftEntityEnable[i-1] = view_as<bool>(hFile.GetNum("entity_enable", 1));
+                    hFile.GetString("entity_color", g_sGiftEntityCols[i-1], sizeof(g_sGiftEntityCols[]));
 
-					g_bGiftEntityEnable[i-1] = view_as<bool>(hFile.GetNum("entity_enable", 1));
-					hFile.GetString("entity_color", g_sGiftEntityCols[i-1], sizeof(g_sGiftEntityCols[]));
+                    g_bGiftGlowEnable[i-1] = view_as<bool>(hFile.GetNum("glow_enable", 1));
+                    hFile.GetString("glow_color", g_sGiftGlowCols[i-1], sizeof(g_sGiftGlowCols[]));
+                    g_iGiftGlowRange[i-1] = hFile.GetNum("glow_range", 0);
+                }
 
-					g_bGiftGlowEnable[i-1] = view_as<bool>(hFile.GetNum("glow_enable", 1));
-					hFile.GetString("glow_color", g_sGiftGlowCols[i-1], sizeof(g_sGiftGlowCols[]));
-					g_iGiftGlowRange[i-1] = hFile.GetNum("glow_range", 0);
-				}
+                hFile.GoBack();
+            }
+        } 
 
-				hFile.GoBack();
-			}
-		} 
+        hFile.GoBack();
+    }
+    else
+    {
+        char error[256];
+        Format(error, sizeof(error), "Cannot load gift models, please check data file '%s'", sPath_gifts);
+        SetFailState(error);
+        delete hFile;
+        return;
+    }
 
-		hFile.GoBack();
-	}
-	else
-	{
-		SetFailState("Cannot load gift models, please check data file 'data/l4d2_gifts.cfg'");
-		delete hFile;
-		return;
-	}
+    char sName[64], sTemp[64];
+    int number, hp;
+    if( hFile.JumpToKey("standard_items") )
+    {
+        number = hFile.GetNum("num", 0);
+        for(int i = 1; i <= number; i++)
+        {
+            IntToString(i, sNumber, sizeof(sNumber));
+            if(hFile.JumpToKey(sNumber))
+            {
+                hFile.GetString("name", sName, sizeof(sName), "");
+                if(strlen(sName) > 0)
+                {
+                    if(strcmp(sName, "weapon_melee", false) == 0)
+                    {
+                        FormatEx(sName, sizeof(sName), "%s", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
+                        g_aStandItemsList.PushString(sName);
+                    }
+                    else if(strcmp(sName, "hp", false) == 0)
+                    {
+                        hp = hFile.GetNum("hp", 0);
+                        if(hp > 0)
+                        {
+                            FormatEx(sName, sizeof(sName), "hp_+%d", hp);
+                            g_aStandItemsList.PushString(sName);
+                        }
+                        else if(hp < 0)
+                        {
+                            FormatEx(sName, sizeof(sName), "hp_-%d", -hp);
+                            g_aStandItemsList.PushString(sName);
+                        }
+                    }
+                    else
+                    {
+                        if(g_smItemsToTranslation.GetString(sName, sTemp, sizeof(sTemp)) == false)
+                        {
+                            LogError("%s is not a valid weapon, please check data file '%s' \"standard_items\" #%d", sName, sPath_gifts, i);
+                        }
+                        else
+                        {
+                            g_aStandItemsList.PushString(sName);
+                        }
+                    }
+                }
 
-	char sName[64], sTemp[64];
-	int number, hp;
-	if( hFile.JumpToKey("standard_items") )
-	{
-		number = hFile.GetNum("num", 0);
-		for(int i = 1; i <= number; i++)
-		{
-			IntToString(i, sNumber, sizeof(sNumber));
-			if(hFile.JumpToKey(sNumber))
-			{
-				hFile.GetString("name", sName, sizeof(sName), "");
-				if(strlen(sName) > 0)
-				{
-					if(strcmp(sName, "weapon_melee", false) == 0)
-					{
-						FormatEx(sName, sizeof(sName), "%s", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
-						g_aStandItemsList.PushString(sName);
-					}
-					else if(strcmp(sName, "hp", false) == 0)
-					{
-						hp = hFile.GetNum("hp", 0);
-						if(hp > 0)
-						{
-							FormatEx(sName, sizeof(sName), "hp_+%d", hp);
-							g_aStandItemsList.PushString(sName);
-						}
-						else if(hp < 0)
-						{
-							FormatEx(sName, sizeof(sName), "hp_-%d", -hp);
-							g_aStandItemsList.PushString(sName);
-						}
-					}
-					else
-					{
-						if(g_smItemsToTranslation.GetString(sName, sTemp, sizeof(sTemp)) == false)
-						{
-							LogError("%s is not a valid weapon, please check data file 'data/l4d2_gifts.cfg' \"standard_items\" #%d", sName, i);
-						}
-						else
-						{
-							g_aStandItemsList.PushString(sName);
-						}
-					}
-				}
+                hFile.GoBack();
+            }
+        }
 
-				hFile.GoBack();
-			}
-		}
+        hFile.GoBack();
+    }
+    else
+    {
+        char error[256];
+        Format(error, sizeof(error), "Cannot load standard items, please check data file '%s'", sPath_gifts);
+        SetFailState(error);
+        delete hFile;
+        return;
+    }
 
-		hFile.GoBack();
-	}
-	else
-	{
-		SetFailState("Cannot load standard items, please check data file 'data/l4d2_gifts.cfg'");
-		delete hFile;
-		return;
-	}
+    if( hFile.JumpToKey("special_items") )
+    {
+        number = hFile.GetNum("num", 0);
+        for(int i = 1; i <= number; i++)
+        {
+            IntToString(i, sNumber, sizeof(sNumber));
+            if(hFile.JumpToKey(sNumber))
+            {
+                hFile.GetString("name", sName, sizeof(sName), "");
+                if(strlen(sName) > 0)
+                {
+                    if(strcmp(sName, "weapon_melee", false) == 0)
+                    {
+                        hFile.GetString("melee", sName, sizeof(sName), "");
+                        if(strlen(sName) > 0 && g_aMapMeleeTable.FindString(sName) > -1) 
+                            g_aSpecialItemsList.PushString(sName);
+                    }
+                    else if(strcmp(sName, "hp", false) == 0)
+                    {
+                        hp = hFile.GetNum("hp", 0);
+                        if(hp > 0)
+                        {
+                            FormatEx(sName, sizeof(sName), "hp_+%d", hp);
+                            g_aSpecialItemsList.PushString(sName);
+                        }
+                        else if(hp < 0)
+                        {
+                            FormatEx(sName, sizeof(sName), "hp_-%d", -hp);
+                            g_aSpecialItemsList.PushString(sName);
+                        }
+                    }
+                    else
+                    {
+                        if(g_smItemsToTranslation.GetString(sName, sTemp, sizeof(sTemp)) == false)
+                        {
+                            LogError("%s is not a valid weapon, please check data file '%s' \"special_items\" #%d", sName, sPath_gifts, i);
+                        }
+                        else
+                        {
+                            g_aSpecialItemsList.PushString(sName);
+                        }
+                    }
+                }
 
-	if( hFile.JumpToKey("special_items") )
-	{
-		number = hFile.GetNum("num", 0);
-		for(int i = 1; i <= number; i++)
-		{
-			IntToString(i, sNumber, sizeof(sNumber));
-			if(hFile.JumpToKey(sNumber))
-			{
-				hFile.GetString("name", sName, sizeof(sName), "");
-				if(strlen(sName) > 0)
-				{
-					if(strcmp(sName, "weapon_melee", false) == 0)
-					{
-						FormatEx(sName, sizeof(sName), "%s", g_sMeleeClass[GetRandomInt(0, g_iMeleeClassCount-1)]);
-						g_aSpecialItemsList.PushString(sName);
-					}
-					else if(strcmp(sName, "hp", false) == 0)
-					{
-						hp = hFile.GetNum("hp", 0);
-						if(hp > 0)
-						{
-							FormatEx(sName, sizeof(sName), "hp_+%d", hp);
-							g_aSpecialItemsList.PushString(sName);
-						}
-						else if(hp < 0)
-						{
-							FormatEx(sName, sizeof(sName), "hp_-%d", -hp);
-							g_aSpecialItemsList.PushString(sName);
-						}
-					}
-					else
-					{
-						if(g_smItemsToTranslation.GetString(sName, sTemp, sizeof(sTemp)) == false)
-						{
-							LogError("%s is not a valid weapon, please check data file 'data/l4d2_gifts.cfg' \"special_items\" #%d", sName, i);
-						}
-						else
-						{
-							g_aSpecialItemsList.PushString(sName);
-						}
-					}
-				}
+                hFile.GoBack();
+            }
+        }
 
-				hFile.GoBack();
-			}
-		}
+        hFile.GoBack();
+    }
+    else
+    {
+        char error[256];
+        Format(error, sizeof(error), "Cannot load special items, please check data file '%s'", sPath_gifts);
+        SetFailState(error);
+        delete hFile;
+        return;
+    }
 
-		hFile.GoBack();
-	}
-	else
-	{
-		SetFailState("Cannot load special items, please check data file 'data/l4d2_gifts.cfg'");
-		delete hFile;
-		return;
-	}
+    if( hFile.JumpToKey("weapon_ammo") )
+    {
+        int size = sizeof(weapon_ammo);
+        for( int index = 0 ; index < size ; ++index )
+        {
+            hFile.GetString(weapon_ammo[index][0], weapon_ammo[index][2], sizeof(weapon_ammo[][]), weapon_ammo[index][2]);
+        }
 
-	if( hFile.JumpToKey("weapon_ammo") )
-	{
-		int size = sizeof(g_sOfficialWeaponClassName);
-		for( int index = 0 ; index < size ; ++index )
-		{
-			if(hFile.JumpToKey(g_sOfficialWeaponClassName[index]))
-			{
-				CWeaponAmmoData cWeaponAmmoData;
-				FormatEx(cWeaponAmmoData.m_sWeaponClassName, sizeof(cWeaponAmmoData.m_sWeaponClassName), g_sOfficialWeaponClassName[index]);
-				cWeaponAmmoData.m_iGive = hFile.GetNum("give", 0);
-				cWeaponAmmoData.m_iMaxLimit = hFile.GetNum("max_limit", -1);
-				g_smWeaponAmmoData.SetArray(g_sOfficialWeaponClassName[index], cWeaponAmmoData, sizeof(CWeaponAmmoData));
+        hFile.GoBack();
+    }
+    
+    delete hFile;
 
-				hFile.GoBack();
-			}
-		}
-
-		hFile.GoBack();
-	}
-	
-	delete hFile;
-
-	PrecacheModelGifts();
+    PrecacheModelGifts();
 }
+
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
@@ -1176,51 +1130,20 @@ stock void GiveUpgrade(int client, char[] name)
 	SetCommandFlags("upgrade_add", flags);
 }
 
-bool GiveClientAmmo(int client, int iSlot0)
+stock void GiveClientAmmo(int client, int iSlot0)
 {
-	char slot0ClassName[64];
-	GetEntityClassname(iSlot0, slot0ClassName, sizeof(slot0ClassName));
-
-	CWeaponAmmoData cWeaponAmmoData;
-	if(g_smWeaponAmmoData.GetArray(slot0ClassName, cWeaponAmmoData, sizeof(CWeaponAmmoData)) == false) 
-	{
-		CPrintToChat(client, "%T", "Not Official Weapon", client);
-		return false;
-	}
-
-	int offset = GetEntData(iSlot0, g_iPrimaryAmmoType) * 4; // Thanks to "Root" or whoever for this method of not hard-coding offsets: https://github.com/zadroot/AmmoManager/blob/master/scripting/ammo_manager.sp
-	
-	if( offset )
-	{
-		int official_ammo_limit;
-		g_smWeaponAmmoCvar.GetValue(slot0ClassName, official_ammo_limit);
-		if(official_ammo_limit == -2)
+	char slot0ClassName[40];
+	GetEdictClassname(iSlot0, slot0ClassName, sizeof(slot0ClassName));
+	int weaponAmmoOffset, ammoMax;
+	for( int i = 0 ; i < sizeof(weapon_ammo) ; ++i) {
+		if (strcmp(slot0ClassName, weapon_ammo[i][0]) == 0)
 		{
-			CPrintToChat(client, "%T", "Ammo is infinite", client);
-			return false;
-		}
-
-		int ammo = GetEntData(client, g_iOffsetAmmo + offset);
-		int max_ammo_limit;
-
-		if(cWeaponAmmoData.m_iMaxLimit == -1) max_ammo_limit = official_ammo_limit;
-		else max_ammo_limit = cWeaponAmmoData.m_iMaxLimit;
-
-		if(max_ammo_limit < 0) max_ammo_limit = 999;
-
-		if(ammo >= max_ammo_limit)
-		{
-			CPrintToChat(client, "%T", "Ammo Reach Limit", client);
-			return false;
-		}
-
-		ammo += cWeaponAmmoData.m_iGive;
-		if(ammo >= max_ammo_limit) ammo = max_ammo_limit;
-
-		SetEntData(client, g_iOffsetAmmo + offset, ammo);
-	}
-
-	return true;
+			weaponAmmoOffset = StringToInt(weapon_ammo[i][1]);
+			ammoMax = GetEntData(client, ammoOffset+(weaponAmmoOffset*4)) + StringToInt(weapon_ammo[i][2]);
+			if(ammoMax > 999) ammoMax = 999;
+			SetEntData(client, ammoOffset+(weaponAmmoOffset*4), ammoMax);
+		}	
+	}			
 }
 
 void GiveClientHealth(int client, int iHealthAdd)
@@ -1229,7 +1152,7 @@ void GiveClientHealth(int client, int iHealthAdd)
 	int iHealth = GetClientHealth( client );
 	float fHealth = L4D_GetTempHealth( client );
 
-	if(iHealthAdd>=100) 
+	if(iHealthAdd>=99) 
 	{
 		int flagsgive = GetCommandFlags("give");
 		SetCommandFlags("give", flagsgive & ~FCVAR_CHEAT);
