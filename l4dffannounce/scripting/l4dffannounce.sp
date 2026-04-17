@@ -170,12 +170,14 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 	if (g_hFFTimer[attacker] != null)  //If the player is already friendly firing teammates, resets the announce timer and adds to the damage
 	{
 		g_iDamageTempCache[attacker][victim] += damage;
+		g_iTotalDamage[attacker][victim] += damage;
 		delete g_hFFTimer[attacker];
 		g_hFFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 	}
 	else //If it's the first friendly fire by that player, it will start the announce timer and store the damage done.
 	{
 		g_iDamageTempCache[attacker][victim] = damage;
+		g_iTotalDamage[attacker][victim] += damage;
 		delete g_hFFTimer[attacker];
 		g_hFFTimer[attacker] = CreateTimer(1.0, AnnounceFF, attacker);
 		for (int i = 1; i <= MaxClients; i++)
