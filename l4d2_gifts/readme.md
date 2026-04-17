@@ -62,6 +62,9 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 
 		// Special gift - pick up sound file (relative to to sound/, empty=disable)
 		l4d2_gifts_soundfile_special "level/gnomeftw.wav"
+
+		// Configuration file name in data folder (e.g., l4d2_gifts.cfg)
+		l4d2_gifts_config_file "l4d2_gifts.cfg"
 		```
 </details>
 
@@ -177,6 +180,9 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 
 		// 撿起特殊禮盒的音效檔案，路徑相對於sound資料夾 (留白=無音效)
 		l4d2_gifts_soundfile_special "level/gnomeftw.wav"
+
+		// 載入禮物文件的檔案名稱，位於data資料夾 (預設: l4d2_gifts.cfg)
+		l4d2_gifts_config_file "l4d2_gifts.cfg"
 		```
 </details>
 

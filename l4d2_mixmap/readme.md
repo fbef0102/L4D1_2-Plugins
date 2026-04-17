@@ -16,6 +16,7 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 	* Type ```!mixmap``` to open menu, choose map pool and vote to start a mixmap
 	* After vote passed, the plugin will randomly select five maps from map pool -> switch to first mix map.
 	* (Versus) After second round ends, switch to next mix map
+		* The score will be saved to the next mix map
 	* (Coop/Realism) After survivors have made it to end safe room, switch to next mix map
 		* 🟥 The weapons, items and health will not be saved to next mix map in Coop/Realism mode, don't ask.
 	* To stop mix map, type ```!stopmixmap```
@@ -147,6 +148,7 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 	* 輸入 ```!mixmap``` 打開菜單，選擇地圖組織後投票啟用Mixmap
 	* 投票通過後，插件從地圖池隨機選擇五個關卡 -> 切換到Mixmap列表的第一關
 	* (對抗) 當第二個回合結束後 -> 切換到Mixmap列表的下一關
+		* 對抗分數會保存到下一關
 	* (戰役/寫實) 當倖存者抵達安全室之後 -> 切換到Mixmap列表的下一關
 		* 🟥 不會保存武器、物資、血量，別問
 	* 輸入 ```!stopmixmap``` 可停止Mixmap
