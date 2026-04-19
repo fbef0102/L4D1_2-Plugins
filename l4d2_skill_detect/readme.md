@@ -15,8 +15,8 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
     * Detects and reports skeets, crowns, levels, highpounces, etc. Also provide api functions
     * Report Flag in source code
         ```php
-        REP_SKEET				(2 ^ 0 = 1) //Skeet hunter/jokcey
-        REP_HURTSKEET			(2 ^ 1 = 2) //Hurt Skeet hunter/jokcey (Less damage)
+        REP_SKEET				(2 ^ 0 = 1) //Skeet or Team-Skeet hunter/jokcey
+        REP_HURTSKEET			(2 ^ 1 = 2) //Hurt Skeet or Team-Skeet hunter/jokcey (Less damage)
         REP_LEVEL				(2 ^ 2 = 4) //Level Charger
         REP_HURTLEVEL			(2 ^ 3 = 8) //HurtLevel Charger (Less damage)
         REP_CROWN				(2 ^ 4 = 16) //Crown Witch and no one get hurt
@@ -36,7 +36,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         REP_CARALARM			(2 ^ 18 = 262144) //Trigger Car Alarm
         REP_POPSTOP				(2 ^ 19 = 524288) //Shove Boomer before vomit
         REP_VOMIT				(2 ^ 20 = 1048576) //Boomer Perfect Vomit (Vomit 4+ survivors)
-        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //Hunter team skeet assist report 
+        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //Team-Skeet hunter/jokcey assist report 
         ```
         ```php
         // Report Flag by default
@@ -268,8 +268,8 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
     * 花式技巧
         ```php
-        REP_SKEET				(2 ^ 0 = 1) //空爆hunter/jokcey
-        REP_HURTSKEET			(2 ^ 1 = 2) //空爆hunter/jokcey (傷害較低)
+        REP_SKEET				(2 ^ 0 = 1) //一人空爆或多人合力空爆 hunter/jokcey
+        REP_HURTSKEET			(2 ^ 1 = 2) //一人空爆或多人合力空爆 hunter/jokcey (傷害較低)
         REP_LEVEL				(2 ^ 2 = 4) //近戰砍死衝鋒的Charger
         REP_HURTLEVEL			(2 ^ 3 = 8) //近戰砍死衝鋒的Charger (傷害較低)
         REP_CROWN				(2 ^ 4 = 16) //一槍殺死Witch並無人受傷
@@ -289,7 +289,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         REP_CARALARM			(2 ^ 18 = 262144) //警報車
         REP_POPSTOP				(2 ^ 19 = 524288) //推開Boomer不被嘔吐
         REP_VOMIT				(2 ^ 20 = 1048576) //Boomer 完美嘔吐 (一次吐到4位倖存者以上)
-        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //空爆hunter/jokcey的協力者 (非擊殺者)
+        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //打印多人合力空爆hunter/jokcey的協力者 (非擊殺者)
         ```
         ```php
         // 此指令用來決定顯示哪些花式技巧

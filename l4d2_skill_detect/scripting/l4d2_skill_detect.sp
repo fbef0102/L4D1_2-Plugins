@@ -1,5 +1,5 @@
-#define REP_SKEET				(1 << 0) 		// Skeet hunter/jokcey
-#define REP_HURTSKEET			(1 << 1) 		// Hurt Skeet hunter/jokcey (Less damage)
+#define REP_SKEET				(1 << 0) 		// Skeet or Team-Skeet hunter/jokcey
+#define REP_HURTSKEET			(1 << 1) 		// Hurt Skeet or Team-Skeet hunter/jokcey (Less damage)
 #define REP_LEVEL				(1 << 2) 		// Level Charger
 #define REP_HURTLEVEL			(1 << 3) 		// HurtLevel Charger (Less damage)
 #define REP_CROWN				(1 << 4) 		// Crown Witch and no one get hurt
@@ -3301,9 +3301,9 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 
 				} else {
 					if(isHunter)
-						CPrintToChatAll( "%t", "HandleSkeet_2_H", "Hunter", attacker );
+						CPrintToChatAll( "%t", "HandleSkeet_2_H", attacker );
 					else
-						CPrintToChatAll( "%t", "HandleSkeet_2_J", "Jockey", attacker );
+						CPrintToChatAll( "%t", "HandleSkeet_2_J", attacker );
 				}
 			}
 			else
@@ -3315,9 +3315,9 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 						CPrintToChatAll( "%t", "HandleSkeet_3_J", victim );
 				} else {
 					if(isHunter)
-						CPrintToChatAll( "%t", "HandleSkeet_4_H", "Hunter" );
+						CPrintToChatAll( "%t", "HandleSkeet_4_H" );
 					else
-						CPrintToChatAll( "%t", "HandleSkeet_4_J", "Jockey");
+						CPrintToChatAll( "%t", "HandleSkeet_4_J");
 				}
 			}
 
@@ -3395,51 +3395,51 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 			if(eWeaponType == WPTYPE_MELEE)
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_10_H", attacker, "Hunter");
+					CPrintToChatAll("%t", "HandleSkeet_10_H", attacker);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_10_J", attacker, "Jockey");
+					CPrintToChatAll("%t", "HandleSkeet_10_J", attacker);
 			}
 			else if(eWeaponType == WPTYPE_SNIPER)
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_11_H", attacker, "Hunter");
+					CPrintToChatAll("%t", "HandleSkeet_11_H", attacker);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_11_J", attacker, "Jockey");
+					CPrintToChatAll("%t", "HandleSkeet_11_J", attacker);
 			}
 			else if(eWeaponType == WPTYPE_MAGNUM)
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_M_S_H", attacker, "Hunter");
+					CPrintToChatAll("%t", "HandleSkeet_M_S_H", attacker);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_M_S_J", attacker, "Jockey");
+					CPrintToChatAll("%t", "HandleSkeet_M_S_J", attacker);
 			}
 			else if(eWeaponType == WPTYPE_GL)
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_12_H", attacker, "Hunter");
+					CPrintToChatAll("%t", "HandleSkeet_12_H", attacker);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_12_J", attacker, "Jockey");
+					CPrintToChatAll("%t", "HandleSkeet_12_J", attacker);
 			}
 			else if(eWeaponType == WPTYPE_SHOTGUN)
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_S_S_H", attacker, "Hunter");
+					CPrintToChatAll("%t", "HandleSkeet_S_S_H", attacker);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_S_S_J", attacker, "Jockey");
+					CPrintToChatAll("%t", "HandleSkeet_S_S_J", attacker);
 			}
 			else if(shots > 1)
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_13_H", attacker, "Hunter", shots);
+					CPrintToChatAll("%t", "HandleSkeet_13_H", attacker, shots);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_13_J", attacker, "Jockey", shots);
+					CPrintToChatAll("%t", "HandleSkeet_13_J", attacker, shots);
 			}
 			else
 			{
 				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_14_H", attacker, "Hunter");
+					CPrintToChatAll("%t", "HandleSkeet_14_H", attacker);
 				else
-					CPrintToChatAll("%t", "HandleSkeet_14_J", attacker, "Jockey");
+					CPrintToChatAll("%t", "HandleSkeet_14_J", attacker);
 			}
 		}
 	}
@@ -3577,44 +3577,44 @@ void HandleNonSkeet( int attacker, int victim, int damage, bool bOverKill = fals
 				if(eWeaponType == WPTYPE_MELEE)
 				{
 					if(isHunter)
-						CPrintToChatAll("%t", "HandleNonSkeet_4_H", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_4_H", attacker, damage);
 					else
-						CPrintToChatAll("%t", "HandleNonSkeet_4_J", attacker, "Jockey", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_4_J", attacker, damage);
 				}
 				else if(eWeaponType == WPTYPE_SNIPER)
 				{
 					if(isHunter)
-						CPrintToChatAll("%t", "HandleNonSkeet_SN_S_H", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_SN_S_H", attacker, damage);
 					else
-						CPrintToChatAll("%t", "HandleNonSkeet_SN_S_J", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_SN_S_J", attacker, damage);
 				}
 				else if(eWeaponType == WPTYPE_MAGNUM)
 				{
 					if(isHunter)
-						CPrintToChatAll("%t", "HandleNonSkeet_M_S_H", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_M_S_H", attacker, damage);
 					else
-						CPrintToChatAll("%t", "HandleNonSkeet_M_S_J", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_M_S_J", attacker, damage);
 				}
 				else if(eWeaponType == WPTYPE_SHOTGUN)
 				{
 					if(isHunter)
-						CPrintToChatAll("%t", "HandleNonSkeet_S_S_H", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_S_S_H", attacker, damage);
 					else
-						CPrintToChatAll("%t", "HandleNonSkeet_S_S_J", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_S_S_J", attacker, damage);
 				}
 				else if(shots > 0)
 				{
 					if(isHunter)
-						CPrintToChatAll("%t", "HandleNonSkeet_5_H", attacker, "Hunter", shots, damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_5_H", attacker, shots, damage);
 					else
-						CPrintToChatAll("%t", "HandleNonSkeet_5_J", attacker, "Jockey", shots, damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_5_J", attacker, shots, damage);
 				}
 				else
 				{
 					if(isHunter)
-						CPrintToChatAll("%t", "HandleNonSkeet_6_H", attacker, "Hunter", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_6_H", attacker, damage);
 					else
-						CPrintToChatAll("%t", "HandleNonSkeet_6_J", attacker, "Jockey", damage);
+						CPrintToChatAll("%t", "HandleNonSkeet_6_J", attacker, damage);
 				}
 			}
 			

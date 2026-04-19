@@ -13,8 +13,6 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 	| ![l4d_save_weapon_ammo_before_1](image/l4d_save_weapon_ammo_before_1.gif)|![l4d_save_weapon_ammo_after_1](image/l4d_save_weapon_ammo_after_1.gif)|
 	| ![l4d_save_weapon_ammo_before_2](image/l4d_save_weapon_ammo_before_2.gif)|![l4d_save_weapon_ammo_after_2](image/l4d_save_weapon_ammo_after_2.gif)|
 
-    <br/>![l4d_save_weapon_ammo_1](image/l4d_save_weapon_ammo_1.gif)
-
 * <details><summary>How does it work?</summary>
 
 	* Prevent filling the clip when taking the same weapon.
@@ -23,7 +21,7 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 </details>
 
 * Require | 必要安裝
-<br/>None
+	* [l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
 
 * <details><summary>Support | 支援插件</summary>
 
@@ -49,6 +47,13 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.2 (2026-4-19)
+		* Save weapon ammo on the ground when weapon is being saved for next level
+
+	* v1.1 (2026-4-18)
+		* Won't modify clip and ammo when a spawner(count reaches 0) has given a player an item
+		* Fixed empty weapon ammo if weapon dropped from player
 
 	* v1.0 (2025-2-15)
 		* Initial Release

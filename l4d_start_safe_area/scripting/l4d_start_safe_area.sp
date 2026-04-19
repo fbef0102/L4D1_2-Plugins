@@ -10,7 +10,7 @@
 
 #define DEBUG		   	0
 #define PLUGIN_NAME		"l4d_start_safe_area"
-#define PLUGIN_VERSION 	"1.2h-2026/1/28"
+#define PLUGIN_VERSION 	"1.3h-2026/4/19"
 
 public Plugin myinfo =
 {
@@ -25,6 +25,7 @@ bool
 	g_bL4D2Version;
 
 GlobalForward 
+	g_hFWD_CustomSafeAreaCreate,
 	g_hFWD_LeaveSafeAreaPre, 
 	g_hFWD_LeaveSafeAreaPost, 
 	g_hFWD_LeaveSafeAreaPostHandled;
@@ -49,6 +50,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	CreateNative("L4DSSArea_HasAnySurvivorLeftCustomSafeArea",	Native_HasAnySurvivorLeftSafeArea);
 	CreateNative("L4DSSArea_RemoveCustomSafeArea",	Native_RemoveCustomSafeArea);
+	CreateNative("L4DSSArea_IsInCustomSafeArea",	Native_IsInCustomSafeArea);
+
+	g_hFWD_CustomSafeAreaCreate		= new GlobalForward("L4DSSArea_CustomSafeArea_OnCreate",	ET_Ignore, Param_Array);
 
 	g_hFWD_LeaveSafeAreaPre			= new GlobalForward("L4DSSArea_OnFirstSurvivorLeftCustomSafeArea_Pre",	ET_Event, Param_Cell);
 	g_hFWD_LeaveSafeAreaPost		= new GlobalForward("L4DSSArea_OnFirstSurvivorLeftCustomSafeArea_Post",	ET_Ignore, Param_Cell);
@@ -66,7 +70,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define SPRITE_BEAM						"materials/sprites/laserbeam.vmt"
 
 float  
-	center_point[3],
+	g_fCustomSafe_centerpoint[3],
 	g_fSafeDistance;
 
 int 
@@ -75,11 +79,12 @@ int
 	g_iBeamSprite;
 
 bool 
-	g_bEnable,
+	g_bMapEnable,
 	g_bGameOSIsLinux,
 	g_bHasLeftCustomSafeArea,
 	g_bCreateBeam,
-	g_bHasIntroCamera;
+	g_bHasIntroCamera,
+	g_bHasCustomStartArea;
 
 Handle
 	g_hStartTimer,
@@ -188,7 +193,7 @@ void LoadData()
 
 	if( hFile.JumpToKey("default") )
 	{
-		g_bEnable = view_as<bool>(hFile.GetNum("enable", 1));
+		g_bMapEnable = view_as<bool>(hFile.GetNum("enable", 1));
 		g_fSafeDistance = hFile.GetFloat("distance", 250.0);
 		g_bCreateBeam = view_as<bool>(hFile.GetNum("beam_ring", 1));
 
@@ -200,7 +205,7 @@ void LoadData()
 
 	if( hFile.JumpToKey(sCurrentMap) )
 	{
-		g_bEnable = view_as<bool>(hFile.GetNum("enable", g_bEnable));
+		g_bMapEnable = view_as<bool>(hFile.GetNum("enable", g_bMapEnable));
 		g_fSafeDistance = hFile.GetFloat("distance", g_fSafeDistance);
 		g_bCreateBeam = view_as<bool>(hFile.GetNum("beam_ring", g_bCreateBeam));
 
@@ -225,6 +230,7 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 	g_bHasLeftCustomSafeArea = false;
 	g_bHasIntroCamera = false;
+	g_bHasCustomStartArea = false;
 }
 
 void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
@@ -246,7 +252,7 @@ Action Timer_PluginStart(Handle timer)
 {
 	ClearDefault();
 
-	if(!g_bEnable)
+	if(!g_bMapEnable)
 	{
 		g_bHasLeftCustomSafeArea = false;
 		return Plugin_Continue;
@@ -300,9 +306,9 @@ Action DelayTelepAndGetStartArea(Handle timer, int client)
 				CheatCommand(j, "warp_to_start_area");
 			}
 
-			GetClientAbsOrigin(i, center_point);
-			center_point[2] += 50.0;
-			//LogError("%N,  %.1f %.1f %.1f", i, center_point[0], center_point[1], center_point[2]);
+			GetClientAbsOrigin(i, g_fCustomSafe_centerpoint);
+			g_fCustomSafe_centerpoint[2] += 50.0;
+			//LogError("%N,  %.1f %.1f %.1f", i, g_fCustomSafe_centerpoint[0], g_fCustomSafe_centerpoint[1], g_fCustomSafe_centerpoint[2]);
 			g_hStartTimer = CreateTimer(0.1, CheckAnyOneLeftSafeArea, _, TIMER_REPEAT);
 
 			if(g_bCreateBeam)
@@ -310,6 +316,10 @@ Action DelayTelepAndGetStartArea(Handle timer, int client)
 				delete g_hRingTimer;
 				g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
 			}
+
+			Call_StartForward(g_hFWD_CustomSafeAreaCreate);
+			Call_PushArray(g_fCustomSafe_centerpoint, sizeof(g_fCustomSafe_centerpoint));
+			Call_Finish();
 
 			return Plugin_Stop;
 		}
@@ -337,9 +347,9 @@ Action DelayTelepAndGetStartArea(Handle timer, int client)
 			//AcceptEntityInput(i, "DisableLedgeHang");
 			//CheatCommand(i, "warp_to_start_area");
 
-			GetClientAbsOrigin(i, center_point);
-			center_point[2] += 50.0;
-			//LogError("%N,  %.1f %.1f %.1f", i, center_point[0], center_point[1], center_point[2]);
+			GetClientAbsOrigin(i, g_fCustomSafe_centerpoint);
+			g_fCustomSafe_centerpoint[2] += 50.0;
+			//LogError("%N,  %.1f %.1f %.1f", i, g_fCustomSafe_centerpoint[0], g_fCustomSafe_centerpoint[1], g_fCustomSafe_centerpoint[2]);
 			g_hStartTimer = CreateTimer(0.1, CheckAnyOneLeftSafeArea, _, TIMER_REPEAT);
 
 			if(g_bCreateBeam)
@@ -347,6 +357,10 @@ Action DelayTelepAndGetStartArea(Handle timer, int client)
 				delete g_hRingTimer;
 				g_hRingTimer = CreateTimer(1.0, Timer_CreateVisibleRing, _, TIMER_REPEAT);
 			}
+
+			Call_StartForward(g_hFWD_CustomSafeAreaCreate);
+			Call_PushArray(g_fCustomSafe_centerpoint, sizeof(g_fCustomSafe_centerpoint));
+			Call_Finish();
 
 			return Plugin_Stop;
 		}
@@ -367,8 +381,8 @@ Action CheckAnyOneLeftSafeArea(Handle timer)
 
 			float v_pos[3];
 			GetClientAbsOrigin(i, v_pos);
-			//LogError("%.1f %.1f", GetVectorDistance(v_pos, center_point), g_fSafeDistance * g_fSafeDistance);
-			if (GetVectorDistance(v_pos, center_point, true) > g_fSafeDistance * g_fSafeDistance)
+			//LogError("%.1f %.1f", GetVectorDistance(v_pos, g_fCustomSafe_centerpoint), g_fSafeDistance * g_fSafeDistance);
+			if (GetVectorDistance(v_pos, g_fCustomSafe_centerpoint, true) > g_fSafeDistance * g_fSafeDistance)
 			{
 				Action aResult = Plugin_Continue;
 				Call_StartForward(g_hFWD_LeaveSafeAreaPre);
@@ -404,7 +418,7 @@ Action CheckAnyOneLeftSafeArea(Handle timer)
 Action Timer_CreateVisibleRing(Handle timer)
 {
 	// 居然是直徑 我襙
-	TE_SetupBeamRingPoint(center_point, g_fSafeDistance + g_fSafeDistance, g_fSafeDistance + g_fSafeDistance + 10.0, g_iBeamSprite, 0, 0, 0, 1.0, 2.0, 0.0, { 255, 255, 0, 255 }, 0, 0);
+	TE_SetupBeamRingPoint(g_fCustomSafe_centerpoint, g_fSafeDistance + g_fSafeDistance, g_fSafeDistance + g_fSafeDistance + 10.0, g_iBeamSprite, 0, 0, 0, 1.0, 2.0, 0.0, { 255, 255, 0, 255 }, 0, 0);
 	TE_SendToAll();
 
 	return Plugin_Continue;
@@ -414,7 +428,7 @@ Action Timer_CreateVisibleRing(Handle timer)
 
 MRESReturn Detour_DirectorJudgeSafeArea(DHookReturn hReturn, DHookParam hParams)
 {
-	if (!g_bEnable || g_bHasLeftCustomSafeArea) return MRES_Ignored;
+	if (!g_bMapEnable || g_bHasLeftCustomSafeArea) return MRES_Ignored;
 
 	//PrintToChatAll("Detour_DirectorJudgeSafeArea");
 
@@ -476,4 +490,31 @@ int Native_RemoveCustomSafeArea(Handle plugin, int numParams)
 	GameStart();
 
 	return 0;
+}
+
+// native bool L4DSSArea_IsInCustomSafeArea(int client);
+int Native_IsInCustomSafeArea(Handle plugin, int numParams)
+{
+	if(!g_bMapEnable || !g_bHasCustomStartArea) return false;
+
+	int client = GetNativeCell(1);
+	if( client < 1 || client > MaxClients || !IsClientInGame(client) || !IsPlayerAlive(client) ) return false;
+
+	float v_pos[3];
+	GetClientAbsOrigin(client, v_pos);
+	//LogError("%.1f %.1f", GetVectorDistance(v_pos, g_fCustomSafe_centerpoint), g_fSafeDistance * g_fSafeDistance);
+	if (GetVectorDistance(v_pos, g_fCustomSafe_centerpoint, true) <= g_fSafeDistance * g_fSafeDistance)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// API
+
+public void L4DSSArea_CustomSafeArea_OnCreate(const float centerPos[3])
+{
+	g_bHasCustomStartArea = true;
+	return;
 }

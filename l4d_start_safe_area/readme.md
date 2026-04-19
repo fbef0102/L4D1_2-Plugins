@@ -43,6 +43,9 @@ Add Custom safe area for any map on start
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.3h (2026-4-19)
+		* Add More API
+
 	* v1.2h (2026-1-28)
 		* Detect if the intro cutscene is playing
 

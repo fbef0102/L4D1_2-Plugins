@@ -14,13 +14,14 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION			"1.0-2025/2/15"
+#define PLUGIN_VERSION			"1.2-2026/4/19"
 #define PLUGIN_NAME			    "l4d_save_weapon_ammo"
 #define DEBUG 0
 
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <l4d_transition_entity> //https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity
 
 public Plugin myinfo =
 {
@@ -94,13 +95,14 @@ int
 	g_iOffsetAmmo,
 	g_iPrimaryAmmoType,
 	g_iClientClip[MAXPLAYERS + 1][view_as<int>(ID_WEAPON_MAX)][MAX_SKIN],
-	g_iWeaponAmmo[MAXENTITIES+1];
+	g_iWeaponAmmo[MAXENTITIES+1], g_iWeaponAmmo_Transitioned[MAXENTITIES+1];
 
 StringMap 
 	g_hWeaponName;
 
 bool 
-	g_bSpawnerItem[MAXPLAYERS+1];
+	g_bSpawnerItem[MAXPLAYERS+1],
+	g_bWeaponSpawnFrame[MAXENTITIES+1];
 
 public void OnPluginStart()
 {
@@ -159,8 +161,18 @@ public void OnEntityCreated(int entity, const char[] classname)
 {
 	if (!IsValidEntityIndex(entity))
 		return;
-		
+
+	g_bWeaponSpawnFrame[entity] = false;
 	g_iWeaponAmmo[entity] = -1;
+
+	switch (classname[0])
+	{
+		case 'w':
+		{
+			g_bWeaponSpawnFrame[entity] = true;
+			RequestFrame(OnNextFrame_EntityCreated, EntIndexToEntRef(entity));
+		}
+	}
 }
 
 public void OnClientPutInServer(int client)
@@ -208,7 +220,7 @@ void WeaponCanUsePost(int client, int weapon)
 		// Store clip size
 		g_iClientClip[client][current_weaponid][current_skin] = GetEntProp(current, Prop_Send, "m_iClip1");
 
-		//PrintToChatAll("%N WeaponCanUse Old Weapon %s (skin:%d), clip: %d, ammo: %d", client, sCurrent_ClassName, current_skin, g_iClientClip[client][current_weaponid][current_skin], );
+		//PrintToChatAll("%N WeaponCanUse Old Weapon %s (skin:%d), clip: %d", client, sCurrent_ClassName, current_skin, g_iClientClip[client][current_weaponid][current_skin] );
 	}
 
 	static char sWeapon_ClassName[32];
@@ -267,25 +279,45 @@ void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
 	int weapon_skin = GetEntProp(weapon, Prop_Send, "m_nSkin");
 	if(weapon_skin >= MAX_SKIN) return;
 
-	g_iClientClip[client][weapon_weaponid][weapon_skin] = GetEntProp(weapon, Prop_Send, "m_iClip1");
-	g_iWeaponAmmo[weapon] = GetOrSetPlayerAmmo(client, weapon);
+	if(g_bWeaponSpawnFrame[weapon])
+	{
+		//PrintToChatAll("Event_Weapon_Drop m_iExtraPrimaryAmmo: %d", GetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo"));
+		g_iWeaponAmmo[weapon] = GetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo");
+	}
+	else
+	{
+		g_iClientClip[client][weapon_weaponid][weapon_skin] = GetEntProp(weapon, Prop_Send, "m_iClip1");
+		g_iWeaponAmmo[weapon] = GetOrSetPlayerAmmo(client, weapon);
+	}
 
-	//PrintToChatAll("%N Drop weapon %s (skin:%d), clip: %d", client, sWeapon_ClassName, weapon_skin, GetEntProp(weapon, Prop_Send, "m_iClip1"));
+	//PrintToChatAll("%N Drop weapon %s (skin:%d), clip: %d, ammo: %d", client, sWeapon_ClassName, weapon_skin, g_iClientClip[client][weapon_weaponid][weapon_skin], g_iWeaponAmmo[weapon]);
 }
 
 void Event_SpawnerGiveItem(Event event, const char[] name, bool dontBroadcast)
 {
-	//int entity = event.GetInt("spawner");
+	int entity = event.GetInt("spawner");
+	int count  = GetEntProp(entity, Prop_Data, "m_itemCount");
 	int client = GetClientOfUserId(event.GetInt("userid"));
+
 	if(client && IsClientInGame(client))
 	{
-		//PrintToChatAll("Event_SpawnerGiveItem: %N-%d", client, entity);
+		//PrintToChatAll("Event_SpawnerGiveItem: %N-%d (count: %d)", client, entity, count);
+		if (count <= 0) return;
+
 		g_bSpawnerItem[client] = true;
 		RequestFrame(OnFrame_, client);
 	}
 }
 
 // Timer & Frame-------------------------------
+
+void OnNextFrame_EntityCreated(int entity)
+{
+	entity = EntRefToEntIndex(entity);
+	if(entity == INVALID_ENT_REFERENCE) return;
+
+	g_bWeaponSpawnFrame[entity] = false;
+}
 
 void OnFrame_WeaponCanUsePost(DataPack dPack)
 {
@@ -317,6 +349,7 @@ void OnFrame_WeaponCanUsePost(DataPack dPack)
 	if( weapon != GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon") )
 		return;
 
+	// PrintToChatAll("%d %d", g_bSpawnerItem [client], g_iWeaponAmmo[weapon]);
 	// Fix picking up weapons filling the clip
 	if ( g_bSpawnerItem [client] )
 	{
@@ -436,4 +469,20 @@ void ClearClientAmmo(int client)
 bool IsValidEntityIndex(int entity)
 {
     return (MaxClients+1 <= entity <= GetMaxEntities());
+}
+
+// Other API----
+
+// 保存地上的物品 (非玩家裝備)
+// 順序: L4D_OnEntityTransitioning -> "map_transition"
+public void L4D_OnEntityTransitioning(int entity)
+{
+	g_iWeaponAmmo_Transitioned[entity] = g_iWeaponAmmo[entity];
+}
+
+// 恢復地上的物品 (非玩家裝備)
+// "round_start" -> L4D_OnEntityTransitioned
+public void L4D_OnEntityTransitioned(int entity, int oldindex)
+{
+	g_iWeaponAmmo[entity] = g_iWeaponAmmo_Transitioned[oldindex];
 }

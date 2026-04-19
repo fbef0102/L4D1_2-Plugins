@@ -577,4 +577,23 @@
 		"es"     "Vacío (Que tenga un buen día)"
 		"ru"	"Пусто (Хорошего дня)"
 	}
+	
+	"Not Official Weapon"
+	{
+		"en"	"Weapon is not official, unable to get ammo"
+		"zho"	"不是使用官方的武器, 無法補充彈藥"
+		"chi"	"不是使用官方的武器, 无法补充弹药"
+	}
+	"Ammo is infinite"
+	{
+		"en"	"Ammo is already infinite"
+		"zho"	"備彈已被設置成無限"
+		"chi"	"备弹已被设置成无限"
+	}	
+	"Ammo Reach Limit"
+	{
+		"en"	"Ammo reaches the max limit!"
+		"zho"	"備彈已超過限制, 無法補充"
+		"chi"	"备弹已超过限制, 无法补充"
+	}	
 }

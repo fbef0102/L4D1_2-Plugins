@@ -38,6 +38,27 @@ native int L4DSSArea_HasAnySurvivorLeftCustomSafeArea();
 native void L4DSSArea_RemoveCustomSafeArea();
 
 /**
+ * @brief Returns true when the client is in custom starting area
+ * @note This native is still working even after survivors has left the custom starting area
+ * @note Always return false if custom starting area is not created
+ * 
+ * @return			True if a client is in the custom starting area. False otherwise
+ */
+native bool L4DSSArea_IsInCustomSafeArea(int client)
+
+
+/**
+ * @brief Called when the custom starting area created by l4d_start_safe_area
+ * @remarks Trigger after event "round_start"
+ * @note This forward will not trigger if disable custom starting area
+ *
+ * @param centerPos		the center Position of custom starting area
+ *
+ * @noreturn
+ */
+forward void L4DSSArea_CustomSafeArea_OnCreate(const float centerPos[3]);
+
+/**
  * @brief Called whenever any survivor tries to leave the custom starting area created by l4d_start_safe_area
  *
  * @param client		the survivor that left the custom safe area first
