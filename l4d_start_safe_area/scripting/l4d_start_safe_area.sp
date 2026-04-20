@@ -375,9 +375,9 @@ Action CheckAnyOneLeftSafeArea(Handle timer)
 	{
 		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
 		{
-			int viewEnt = GetEntPropEnt(i, Prop_Send, "m_hViewEntity");
-			if (viewEnt != -1)
-				return Plugin_Continue;
+			// 看intro cutscene期間不能動
+			if (!g_bL4D2Version && GetEntityFlags(i) & FL_FROZEN) continue;
+			if (GetEntPropEnt(i, Prop_Send, "m_hViewEntity") != -1) return Plugin_Continue;
 
 			float v_pos[3];
 			GetClientAbsOrigin(i, v_pos);

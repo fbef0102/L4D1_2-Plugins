@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <left4dhooks>
-#define PLUGIN_VERSION			"3.3-2026-2-1"
+#define PLUGIN_VERSION			"3.4-2026-4-20"
 #define PLUGIN_NAME			    "clear_weapon_drop"
 #define DEBUG 0
 
@@ -137,8 +137,8 @@ StringMap
 bool 
 	g_bDeathFrame[MAXPLAYERS+1];
 
-int 
-	g_iDeathWeapons[MAXPLAYERS+1][6];
+//int 
+//	g_iDeathWeapons[MAXPLAYERS+1][6];
 
 public void OnPluginStart()
 {
@@ -153,7 +153,7 @@ public void OnPluginStart()
 	g_hCvarSurDeathNot.AddChangeHook(ConVarChanged_Cvars);
 	AutoExecConfig(true, "clear_weapon_drop");
 
-	HookEvent("weapon_drop", Event_WeaponDrop);
+	if(g_bL4D2Version) HookEvent("weapon_drop", Event_WeaponDrop);
 
 	if (g_bL4D2Version){
 		HookEvent ("upgrade_pack_used",	Event_UpgradePack);
@@ -214,8 +214,11 @@ public void OnConfigsExecuted()
 
 public void OnClientPutInServer(int client)
 {
-    SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+
+	if(!g_bL4D2Version) SDKHook(client, SDKHook_WeaponDrop, OnWeaponDropped);
 }
+
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
@@ -268,6 +271,21 @@ public void OnEntityDestroyed(int entity)
 		return;
 
 	delete g_ItemDeleteTimer[entity];
+}
+
+void OnWeaponDropped(int client, int weapon)
+{
+	if(weapon <= MaxClients)
+		return;
+
+	//PrintToChatAll("%N drops %d", client, weapon);
+
+	if (IsValidClient(client) && GetClientTeam(client) == 2 && g_bDeathFrame[client]) //人類死亡時掉的武器
+	{
+		if(g_bCvarSurDeathNot) return;
+	}
+
+	SetTimer_DeleteWeapon(weapon);
 }
 
 void Event_WeaponDrop(Event event, const char[] name, bool dontBroadcast)
@@ -558,7 +576,7 @@ bool IsScavengeGascan(int entity)
 bool IsInUse(int entity)
 {	
 	int client;
-	//武器被裝備的時候才會有這個值
+	//武器被裝備的時候才會有這個值 (prop_physics 沒有這個屬性)
 	if(HasEntProp(entity, Prop_Data, "m_hOwner"))
 	{
 		client = GetEntPropEnt(entity, Prop_Data, "m_hOwner"); 
@@ -655,22 +673,26 @@ void LoadData()
 		return;
 	}
 
-	if(g_bL4D2Version && hFile.JumpToKey("uncommon"))
+	if(g_bL4D2Version)
 	{
-		for(int i = 0; i < sizeof(g_sItemDeleteList); i++)
+		if( hFile.JumpToKey("uncommon"))
 		{
-			fDeleteSeconds = hFile.GetFloat(g_sItemDeleteList[i], 0.0);
-			g_smUnCommonDeleteTime.SetValue(g_sItemDeleteList[i], fDeleteSeconds);
-		}
+			for(int i = 0; i < sizeof(g_sItemDeleteList); i++)
+			{
+				fDeleteSeconds = hFile.GetFloat(g_sItemDeleteList[i], 0.0);
+				g_smUnCommonDeleteTime.SetValue(g_sItemDeleteList[i], fDeleteSeconds);
+			}
 
-		hFile.GoBack();
+			hFile.GoBack();
+		}
+		else
+		{
+			SetFailState("keyvalue '%s' Not found: %s", "uncommon", sPath);
+			delete hFile;
+			return;
+		}
 	}
-	else
-	{
-		SetFailState("keyvalue '%s' Not found: %s", "uncommon", sPath);
-		delete hFile;
-		return;
-	}
+
 
 	delete hFile;
 }
@@ -681,13 +703,18 @@ void LoadData()
 // bot被踢出遊戲前觸發 (OnClientDisconnect() -> L4D_OnDeathDroppedWeapons -> "weapon_drop")
 public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 {
+	if( !IsClientInGame(client) 
+		|| GetClientTeam(client) != 2
+		|| IsClientInKickQueue(client) )
+		return;
+
 	g_bDeathFrame[client] = true;
-	g_iDeathWeapons[client][0] = weapons[0];
-	g_iDeathWeapons[client][1] = weapons[1];
-	g_iDeathWeapons[client][2] = weapons[2];
-	g_iDeathWeapons[client][3] = weapons[3];
-	g_iDeathWeapons[client][4] = weapons[4];
-	g_iDeathWeapons[client][5] = weapons[5];
+	//g_iDeathWeapons[client][0] = weapons[0];
+	//g_iDeathWeapons[client][1] = weapons[1];
+	//g_iDeathWeapons[client][2] = weapons[2];
+	//g_iDeathWeapons[client][3] = weapons[3];
+	//g_iDeathWeapons[client][4] = weapons[4];
+	//g_iDeathWeapons[client][5] = weapons[5];
 	RequestFrame(NextFrame_L4D_OnDeathDroppedWeapons, client);
 }
 

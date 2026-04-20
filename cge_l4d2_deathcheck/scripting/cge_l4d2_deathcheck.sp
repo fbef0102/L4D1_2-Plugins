@@ -7,7 +7,7 @@ public Plugin myinfo = {
     name = "[L4D, L4D2] No Death Check Until Dead", 
     author = "chinagreenelvis, Harry", 
     description = "Prevents mission loss(Round_End) until all real players and AI bots have died.", 
-    version = "2.2-2026/4/1", 
+    version = "2.3-2026/4/20", 
     url = "https://steamcommunity.com/profiles/76561198026784913" 
 }; 
 
@@ -211,7 +211,6 @@ bool IsValidSurvivor(int client)
 {
 	if (!client) return false;
 	if (!IsClientInGame(client)) return false;
-	if (IsFakeClient(client)) return false;
 	if (!IsPlayerAlive(client)) return false;
 	if (GetClientTeam(client) != 2) return false;
 

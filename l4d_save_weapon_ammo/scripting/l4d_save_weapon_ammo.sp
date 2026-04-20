@@ -64,7 +64,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 ConVar g_hCvarEnable, g_hCvarFix1, g_hCvarFix2;
 bool g_bCvarEnable, g_bCvarFix1, g_bCvarFix2;
 
-#define MAX_SKIN 		5
 #define MIN(%0,%1) (((%0) < (%1)) ? (%0) : (%1))
 #define MAXENTITIES                   2048
 
@@ -94,18 +93,24 @@ enum WeaponID
 int 
 	g_iOffsetAmmo,
 	g_iPrimaryAmmoType,
-	g_iClientClip[MAXPLAYERS + 1][view_as<int>(ID_WEAPON_MAX)][MAX_SKIN],
+	g_iOffsetClip,
+	g_iOffsetActive,
+	g_iClientClip[MAXPLAYERS + 1][view_as<int>(ID_WEAPON_MAX)],
 	g_iWeaponAmmo[MAXENTITIES+1], g_iWeaponAmmo_Transitioned[MAXENTITIES+1];
 
 StringMap 
 	g_hWeaponName;
 
 bool 
-	g_bSpawnerItem[MAXPLAYERS+1],
-	g_bWeaponSpawnFrame[MAXENTITIES+1];
+	g_bSpawnerItem[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
+	g_iOffsetAmmo 				= FindSendPropInfo("CTerrorPlayer", "m_iAmmo");
+	g_iPrimaryAmmoType 			= FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+	g_iOffsetClip				= FindSendPropInfo("CBaseCombatWeapon", "m_iClip1");
+	g_iOffsetActive 			= FindSendPropInfo("CBaseCombatCharacter","m_hActiveWeapon");
+
 	g_hCvarEnable 		= CreateConVar( PLUGIN_NAME ... "_enable",        "1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarFix1 		= CreateConVar( PLUGIN_NAME ... "_fix_1",         "1",   "If 1, Fix picking up same weapons filling the clip", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarFix2 		= CreateConVar( PLUGIN_NAME ... "_fix_2",         "1",   "If 1, save if the amount of weapon ammo is more than vanilla", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -116,9 +121,6 @@ public void OnPluginStart()
 	g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarFix1.AddChangeHook(ConVarChanged_Cvars);
 	g_hCvarFix2.AddChangeHook(ConVarChanged_Cvars);
-
-	g_iOffsetAmmo = FindSendPropInfo("CTerrorPlayer", "m_iAmmo");
-	g_iPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
 
 	SetWeaponClassName();
 
@@ -162,22 +164,12 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (!IsValidEntityIndex(entity))
 		return;
 
-	g_bWeaponSpawnFrame[entity] = false;
 	g_iWeaponAmmo[entity] = -1;
-
-	switch (classname[0])
-	{
-		case 'w':
-		{
-			g_bWeaponSpawnFrame[entity] = true;
-			RequestFrame(OnNextFrame_EntityCreated, EntIndexToEntRef(entity));
-		}
-	}
 }
 
 public void OnClientPutInServer(int client)
 {
-	ClearClientAmmo(client);
+	ClearClientClip(client);
 	SDKHook(client, SDKHook_WeaponCanUsePost, WeaponCanUsePost);
 }
 
@@ -202,37 +194,15 @@ public void OnClientPostAdminCheck(int client)
 void WeaponCanUsePost(int client, int weapon)
 {
 	if(!g_bCvarEnable) return;
-	if(weapon <= MaxClients || GetClientTeam(client) != 2) return;
+	if(weapon <= MaxClients || client <= 0 || client > MaxClients || GetClientTeam(client) != 2 || !IsPlayerAlive(client)) return;
 
 	//PrintToChatAll("%N WeaponCanUsePost", client);
 
-	int current = GetPlayerWeaponSlot(client, 0);
-	if( current != -1 )
-	{
-		static char sCurrent_ClassName[32];
-		GetEntityClassname(current, sCurrent_ClassName, sizeof(sCurrent_ClassName));
-		WeaponID current_weaponid = ID_NONE;
-		if( !g_hWeaponName.GetValue(sCurrent_ClassName, current_weaponid) ) return;
-
-		int current_skin = GetEntProp(current, Prop_Send, "m_nSkin");
-		if(current_skin >= MAX_SKIN) return;
-
-		// Store clip size
-		g_iClientClip[client][current_weaponid][current_skin] = GetEntProp(current, Prop_Send, "m_iClip1");
-
-		//PrintToChatAll("%N WeaponCanUse Old Weapon %s (skin:%d), clip: %d", client, sCurrent_ClassName, current_skin, g_iClientClip[client][current_weaponid][current_skin] );
-	}
-
-	static char sWeapon_ClassName[32];
-	GetEntityClassname(weapon, sWeapon_ClassName, sizeof(sWeapon_ClassName));
-	WeaponID weapon_weaponid = ID_NONE;
-	if( !g_hWeaponName.GetValue(sWeapon_ClassName, weapon_weaponid) ) return;
-
-	// Modify on next frame so we get new weapons reserve ammo
+	// l4d_reservecontrol 在WeaponEquipPost修改武器彈藥
+	// 下一偵才能取得新武器的彈藥
 	DataPack dPack = new DataPack();
 	dPack.WriteCell(GetClientUserId(client));
 	dPack.WriteCell(EntIndexToEntRef(weapon));
-	dPack.WriteCell(weapon_weaponid);
 	RequestFrame(OnFrame_WeaponCanUsePost, dPack);
 }
 
@@ -243,7 +213,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if( !client || !IsClientInGame(client) ) return;
 
-	ClearClientAmmo(client);
+	ClearClientClip(client);
 }
 
 void Event_PlayerDeath( Event event, const char[] name, bool dontBroadcast)
@@ -251,18 +221,19 @@ void Event_PlayerDeath( Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if( !client || !IsClientInGame(client) ) return;
 
-	ClearClientAmmo(client);
+	ClearClientClip(client);
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	for(int client = 1; client <= MaxClients; client++)
 	{
-		ClearClientAmmo(client);
+		ClearClientClip(client);
 	}
 }
 
 // Save weapon ammo when dropped
+// 從weapon_xxx_spawner撿起相同武器時也會觸發: WeaponCanUsePost -> "weapon_drop" -> WeaponEquipPost -> "spawner_give_item"
 void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -276,78 +247,68 @@ void Event_Weapon_Drop(Event event, const char[] name, bool dontBroadcast)
 	WeaponID weapon_weaponid = ID_NONE;
 	if( !g_hWeaponName.GetValue(sWeapon_ClassName, weapon_weaponid) ) return;
 
-	int weapon_skin = GetEntProp(weapon, Prop_Send, "m_nSkin");
-	if(weapon_skin >= MAX_SKIN) return;
+	//PrintToChatAll("%N Drop weapon %s (skin:%d), clip: %d, ammo: %d", client, sWeapon_ClassName, weapon_skin, GetEntData(weapon, g_iOffsetClip),  GetOrSetPlayerAmmo(client, weapon));
+	//此時無法檢測m_iExtraPrimaryAmmo
+	//PrintToChatAll("m_iExtraPrimaryAmmo %d", GetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo"));
 
-	if(g_bWeaponSpawnFrame[weapon])
-	{
-		//PrintToChatAll("Event_Weapon_Drop m_iExtraPrimaryAmmo: %d", GetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo"));
-		g_iWeaponAmmo[weapon] = GetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo");
-	}
-	else
-	{
-		g_iClientClip[client][weapon_weaponid][weapon_skin] = GetEntProp(weapon, Prop_Send, "m_iClip1");
-		g_iWeaponAmmo[weapon] = GetOrSetPlayerAmmo(client, weapon);
-	}
-
-	//PrintToChatAll("%N Drop weapon %s (skin:%d), clip: %d, ammo: %d", client, sWeapon_ClassName, weapon_skin, g_iClientClip[client][weapon_weaponid][weapon_skin], g_iWeaponAmmo[weapon]);
+	g_iClientClip[client][weapon_weaponid] = GetEntData(weapon, g_iOffsetClip);
+	g_iWeaponAmmo[weapon] = GetOrSetPlayerAmmo(client, weapon);
 }
 
 void Event_SpawnerGiveItem(Event event, const char[] name, bool dontBroadcast)
 {
-	int entity = event.GetInt("spawner");
-	int count  = GetEntProp(entity, Prop_Data, "m_itemCount");
 	int client = GetClientOfUserId(event.GetInt("userid"));
+	int entity = event.GetInt("spawner");
+	char item[64];
+	event.GetString("item", item, sizeof item);
+	int count  = GetEntProp(entity, Prop_Data, "m_itemCount");
 
 	if(client && IsClientInGame(client))
 	{
-		//PrintToChatAll("Event_SpawnerGiveItem: %N-%d (count: %d)", client, entity, count);
-		if (count <= 0) return;
+		//PrintToChatAll("Event_SpawnerGiveItem: %N, %s (count: %d)", client, item, count);
+
+		if( 
+			// spawer最後一把武器
+			count <= 1 &&
+			(
+				strcmp(item, "weapon_rifle_m60", false) == 0 ||
+				strcmp(item, "weapon_grenade_launcher", false) == 0
+			)
+		)
+		{
+			return;
+		}
 
 		g_bSpawnerItem[client] = true;
-		RequestFrame(OnFrame_, client);
+		RequestFrame(OnFrame_Event_SpawnerGiveItem, client);
 	}
 }
 
 // Timer & Frame-------------------------------
-
-void OnNextFrame_EntityCreated(int entity)
-{
-	entity = EntRefToEntIndex(entity);
-	if(entity == INVALID_ENT_REFERENCE) return;
-
-	g_bWeaponSpawnFrame[entity] = false;
-}
 
 void OnFrame_WeaponCanUsePost(DataPack dPack)
 {
 	dPack.Reset();
 
 	int client = dPack.ReadCell();
-	client = GetClientOfUserId(client);
-	if( !client || !IsClientInGame(client))
-	{
-		delete dPack;
-		return;
-	}
-
 	int weapon = dPack.ReadCell();
-	weapon = EntRefToEntIndex(weapon);
-	if( weapon == INVALID_ENT_REFERENCE )
-	{
-		delete dPack;
-		return;
-	}
-
-	WeaponID weapon_weaponid = dPack.ReadCell();
-	int weapon_skin = GetEntProp(weapon, Prop_Send, "m_nSkin"); // skin available on this frame
 	delete dPack;
 
-	if(weapon_skin >= MAX_SKIN)
+	client = GetClientOfUserId(client);
+	if( !client || !IsClientInGame(client))
 		return;
 
-	if( weapon != GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon") )
+	weapon = EntRefToEntIndex(weapon);
+	if( weapon == INVALID_ENT_REFERENCE )
 		return;
+
+	if( weapon != GetEntDataEnt2(client, g_iOffsetActive) )
+		return;
+
+	static char sWeapon_ClassName[32];
+	GetEntityClassname(weapon, sWeapon_ClassName, sizeof(sWeapon_ClassName));
+	WeaponID weapon_weaponid = ID_NONE;
+	if( !g_hWeaponName.GetValue(sWeapon_ClassName, weapon_weaponid) ) return;
 
 	// PrintToChatAll("%d %d", g_bSpawnerItem [client], g_iWeaponAmmo[weapon]);
 	// Fix picking up weapons filling the clip
@@ -359,18 +320,18 @@ void OnFrame_WeaponCanUsePost(DataPack dPack)
 		// GetEntityClassname(weapon, sWeapon_ClassName, sizeof(sWeapon_ClassName));
 		// PrintToChatAll("%N WeaponCanUse New Weapon %s (skin:%d)", client, sWeapon_ClassName, weapon_skin);
 
-		if( g_iClientClip[client][weapon_weaponid][weapon_skin] == -1)
+		if( g_iClientClip[client][weapon_weaponid] == -1)
 		{
 			return;
 		}
 
-		int clip = GetEntProp(weapon, Prop_Send, "m_iClip1");
+		int clip = GetEntData(weapon, g_iOffsetClip);
 
 		// Add new ammo received to reserve ammo
-		int cur_ammo = GetOrSetPlayerAmmo(client, weapon) + clip - g_iClientClip[client][weapon_weaponid][weapon_skin];
+		int cur_ammo = GetOrSetPlayerAmmo(client, weapon) + clip - g_iClientClip[client][weapon_weaponid];
 
 		// Restore clip size to previous
-		SetEntProp(weapon, Prop_Send, "m_iClip1", g_iClientClip[client][weapon_weaponid][weapon_skin]);
+		SetEntData(weapon, g_iOffsetClip, g_iClientClip[client][weapon_weaponid]);
 
 		GetOrSetPlayerAmmo(client, weapon, cur_ammo);
 
@@ -382,19 +343,14 @@ void OnFrame_WeaponCanUsePost(DataPack dPack)
 	{
 		if(!g_bCvarFix2) return;
 
-		//int cur_ammo = GetOrSetPlayerAmmo(client, weapon);
-
-		////PrintToChatAll("%d %d", g_iWeaponAmmo[weapon], cur_ammo);
-		//if(g_iWeaponAmmo[weapon] > cur_ammo)
-		//{
-		//	// 歸還彈藥
-		//	GetOrSetPlayerAmmo(client, weapon, g_iWeaponAmmo[weapon]);
-		//}
 		GetOrSetPlayerAmmo(client, weapon, g_iWeaponAmmo[weapon]);
 	}
+
+	// l4d2_max_ammo 在SDKHook_WeaponEquipPost的下一偵修改彈藥
+	// l4d_multiple_equipment 在EquipPlayerWeapon的下一行修改彈藥
 }
 
-void OnFrame_(int client)
+void OnFrame_Event_SpawnerGiveItem(int client)
 {
 	g_bSpawnerItem[client] = false;
 }
@@ -455,14 +411,11 @@ void SetWeaponClassName()
 	}
 }
 
-void ClearClientAmmo(int client)
+void ClearClientClip(int client)
 {
 	for( WeaponID weapon = ID_NONE; weapon < ID_WEAPON_MAX ; ++weapon )
 	{
-		for( int skin = 0; skin < MAX_SKIN; skin++ )
-		{
-			g_iClientClip[client][weapon][skin] = -1;
-		}
+		g_iClientClip[client][weapon] = -1;
 	}
 }
 

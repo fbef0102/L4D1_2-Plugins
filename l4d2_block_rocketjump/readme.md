@@ -1,6 +1,9 @@
 # Description | 內容
 Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
 
+> [!NOTE]
+> This Plugin has been discontinued, Use [l4d_fix_rocket_jump](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_rocket_jump)
+
 * Apply to | 適用於
 	```
 	L4D1
@@ -22,11 +25,15 @@ Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common
 * Require | 必要安裝
 <br/>None
 
-* Related Plugin | 相關插件
+* <details><summary>Related Plugin | 相關插件</summary>
+
 	1. [l4d2_steady_boost by jensewe](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_steady_boost): Prevent forced sliding when landing at head of enemies.
 		> 人類踩在特感頭上或特感踩在人類頭上不會滑落飄移
+</details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* Discontinued (2026-4-20)
 
 	* v1.5 (2025-9-11)
 		* clamp velocity instead of hardcode to 0
@@ -50,6 +57,9 @@ Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common
 # 中文說明
 修復Source引擎的踩頭跳躍bug
 
+> [!NOTE]
+> 此插件已停止更新，請使用 [l4d_fix_rocket_jump](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_rocket_jump)
+
 * 原理
 	* 嘗試修復經典的Source引擎bug，當玩家踩在其他的物件上有機率會造成各種bug，譬如
         * 當玩家踩在殭屍頭上，有一定機率飛到空中墬樓死亡
@@ -58,6 +68,3 @@ Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common
         * 踩在Spitter吐出的酸液物上高空跳躍
         * 踩在隊友扔出去的燃燒瓶、土製炸彈、膽汁瓶上高空跳躍
     * Tickrate越高的伺服器越容易發生
-
-* 功能
-	* 無

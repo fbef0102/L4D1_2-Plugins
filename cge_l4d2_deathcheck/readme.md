@@ -29,6 +29,9 @@ Prevents mission loss(Round_End) until all real players and AI bots have died.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.3 (2026-4-20)
+        * Fixed that round end when all human dies
+
     * v2.2 (2026-4-1)
         * Update cvar and optimize code again
         * This plugin start working once players leave the saferoom

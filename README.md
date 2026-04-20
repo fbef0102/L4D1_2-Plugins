@@ -101,8 +101,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 解決裝子彈的時候拯救隊友會卡彈的問題 (存在超過十年的Bug)
 * <b>[hp_tank_show](/hp_tank_show)</b>: Shows a sprite at the tank head that goes from green to red based on its HP
     * Tank頭上顯示血量狀態
-* <b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch
-    * 修復Source引擎的踩頭跳躍bug
+* <s><b>[l4d2_block_rocketjump](/l4d2_block_rocketjump)</b>: (Archived) Block rocket jump exploit with grenade launcher/vomitjar/pipebomb/molotov/common/spit/rock/witch</s>
+    * <s>(棄案) 修復Source引擎的踩頭跳躍bug</s>
 * <b>[l4d_kickloadstuckers](/l4d_kickloadstuckers)</b>: Kicks Clients that get stuck in server connecting state
     * 踢出卡Loading連線中的玩家
 * <s><b>[pounce_database](/pounce_database)</b>: (Archived) Top Hunter Pounce Announce (Data Support)</s>
@@ -255,7 +255,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
 * <b>[miuwiki_autoscar](/miuwiki_autoscar)</b>: Full auto mode for SCAR
     * SCAR三連發步槍可以切換成全自動模式
 * <b>[l4d_save_weapon_ammo](/l4d_save_weapon_ammo)</b>: Prevent filling the clip when taking the same weapon + save if the amount of weapon ammo is more than vanilla.
-    * 撿起的武器時不會有滿發的彈夾 + 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
+    * 撿起相同的武器時不會有滿發的彈夾 + 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
 * <b>[l4d_exploit_dmg_block](/l4d_exploit_dmg_block)</b>: Block exploit damage by player, ex: throw molotov and change team to infected
     * 防止惡意玩家的友軍傷害，譬如: 丟火瓶之後跑去特感隊伍
 * <b>[l4d_collision_adjustments](/l4d_collision_adjustments)</b>: No collisions to fix a handful of silly collision bugs in l4d
@@ -288,8 +288,6 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修正崩潰: ```server.dll + 0x1d7cbb``` 涵式內的空指針
 * <b>[IsReachable_Detour](/IsReachable_Detour)</b>: Fixing null pointer dereference when it call ```SurvivorBot::IsReachable``` with NULL argument
     * 修正崩潰: ```SurvivorBot::IsReachable``` 涵式內的空指針
-* <b>[bot_kick_drop_secondary](/bot_kick_drop_secondary)</b>: Survivor bots will drop their secondary weapon when they were kicked
-    * 當倖存者bot被踢出遊戲時，掉落副武器
 * <b>[l4d_witch_bash_wandering](/l4d_witch_bash_wandering)</b>: Fixed that survivors can bash wandering witch without witch being startled
     * 修復倖存者推開站立的witch不會導致驚嚇
 * <b>[l4d2_gascan_flame_fix](/l4d2_gascan_flame_fix)</b>: Fixed unable to ignite gascan sometimes due to poorly written official code

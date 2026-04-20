@@ -59,7 +59,7 @@
 	}
 	"HandleLevel_2"
 	{
-		"#format"		"{1:N},{2:N}"
+		"#format"		"{1:N}"
 		"en"		"{lightgreen}★★★ {olive}{1}{default} leveled {green}a charger{default}."
 		"zho"		"{lightgreen}★★★ {olive}{1}{default} 近戰秒殺了衝鋒的 {green}Charger{default}."
 		"chi"		"{lightgreen}★★★ {olive}{1}{default} 近战秒杀了冲锋的 {green}Charger{default}."

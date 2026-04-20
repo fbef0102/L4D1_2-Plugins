@@ -932,7 +932,7 @@ void HxGetSlot1(int client, int iSlot1)
 		if (strcmp(wep_name, "weapon_melee") == 0) //support custom melee
 		{
 			int meleeWeaponId = GetEntProp(iSlot1, Prop_Send, "m_hMeleeWeaponInfo");
-			if(meleeWeaponId < 0 && meleeWeaponId > g_iMeleeClassCount) return;
+			if(meleeWeaponId < 0 || meleeWeaponId >= g_iMeleeClassCount) return;
 
 			strcopy(wep_name, sizeof(wep_name), g_sMeleeClass[meleeWeaponId]);
 			g_bSlot1_IsMelee[client] = true;

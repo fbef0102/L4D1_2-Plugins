@@ -50,6 +50,9 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.4 (2026-4-20)
+		* Support l4d1
+
 	* v3.3 (2026-2-1)
 		* Add data to control weapon list and remoe time
 		* Update cvars

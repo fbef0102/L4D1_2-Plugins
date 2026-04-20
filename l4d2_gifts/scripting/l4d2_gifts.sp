@@ -8,7 +8,13 @@
 #include <l4d2_weapons>
 #include <multicolors>
 
-#define PLUGIN_VERSION		"3.5-2024/5/5"
+#undef REQUIRE_PLUGIN
+#include <clear_weapon_drop>
+#if !defined _clear_weapon_drop_included_
+	native void L4D_RemoveWeaponOnGround(int weapon, float time = -1.0);
+#endif
+
+#define PLUGIN_VERSION		"3.6-2026/4/20"
 
 public Plugin myinfo = 
 {
@@ -30,6 +36,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
 		return APLRes_SilentFailure;
 	}
+
+	MarkNativeAsOptional("L4D_RemoveWeaponOnGround");
 	
 	ZC_TANK = 8;
 	bLate = late;
@@ -208,14 +216,14 @@ public void OnPluginStart()
 	g_hAmmoShotgun.AddChangeHook(OnConVarChanged_Official);
 	g_hAmmoAutoShotgun.AddChangeHook(OnConVarChanged_Official);
 
-	g_hCvar_gift_enable	 				= CreateConVar( "l4d2_gifts_enabled",					 	"1", 	"Enable gifts 0: Disable, 1: Enable", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvar_gift_life 					= CreateConVar( "l4d2_gifts_gift_life",					 	"30",	"How long the gift stay on ground (seconds)", FCVAR_NOTIFY, true, 0.0);
-	g_hCvar_gift_chance 				= CreateConVar( "l4d2_gifts_chance_standard", 			 	"50",	"Chance (%) of infected drop special standard gift.", FCVAR_NOTIFY, true, 1.0, true, 100.0);
-	g_hCvar_special_gift_chance 		= CreateConVar( "l4d2_gifts_chance_special", 			 	"100",	"Chance (%) of tank and witch drop second special gift.", FCVAR_NOTIFY, true, 1.0, true, 100.0);
-	g_hCvar_gift_infected_hp 			= CreateConVar( "l4d2_gifts_infected_reward_hp_standard", 	"200",	"Increase Infected health if they pick up gift. (0=Off)", FCVAR_NOTIFY, true, 0.0);
-	g_hCvar_special_gift_infected_hp 	= CreateConVar( "l4d2_gifts_infected_reward_hp_special",	"400",	"Increase Infected health if they pick up special gift. (0=Off)", FCVAR_NOTIFY, true, 0.0);
-	g_hCvar_gift_Announce 				= CreateConVar( "l4d2_gifts_announce_type",				 	"3",	"Notify Server who pickes up gift, and what the gift reward is. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	g_hCvar_blockSwitch 				= CreateConVar( "l4d2_gifts_block_switch",				 	"0",	"If 1, prevent survivors from switching into new weapons and items when they open gifts", FCVAR_NOTIFY, true, 0.0);
+	g_hCvar_gift_enable	 				= CreateConVar( "l4d2_gifts_enabled",					 	"1", 		"Enable gifts 0: Disable, 1: Enable", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvar_gift_life 					= CreateConVar( "l4d2_gifts_gift_life",					 	"30",		"How long the gift stay on ground (seconds)", FCVAR_NOTIFY, true, 0.0);
+	g_hCvar_gift_chance 				= CreateConVar( "l4d2_gifts_chance_standard", 			 	"50",		"Chance (%) of infected drop special standard gift.", FCVAR_NOTIFY, true, 1.0, true, 100.0);
+	g_hCvar_special_gift_chance 		= CreateConVar( "l4d2_gifts_chance_special", 			 	"100",		"Chance (%) of tank and witch drop second special gift.", FCVAR_NOTIFY, true, 1.0, true, 100.0);
+	g_hCvar_gift_infected_hp 			= CreateConVar( "l4d2_gifts_infected_reward_hp_standard", 	"200",		"Increase Infected health if they pick up gift. (0=Off)", FCVAR_NOTIFY, true, 0.0);
+	g_hCvar_special_gift_infected_hp 	= CreateConVar( "l4d2_gifts_infected_reward_hp_special",	"400",		"Increase Infected health if they pick up special gift. (0=Off)", FCVAR_NOTIFY, true, 0.0);
+	g_hCvar_gift_Announce 				= CreateConVar( "l4d2_gifts_announce_type",				 	"3",		"Notify Server who pickes up gift, and what the gift reward is. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	g_hCvar_blockSwitch 				= CreateConVar( "l4d2_gifts_drop_item",				 		"0",		"When survivors get new weapons/items from gifts, 0=Equip new weapon/item, 1=Drop on the ground", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarStandSoundFile 				= CreateConVar( "l4d2_gifts_soundfile_standard", 			"level/loud/climber.wav", 	"Standard gift - pick up sound file (relative to to sound/, empty=disable)", FCVAR_NOTIFY);
 	g_hCvarSpecialSoundFile 			= CreateConVar( "l4d2_gifts_soundfile_special", 			"level/gnomeftw.wav", 		"Special gift - pick up sound file (relative to to sound/, empty=disable)", FCVAR_NOTIFY);
 	g_hCvarConfigFile 					= CreateConVar(	"l4d2_gifts_config_file", 					"l4d2_gifts.cfg", "Configuration file name in data folder (e.g., l4d2_gifts.cfg)", FCVAR_NOTIFY);
@@ -316,6 +324,22 @@ void LateLoad()
 
         OnClientPutInServer(client);
     }
+}
+
+bool g_bclear_weapon_drop_Available;
+public void OnAllPluginsLoaded()
+{
+	g_bclear_weapon_drop_Available = LibraryExists("clear_weapon_drop");
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	g_bclear_weapon_drop_Available = LibraryExists("clear_weapon_drop");
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	g_bclear_weapon_drop_Available = LibraryExists("clear_weapon_drop");
 }
 
 void OnConVarChanged_Official(Handle convar, const char[] oldValue, const char[] newValue)
@@ -1083,13 +1107,8 @@ Action WeaponCanUse(int client, int weapon)
 				wepid == WEPID_COLA_BOTTLES ||
 				wepid == WEPID_GNOME_CHOMPSKI) 
 			{
-				Event hEvent = CreateEvent("weapon_drop");
-				if( hEvent != null )
-				{
-					hEvent.SetInt("userid", GetClientUserId(client));
-					hEvent.SetInt("propid", weapon);
-					hEvent.Fire();
-				}
+				if(g_bclear_weapon_drop_Available) L4D_RemoveWeaponOnGround(weapon, _);
+
 				return Plugin_Handled;
 			}
 
@@ -1098,13 +1117,7 @@ Action WeaponCanUse(int client, int weapon)
 
 			if(GetPlayerWeaponSlot(client, slot) == -1) return Plugin_Continue;
 
-			Event hEvent = CreateEvent("weapon_drop");
-			if( hEvent != null )
-			{
-				hEvent.SetInt("userid", GetClientUserId(client));
-				hEvent.SetInt("propid", weapon);
-				hEvent.Fire();
-			}
+			if(g_bclear_weapon_drop_Available) L4D_RemoveWeaponOnGround(weapon, _);
 
 			return Plugin_Handled;
 		}

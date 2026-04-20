@@ -15,6 +15,12 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 
 * <details><summary>How does it work?</summary>
 
+	* (Before) 
+		* Pick up shotgun from spawner (10/90) -> shoot bullets (0/90) -> Pick up shotgun from spawner again -> full clip (10/90)
+		* Hold shotgun and ammo over default (10/330) -> Drop shotgun -> Pick up shotgun -> ammo return back to default (10/90)
+	* (After)
+		* Pick up shotgun from spawner (10/90) -> shoot bullets (0/90) -> Pick up shotgun from spawner again -> clip (0/100)
+		* Hold shotgun and ammo over default (10/330) -> Drop shotgun -> Pick up shotgun -> ammo (10/330)
 	* Prevent filling the clip when taking the same weapon.
 	* Save if the amount of weapon ammo is more than vanilla.
 		* For example: Other plugin gives weapon ammo more than default
@@ -61,10 +67,15 @@ Prevent filling the clip when taking the same weapon + save if the amount of wea
 
 - - - -
 # 中文說明
-撿起的武器時不會有滿發的彈夾 + 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
+撿起相同的武器時不會有滿發的彈夾 + 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
 
 * 原理
-	* 撿起的武器時不會有滿發的彈夾
+	* (裝此之前)
+		* 從桌上撿起散彈槍 (10/90) -> 射完彈夾 (0/90) -> 再從桌上撿起散彈槍 -> 彈夾又變滿 (10/90)
+		* 拿著散彈槍時彈藥超過預設官方數值 (10/330) -> 散彈槍掉落地上 -> 再撿回來 -> 彈藥變回預設值 (10/90)
+	* (裝此之後)
+		* 從桌上撿起散彈槍 (10/90) -> 射完彈夾 (0/90) -> 再從桌上撿起散彈槍 -> 不給滿發彈夾 (0/100)
+		* 拿著散彈槍時彈藥超過預設官方數值 (10/330) -> 散彈槍掉落地上 -> 再撿回來 -> 彈藥數值依然正常 (10/330)
 	* 儲存在地上的每個武器的彈藥，撿起來後給予相應的彈藥 (為了應付超出官方指令設定的彈藥)
 		* 譬如有安裝其他插件會給予武器彈藥超過預設的數值
 

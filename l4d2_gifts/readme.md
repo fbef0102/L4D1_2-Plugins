@@ -16,6 +16,12 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 	2. [[INC] l4d2_weapons](https://github.com/fbef0102/Game-Private_Plugin/blob/main/L4D_插件/Require_檔案/scripting/include/l4d2_weapons.inc)
 	3. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
+* <details><summary>Support | 支援插件</summary>
+
+	1. [clear_weapon_drop](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/clear_weapon_drop): Remove weapon/item dropped from gift if no one pickes up
+		* 裝此插件後，過一段時間之後會移除從禮物掉落的物資 (如果沒有人撿起來)
+</details>
+
 * <details><summary>How does it work?</summary>
 
 	* Drop "Standard Gift" when special infected dies
@@ -54,8 +60,8 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 		// Notify Server who pickes up gift, and what the gift reward is. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
 		l4d2_gifts_announce_type "3"
 
-		// If 1, prevent survivors from switching into new weapons and items when they open gifts
-		l4d2_gifts_block_switch "0"
+		// When survivors get new weapons/items from gifts, 0=Equip new weapon/item, 1=Drop on the ground
+		l4d2_gifts_drop_item "0"
 
 		// Standard gift - pick up sound file (relative to to sound/, empty=disable)
 		l4d2_gifts_soundfile_standard "level/loud/climber.wav"
@@ -94,6 +100,12 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v3.6 (2026-4-20)
+		* Update cvars, data
+		* Remove drop event
+		* Support clear_weapon_drop
+		* Control ammo limit
 
     * v3.5 (2024-5-5)
 		* Now survivors can press E to open gifts
@@ -145,6 +157,8 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 		* 按E
 	* 禮物盒會有各式各樣的武器與物品，也有可能為空或失去血量，驚喜一瞬間
 	* 特感也能碰禮盒，會自動增加血量
+	* 查看文件設置禮物: [data/l4d2_gifts.cfg](data/l4d2_gifts.cfg)
+		> 內有中文說明，可點擊查看
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -171,9 +185,9 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 		// 獲得禮物盒的提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
 		l4d2_gifts_announce_type "3"
 
-		// 1=人類撿起禮盒時，物資直接掉在地上
 		// 0=人類撿起禮盒時，物資直接拿在手上
-		l4d2_gifts_block_switch "0"
+		// 1=人類撿起禮盒時，物資直接掉在地上
+		l4d2_gifts_drop_item "0"
 
 		// 撿起普通禮盒的音效檔案，路徑相對於sound資料夾 (留白=無音效)
 		l4d2_gifts_soundfile_standard "level/loud/climber.wav"
@@ -198,10 +212,4 @@ Drop gifts when a special infected or a witch/tank killed by survivor.
 		```php
 		sm_reloadgifts
 		```
-</details>
-
-* <details><summary>文件設定範例</summary>
-
-	* [data/l4d2_gifts.cfg](data/l4d2_gifts.cfg)
-		> 內有中文說明，可點擊查看
 </details>
