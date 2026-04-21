@@ -33,15 +33,16 @@
 	}
 	"Please wait to be revived or rescued"
 	{
-		"en" "Please wait to be revived or rescued."
-		"zho" "請等待救援或復活."
-		"chi" "请等待救援或复活."
-        "es" "Por favor, espera a ser revivido o rescatado."
-		"fi" "Odota, että sinun menee elvytetään tai pelastetaan."
-		"jp" "蘇生もしくは救助されるまでお待ち下さい。"
-		"ru" "Подождите, пока вас поднимут или спасут."
-		"ru" "Вы бездействуете. Нажмите ЛКМ для возврата к выжившим!"
-		"ua" "Почекайте, поки Вас піднімуть або врятують."
+		"#format"	"{1:N}"
+		"en" "[{green}MultiSlots{default}] {1}, Please wait to be revived or rescued."
+		"zho" "[{green}MultiSlots{default}] {1}, 請等待救援或復活."
+		"chi" "[{green}MultiSlots{default}] {1}, 请等待救援或复活."
+        "es" "[{green}MultiSlots{default}] {1}, Por favor, espera a ser revivido o rescatado."
+		"fi" "[{green}MultiSlots{default}] {1}, Odota, että sinun menee elvytetään tai pelastetaan."
+		"jp" "[{green}MultiSlots{default}] {1}, 蘇生もしくは救助されるまでお待ち下さい。"
+		"ru" "[{green}MultiSlots{default}] {1}, Подождите, пока вас поднимут или спасут."
+		"ru" "[{green}MultiSlots{default}] {1}, Вы бездействуете. Нажмите ЛКМ для возврата к выжившим!"
+		"ua" "[{green}MultiSlots{default}] {1}, Почекайте, поки Вас піднімуть або врятують."
 	}
 	"You are idle. press the left mouse button to join the survivors!"
 	{
@@ -67,14 +68,15 @@
 	}
 	"Type in chat !join To join the survivors"
 	{
-		"en" "Type {olive}!join{default} to join the survivors!"
-		"zho" "聊天視窗輸入 {olive}!join{default} 來加入倖存者隊伍."
-		"chi" "聊天窗口输入 {olive}!join{default} 来加入生还者队伍."
-        "es" "Escribe en el chat {olive}!join{default} para unirse a los supervivientes."
-		"fi" "Kirjoita chatissa {olive}!join{default} Liity selviytyneisiin."
-		"jp" "生存者チームに参加するにはチャットに{olive}!join{default}と入力してください!"
-		"ru" "Введите в чате {olive}!join{default} для присоединения к выжившим."
-		"ua" "Введіть в чаті {olive}!join{default} , щоб приєднатися до тих, що вижили."
+		"#format"	"{1:N}"
+		"en" "[{green}MultiSlots{default}] {1}, Type {olive}!join{default} to join the survivors!"
+		"zho" "[{green}MultiSlots{default}] {1}, 聊天視窗輸入 {olive}!join{default} 來加入倖存者隊伍."
+		"chi" "[{green}MultiSlots{default}] {1}, 聊天窗口输入 {olive}!join{default} 来加入生还者队伍."
+        "es" "[{green}MultiSlots{default}] {1}, Escribe en el chat {olive}!join{default} para unirse a los supervivientes."
+		"fi" "[{green}MultiSlots{default}] {1}, Kirjoita chatissa {olive}!join{default} Liity selviytyneisiin."
+		"jp" "[{green}MultiSlots{default}] {1}, 生存者チームに参加するにはチャットに{olive}!join{default}と入力してください!"
+		"ru" "[{green}MultiSlots{default}] {1}, Введите в чате {olive}!join{default} для присоединения к выжившим."
+		"ua" "[{green}MultiSlots{default}] {1}, Введіть в чаті {olive}!join{default} , щоб приєднатися до тих, що вижили."
 	}
 	"The survivors has started the game, please wait to be resurrected or rescued"
 	{
@@ -100,11 +102,11 @@
 	}
 	"No Second Chance"
 	{
-		"en" "You already played on the {blue}Survivor Team{default} this round. You will spawn {green}dead{default}."
-		"zho" "你已於當前回合當過{blue}生還者隊伍{default}. 給予 {green}死亡{default} Bot."
-		"chi" "你已于当前回合当过{blue}生还者队伍{default}. 给予 {green}死亡{default} Bot."
-		"jp" "このラウンドで既に{blue}生存者チーム{default}として参加していたため、{green}死亡{default}した状態でスポーンします。"
-		"ru" "В этом раунде вы уже играли в {blue}команде выживших{default}. Вы появитесь {green}мёртвым{default}."
+		"en" "[{green}MultiSlots{default}] You already played on the {blue}Survivor Team{default} this round. You will spawn {green}dead{default}."
+		"zho" "[{green}MultiSlots{default}] 你已於當前回合當過{blue}生還者隊伍{default}. 給予 {green}死亡{default} Bot."
+		"chi" "[{green}MultiSlots{default}] 你已于当前回合当过{blue}生还者队伍{default}. 给予 {green}死亡{default} Bot."
+		"jp" "[{green}MultiSlots{default}] このラウンドで既に{blue}生存者チーム{default}として参加していたため、{green}死亡{default}した状態でスポーンします。"
+		"ru" "[{green}MultiSlots{default}] В этом раунде вы уже играли в {blue}команде выживших{default}. Вы появитесь {green}мёртвым{default}."
 	}
 	"Sorry! No survivor slots"
 	{
@@ -124,8 +126,8 @@
 	}
 	"Your steam id not authorized"
 	{
-		"en" "Unable to join survivor! your steamid isn't fully authenticated, please WAIT!"
-		"zho" "無法加入倖存者! 你的steamid尚未完全驗證, 請等待steam驗證!"
-		"chi" "无法加入幸存者! 你的steamid尚未完全验证, 请等待steam验证!"
+		"en" "[{green}MultiSlots{default}] Unable to join survivor! Your steamid isn't fully authenticated, please WAIT!"
+		"zho" "[{green}MultiSlots{default}] 無法加入倖存者! 你的steamid尚未完全驗證, 請等待steam驗證!"
+		"chi" "[{green}MultiSlots{default}] 无法加入幸存者! 你的steamid尚未完全验证, 请等待steam验证!"
 	}
 }

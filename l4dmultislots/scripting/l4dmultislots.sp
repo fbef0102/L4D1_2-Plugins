@@ -471,7 +471,7 @@ Action JoinTeam(int client,int args)
 
 	if(g_bCvar_SteamID && g_bSteamAuthorized[client] == false)
 	{
-		PrintHintText(client, "%T", "Your steam id not authorized", client);
+		CPrintToChat(client, "%T", "Your steam id not authorized", client);
 		return Plugin_Handled;
 	}
 
@@ -884,7 +884,7 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 					switch(iDeadType)
 					{
 						case 1: PrintHintText(client, "%T", "The survivors has started the game, please wait to be resurrected or rescued", client);
-						case 2: CPrintToChat(client, "{default}[{green}MultiSlots{default}] %T", "No Second Chance", client);
+						case 2: CPrintToChat(client, "%T", "No Second Chance", client);
 					}
 				}
 				else
@@ -1064,7 +1064,7 @@ Action Timer_SpecCheck(Handle timer)
 				{
 					if(!IsClientIdle(i))
 					{
-						CPrintToChat(i, "{default}[{green}MultiSlots{default}] %N, %T", i, "Type in chat !join To join the survivors", i);
+						CPrintToChat(i, "%T", "Type in chat !join To join the survivors", i, i);
 					}
 				}
 			}
@@ -1077,7 +1077,7 @@ Action Timer_SpecCheck(Handle timer)
 		{
 			if((GetClientTeam(i) == TEAM_SURVIVORS) && !IsFakeClient(i) && !IsPlayerAlive(i))
 			{
-				CPrintToChat(i, "{default}[{green}MultiSlots{default}] %N, %T", i, "Please wait to be revived or rescued", i);
+				CPrintToChat(i, "%T", i, "Please wait to be revived or rescued", i, i);
 			}
 		}
 	}	
@@ -1105,7 +1105,7 @@ Action Timer_KillSurvivor_NoSecondChance(Handle timer, int client)
 	{
 		StripWeapons(client);
 		ForcePlayerSuicide(client);
-		CPrintToChat(client, "{default}[{green}MultiSlots{default}] %T", "No Second Chance", client);
+		CPrintToChat(client, "%T", "No Second Chance", client);
 	}
 
 	return Plugin_Continue;
