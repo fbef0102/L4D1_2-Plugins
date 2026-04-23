@@ -222,7 +222,6 @@ void NextFrame_ReviveSuccess(int client)
 			SetEntProp(client, Prop_Send, "m_iGlowType", 3);
 			SetEntProp(client, Prop_Send, "m_glowColorOverride", g_iGlowColour);
 			SetEntProp(client, Prop_Send, "m_nGlowRange", g_iGlowRange);
-			SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 		}
 	}
