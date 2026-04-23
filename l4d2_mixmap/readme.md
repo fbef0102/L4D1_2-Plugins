@@ -39,8 +39,8 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 		* 所有玩家準備才能開始遊戲的插件
 	2. [l4d2_ty_saveweapons](/l4d2_ty_saveweapons): L4D2 coop save weapon when map transition if more than 4 players
 		* 當伺服器有5+以上玩家遊玩戰役、寫實時，保存他們過關時的血量以及攜帶的武器、物資
-	3. [l4d2_map_transitions](/l4d2_map_transitions): Define map transitions to combine campaigns in versus
-		* 對抗模式第二回合結束時從地圖A切換成地圖B
+	3. [l4d2_map_transitions](/l4d2_map_transitions): Disable map transitions when mixmap is active
+		* 使用mixmap時停止l4d2_map_transitions插件運作
 </details>
 
 * <details><summary>ConVar | 指令</summary>

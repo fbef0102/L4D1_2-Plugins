@@ -1077,7 +1077,7 @@ Action Timer_SpecCheck(Handle timer)
 		{
 			if((GetClientTeam(i) == TEAM_SURVIVORS) && !IsFakeClient(i) && !IsPlayerAlive(i))
 			{
-				CPrintToChat(i, "%T", i, "Please wait to be revived or rescued", i, i);
+				CPrintToChat(i, "%T", "Please wait to be revived or rescued", i, i);
 			}
 		}
 	}	
