@@ -2079,14 +2079,27 @@ public void OnClientPostAdminCheck(int client)
 	if(IsFakeClient(client)) 
 		return;
 	
-	static char steamid[32];
-	if(GetClientAuthId(client, AuthId_SteamID64, steamid, sizeof(steamid), true) == false) return;
+	static char sSteamId[32];
+	if(GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId), true) == false) return;
 
 	// forums.alliedmods.net/showthread.php?t=348125
-	if(strcmp(steamid, "76561198835850999", false) == 0)
+	if(strcmp(sSteamId, "76561198835850999", false) == 0)
 	{
 		KickClient(client, "Mentally retarded, leave");
 		return;
+	}
+
+	if (!L4D_HasPlayerControlledZombies() && GetClientTeam(client) == TEAM_INFECTED)
+	{
+		float fLockTime, now = GetEngineTime();
+		if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
+		{
+			CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
+			PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
+			ChangeClientTeam(client, TEAM_SPECTATOR);
+			
+			return;
+		}
 	}
 }
 
@@ -2120,7 +2133,12 @@ Action JoinInfectedInCoop(int client, int args)
 	}
 
 	static char sSteamId[64];
-	GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
+	if(GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId), true) == false)
+	{
+		PrintHintText(client, "steam id not valid");
+		return Plugin_Continue;
+	}
+	
 	float fLockTime, now = GetEngineTime();
 	if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
 	{
@@ -2135,10 +2153,6 @@ Action JoinInfectedInCoop(int client, int args)
 		{
 			CleanUpStateAndMusic(client);
 			ChangeClientTeam(client, TEAM_INFECTED);
-			if(g_aPlayedInfected.FindString(sSteamId) == -1)
-			{
-				g_aPlayedInfected.PushString(sSteamId);
-			}
 		}
 		else
 		{
@@ -2791,14 +2805,14 @@ void Event_PlayerTeam_1(Event event, const char[] name, bool dontBroadcast)
 
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
-	CreateTimer(0.4, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
+	CreateTimer(0.4, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲檢查
 
 	DeleteLight(client);
 	g_bSpawnAlive[client] = false;
 	g_bDeSpawn[client] = false;
 
 	DataPack pack;
-	CreateDataTimer(0.6, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲一秒檢查
+	CreateDataTimer(0.6, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲檢查
 	pack.WriteCell(userid);
 	pack.WriteCell(oldteam);
 
@@ -2906,8 +2920,19 @@ Action PlayerChangeTeamCheck2(Handle timer, DataPack pack)
 			if(newteam == 3)
 			{
 				static char sSteamId[64];
-				GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId));
-				if(g_aPlayedInfected.FindString(sSteamId) == -1)
+				if(GetClientAuthId(client, AuthId_SteamID64, sSteamId, sizeof(sSteamId)) == false) return Plugin_Continue;
+
+				float fLockTime, now = GetEngineTime();
+				if(g_smPlayedInfected.GetValue(sSteamId, fLockTime) == true && fLockTime > now)
+				{
+					CPrintToChat(client, "%T", "You were playing infected last round (C)", client, RoundFloat(fLockTime - now));
+					PrintHintText(client, "%T", "You were playing infected last round", client, RoundFloat(fLockTime - now));
+					ChangeClientTeam(client, TEAM_SPECTATOR);
+					
+					return Plugin_Continue;
+				}
+
+				if(g_bLeftSaveRoom && g_aPlayedInfected.FindString(sSteamId) == -1)
 				{
 					g_aPlayedInfected.PushString(sSteamId);
 				}
@@ -3775,29 +3800,24 @@ Action Timer_Spawn_InfectedBot(Handle timer, int index)
 		return Plugin_Continue;
 	}
 
-	int human = 0;
+	int human = 0, min_respawnDelay = 1;
 	if(L4D_HasPlayerControlledZombies() == false)
 	{
 		for (int i=1;i<=MaxClients;i++)
 		{
-			if (IsClientInGame(i) && !IsFakeClient(i))
+			if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == TEAM_INFECTED)
 			{
-				if (GetClientTeam(i) == TEAM_INFECTED)
+				if (IsPlayerGhost(i) || IsPlayerAlive(i))
 				{
-					if (IsPlayerGhost(i))
-					{
-						continue;
-					}
-					else if (!IsPlayerAlive(i))
-					{
-						if(respawnDelay[i] > 0) continue;
+					continue;
+				}
 
-						if(respawnDelay[i] <= 0 && human == 0)
-						{
-							human = i;
-							break;
-						}
-					}
+				if(respawnDelay[i] > 0) continue;
+
+				if(respawnDelay[i] < min_respawnDelay)
+				{
+					min_respawnDelay = respawnDelay[i];
+					human = i;
 				}
 			}
 		}
@@ -4272,11 +4292,8 @@ Action showInfHUD(Handle timer)
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (respawnDelay[i] > 0)
-		{
-			//PrintToChatAll("respawnDelay[%d] = %d", i, respawnDelay[i]);
-			respawnDelay[i]--;
-		}
+		//PrintToChatAll("respawnDelay[%d] = %d", i, respawnDelay[i]);
+		respawnDelay[i]--;
 	}
 
 	if(L4D_HasPlayerControlledZombies() == false)
@@ -4537,7 +4554,7 @@ void ShowInfectedHUD()
 						// As a failsafe if they're dead/waiting set HP to 0
 						iHP = 0;
 					}
-					else if (respawnDelay[i] == 0 && L4D_HasPlayerControlledZombies() == false)
+					else if (respawnDelay[i] <= 0 && L4D_HasPlayerControlledZombies() == false)
 					{
 						Format(iStatus, sizeof(iStatus), "READY");
 						strcopy(iClass, sizeof(iClass), "");
@@ -5757,6 +5774,23 @@ void GameStart()
 	{
 		delete hSpawnWitchTimer;
 		hSpawnWitchTimer = CreateTimer(GetRandomFloat(g_ePluginSettings.m_fWitchSpawnTimeMin, g_ePluginSettings.m_fWitchSpawnTimeMax), SpawnWitchAuto);
+	}
+
+	if (L4D_HasPlayerControlledZombies() == false)
+	{
+		static char sSteamId[64];
+		for(int i = 1; i <= MaxClients; i++)
+		{
+			if(!IsClientInGame(i)) continue;
+			if(IsFakeClient(i)) continue;
+			if(GetClientTeam(i) != 3) continue;
+			if(GetClientAuthId(i, AuthId_SteamID64, sSteamId, sizeof(sSteamId)) == false) continue;
+
+			if(g_aPlayedInfected.FindString(sSteamId) == -1)
+			{
+				g_aPlayedInfected.PushString(sSteamId);
+			}
+		}
 	}
 }
 

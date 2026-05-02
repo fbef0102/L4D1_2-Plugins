@@ -79,6 +79,9 @@ int
 float 
 	g_fRunTopSpeed[MAXPLAYERS + 1];
 
+Handle 
+	g_hForceInfectedAssaultTimer;
+
 public void OnPluginStart() 
 { 
 	// Cvars
@@ -163,6 +166,11 @@ void GetCvars()
 
 //Sourcemod API Forward-------------------------------
 
+public void OnMapEnd()
+{
+	delete g_hForceInfectedAssaultTimer;
+}
+
 public void OnConfigsExecuted()
 {
 	GetCvars();
@@ -179,13 +187,12 @@ public void OnConfigsExecuted()
 																	
 ***********************************************************************************************************************************************************************************/
 
-Handle g_hForceInfectedAssaultTimer;
 public void L4D_OnFirstSurvivorLeftSafeArea_Post(int client) 
 {	
 	if(!g_bL4D2Version || !g_bCvarEnable) return;
 
 	delete g_hForceInfectedAssaultTimer;
-	g_hForceInfectedAssaultTimer = CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
+	g_hForceInfectedAssaultTimer = CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT);
 }
 
 Action Timer_ForceInfectedAssault( Handle timer ) 
