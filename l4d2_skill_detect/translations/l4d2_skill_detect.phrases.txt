@@ -233,7 +233,7 @@
 		"zho"		"{lightgreen}★★★ {olive}{1}{default} 狙擊空爆了 {green}{2}{default}."
 		"chi"		"{lightgreen}★★★ {olive}{1}{default} 狙击空爆了 {green}{2}{default}."
 	}
-	"HandleSkeet_7_J"
+	"HandleSkeet_7_H"
 	{
 		"#format"		"{1:N},{2:N}"
 		"en"		"{lightgreen}★★★ {olive}{1}{default} grenade-skeeted {green}{2}{default}."

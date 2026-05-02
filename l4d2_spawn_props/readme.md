@@ -36,7 +36,7 @@ Let admins spawn any kind of objects and saved to cfg
 	* Type ```!admin``` to call adm menu and you will see "Spawn Objects" option
 	* **Create Object**
         1. Admin types !admin in chat->Spawn Objects->Spawn Objects->Select the spawn method
-        2. Physics（affected by gravity），Non-solid（you can go through it），Solid（won't be affected by gravity），Items&Weapons（Guns, Melees, Supplies, Throwables, etc.）
+        2. Physics（affected by gravity, can be moved by Tanks），Non-solid（you can go through it），Solid（won't be affected by gravity），Items&Weapons（Guns, Melees, Supplies, Throwables, etc.）
 			* Not all objects can be Physics
 			* Not all objects can be Non-solid
 			* Not all objects can be Solid (Go ask Valve)
@@ -229,7 +229,7 @@ Let admins spawn any kind of objects and saved to cfg
 
 	* 如何創造物件?
 		1. 管理員輸入```!admin```->生成物件->生成物件->選擇其中一項
-		2. 動態（會受重力影響），穿透（擺好看），固定（不受重力影響），物品（槍械、近戰、醫療物品、投擲物品、彈藥堆、雷射裝置）
+		2. 動態（會受重力影響, Tank可以揮拳使其移動），穿透（擺好看），固定（不受重力影響），物品（槍械、近戰、醫療物品、投擲物品、彈藥堆、雷射裝置）
 			* 非所有模型都能變成動態
 			* 非所有模型都能變成穿透
 			* 非所有模型都能變成固態 (去問Valve，認真你就輸了)

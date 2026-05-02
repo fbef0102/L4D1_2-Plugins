@@ -3047,13 +3047,16 @@ void HandlePop( attacker, victim, shoveCount, Float:timeAlive, Float:timeNear )
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_POP) && timeNear < 5.0 )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandlePop_1", attacker, victim, timeNear );
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			CPrintToChatAll( "%t", "HandlePop_2", attacker, timeNear );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				CPrintToChatAll( "%t", "HandlePop_1", attacker, victim, timeNear );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandlePop_2", attacker, timeNear );
+			}
 		}
 	}
 	
@@ -3074,13 +3077,16 @@ void HandlePopStop(attacker, victim, hits, Float:timeVomit)
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_POPSTOP) &&
 		hits < 1 && timeVomit < g_hCvarInstaTime.FloatValue )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandlePopStop_1", attacker, victim, timeVomit );
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			CPrintToChatAll( "%t", "HandlePopStop_2", attacker, timeVomit );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				CPrintToChatAll( "%t", "HandlePopStop_1", attacker, victim, timeVomit );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandlePopStop_2", attacker, timeVomit );
+			}
 		}
 	}
 	
@@ -3100,13 +3106,16 @@ void HandleLevel( attacker, victim, bool headshot )
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_LEVEL) )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandleLevel_1", attacker, victim );
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			CPrintToChatAll( "%t", "HandleLevel_2", attacker );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				CPrintToChatAll( "%t", "HandleLevel_1", attacker, victim );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandleLevel_2", attacker );
+			}
 		}
 		else
 		{
@@ -3129,15 +3138,19 @@ void HandleLevelHurt( attacker, victim, damage, bool headshot )
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_HURTLEVEL) )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandleLevelHurt_1", attacker, victim, damage );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				CPrintToChatAll( "%t", "HandleLevelHurt_1", attacker, victim, damage );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandleLevelHurt_2", attacker, damage );
+			}
 		}
-		else if ( IS_VALID_INGAME(attacker) )
+		else 
 		{
-			CPrintToChatAll( "%t", "HandleLevelHurt_2", attacker, damage );
-		}
-		else {
 			CPrintToChatAll( "%t", "HandleLevelHurt_3", damage );
 		}
 	}
@@ -3159,19 +3172,22 @@ void HandleDeadstop( attacker, victim, bool:hunter = true )
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_DEADSTOP) )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			if(hunter)
-				CPrintToChatAll( "%t", "HandleDeadstop_1_H", attacker, victim );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				if(hunter)
+					CPrintToChatAll( "%t", "HandleDeadstop_1_H", attacker, victim );
+				else
+					CPrintToChatAll( "%t", "HandleDeadstop_1_J", attacker, victim );
+			}
 			else
-				CPrintToChatAll( "%t", "HandleDeadstop_1_J", attacker, victim );
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			if(hunter)
-				CPrintToChatAll( "%t", "HandleDeadstop_2_H", attacker );
-			else
-				CPrintToChatAll( "%t", "HandleDeadstop_2_J", attacker );
+			{
+				if(hunter)
+					CPrintToChatAll( "%t", "HandleDeadstop_2_H", attacker );
+				else
+					CPrintToChatAll( "%t", "HandleDeadstop_2_J", attacker );
+			}
 		}
 	}
 	
@@ -3197,13 +3213,16 @@ void HandleShove( attacker, victim, zombieClass )
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_SHOVE) )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandleShove_1", attacker, victim );
-		}	
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			CPrintToChatAll( "%t", "HandleShove_2", attacker );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				CPrintToChatAll( "%t", "HandleShove_1", attacker, victim );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandleShove_2", attacker );
+			}
 		}
 	}
 	
@@ -3290,7 +3309,7 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 	{
 		if ( isTeamSkeet )
 		{
-			if(IS_VALID_INGAME(attacker))
+			if( IS_VALID_INGAME(attacker) )
 			{
 				if ( IS_VALID_INGAME(victim) && !IsFakeClient(victim) ) {
 
@@ -3299,7 +3318,9 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 					else
 						CPrintToChatAll( "%t", "HandleSkeet_1_J", victim, attacker );
 
-				} else {
+				} 
+				else 
+				{
 					if(isHunter)
 						CPrintToChatAll( "%t", "HandleSkeet_2_H", attacker );
 					else
@@ -3308,12 +3329,15 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 			}
 			else
 			{
-				if ( IS_VALID_INGAME(victim) && !IsFakeClient(victim) ) {
+				if ( IS_VALID_INGAME(victim) && !IsFakeClient(victim) ) 
+				{
 					if(isHunter)
 						CPrintToChatAll( "%t", "HandleSkeet_3_H", victim );
 					else 
 						CPrintToChatAll( "%t", "HandleSkeet_3_J", victim );
-				} else {
+				} 
+				else 
+				{
 					if(isHunter)
 						CPrintToChatAll( "%t", "HandleSkeet_4_H" );
 					else
@@ -3323,123 +3347,126 @@ void HandleSkeet( int attacker, int victim, strWeaponType eWeaponType,
 
 			HandleSkeetAssist(attacker, victim, isHunter);
 		}
-		else if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
-		{
-			if(eWeaponType == WPTYPE_MELEE)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_5_H", attacker, victim);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_5_J", attacker, victim);
-			}
-			else if(eWeaponType == WPTYPE_SNIPER)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_6_H", attacker, victim);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_6_J", attacker, victim);
-			}
-			else if(eWeaponType == WPTYPE_MAGNUM)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_M_H", attacker, victim);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_M_J", attacker, victim);
-			}
-			else if(eWeaponType == WPTYPE_GL)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_7_H", attacker, victim);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_7_J", attacker, victim);
-			}
-			else if(eWeaponType == WPTYPE_SHOTGUN)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_S_H", attacker, victim);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_S_J", attacker, victim);
-			}
-			else if(shots > 1)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_8_H", attacker, victim, shots);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_8_J", attacker, victim, shots);
-			}
-			else
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_9_H", attacker, victim);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_9_J", attacker, victim);
-			}
-			
-			/*
-			CPrintToChatAll( "{lightgreen}[提示] {green}%N{default} %s 殺死飛撲的 {olive}%N{default}.",
-					attacker,
-					(bMelee) ? "近戰": ((bSniper) ? "爆頭" : ((bGL) ? "榴彈" : "") ),
-					victim 
-				);
-			*/
-		}
 		else if ( IS_VALID_INGAME(attacker) )
 		{
-			/*
-			CPrintToChatAll( "{lightgreen}[提示] {green}%N{default} %s 殺死飛撲的 {olive}Hunter{default}.",
-					attacker,
-					(bMelee) ? "近戰": ((bSniper) ? "爆頭" : ((bGL) ? "榴彈" : "") )
-				);
-			*/
-			
-			if(eWeaponType == WPTYPE_MELEE)
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
 			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_10_H", attacker);
+				if(eWeaponType == WPTYPE_MELEE)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_5_H", attacker, victim);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_5_J", attacker, victim);
+				}
+				else if(eWeaponType == WPTYPE_SNIPER)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_6_H", attacker, victim);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_6_J", attacker, victim);
+				}
+				else if(eWeaponType == WPTYPE_MAGNUM)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_M_H", attacker, victim);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_M_J", attacker, victim);
+				}
+				else if(eWeaponType == WPTYPE_GL)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_7_H", attacker, victim);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_7_J", attacker, victim);
+				}
+				else if(eWeaponType == WPTYPE_SHOTGUN)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_S_H", attacker, victim);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_S_J", attacker, victim);
+				}
+				else if(shots > 1)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_8_H", attacker, victim, shots);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_8_J", attacker, victim, shots);
+				}
 				else
-					CPrintToChatAll("%t", "HandleSkeet_10_J", attacker);
-			}
-			else if(eWeaponType == WPTYPE_SNIPER)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_11_H", attacker);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_11_J", attacker);
-			}
-			else if(eWeaponType == WPTYPE_MAGNUM)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_M_S_H", attacker);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_M_S_J", attacker);
-			}
-			else if(eWeaponType == WPTYPE_GL)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_12_H", attacker);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_12_J", attacker);
-			}
-			else if(eWeaponType == WPTYPE_SHOTGUN)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_S_S_H", attacker);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_S_S_J", attacker);
-			}
-			else if(shots > 1)
-			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_13_H", attacker, shots);
-				else
-					CPrintToChatAll("%t", "HandleSkeet_13_J", attacker, shots);
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_9_H", attacker, victim);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_9_J", attacker, victim);
+				}
+				
+				/*
+				CPrintToChatAll( "{lightgreen}[提示] {green}%N{default} %s 殺死飛撲的 {olive}%N{default}.",
+						attacker,
+						(bMelee) ? "近戰": ((bSniper) ? "爆頭" : ((bGL) ? "榴彈" : "") ),
+						victim 
+					);
+				*/
 			}
 			else
 			{
-				if(isHunter)
-					CPrintToChatAll("%t", "HandleSkeet_14_H", attacker);
+				/*
+				CPrintToChatAll( "{lightgreen}[提示] {green}%N{default} %s 殺死飛撲的 {olive}Hunter{default}.",
+						attacker,
+						(bMelee) ? "近戰": ((bSniper) ? "爆頭" : ((bGL) ? "榴彈" : "") )
+					);
+				*/
+				
+				if(eWeaponType == WPTYPE_MELEE)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_10_H", attacker);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_10_J", attacker);
+				}
+				else if(eWeaponType == WPTYPE_SNIPER)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_11_H", attacker);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_11_J", attacker);
+				}
+				else if(eWeaponType == WPTYPE_MAGNUM)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_M_S_H", attacker);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_M_S_J", attacker);
+				}
+				else if(eWeaponType == WPTYPE_GL)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_12_H", attacker);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_12_J", attacker);
+				}
+				else if(eWeaponType == WPTYPE_SHOTGUN)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_S_S_H", attacker);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_S_S_J", attacker);
+				}
+				else if(shots > 1)
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_13_H", attacker, shots);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_13_J", attacker, shots);
+				}
 				else
-					CPrintToChatAll("%t", "HandleSkeet_14_J", attacker);
+				{
+					if(isHunter)
+						CPrintToChatAll("%t", "HandleSkeet_14_H", attacker);
+					else
+						CPrintToChatAll("%t", "HandleSkeet_14_J", attacker);
+				}
 			}
 		}
 	}
@@ -3523,7 +3550,7 @@ void HandleNonSkeet( int attacker, int victim, int damage, bool bOverKill = fals
 	{
 		if(IS_VALID_INGAME(attacker))
 		{
-			if ( IS_VALID_INGAME(victim))
+			if ( IS_VALID_INGAME(victim) && !IsFakeClient(victim))
 			{
 				// CPrintToChatAll( "{lightgreen}[提示] {olive}%N{default} 在飛撲時被打死 (傷害 {lightgreen}%i{default}).%s", victim, damage, (bOverKill) ? "(可能會觸發空中擊殺)" : "" );
 				
@@ -3746,13 +3773,16 @@ HandleTongueCut( attacker, victim )
 	// report?
 	if ( g_bCvarReportEnable && (g_iCvarReportFlags & REP_TONGUECUT) )
 	{
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandleTongueCut_1", attacker, victim );
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			CPrintToChatAll( "%t", "HandleTongueCut_2", attacker );
+			if(IS_VALID_INGAME(victim) && !IsFakeClient(victim))
+			{
+				CPrintToChatAll( "%t", "HandleTongueCut_1", attacker, victim );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandleTongueCut_2", attacker );
+			}
 		}
 	}
 	
@@ -3772,29 +3802,31 @@ void HandleSmokerSelfClear( int attacker, int victim, bool withShove = false, bo
 			(!withShove || (g_iCvarReportFlags & REP_SELFCLEARSHOVE) )
 	) {
 		static char attackername[MAX_NAME_LENGTH], victimname[MAX_NAME_LENGTH];
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
 			GetClientName(attacker, attackername, sizeof(attackername));
-			GetClientName(victim, victimname, sizeof(victimname));
-			if(withShove)
+			if(IS_VALID_INGAME(victim) && !IsFakeClient(victim))
 			{
-				CPrintToChatAll( "%t", "HandleSmokerSelfClear_1_S", attackername, victimname);
+				GetClientName(victim, victimname, sizeof(victimname));
+				if(withShove)
+				{
+					CPrintToChatAll( "%t", "HandleSmokerSelfClear_1_S", attackername, victimname);
+				}
+				else
+				{
+					CPrintToChatAll( "%t", "HandleSmokerSelfClear_1_O", attackername, victimname);
+				}
 			}
 			else
 			{
-				CPrintToChatAll( "%t", "HandleSmokerSelfClear_1_O", attackername, victimname);
-			}
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			GetClientName(attacker, attackername, sizeof(attackername));
-			if(withShove)
-			{
-				CPrintToChatAll( "%t", "HandleSmokerSelfClear_2_S", attackername);
-			}
-			else
-			{
-				CPrintToChatAll( "%t", "HandleSmokerSelfClear_2_O", attackername);
+				if(withShove)
+				{
+					CPrintToChatAll( "%t", "HandleSmokerSelfClear_2_S", attackername);
+				}
+				else
+				{
+					CPrintToChatAll( "%t", "HandleSmokerSelfClear_2_O", attackername);
+				}
 			}
 		}
 	}
@@ -3835,20 +3867,23 @@ HandleRockSkeeted( attacker, victim, bool:melee=false, type=ROCK_UNKNOWN )
 				strcopy(typename, sizeof(typename), "Throwable");
 		}
 		
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			// CPrintToChatAll( "{green}%N{default} skeeted {olive}%N{default}'s rock.", attacker, victim );
-			if(melee)
-				CPrintToChatAll( "%t", "HandleRockSkeeted_1", attacker, victim, typename );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			{
+				// CPrintToChatAll( "{green}%N{default} skeeted {olive}%N{default}'s rock.", attacker, victim );
+				if(melee)
+					CPrintToChatAll( "%t", "HandleRockSkeeted_1", attacker, victim, typename );
+				else
+					CPrintToChatAll( "%t", "HandleRockSkeeted_2", attacker, victim, typename );
+			}
 			else
-				CPrintToChatAll( "%t", "HandleRockSkeeted_2", attacker, victim, typename );
-		}
-		else if ( IS_VALID_INGAME(attacker) )
-		{
-			if(melee)
-				CPrintToChatAll( "%t", "HandleRockSkeeted_3", attacker, typename );
-			else
-				CPrintToChatAll( "%t", "HandleRockSkeeted_4", attacker, typename );
+			{
+				if(melee)
+					CPrintToChatAll( "%t", "HandleRockSkeeted_3", attacker, typename );
+				else
+					CPrintToChatAll( "%t", "HandleRockSkeeted_4", attacker, typename );
+			}
 		}
 	}
 	
@@ -3868,13 +3903,16 @@ void HandleHunterDP( attacker, victim, actualDamage, Float:calculatedDamage, Flo
 		&&	(g_iCvarReportFlags & REP_HUNTERDP)
 		&&	height >= g_hCvarHunterDPThresh.FloatValue
 	) {
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandleHunterDP_1", attacker,  victim, actualDamage, RoundFloat(height) );
-		}
-		else if ( IS_VALID_INGAME(victim) )
-		{
-			CPrintToChatAll( "%t", "HandleHunterDP_2", victim, actualDamage, RoundFloat(height) );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
+			{
+				CPrintToChatAll( "%t", "HandleHunterDP_1", attacker,  victim, actualDamage, RoundFloat(height) );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandleHunterDP_2", victim, actualDamage, RoundFloat(height) );
+			}
 		}
 	}
 	
@@ -3896,13 +3934,16 @@ void HandleJockeyDP( attacker, victim, Float:height )
 		&&	(g_iCvarReportFlags & REP_JOCKEYDP)
 		&&	height >= g_hCvarJockeyDPThresh.FloatValue
 	) {
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
+		if ( IS_VALID_INGAME(attacker) )
 		{
-			CPrintToChatAll( "%t", "HandleJockeyDP_1", attacker,  victim, RoundFloat(height) );
-		}
-		else if ( IS_VALID_INGAME(victim) )
-		{
-			CPrintToChatAll( "%t", "HandleJockeyDP_2", victim, RoundFloat(height) );
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
+			{
+				CPrintToChatAll( "%t", "HandleJockeyDP_1", attacker,  victim, RoundFloat(height) );
+			}
+			else
+			{
+				CPrintToChatAll( "%t", "HandleJockeyDP_2", victim, RoundFloat(height) );
+			}
 		}
 	}
 	
@@ -3925,41 +3966,43 @@ void HandleDeathCharge( attacker, victim, Float:height, Float:distance, bool:bCa
 			height >= g_hCvarDeathChargeHeight.FloatValue &&
 			!g_bDeathChargeIgnore[attacker][victim]
 	) {
-		if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
+		if ( IS_VALID_INGAME(victim) )
 		{
-			if(bCarried)
+			if( IS_VALID_INGAME(attacker) && !IsFakeClient(attacker))
 			{
-				CPrintToChatAll( "%t", "HandleDeathCharge_1",
-					attacker,
-					victim,
-					RoundFloat(height)
-				);
+				if(bCarried)
+				{
+					CPrintToChatAll( "%t", "HandleDeathCharge_1",
+						attacker,
+						victim,
+						RoundFloat(height)
+					);
+				}
+				else
+				{
+					CPrintToChatAll( "%t", "HandleDeathCharge_2",
+						attacker,
+						victim,
+						RoundFloat(height)
+					);
+				}
 			}
 			else
 			{
-				CPrintToChatAll( "%t", "HandleDeathCharge_2",
-					attacker,
-					victim,
-					RoundFloat(height)
-				);
-			}
-			
-		}
-		else if ( IS_VALID_INGAME(victim) )
-		{
-			if(bCarried)
-			{
-				CPrintToChatAll( "%t", "HandleDeathCharge_3",
-					victim,
-					RoundFloat(height)
-				);
-			}
-			else
-			{
-				CPrintToChatAll( "%t", "HandleDeathCharge_4",
-					victim,
-					RoundFloat(height)
-				);
+				if(bCarried)
+				{
+					CPrintToChatAll( "%t", "HandleDeathCharge_3",
+						victim,
+						RoundFloat(height)
+					);
+				}
+				else
+				{
+					CPrintToChatAll( "%t", "HandleDeathCharge_4",
+						victim,
+						RoundFloat(height)
+					);
+				}
 			}
 		}
 		
@@ -3995,34 +4038,37 @@ void HandleClear( attacker, victim, pinVictim, zombieClass, Float:clearTimeA, Fl
 		
 		if ( fClearTime != -1.0 && fClearTime <= fMinTime )
 		{
-			if ( IS_VALID_INGAME(attacker) && IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			if ( IS_VALID_INGAME(attacker) )
 			{
-				if ( IS_VALID_INGAME(pinVictim) )
+				if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
 				{
-					GetClientName(attacker, attackername, sizeof(attackername));
-					GetClientName(victim, victimname, sizeof(victimname));
-					GetClientName(pinVictim, pinVictimname, sizeof(pinVictimname));
-					CPrintToChatAll( "%t", "HandleClear_1", 
-						attackername, fClearTime, victimname, g_csSIClassName[zombieClass], pinVictimname);
-				} else {
-					GetClientName(attacker, attackername, sizeof(attackername));
-					GetClientName(victim, victimname, sizeof(victimname));
-					CPrintToChatAll( "%t", "HandleClear_2",
-						attackername, fClearTime, victimname, g_csSIClassName[zombieClass]);
+					if ( IS_VALID_INGAME(pinVictim) )
+					{
+						GetClientName(attacker, attackername, sizeof(attackername));
+						GetClientName(victim, victimname, sizeof(victimname));
+						GetClientName(pinVictim, pinVictimname, sizeof(pinVictimname));
+						CPrintToChatAll( "%t", "HandleClear_1", 
+							attackername, fClearTime, victimname, g_csSIClassName[zombieClass], pinVictimname);
+					} else {
+						GetClientName(attacker, attackername, sizeof(attackername));
+						GetClientName(victim, victimname, sizeof(victimname));
+						CPrintToChatAll( "%t", "HandleClear_2",
+							attackername, fClearTime, victimname, g_csSIClassName[zombieClass]);
+					}
 				}
-			}
-			else if ( IS_VALID_INGAME(attacker) )
-			{
-				if ( IS_VALID_INGAME(pinVictim) )
+				else
 				{
-					GetClientName(attacker, attackername, sizeof(attackername));
-					GetClientName(pinVictim, pinVictimname, sizeof(pinVictimname));
-					CPrintToChatAll( "%t", "HandleClear_3",
-						attackername, fClearTime, g_csSIClassName[zombieClass], pinVictimname);
-				} else {
-					GetClientName(attacker, attackername, sizeof(attackername));
-					CPrintToChatAll( "%t", "HandleClear_4",
-						attackername, fClearTime, g_csSIClassName[zombieClass]);
+					if ( IS_VALID_INGAME(pinVictim) )
+					{
+						GetClientName(attacker, attackername, sizeof(attackername));
+						GetClientName(pinVictim, pinVictimname, sizeof(pinVictimname));
+						CPrintToChatAll( "%t", "HandleClear_3",
+							attackername, fClearTime, g_csSIClassName[zombieClass], pinVictimname);
+					} else {
+						GetClientName(attacker, attackername, sizeof(attackername));
+						CPrintToChatAll( "%t", "HandleClear_4",
+							attackername, fClearTime, g_csSIClassName[zombieClass]);
+					}
 				}
 			}
 		}
@@ -4088,7 +4134,8 @@ void HandleCarAlarmTriggered( survivor, infected, reason )
 {
 	if (	g_bCvarReportEnable && (g_iCvarReportFlags & REP_CARALARM) &&
 			IS_VALID_INGAME(survivor) && !IsFakeClient(survivor)
-	) {
+	) 
+	{
 		if ( reason == view_as<int>(CALARM_HIT) ) 
 		{
 			CPrintToChatAll( "%t", "HandleCarAlarmTriggered_1", survivor );

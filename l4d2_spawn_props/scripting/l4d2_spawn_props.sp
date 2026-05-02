@@ -3061,7 +3061,7 @@ void SaveMapStripper(int client)
 	char sTime[256];
 	int count;
 	char melee_name[32];
-	FormatTime(sTime, sizeof(sTime), "%Y-%m-%d %H-%M");
+	FormatTime(sTime, sizeof(sTime), "%Y-%m-%d_%H-%M");
 
 	bool bHasObjectNotSavedYet = false;
 	if(client > 0)

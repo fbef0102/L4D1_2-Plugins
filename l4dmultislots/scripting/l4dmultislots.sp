@@ -822,7 +822,7 @@ Action JoinTeam_ColdDown(Handle timer, int userid)
 		{	
 			if(!IsPlayerAlive(client))
 			{
-				PrintHintText(client, "%T", "Please wait to be revived or rescued", client);
+				PrintHintText(client, "%T", "Please wait to be revived or rescued", client, client);
 			}
 			else
 			{

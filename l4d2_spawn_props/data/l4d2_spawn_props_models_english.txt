@@ -867,6 +867,7 @@ models/props_unique/hospital/iv_pole.mdl TAG- Hospital IV Pole
 models/props_c17/hospital_cart01.mdl TAG- Hospital Cart
 models/props/cs_assault/camera.mdl TAG- Surveillance Camera
 models/props_urban/mega_phone001.mdl TAG- Dual-Head Broadcast Speaker
+models/props_equipment/elevator_buttons.mdl TAG- elevator buttons
 //Category Misc
 models/props_exteriors/wood_stairs_swamp.mdl TAG- Swamp Wooden Stairs - 5 Steps
 models/props_exteriors/wood_stairs_120_swamp.mdl TAG- Swamp Wooden Stairs - 15 Steps
