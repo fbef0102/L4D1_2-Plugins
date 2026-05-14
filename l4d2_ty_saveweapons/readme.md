@@ -20,8 +20,8 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [l4d_heartbeat](/l4d_heartbeat)
-    3. [transition_restore_fix](https://forums.alliedmods.net/showthread.php?t=336287)
-    4. [l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
+    3. [l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
+    4. (L4D2 only) [transition_restore_fix](https://forums.alliedmods.net/showthread.php?t=336287)
 
 * <details><summary>Support | 支援插件</summary>
 
@@ -47,6 +47,9 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 
         // If 1, save character model and restore.
         l4d2_ty_saveweapons_save_character "0"
+
+        // (L4D1) Do not restore weapons and health to a player after survivors have left start safe area for at least x seconds. (0=Always restore)
+        l4d2_ty_saveweapons_game_seconds_block "60"
         ```
 </details>
 
@@ -71,6 +74,7 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v6.7 (2026-5-14)
     * v6.6 (2026-2-20)
         * Try different way to restore health and weapon, rewrite code
         * Reqire Transition Restore Fix, Transition Entity
@@ -139,6 +143,10 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 
         // 為1時，保存角色與模型
         l4d2_ty_saveweapons_save_character "0"
+
+        // (L4D1) 倖存者出去安全室60秒之後不能再恢复血量與武器 (避免有人載入關卡太慢)
+        // 0=永遠恢复上一關保存的血量與武器
+        l4d2_ty_saveweapons_game_seconds_block "60"
         ```
 </details>
 

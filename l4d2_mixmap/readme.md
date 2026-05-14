@@ -7,6 +7,8 @@ Randomly select five maps for versus/coop/realism. Adding for fun
 	L4D2 Survival/Coop/Versus/Realism
 	```
 
+* [Video | 影片展示](https://youtu.be/9dMUec5vsI0)
+
 * Image | 圖示
 	<br/>![l4d2_mixmap_1](image/l4d2_mixmap_1.jpg)
 	<br/>![l4d2_mixmap_2](image/l4d2_mixmap_2.jpg)

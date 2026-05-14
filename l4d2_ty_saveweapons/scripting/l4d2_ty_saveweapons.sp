@@ -14,7 +14,7 @@
 #include <left4dhooks>
 #include <l4d_heartbeat>
 #include <l4d_transition_entity> // https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity
-#define PLUGIN_VERSION			"6.6-2026/2/20"
+#define PLUGIN_VERSION			"6.7-2026/5/14"
 #define DEBUG 0
 
 public Plugin myinfo =
@@ -127,7 +127,7 @@ static char survivor_models_L4D2[8][] =
 	"models/survivors/survivor_manager.mdl"
 };
 
-ConVar g_hFullHealth, /*g_hGameTimeBlock, */
+ConVar g_hFullHealth, g_hGameTimeBlock, 
 	g_hSaveBot, g_hSaveHealth, g_hSaveCharacter, g_hCvarReviveHealth, g_hSurvivorMaxInc;
 
 char sg_slot0[MAXPLAYERS+1][64];			/* slot0 weapon */
@@ -142,8 +142,8 @@ int ig_slots0_upgraded_ammo[MAXPLAYERS+1]; 	/* slot0 m_nUpgradedPrimaryAmmoLoade
 int ig_slots0_skin[MAXPLAYERS+1]; 			/* slot0 m_nSkin */
 int ig_slots1_skin[MAXPLAYERS+1]; 			/* slot1 m_nSkin */
 int ig_slots0_ammo[MAXPLAYERS+1]; 			/* slot0 ammo */
-//bool g_bMapGiven[MAXPLAYERS+1];				/* client is already stored */
-//bool g_bThroughMap[MAXPLAYERS+1];				/* client is recorded to save */
+bool g_bMapGiven[MAXPLAYERS+1];				/* client is already stored */
+bool g_bThroughMap[MAXPLAYERS+1];			/* client is recorded to save */
 bool g_bSlot1_IsMelee[MAXPLAYERS+1];		/* slot1 is melee */
 
 enum Enum_Health
@@ -162,20 +162,20 @@ int 	g_iProp[MAXPLAYERS+1]; 									//client character index
 char 	g_sModelInfo[MAXPLAYERS+1][64]; 						//client character model
 
 bool 
-	//g_bGiveWeaponBlock, 
-	//g_bRoundStarted,
+	g_bGiveWeaponBlock, 
+	g_bRoundStarted,
 	g_bMapTransition,
 	g_bOldClientThroughMap[MAXPLAYERS+1],
 	g_bOldClientGiven[MAXPLAYERS+1];
 
 int 
-	//g_iCountDownTime,	
+	g_iCountDownTime,	
 	g_iOffsetAmmo, 
 	g_iPrimaryAmmoType;
 
-//Handle 
-//	PlayerLeftStartTimer, 
-//	CountDownTime;
+Handle 
+	PlayerLeftStartTimer, 
+	CountDownTimer;
 
 int g_iReviveTempHealth;
 
@@ -210,7 +210,7 @@ public void OnPluginStart()
 	g_hSurvivorMaxInc = FindConVar("survivor_max_incapacitated_count");
 
 	g_hFullHealth = 	CreateConVar("l4d2_ty_saveweapons_health", 				"0", "If 1, restore 100 full health when end of chapter.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	//g_hGameTimeBlock = 	CreateConVar("l4d2_ty_saveweapons_game_seconds_block", "60", "Do not restore weapons and health after survivors have left start safe area for at least x seconds. (0=Always restore)", FCVAR_NOTIFY, true, 0.0);
+	if(!g_bL4D2Version) g_hGameTimeBlock = 	CreateConVar("l4d2_ty_saveweapons_game_seconds_block",  "60", "Do not restore weapons and health after survivors have left start safe area for at least x seconds. (0=Always restore)", FCVAR_NOTIFY, true, 0.0);
 	g_hSaveBot = 		CreateConVar("l4d2_ty_saveweapons_save_bot", 			"1", "If 1, save weapons and health for bots as well.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hSaveHealth = 	CreateConVar("l4d2_ty_saveweapons_save_health",			"1", "If 1, save health and restore. (can save >100 hp)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hSaveCharacter = 	CreateConVar("l4d2_ty_saveweapons_save_character",		"0", "If 1, save character model and restore.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -222,7 +222,7 @@ public void OnPluginStart()
 	g_hSurvivorMaxInc.AddChangeHook(ConVarChanged_Cvars);
 	
 	g_hFullHealth.AddChangeHook(ConVarChanged_Cvars);
-	//g_hGameTimeBlock.AddChangeHook(ConVarChanged_Cvars);
+	if(!g_bL4D2Version) g_hGameTimeBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hSaveBot.AddChangeHook(ConVarChanged_Cvars);
 	g_hSaveHealth.AddChangeHook(ConVarChanged_Cvars);
 	g_hSaveCharacter.AddChangeHook(ConVarChanged_Cvars);
@@ -235,8 +235,11 @@ public void OnPluginStart()
 	HookEvent("mission_lost", 			Event_RoundEnd,				EventHookMode_PostNoCopy); //戰役滅團重來該關卡的時候 (之後有觸發round_end)
 	HookEvent("finale_win", 			Event_RoundEnd,				EventHookMode_PostNoCopy); 
 	HookEvent("map_transition", 		Event_MapTransition_Pre, 	EventHookMode_Pre);
-	//HookEvent("player_bot_replace", 	Event_BotReplacedPlayer);
-	//HookEvent("player_disconnect", 		Event_PlayerDisconnect, EventHookMode_Pre); //換圖不會觸發該事件
+	if(!g_bL4D2Version)
+	{
+		HookEvent("player_bot_replace", 	Event_BotReplacedPlayer);
+		HookEvent("player_disconnect", 		Event_PlayerDisconnect, EventHookMode_Pre); //換圖不會觸發該事件
+	}
 
 	HxCleaningAll();
 }
@@ -300,12 +303,12 @@ void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newV
 	GetCvars();
 }
 
-//int g_iGameTimeBlock;
+int g_iGameTimeBlock;
 bool g_bFullhealth, g_bSaveBot, g_bSaveHealth, g_bSaveCharacter;
 void GetCvars()
 {
 	g_bFullhealth = g_hFullHealth.BoolValue;
-	//g_iGameTimeBlock = g_hGameTimeBlock.IntValue;
+	if(!g_bL4D2Version) g_iGameTimeBlock = g_hGameTimeBlock.IntValue;
 	g_bSaveBot = g_hSaveBot.BoolValue;
 	g_bSaveHealth = g_hSaveHealth.BoolValue;
 	g_bSaveCharacter = g_hSaveCharacter.BoolValue;
@@ -317,7 +320,7 @@ public void OnClientDisconnect(int client)
 	delete g_hCheckPlayerTimer[client];
 }
 
-Action HxTimerRestore(Handle timer, DataPack hPack)
+Action HxTimerRestore_L4D2(Handle timer, DataPack hPack)
 {
 	hPack.Reset();
 	int index = hPack.ReadCell();
@@ -326,17 +329,33 @@ Action HxTimerRestore(Handle timer, DataPack hPack)
 
 	g_hCheckPlayerTimer[index] = null;
 
-	//if(g_bGiveWeaponBlock) return Plugin_Continue;
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 2) return Plugin_Continue;
+
+	HxGiveC(client, oldindex);
+
+	return Plugin_Continue;
+}
+
+Action HxTimerRestore_L4D1(Handle timer, DataPack hPack)
+{
+	hPack.Reset();
+	int index = hPack.ReadCell();
+	int client = GetClientOfUserId(hPack.ReadCell());
+	int oldindex = hPack.ReadCell();
+
+	g_hCheckPlayerTimer[index] = null;
+
+	if(g_bGiveWeaponBlock) return Plugin_Continue;
 	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 2) return Plugin_Continue;
 	
-	/*if(IsFakeClient(client))
+	if(IsFakeClient(client))
 	{
 		if(!g_bSaveBot)
 			return Plugin_Continue;
 
 		if(HasIdlePlayer(client))
 			return Plugin_Continue;
-	}*/
+	}
 
 	HxGiveC(client, oldindex);
 
@@ -347,9 +366,9 @@ Action HxTimerRestore(Handle timer, DataPack hPack)
 int g_iRoundStart, g_iPlayerSpawn;
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-	//g_bRoundStarted = false;
-	//for( int i = 1; i <= MaxClients; i++) g_bMapGiven[i] = false;
-	//g_bGiveWeaponBlock = false;
+	g_bRoundStarted = false;
+	for( int i = 1; i <= MaxClients; i++) g_bMapGiven[i] = false;
+	g_bGiveWeaponBlock = false;
 
 	for( int i = 1; i <= MaxClients; i++) 
 		g_bOldClientGiven[i] = false;
@@ -365,41 +384,47 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		CreateTimer(0.5, tmrStart, _, TIMER_FLAG_NO_MAPCHANGE);
 	g_iPlayerSpawn = 1;
 
-	/*int client = GetClientOfUserId(event.GetInt("userid"));
-
-	if(g_bRoundStarted && g_bGiveWeaponBlock == false
-		&& client && IsClientInGame(client))
+	if(!g_bL4D2Version)
 	{
-		delete g_hCheckPlayerTimer[client];
-		g_hCheckPlayerTimer[client] = CreateTimer(0.5, HxTimerRestore, client);
-	}*/
+		int client = GetClientOfUserId(event.GetInt("userid"));
+
+		if(g_bRoundStarted && g_bGiveWeaponBlock == false
+			&& client && IsClientInGame(client))
+		{
+			delete g_hCheckPlayerTimer[client];
+			g_hCheckPlayerTimer[client] = CreateTimer(0.5, HxTimerRestore_L4D1, client);
+		}
+	}
 }
 
 Action tmrStart(Handle timer)
 {
 	ResetPlugin();
 
-	//g_bRoundStarted = true;
-
-	/*if(L4D_GetGameModeType() == GAMEMODE_COOP)
+	if(!g_bL4D2Version)
 	{
-		for (int i = 1; i <= MaxClients; i++)
+		g_bRoundStarted = true;
+
+		if(L4D_GetGameModeType() == GAMEMODE_COOP)
 		{
-			if (IsClientInGame(i))
+			for (int i = 1; i <= MaxClients; i++)
 			{
-				delete g_hCheckPlayerTimer[i];
-				g_hCheckPlayerTimer[i] = CreateTimer(0.5, HxTimerRestore, i);
+				if (IsClientInGame(i))
+				{
+					delete g_hCheckPlayerTimer[i];
+					g_hCheckPlayerTimer[i] = CreateTimer(0.5, HxTimerRestore_L4D1, i);
+				}
 			}
 		}
-	}
 
-	delete PlayerLeftStartTimer;
-	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);*/
+		delete PlayerLeftStartTimer;
+		PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
+	}
 	
 	return Plugin_Continue;
 }
 
-/*Action Timer_PlayerLeftStart(Handle Timer)
+Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{
@@ -427,7 +452,7 @@ Action Timer_CountDown(Handle timer)
 	g_iCountDownTime--;
 	return Plugin_Continue;
 }
-*/
+
 void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	ResetPlugin();
@@ -467,7 +492,7 @@ void Event_MapTransition_Pre(Event event, const char[] name, bool dontBroadcast)
 					}
 				}
 
-				/*SetEntProp(client, Prop_Send, "m_currentReviveCount", 0);
+				/*
 				SetEntProp(client, Prop_Send, "m_isGoingToDie", 0);
 				SetEntProp(client, Prop_Send, "m_bIsOnThirdStrike", 0);
 				
@@ -493,11 +518,14 @@ void Event_MapTransition_Pre(Event event, const char[] name, bool dontBroadcast)
 		}
 	}
 
-	//delay is necessary for waiting all afk human players to take over bot or slot 2 throwable weapon is gone
-	//CreateTimer(1.5, Timer_Event_MapTransition, _, TIMER_FLAG_NO_MAPCHANGE); 
+	if(!g_bL4D2Version)
+	{
+		//delay is necessary for waiting all afk human players to take over bot or slot 2 throwable weapon is gone
+		CreateTimer(1.5, Timer_Event_MapTransition_L4D1, _, TIMER_FLAG_NO_MAPCHANGE); 
+	}
 }
 
-/*Action Timer_Event_MapTransition(Handle timer)
+Action Timer_Event_MapTransition_L4D1(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
@@ -511,24 +539,27 @@ void Event_MapTransition_Pre(Event event, const char[] name, bool dontBroadcast)
 	}
 	
 	return Plugin_Continue;
-}*/
+}
 
-/*void Event_BotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
+void Event_BotReplacedPlayer(Event event, const char[] name, bool dontBroadcast) 
 {
 	int bot = GetClientOfUserId(event.GetInt("bot"));
 	if(bot && IsClientInGame(bot) && GetClientTeam(bot) == L4D_TEAM_SURVIVOR && IsPlayerAlive(bot)) g_bMapGiven[bot] = true;
-}*/
+}
 
-/*void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
+void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	HxCleaning(client);
-}*/
+}
 
 void HxGiveC(int client, int oldindex)
 {
-	//if(g_bThroughMap[client] == false || g_bMapGiven[client] == true) return;
-	//g_bMapGiven[client] = true;
+	if(!g_bL4D2Version)
+	{
+		if(g_bThroughMap[client] == false || g_bMapGiven[client] == true) return;
+		g_bMapGiven[client] = true;
+	}
 
 	if(g_bOldClientThroughMap[oldindex] == false || g_bOldClientGiven[oldindex] == true) return;
 	g_bOldClientGiven[oldindex] = true;
@@ -567,7 +598,6 @@ void HxGiveC(int client, int oldindex)
 		SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime() - 1.0*g_iHealthInfo[oldindex][iHealthTime]);
 		
 		/*
-		SetEntProp(client, Prop_Send, "m_currentReviveCount", g_iHealthInfo[oldindex][iReviveCount]);
 		SetEntProp(client, Prop_Send, "m_isGoingToDie", g_iHealthInfo[oldindex][iGoingToDie]);
 		SetEntProp(client, Prop_Send, "m_bIsOnThirdStrike", g_iHealthInfo[oldindex][iThirdStrike]);
 
@@ -775,7 +805,7 @@ stock void HxRemoveWeaponSlot(int client, int slot)
 
 void HxSaveC(int client)
 {
-	//g_bThroughMap[client] = true;
+	g_bThroughMap[client] = true;
 	
 	int iSlot0;
 	int iSlot1;
@@ -801,7 +831,6 @@ void HxSaveC(int client)
 			g_iHealthInfo[client][iHealthTemp]  =  g_iReviveTempHealth;
 			g_iHealthInfo[client][iHealthTime]  =  0;
 			//g_iHealthInfo[client][iGoingToDie]  =  1;
-			//g_iHealthInfo[client][iReviveCount] =  GetEntProp(client, Prop_Send, "m_currentReviveCount") + 1;
 			//g_iHealthInfo[client][iThirdStrike] =  g_iHealthInfo[client][iReviveCount] >= g_iSurvivorMaxInc ? 1 : 0;
 			g_iHealthInfo[client][iReviveCount] = Heartbeat_GetRevives(client) + 1;
 		}
@@ -811,7 +840,6 @@ void HxSaveC(int client)
 			g_iHealthInfo[client][iHealthTemp]	= RoundToNearest( GetEntPropFloat(client, Prop_Send, "m_healthBuffer") );
 			g_iHealthInfo[client][iHealthTime]  = RoundToNearest( GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime") );
 			//g_iHealthInfo[client][iGoingToDie]  = GetEntProp(client, Prop_Send, "m_isGoingToDie");
-			//g_iHealthInfo[client][iReviveCount] = GetEntProp(client, Prop_Send, "m_currentReviveCount");
 			//g_iHealthInfo[client][iThirdStrike] = GetEntProp(client, Prop_Send, "m_bIsOnThirdStrike");
 			g_iHealthInfo[client][iReviveCount] = Heartbeat_GetRevives(client);
 		}
@@ -901,7 +929,7 @@ void HxCleaning(int client)
 	g_iProp[client] = 0;
 	g_sModelInfo[client][0] = '\0';
 	
-	//g_bThroughMap[client] = false;
+	g_bThroughMap[client] = false;
 	g_bSlot1_IsMelee[client] = false;
 	g_bOldClientThroughMap[client] = false;
 }
@@ -1026,8 +1054,8 @@ void ResetPlugin()
 
 void ResetTimer()
 {
-	//delete PlayerLeftStartTimer;
-	//delete CountDownTimer;
+	delete PlayerLeftStartTimer;
+	delete CountDownTimer;
 	for(int i = 1; i <= MaxClients; i++)
 	{
 		delete g_hCheckPlayerTimer[i];
@@ -1133,6 +1161,9 @@ int my_GetInfectedAttacker(int client)
 // 順序: "map_transition" -> L4D_OnPlayerTransitioning -> L4D_OnPlayerItemTransitioning
 public void L4D_OnPlayerTransitioning(int client)
 {
+	// 一代沒支援transition_restore_fix
+	if(!g_bL4D2Version) return;
+
 	HxCleaning(client);
 
 	if(L4D_GetGameModeType() != GAMEMODE_COOP) return;
@@ -1149,13 +1180,16 @@ public void L4D_OnPlayerTransitioning(int client)
 // 順序: "player_spawn" -> L4D_OnPlayerTransitioned -> L4D_OnPlayerItemTransitioned
 public void L4D_OnPlayerTransitioned(int client, int oldindex, int olduserid)
 {
+	// 一代沒支援transition_restore_fix
+	if(!g_bL4D2Version) return;
+
 	if(L4D_GetGameModeType() != GAMEMODE_COOP) return;
 	if(GetClientTeam(client) != L4D_TEAM_SURVIVOR) return;
 
 	delete g_hCheckPlayerTimer[client];
 
 	DataPack hPack;
-	g_hCheckPlayerTimer[client] = CreateDataTimer(0.5, HxTimerRestore, hPack);
+	g_hCheckPlayerTimer[client] = CreateDataTimer(0.5, HxTimerRestore_L4D2, hPack);
 	hPack.WriteCell(client);
 	hPack.WriteCell(GetClientUserId(client));
 	hPack.WriteCell(oldindex);

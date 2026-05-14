@@ -2271,14 +2271,7 @@ int FindWitchCurrentTarget(int witch)
 		BehaviorAction action = ActionsManager.GetAction(witch, "WitchAttack");
 		if (action != INVALID_ACTION)
 		{
-			int ehndl = action.Get(52);
-			static int iOffs_m_hHarasser = -1;
-			if(iOffs_m_hHarasser == -1) iOffs_m_hHarasser = FindSendPropInfo("Witch", "m_rage") + 20;
-			
-			int temp = GetEntData(witch, iOffs_m_hHarasser);
-			SetEntData(witch, iOffs_m_hHarasser, ehndl);
-			int target = GetEntDataEnt2(witch, iOffs_m_hHarasser);
-			SetEntData(witch, iOffs_m_hHarasser, temp);
+			int target = action.GetHandleEntity(52);
 
 			if (target != -1 && IsClientInGame(target))
 				return target;
