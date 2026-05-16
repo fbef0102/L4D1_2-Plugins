@@ -1,0 +1,191 @@
+////  Thanks to Psykotikism's repo! I suck at these but being able to use them is great
+// Signature Source (and fetch steps):
+// https://github.com/Psykotikism/L4D1-2_Signatures
+"Games"
+{
+	"#default"
+	{
+		"#supported"
+		{
+			"game" "left4dead"
+			"game" "left4dead2"
+		}
+		// DHooks Detour
+		"Functions"
+		{
+			// Params: (int,CBaseCombatCharacter const*)
+			"CAmmoDef::MaxCarry"
+			{
+				"signature"	"CAmmoDef::MaxCarry"
+				"callconv"	"thiscall"
+				"return"	"int"
+				"this"		"ignore"
+				"arguments"
+				{
+					"ammoindex"
+					{
+						"type"	"int"
+					}
+					"self"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+            "CWeaponSpawn::Use"
+            {
+                "signature"   "CWeaponSpawn::Use"
+                "callconv"    "thiscall"
+                "return"      "void"
+                "this"        "entity"
+                "arguments"
+                {
+                    "pActivator"
+                    {
+                        "type"    "cbaseentity"
+                    }
+                    "pCaller"
+                    {
+                        "type"    "cbaseentity"
+                    }
+                    "useType"
+                    {
+                        "type"    "int"
+                    }
+                    "value"
+                    {
+                        "type"    "float"
+                    }
+                }
+            }
+            "CWeaponAmmoSpawn::Use"
+            {
+                "signature"   "CWeaponAmmoSpawn::Use"
+                "callconv"    "thiscall"
+                "return"      "void"
+                "this"        "entity"
+                "arguments"
+                {
+                    "pActivator"
+                    {
+                        "type"    "cbaseentity"
+                    }
+                    "pCaller"
+                    {
+                        "type"    "cbaseentity"
+                    }
+                    "useType"
+                    {
+                        "type"    "int"
+                    }
+                    "value"
+                    {
+                        "type"    "float"
+                    }
+                }
+            }
+		}
+	}
+	
+	"left4dead"
+	{
+		"Signatures"
+		{
+            // credits to Orin, Psykotikism for the signatures: https://github.com/Psykotikism/L4D1-2_Signatures/blob/main/l4d1/gamedata/l4d1_signatures.txt
+			/**
+			 * CAmmoDef::MaxCarry(int, CBaseCombatCharacter const*)
+			 *
+			 * How to find on Windows:
+			 * 1. Find the function's offsets with asherkin's VTable dump.
+			 * 2. In IDA Pro, go to the ".rdata" section of the Windows binary.
+			 * 3. Search for "CAmmoDef::`vftable'" to jump to the "CAmmoDef" vtable.
+			 * 4. Compare your dump's offsets with asherkin's dump's offsets to find the target function.
+			 * 5. Look for the target function in the Windows binary.
+			 **/
+			"CAmmoDef::MaxCarry"
+			{
+				"library"	"server"
+				"linux"		"@_ZN8CAmmoDef8MaxCarryEiPK20CBaseCombatCharacter"
+				"mac"		"@_ZN8CAmmoDef8MaxCarryEiPK20CBaseCombatCharacter"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x7C\x2A\x3B\x2A\x2A\x7D\x2A\x6B\x2A\x2A\x03\x2A\x8B\x2A\x2A\x83\x2A\x2A\x75\x2A\x8B\x2A\x2A\x85\x2A\x74\x2A\x8B\x2A\x2A\x8B\x2A\x2A\xC2"
+						/* ? ? ? ? ? ? ? 7C ? 3B ? ? 7D ? 6B ? ? 03 ? 8B ? ? 83 ? ? 75 ? 8B ? ? 85 ? 74 ? 8B ? ? 8B ? ? C2 */
+			}
+			
+			/**
+			 * CWeaponSpawn::Use(CBaseEntity *, CBaseEntity *, USE_TYPE, float)
+			 *
+			 * How to find on Windows:
+			 * 1a. Search for the "spawner_give_item" string.
+			 * 2a. The string can only be found in this function.
+			 *
+			 * 1b. Find the function's offsets with asherkin's VTable dump.
+			 * 2b. In IDA Pro, go to the ".rdata" section of the Windows binary.
+			 * 3b. Search for "CWeaponSpawn::`vftable'" to jump to the "CWeaponSpawn" vtable.
+			 * 4b. Compare your dump's offsets with asherkin's dump's offsets to find the target function.
+			 * 5b. Look for the target function in the Windows binary.
+			 **/
+			"CWeaponSpawn::Use"
+			{
+				"library"	"server"
+				"linux"		"@_ZN12CWeaponSpawn3UseEP11CBaseEntityS1_8USE_TYPEf"
+				"mac"		"@_ZN12CWeaponSpawn3UseEP11CBaseEntityS1_8USE_TYPEf"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x85\x2A\x8B\x2A\x89\x2A\x2A\x2A\x0F\x84\x2A\x2A\x2A\x2A\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x8B\x2A\xFF\x2A\x84\x2A\x0F\x84\x2A\x2A\x2A\x2A\x8B"
+						/* ? ? ? ? ? ? ? ? ? 85 ? 8B ? 89 ? ? ? 0F 84 ? ? ? ? 8B ? 8B 90 ? ? ? ? 8B ? FF ? 84 ? 0F 84 ? ? ? ? 8B */
+			}
+			
+			/**
+			 * CWeaponAmmoSpawn::Use(CBaseEntity *, CBaseEntity *, USE_TYPE, float)
+			 *
+			 * How to find on Windows:
+			 * 1. Find the function's offsets with asherkin's VTable dump.
+			 * 2. In IDA Pro, go to the ".rdata" section of the Windows binary.
+			 * 3. Search for "CWeaponAmmoSpawn::`vftable'" to jump to the "CWeaponAmmoSpawn" vtable.
+			 * 4. Compare your dump's offsets with asherkin's dump's offsets to find the target function.
+			 * 5. Look for the target function in the Windows binary.
+			 **/
+			"CWeaponAmmoSpawn::Use"
+			{
+				"library"	"server"
+				"linux"		"@_ZN16CWeaponAmmoSpawn3UseEP11CBaseEntityS1_8USE_TYPEf"
+				"mac"		"@_ZN16CWeaponAmmoSpawn3UseEP11CBaseEntityS1_8USE_TYPEf"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x0F\x84\x2A\x2A\x2A\x2A\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x8B\x2A\xFF\x2A\x84\x2A\x0F\x84\x2A\x2A\x2A\x2A\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x6A"
+						/* ? ? ? ? ? ? ? 0F 84 ? ? ? ? 8B ? 8B 90 ? ? ? ? 8B ? FF ? 84 ? 0F 84 ? ? ? ? 8B ? 8B 90 ? ? ? ? 6A */
+			}
+		}
+	}
+	
+	"left4dead2"
+	{
+		"Signatures"
+		{
+            // credits to Orin, Psykotikism for the signatures.
+            // https://forums.alliedmods.net/showthread.php?t=334274
+            "CAmmoDef::MaxCarry"
+            {
+                "library"   "server"
+                "linux"     "@_ZN8CAmmoDef8MaxCarryEiPK20CBaseCombatCharacter"
+                "windows"   "\x2A\x2A\x2A\x2A\x2A\x2A\x83\x2A\x2A\x7C\x2A\x3B\x2A\x2A\x7D\x2A\x6B\x2A\x2A\x03\x2A\x8B\x2A\x2A\x83\x2A\x2A\x75\x2A\x8B\x2A\x2A\x85\x2A\x74\x2A\x8B\x2A\x2A\x8B\x2A\x2A\x5D"
+                /* ? ? ? ? ? ? 83 ? ? 7C ? 3B ? ? 7D ? 6B ? ? 03 ? 8B ? ? 83 ? ? 75 ? 8B ? ? 85 ? 74 ? 8B ? ? 8B ? ? 5D */
+            }
+            // windows sig:
+            // search string is "spawner_give_item".
+            "CWeaponSpawn::Use"
+            {
+                "library"   "server"
+                "linux"     "@_ZN12CWeaponSpawn3UseEP11CBaseEntityS1_8USE_TYPEf"
+                "windows"   "\x55\x8B\xEC\x83\xEC\x2A\x53\x57\x8B\x7D\x2A\x8B\xD9\x85\xFF\x0F\x84\x2A\x2A\x2A\x2A\x8B\x07"
+                /* 55 8B EC 83 EC ? 53 57 8B 7D ? 8B D9 85 FF 0F 84 ? ? ? ? 8B 07 */
+            }
+
+            // windows sig:
+            // search string is "ammo_pile_weapon_cant_use_ammo"
+            "CWeaponAmmoSpawn::Use"
+            {
+                "library"   "server"
+                "linux"     "@_ZN16CWeaponAmmoSpawn3UseEP11CBaseEntityS1_8USE_TYPEf"
+                "windows"   "\x55\x8B\xEC\x51\x53\x8B\x5D\x2A\x85\xDB\x0F\x84\x2A\x2A\x2A\x2A\x8B\x03\x8B\x90\x2A\x2A\x2A\x2A\x8B\xCB\xFF\xD2"
+                /* 55 8B EC 51 53 8B 5D ? 85 DB 0F 84 ? ? ? ? 8B 03 8B 90 ? ? ? ? 8B CB FF D2 */
+            }
+		}
+	}
+}

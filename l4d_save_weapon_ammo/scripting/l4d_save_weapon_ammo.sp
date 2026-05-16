@@ -198,7 +198,7 @@ void WeaponCanUsePost(int client, int weapon)
 
 	//PrintToChatAll("%N WeaponCanUsePost", client);
 
-	// l4d_reservecontrol 在WeaponEquipPost修改武器彈藥
+	// l4d_reserve_ammo_control 在WeaponEquipPost修改武器彈藥
 	// 下一偵才能取得新武器的彈藥
 	DataPack dPack = new DataPack();
 	dPack.WriteCell(GetClientUserId(client));
