@@ -310,7 +310,9 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 自定義生還者最大血量
 * <b>[l4d_reserve_ammo_control](/l4d_reserve_ammo_control)</b>: Individually control each weapons's reserve ammo
     * 控制每一種武器的後備彈藥數量 (手槍除外)
-    
+* <b>[l4d_cutscene_nodamage](/l4d_cutscene_nodamage)</b>: Survivors won't take any damage when server is playing map cutscenes
+    * 播放地圖的過場動畫時，倖存者不會受傷
+
 # Scripting Compiler
 * [sourcemod v1.12 compiler](https://www.sourcemod.net/downloads.php?branch=1.12-dev): scripting folder
     * 使用 sourcemod v1.12 的編譯環境
