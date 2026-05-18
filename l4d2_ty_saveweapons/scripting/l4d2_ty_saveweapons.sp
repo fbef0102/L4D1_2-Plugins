@@ -158,7 +158,7 @@ enum Enum_Health
 	
 }
 int 	g_iHealthInfo[MAXPLAYERS+1][view_as<int>(iHealthMAX)]; 	//client health
-int 	g_iProp[MAXPLAYERS+1]; 									//client character index
+int 	g_iSurvivorCharacter[MAXPLAYERS+1]; 									//client character index
 char 	g_sModelInfo[MAXPLAYERS+1][64]; 						//client character model
 
 bool 
@@ -336,17 +336,12 @@ Action HxTimerRestore_L4D2(Handle timer, DataPack hPack)
 	return Plugin_Continue;
 }
 
-Action HxTimerRestore_L4D1(Handle timer, DataPack hPack)
+Action HxTimerRestore_L4D1(Handle timer, int client)
 {
-	hPack.Reset();
-	int index = hPack.ReadCell();
-	int client = GetClientOfUserId(hPack.ReadCell());
-	int oldindex = hPack.ReadCell();
-
-	g_hCheckPlayerTimer[index] = null;
+	g_hCheckPlayerTimer[client] = null;
 
 	if(g_bGiveWeaponBlock) return Plugin_Continue;
-	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 2) return Plugin_Continue;
+	if(!IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) != 2) return Plugin_Continue;
 	
 	if(IsFakeClient(client))
 	{
@@ -357,7 +352,7 @@ Action HxTimerRestore_L4D1(Handle timer, DataPack hPack)
 			return Plugin_Continue;
 	}
 
-	HxGiveC(client, oldindex);
+	HxGiveC(client, client);
 
 	return Plugin_Continue;
 }
@@ -560,14 +555,16 @@ void HxGiveC(int client, int oldindex)
 		if(g_bThroughMap[client] == false || g_bMapGiven[client] == true) return;
 		g_bMapGiven[client] = true;
 	}
-
-	if(g_bOldClientThroughMap[oldindex] == false || g_bOldClientGiven[oldindex] == true) return;
-	g_bOldClientGiven[oldindex] = true;
+	else
+	{
+		if(g_bOldClientThroughMap[oldindex] == false || g_bOldClientGiven[oldindex] == true) return;
+		g_bOldClientGiven[oldindex] = true;
+	}
 
 	// Update model & props
 	if(g_bSaveCharacter)
 	{
-		SetEntProp(client, Prop_Send, "m_survivorCharacter", g_iProp[oldindex]);  
+		SetEntProp(client, Prop_Send, "m_survivorCharacter", g_iSurvivorCharacter[oldindex]);  
 		SetEntityModel(client, g_sModelInfo[oldindex]);
 		if (IsFakeClient(client))		// if bot, replace name
 		{
@@ -818,8 +815,8 @@ void HxSaveC(int client)
 		// Store model
 		GetClientModel(client, g_sModelInfo[client], sizeof(g_sModelInfo[]));
 		
-		// Store prop
-		g_iProp[client] = GetEntProp(client, Prop_Send, "m_survivorCharacter");
+		// Store character
+		g_iSurvivorCharacter[client] = GetEntProp(client, Prop_Send, "m_survivorCharacter");
 	}
 	
 	if (g_bSaveHealth)
@@ -926,7 +923,7 @@ void HxCleaning(int client)
 	g_iHealthInfo[client][iGoingToDie] = 0;
 	g_iHealthInfo[client][iThirdStrike] = 0;
 	
-	g_iProp[client] = 0;
+	g_iSurvivorCharacter[client] = 0;
 	g_sModelInfo[client][0] = '\0';
 	
 	g_bThroughMap[client] = false;

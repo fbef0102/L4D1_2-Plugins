@@ -652,8 +652,8 @@ models/props_unique/subwaytracks01_f.mdl TAG- 鐵軌 f
 models/props_unique/subwaytracks01_g.mdl TAG- 鐵軌 g
 models/props_unique/subwaytracks01_h.mdl TAG- 鐵軌 h
 //Category Decorative 裝飾類
-models/props_unique/spawn_apartment/coffeeammo.mdl TAG- 彈藥推 (L4D model)
-models/props/terror/ammo_stack.mdl TAG- 彈藥推 (L4D2 model)
+models/props_unique/spawn_apartment/coffeeammo.mdl TAG- 彈藥堆 (L4D model)
+models/props/terror/ammo_stack.mdl TAG- 彈藥堆 (L4D2 model)
 models/props/de_prodigy/ammo_can_02.mdl TAG- 彈藥箱模型
 models/w_models/weapons/w_pistol_1911.mdl TAG- L4D1手槍模型
 models/w_models/weapons/w_smg_uzi.mdl TAG- Uzi機槍模型

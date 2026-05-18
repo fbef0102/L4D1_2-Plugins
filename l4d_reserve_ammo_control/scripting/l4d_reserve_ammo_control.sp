@@ -1,8 +1,3 @@
-/**
- * "l4d_reservecontrol" "1.1" 變體插件
- * -修復client not in game error
- */
-
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -10,8 +5,9 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <dhooks>
+#include <l4d_transition_entity> //https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity
 
-#define PLUGIN_VERSION			"1.0h-2026/5/16"
+#define PLUGIN_VERSION			"1.1h-2026/5/18"
 #define PLUGIN_NAME			    "l4d_reserve_ammo_control"
 #define DEBUG 0
 
@@ -25,6 +21,7 @@ public Plugin myinfo =
 	url = "https://github.com/fbef0102/L4D1_2-Plugins"
 };
 
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	EngineVersion test = GetEngineVersion();
@@ -34,6 +31,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
+
+	g_bL4D2Version = (test == Engine_Left4Dead2);
 
 	g_bLateLoad = late;
 	return APLRes_Success;
@@ -47,16 +46,47 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define MAXENTITIES                   2048
 
+ConVar g_hAmmoAutoShot, g_hAmmoChainsaw, g_hAmmoGL, g_hAmmoHunting, g_hAmmoM60, g_hAmmoRifle, g_hAmmoShotgun, g_hAmmoSmg, g_hAmmoSniper;
+int g_iAmmoAutoShot, g_iAmmoChainsaw, g_iAmmoGL, g_iAmmoHunting, g_iAmmoM60, g_iAmmoRifle, g_iAmmoShotgun, g_iAmmoSmg, g_iAmmoSniper;
+
 StringMap 
 	g_smReserveData;
 
 bool 
+	//g_bWeaponSpawn, g_bWeaponAmmoSpawn,
 	g_bWeaponAlreadySetAmmo[MAXENTITIES+1],
-	g_bWeaponSpawn, g_bWeaponAmmoSpawn;
+	g_bIsEntityTransitioned[MAXENTITIES+1];
 
 public void OnPluginStart()
 {
 	LoadGameData();
+
+	g_hAmmoRifle =			FindConVar("ammo_assaultrifle_max");
+	g_hAmmoShotgun =		g_bL4D2Version ? FindConVar("ammo_shotgun_max") : FindConVar("ammo_buckshot_max");
+	g_hAmmoSmg =			FindConVar("ammo_smg_max");
+	g_hAmmoHunting =		FindConVar("ammo_huntingrifle_max");
+	if( g_bL4D2Version )
+	{
+		g_hAmmoGL =			FindConVar("ammo_grenadelauncher_max");
+		g_hAmmoChainsaw =	FindConVar("ammo_chainsaw_max");
+		g_hAmmoAutoShot =	FindConVar("ammo_autoshotgun_max");
+		g_hAmmoM60 =		FindConVar("ammo_m60_max");
+		g_hAmmoSniper =		FindConVar("ammo_sniperrifle_max");
+	}
+
+	GetCvars();
+	g_hAmmoRifle.AddChangeHook(ConVarChanged_Cvars);
+	g_hAmmoShotgun.AddChangeHook(ConVarChanged_Cvars);
+	g_hAmmoSmg.AddChangeHook(ConVarChanged_Cvars);
+	g_hAmmoHunting.AddChangeHook(ConVarChanged_Cvars);
+	if( g_bL4D2Version )
+	{
+		g_hAmmoGL.AddChangeHook(ConVarChanged_Cvars);
+		g_hAmmoChainsaw.AddChangeHook(ConVarChanged_Cvars);
+		g_hAmmoAutoShot.AddChangeHook(ConVarChanged_Cvars);
+		g_hAmmoM60.AddChangeHook(ConVarChanged_Cvars);
+		g_hAmmoSniper.AddChangeHook(ConVarChanged_Cvars);
+	}
 
 	CreateConVar(                       	PLUGIN_NAME ... "_version",       PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	RegAdminCmd("sm_reserve_ammo_reload", 	CmdReserveReload, ADMFLAG_ROOT, "Reload the reserve ammo data.");
@@ -74,8 +104,8 @@ public void OnPluginStart()
 		}
 	}
 }
-// ------------
-// GameData
+
+// GameData------------
 void LoadGameData()
 {
 	GameData hGameData = new GameData(GAMEDATA_FILE);
@@ -94,22 +124,46 @@ void LoadGameData()
 	DynamicDetour g_dynCWeaponSpawnUse = DynamicDetour.FromConf(hGameData, "CWeaponSpawn::Use");
 	if( !g_dynCWeaponSpawnUse )
 		SetFailState("Failed to setup dhook for CWeaponSpawn::Use!");
-	if( !g_dynCWeaponSpawnUse.Enable(Hook_Pre, Detour_CWeaponSpawnUse_Pre) )
-		SetFailState("Failed to enable pre detour for CWeaponSpawn::Use!");
-	if( !g_dynCWeaponSpawnUse.Enable(Hook_Post, Detour_CWeaponSpawnUse_Post) )
-		SetFailState("Failed to enable post detour for CWeaponSpawn::Use!");
+	//if( !g_dynCWeaponSpawnUse.Enable(Hook_Pre, Detour_CWeaponSpawnUse_Pre) )
+	//	SetFailState("Failed to enable pre detour for CWeaponSpawn::Use!");
+	//if( !g_dynCWeaponSpawnUse.Enable(Hook_Post, Detour_CWeaponSpawnUse_Post) )
+	//	SetFailState("Failed to enable post detour for CWeaponSpawn::Use!");
 	delete g_dynCWeaponSpawnUse;
 
 	DynamicDetour g_dynCWeaponAmmoSpawnUse = DynamicDetour.FromConf(hGameData, "CWeaponAmmoSpawn::Use");
 	if( !g_dynCWeaponAmmoSpawnUse )
 		SetFailState("Failed to setup dhook for CWeaponAmmoSpawn::Use!");
-	if( !g_dynCWeaponAmmoSpawnUse.Enable(Hook_Pre, Detour_CWeaponAmmoSpawnUse_Pre) )
-		SetFailState("Failed to enable pre detour for CWeaponAmmoSpawn::Use!");
-	if( !g_dynCWeaponAmmoSpawnUse.Enable(Hook_Post, Detour_CWeaponAmmoSpawnUse_Post) )
-		SetFailState("Failed to enable dpost etour for CWeaponAmmoSpawn::Use!");
+	//if( !g_dynCWeaponAmmoSpawnUse.Enable(Hook_Pre, Detour_CWeaponAmmoSpawnUse_Pre) )
+	//	SetFailState("Failed to enable pre detour for CWeaponAmmoSpawn::Use!");
+	//if( !g_dynCWeaponAmmoSpawnUse.Enable(Hook_Post, Detour_CWeaponAmmoSpawnUse_Post) )
+	//	SetFailState("Failed to enable dpost etour for CWeaponAmmoSpawn::Use!");
 	delete g_dynCWeaponAmmoSpawnUse;
 
 	delete hGameData;
+}
+
+// Cvars---
+
+void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+	g_iAmmoRifle			= g_hAmmoRifle.IntValue;
+	g_iAmmoShotgun			= g_hAmmoShotgun.IntValue;
+	g_iAmmoSmg				= g_hAmmoSmg.IntValue;
+	g_iAmmoHunting			= g_hAmmoHunting.IntValue;
+
+	if( g_bL4D2Version )
+	{
+		g_iAmmoGL			= g_hAmmoGL.IntValue;
+		g_iAmmoChainsaw		= g_hAmmoChainsaw.IntValue;
+		g_iAmmoAutoShot		= g_hAmmoAutoShot.IntValue;
+		g_iAmmoM60			= g_hAmmoM60.IntValue;
+		g_iAmmoSniper		= g_hAmmoSniper.IntValue;
+	}
 }
 
 //Sourcemod API Forward-------------------------------
@@ -124,15 +178,16 @@ public void OnMapStart()
 
 public void OnClientPutInServer(int client)
 {
-    SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
 }
 
-public void OnEntityCreated(int entity, const char[] classname)
+public void OnEntityCreated(int entity, const char[] sWeapon)
 {
 	if (!IsValidEntityIndex(entity))
 		return;
 		
 	g_bWeaponAlreadySetAmmo[entity] = false;
+	g_bIsEntityTransitioned[entity] = false;
 }
 
 // Config---
@@ -200,70 +255,69 @@ Action CmdReserveReload(int client, int args)
 // DHooks
 MRESReturn Detour_AmmoDefMaxCarry_Pre(DHookReturn hReturn, DHookParam hParams)
 {
-	if (g_bWeaponAmmoSpawn || g_bWeaponSpawn)
+	//if (g_bWeaponAmmoSpawn || g_bWeaponSpawn)
+	//{
+	int ammoindex	= hParams.Get(1);
+	int client		= hParams.Get(2); // Its not like NPCs with guns exist in L4D
+	if(client <= 0 || client > MaxClients || !IsClientInGame(client)) return MRES_Ignored;
+
+	int iWeapon = GetPlayerWeaponSlot(client, 0);
+	if( iWeapon <= MaxClients || !IsValidEntity(iWeapon) )
+		return MRES_Ignored;
+
+	int iPrimaryAmmoType = GetEntProp(iWeapon, Prop_Data, "m_iPrimaryAmmoType");
+	if( ammoindex == iPrimaryAmmoType )
 	{
-		int ammoindex	= hParams.Get(1);
-		int client		= hParams.Get(2); // Its not like NPCs with guns exist in L4D
-		if(client <= 0 || client > MaxClients || !IsClientInGame(client)) return MRES_Ignored;
+		char sWeapon[32];
+		GetEntityClassname(iWeapon, sWeapon, sizeof(sWeapon));
 
-		int iWeapon = GetPlayerWeaponSlot(client, 0);
-		if( iWeapon <= MaxClients || !IsValidEntity(iWeapon) )
-			return MRES_Ignored;
-
-		int iPrimaryAmmoType = GetEntProp(iWeapon, Prop_Data, "m_iPrimaryAmmoType");
-		if( ammoindex == iPrimaryAmmoType )
+		int iConfigReserve;
+		if( g_smReserveData.GetValue(sWeapon, iConfigReserve) )
 		{
-			char sWeapon[32];
-			GetEntityClassname(iWeapon, sWeapon, sizeof(sWeapon));
-
-			int iConfigReserve;
-			if( g_smReserveData.GetValue(sWeapon, iConfigReserve) )
-			{
-				//PrintToChatAll("Detour_AmmoDefMaxCarry_Pre set");
-				hReturn.Value = iConfigReserve;
-				return MRES_Supercede;
-			}
+			hReturn.Value = iConfigReserve;
+			return MRES_Supercede;
 		}
 	}
+	//}
 
 	return MRES_Ignored;
 }
 
-MRESReturn Detour_CWeaponSpawnUse_Pre()
+/*MRESReturn Detour_CWeaponSpawnUse_Pre()
 {
-    //PrintToServer("[Max Ammo] CWeaponSpawn::Use_Pre called");
+    PrintToChatAll("[Max Ammo] CWeaponSpawn::Use_Pre called");
     g_bWeaponSpawn = true;
     return MRES_Ignored;
 }
 
 MRESReturn Detour_CWeaponSpawnUse_Post()
 {
-    //PrintToServer("[Max Ammo] CWeaponSpawn::Use_Post called");
+    PrintToChatAll("[Max Ammo] CWeaponSpawn::Use_Post called");
     g_bWeaponSpawn = false;
     return MRES_Ignored;
 }
 
 MRESReturn Detour_CWeaponAmmoSpawnUse_Pre()
 {
-    //PrintToServer("[Max Ammo] CWeaponAmmoSpawn::Use_Pre called");
+    PrintToChatAll("[Max Ammo] CWeaponAmmoSpawn::Use_Pre called");
     g_bWeaponAmmoSpawn = true;
     return MRES_Ignored;
 }
 
 MRESReturn Detour_CWeaponAmmoSpawnUse_Post()
 {
-    //PrintToServer("[Max Ammo] CWeaponAmmoSpawn::Use_Post called");
+    PrintToChatAll("[Max Ammo] CWeaponAmmoSpawn::Use_Post called");
     g_bWeaponAmmoSpawn = false;
     return MRES_Ignored;
-}
+}*/
 
-// -----------
-// SDKHooks
+// SDKHooks-----------
+
 // Change ammo when pick up weapon first time
 //撿起地上的新武器並裝備時觸發
 //滾輪切換已有的武器不會觸發
 //(l4d_multiple_equipment) 切換副裝備會觸發
-// 從weapon_xxx_spawner撿起相同武器時也會觸發: WeaponCanUsePost -> "weapon_drop" -> WeaponEquipPost -> "spawner_give_item"
+// 從weapon_xxx_spawner撿起相同武器時也會觸發: WeaponCanUse -> WeaponCanUsePost -> "weapon_drop" -> OnWeaponEquip -> WeaponEquipPost -> "spawner_give_item"
 // @note: 此插件從weapon_xxx_spawner撿起武器之後會給予此插件設置的彈藥數量, 但是如果用Give則依然是給予官方指令設置的彈藥數量
 // @note: 因此需要在OnWeaponEquipPost修改
 // @important: 重新撿起掉在地上的武器時, 彈藥會跑掉, 需安裝https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_save_weapon_ammo
@@ -278,20 +332,53 @@ void OnWeaponEquipPost(int client, int weapon)
 	if (!IsValidEntity(weapon))
 		return;
 
-	if(g_bWeaponAlreadySetAmmo[weapon])
+	if(g_bWeaponAlreadySetAmmo[weapon] || g_bIsEntityTransitioned[weapon])
 		return;
 
 	char sWeapon[24];
 	GetEntityClassname(weapon, sWeapon, sizeof(sWeapon));
-	
 
 	int iConfigReserveAmmo;
-	if( g_smReserveData.GetValue(sWeapon, iConfigReserveAmmo))
+	if( g_smReserveData.GetValue(sWeapon, iConfigReserveAmmo) == false) return;
+	
+	int iOfficialAmmo;
+	if( strcmp(sWeapon[7], "smg") == 0 )
+		iOfficialAmmo = g_iAmmoSmg;
+	else if( strcmp(sWeapon[7], "rifle") == 0 )
+		iOfficialAmmo = g_iAmmoRifle;
+	else if( strcmp(sWeapon[7], "pumpshotgun") == 0 )
+		iOfficialAmmo = g_iAmmoShotgun;
+	else if( strcmp(sWeapon[7], "autoshotgun") == 0 )
+		iOfficialAmmo = g_iAmmoAutoShot;
+	else if( strcmp(sWeapon[7], "hunting_rifle") == 0 )
+		iOfficialAmmo = g_iAmmoHunting;
+	else if( g_bL4D2Version )
 	{
-		//int iReserveAmmo = GetEntProp(weapon, Prop_Data, "m_iExtraPrimaryAmmo");
-		//PrintToChatAll("\x01%N got %s [%i] \x05(Fixed %i --> %i max reserve)", client, sWeapon, weapon, iReserveAmmo, iConfigReserveAmmo);
-		
+		if( strcmp(sWeapon[7], "smg_mp5") == 0 || strcmp(sWeapon[7], "smg_silenced") == 0 )
+			iOfficialAmmo = g_iAmmoSmg;
+		else if( strcmp(sWeapon[7], "rifle_desert") == 0 || strcmp(sWeapon[7], "rifle_ak47") == 0 || strcmp(sWeapon[7], "rifle_sg552") == 0 )
+			iOfficialAmmo = g_iAmmoRifle;
+		else if( strcmp(sWeapon[7], "shotgun_chrome") == 0 )
+			iOfficialAmmo = g_iAmmoShotgun;
+		else if( strcmp(sWeapon[7], "shotgun_spas") == 0 )
+			iOfficialAmmo = g_iAmmoAutoShot;
+		else if( strcmp(sWeapon[7], "grenade_launcher") == 0 )
+			iOfficialAmmo = g_iAmmoGL;
+		else if( strcmp(sWeapon[7], "rifle_m60") == 0 )
+			iOfficialAmmo = g_iAmmoM60;
+		else if( strcmp(sWeapon[7], "chainsaw") == 0 )
+			iOfficialAmmo = g_iAmmoChainsaw;
+		else if( strcmp(sWeapon[7], "sniper_awp") == 0 || strcmp(sWeapon[7], "sniper_military") == 0 || strcmp(sWeapon[7], "sniper_scout") == 0 )
+			iOfficialAmmo = g_iAmmoSniper;
+	}
+
+	int iReserveAmmo = GetEntProp(weapon, Prop_Data, "m_iExtraPrimaryAmmo");
+	if(iReserveAmmo == iOfficialAmmo)
+	{
+		//PrintToChatAll("(OnWeaponEquipPost) \x01%N got %s [%i] \x05(Fixed %i --> %i max reserve)", client, sWeapon, weapon, iReserveAmmo, iConfigReserveAmmo);
+			
 		SetEntProp(weapon, Prop_Send, "m_iExtraPrimaryAmmo", iConfigReserveAmmo);
+		//GetOrSetPlayerAmmo(client, weapon, iConfigReserveAmmo);
 	}
 
 	g_bWeaponAlreadySetAmmo[weapon] = true;
@@ -302,4 +389,45 @@ void OnWeaponEquipPost(int client, int weapon)
 bool IsValidEntityIndex(int entity)
 {
     return (MaxClients+1 <= entity <= GetMaxEntities());
+}
+
+stock int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
+{
+	static int iOffsetPrimaryAmmoType = -1;
+	if(iOffsetPrimaryAmmoType == -1)
+	{
+		iOffsetPrimaryAmmoType = FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+	}
+
+	static int iOffsetAmmo = -1;
+	if(iOffsetAmmo == -1)
+	{
+		iOffsetAmmo = FindSendPropInfo("CCSPlayer", "m_iAmmo");
+	}
+
+	int offset = GetEntData(iWeapon, iOffsetPrimaryAmmoType) * 4; // Thanks to "Root" or whoever for this method of not hard-coding offsets: https://github.com/zadroot/AmmoManager/blob/master/scripting/ammo_manager.sp
+
+	if( offset )
+	{
+		if( iAmmo != -1 ) SetEntData(client, iOffsetAmmo + offset, iAmmo);
+		else
+		{
+			int ammo = GetEntData(client, iOffsetAmmo + offset);
+			return ammo;
+		}
+	}
+
+	return 0;
+}
+
+// Other API---
+
+public void L4D_OnEntityTransitioned(int entity, int oldindex)
+{
+	g_bIsEntityTransitioned[entity] = true;
+}
+
+public void L4D_OnPlayerItemTransitioned(int client, int weapon, int oldindex)
+{
+	g_bIsEntityTransitioned[weapon] = true;
 }
