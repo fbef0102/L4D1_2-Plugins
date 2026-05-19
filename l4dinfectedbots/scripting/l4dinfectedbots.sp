@@ -1066,7 +1066,6 @@ public void OnPluginStart()
 
 	// Add a sourcemod command so players can easily join infected in coop/realism/survival
 	RegConsoleCmd("sm_ji", JoinInfectedInCoop, "(Coop/Realism/Survival only) Join Infected");
-	RegConsoleCmd("sm_js", JoinSurvivorsInCoop, "(Coop/Realism/Survival only) Join Survivors");
 	RegConsoleCmd("sm_zss", ForceInfectedSuicide,"Infected Suicide myself (if get stuck or out of map)");
 	RegAdminCmd("sm_zlimit", Console_ZLimit, ADMFLAG_ROOT,"Control max special zombies limit until next map or data is reloaded");
 	RegAdminCmd("sm_timer", Console_Timer, ADMFLAG_ROOT,"Control special zombies spawn timer until next map or data is reloaded");
@@ -1231,23 +1230,20 @@ public void OnPluginEnd()
 	}
 }
 
-bool g_bSIPoolAvailable, g_bL4DMultiSlotsAvailable;
+bool g_bSIPoolAvailable;
 public void OnAllPluginsLoaded()
 {
 	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
-	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnLibraryRemoved(const char[] name)
 {
 	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
-	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnLibraryAdded(const char[] name)
 {
 	g_bSIPoolAvailable = LibraryExists("si_pool_plus");
-	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 void ConVarChanged_OfficialCvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -2167,23 +2163,6 @@ Action JoinInfectedInCoop(int client, int args)
 	return Plugin_Continue;
 }
 
-Action JoinSurvivorsInCoop(int client, int args)
-{
-	if( g_bCvarAllow == false) return Plugin_Continue;
-
-	if(g_bL4DMultiSlotsAvailable)
-	{
-		return Plugin_Continue;
-	}
-
-	if (client && L4D_HasPlayerControlledZombies() == false)
-	{
-		SwitchToSurvivors(client);
-	}
-
-	return Plugin_Continue;
-}
-
 Action ForceInfectedSuicide(int client, int args)
 {
 	if( g_bCvarAllow == false) return Plugin_Handled;
@@ -2399,7 +2378,6 @@ Action AnnounceJoinInfected(Handle timer, int client)
 		if (client && IsClientInGame(client) && !IsFakeClient(client) && HasAccess(client, g_ePluginSettings.m_sCoopVersusJoinAccess) == true)
 		{
 			CPrintToChat(client,"[{olive}TS{default}] %T","Join infected team in coop/survival/realism",client);
-			CPrintToChat(client,"%T","Join survivor team",client);
 		}
 	}
 
@@ -4215,27 +4193,6 @@ bool AreTherePlayersWhoAreNotTanks ()
 	return false;
 }
 
-int  FindBotToTakeOver()
-{
-	// First we find a survivor bot
-	for (int i=1;i<=MaxClients;i++)
-	{
-		// We check if player is in game
-		if (!IsClientInGame(i)) continue;
-
-		// Check if client is survivor ...
-		if (GetClientTeam(i) == TEAM_SURVIVOR)
-		{
-			// If player is a bot and is alive...
-			if (IsFakeClient(i) && IsPlayerAlive(i))
-			{
-				return i;
-			}
-		}
-	}
-	return 0;
-}
-
 int Menu_InfHUDPanel(Menu menu, MenuAction action, int param1, int param2) { return 0; }
 
 Action TimerAnnounce(Handle timer, int client)
@@ -4944,25 +4901,6 @@ int MakeLightDynamic(const float vOrigin[3], const float vAngles[3], int client)
 
 	TeleportEntity(entity, vOrigin, vAngles, NULL_VECTOR);
 	return entity;
-}
-
-void SwitchToSurvivors(int client)
-{
-	if (L4D_HasPlayerControlledZombies()) return;
-	if (!IsClientInGame(client)) return;
-	if (GetClientTeam(client) == 2) return;
-	if (IsFakeClient(client)) return;
-
-	int bot = FindBotToTakeOver();
-
-	if (bot == 0)
-	{
-		PrintHintText(client, "[TS] No alive survivor bots to take over.");
-		return;
-	}
-	L4D_SetHumanSpec(bot, client);
-	L4D_TakeOverBot(client);
-	return;
 }
 
 bool IsInteger(char[] buffer)

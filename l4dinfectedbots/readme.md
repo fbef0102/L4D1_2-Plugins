@@ -392,11 +392,6 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		sm_ji
 		```
 
-	* **(Coop/Realism/Survival only) Join Survivors**
-		```php
-		sm_js
-		```
-
 	* **(Infected only) Toggle HUD on/off for themselves**
 		```php
 		sm_infhud
@@ -940,11 +935,6 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	* **(僅限戰役/寫實/倖存者) 加入到感染者陣營**
 		```php
 		sm_ji
-		```
-
-	* **(僅限戰役/寫實/倖存者) 加入到倖存者陣營**
-		```php
-		sm_js
 		```
 
 	* **(僅限感染者玩家) 開關感染者HUD**

@@ -201,14 +201,6 @@
         "zho"           "聊天視窗輸入 {green}!ji{default} 加入感染者"
         "chi"           "聊天窗输入 {green}!ji{default} 加入感染者"
     }
-    "Join survivor team"
-    {
-        "en"            "Type {olive}!js{default} to join survivor team."
-        "es"            "Escribe {olive}!js{default} para unirte al equipo de supervivientes."
-        "ru"            "Введите {olive}!js{default} для присоединения к команде выживших."
-        "zho"           "輸入 {olive}!js{default} 加入倖存者!"
-        "chi"           "输入 {olive}!js{default} 加入生还者!"
-    }
     "You don't attack survivors"
     {
         "en"            "You don't attack survivors and lose control, Tank Suicides !"
