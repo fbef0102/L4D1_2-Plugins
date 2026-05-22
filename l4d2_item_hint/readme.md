@@ -30,7 +30,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * If not aiming target or item, the plugin detects what player is looking at using field of view angle
         * If has more than two targets, it finds the target nearest to your crosshair
     <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
-    * The infected is unable to mark, unable see the mark and unable to hear the mark sound
+    * The infected is unable to mark, unable to see the mark and unable to hear the mark sound
 </details>
 
 * <details><summary>Important</summary>

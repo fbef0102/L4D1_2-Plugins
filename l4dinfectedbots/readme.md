@@ -336,6 +336,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	
 	2. In coop/realism mode, the infected player plays as second tank on final chapter, the rescue vehicle show up immediately
 		> Install [l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
+
+	3. In coop/realism mode, the infected ghost player can spawn and teleport to survivors at the same time
+		> Install [l4d_ghost_spawn_exploit](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_ghost_spawn_exploit) to fix
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -878,10 +881,13 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 * <details><summary>已知問題</summary>
 
 	1. 在戰役/寫實下，特感玩家的視角畫面會卡住，常發生在倖存者滅團重新回合的時候
-		> 請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)
+		> 請安裝[l4d_fix_deathfall_cam](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_fix_deathfall_cam)修復
 	
 	2. 在戰役/寫實下，特感玩家扮演第二隻救援Tank時，救援載具會直接來臨
-		> 請安裝[l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix) to fix
+		> 請安裝[l4d2_scripted_tank_stage_fix](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d2_scripted_tank_stage_fix)修復
+
+	3. 在戰役/寫實下，特感靈魂玩家可以同時復活並傳送到倖存者臉上
+		> 請安裝[l4d_ghost_spawn_exploit](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_ghost_spawn_exploit)修復
 </details>
 
 * <details><summary>指令中文介紹 (點我展開)</summary>

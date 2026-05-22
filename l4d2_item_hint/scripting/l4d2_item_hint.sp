@@ -2001,7 +2001,7 @@ void Create_env_instructor_hint(int iEntity, EHintType eType, const float vOrigi
 	IntToString(RoundFloat(range), sRange, sizeof(sRange));
 
 	DispatchKeyValue(entity, "hint_target", sTargetName); //hint entity跟隨實體的targetname有相同名稱
-	//DispatchKeyValue(entity, "hint_name", sTargetName); //給hint_instance_type使用, 預設在同一個插件中是一樣的
+	//DispatchKeyValue(entity, "hint_name", sTargetName); //給hint_instance_type為1時使用, 預設在同一個插件中是一樣的
 	DispatchKeyValue(entity, "hint_timeout", sDuration); //顯示時間 (時間到不會自動刪除hint entity)
 	DispatchKeyValue(entity, "hint_allow_nodraw_target", "1"); //是否允許提示跟隨設定了nodraw的實體？ 0=當目標實體被nodraw則不跟隨
 	DispatchKeyValue(entity, "hint_auto_start", "1"); //1=當玩家的LOS（視線）第一次看見時，會自動顯示給所有人
@@ -2012,13 +2012,13 @@ void Create_env_instructor_hint(int iEntity, EHintType eType, const float vOrigi
 	//DispatchKeyValue(entity, "hint_binding", "+use"); // only work if "hint_icon_onscreen" is "use_binding", 輸入+/- Commands: https://developer.valvesoftware.com/wiki/Bind
 	DispatchKeyValue(entity, "hint_caption", caption);
 	DispatchKeyValue(entity, "hint_static", "0"); //0=提示顯示在target實體位置, 1=提示顯示在玩家hud位置上（玩家螢幕上）
-	DispatchKeyValue(entity, "hint_nooffscreen", "0");
-	if (eType == eSpotMarker) DispatchKeyValue(entity, "hint_icon_offset", "10");
+	DispatchKeyValue(entity, "hint_nooffscreen", "0"); //0=玩家不看target實體位置時, 不顯示提示, 1=玩家不看target實體位置時, 顯示圖案與提示
+	if (eType == eSpotMarker) DispatchKeyValue(entity, "hint_icon_offset", "10"); //提示在target實體位置往上移的距離
 	else if (eType == eInfectedMaker) DispatchKeyValue(entity, "hint_icon_offset", "5");
 	else if (eType == eSurvivorMaker) DispatchKeyValue(entity, "hint_icon_offset", "10");
 	else DispatchKeyValue(entity, "hint_icon_offset", "0");
-	DispatchKeyValue(entity, "hint_range", sRange);
-	DispatchKeyValue(entity, "hint_forcecaption", "1"); //隔著牆依然提示
+	DispatchKeyValue(entity, "hint_range", sRange);//提示顯示範圍
+	DispatchKeyValue(entity, "hint_forcecaption", "1"); //1=隔著牆依然提示
 
 	DispatchSpawn(entity);
 	TeleportEntity(entity, vOrigin, NULL_VECTOR, NULL_VECTOR);

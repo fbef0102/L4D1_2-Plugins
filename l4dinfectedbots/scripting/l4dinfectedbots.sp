@@ -1374,7 +1374,7 @@ void CoopVersus_SettingsChanged()
 	if(L4D_HasPlayerControlledZombies() == false)
 	{
 		g_bSomeCvarChanged = true;
-		if (g_ePluginSettings.m_bCoopVersusEnable)
+		if (g_ePluginSettings.m_bCoopVersusEnable && CheckRealPlayers_InSV(0))
 		{
 			if (g_bL4D2Version)
 			{
@@ -1742,7 +1742,9 @@ Action Timer_PluginStart(Handle timer)
 	delete PlayerLeftStartTimer;
 	PlayerLeftStartTimer = CreateTimer(1.0, Timer_PlayerLeftStart, _, TIMER_REPEAT);
 
-	if (g_ePluginSettings.m_bCoopVersusEnable && L4D_HasPlayerControlledZombies() == false || g_bVersusCoop && L4D_HasPlayerControlledZombies())
+	if (
+		(g_ePluginSettings.m_bCoopVersusEnable && L4D_HasPlayerControlledZombies() == false || g_bVersusCoop && L4D_HasPlayerControlledZombies())
+		&& CheckRealPlayers_InSV(0))
 	{
 		g_bSomeCvarChanged = true;
 		if (g_bL4D2Version)

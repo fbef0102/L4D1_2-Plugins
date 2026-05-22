@@ -28,7 +28,7 @@ Survivors won't take any damage when server is playing map cutscenes
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
-* <details><summary>ConVar | 指令</summary>
+* <details><summary>指令中文介紹 (點我展開)</summary>
 
 	* cfg/sourcemod/l4d_cutscene_nodamage.cfg
 		```php
