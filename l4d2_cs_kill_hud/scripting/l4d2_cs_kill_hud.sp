@@ -305,6 +305,14 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 	if( !g_bCvarEnable )
 		return;
 
+	if(event.GetBool("abort"))
+	{
+		//A玩家的tank移交控制權給其他真人玩家會觸發"abort" (victim: A玩家)
+		//使用L4D_OnReplaceTank接替AI tank時會觸發 (victim: AI Tank)
+		//使用L4D_OnReplaceTank接替B真人玩家時會觸發 (victim: B玩家)
+		return;
+	}
+
 	int victim = GetClientOfUserId( event.GetInt("userid") );
 	bool bIsVictimPlayer = true;
 	if( victim <= 0 || victim > MaxClients || !IsClientInGame(victim) )

@@ -135,6 +135,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Spot Marker Sprite model. (Empty=Disable)
             l4d2_spot_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
+            // Spot Marker Sprite model height.
+            l4d2_spot_marker_sprite_height "50.0"
+
             // If 1, Create instructor hint on Spot Marker.
             l4d2_spot_marker_instructorhint_enable "1"
 
@@ -143,6 +146,20 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // Instructor icon name on Spot Marker.
             l4d2_spot_marker_instructorhint_icon "icon_info"
+
+            // Spot Marker initial beam ring radius.
+            l4d2_spot_marker_ring_start_radius  "35.0"
+
+            // Spot Marker final beam ring radius.
+            l4d2_spot_marker_ring_end_radius    "50.0"
+
+            // Spot Marker beam width.
+            l4d2_spot_marker_ring_width         "2.0"
+
+            // Spawn particle on Spot Marker.
+            // Empty=No particle
+            // (See more in l4d2: https://forums.alliedmods.net/showthread.php?t=127111)
+            l4d2_spot_marker_particle           "sline_sparks"
             ```
 
         * Infected Marker
@@ -250,6 +267,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v4.2 (2025-5-25)
+        * Update more cvars for spot marker
+        * Display particle on spot marker
 
     * v4.1 (2025-12-27)
         * Force client and witch to transmit so glow entity won't be buggy behind the wall
@@ -431,6 +452,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 標記的中心模型圖案 (空=無中心模型圖案)
             l4d2_spot_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
+            // 中心模型圖案距離地面的高度.
+            l4d2_spot_marker_sprite_height "50.0"
+
             // 為1時，啟用導演提示
             l4d2_spot_marker_instructorhint_enable "1"
 
@@ -439,6 +463,20 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 導演提示的圖案 
             l4d2_spot_marker_instructorhint_icon "icon_info"
+
+            // 標記的圓圈起始半徑.
+            l4d2_spot_marker_ring_start_radius  "35.0"
+
+            // 標記的圓圈終點半徑.
+            l4d2_spot_marker_ring_end_radius    "50.0"
+
+            // 標記的圓圈寬度.
+            l4d2_spot_marker_ring_width         "2.0"
+
+            // 標記時有特效, 請填入特效名稱
+            // 空=不出現特效
+            // (查看更多l4d2特效: https://forums.alliedmods.net/showthread.php?t=127111)
+            l4d2_spot_marker_particle           "sline_sparks"
             ```
 
         * 特感標記

@@ -1,5 +1,5 @@
 //fdxx, BHaType	@ 2021
-//Harry @ 2022-2025
+//Harry @ 2022-2026
 
 
 #pragma semicolon 1
@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "4.1-2025/12/27",
+	version     = "4.2-2026/5/25",
 	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
@@ -75,8 +75,9 @@ ConVar g_hItemCvarCMD, g_hItemCvarShiftE, g_hItemCvarVocalize,
 	g_hItemHintCoolDown, g_hSpotMarkCoolDown, g_hInfectedMarkCoolDown, g_hSurvivorMarkCoolDown,
 	g_hItemUseHintRange, g_hItemUseSound, g_hItemAnnounceType, g_hItemGlowTimer, g_hItemGlowRange, g_hItemCvarColor,
 	g_hItemInstructorHint, g_hItemInstructorColor, g_hItemInstructorIcon,
-	g_hSpotMarkUseRange, g_hSpotMarkUseSound, g_hSpotMarkAnnounceType, g_hSpotMarkGlowTimer, g_hSpotMarkCvarColor, g_hSpotMarkSpriteModel,
+	g_hSpotMarkUseRange, g_hSpotMarkUseSound, g_hSpotMarkAnnounceType, g_hSpotMarkGlowTimer, g_hSpotMarkCvarColor, g_hSpotMarkSpriteModel, g_hSpotMarkSpriteHeight,
 	g_hSpotMarkInstructorHint, g_hSpotMarkInstructorColor, g_hSpotMarkInstructorIcon,
+	g_hSpotMarkRingStartRadius, g_hSpotMarkRingEndRadius, g_hSpotMarkRingWidth, g_hSpotMarkParticle,
 	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkSI,
 	g_hInfectedMarkInstructorHint, g_hInfectedMarkInstructorColor, g_hInfectedMarkInstructorIcon,
 	g_hInfectedMarkWitch, g_hInfectedMarkSIFov, g_hInfectedMarkWitchFov,
@@ -92,12 +93,13 @@ int g_iHintTransType,
 
 float g_fItemHintCoolDown, g_fSpotMarkCoolDown, g_fInfectedMarkCoolDown, g_fSurvivorMarkCoolDown,
 	g_fItemUseHintRange, g_fItemGlowTimer,
-	g_fSpotMarkUseRange, g_fSpotMarkGlowTimer,
+	g_fSpotMarkUseRange, g_fSpotMarkGlowTimer, g_fSpotMarkSpriteHeight,
+	g_fSpotMarkRingStartRadius, g_fSpotMarkRingEndRadius, g_fSpotMarkRingWidth,
 	g_fInfectedMarkUseRange, g_fInfectedMarkGlowTimer, g_fInfectedMarkSIFov, g_fInfectedMarkWitchFov,
 	g_fSurvivorMarkUseRange, g_fSurvivorMarkGlowTimer, g_fSurvivorMarkFov;
 
 char g_sItemInstructorColor[12], g_sItemInstructorIcon[16], g_sSpotMarkCvarColor[12], g_sItemUseSound[100], g_sKillDelay[32],
-			g_sSpotMarkUseSound[100], g_sSpotMarkInstructorColor[12], g_sSpotMarkInstructorIcon[16], g_sSpotMarkSpriteModel[PLATFORM_MAX_PATH],
+			g_sSpotMarkUseSound[100], g_sSpotMarkInstructorColor[12], g_sSpotMarkInstructorIcon[16], g_sSpotMarkSpriteModel[PLATFORM_MAX_PATH], g_sSpotMarkParticle[PLATFORM_MAX_PATH],
 			g_sInfectedMarkUseSound[100], g_sInfectedMarkInstructorColor[12], g_sInfectedMarkInstructorIcon[16],
 			g_sSurvivorMarkUseSound[100], g_sSurvivorMarkInstructorColor[12], g_sSurvivorMarkInstructorIcon[16];
 
@@ -202,9 +204,14 @@ public void OnPluginStart()
 	g_hSpotMarkAnnounceType			= CreateConVar("l4d2_spot_marker_announce_type", 				"0", 					"Changes how Spot Marker Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	g_hSpotMarkGlowTimer			= CreateConVar("l4d2_spot_marker_duration", 					"10.0", 				"Spot Marker Duration.", FCVAR_NOTIFY, true, 0.0);
 	g_hSpotMarkSpriteModel      	= CreateConVar("l4d2_spot_marker_sprite_model", 				"materials/vgui/icon_arrow_down.vmt", "Spot Marker Sprite model. (Empty=Disable)");
+	g_hSpotMarkSpriteHeight      	= CreateConVar("l4d2_spot_marker_sprite_height", 				"50.0", 				"Spot Marker Sprite model height.", FCVAR_NOTIFY, true, 0.0);
 	g_hSpotMarkInstructorHint		= CreateConVar("l4d2_spot_marker_instructorhint_enable", 		"1", 					"If 1, Create instructor hint on Spot Marker.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hSpotMarkInstructorColor		= CreateConVar("l4d2_spot_marker_instructorhint_color", 		"200 200 200", 			"Instructor hint color on Spot Marker. (If empty, off the hint text display)", FCVAR_NOTIFY);
 	g_hSpotMarkInstructorIcon		= CreateConVar("l4d2_spot_marker_instructorhint_icon", 			"icon_info", 			"Instructor icon name on Spot Marker.", FCVAR_NOTIFY);
+	g_hSpotMarkRingStartRadius		= CreateConVar("l4d2_spot_marker_ring_start_radius", 			"35.0", 				"Spot Marker initial beam ring radius.", FCVAR_NOTIFY, true, 1.0);
+	g_hSpotMarkRingEndRadius		= CreateConVar("l4d2_spot_marker_ring_end_radius", 				"50.0", 				"Spot Marker final beam ring radius.", FCVAR_NOTIFY, true, 1.0);
+	g_hSpotMarkRingWidth			= CreateConVar("l4d2_spot_marker_ring_width", 					"2.0", 					"Spot Marker beam width.", FCVAR_NOTIFY, true, 0.0);
+	g_hSpotMarkParticle				= CreateConVar("l4d2_spot_marker_particle", 					"sline_sparks", 		"Spawn particle on Spot Marker. (Empty=No particle, See more in l4d2: https://forums.alliedmods.net/showthread.php?t=127111)", FCVAR_NOTIFY);
 
 	g_hInfectedMarkCvarColor   		= CreateConVar("l4d2_infected_marker_glow_color", 				"255 120 203",			"Infected Marker Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Infected Marker)", FCVAR_NOTIFY);
 	g_hInfectedMarkCoolDown			= CreateConVar("l4d2_infected_marker_cooldown_time", 			"0.25", 				"Cold Down Time in seconds a player can use 'Look' Infected Marker again.", FCVAR_NOTIFY, true, 0.0);
@@ -262,9 +269,14 @@ public void OnPluginStart()
 	g_hSpotMarkGlowTimer.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpotMarkCvarColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpotMarkSpriteModel.AddChangeHook(ConVarChanged_Cvars);
+	g_hSpotMarkSpriteHeight.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpotMarkInstructorHint.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpotMarkInstructorColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hSpotMarkInstructorIcon.AddChangeHook(ConVarChanged_Cvars);
+	g_hSpotMarkRingStartRadius.AddChangeHook(ConVarChanged_Cvars);
+	g_hSpotMarkRingEndRadius.AddChangeHook(ConVarChanged_Cvars);
+	g_hSpotMarkRingWidth.AddChangeHook(ConVarChanged_Cvars);
+	g_hSpotMarkParticle.AddChangeHook(ConVarChanged_Cvars);
 
 	g_hInfectedMarkCoolDown.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkUseRange.AddChangeHook(ConVarChanged_Cvars);
@@ -413,10 +425,16 @@ void GetCvars()
 	g_hSpotMarkSpriteModel.GetString(g_sSpotMarkSpriteModel, sizeof(g_sSpotMarkSpriteModel));
 	TrimString(g_sSpotMarkSpriteModel);
 	if ( strlen(g_sSpotMarkSpriteModel) > 0 && g_bMapStarted) PrecacheModel(g_sSpotMarkSpriteModel, true);
+	g_fSpotMarkSpriteHeight = g_hSpotMarkSpriteHeight.FloatValue;
 	g_bSpotMarkInstructorHint = g_hSpotMarkInstructorHint.BoolValue;
 	g_hSpotMarkInstructorColor.GetString(g_sSpotMarkInstructorColor, sizeof(g_sSpotMarkInstructorColor));
 	TrimString(g_sSpotMarkInstructorColor);
 	g_hSpotMarkInstructorIcon.GetString(g_sSpotMarkInstructorIcon, sizeof(g_sSpotMarkInstructorIcon));
+	g_fSpotMarkRingStartRadius = g_hSpotMarkRingStartRadius.FloatValue;
+	g_fSpotMarkRingEndRadius = g_hSpotMarkRingEndRadius.FloatValue;
+	g_fSpotMarkRingWidth = g_hSpotMarkRingWidth.FloatValue;
+	g_hSpotMarkParticle.GetString(g_sSpotMarkParticle, sizeof(g_sSpotMarkParticle));
+	if ( strlen(g_sSpotMarkParticle) > 0 && g_bMapStarted) PrecacheParticle(g_sSpotMarkParticle);
 
 	g_fInfectedMarkCoolDown = g_hInfectedMarkCoolDown.FloatValue;
 	g_fInfectedMarkUseRange = g_hInfectedMarkUseRange.FloatValue;
@@ -1412,12 +1430,13 @@ void CreateSpotMarker(int client, bool bIsAimPlayer)
 		targets[targetCount++] = target;
 	}
 
-	TE_SetupBeamRingPoint(vBeamPos, 75.0, 100.0, g_iFieldModelIndex, 0, 0, 0, fieldDuration, 2.0, 0.0, color, 0, 0);
+	// 設置圓圈的radius實際上是直徑 我襙
+	TE_SetupBeamRingPoint(vBeamPos, g_fSpotMarkRingStartRadius+g_fSpotMarkRingStartRadius, g_fSpotMarkRingEndRadius+g_fSpotMarkRingEndRadius, g_iFieldModelIndex, 0, 0, 0, fieldDuration, g_fSpotMarkRingWidth, 0.0, color, 0, 0);
 	TE_Send(targets, targetCount);
 
 	float vSpritePos[3];
 	vSpritePos = vEndPos;
-	vSpritePos[2] += 50.0;
+	vSpritePos[2] += g_fSpotMarkSpriteHeight;
 
 	char targetname[19];
 	FormatEx(targetname, sizeof(targetname), "%s-%02i", "l4d_mark_hint", client);
@@ -1486,6 +1505,8 @@ void CreateSpotMarker(int client, bool bIsAimPlayer)
 
 			CreateTimer(0.1, TimerMoveSprite, EntIndexToEntRef(sprite), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
+
+		if(strlen(g_sSpotMarkParticle) > 0) CreateParticle(vEndPos, g_sSpotMarkParticle, g_fSpotMarkGlowTimer);
 	}
 }
 
@@ -1536,13 +1557,13 @@ Action TimerField(Handle timer, DataPack pack)
 		case DIRECTION_OUT:
 		{
 			direction = DIRECTION_IN;
-			TE_SetupBeamRingPoint(vBeamPos, 75.0, 100.0, g_iFieldModelIndex, 0, 0, 0, fieldDuration, 2.0, 0.0, color, 0, 0);
+			TE_SetupBeamRingPoint(vBeamPos, g_fSpotMarkRingStartRadius+g_fSpotMarkRingStartRadius, g_fSpotMarkRingEndRadius+g_fSpotMarkRingEndRadius, g_iFieldModelIndex, 0, 0, 0, fieldDuration, g_fSpotMarkRingWidth, 0.0, color, 0, 0);
 			TE_Send(targets, targetCount);
 		}
 		case DIRECTION_IN:
 		{
 			direction = DIRECTION_OUT;
-			TE_SetupBeamRingPoint(vBeamPos, 100.0, 75.0, g_iFieldModelIndex, 0, 0, 0, fieldDuration, 2.0, 0.0, color, 0, 0);
+			TE_SetupBeamRingPoint(vBeamPos, g_fSpotMarkRingEndRadius+g_fSpotMarkRingEndRadius, g_fSpotMarkRingStartRadius+g_fSpotMarkRingStartRadius, g_iFieldModelIndex, 0, 0, 0, fieldDuration, g_fSpotMarkRingWidth, 0.0, color, 0, 0);
 			TE_Send(targets, targetCount);
 		}
 	}
@@ -2554,6 +2575,44 @@ bool TraceFilter_VisibleToEntity(int entity, int contentsMask, int witch)
 bool IsValidClientIndex(int client)
 {
     return (1 <= client <= MaxClients);
+}
+
+bool CreateParticle(float fPos[3], const char[] particleType, float time)
+{
+    int particle = CreateEntityByName("info_particle_system");
+	if (!CheckIfEntitySafe(particle)) return false;
+
+	static char sValues[32];
+	TeleportEntity(particle, fPos, NULL_VECTOR, NULL_VECTOR);
+	DispatchKeyValue(particle, "targetname", "l4d2_particle");
+	DispatchKeyValue(particle, "effect_name", particleType);
+	DispatchSpawn(particle);
+	AcceptEntityInput(particle, "SetParent", particle, particle, 0);
+	ActivateEntity(particle);
+	AcceptEntityInput(particle, "start");
+
+	FormatEx(sValues, sizeof(sValues), "OnUser1 !self:Kill::%f:1", time);
+	SetVariantString(sValues);
+	AcceptEntityInput(particle, "AddOutput");
+	AcceptEntityInput(particle, "FireUser1");
+
+	return true;
+}
+
+void PrecacheParticle(const char[] sEffectName)
+{
+	static int table = INVALID_STRING_TABLE;
+	if( table == INVALID_STRING_TABLE )
+	{
+		table = FindStringTable("ParticleEffectNames");
+	}
+
+	if( FindStringIndex(table, sEffectName) == INVALID_STRING_INDEX )
+	{
+		bool save = LockStringTables(false);
+		AddToStringTable(table, sEffectName);
+		LockStringTables(save);
+	}
 }
 
 // LMC--------------
