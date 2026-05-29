@@ -1,5 +1,3 @@
-This plugin was made by 豆瓣酱な
-
 # Description | 內容
 Custom maximum survivor health 
 
@@ -14,6 +12,7 @@ Custom maximum survivor health
 
 * <details><summary>How does it work?</summary>
 
+    * This plugin was made by 豆瓣酱な, I didn't make any code change, permission granted by author
 	* You can set the maximum health
 	* Player can use healing items, go idle and switch team normally without any bugs
 </Chargedetails>
@@ -53,8 +52,11 @@ Custom maximum survivor health
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.5.6
+        * Remove OnCTerrorPlayerRoundRespawn_Post Detour
+
     * Credit
-        * [Original Plugin by 豆瓣酱な]
+        * Original Plugin and Author: [豆瓣酱な](https://steamcommunity.com/profiles/76561198347229613)
 </details>
 
 - - - -
@@ -62,6 +64,7 @@ Custom maximum survivor health
 自定義生還者最大血量
 
 * 原理
+    * 先聲明: 此插件所有code都是豆瓣酱製作，本人沒有做任何修改，我覺得此插件很好用，已獲作者同意在此發布
 	* 可以設置倖存者的最大血量
     * 不會因為閒置、換隊、打包、吃藥導致血量出現bug
 

@@ -9,7 +9,7 @@
 #include <multicolors>
 
 #undef REQUIRE_PLUGIN
-#include <clear_weapon_drop>
+#tryinclude <clear_weapon_drop>
 #if !defined _clear_weapon_drop_included_
 	native void L4D_RemoveWeaponOnGround(int weapon, float time = -1.0);
 #endif
@@ -1172,7 +1172,7 @@ stock int GetURandomIntRange(int min, int max)
 
 void PlaySoundAroundClient(int client,char[] sSoundName)
 {
-	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_AIRCRAFT, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 }
 
 bool IsPlayerGhost (int client)

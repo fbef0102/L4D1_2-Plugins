@@ -367,6 +367,8 @@ models/props_interiors/table_picnic_break09.mdl TAG- Picnic Table - Broken 9
 models/props_interiors/table_picnic_break10.mdl TAG- Picnic Table - Broken 10
 models/props_interiors/table_picnic_break11.mdl TAG- Picnic Table - Broken 11
 //Category Exterior
+models/props_placeable/striped_barricade.mdl TAG- striped barricade
+models/props_placeable/striped_barricade_startingarea.mdl TAG- striped barricade area
 models/lighthouse/props/wooden_gate.mdl TAG- Wooden Gate
 models/props/de_inferno/wood_fence.mdl TAG- Wooden Fence
 models/props_exteriors/fence002.mdl TAG- Wooden Fence - Very Long

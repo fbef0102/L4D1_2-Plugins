@@ -39,6 +39,10 @@
  *	1:修复忽略选项设置无效的问题.
  *	2:添加参数设置医疗包恢复百分比.
  *
+ *	v1.5.6
+ *
+ *	1:删除复活玩家的hook监听,这个应该跟给予物品监听重复了.
+ *
  */
 #pragma semicolon 1
 //強制1.7以後的新語法
@@ -49,7 +53,7 @@
 
 #define DEBUG		0		//0=禁用调试信息,1=显示调试信息.
 #define GAMEDATA			"l4d2_max_health"
-#define PLUGIN_VERSION		"1.5.5"
+#define PLUGIN_VERSION		"1.5.6"
 #define MAX_PLAYERS			32
 #define CVAR_FLAGS			FCVAR_NOTIFY
 
@@ -213,7 +217,7 @@ void LoadingGameData()
 	CreateDetour(hGameData, OnCDirectorRestart_Pre, "CDirector::Restart", false);
 	CreateDetour(hGameData, OnCDirectorRestart_Post, "CDirector::Restart", true);
 
-	CreateDetour(hGameData, OnCTerrorPlayerRoundRespawn_Post, "CTerrorPlayer::RoundRespawn", true);
+	//CreateDetour(hGameData, OnCTerrorPlayerRoundRespawn_Post, "CTerrorPlayer::RoundRespawn", true);
 
 	CreateDetour(hGameData,	OnTransitionRestore_Pre,	"CTerrorPlayer::TransitionRestore", false);
 	CreateDetour(hGameData,	OnTransitionRestore_Post,	"CTerrorPlayer::TransitionRestore", true);
@@ -243,7 +247,7 @@ void CreateDetour(Handle gameData, DHookCallback CallBack, const char[] sName, c
 public void OnMapStart() 
 {
 	for (int i = 1; i <= MaxClients; i++)
-		ResetPlayerVariables(i);
+		ResetPlayerVariables(i);//重置玩家变量.
 }
 //营救门复活队友.
 void Event_SurvivorRescued(Event event, const char[] name, bool dontBroadcast)
@@ -335,28 +339,31 @@ MRESReturn GiveDefaultItems_Post(int pThis)
 	PrintToChatAll("\x04[给予Post]\x05(%d)(%d/%d)(%N).", pThis, iHealth, iMaxHealth, pThis);
 	#endif
 	return MRES_Ignored;
-}*/
+}
 //玩家复活.
 MRESReturn OnCTerrorPlayerRoundRespawn_Post(int pThis, DHookReturn hReturn) 
 {
 	if(g_bStartRestore == false)//非还原数据时.
 	{
-		SetPlayerHealth(pThis, g_hSurvivorMaxHeal.IntValue);
-		SetEntProp(pThis, Prop_Data, "m_iMaxHealth", g_hSurvivorMaxHeal.IntValue);
+		if (GetClientTeam(pThis) == 2 && !IsPlayerAlive(pThis))
+		{
+			SetPlayerHealth(pThis, g_hSurvivorMaxHeal.IntValue);
+			SetEntProp(pThis, Prop_Data, "m_iMaxHealth", g_hSurvivorMaxHeal.IntValue);
 	
-		#if DEBUG
-		PrintToChatAll("\x04[提示Post]\x03玩家复活(%d)(%N).", pThis, pThis);//聊天窗提示.
-		#endif
+			#if DEBUG
+			PrintToChatAll("\x04[提示Post]\x03玩家复活(%d)(%N).", pThis, pThis);//聊天窗提示.
+			#endif
+		}
 	}
 	return MRES_Ignored;
-}
+}*/
 //任务失败开始还原数据时.
 MRESReturn OnCDirectorRestart_Pre(Address pThis, DHookReturn hReturn) 
 {
 	g_bStartRestore = true;
 	
 	for (int i = 1; i <= MaxClients; i++)
-		ResetPlayerVariables(i);
+		ResetPlayerVariables(i);//重置玩家变量.
 
 	#if DEBUG
 	PrintToChatAll("\x04[重开Pre]\x03开始还原.");//聊天窗提示.

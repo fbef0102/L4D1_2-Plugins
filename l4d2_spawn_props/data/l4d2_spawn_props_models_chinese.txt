@@ -367,6 +367,8 @@ models/props_interiors/table_picnic_break09.mdl TAG- 野餐桌 - 破碎 9
 models/props_interiors/table_picnic_break10.mdl TAG- 野餐桌 - 破碎 10
 models/props_interiors/table_picnic_break11.mdl TAG- 野餐桌 - 破碎 11
 //Category Exterior 室外類
+models/props_placeable/striped_barricade.mdl TAG- 條紋路障 (牆壁類型)
+models/props_placeable/striped_barricade_startingarea.mdl TAG- 條紋路障 (圍圈區域類型)
 models/lighthouse/props/wooden_gate.mdl TAG- 木製柵門
 models/props/de_inferno/wood_fence.mdl TAG- 木製柵欄
 models/props_exteriors/fence002.mdl TAG- 木頭造圍欄 - 很長
