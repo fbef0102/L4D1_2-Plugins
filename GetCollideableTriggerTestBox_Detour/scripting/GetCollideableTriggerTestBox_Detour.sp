@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION		"1.1-2025/10/27"
+#define PLUGIN_VERSION		"1.2-2026/6/2"
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -62,6 +62,7 @@ public void OnPluginStart()
 		g_ArgOrder.ptr = 1;
 		g_ArgOrder.vec1 = 2;
 		g_ArgOrder.vec2 = 3;
+		SetFailState("This plugin not work in linux");
 	}
 	else {
 		g_ArgOrder.ptr = 3;
