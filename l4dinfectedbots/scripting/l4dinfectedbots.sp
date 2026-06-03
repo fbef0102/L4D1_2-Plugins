@@ -10,6 +10,12 @@
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
 *
+* Version 3.0.7 (2026-6-3)
+*		- Added sm_config command: display all current configuration settings (PrintToConsole)
+*		- Added Natives API: L4DInfectedBots_GetConfigInt / GetConfigFloat / GetConfigString for other plugins to query config values
+*		- sm_config shows both admin-overridden and original config values when sm_zlimit/sm_timer changes are active
+*		- Admin overrides reset on config reload (LoadData)
+*
 * Version 3.0.6 (2026-1-7)
 *		- Update data, Any matching map names will overwrite duplicate data from the "Settings" section.
 *
@@ -809,7 +815,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.6-2026/2/13"
+#define PLUGIN_VERSION 			"3.0.7-2026/6/3"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -1010,11 +1016,19 @@ enum struct EPluginData
 	float m_fCoopVersusHumanCoolDown;
 }
 
-EPluginData 
-	ePluginData[L4D_MAXPLAYERS+1], 
+EPluginData
+	ePluginData[L4D_MAXPLAYERS+1],
 	g_ePluginSettings;
 
-StringMap 
+bool g_bAdminOverridden_MaxSpecials;
+int g_iAdminOriginal_MaxSpecials;
+bool g_bAdminOverridden_SpawnTimer;
+float g_fAdminOriginal_SpawnTimeMin;
+float g_fAdminOriginal_SpawnTimeMax;
+float g_fAdminOriginal_CoopVersSpawnTimeMin;
+float g_fAdminOriginal_CoopVersSpawnTimeMax;
+
+StringMap
 	g_smPlayedInfected;
 
 ArrayList
@@ -1053,6 +1067,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	RegPluginLibrary("l4dinfectedbots");
 
+	CreateNative("L4DInfectedBots_GetConfigInt", Native_GetConfigInt);
+	CreateNative("L4DInfectedBots_GetConfigFloat", Native_GetConfigFloat);
+	CreateNative("L4DInfectedBots_GetConfigString", Native_GetConfigString);
+
 	return APLRes_Success;
 }
 
@@ -1074,6 +1092,7 @@ public void OnPluginStart()
 
 	// Hook "say" so clients can toggle HUD on/off for themselves
 	RegConsoleCmd("sm_infhud", Command_infhud, "(Infected only) Toggle HUD on/off for themselves");
+	RegAdminCmd("sm_config", Command_ShowConfig, ADMFLAG_ROOT, "Display all current configuration settings");
 
 	// We register the version cvar
 	CreateConVar("l4d_infectedbots_version", PLUGIN_VERSION, "Version of L4D Infected Bots", FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -2242,6 +2261,11 @@ Action Console_ZLimit(int client, int args)
 				newlimit = MaxClients - survivors;
 			}
 
+			if(!g_bAdminOverridden_MaxSpecials)
+			{
+				g_iAdminOriginal_MaxSpecials = g_ePluginSettings.m_iMaxSpecials;
+				g_bAdminOverridden_MaxSpecials = true;
+			}
 			g_ePluginSettings.m_iMaxSpecials = newlimit;
 			for(int i = 0; i <= L4D_MAXPLAYERS; i++)
 			{
@@ -2250,7 +2274,7 @@ Action Console_ZLimit(int client, int args)
 			CreateTimer(0.1, MaxSpecialsSet);
 
 			CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default}: %t", client, "Special Infected Limit has been changed",newlimit);
-			
+
 			CheckIfBotsNeeded2();
 		}
 		else
@@ -2305,6 +2329,14 @@ Action Console_Timer(int client, int args)
 			}
 			else
 			{
+				if(!g_bAdminOverridden_SpawnTimer)
+				{
+					g_fAdminOriginal_SpawnTimeMin = g_ePluginSettings.m_fSpawnTimeMin;
+					g_fAdminOriginal_SpawnTimeMax = g_ePluginSettings.m_fSpawnTimeMax;
+					g_fAdminOriginal_CoopVersSpawnTimeMin = g_ePluginSettings.m_fCoopVersSpawnTimeMin;
+					g_fAdminOriginal_CoopVersSpawnTimeMax = g_ePluginSettings.m_fCoopVersSpawnTimeMax;
+					g_bAdminOverridden_SpawnTimer = true;
+				}
 				g_ePluginSettings.m_fSpawnTimeMin = float(DD);
 				g_ePluginSettings.m_fSpawnTimeMax = float(DD);
 				g_ePluginSettings.m_fCoopVersSpawnTimeMin = float(DD);
@@ -2349,6 +2381,14 @@ Action Console_Timer(int client, int args)
 			}
 			else
 			{
+				if(!g_bAdminOverridden_SpawnTimer)
+				{
+					g_fAdminOriginal_SpawnTimeMin = g_ePluginSettings.m_fSpawnTimeMin;
+					g_fAdminOriginal_SpawnTimeMax = g_ePluginSettings.m_fSpawnTimeMax;
+					g_fAdminOriginal_CoopVersSpawnTimeMin = g_ePluginSettings.m_fCoopVersSpawnTimeMin;
+					g_fAdminOriginal_CoopVersSpawnTimeMax = g_ePluginSettings.m_fCoopVersSpawnTimeMax;
+					g_bAdminOverridden_SpawnTimer = true;
+				}
 				g_ePluginSettings.m_fSpawnTimeMin = float(Min);
 				g_ePluginSettings.m_fSpawnTimeMax = float(Max);
 				g_ePluginSettings.m_fCoopVersSpawnTimeMin = float(Min);
@@ -6409,6 +6449,9 @@ void LoadData()
 	delete hData;
 
 	g_ePluginSettings = ePluginData[(g_iPlayersInSurvivorTeam <= 0) ? 0 : g_iPlayersInSurvivorTeam];
+
+	g_bAdminOverridden_MaxSpecials = false;
+	g_bAdminOverridden_SpawnTimer = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -6496,6 +6539,210 @@ public Action L4D_OnGetScriptValueFloat(const char[] sKey, float &retVal)
 
 	return Plugin_Continue;
 }
+
+Action Command_ShowConfig(int client, int args)
+{
+	if( g_bCvarAllow == false) return Plugin_Handled;
+
+	int survivors = CheckAliveSurvivorPlayers_InSV(g_bIncludingDead);
+	PrintToConsole(client, "[SM] ===== L4D Infected Bots Configuration =====");
+	PrintToConsole(client, "Current survivors count: %d (data index used)", survivors);
+
+	PrintToConsole(client, "--- Special Infected Limits ---");
+	PrintToConsole(client, "  smoker_limit: %d", g_ePluginSettings.m_iSpawnLimit[SI_SMOKER]);
+	PrintToConsole(client, "  boomer_limit: %d", g_ePluginSettings.m_iSpawnLimit[SI_BOOMER]);
+	PrintToConsole(client, "  hunter_limit: %d", g_ePluginSettings.m_iSpawnLimit[SI_HUNTER]);
+	if(g_bL4D2Version) {
+		PrintToConsole(client, "  spitter_limit: %d", g_ePluginSettings.m_iSpawnLimit[SI_SPITTER]);
+		PrintToConsole(client, "  jockey_limit: %d", g_ePluginSettings.m_iSpawnLimit[SI_JOCKEY]);
+		PrintToConsole(client, "  charger_limit: %d", g_ePluginSettings.m_iSpawnLimit[SI_CHARGER]);
+	}
+	if(g_bAdminOverridden_MaxSpecials)
+		PrintToConsole(client, "  max_specials: %d (overridden by admin, config value: %d)", g_ePluginSettings.m_iMaxSpecials, g_iAdminOriginal_MaxSpecials);
+	else
+		PrintToConsole(client, "  max_specials: %d", g_ePluginSettings.m_iMaxSpecials);
+	PrintToConsole(client, "  max_specials_tank_including: %d", g_ePluginSettings.m_bMaxSpecialsIncludingTank);
+
+	PrintToConsole(client, "--- Spawn Times ---");
+	if(g_bAdminOverridden_SpawnTimer)
+	{
+		PrintToConsole(client, "  spawn_time_min: %.1f (overridden, config: %.1f)", g_ePluginSettings.m_fSpawnTimeMin, g_fAdminOriginal_SpawnTimeMin);
+		PrintToConsole(client, "  spawn_time_max: %.1f (overridden, config: %.1f)", g_ePluginSettings.m_fSpawnTimeMax, g_fAdminOriginal_SpawnTimeMax);
+		PrintToConsole(client, "  coop_versus_spawn_time_min: %.1f (overridden, config: %.1f)", g_ePluginSettings.m_fCoopVersSpawnTimeMin, g_fAdminOriginal_CoopVersSpawnTimeMin);
+		PrintToConsole(client, "  coop_versus_spawn_time_max: %.1f (overridden, config: %.1f)", g_ePluginSettings.m_fCoopVersSpawnTimeMax, g_fAdminOriginal_CoopVersSpawnTimeMax);
+	}
+	else
+	{
+		PrintToConsole(client, "  spawn_time_min: %.1f", g_ePluginSettings.m_fSpawnTimeMin);
+		PrintToConsole(client, "  spawn_time_max: %.1f", g_ePluginSettings.m_fSpawnTimeMax);
+		PrintToConsole(client, "  coop_versus_spawn_time_min: %.1f", g_ePluginSettings.m_fCoopVersSpawnTimeMin);
+		PrintToConsole(client, "  coop_versus_spawn_time_max: %.1f", g_ePluginSettings.m_fCoopVersSpawnTimeMax);
+	}
+	PrintToConsole(client, "  initial_spawn_time: %.1f", g_ePluginSettings.m_fInitialSpawnTime);
+	PrintToConsole(client, "  life: %.1f", g_ePluginSettings.m_fSILife);
+	PrintToConsole(client, "  spawn_time_increase_on_human_infected: %.1f", g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected);
+
+	PrintToConsole(client, "--- Special Infected Weights ---");
+	PrintToConsole(client, "  smoker_weight: %d", g_ePluginSettings.m_iSpawnWeight[SI_SMOKER]);
+	PrintToConsole(client, "  boomer_weight: %d", g_ePluginSettings.m_iSpawnWeight[SI_BOOMER]);
+	PrintToConsole(client, "  hunter_weight: %d", g_ePluginSettings.m_iSpawnWeight[SI_HUNTER]);
+	if(g_bL4D2Version) {
+		PrintToConsole(client, "  spitter_weight: %d", g_ePluginSettings.m_iSpawnWeight[SI_SPITTER]);
+		PrintToConsole(client, "  jockey_weight: %d", g_ePluginSettings.m_iSpawnWeight[SI_JOCKEY]);
+		PrintToConsole(client, "  charger_weight: %d", g_ePluginSettings.m_iSpawnWeight[SI_CHARGER]);
+	}
+	PrintToConsole(client, "  scale_weights: %d", g_ePluginSettings.m_bScaleWeights);
+
+	PrintToConsole(client, "--- Special Infected Health ---");
+	PrintToConsole(client, "  smoker_health: %d", g_ePluginSettings.m_iSIHealth[SI_SMOKER]);
+	PrintToConsole(client, "  boomer_health: %d", g_ePluginSettings.m_iSIHealth[SI_BOOMER]);
+	PrintToConsole(client, "  hunter_health: %d", g_ePluginSettings.m_iSIHealth[SI_HUNTER]);
+	if(g_bL4D2Version) {
+		PrintToConsole(client, "  spitter_health: %d", g_ePluginSettings.m_iSIHealth[SI_SPITTER]);
+		PrintToConsole(client, "  jockey_health: %d", g_ePluginSettings.m_iSIHealth[SI_JOCKEY]);
+		PrintToConsole(client, "  charger_health: %d", g_ePluginSettings.m_iSIHealth[SI_CHARGER]);
+	}
+
+	PrintToConsole(client, "--- Tank Settings ---");
+	PrintToConsole(client, "  tank_limit: %d", g_ePluginSettings.m_iTankLimit);
+	PrintToConsole(client, "  tank_limit_override: %d", g_ePluginSettings.m_bTankLimit_OverrideVSCript);
+	PrintToConsole(client, "  tank_spawn_probability: %d", g_ePluginSettings.m_iTankSpawnProbability);
+	PrintToConsole(client, "  tank_health: %d", g_ePluginSettings.m_iTankHealth);
+	PrintToConsole(client, "  tank_spawn_final: %d", g_ePluginSettings.m_bTankSpawnFinal);
+
+	PrintToConsole(client, "--- Witch Settings ---");
+	PrintToConsole(client, "  witch_max_limit: %d", g_ePluginSettings.m_iWitchMaxLimit);
+	PrintToConsole(client, "  witch_spawn_time_min: %.1f", g_ePluginSettings.m_fWitchSpawnTimeMin);
+	PrintToConsole(client, "  witch_spawn_time_max: %.1f", g_ePluginSettings.m_fWitchSpawnTimeMax);
+	PrintToConsole(client, "  witch_life: %.1f", g_ePluginSettings.m_fWitchLife);
+	PrintToConsole(client, "  witch_spawn_final: %d", g_ePluginSettings.m_bWitchSpawnFinal);
+
+	PrintToConsole(client, "--- Spawn Behavior ---");
+	PrintToConsole(client, "  spawn_same_frame: %d", g_ePluginSettings.m_bSpawnSameFrame);
+	PrintToConsole(client, "  spawn_safe_zone: %d", g_ePluginSettings.m_bSpawnSafeZone);
+	PrintToConsole(client, "  spawn_where_method: %d", g_ePluginSettings.m_iSpawnWhereMethod);
+	PrintToConsole(client, "  spawn_range_min: %.1f", g_ePluginSettings.m_fSpawnRangeMin);
+	PrintToConsole(client, "  spawn_disable_bots: %d", g_ePluginSettings.m_bSpawnDisableBots);
+	PrintToConsole(client, "  tank_disable_spawn: %d", g_ePluginSettings.m_bTankDisableSpawn);
+	PrintToConsole(client, "  coordination: %d", g_ePluginSettings.m_bCoordination);
+
+	PrintToConsole(client, "--- Coop Versus Settings ---");
+	PrintToConsole(client, "  coop_versus_enable: %d", g_ePluginSettings.m_bCoopVersusEnable);
+	PrintToConsole(client, "  coop_versus_tank_playable: %d", g_ePluginSettings.m_bCoopTankPlayable);
+	PrintToConsole(client, "  coop_versus_announce: %d", g_ePluginSettings.m_bCoopVersusAnnounce);
+	PrintToConsole(client, "  coop_versus_human_limit: %d", g_ePluginSettings.m_iCoopVersusHumanLimit);
+	PrintToConsole(client, "  coop_versus_join_access: %s", g_ePluginSettings.m_sCoopVersusJoinAccess);
+	PrintToConsole(client, "  coop_versus_human_light: %d", g_ePluginSettings.m_bCoopVersusHumanLight);
+	PrintToConsole(client, "  coop_versus_human_ghost: %d", g_ePluginSettings.m_bCoopVersusHumanGhost);
+	PrintToConsole(client, "  coop_versus_cool_down: %.1f", g_ePluginSettings.m_fCoopVersusHumanCoolDown);
+
+	PrintToConsole(client, "[SM] ===== End of Configuration =====");
+
+	return Plugin_Handled;
+}
+
+public int Native_GetConfigInt(Handle plugin, int numParams)
+{
+	char key[64];
+	GetNativeString(1, key, sizeof(key));
+
+	if(strcmp(key, "smoker_limit") == 0) return g_ePluginSettings.m_iSpawnLimit[SI_SMOKER];
+	if(strcmp(key, "boomer_limit") == 0) return g_ePluginSettings.m_iSpawnLimit[SI_BOOMER];
+	if(strcmp(key, "hunter_limit") == 0) return g_ePluginSettings.m_iSpawnLimit[SI_HUNTER];
+	if(strcmp(key, "spitter_limit") == 0) return g_ePluginSettings.m_iSpawnLimit[SI_SPITTER];
+	if(strcmp(key, "jockey_limit") == 0) return g_ePluginSettings.m_iSpawnLimit[SI_JOCKEY];
+	if(strcmp(key, "charger_limit") == 0) return g_ePluginSettings.m_iSpawnLimit[SI_CHARGER];
+	if(strcmp(key, "max_specials") == 0) return g_ePluginSettings.m_iMaxSpecials;
+	if(strcmp(key, "max_specials_tank_including") == 0) return g_ePluginSettings.m_bMaxSpecialsIncludingTank;
+
+	if(strcmp(key, "smoker_weight") == 0) return g_ePluginSettings.m_iSpawnWeight[SI_SMOKER];
+	if(strcmp(key, "boomer_weight") == 0) return g_ePluginSettings.m_iSpawnWeight[SI_BOOMER];
+	if(strcmp(key, "hunter_weight") == 0) return g_ePluginSettings.m_iSpawnWeight[SI_HUNTER];
+	if(strcmp(key, "spitter_weight") == 0) return g_ePluginSettings.m_iSpawnWeight[SI_SPITTER];
+	if(strcmp(key, "jockey_weight") == 0) return g_ePluginSettings.m_iSpawnWeight[SI_JOCKEY];
+	if(strcmp(key, "charger_weight") == 0) return g_ePluginSettings.m_iSpawnWeight[SI_CHARGER];
+	if(strcmp(key, "scale_weights") == 0) return g_ePluginSettings.m_bScaleWeights;
+
+	if(strcmp(key, "smoker_health") == 0) return g_ePluginSettings.m_iSIHealth[SI_SMOKER];
+	if(strcmp(key, "boomer_health") == 0) return g_ePluginSettings.m_iSIHealth[SI_BOOMER];
+	if(strcmp(key, "hunter_health") == 0) return g_ePluginSettings.m_iSIHealth[SI_HUNTER];
+	if(strcmp(key, "spitter_health") == 0) return g_ePluginSettings.m_iSIHealth[SI_SPITTER];
+	if(strcmp(key, "jockey_health") == 0) return g_ePluginSettings.m_iSIHealth[SI_JOCKEY];
+	if(strcmp(key, "charger_health") == 0) return g_ePluginSettings.m_iSIHealth[SI_CHARGER];
+
+	if(strcmp(key, "tank_limit") == 0) return g_ePluginSettings.m_iTankLimit;
+	if(strcmp(key, "tank_limit_override") == 0) return g_ePluginSettings.m_bTankLimit_OverrideVSCript;
+	if(strcmp(key, "tank_spawn_probability") == 0) return g_ePluginSettings.m_iTankSpawnProbability;
+	if(strcmp(key, "tank_health") == 0) return g_ePluginSettings.m_iTankHealth;
+	if(strcmp(key, "tank_spawn_final") == 0) return g_ePluginSettings.m_bTankSpawnFinal;
+
+	if(strcmp(key, "witch_max_limit") == 0) return g_ePluginSettings.m_iWitchMaxLimit;
+	if(strcmp(key, "witch_spawn_final") == 0) return g_ePluginSettings.m_bWitchSpawnFinal;
+
+	if(strcmp(key, "spawn_same_frame") == 0) return g_ePluginSettings.m_bSpawnSameFrame;
+	if(strcmp(key, "spawn_safe_zone") == 0) return g_ePluginSettings.m_bSpawnSafeZone;
+	if(strcmp(key, "spawn_where_method") == 0) return g_ePluginSettings.m_iSpawnWhereMethod;
+	if(strcmp(key, "spawn_disable_bots") == 0) return g_ePluginSettings.m_bSpawnDisableBots;
+	if(strcmp(key, "tank_disable_spawn") == 0) return g_ePluginSettings.m_bTankDisableSpawn;
+	if(strcmp(key, "coordination") == 0) return g_ePluginSettings.m_bCoordination;
+
+	if(strcmp(key, "coop_versus_enable") == 0) return g_ePluginSettings.m_bCoopVersusEnable;
+	if(strcmp(key, "coop_versus_tank_playable") == 0) return g_ePluginSettings.m_bCoopTankPlayable;
+	if(strcmp(key, "coop_versus_announce") == 0) return g_ePluginSettings.m_bCoopVersusAnnounce;
+	if(strcmp(key, "coop_versus_human_limit") == 0) return g_ePluginSettings.m_iCoopVersusHumanLimit;
+	if(strcmp(key, "coop_versus_human_light") == 0) return g_ePluginSettings.m_bCoopVersusHumanLight;
+	if(strcmp(key, "coop_versus_human_ghost") == 0) return g_ePluginSettings.m_bCoopVersusHumanGhost;
+
+	ThrowNativeError(SP_ERROR_PARAM, "Unknown config key: %s", key);
+	return -1;
+}
+
+public int Native_GetConfigFloat(Handle plugin, int numParams)
+{
+	char key[64];
+	GetNativeString(1, key, sizeof(key));
+
+	if(strcmp(key, "spawn_time_min") == 0) return view_as<int>(g_ePluginSettings.m_fSpawnTimeMin);
+	if(strcmp(key, "spawn_time_max") == 0) return view_as<int>(g_ePluginSettings.m_fSpawnTimeMax);
+	if(strcmp(key, "initial_spawn_time") == 0) return view_as<int>(g_ePluginSettings.m_fInitialSpawnTime);
+	if(strcmp(key, "life") == 0) return view_as<int>(g_ePluginSettings.m_fSILife);
+	if(strcmp(key, "spawn_range_min") == 0) return view_as<int>(g_ePluginSettings.m_fSpawnRangeMin);
+	if(strcmp(key, "spawn_time_increase_on_human_infected") == 0) return view_as<int>(g_ePluginSettings.m_fSpawnTimeIncreased_OnHumanInfected);
+
+	if(strcmp(key, "witch_spawn_time_min") == 0) return view_as<int>(g_ePluginSettings.m_fWitchSpawnTimeMin);
+	if(strcmp(key, "witch_spawn_time_max") == 0) return view_as<int>(g_ePluginSettings.m_fWitchSpawnTimeMax);
+	if(strcmp(key, "witch_life") == 0) return view_as<int>(g_ePluginSettings.m_fWitchLife);
+
+	if(strcmp(key, "coop_versus_spawn_time_min") == 0) return view_as<int>(g_ePluginSettings.m_fCoopVersSpawnTimeMin);
+	if(strcmp(key, "coop_versus_spawn_time_max") == 0) return view_as<int>(g_ePluginSettings.m_fCoopVersSpawnTimeMax);
+	if(strcmp(key, "coop_versus_cool_down") == 0) return view_as<int>(g_ePluginSettings.m_fCoopVersusHumanCoolDown);
+
+	ThrowNativeError(SP_ERROR_PARAM, "Unknown config key: %s", key);
+	return view_as<int>(0.0);
+}
+
+public int Native_GetConfigString(Handle plugin, int numParams)
+{
+	char key[64];
+	GetNativeString(1, key, sizeof(key));
+
+	int maxlen = GetNativeCell(3);
+	char[] value = new char[maxlen];
+
+	if(strcmp(key, "coop_versus_join_access") == 0)
+	{
+		strcopy(value, maxlen, g_ePluginSettings.m_sCoopVersusJoinAccess);
+	}
+	else
+	{
+		ThrowNativeError(SP_ERROR_PARAM, "Unknown config key or key is not a string: %s", key);
+		return 0;
+	}
+
+	SetNativeString(2, value, maxlen);
+	return 1;
+}
+
 /*
 public Action L4D_OnSpawnSpecial(int &zombieClass, const float vecPos[3], const float vecAng[3])
 {
