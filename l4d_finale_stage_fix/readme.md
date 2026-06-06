@@ -22,11 +22,16 @@ Fixed the final stage get stucked
             * People use other plugin or adjust cvars to keep spawning hordes, hordes keep coming and never ends
             * Solution: Try to delete plugins that spawn lots of mobs
 
-        2. Not have valid position to spawn S.I. bots including tanks
+        2. Too many witches on the field
+            * Game directors count witch as normal common infected
+            * And Because there are too many common infecteds, the game director won't proceed the next final stage
+            * Solution: Don't spawn any witch after final starts, if do, you must kill them all
+
+        3. Not have valid position to spawn S.I. bots including tanks
             * Custom map nav problem, game director can not find a good place to spawn Tank
             * Solution: Go to contact map author
 
-        3. Slot is full. Let's say if server only allow 18 max players, infected team max slot is 4
+        4. Slot is full. Let's say if server only allow 18 max players, infected team max slot is 4
             * When players + bots (infected + survivor + spectator) reach 18 max, unable to spawn Tank (server slot is full)
             * When infected players + bots reach 4 max, unable to spawn Tank (infected team slot is full)
             * Solution: increase server slots or infected team slot
@@ -126,11 +131,16 @@ Fixed the final stage get stucked
             * 常使用其他的插件生成大量的屍潮或殭屍，屍潮一直來導致救援階段無法繼續
             * 解決方式: 刪除會大量生成屍潮的插件
 
-        2. 找不到合適的位置生成Tank
+        2. 太多witch在場上
+            * 遊戲將witch視為普通感染者的一份子
+            * 如果太多Witch在場上，導演系統會以為場上還有很多普通感染者，所以不會進入下一個救援階段
+            * 解決方式: 一旦救援開始之後不要生成Witch，如果場上有Witch，務必全部處理掉
+
+        3. 找不到合適的位置生成Tank
             * 常見於三方圖，地圖沒有做好(NAV 問題)，遊戲導演找不到地圖上人類看不見的位置生成Tank
             * 解決方式: 去怪地圖作者
 
-        3. 位子已滿，假設伺服器只允許18個玩家、特感隊伍最大只能4個位子
+        4. 位子已滿，假設伺服器只允許18個玩家、特感隊伍最大只能4個位子
             * 當真人玩家+Bots (特感 + 倖存者 + 旁觀者) 達到18個位子時，無法生成Tank (伺服器位子已滿)
             * 當特感隊伍的玩家+Bots 達到4個位子時，無法生成Tank (特感隊伍位子已滿)
             * 解決方式: 增加特感隊伍位子或是伺服器位子

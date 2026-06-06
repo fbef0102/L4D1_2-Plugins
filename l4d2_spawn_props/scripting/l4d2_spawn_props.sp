@@ -6,7 +6,38 @@
 #include <left4dhooks>
 #include <multicolors>
 #define DEBUG 0
-#define GETVERSION "4.3-2026/3/15"
+#define GETVERSION "4.4-2026/6/6"
+
+public Plugin myinfo = 
+{
+	name = "[L4D1/2] Objects Spawner Menu",
+	author = "honorcode23 & $atanic $pirit & HarryPotter",
+	description = "Let admins spawn any kind of objects and save with stripper cfg",
+	version = GETVERSION,
+	url = "https://forums.alliedmods.net/showthread.php?t=127418"
+}
+
+bool g_bLeft4Dead2;
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test == Engine_Left4Dead )
+	{
+		g_bLeft4Dead2 = false;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_bLeft4Dead2 = true;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+		return APLRes_SilentFailure;
+	}
+	
+	return APLRes_Success; 
+}
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -20,28 +51,28 @@
 #define	RouteType_Medium	1
 #define RouteType_Hard		2
 
-#define	MAX_WEAPONS			10
-#define	MAX_WEAPONS2		29
+#define	MAX_WEAPONS_L4D1		10
+#define	MAX_WEAPONS_L4D2		29
 
 char FolderNames[][] = {
 	"addons/stripper",
 	"addons/stripper/maps",
 };
 
-static char g_sWeaponNames[MAX_WEAPONS][] =
+static char g_sWeaponNames_L4D1[MAX_WEAPONS_L4D1][] =
 {
 	"Rifle",//0
-	"Auto Shotgun",
+	"Autoshotgun",
 	"Hunting Rifle",
-	"SMG",
-	"Pump Shotgun",
+	"Smg",
+	"Pumpshotgun",
 	"Pistol",//5
 	"Molotov",
 	"Pipe Bomb",
 	"First Aid Kit",
-	"Pain Pills"
+	"Pain Pill"
 };
-static char g_sWeapons[MAX_WEAPONS][] =
+static char g_sWeaponSpawn_L4D1[MAX_WEAPONS_L4D1][] =
 {
 	"weapon_rifle_spawn",
 	"weapon_autoshotgun_spawn",
@@ -54,7 +85,7 @@ static char g_sWeapons[MAX_WEAPONS][] =
 	"weapon_first_aid_kit_spawn",
 	"weapon_pain_pills_spawn"
 };
-static char g_sWeaponModels[MAX_WEAPONS][] =
+static char g_sWeaponModels_L4D1[MAX_WEAPONS_L4D1][] =
 {
 	"models/w_models/weapons/w_rifle_m16a2.mdl",
 	"models/w_models/weapons/w_autoshot_m4super.mdl",
@@ -67,40 +98,41 @@ static char g_sWeaponModels[MAX_WEAPONS][] =
 	"models/w_models/weapons/w_eq_Medkit.mdl",
 	"models/w_models/weapons/w_eq_painpills.mdl"
 };
-static char g_sWeaponNames2[MAX_WEAPONS2][] =
+
+static char g_sWeaponNames_L4D2[MAX_WEAPONS_L4D2][] =
 {
 	"Pistol", //0
-	"Pistol Magnum",
+	"Magnum",
 	"Rifle",
 	"AK47",
 	"SG552",
-	"Rifle Desert",//5
-	"Auto Shotgun",
-	"Shotgun Spas",
-	"Pump Shotgun",
-	"Shotgun Chrome",
-	"SMG",//10
-	"SMG Silenced",
-	"SMG MP5",
+	"Desert Rifle",//5
+	"Autoshotgun",
+	"Spas Shotgun",
+	"Pumpshotgun",
+	"Chrome Shotgun",
+	"Smg",//10
+	"Silenced Smg",
+	"MP5",
 	"Hunting Rifle",
-	"Sniper AWP",
-	"Sniper Military",//15
-	"Sniper Scout",
-	"M60",
+	"AWP",
+	"Military Sniper",//15
+	"SCOUT",
+	"M60 Machine Gun",
 	"Grenade Launcher",
-	"Chainsaw",
+	"chainsaw",
 	"Molotov",//20
 	"Pipe Bomb",
-	"VomitJar",
-	"Pain Pills",
+	"Vomitjar",
+	"Pain Pill",
 	"Adrenaline",
 	"First Aid Kit",//25
 	"Defibrillator",
-	"Upgradepack Explosive",
-	"Upgradepack Incendiary"
+	"Explosive Pack",
+	"Incendiary Pack"
 };
 
-static char g_sWeapons2[MAX_WEAPONS2][] =
+static char g_sWeaponSpawn_L4D2[MAX_WEAPONS_L4D2][] =
 {
 	"weapon_pistol_spawn",
 	"weapon_pistol_magnum_spawn",
@@ -132,7 +164,8 @@ static char g_sWeapons2[MAX_WEAPONS2][] =
 	"weapon_upgradepack_explosive_spawn",
 	"weapon_upgradepack_incendiary_spawn"
 };
-static char g_sWeaponModels2[MAX_WEAPONS2][] =
+
+static char g_sWeaponModels_L4D2[MAX_WEAPONS_L4D2][] =
 {
 	"models/w_models/weapons/w_pistol_B.mdl",
 	"models/w_models/weapons/w_desert_eagle.mdl",
@@ -170,43 +203,41 @@ static char g_sWeaponModels2[MAX_WEAPONS2][] =
 #define MODEL_AMMO_L4D3			"models/props/de_prodigy/ammo_can_02.mdl"
 #define MODEL_LASER				"models/w_models/Weapons/w_laser_sights.mdl"
 
-#define	MAX_OTHER			3
-#define	MAX_OTHER2			4
 
-static char g_sOtherNames[MAX_OTHER][] =
+static char g_sOtherNames_L4D1[][] =
 {
-	"Ammo (L4D model)",//0
+	"Ammo (L4D1 model)",//0
 	"Ammo (L4D2 model)",
 	"Ammo (Box model)",
 };
-static char g_sOthers[MAX_OTHER][] =
+static char g_sOthers_L4D1[][] =
 {
 	"weapon_ammo_spawn",
 	"weapon_ammo_spawn",
 	"weapon_ammo_spawn",
 };
-static char g_sOtherModels[MAX_OTHER][] =
+static char g_sOtherModels_L4D1[][] =
 {
 	MODEL_AMMO_L4D,
 	MODEL_AMMO_L4D2,
 	MODEL_AMMO_L4D3,
 };
 
-static char g_sOtherNames2[MAX_OTHER2][] =
+static char g_sOtherNames_L4D2[][] =
 {
-	"Ammo (L4D model)",//0
+	"Ammo (L4D1 model)",//0
 	"Ammo (L4D2 model)",
 	"Ammo (Box model)",
 	"Laser Sight"
 };
-static char g_sOthers2[MAX_OTHER2][] =
+static char g_sOthers_L4D2[][] =
 {
 	"weapon_ammo_spawn",
 	"weapon_ammo_spawn",
 	"weapon_ammo_spawn",
 	"upgrade_laser_sight"
 };
-static char g_sOtherModels2[MAX_OTHER2][] =
+static char g_sOtherModels_L4D2[][] =
 {
 	MODEL_AMMO_L4D,
 	MODEL_AMMO_L4D2,
@@ -214,49 +245,10 @@ static char g_sOtherModels2[MAX_OTHER2][] =
 	MODEL_LASER,
 };
 
-#define	MAX_MELEE			13
-static char g_sMeleeNames[MAX_MELEE][] =
-{
-	"Axe",
-	"Baseball Bat",
-	"Cricket Bat",
-	"Crowbar",
-	"Frying Pan",
-	"Golf Club",
-	"Guitar",
-	"Katana",
-	"Machete",
-	"Nightstick",
-	"Knife",
-	"Pitchfork",
-	"Shovel"
-	// "Shield"
-};
-static char g_sMeleeScripts[MAX_MELEE][] =
-{
-	"fireaxe",
-	"baseball_bat",
-	"cricket_bat",
-	"crowbar",
-	"frying_pan",
-	"golfclub",
-	"electric_guitar",
-	"katana",
-	"machete",
-	"tonfa",
-	"knife",
-	"pitchfork",
-	"shovel"
-	// "riotshield"
-};
-
 StringMap g_smModelCount;
 
 TopMenu g_TopMenuHandle;
 
-int g_iCategory[MAXPLAYERS+1]				= {0};
-int g_iSubCategory[MAXPLAYERS+1]			= {0};
-int g_iFileCategory[MAXPLAYERS+1]			= {0};
 int g_iMoveCategory[MAXPLAYERS+1]			= {0};
 int g_iLastObject[MAXPLAYERS+1]				= {INVALID_ENT_REFERENCE};
 int g_iLockObject[MAXPLAYERS+1]				= {INVALID_ENT_REFERENCE};
@@ -267,92 +259,83 @@ bool g_bUnsolid[MAX_ENTITY]				= {false};
 // Global variables to hold menu position
 int g_iRotateMenuPosition[MAXPLAYERS+1]			= {0};
 int g_iMoveMenuPosition[MAXPLAYERS+1]			= {0};
-int g_iVehiclesMenuPosition[MAXPLAYERS+1]		= {0};
-int g_iFoliageMenuPosition[MAXPLAYERS+1]		= {0};
-int g_iInteriorMenuPosition[MAXPLAYERS+1]		= {0};
-int g_iExteriorMenuPosition[MAXPLAYERS+1]		= {0};
-int g_iDecorMenuPosition[MAXPLAYERS+1]			= {0};
-int g_iMiscMenuPosition[MAXPLAYERS+1]			= {0};
 
-int g_iWeaponsMenuPosition[MAXPLAYERS+1]		= {0};
 int g_iMeleesMenuPosition[MAXPLAYERS+1]		= {0};
 int g_iItemsMenuPosition[MAXPLAYERS+1]		= {0};
 int g_iOthersMenuPosition[MAXPLAYERS+1]		= {0};
 
-ConVar stripper_cfg_path;
+ConVar stripper_cfg_path, mp_gamemode;
 char g_sCvar_stripper_cfg_path[128];
 
 ConVar g_cvarPhysics,
 	g_cvarDynamic,
 	g_cvarStatic, g_cvarItem,
-	g_cvarVehicles,
-	g_cvarFoliage,
-	g_cvarInterior,
-	g_cvarExterior,
-	g_cvarDecorative,
-	g_cvarMisc,
-	g_cvarLog, g_cvarModelFile;
+	g_cvarLog, g_cvarModelFile, g_cvarAutoload, g_cvarGlow;
 bool g_bCvarPhysics,
 	g_bCvarDynamic,
 	g_bCvarStatic, g_bCvarItem,
-	g_bCvarVehicles,
-	g_bCvarFoliage,
-	g_bCvarInterior,
-	g_bCvarExterior,
-	g_bCvarDecorative,
-	g_bCvarMisc,
-	g_bCvarLog;
+	g_bCvarLog, g_bCvarAutoload, g_bCvarGlow;
 char g_sCvarModelFile[256];
 
-int LOCK_COLORS[3] = {255, 140, 0};
-
-public Plugin myinfo = 
+enum ESpawnCategory
 {
-	name = "[L4D1/2] Objects Spawner",
-	author = "honorcode23 & $atanic $pirit & HarryPotter",
-	description = "Let admins spawn any kind of objects",
-	version = GETVERSION,
-	url = "http://forums.alliedmods.net/showthread.php?p=1186503"
+	SpawnCategory_None,
+	SpawnCategory_Physics_Crosshair,
+	SpawnCategory_Physics_Body,
+	SpawnCategory_NoSolid_Crosshair,
+	SpawnCategory_NoSolid_Body,
+	SpawnCategory_Solid_Crosshair,
+	SpawnCategory_Solid_Body,
+	SpawnCategory_Item_Crosshair,
+	SpawnCategory_Item_Body,
 }
+ESpawnCategory 
+	g_eSpawnCategory[MAXPLAYERS+1];
 
-bool g_bLeft4Dead2;
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
+enum EWeaponItemCategory
 {
-	EngineVersion test = GetEngineVersion();
-	
-	if( test == Engine_Left4Dead )
-	{
-		g_bLeft4Dead2 = false;
-	}
-	else if( test == Engine_Left4Dead2 )
-	{
-		g_bLeft4Dead2 = true;
-	}
-	else
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
-		return APLRes_SilentFailure;
-	}
-	
-	return APLRes_Success; 
+	WeaponItemCategory_None,
+	WeaponItemCategory_GunsMain,
+	WeaponItemCategory_GunsRifle,
+	WeaponItemCategory_GunsSniper,
+	WeaponItemCategory_GunsShotguns,
+	WeaponItemCategory_GunsSMG,
+	WeaponItemCategory_GunsPistol,
+	WeaponItemCategory_Melees,
+	WeaponItemCategory_Items,
+	WeaponItemCategory_Others,
 }
+EWeaponItemCategory
+	g_eWeaponItemCategory[MAXPLAYERS+1];
+
+char
+	g_sObjectCategory[MAXPLAYERS+1][5][PLATFORM_MAX_PATH];
+
+int 
+	g_iCategoryLevel[MAXPLAYERS+1],
+	g_iCategoryPos[MAXPLAYERS+1],
+	LOCK_COLORS[3] = {255, 140, 0};
+
+ArrayList
+	g_aMeleeScripts;
+
+KeyValues	
+	g_hData;
 
 public void OnPluginStart()
 {	
+	mp_gamemode = FindConVar("mp_gamemode");
+
 	LoadTranslations("l4d2_spawn_props.phrases");
 
 	g_cvarPhysics 		= CreateConVar("l4d2_spawn_props_physics", 				"1", "If 1, Enable the Physics Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvarDynamic 		= CreateConVar("l4d2_spawn_props_dynamic",				"1", "If 1, Enable the Dynamic (Non-solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvarStatic 		= CreateConVar("l4d2_spawn_props_static",				"1", "If 1, Enable the Static (Solid) Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvarItem 			= CreateConVar("l4d2_spawn_props_items",				"1", "If 1, Enable the Items & Weapons Objects in the menu", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarVehicles 		= CreateConVar("l4d2_spawn_props_category_vehicles",	"1", "If 1, Enable the Vehicles category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarFoliage 		= CreateConVar("l4d2_spawn_props_category_foliage",		"1", "If 1, Enable the Foliage category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarInterior 		= CreateConVar("l4d2_spawn_props_category_interior",	"1", "If 1, Enable the Interior category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarExterior 		= CreateConVar("l4d2_spawn_props_category_exterior",	"1", "If 1, Enable the Exterior category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarDecorative 	= CreateConVar("l4d2_spawn_props_category_decorative",	"1", "If 1, Enable the Decorative category", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarMisc 			= CreateConVar("l4d2_spawn_props_category_misc", 		"1", "If 1, Enable the Misc category", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_cvarLog 			= CreateConVar("l4d2_spawn_props_log_actions", 			"0", "If 1, Log if an admin spawns an object?", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_cvarModelFile 	= CreateConVar("l4d2_spawn_props_model_file", 			"data/l4d2_spawn_props_models_english.txt", "Model file to read, default: data/l4d2_spawn_props_models_english.txt", CVAR_FLAGS);
+	g_cvarModelFile 	= CreateConVar("l4d2_spawn_props_model_file", 			"data/l4d2_spawn_props/model_english.cfg", "Model file to read, default: data/l4d2_spawn_props/model_english.cfg", CVAR_FLAGS);
+	g_cvarAutoload 		= CreateConVar("l4d2_spawn_props_autoload_random_path", "0", "Enable the plugin to auto load data/l4d2_spawn_props/random_path.cfg?", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_cvarGlow			= CreateConVar("l4d2_spawn_props_glow", 				"1", "If 1, make object glow on last placed objects or last locking object", CVAR_FLAGS, true, 0.0, true, 1.0);
 
 	CreateConVar("l4d2_spawn_props_version", GETVERSION, "Version of the Plugin", CVAR_FLAGS_PLUGIN_VERSION); 
 	AutoExecConfig(true, "l4d2_spawn_props");
@@ -362,14 +345,10 @@ public void OnPluginStart()
 	g_cvarDynamic.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarStatic.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarItem.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarVehicles.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarFoliage.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarInterior.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarExterior.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarDecorative.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarMisc.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarLog.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarModelFile.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarAutoload.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarGlow.AddChangeHook(ConVarChanged_Cvars);
 
 	HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus/survival/scavenge mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
 	HookEvent("map_transition", 		Event_RoundEnd,		EventHookMode_PostNoCopy); //1. all survivors make it to saferoom in and server is about to change next level in coop mode (does not trigger round_end), 2. all survivors make it to saferoom in versus
@@ -404,6 +383,8 @@ public void OnPluginStart()
 	BuildFileDirectories();
 
 	CreateStringMap();
+
+	g_aMeleeScripts = new ArrayList(ByteCountToCells(64));
 }
 
 public void OnPluginEnd()
@@ -453,16 +434,83 @@ void GetCvars()
 	g_bCvarDynamic = g_cvarDynamic.BoolValue;
 	g_bCvarStatic = g_cvarStatic.BoolValue;
 	g_bCvarItem = g_cvarItem.BoolValue;
-	g_bCvarVehicles = g_cvarVehicles.BoolValue;
-	g_bCvarFoliage = g_cvarFoliage.BoolValue;
-	g_bCvarInterior = g_cvarInterior.BoolValue;
-	g_bCvarExterior = g_cvarExterior.BoolValue;
-	g_bCvarDecorative = g_cvarDecorative.BoolValue;
-	g_bCvarMisc = g_cvarMisc.BoolValue;
 	g_bCvarLog = g_cvarLog.BoolValue;
 	g_cvarModelFile.GetString(g_sCvarModelFile, sizeof(g_sCvarModelFile));
+	g_bCvarAutoload = g_cvarAutoload.BoolValue;
+	g_bCvarGlow = g_cvarGlow.BoolValue;
 }
 
+//地圖開始載入時就會觸發
+// 晚載入不會觸發
+public void OnMapInit(const char[] mapName)
+{
+	if(!g_bCvarAutoload) return;
+
+	//在此時修改stripper_cfg_path會生效
+
+	char sPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/l4d2_spawn_props/random_path.cfg");
+	if( !FileExists(sPath) )
+	{
+		SetFailState("File Not Found: %s", sPath);
+		return;
+	}
+
+	// Load config
+	KeyValues hData = new KeyValues("l4d2_spawn_props");
+	if( !hData.ImportFromFile(sPath) )
+	{
+		SetFailState("File Format Not Correct: %s", sPath);
+		delete hData;
+		return;
+	}
+
+	char sMpGameMode[64], StripperCfgPath[PLATFORM_MAX_PATH];
+	mp_gamemode.GetString(sMpGameMode, sizeof sMpGameMode);
+	//LogError("sMpGameMode: %s", sMpGameMode);
+
+	int total;
+	char sNumber[4];
+	hData.GetString("stripper_cfg_path_default", StripperCfgPath, sizeof StripperCfgPath);
+
+	if( hData.JumpToKey("default") )
+	{
+		if( strlen(sMpGameMode) > 0 && hData.JumpToKey(sMpGameMode) )
+		{
+			total = hData.GetNum("total", 0);
+			if(total > 0)
+			{
+				FormatEx(sNumber, sizeof sNumber, "%d", GetRandomInt(1, total));
+				hData.GetString(sNumber, StripperCfgPath, sizeof StripperCfgPath, StripperCfgPath);
+			}
+
+			hData.GoBack();
+		}
+
+		hData.GoBack();
+	}
+
+	if( hData.JumpToKey(mapName) )
+	{
+		if( strlen(sMpGameMode) > 0 && hData.JumpToKey(sMpGameMode) )
+		{
+			total = hData.GetNum("total", 0);
+			if(total > 0)
+			{
+				FormatEx(sNumber, sizeof sNumber, "%d", GetRandomInt(1, total));
+				hData.GetString(sNumber, StripperCfgPath, sizeof StripperCfgPath, StripperCfgPath);
+			}
+
+			hData.GoBack();
+		}
+
+		hData.GoBack();
+	}
+
+	stripper_cfg_path.SetString(StripperCfgPath);
+
+	delete hData;
+}
 
 public void OnMapStart()
 {
@@ -472,11 +520,11 @@ public void OnMapStart()
 		g_bUnsolid[i] = false;
 	}
 
-	int max = MAX_WEAPONS;
-	if( g_bLeft4Dead2 ) max = MAX_WEAPONS2;
+	int max = MAX_WEAPONS_L4D1;
+	if( g_bLeft4Dead2 ) max = MAX_WEAPONS_L4D2;
 	for( int i = 0; i < max; i++ )
 	{
-		PrecacheModel(g_bLeft4Dead2 ? g_sWeaponModels2[i] : g_sWeaponModels[i], true);
+		PrecacheModel(g_bLeft4Dead2 ? g_sWeaponModels_L4D2[i] : g_sWeaponModels_L4D1[i], true);
 	}
 
 	PrecacheModel(MODEL_AMMO_L4D, true);
@@ -525,6 +573,51 @@ public void OnMapStart()
 		PrecacheGeneric("scripts/melee/pitchfork.txt", true);
 		PrecacheGeneric("scripts/melee/shovel.txt", true);
 	}
+
+	CreateTimer(1.0, Timer_GetMeleeTable, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+Action Timer_GetMeleeTable(Handle timer)
+{
+	delete g_aMeleeScripts;
+	g_aMeleeScripts = new ArrayList(ByteCountToCells(64));
+	int table = FindStringTable("meleeweapons");
+	if (table != INVALID_STRING_TABLE) {
+		int num = GetStringTableNumStrings(table);
+		char melee[64];
+		for (int i; i < num; i++) {
+			ReadStringTable(table, i, melee, sizeof melee);
+			g_aMeleeScripts.PushString(melee);
+		}
+	}
+	return Plugin_Continue;
+}
+
+public void OnConfigsExecuted()
+{
+	GetCvars();
+	LoadData();
+}
+
+void LoadData()
+{
+    char sPath[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, sPath, sizeof(sPath), g_sCvarModelFile);
+    if( !FileExists(sPath) )
+    {
+        SetFailState("File Not Found: %s", sPath);
+        return;
+    }
+
+    // Load config
+	delete g_hData;
+    g_hData = new KeyValues("l4d2_spawn_props");
+    if( !g_hData.ImportFromFile(sPath) )
+    {
+        SetFailState("File Format Not Correct: %s", sPath);
+        delete g_hData;
+        return;
+    }
 }
 
 Action CmdDebugProp(int client, int args)
@@ -954,35 +1047,43 @@ int MenuHandler_Spawn(Menu menu, MenuAction action, int param1, int param2)
 			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
 			if(strcmp(menucmd, "sm_spawnpc")== 0)
 			{
-				BuildPhysicsCursorMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_Physics_Crosshair;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawnpo")== 0)
 			{
-				BuildPhysicsPositionMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_Physics_Body;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawndc")== 0)
 			{
-				BuildDynamicCursorMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_NoSolid_Crosshair;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawndo")== 0)
 			{
-				BuildDynamicPositionMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_NoSolid_Body;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawnsc")== 0)
 			{
-				BuildStaticCursorMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_Solid_Crosshair;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawnso")== 0)
 			{
-				BuildStaticPositionMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_Solid_Body;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawnic")== 0)
 			{
-				BuildItemCursorMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_Item_Crosshair;
+				BuildMenuMainCategories(param1);
 			}
 			else if(strcmp(menucmd, "sm_spawnio")== 0)
 			{
-				BuildItemPositionMenu(param1);
+				g_eSpawnCategory[param1] = SpawnCategory_Item_Body;
+				BuildMenuMainCategories(param1);
 			}
 		}
 		case MenuAction_Cancel:
@@ -1023,7 +1124,8 @@ void BuildSaveMenu(int client)
 {
 	Menu menu = new Menu(MenuHandler_Save);
 	menu.SetTitle("%T", "Select The Save Method", client);
-	menu.AddItem("sm_spsavestripper", Translate(client, "%t", "Save Stripper File"));
+	menu.AddItem("sm_spsavestripper", Translate(client, "%t", "Save Stripper File (Default Path)"));
+	menu.AddItem("sm_spsaveplugin", Translate(client, "%t", "Save Stripper File (Random Path)"));
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	menu.Display(client, MENU_TIME_FOREVER);
@@ -1040,6 +1142,12 @@ int MenuHandler_Save(Menu menu, MenuAction action, int param1, int param2)
 			if(strcmp(menucmd, "sm_spsavestripper")== 0)
 			{
 				SaveMapStripper(param1);
+				BuildSaveMenu(param1);
+				DeleteAllProps(false);
+			}
+			else if(strcmp(menucmd, "sm_spsaveplugin")== 0)
+			{
+				SaveMapStripperCustom(param1);
 				BuildSaveMenu(param1);
 				DeleteAllProps(false);
 			}
@@ -1065,79 +1173,64 @@ int MenuHandler_Save(Menu menu, MenuAction action, int param1, int param2)
 						Build Secondary Menus							    |
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|
 */
-void BuildPhysicsCursorMenu(int client)
+void BuildMenuMainCategories(int client, int menu_pos = 0)
 {
-	Menu menu = new Menu(MenuHandler_PhysicsCursor);
-	CheckSecondaryMenuCategories(menu, client);
-}
+	g_iCategoryLevel[client] = 0;
+	g_iCategoryPos[client] = 0;
 
-void BuildPhysicsPositionMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_PhysicsPosition);
-	CheckSecondaryMenuCategories(menu, client);
-}
+	Menu menu = null;
+	switch(g_eSpawnCategory[client])
+	{
+		case SpawnCategory_Physics_Crosshair, SpawnCategory_Physics_Body, 
+		SpawnCategory_NoSolid_Crosshair, SpawnCategory_NoSolid_Body, 
+		SpawnCategory_Solid_Crosshair, SpawnCategory_Solid_Body:
+		{
+			menu = new Menu(MenuHandler_MainCategory);
+		}
+		case SpawnCategory_Item_Crosshair:
+		{
+			menu = new Menu(MenuHandler_ItemCursor);
+		}
+		case SpawnCategory_Item_Body:
+		{
+			menu = new Menu(MenuHandler_ItemPosition);
+		}
+	}
+	menu.SetTitle("%T", "Object Spawner", client);
+	
+	switch(g_eSpawnCategory[client])
+	{
+		case SpawnCategory_Physics_Crosshair,SpawnCategory_Physics_Body,
+			SpawnCategory_NoSolid_Crosshair,SpawnCategory_NoSolid_Body,
+			SpawnCategory_Solid_Crosshair,SpawnCategory_Solid_Body:
+		{
+			g_hData.Rewind();
 
-void BuildDynamicCursorMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_DynamicCursor);
-	CheckSecondaryMenuCategories(menu, client);
-}
+			// true = 只走 Section ({})
+			// false = Section + KeyValue
+			if (g_hData.GotoFirstSubKey(true))
+			{
+				do
+				{
+					char Selection[PLATFORM_MAX_PATH];
+					char Categor_Name[PLATFORM_MAX_PATH];
 
-void BuildDynamicPositionMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_DynamicPosition);
-	CheckSecondaryMenuCategories(menu, client);
-}
-void BuildStaticCursorMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_StaticCursor);
-	CheckSecondaryMenuCategories(menu, client);
-}
-void BuildStaticPositionMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_StaticPosition);
-	CheckSecondaryMenuCategories(menu, client);
-}
-void BuildItemCursorMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_ItemCursor);
-	ItemCategories(menu, client);
-}
-void BuildItemPositionMenu(int client)
-{
-	Menu menu = new Menu(MenuHandler_ItemPosition);
-	ItemCategories(menu, client);
-}
+					g_hData.GetSectionName(Selection, sizeof(Selection));
+					g_hData.GetString("menu_category", Categor_Name, sizeof Categor_Name, Selection);
+					menu.AddItem(Selection, Categor_Name);
 
-void CheckSecondaryMenuCategories(Menu menu, int client)
-{	
-	if(g_bCvarVehicles)
-	{
-		menu.AddItem("vehicles", Translate(client, "%t", "Vehicles"));
+				} while (g_hData.GotoNextKey(true));
+			}	
+		}
+		case SpawnCategory_Item_Crosshair, SpawnCategory_Item_Body:
+		{
+			ItemCategories(menu, client);
+		}
 	}
-	if(g_bCvarFoliage)
-	{
-		menu.AddItem("foliage", Translate(client, "%t", "Foliage"));
-	}
-	if(g_bCvarInterior)
-	{
-		menu.AddItem("interior", Translate(client, "%t", "Interior"));
-	}
-	if(g_bCvarExterior)
-	{
-		menu.AddItem("exterior", Translate(client, "%t", "Exterior"));
-	}
-	if(g_bCvarDecorative)
-	{
-		menu.AddItem("decorative", Translate(client, "%t", "Decorative"));
-	}
-	if(g_bCvarMisc)
-	{
-		menu.AddItem("misc", Translate(client, "%t", "Misc"));
-	}
+
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
-	menu.Display(client, MENU_TIME_FOREVER);	
+	menu.DisplayAt(client, menu_pos, MENU_TIME_FOREVER);	
 }
 
 void ItemCategories(Menu menu, int client)
@@ -1146,10 +1239,6 @@ void ItemCategories(Menu menu, int client)
 	if( g_bLeft4Dead2 ) menu.AddItem("Melees", Translate(client, "%t", "Melees"));
 	menu.AddItem("Items", Translate(client, "%t", "Items"));
 	menu.AddItem("Others", Translate(client, "%t", "Others"));
-
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.Display(client, MENU_TIME_FOREVER);	
 }
 
 void BuildEditPropMenu(int client)
@@ -1166,45 +1255,26 @@ void BuildEditPropMenu(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-int MenuHandler_PhysicsCursor(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_CategoryList(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
 		case MenuAction_Select:
 		{
-			g_iCategory[param1] = 1;
+			g_iCategoryLevel[param1]++;
+
 			char menucmd[256];
 			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "vehicles")== 0)
-			{
-				DisplayVehiclesMenu(param1);
-			}
-			else if(strcmp(menucmd, "foliage")== 0)
-			{
-				DisplayFoliageMenu(param1);
-			}
-			else if(strcmp(menucmd, "interior")== 0)
-			{
-				DisplayInteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "exterior")== 0)
-			{
-				DisplayExteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "decorative")== 0)
-			{
-				DisplayDecorativeMenu(param1);
-			}
-			else if(strcmp(menucmd, "misc")== 0)
-			{
-				DisplayMiscMenu(param1);
-			}
+
+			int iCategoryPos = g_iCategoryLevel[param1];
+			FormatEx(g_sObjectCategory[param1][iCategoryPos], sizeof g_sObjectCategory[][], "%s", menucmd);
+			DisplayNextObjectMenu(param1, iCategoryPos);
 		}
 		case MenuAction_Cancel:
 		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
+			if(param2 == MenuCancel_ExitBack)
 			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
+				GoBackObjectMenu(param1);
 			}
 		}
 		case MenuAction_End:
@@ -1216,45 +1286,205 @@ int MenuHandler_PhysicsCursor(Menu menu, MenuAction action, int param1, int para
 	return 0;
 }
 
-int MenuHandler_PhysicsPosition(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_ModelList(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
 		case MenuAction_Select:
 		{
-			g_iCategory[param1] = 2;
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "vehicles")== 0)
+			//g_iCategoryLevel[param1]++;
+			g_iCategoryPos[param1] = menu.Selection;
+
+			char model[256];
+			GetMenuItem(menu, param2, model, sizeof(model));
+			if(!IsModelPrecached(model))
 			{
-				DisplayVehiclesMenu(param1);
+				PrecacheModel(model);
 			}
-			else if(strcmp(menucmd, "foliage")== 0)
+			if(g_eSpawnCategory[param1] == SpawnCategory_Physics_Crosshair)
 			{
-				DisplayFoliageMenu(param1);
+				float VecOrigin[3];
+				float VecAngles[3];
+				int prop = CreateEntityByName("prop_physics_override");
+				DispatchKeyValue(prop, "model", model);
+				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+				GetClientEyePosition(param1, VecOrigin);
+				GetClientEyeAngles(param1, VecAngles);
+				
+				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_OPAQUE, RayType_Infinite, TraceRayDontHitSelf, param1);
+				if(TR_DidHit(null))
+				{
+					TR_GetEndPosition(VecOrigin);
+				}
+				else
+				{
+					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
+				}
+				VecAngles[0] = 0.0;
+				VecAngles[2] = 0.0;
+				DispatchKeyValueVector(prop, "angles", VecAngles);
+				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				g_bSpawned[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
+
+				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
 			}
-			else if(strcmp(menucmd, "interior")== 0)
+			else if(g_eSpawnCategory[param1] == SpawnCategory_Physics_Body)
 			{
-				DisplayInteriorMenu(param1);
+				float VecOrigin[3];
+				float VecAngles[3];
+				int prop = CreateEntityByName("prop_physics_override");
+				DispatchKeyValue(prop, "model", model);
+				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+				GetClientAbsOrigin(param1, VecOrigin);
+				GetClientEyeAngles(param1, VecAngles);
+				VecAngles[0] = 0.0;
+				VecAngles[2] = 0.0;
+				DispatchKeyValueVector(prop, "angles", VecAngles);
+				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				g_bSpawned[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
+
+				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
 			}
-			else if(strcmp(menucmd, "exterior")== 0)
+			else if(g_eSpawnCategory[param1] == SpawnCategory_NoSolid_Crosshair)
 			{
-				DisplayExteriorMenu(param1);
+				float VecOrigin[3];
+				float VecAngles[3];
+				int prop = CreateEntityByName("prop_dynamic_override");
+				DispatchKeyValue(prop, "model", model);
+				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+				GetClientEyePosition(param1, VecOrigin);
+				GetClientEyeAngles(param1, VecAngles);
+				
+				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_OPAQUE, RayType_Infinite, TraceRayDontHitSelf, param1);
+				if(TR_DidHit(null))
+				{
+					TR_GetEndPosition(VecOrigin);
+				}
+				else
+				{
+					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
+				}
+				VecAngles[0] = 0.0;
+				VecAngles[2] = 0.0;
+				DispatchKeyValueVector(prop, "angles", VecAngles);
+				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
+				g_bSpawned[prop] = true;
+				g_bUnsolid[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
+
+				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
 			}
-			else if(strcmp(menucmd, "decorative")== 0)
+			else if(g_eSpawnCategory[param1] == SpawnCategory_NoSolid_Body)
 			{
-				DisplayDecorativeMenu(param1);
+				float VecOrigin[3];
+				float VecAngles[3];
+				int prop = CreateEntityByName("prop_dynamic_override");
+				DispatchKeyValue(prop, "model", model);
+				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+				GetClientAbsOrigin(param1, VecOrigin);
+				GetClientEyeAngles(param1, VecAngles);
+				VecAngles[0] = 0.0;
+				VecAngles[2] = 0.0;
+				DispatchKeyValueVector(prop, "angles", VecAngles);
+				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
+				g_bSpawned[prop] = true;
+				g_bUnsolid[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
+
+				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
 			}
-			else if(strcmp(menucmd, "misc")== 0)
+			else if(g_eSpawnCategory[param1] == SpawnCategory_Solid_Crosshair)
 			{
-				DisplayMiscMenu(param1);
+				float VecOrigin[3];
+				float VecAngles[3];
+				int prop = CreateEntityByName("prop_dynamic_override");
+				DispatchKeyValue(prop, "model", model);
+				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+				GetClientEyePosition(param1, VecOrigin);
+				GetClientEyeAngles(param1, VecAngles);
+				
+				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_SHOT, RayType_Infinite, _TraceFilter);
+				if(TR_DidHit(null))
+				{
+					TR_GetEndPosition(VecOrigin);
+				}
+				else
+				{
+					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
+				}
+				VecAngles[0] = 0.0;
+				VecAngles[2] = 0.0;
+
+				DispatchKeyValueVector(prop, "angles", VecAngles);
+				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
+				g_bSpawned[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
+
+				LogSpawn("%N spawned a static object with model <%s>", param1, model);
 			}
+			else if(g_eSpawnCategory[param1] == SpawnCategory_Solid_Body)
+			{
+				float VecOrigin[3];
+				float VecAngles[3];
+				int prop = CreateEntityByName("prop_dynamic_override");
+				DispatchKeyValue(prop, "model", model);
+				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
+				
+				GetClientAbsOrigin(param1, VecOrigin);
+				GetClientEyeAngles(param1, VecAngles);
+				VecAngles[0] = 0.0;
+				VecAngles[2] = 0.0;
+				DispatchKeyValueVector(prop, "angles", VecAngles);
+				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+				DispatchSpawn(prop);
+
+				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
+				g_bSpawned[prop] = true;
+
+				LockGlow(param1, prop);
+				g_iLastObject[param1] = EntIndexToEntRef(prop);
+				g_iLockObject[param1] = EntIndexToEntRef(prop);
+
+				LogSpawn("%N spawned a static object with model <%s>", param1, model);
+			}
+
+			DisplayNextObjectMenu(param1, g_iCategoryLevel[param1], g_iCategoryPos[param1]);
 		}
 		case MenuAction_Cancel:
 		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
+			if(param2 == MenuCancel_ExitBack)
 			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
+				GoBackObjectMenu(param1);
 			}
 		}
 		case MenuAction_End:
@@ -1266,39 +1496,20 @@ int MenuHandler_PhysicsPosition(Menu menu, MenuAction action, int param1, int pa
 	return 0;
 }
 
-int MenuHandler_DynamicCursor(Menu menu, MenuAction action, int param1, int param2)
+int MenuHandler_MainCategory(Menu menu, MenuAction action, int param1, int param2)
 {
 	switch(action)
 	{
 		case MenuAction_Select:
 		{
-			g_iCategory[param1] = 3;
+			g_iCategoryLevel[param1] = 1;
+
 			char menucmd[256];
 			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "vehicles")== 0)
-			{
-				DisplayVehiclesMenu(param1);
-			}
-			else if(strcmp(menucmd, "foliage")== 0)
-			{
-				DisplayFoliageMenu(param1);
-			}
-			else if(strcmp(menucmd, "interior")== 0)
-			{
-				DisplayInteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "exterior")== 0)
-			{
-				DisplayExteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "decorative")== 0)
-			{
-				DisplayDecorativeMenu(param1);
-			}
-			else if(strcmp(menucmd, "misc")== 0)
-			{
-				DisplayMiscMenu(param1);
-			}
+
+			int iCategoryPos = g_iCategoryLevel[param1];
+			FormatEx(g_sObjectCategory[param1][iCategoryPos], sizeof g_sObjectCategory[][], "%s", menucmd);
+			DisplayNextObjectMenu(param1, iCategoryPos);
 		}
 		case MenuAction_Cancel:
 		{
@@ -1314,159 +1525,6 @@ int MenuHandler_DynamicCursor(Menu menu, MenuAction action, int param1, int para
 	}
 
 	return 0;
-}
-
-int MenuHandler_DynamicPosition(Menu menu, MenuAction action, int param1, int param2)
-{
-	switch(action)
-	{
-		case MenuAction_Select:
-		{
-			g_iCategory[param1] = 4;
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "vehicles")== 0)
-			{
-				DisplayVehiclesMenu(param1);
-			}
-			else if(strcmp(menucmd, "foliage")== 0)
-			{
-				DisplayFoliageMenu(param1);
-			}
-			else if(strcmp(menucmd, "interior")== 0)
-			{
-				DisplayInteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "exterior")== 0)
-			{
-				DisplayExteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "decorative")== 0)
-			{
-				DisplayDecorativeMenu(param1);
-			}
-			else if(strcmp(menucmd, "misc")== 0)
-			{
-				DisplayMiscMenu(param1);
-			}
-		}
-		case MenuAction_Cancel:
-		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
-			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-			}
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-	}
-
-	return 0;
-
-}
-
-int MenuHandler_StaticCursor(Menu menu, MenuAction action, int param1, int param2)
-{
-	switch(action)
-	{
-		case MenuAction_Select:
-		{
-			g_iCategory[param1] = 5;
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "vehicles")== 0)
-			{
-				DisplayVehiclesMenu(param1);
-			}
-			else if(strcmp(menucmd, "foliage")== 0)
-			{
-				DisplayFoliageMenu(param1);
-			}
-			else if(strcmp(menucmd, "interior")== 0)
-			{
-				DisplayInteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "exterior")== 0)
-			{
-				DisplayExteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "decorative")== 0)
-			{
-				DisplayDecorativeMenu(param1);
-			}
-			else if(strcmp(menucmd, "misc")== 0)
-			{
-				DisplayMiscMenu(param1);
-			}
-		}
-		case MenuAction_Cancel:
-		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
-			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-			}
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-	}
-
-	return 0;
-
-}
-
-int MenuHandler_StaticPosition(Menu menu, MenuAction action, int param1, int param2)
-{
-	switch(action)
-	{
-		case MenuAction_Select:
-		{
-			g_iCategory[param1] = 6;
-			char menucmd[256];
-			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
-			if(strcmp(menucmd, "vehicles")== 0)
-			{
-				DisplayVehiclesMenu(param1);
-			}
-			else if(strcmp(menucmd, "foliage")== 0)
-			{
-				DisplayFoliageMenu(param1);
-			}
-			else if(strcmp(menucmd, "interior")== 0)
-			{
-				DisplayInteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "exterior")== 0)
-			{
-				DisplayExteriorMenu(param1);
-			}
-			else if(strcmp(menucmd, "decorative")== 0)
-			{
-				DisplayDecorativeMenu(param1);
-			}
-			else if(strcmp(menucmd, "misc")== 0)
-			{
-				DisplayMiscMenu(param1);
-			}
-		}
-		case MenuAction_Cancel:
-		{
-			if(param2 == MenuCancel_ExitBack && g_TopMenuHandle != null)
-			{
-				g_TopMenuHandle.Display(param1, TopMenuPosition_LastCategory);
-			}
-		}
-		case MenuAction_End:
-		{
-			delete menu;
-		}
-	}
-
-	return 0;
-
 }
 
 int MenuHandler_ItemCursor(Menu menu, MenuAction action, int param1, int param2)
@@ -1475,12 +1533,12 @@ int MenuHandler_ItemCursor(Menu menu, MenuAction action, int param1, int param2)
 	{
 		case MenuAction_Select:
 		{
-			g_iCategory[param1] = 7;
+			g_eSpawnCategory[param1] = SpawnCategory_Item_Crosshair;
 			char menucmd[256];
 			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
 			if(strcmp(menucmd, "Weapons")== 0)
 			{
-				DisplayWeaponsMenu(param1);
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
 			}
 			else if(strcmp(menucmd, "Melees")== 0)
 			{
@@ -1518,12 +1576,12 @@ int MenuHandler_ItemPosition(Menu menu, MenuAction action, int param1, int param
 	{
 		case MenuAction_Select:
 		{
-			g_iCategory[param1] = 8;
+			g_eSpawnCategory[param1] = SpawnCategory_Item_Body;
 			char menucmd[256];
 			GetMenuItem(menu, param2, menucmd, sizeof(menucmd));
 			if(strcmp(menucmd, "Weapons")== 0)
 			{
-				DisplayWeaponsMenu(param1);
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
 			}
 			else if(strcmp(menucmd, "Melees")== 0)
 			{
@@ -1606,88 +1664,218 @@ int MenuHandler_EditProp(Menu menu, MenuAction action, int param1, int param2)
 	return 0;
 }
 
-void DisplayVehiclesMenu(int client)
+void DisplayNextObjectMenu(int client, int iFinalCategoryPos, int menu_pos = 0)
 {
-	g_iSubCategory[client] =  1;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetFileCategory(menu, client);
-	menu.SetTitle("%T", "Vehicles", client);
+	g_hData.Rewind();
+
+	char sMainCategoryName[PLATFORM_MAX_PATH];
+	int iLoopCategoryPos = 1;
+	while(iLoopCategoryPos <= iFinalCategoryPos)
+	{
+		if (g_hData.JumpToKey(g_sObjectCategory[client][iLoopCategoryPos]))
+		{
+			if(iLoopCategoryPos == 1)
+			{
+				g_hData.GetString("menu_category", sMainCategoryName, sizeof sMainCategoryName, g_sObjectCategory[client][1]);
+			}
+		}
+		else
+		{
+			PrintToChat(client, "[Object Spawner] Error! %s not found in file", g_sObjectCategory[client][iLoopCategoryPos]);
+			return;
+		}
+
+		if(iLoopCategoryPos >= iFinalCategoryPos) break;
+		iLoopCategoryPos++;
+	}
+
+	int menu_type = g_hData.GetNum("menu_type");
+
+	Menu menu = null;
+
+	if(menu_type == 0)
+	{
+		menu = new Menu(MenuHandler_CategoryList);
+		menu.SetTitle("%T (%s)", "Object Spawner", client, sMainCategoryName);
+		if (g_hData.GotoFirstSubKey(true))
+		{
+			do
+			{
+				char Selection[PLATFORM_MAX_PATH];
+				char Categor_Name[PLATFORM_MAX_PATH];
+
+				g_hData.GetSectionName(Selection, sizeof(Selection));
+				g_hData.GetString("menu_category", Categor_Name, sizeof Categor_Name, Selection);
+				menu.AddItem(Selection, Categor_Name);
+
+			} while (g_hData.GotoNextKey(true));
+		}
+		else
+		{
+			PrintToChat(client, "[Object Spawner] Error! No any categories in %s", g_sObjectCategory[client][iLoopCategoryPos]);
+			delete menu;
+			return;
+		}
+	}
+	else
+	{
+		menu = new Menu(MenuHandler_ModelList);
+		menu.SetTitle("%T (%s)", "Object Spawner", client, sMainCategoryName);
+
+		g_hData.GotoFirstSubKey(false); //"menu_category"	"x"
+		g_hData.GotoNextKey(false); //"menu_type"	"x"
+
+		if (g_hData.GotoNextKey(false))
+		{
+			do
+			{
+				char Model[PLATFORM_MAX_PATH];
+				char Name[PLATFORM_MAX_PATH];
+
+				g_hData.GetSectionName(Model, sizeof(Model));
+				g_hData.GetString(NULL_STRING, Name, sizeof Name, Model);
+				menu.AddItem(Model, Name);
+
+			} while (g_hData.GotoNextKey(false));
+		}
+		else
+		{
+			PrintToChat(client, "[Object Spawner] Error! No any models in %s", g_sObjectCategory[client][iLoopCategoryPos]);
+			delete menu;
+			return;
+		}
+	}
+
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iVehiclesMenuPosition[client], MENU_TIME_FOREVER);
+	menu.DisplayAt(client, menu_pos, MENU_TIME_FOREVER);	
 }
 
-void DisplayFoliageMenu(int client)
+void GoBackObjectMenu(int client)
 {
-	g_iSubCategory[client] =  2;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetFileCategory(menu, client);
-	menu.SetTitle("%T", "Foliage", client);
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iFoliageMenuPosition[client], MENU_TIME_FOREVER);
+	g_iCategoryLevel[client]--;
+	if(g_iCategoryLevel[client] < 0)
+	{
+		if(g_TopMenuHandle != null)
+		{
+			g_TopMenuHandle.Display(client, TopMenuPosition_LastCategory);
+		}
+	}
+	else if(g_iCategoryLevel[client] == 0)
+	{
+		BuildMenuMainCategories(client);
+	}
+	else
+	{
+		DisplayNextObjectMenu(client, g_iCategoryLevel[client]);
+	}
 }
 
-void DisplayInteriorMenu(int client)
+void DisplayWeaponsMenu(int client, EWeaponItemCategory eWeaponItemCategory)
 {
-	g_iSubCategory[client] =  3;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetFileCategory(menu, client);
-	menu.SetTitle("%T", "Interior", client);
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iInteriorMenuPosition[client], MENU_TIME_FOREVER);
-}
+	g_eWeaponItemCategory[client] = eWeaponItemCategory;
 
-void DisplayExteriorMenu(int client)
-{
-	g_iSubCategory[client] =  4;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetFileCategory(menu, client);
-	menu.SetTitle("%T", "Exterior", client);
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iExteriorMenuPosition[client], MENU_TIME_FOREVER);
-}
+	Menu menu = null;
+	switch(eWeaponItemCategory)
+	{
+		case WeaponItemCategory_GunsMain:
+		{
+			menu = new Menu(MenuHandler_GunsMain);
+			menu.SetTitle("%T", "Weapons", client);
+			if( g_bLeft4Dead2 )
+			{
+				menu.AddItem("rifles", Translate(client, "%t", "rifles"));
+				menu.AddItem("snipers", Translate(client, "%t", "snipers"));
+				menu.AddItem("shotguns", Translate(client, "%t", "shotguns"));
+				menu.AddItem("SMGs", Translate(client, "%t", "SMGs"));
+				menu.AddItem("pistols", Translate(client, "%t", "pistols"));
+				menu.AddItem("Grenade Launcher", Translate(client, "%t", "Grenade Launcher"));
+			}
+			else
+			{
+				menu.AddItem("Pistol", Translate(client, "%t", "Pistol"));
+				menu.AddItem("Smg", Translate(client, "%t", "Smg"));
+				menu.AddItem("Pumpshotgun", Translate(client, "%t", "Pumpshotgun"));
+				menu.AddItem("Rifle", Translate(client, "%t", "Rifle"));
+				menu.AddItem("Hunting Rifle", Translate(client, "%t", "Hunting Rifle"));
+				menu.AddItem("Autoshotgun", Translate(client, "%t", "Autoshotgun"));
+			}
+		}
+		case WeaponItemCategory_GunsRifle:
+		{
+			menu = new Menu(MenuHandler_Rifles);
+			menu.SetTitle("%T", "rifles", client);
+			menu.AddItem("Rifle", Translate(client, "%t", "Rifle"));
+			menu.AddItem("AK47", Translate(client, "%t", "AK47"));
+			menu.AddItem("Desert Rifle", Translate(client, "%t", "Desert Rifle"));
+			menu.AddItem("SG552", Translate(client, "%t", "SG552"));
+			menu.AddItem("M60 Machine Gun", Translate(client, "%t", "M60 Machine Gun"));
+		}
+		case WeaponItemCategory_GunsSniper:
+		{
+			menu = new Menu(MenuHandler_Snipers);
+			menu.SetTitle("%T", "snipers", client);
+			menu.AddItem("Hunting Rifle", Translate(client, "%t", "Hunting Rifle"));
+			menu.AddItem("Military Sniper", Translate(client, "%t", "Military Sniper"));
+			menu.AddItem("SCOUT", Translate(client, "%t", "SCOUT"));
+			menu.AddItem("AWP", Translate(client, "%t", "AWP"));
+		}
+		case WeaponItemCategory_GunsShotguns:
+		{
+			menu = new Menu(MenuHandler_Shotguns);
+			menu.SetTitle("%T", "shotguns", client);
+			menu.AddItem("Pumpshotgun", Translate(client, "%t", "Pumpshotgun"));
+			menu.AddItem("Chrome Shotgun", Translate(client, "%t", "Chrome Shotgun"));
+			menu.AddItem("Spas Shotgun", Translate(client, "%t", "Spas Shotgun"));
+			menu.AddItem("Autoshotgun", Translate(client, "%t", "Autoshotgun"));
+		}
+		case WeaponItemCategory_GunsSMG:
+		{
+			menu = new Menu(MenuHandler_SMGs);
+			menu.SetTitle("%T", "SMGs", client);
+			menu.AddItem("Smg", Translate(client, "%t", "Smg"));
+			menu.AddItem("Silenced Smg", Translate(client, "%t", "Silenced Smg"));
+			menu.AddItem("MP5", Translate(client, "%t", "MP5"));
+		}
+		case WeaponItemCategory_GunsPistol:
+		{
+			menu = new Menu(MenuHandler_Pistols);
+			menu.SetTitle("%T", "pistols", client);
+			menu.AddItem("Pistol", Translate(client, "%t", "Pistol"));
+			menu.AddItem("Magnum", Translate(client, "%t", "Magnum"));
+		}
+	}
 
-void DisplayDecorativeMenu(int client)
-{
-	g_iSubCategory[client] =  5;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetFileCategory(menu, client);
-	menu.SetTitle("%T", "Decorative", client);
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iDecorMenuPosition[client], MENU_TIME_FOREVER);
-}
-
-void DisplayMiscMenu(int client)
-{
-	g_iSubCategory[client] =  6;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetFileCategory(menu, client);
-	menu.SetTitle("%T", "Misc", client);
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iMiscMenuPosition[client], MENU_TIME_FOREVER);
-}
-
-void DisplayWeaponsMenu(int client)
-{
-	g_iSubCategory[client] =  7;
-	Menu menu = new Menu(MenuHandler_DoAction);
-	SetWeaponsCategory(menu);
-	menu.SetTitle("%T", "Weapons", client);
-	menu.ExitBackButton = true;
-	menu.ExitButton = true;
-	menu.DisplayAt(client, g_iWeaponsMenuPosition[client], MENU_TIME_FOREVER);
+	menu.DisplayAt(client, 0, MENU_TIME_FOREVER);
 }
 
 void DisplayMeleesMenu(int client)
 {
-	g_iSubCategory[client] =  8;
+	g_eWeaponItemCategory[client] = WeaponItemCategory_Melees;
 	Menu menu = new Menu(MenuHandler_DoAction);
-	SetMeleeCategory(menu);
+
+	menu.AddItem("chainsaw", Translate(client, "%t", "chainsaw"));
+	
+	char melee[64];
+	char sItem[4];
+	int count = g_aMeleeScripts.Length;
+	for (int i = 0; i < count; i++) 
+	{
+		FormatEx(sItem, sizeof sItem, "%d", i);
+		g_aMeleeScripts.GetString(i, melee, sizeof melee);
+
+		if(TranslationPhraseExists(melee))
+		{
+			menu.AddItem(sItem, Translate(client, "%t", melee));
+		}
+		else
+		{
+			menu.AddItem(sItem, melee);
+		}
+	}
+
 	menu.SetTitle("%T", "Melees", client);
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
@@ -1696,10 +1884,28 @@ void DisplayMeleesMenu(int client)
 
 void DisplayItemsMenu(int client)
 {
-	g_iSubCategory[client] =  9;
+	g_eWeaponItemCategory[client] = WeaponItemCategory_Items;
 	Menu menu = new Menu(MenuHandler_DoAction);
-	SetItemsCategory(menu);
 	menu.SetTitle("%T", "Items", client);
+
+	char sItem[4];
+	if(g_bLeft4Dead2)
+	{
+		for( int i = 20; i < MAX_WEAPONS_L4D2; i++ )
+		{
+			FormatEx(sItem, sizeof sItem, "%d", i);
+			menu.AddItem(sItem, Translate(client, "%t", g_sWeaponNames_L4D2[i]));
+		}
+	}
+	else
+	{
+		for( int i = 6; i < MAX_WEAPONS_L4D1; i++ )
+		{
+			FormatEx(sItem, sizeof sItem, "%d", i);
+			menu.AddItem(sItem, Translate(client, "%t", g_sWeaponNames_L4D1[i]));
+		}
+	}
+
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	menu.DisplayAt(client, g_iItemsMenuPosition[client], MENU_TIME_FOREVER);
@@ -1707,131 +1913,31 @@ void DisplayItemsMenu(int client)
 
 void DisplayOthersMenu(int client)
 {
-	g_iSubCategory[client] =  10;
+	g_eWeaponItemCategory[client] = WeaponItemCategory_Others;
 	Menu menu = new Menu(MenuHandler_DoAction);
-	SetOthersCategory(menu);
 	menu.SetTitle("%T", "Others", client);
+
+	char sItem[4];
+	if(g_bLeft4Dead2)
+	{
+		for( int i = 0; i < sizeof g_sOtherNames_L4D2; i++ )
+		{
+			FormatEx(sItem, sizeof sItem, "%d", i);
+			menu.AddItem(sItem, Translate(client, "%t", g_sOtherNames_L4D2[i]));
+		}
+	}
+	else
+	{
+		for( int i = 0; i < sizeof g_sOtherNames_L4D1; i++ )
+		{
+			FormatEx(sItem, sizeof sItem, "%d", i);
+			menu.AddItem(sItem, Translate(client, "%t", g_sOtherNames_L4D1[i]));
+		}
+	}
+	
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	menu.DisplayAt(client, g_iOthersMenuPosition[client], MENU_TIME_FOREVER);
-}
-
-void SetFileCategory(Menu menu, int client)
-{
-	File file;
-	char FileName[256];
-	char ItemModel[256];
-	char ItemTag[256];
-	char buffer[1024];
-	BuildPath(Path_SM, FileName, sizeof(FileName), g_sCvarModelFile);
-	int len;
-	if(!FileExists(FileName))
-	{
-		SetFailState("Unable to find: %s", g_sCvarModelFile);
-	}
-	file = OpenFile(FileName, "r");
-	if(file == null)
-	{
-		SetFailState("Error opening the models file");
-	}
-	g_iFileCategory[client] = 0;
-	while(file.ReadLine(buffer, sizeof(buffer)))
-	{
-		len = strlen(buffer);
-		if (buffer[len-1] == 'n')
-		{
-			buffer[--len] = '0';
-		}
-		if(strncmp(buffer, "//Category Vehicles", 19, false) == 0)
-		{
-			g_iFileCategory[client] = 1;
-			continue;
-		}
-		else if(strncmp(buffer, "//Category Foliage", 18, false) == 0)
-		{
-			g_iFileCategory[client] = 2;
-			continue;
-		}
-		else if(strncmp(buffer, "//Category Interior", 19, false) == 0)
-		{
-			g_iFileCategory[client] = 3;
-			continue;
-		}
-		else if(strncmp(buffer, "//Category Exterior", 19, false) == 0)
-		{
-			g_iFileCategory[client] = 4;
-			continue;
-		}
-		else if(strncmp(buffer, "//Category Decorative", 21, false) == 0)
-		{
-			g_iFileCategory[client] = 5;
-			continue;
-		}
-		else if(strncmp(buffer, "//Category Misc", 15, false) == 0)
-		{
-			g_iFileCategory[client] = 6;
-			continue;
-		}
-		if(strcmp(buffer, "")== 0)
-		{
-			continue;
-		}
-		if(g_iFileCategory[client] != g_iSubCategory[client])
-		{
-			continue;
-		}
-		SplitString(buffer, " TAG-", ItemModel, sizeof(ItemModel));
-	
-		strcopy(ItemTag, sizeof(ItemTag), buffer);
-		
-		ReplaceString(ItemTag, sizeof(ItemTag), ItemModel, "", false);
-		ReplaceString(ItemTag, sizeof(ItemTag), " TAG- ", "", false);
-		menu.AddItem(ItemModel, ItemTag);
-		
-		if(IsEndOfFile(file))
-		{
-			break;
-		}
-	}
-	CloseHandle(file);
-}
-
-void SetWeaponsCategory(Menu menu)
-{
-	int min = 0;
-	int max = g_bLeft4Dead2 ? 20 : 6;
-	for( int i = min; i < max; i++ )
-	{
-		menu.AddItem("", g_bLeft4Dead2 ? g_sWeaponNames2[i] : g_sWeaponNames[i]);
-	}
-}
-
-void SetMeleeCategory(Menu menu)
-{
-	for( int i = 0; i < MAX_MELEE; i++ )
-	{
-		menu.AddItem("", g_sMeleeNames[i]);
-	}
-}
-
-void SetItemsCategory(Menu menu)
-{
-	int min = g_bLeft4Dead2 ? 20 : 6;
-	int max = g_bLeft4Dead2 ? MAX_WEAPONS2 : MAX_WEAPONS;
-	for( int i = min; i < max; i++ )
-	{
-		menu.AddItem("", g_bLeft4Dead2 ? g_sWeaponNames2[i] : g_sWeaponNames[i]);
-	}
-}
-
-void SetOthersCategory(Menu menu)
-{
-	int min = 0;
-	int max = g_bLeft4Dead2 ? MAX_OTHER2 : MAX_OTHER;
-	for( int i = min; i < max; i++ )
-	{
-		menu.AddItem("", g_bLeft4Dead2 ? g_sOtherNames2[i] : g_sOtherNames[i]);
-	}
 }
 
 void DisplayRotateMenu(int client)
@@ -1839,7 +1945,9 @@ void DisplayRotateMenu(int client)
 	g_iMoveCategory[client] = 1;
 	Menu menu = new Menu(MenuHandler_PropPosition);
 	menu.SetTitle("%T", "Rotate", client);
+	menu.AddItem("rotate0_1x", Translate(client, "%t", "Rotate 0.1 degree (X axys)"));
 	menu.AddItem("rotate1x", Translate(client, "%t", "Rotate 1 degree (X axys)"));
+	menu.AddItem("rotate-0_1x", Translate(client, "%t", "Back 0.1 degree (X axys)"));
 	menu.AddItem("rotate-1x", Translate(client, "%t", "Back 1 degree (X axys)"));
 	menu.AddItem("rotate10x", Translate(client, "%t", "Rotate 10 degree (X axys)"));
 	menu.AddItem("rotate-10x", Translate(client, "%t", "Back 10 degree (X axys)"));
@@ -1848,7 +1956,9 @@ void DisplayRotateMenu(int client)
 	menu.AddItem("rotate45x", Translate(client, "%t", "Rotate 45 degree (X axys)"));
 	menu.AddItem("rotate90x", Translate(client, "%t", "Rotate 90 degree (X axys)"));
 	menu.AddItem("rotate180x", Translate(client, "%t", "Rotate 180 degree (X axys)"));
+	menu.AddItem("rotate0_1y", Translate(client, "%t", "Rotate 0.1 degree (Y axys)"));
 	menu.AddItem("rotate1y", Translate(client, "%t", "Rotate 1 degree (Y axys)"));
+	menu.AddItem("rotate-0_1y", Translate(client, "%t", "Back 0.1 degree (Y axys)"));
 	menu.AddItem("rotate-1y", Translate(client, "%t", "Back 1 degree (Y axys)"));
 	menu.AddItem("rotate10y", Translate(client, "%t", "Rotate 10 degree (Y axys)"));
 	menu.AddItem("rotate-10y", Translate(client, "%t", "Back 10 degree (Y axys)"));
@@ -1857,7 +1967,9 @@ void DisplayRotateMenu(int client)
 	menu.AddItem("rotate45y", Translate(client, "%t", "Rotate 45 degree (Y axys)"));
 	menu.AddItem("rotate90y", Translate(client, "%t", "Rotate 90 degree (Y axys)"));
 	menu.AddItem("rotate180y", Translate(client, "%t", "Rotate 180 degree (Y axys)"));
+	menu.AddItem("rotate0_1z", Translate(client, "%t", "Rotate 0.1 degree (Z axys)"));
 	menu.AddItem("rotate1z", Translate(client, "%t", "Rotate 1 degree (Z axys)"));
+	menu.AddItem("rotate-0_1z", Translate(client, "%t", "Back 0.1 degree (Z axys)"));
 	menu.AddItem("rotate-1z", Translate(client, "%t", "Back 1 degree (Z axys)"));
 	menu.AddItem("rotate10z", Translate(client, "%t", "Rotate 10 degree (Z axys)"));
 	menu.AddItem("rotate-10z", Translate(client, "%t", "Back 10 degree (Z axys)"));
@@ -1877,21 +1989,27 @@ void DisplayMoveMenu(int client)
 	g_iMoveCategory[client] = 2;
 	Menu menu = new Menu(MenuHandler_PropPosition);
 	menu.SetTitle("%T", "Move", client);
+	menu.AddItem("moveup0_1", Translate(client, "%t", "Move Up 0.1 Unit"));
 	menu.AddItem("moveup1", Translate(client, "%t", "Move Up 1 Unit"));
 	menu.AddItem("moveup10", Translate(client, "%t", "Move Up 10 Unit"));
 	menu.AddItem("moveup30", Translate(client, "%t", "Move Up 30 Unit"));
+	menu.AddItem("movedown0_1", Translate(client, "%t", "Move Down 0.1 Unit"));
 	menu.AddItem("movedown1", Translate(client, "%t", "Move Down 1 Unit"));
 	menu.AddItem("movedown10", Translate(client, "%t", "Move Down 10 Unit"));
 	menu.AddItem("movedown30", Translate(client, "%t", "Move Down 30 Unit"));
+	menu.AddItem("moveright0_1", Translate(client, "%t", "Move Right 0.1 Unit"));
 	menu.AddItem("moveright1", Translate(client, "%t", "Move Right 1 Unit"));
 	menu.AddItem("moveright10", Translate(client, "%t", "Move Right 10 Unit"));
 	menu.AddItem("moveright30", Translate(client, "%t", "Move Right 30 Unit"));
+	menu.AddItem("moveleft0_1", Translate(client, "%t", "Move Left 0.1 Unit"));
 	menu.AddItem("moveleft1", Translate(client, "%t", "Move Left 1 Unit"));
 	menu.AddItem("moveleft10", Translate(client, "%t", "Move Left 10 Unit"));
 	menu.AddItem("moveleft30", Translate(client, "%t", "Move Left 30 Unit"));
+	menu.AddItem("moveforward0_1", Translate(client, "%t", "Move Forward 0.1 Unit"));
 	menu.AddItem("moveforward1", Translate(client, "%t", "Move Forward 1 Unit"));
 	menu.AddItem("moveforward10", Translate(client, "%t", "Move Forward 10 Unit"));
 	menu.AddItem("moveforward30", Translate(client, "%t", "Move Forward 30 Unit"));
+	menu.AddItem("movebackward0_1", Translate(client, "%t", "Move Backward 0.1 Unit"));
 	menu.AddItem("movebackward1", Translate(client, "%t", "Move Backward 1 Unit"));
 	menu.AddItem("movebackward10", Translate(client, "%t", "Move Backward 10 Unit"));
 	menu.AddItem("movebackward30", Translate(client, "%t", "Move Backward 30 Unit"));
@@ -1907,691 +2025,45 @@ int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int param2)
 	{
 		case MenuAction_Select:
 		{
-			char model[256];
-			GetMenuItem(menu, param2, model, sizeof(model));
-			if(!IsModelPrecached(model))
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			int id;
+
+			if(g_eWeaponItemCategory[param1] == WeaponItemCategory_Items)
 			{
-				PrecacheModel(model);
+				g_iItemsMenuPosition[param1] = menu.Selection;
+				id = StringToInt(item);
+				SpawnWeaponOrItem(param1, id);
+				DisplayItemsMenu(param1);
 			}
-			if(g_iCategory[param1] == 1)
+			else if(g_eWeaponItemCategory[param1] == WeaponItemCategory_Melees)
 			{
-				float VecOrigin[3];
-				float VecAngles[3];
-				int prop = CreateEntityByName("prop_physics_override");
-				DispatchKeyValue(prop, "model", model);
-				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				GetClientEyePosition(param1, VecOrigin);
-				GetClientEyeAngles(param1, VecAngles);
-				
-				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_OPAQUE, RayType_Infinite, TraceRayDontHitSelf, param1);
-				if(TR_DidHit(null))
+				g_iMeleesMenuPosition[param1] = menu.Selection;
+				if(strcmp(item, "chainsaw", false) == 0)
 				{
-					TR_GetEndPosition(VecOrigin);
+					SpawnWeaponOrItem(param1, 19);
 				}
 				else
 				{
-					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
+					id = StringToInt(item);
+					SpawnWeaponOrItem(param1, id);
 				}
-				VecAngles[0] = 0.0;
-				VecAngles[2] = 0.0;
-				DispatchKeyValueVector(prop, "angles", VecAngles);
-				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				DispatchSpawn(prop);
-
-				g_bSpawned[prop] = true;
-
-				LockGlow(param1, prop);
-				g_iLastObject[param1] = EntIndexToEntRef(prop);
-				g_iLockObject[param1] = EntIndexToEntRef(prop);
-
-				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
-			}
-			else if(g_iCategory[param1] == 2)
-			{
-				float VecOrigin[3];
-				float VecAngles[3];
-				int prop = CreateEntityByName("prop_physics_override");
-				DispatchKeyValue(prop, "model", model);
-				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				GetClientAbsOrigin(param1, VecOrigin);
-				GetClientEyeAngles(param1, VecAngles);
-				VecAngles[0] = 0.0;
-				VecAngles[2] = 0.0;
-				DispatchKeyValueVector(prop, "angles", VecAngles);
-				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				DispatchSpawn(prop);
-
-				g_bSpawned[prop] = true;
-
-				LockGlow(param1, prop);
-				g_iLastObject[param1] = EntIndexToEntRef(prop);
-				g_iLockObject[param1] = EntIndexToEntRef(prop);
-
-				LogSpawn("%N spawned a physics object with model <%s>", param1, model);
-			}
-			else if(g_iCategory[param1] == 3)
-			{
-				float VecOrigin[3];
-				float VecAngles[3];
-				int prop = CreateEntityByName("prop_dynamic_override");
-				DispatchKeyValue(prop, "model", model);
-				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				GetClientEyePosition(param1, VecOrigin);
-				GetClientEyeAngles(param1, VecAngles);
 				
-				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_OPAQUE, RayType_Infinite, TraceRayDontHitSelf, param1);
-				if(TR_DidHit(null))
-				{
-					TR_GetEndPosition(VecOrigin);
-				}
-				else
-				{
-					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
-				}
-				VecAngles[0] = 0.0;
-				VecAngles[2] = 0.0;
-				DispatchKeyValueVector(prop, "angles", VecAngles);
-				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				DispatchSpawn(prop);
-
-				SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
-				g_bSpawned[prop] = true;
-				g_bUnsolid[prop] = true;
-
-				LockGlow(param1, prop);
-				g_iLastObject[param1] = EntIndexToEntRef(prop);
-				g_iLockObject[param1] = EntIndexToEntRef(prop);
-
-				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
+				DisplayMeleesMenu(param1);
 			}
-			else if(g_iCategory[param1] == 4)
+			else if(g_eWeaponItemCategory[param1] == WeaponItemCategory_Others)
 			{
-				float VecOrigin[3];
-				float VecAngles[3];
-				int prop = CreateEntityByName("prop_dynamic_override");
-				DispatchKeyValue(prop, "model", model);
-				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				GetClientAbsOrigin(param1, VecOrigin);
-				GetClientEyeAngles(param1, VecAngles);
-				VecAngles[0] = 0.0;
-				VecAngles[2] = 0.0;
-				DispatchKeyValueVector(prop, "angles", VecAngles);
-				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				DispatchSpawn(prop);
-
-				SetEntProp(prop, Prop_Send, "m_nSolidType", 1);
-				g_bSpawned[prop] = true;
-				g_bUnsolid[prop] = true;
-
-				LockGlow(param1, prop);
-				g_iLastObject[param1] = EntIndexToEntRef(prop);
-				g_iLockObject[param1] = EntIndexToEntRef(prop);
-
-				LogSpawn("%N spawned a dynamic object with model <%s>", param1, model);
-			}
-			else if(g_iCategory[param1] == 5)
-			{
-				float VecOrigin[3];
-				float VecAngles[3];
-				int prop = CreateEntityByName("prop_dynamic_override");
-				DispatchKeyValue(prop, "model", model);
-				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				GetClientEyePosition(param1, VecOrigin);
-				GetClientEyeAngles(param1, VecAngles);
-				
-				TR_TraceRayFilter(VecOrigin, VecAngles, MASK_SHOT, RayType_Infinite, _TraceFilter);
-				if(TR_DidHit(null))
-				{
-					TR_GetEndPosition(VecOrigin);
-				}
-				else
-				{
-					CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
-				}
-				VecAngles[0] = 0.0;
-				VecAngles[2] = 0.0;
-
-				DispatchKeyValueVector(prop, "angles", VecAngles);
-				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				DispatchSpawn(prop);
-
-				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
-				g_bSpawned[prop] = true;
-
-				LockGlow(param1, prop);
-				g_iLastObject[param1] = EntIndexToEntRef(prop);
-				g_iLockObject[param1] = EntIndexToEntRef(prop);
-
-				LogSpawn("%N spawned a static object with model <%s>", param1, model);
-			}
-			else if(g_iCategory[param1] == 6)
-			{
-				float VecOrigin[3];
-				float VecAngles[3];
-				int prop = CreateEntityByName("prop_dynamic_override");
-				DispatchKeyValue(prop, "model", model);
-				DispatchKeyValue(prop, "targetname", "l4d2_spawn_props_object");
-				
-				GetClientAbsOrigin(param1, VecOrigin);
-				GetClientEyeAngles(param1, VecAngles);
-				VecAngles[0] = 0.0;
-				VecAngles[2] = 0.0;
-				DispatchKeyValueVector(prop, "angles", VecAngles);
-				TeleportEntity(prop, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-				DispatchSpawn(prop);
-
-				SetEntProp(prop, Prop_Send, "m_nSolidType", 6);
-				g_bSpawned[prop] = true;
-
-				LockGlow(param1, prop);
-				g_iLastObject[param1] = EntIndexToEntRef(prop);
-				g_iLockObject[param1] = EntIndexToEntRef(prop);
-
-				LogSpawn("%N spawned a static object with model <%s>", param1, model);
-			}
-			else if(g_iCategory[param1] == 7)
-			{
-				if(g_iSubCategory[param1] == 7)
-				{
-					float vPos[3], vAng[3];
-					if( !SetTeleportEndPoint(param1, vPos, vAng, 1) )
-					{
-						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
-						GetClientEyePosition(param1, vPos);
-						GetClientEyeAngles(param1, vAng);
-					}
-
-					if( g_bLeft4Dead2 && param2 == 17 ) // M60
-					{
-						vAng[2] += 180.0;
-					}
-					else if( g_bLeft4Dead2 && param2 == 19 ) // Chainsaw
-					{
-						vPos[2] += 3.0;
-					}
-
-					char classname[64];
-					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeapons2[param2] : g_sWeapons[param2]);
-
-					int entity_weapon = CreateEntityByName(classname);
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity '%s'", classname);
-
-					char sModel[64];
-					strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-					DispatchKeyValue(entity_weapon, "solid", "6");
-					DispatchKeyValue(entity_weapon, "model", sModel);
-					DispatchKeyValue(entity_weapon, "rendermode", "3");
-					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-
-					int count;
-					char sCount[5];
-					StringToLowerCase(sModel);
-					if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-					else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-
-					DispatchKeyValueVector(entity_weapon, "angles", vAng);
-					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned a weapon object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-				}
-				else if(g_iSubCategory[param1] == 8)
-				{
-					float vPos[3], vAng[3];
-					if( !SetTeleportEndPoint(param1, vPos, vAng, 2) )
-					{
-						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
-						GetClientEyePosition(param1, vPos);
-						GetClientEyeAngles(param1, vAng);
-					}
-
-					int entity_weapon = CreateEntityByName("weapon_melee");
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity 'weapon_melee'");
-
-					DispatchKeyValue(entity_weapon, "solid", "6");
-					DispatchKeyValue(entity_weapon, "melee_script_name", g_sMeleeScripts[param2]);
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-
-					//DispatchKeyValue(entity_weapon, "count", "1");
-
-					DispatchKeyValueVector(entity_weapon, "angles", vAng);
-					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-					SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned a melee object with script <%s>", param1, g_sMeleeScripts[param2]);
-				}
-				else if(g_iSubCategory[param1] == 9)
-				{
-					float vPos[3], vAng[3];
-					if( !SetTeleportEndPoint(param1, vPos, vAng, 1) )
-					{
-						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
-						GetClientEyePosition(param1, vPos);
-						GetClientEyeAngles(param1, vAng);
-					}
-
-					param2 = g_bLeft4Dead2 ? param2 + 20 : param2 + 6;
-					if( param2 == (g_bLeft4Dead2 ? 20 : 6) ) // Molotov
-					{
-						vAng[2] += 90.0;
-						vPos[2] += 4.0;
-					}
-					else if( param2 == (g_bLeft4Dead2 ? 21 : 7) ) // Pipe Bomb
-					{
-						vAng[2] += 90.0;
-						vPos[2] += 4.0;
-					}
-					else if( g_bLeft4Dead2 && param2 == 22 ) // VomitJar
-					{
-						vAng[2] += 90.0;
-						vPos[2] += 4.0;
-					}
-					else if( param2 == (g_bLeft4Dead2 ? 23 : 9) ) // Pain Pills
-					{
-						vAng[2] += 90.0;
-					}
-					else if( param2 == (g_bLeft4Dead2 ? 25 : 8) ) // First aid
-					{
-						vAng[0] += 90.0;
-						vPos[2] += 1.0;
-					}
-					else if( g_bLeft4Dead2 && param2 == 24 ) // Adrenaline
-					{
-						vAng[1] -= 90.0;
-						vAng[2] -= 90.0;
-						vPos[2] += 1.0;
-					}
-					else if( g_bLeft4Dead2 && (param2 == 26 || param2 == 27 || param2 == 28 )) // Defib + Upgrades
-					{
-						vAng[1] -= 90.0;
-						vAng[2] += 90.0;
-					}
-
-					char classname[64];
-					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeapons2[param2] : g_sWeapons[param2]);
-
-					int entity_weapon = CreateEntityByName(classname);
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity '%s'", classname);
-
-					char sModel[64];
-					strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-					DispatchKeyValue(entity_weapon, "solid", "6");
-					DispatchKeyValue(entity_weapon, "model", sModel);
-					DispatchKeyValue(entity_weapon, "rendermode", "3");
-					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-
-					int count;
-					char sCount[5];
-					StringToLowerCase(sModel);
-					if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-					else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-
-					DispatchKeyValueVector(entity_weapon, "angles", vAng);
-					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-				}
-				else if(g_iSubCategory[param1] == 10)
-				{
-					float vPos[3], vAng[3];
-					if( !SetTeleportEndPoint(param1, vPos, vAng, 3) )
-					{
-						CPrintToChat(param1, "[TS] Vector out of world geometry. Spawning on current position instead");
-						GetClientEyePosition(param1, vPos);
-						GetClientEyeAngles(param1, vAng);
-					}
-
-					char classname[64];
-					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sOthers2[param2] : g_sOthers[param2]);
-
-					int entity_weapon = CreateEntityByName(classname);
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity '%s'", classname);
-
-					char sModel[64];
-					strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
-					SetEntityModel(entity_weapon, sModel);
-
-					int count;
-					char sCount[5];
-					StringToLowerCase(sModel);
-					if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-					else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-
-					DispatchKeyValueVector(entity_weapon, "angles", vAng);
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-					TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
-				}
-			}
-			else if(g_iCategory[param1] == 8)
-			{
-				if(g_iSubCategory[param1] == 7)
-				{
-					char classname[64];
-					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeapons2[param2] : g_sWeapons[param2]);
-
-					int entity_weapon = CreateEntityByName(classname);
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity '%s'", classname);
-
-					char sModel[64];
-					strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-					DispatchKeyValue(entity_weapon, "solid", "6");
-					DispatchKeyValue(entity_weapon, "model", sModel);
-					DispatchKeyValue(entity_weapon, "rendermode", "3");
-					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-
-					int count;
-					char sCount[5];
-					StringToLowerCase(sModel);
-					if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-					else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-
-					float VecOrigin[3];
-					float VecAngles[3];
-					GetClientEyePosition(param1, VecOrigin);
-					GetClientEyeAngles(param1, VecAngles);
-					VecAngles[0] = 0.0;
-					VecAngles[2] = 0.0;
-					DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
-					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned a weapon object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-				}
-				else if(g_iSubCategory[param1] == 8)
-				{
-					int entity_weapon = CreateEntityByName("weapon_melee");
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity 'weapon_melee'");
-
-					DispatchKeyValue(entity_weapon, "solid", "6");
-					DispatchKeyValue(entity_weapon, "melee_script_name", g_sMeleeScripts[param2]);
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-
-					//DispatchKeyValue(entity_weapon, "count", "1");
-
-					float VecOrigin[3];
-					float VecAngles[3];
-					GetClientEyePosition(param1, VecOrigin);
-					GetClientEyeAngles(param1, VecAngles);
-					VecAngles[0] = 0.0;
-					VecAngles[2] = 0.0;
-					DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
-					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-					SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned a melee object with script <%s>", param1, g_sMeleeScripts[param2]);
-				}
-				else if(g_iSubCategory[param1] == 9)
-				{
-					param2 = g_bLeft4Dead2 ? param2 + 20 : param2 + 6;
-
-					char classname[64];
-					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeapons2[param2] : g_sWeapons[param2]);
-
-					int entity_weapon = CreateEntityByName(classname);
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity '%s'", classname);
-
-					char sModel[64];
-					strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-					DispatchKeyValue(entity_weapon, "solid", "6");
-					DispatchKeyValue(entity_weapon, "model", sModel);
-					DispatchKeyValue(entity_weapon, "rendermode", "3");
-					DispatchKeyValue(entity_weapon, "disableshadows", "1");
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-
-					int count;
-					char sCount[5];
-					StringToLowerCase(sModel);
-					if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-					else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-
-					float VecOrigin[3];
-					float VecAngles[3];
-					GetClientEyePosition(param1, VecOrigin);
-					GetClientEyeAngles(param1, VecAngles);
-					VecAngles[0] = 0.0;
-					VecAngles[2] = 0.0;
-					DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
-					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sWeaponModels2[param2] : g_sWeaponModels[param2]);
-				}
-				else if(g_iSubCategory[param1] == 10)
-				{
-					char classname[64];
-					strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sOthers2[param2] : g_sOthers[param2]);
-
-					int entity_weapon = CreateEntityByName(classname);
-					if( entity_weapon == -1 )
-						ThrowError("Failed to create entity '%s'", classname);
-
-					char sModel[64];
-					strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
-					SetEntityModel(entity_weapon, sModel);
-
-					int count;
-					char sCount[5];
-					StringToLowerCase(sModel);
-					if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-					else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
-					{
-						IntToString(count, sCount, sizeof(sCount));
-						DispatchKeyValue(entity_weapon, "count", sCount);
-					}
-
-					float VecOrigin[3];
-					float VecAngles[3];
-					GetClientEyePosition(param1, VecOrigin);
-					GetClientEyeAngles(param1, VecAngles);
-					VecAngles[0] = 0.0;
-					VecAngles[2] = 0.0;
-					
-					DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
-					DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
-					TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
-					DispatchSpawn(entity_weapon);
-
-					LockGlow(param1, entity_weapon);
-					g_iLastObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_iLockObject[param1] = EntIndexToEntRef(entity_weapon);
-					g_bSpawned[entity_weapon] = true;
-
-					LogSpawn("%N spawned an item object with model <%s>", param1, g_bLeft4Dead2 ? g_sOtherModels2[param2] : g_sOtherModels[param2]);
-				}
-			}
-
-			switch(g_iSubCategory[param1])
-			{
-				case 1:
-				{
-					g_iVehiclesMenuPosition[param1] = menu.Selection;
-					DisplayVehiclesMenu(param1);
-				}
-				case 2:
-				{
-					g_iFoliageMenuPosition[param1] = menu.Selection;
-					DisplayFoliageMenu(param1);
-				}
-				case 3:
-				{
-					g_iInteriorMenuPosition[param1] = menu.Selection;
-					DisplayInteriorMenu(param1);
-				}
-				case 4:
-				{
-					g_iExteriorMenuPosition[param1] = menu.Selection;
-					DisplayExteriorMenu(param1);
-					
-				}
-				case 5:
-				{
-					g_iDecorMenuPosition[param1] = menu.Selection;
-					DisplayDecorativeMenu(param1);
-					
-				}
-				case 6:
-				{
-					g_iMiscMenuPosition[param1] = menu.Selection;
-					DisplayMiscMenu(param1);
-				}
-				case 7:
-				{
-					g_iWeaponsMenuPosition[param1] = menu.Selection;
-					DisplayWeaponsMenu(param1);
-					
-				}
-				case 8:
-				{
-					g_iMeleesMenuPosition[param1] = menu.Selection;
-					DisplayMeleesMenu(param1);
-					
-				}
-				case 9:
-				{
-					g_iItemsMenuPosition[param1] = menu.Selection;
-					DisplayItemsMenu(param1);
-				}
-				case 10:
-				{
-					g_iOthersMenuPosition[param1] = menu.Selection;
-					DisplayOthersMenu(param1);
-				}
+				g_iOthersMenuPosition[param1] = menu.Selection;
+				id = StringToInt(item);
+				SpawnWeaponOrItem(param1, id);
+				DisplayOthersMenu(param1);
 			}
 		}
 		case MenuAction_Cancel:
 		{
 			if(param2 == MenuCancel_ExitBack)
 			{
-				switch(g_iCategory[param1])
-				{
-					case 1:
-					{
-						BuildPhysicsCursorMenu(param1);
-					}
-					case 2:
-					{
-						BuildPhysicsPositionMenu(param1);
-					}
-					case 3:
-					{
-						BuildDynamicCursorMenu(param1);
-					}
-					case 4:
-					{
-						BuildDynamicPositionMenu(param1);
-					}
-					case 5:
-					{
-						BuildStaticCursorMenu(param1);
-					}
-					case 6:
-					{
-						BuildStaticPositionMenu(param1);
-					}
-					case 7:
-					{
-						BuildItemCursorMenu(param1);
-					}
-					case 8:
-					{
-						BuildItemPositionMenu(param1);
-					}
-				}
+				BuildMenuMainCategories(param1);
 			}
 		}
 		case MenuAction_End:
@@ -2601,6 +2073,332 @@ int MenuHandler_DoAction(Menu menu, MenuAction action, int param1, int param2)
 	}
 
 	return 0;
+}
+
+void SpawnWeaponOrItem(int client, int weapon_melee_id)
+{
+	if(g_eSpawnCategory[client] == SpawnCategory_Item_Crosshair)
+	{
+		float vPos[3], vAng[3];
+
+		if(g_eWeaponItemCategory[client] == WeaponItemCategory_GunsMain
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsRifle
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsSniper
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsShotguns
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsSMG
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsPistol
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_Items
+			|| weapon_melee_id == 19) //chainsaw
+		{
+			if( !SetTeleportEndPoint(client, vPos, vAng, 1) )
+			{
+				CPrintToChat(client, "[TS] Vector out of world geometry. Spawning on current position instead");
+				GetClientEyePosition(client, vPos);
+				GetClientEyeAngles(client, vAng);
+			}
+
+			if( g_bLeft4Dead2 && weapon_melee_id == 17 ) // M60
+			{
+				vAng[2] += 180.0;
+			}
+			else if( g_bLeft4Dead2 && weapon_melee_id == 19 ) // Chainsaw
+			{
+				vPos[2] += 3.0;
+			}
+			else if( weapon_melee_id == (g_bLeft4Dead2 ? 20 : 6) ) // Molotov
+			{
+				vAng[2] += 90.0;
+				vPos[2] += 4.0;
+			}
+			else if( weapon_melee_id == (g_bLeft4Dead2 ? 21 : 7) ) // Pipe Bomb
+			{
+				vAng[2] += 90.0;
+				vPos[2] += 4.0;
+			}
+			else if( g_bLeft4Dead2 && weapon_melee_id == 22 ) // VomitJar
+			{
+				vAng[2] += 90.0;
+				vPos[2] += 4.0;
+			}
+			else if( weapon_melee_id == (g_bLeft4Dead2 ? 23 : 9) ) // Pain Pills
+			{
+				vAng[2] += 90.0;
+			}
+			else if( weapon_melee_id == (g_bLeft4Dead2 ? 25 : 8) ) // First aid
+			{
+				vAng[0] += 90.0;
+				vPos[2] += 1.0;
+			}
+			else if( g_bLeft4Dead2 && weapon_melee_id == 24 ) // Adrenaline
+			{
+				vAng[1] -= 90.0;
+				vAng[2] -= 90.0;
+				vPos[2] += 1.0;
+			}
+			else if( g_bLeft4Dead2 && (weapon_melee_id == 26 || weapon_melee_id == 27 || weapon_melee_id == 28 )) // Defib + Upgrades
+			{
+				vAng[1] -= 90.0;
+				vAng[2] += 90.0;
+			}
+
+			char classname[64];
+			strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeaponSpawn_L4D2[weapon_melee_id] : g_sWeaponSpawn_L4D1[weapon_melee_id]);
+
+			int entity_weapon = CreateEntityByName(classname);
+			if( entity_weapon == -1 )
+				ThrowError("Failed to create entity '%s'", classname);
+
+			char sModel[64];
+			strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sWeaponModels_L4D2[weapon_melee_id] : g_sWeaponModels_L4D1[weapon_melee_id]);
+			DispatchKeyValue(entity_weapon, "solid", "6");
+			DispatchKeyValue(entity_weapon, "model", sModel);
+			DispatchKeyValue(entity_weapon, "rendermode", "3");
+			DispatchKeyValue(entity_weapon, "disableshadows", "1");
+			DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+
+			int count;
+			char sCount[5];
+			StringToLowerCase(sModel);
+			if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+			else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+
+			DispatchKeyValueVector(entity_weapon, "angles", vAng);
+			TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(entity_weapon);
+
+			LockGlow(client, entity_weapon);
+			g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+			g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
+			g_bSpawned[entity_weapon] = true;
+
+			LogSpawn("%N spawned a weapon object with model <%s>", client, g_bLeft4Dead2 ? g_sWeaponModels_L4D2[weapon_melee_id] : g_sWeaponModels_L4D1[weapon_melee_id]);
+		}
+		else if(g_eWeaponItemCategory[client] == WeaponItemCategory_Melees)
+		{
+			if( !SetTeleportEndPoint(client, vPos, vAng, 2) )
+			{
+				CPrintToChat(client, "[TS] Vector out of world geometry. Spawning on current position instead");
+				GetClientEyePosition(client, vPos);
+				GetClientEyeAngles(client, vAng);
+			}
+
+			int entity_weapon = CreateEntityByName("weapon_melee");
+			if( entity_weapon == -1 )
+				ThrowError("Failed to create entity 'weapon_melee'");
+
+			char melee[64];
+			g_aMeleeScripts.GetString(weapon_melee_id, melee, sizeof melee);
+
+			DispatchKeyValue(entity_weapon, "solid", "6");
+			DispatchKeyValue(entity_weapon, "melee_script_name", melee);
+			DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+
+			//DispatchKeyValue(entity_weapon, "count", "1");
+
+			DispatchKeyValueVector(entity_weapon, "angles", vAng);
+			TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(entity_weapon);
+			SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
+
+			LockGlow(client, entity_weapon);
+			g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+			g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
+			g_bSpawned[entity_weapon] = true;
+
+			LogSpawn("%N spawned a melee object with script <%s>", client, melee);
+		}
+		else if(g_eWeaponItemCategory[client] == WeaponItemCategory_Others)
+		{
+			if( !SetTeleportEndPoint(client, vPos, vAng, 3) )
+			{
+				CPrintToChat(client, "[TS] Vector out of world geometry. Spawning on current position instead");
+				GetClientEyePosition(client, vPos);
+				GetClientEyeAngles(client, vAng);
+			}
+
+			char classname[64];
+			strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sOthers_L4D2[weapon_melee_id] : g_sOthers_L4D1[weapon_melee_id]);
+
+			int entity_weapon = CreateEntityByName(classname);
+			if( entity_weapon == -1 )
+				ThrowError("Failed to create entity '%s'", classname);
+
+			char sModel[64];
+			strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sOtherModels_L4D2[weapon_melee_id] : g_sOtherModels_L4D1[weapon_melee_id]);
+			SetEntityModel(entity_weapon, sModel);
+
+			int count;
+			char sCount[5];
+			StringToLowerCase(sModel);
+			if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+			else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+
+			DispatchKeyValueVector(entity_weapon, "angles", vAng);
+			DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+			TeleportEntity(entity_weapon, vPos, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(entity_weapon);
+
+			LockGlow(client, entity_weapon);
+			g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+			g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
+			g_bSpawned[entity_weapon] = true;
+
+			LogSpawn("%N spawned an item object with model <%s>", client, g_bLeft4Dead2 ? g_sOtherModels_L4D2[weapon_melee_id] : g_sOtherModels_L4D1[weapon_melee_id]);
+		}
+	}
+	else if(g_eSpawnCategory[client] == SpawnCategory_Item_Body)
+	{
+		if(g_eWeaponItemCategory[client] == WeaponItemCategory_GunsMain
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsRifle
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsSniper
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsShotguns
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsSMG
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_GunsPistol
+			|| g_eWeaponItemCategory[client] == WeaponItemCategory_Items
+			|| weapon_melee_id == 19) //chainsaw
+		{
+			char classname[64];
+			strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sWeaponSpawn_L4D2[weapon_melee_id] : g_sWeaponSpawn_L4D1[weapon_melee_id]);
+
+			int entity_weapon = CreateEntityByName(classname);
+			if( entity_weapon == -1 )
+				ThrowError("Failed to create entity '%s'", classname);
+
+			char sModel[64];
+			strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sWeaponModels_L4D2[weapon_melee_id] : g_sWeaponModels_L4D1[weapon_melee_id]);
+			DispatchKeyValue(entity_weapon, "solid", "6");
+			DispatchKeyValue(entity_weapon, "model", sModel);
+			DispatchKeyValue(entity_weapon, "rendermode", "3");
+			DispatchKeyValue(entity_weapon, "disableshadows", "1");
+			DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+
+			int count;
+			char sCount[5];
+			StringToLowerCase(sModel);
+			if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+			else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+
+			float VecOrigin[3];
+			float VecAngles[3];
+			GetClientEyePosition(client, VecOrigin);
+			GetClientEyeAngles(client, VecAngles);
+			VecAngles[0] = 0.0;
+			VecAngles[2] = 0.0;
+			DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
+			TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(entity_weapon);
+
+			LockGlow(client, entity_weapon);
+			g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+			g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
+			g_bSpawned[entity_weapon] = true;
+
+			LogSpawn("%N spawned a weapon object with model <%s>", client, g_bLeft4Dead2 ? g_sWeaponModels_L4D2[weapon_melee_id] : g_sWeaponModels_L4D1[weapon_melee_id]);
+		}
+		else if(g_eWeaponItemCategory[client] == WeaponItemCategory_Melees)
+		{
+			int entity_weapon = CreateEntityByName("weapon_melee");
+			if( entity_weapon == -1 )
+				ThrowError("Failed to create entity 'weapon_melee'");
+
+			char melee[64];
+			g_aMeleeScripts.GetString(weapon_melee_id, melee, sizeof melee);
+
+			DispatchKeyValue(entity_weapon, "solid", "6");
+			DispatchKeyValue(entity_weapon, "melee_script_name", melee);
+			DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+
+			//DispatchKeyValue(entity_weapon, "count", "1");
+
+			float VecOrigin[3];
+			float VecAngles[3];
+			GetClientEyePosition(client, VecOrigin);
+			GetClientEyeAngles(client, VecAngles);
+			VecAngles[0] = 0.0;
+			VecAngles[2] = 0.0;
+			DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
+			TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(entity_weapon);
+			SetEntityMoveType(entity_weapon, MOVETYPE_NONE);
+
+			LockGlow(client, entity_weapon);
+			g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+			g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
+			g_bSpawned[entity_weapon] = true;
+
+			LogSpawn("%N spawned a melee object with script <%s>", client, melee);
+		}
+		else if(g_eWeaponItemCategory[client] == WeaponItemCategory_Others)
+		{
+			char classname[64];
+			strcopy(classname, sizeof(classname), g_bLeft4Dead2 ? g_sOthers_L4D2[weapon_melee_id] : g_sOthers_L4D1[weapon_melee_id]);
+
+			int entity_weapon = CreateEntityByName(classname);
+			if( entity_weapon == -1 )
+				ThrowError("Failed to create entity '%s'", classname);
+
+			char sModel[64];
+			strcopy(sModel, sizeof(sModel), g_bLeft4Dead2 ? g_sOtherModels_L4D2[weapon_melee_id] : g_sOtherModels_L4D1[weapon_melee_id]);
+			SetEntityModel(entity_weapon, sModel);
+
+			int count;
+			char sCount[5];
+			StringToLowerCase(sModel);
+			if(g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+			else if(!g_bLeft4Dead2 && g_smModelCount.GetValue(sModel, count) && count > 0)
+			{
+				IntToString(count, sCount, sizeof(sCount));
+				DispatchKeyValue(entity_weapon, "count", sCount);
+			}
+
+			float VecOrigin[3];
+			float VecAngles[3];
+			GetClientEyePosition(client, VecOrigin);
+			GetClientEyeAngles(client, VecAngles);
+			VecAngles[0] = 0.0;
+			VecAngles[2] = 0.0;
+			
+			DispatchKeyValueVector(entity_weapon, "angles", VecAngles);
+			DispatchKeyValue(entity_weapon, "targetname", "l4d2_spawn_props_object");
+			TeleportEntity(entity_weapon, VecOrigin, NULL_VECTOR, NULL_VECTOR);
+			DispatchSpawn(entity_weapon);
+
+			LockGlow(client, entity_weapon);
+			g_iLastObject[client] = EntIndexToEntRef(entity_weapon);
+			g_iLockObject[client] = EntIndexToEntRef(entity_weapon);
+			g_bSpawned[entity_weapon] = true;
+
+			LogSpawn("%N spawned an item object with model <%s>", client, g_bLeft4Dead2 ? g_sOtherModels_L4D2[weapon_melee_id] : g_sOtherModels_L4D1[weapon_melee_id]);
+		}
+	}
 }
 
 int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param2)
@@ -2627,13 +2425,21 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					float vecAngles[3];
 					GetEntPropVector(Object, Prop_Send, "m_angRotation", vecAngles);
 					
-					if(strcmp(menucmd, "rotate1x")== 0)
+					if(strcmp(menucmd, "rotate0_1x")== 0)
+					{
+						vecAngles[0] += 0.1;
+					}
+					else if(strcmp(menucmd, "rotate1x")== 0)
 					{
 						vecAngles[0] += 1;
 					}
-					if(strcmp(menucmd, "rotate-1x")== 0)
+					else if(strcmp(menucmd, "rotate-1x")== 0)
 					{
 						vecAngles[0] -= 1;
+					}
+					else if(strcmp(menucmd, "rotate-0_1x")== 0)
+					{
+						vecAngles[0] -= 0.1;
 					}
 					else if(strcmp(menucmd, "rotate10x")== 0)
 					{
@@ -2663,9 +2469,17 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					{
 						vecAngles[0] += 180;
 					}
+					else if(strcmp(menucmd, "rotate0_1y")== 0)
+					{
+						vecAngles[1] += 0.1;
+					}
 					else if(strcmp(menucmd, "rotate1y")== 0)
 					{
 						vecAngles[1] += 1;
+					}
+					else if(strcmp(menucmd, "rotate-0_1y")== 0)
+					{
+						vecAngles[1] -= 0.1;
 					}
 					else if(strcmp(menucmd, "rotate-1y")== 0)
 					{
@@ -2699,9 +2513,17 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					{
 						vecAngles[1] += 180;
 					}
+					else if(strcmp(menucmd, "rotate0_1z")== 0)
+					{
+						vecAngles[2] += 0.1;
+					}
 					else if(strcmp(menucmd, "rotate1z")== 0)
 					{
 						vecAngles[2] += 1;
+					}
+					else if(strcmp(menucmd, "rotate-0_1z")== 0)
+					{
+						vecAngles[2] -= 0.1;
 					}
 					else if(strcmp(menucmd, "rotate-1z")== 0)
 					{
@@ -2755,17 +2577,25 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					float vecOrigin[3];
 					GetEntPropVector(Object, Prop_Data, "m_vecOrigin", vecOrigin);
 					
-					if(strcmp(menucmd, "moveup1")== 0)
+					if(strcmp(menucmd, "moveup0_1")== 0)
+					{
+						vecOrigin[2]+= 0.1;
+					}
+					else if(strcmp(menucmd, "moveup1")== 0)
 					{
 						vecOrigin[2]+= 1;
 					}
-					if(strcmp(menucmd, "moveup10")== 0)
+					else if(strcmp(menucmd, "moveup10")== 0)
 					{
 						vecOrigin[2]+= 10;
 					}
-					if(strcmp(menucmd, "moveup30")== 0)
+					else if(strcmp(menucmd, "moveup30")== 0)
 					{
 						vecOrigin[2]+= 30;
+					}
+					else if(strcmp(menucmd, "movedown0_1")== 0)
+					{
+						vecOrigin[2]-= 0.1;
 					}
 					else if(strcmp(menucmd, "movedown1")== 0)
 					{
@@ -2779,6 +2609,10 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					{
 						vecOrigin[2]-= 30;
 					}
+					else if(strcmp(menucmd, "moveright0_1")== 0)
+					{
+						vecOrigin[1]+= 0.1;
+					}
 					else if(strcmp(menucmd, "moveright1")== 0)
 					{
 						vecOrigin[1]+= 1;
@@ -2790,6 +2624,10 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					else if(strcmp(menucmd, "moveright30")== 0)
 					{
 						vecOrigin[1]+= 30;
+					}
+					else if(strcmp(menucmd, "moveleft0_1")== 0)
+					{
+						vecOrigin[1]-= 0.1;
 					}
 					else if(strcmp(menucmd, "moveleft1")== 0)
 					{
@@ -2803,6 +2641,10 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					{
 						vecOrigin[1]-= 30;
 					}
+					else if(strcmp(menucmd, "moveforward0_1")== 0)
+					{
+						vecOrigin[0]+= 0.1;
+					}
 					else if(strcmp(menucmd, "moveforward1")== 0)
 					{
 						vecOrigin[0]+= 1;
@@ -2814,6 +2656,10 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 					else if(strcmp(menucmd, "moveforward30")== 0)
 					{
 						vecOrigin[0]+= 30;
+					}
+					else if(strcmp(menucmd, "movebackward0_1")== 0)
+					{
+						vecOrigin[0]-= 0.1;
 					}
 					else if(strcmp(menucmd, "movebackward1")== 0)
 					{
@@ -2839,6 +2685,295 @@ int MenuHandler_PropPosition(Menu menu, MenuAction action, int param1, int param
 			if(param2 == MenuCancel_ExitBack)
 			{
 				BuildEditPropMenu(param1);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+int MenuHandler_GunsMain(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			
+			if( g_bLeft4Dead2 )
+			{
+				if(strcmp(item, "rifles", false) == 0)
+				{
+					DisplayWeaponsMenu(param1, WeaponItemCategory_GunsRifle);
+				}
+				else if(strcmp(item, "snipers", false) == 0)
+				{
+					DisplayWeaponsMenu(param1, WeaponItemCategory_GunsSniper);
+				}
+				else if(strcmp(item, "shotguns", false) == 0)
+				{
+					DisplayWeaponsMenu(param1, WeaponItemCategory_GunsShotguns);
+				}
+				else if(strcmp(item, "SMGs", false) == 0)
+				{
+					DisplayWeaponsMenu(param1, WeaponItemCategory_GunsSMG);
+				}
+				else if(strcmp(item, "pistols", false) == 0)
+				{
+					DisplayWeaponsMenu(param1, WeaponItemCategory_GunsPistol);
+				}
+				else if(strcmp(item, "Grenade Launcher", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 18);
+					DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
+				}
+			}
+			else
+			{
+				if(strcmp(item, "Pistol", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 5);
+				}
+				else if(strcmp(item, "Smg", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 3);
+				}
+				else if(strcmp(item, "Pumpshotgun", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 4);
+				}
+				else if(strcmp(item, "Rifle", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 0);
+				}
+				else if(strcmp(item, "Hunting Rifle", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 2);
+				}
+				else if(strcmp(item, "Autoshotgun", false) == 0)
+				{
+					SpawnWeaponOrItem(param1, 1);
+				}
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
+			}
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack)
+			{
+				BuildMenuMainCategories(param1);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+int MenuHandler_Rifles(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			
+			if(strcmp(item, "Rifle", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 2);
+			}
+			else if(strcmp(item, "AK47", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 3);
+			}
+			else if(strcmp(item, "Desert Rifle", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 5);
+			}
+			else if(strcmp(item, "SG552", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 4);
+			}
+			else if(strcmp(item, "M60 Machine Gun", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 17);
+			}
+			DisplayWeaponsMenu(param1, WeaponItemCategory_GunsRifle);
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack)
+			{
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+int MenuHandler_Snipers(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			
+			if(strcmp(item, "Hunting Rifle", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 13);
+			}
+			else if(strcmp(item, "Military Sniper", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 15);
+			}
+			else if(strcmp(item, "SCOUT", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 16);
+			}
+			else if(strcmp(item, "AWP", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 14);
+			}
+			DisplayWeaponsMenu(param1, WeaponItemCategory_GunsSniper);
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack)
+			{
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+int MenuHandler_Shotguns(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			
+			if(strcmp(item, "Pumpshotgun", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 8);
+			}
+			else if(strcmp(item, "Chrome Shotgun", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 9);
+			}
+			else if(strcmp(item, "Spas Shotgun", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 7);
+			}
+			else if(strcmp(item, "Autoshotgun", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 6);
+			}
+			DisplayWeaponsMenu(param1, WeaponItemCategory_GunsShotguns);
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack)
+			{
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+int MenuHandler_SMGs(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			
+			if(strcmp(item, "Smg", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 10);
+			}
+			else if(strcmp(item, "Silenced Smg", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 11);
+			}
+			else if(strcmp(item, "MP5", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 12);
+			}
+			DisplayWeaponsMenu(param1, WeaponItemCategory_GunsSMG);
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack)
+			{
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+int MenuHandler_Pistols(Menu menu, MenuAction action, int param1, int param2)
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char item[256];
+			GetMenuItem(menu, param2, item, sizeof(item));
+			
+			if(strcmp(item, "Pistol", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 0);
+			}
+			else if(strcmp(item, "Magnum", false) == 0)
+			{
+				SpawnWeaponOrItem(param1, 1);
+			}
+			DisplayWeaponsMenu(param1, WeaponItemCategory_GunsPistol);
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack)
+			{
+				DisplayWeaponsMenu(param1, WeaponItemCategory_GunsMain);
 			}
 		}
 		case MenuAction_End:
@@ -3214,6 +3349,205 @@ void SaveMapStripper(int client)
 	FlushFile(file);
 	CloseHandle(file);
 	if(client > 0) CPrintToChat(client, "{lightgreen}[TS] %T (%s/maps/%s.cfg)", "Succesfully saved the map data", client, g_sCvar_stripper_cfg_path, map); 
+}
+
+void SaveMapStripperCustom(int client)
+{
+	if(client > 0) LogSpawn("%N saved the objects for this map on a 'Stripper' file format", client);
+
+	char sMpGameMode[64], sNewPath[64], FolderName[PLATFORM_MAX_PATH];
+	mp_gamemode.GetString(sMpGameMode, sizeof sMpGameMode);
+	for(int i = 1; ; i++)
+	{
+		FormatEx(sNewPath, sizeof sNewPath, "%s_%i", sMpGameMode, i);
+		FormatEx(FolderName, sizeof(FolderName), "addons/stripper/%s/maps", sNewPath);
+		if(DirExists(FolderName))
+		{
+			continue;
+		}
+		else
+		{
+			if(CreateDirectory(FolderName, 511, true) == false)
+			{
+				if(client > 0)
+				{
+					CPrintToChat(client, "{green}[TS] Failed to create folder: addons/stripper/%s/maps", sNewPath); 
+					PrintHintText(client, "[TS] Failed to create folder: addons/stripper/%s/maps", sNewPath); 
+					PrintToConsole(client, "[TS] Failed to create folder: addons/stripper/%s/maps", sNewPath); 
+					PrintCenterText(client, "[TS] Failed to create folder: addons/stripper/%s/maps", sNewPath); 
+					return;
+				}
+			}
+			break;
+		}
+	}
+
+	char FileName[PLATFORM_MAX_PATH];
+	char map[256];
+	char classname[256];
+	File file;
+	GetCurrentMap(map, sizeof(map));
+	BuildPath(Path_SM, FileName, sizeof(FileName), "../../addons/stripper/%s/maps/%s.cfg", sNewPath, map);
+	
+	float vecOrigin[3];
+	float vecAngles[3];
+	char sModel[256];
+	char sTime[256];
+	int count;
+	char melee_name[32];
+	FormatTime(sTime, sizeof(sTime), "%Y-%m-%d_%H-%M");
+
+	bool bHasObjectNotSavedYet = false;
+	if(client > 0)
+	{
+		if(FileExists(FileName)) PrintHintText(client, "%T", "The file already exists.", client);
+
+		file = OpenFile(FileName, "a+");
+		if(file == null)
+		{
+			if(client > 0)
+			{
+				CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file: addons/stripper/%s/maps/%s.cfg", sNewPath, map); 
+				PrintHintText(client, "[TS] Failed to create or overwrite the map file: addons/stripper/%s/maps/%s.cfg", sNewPath, map); 
+				PrintToConsole(client, "[TS] Failed to create or overwrite the map file: addons/stripper/%s/maps/%s.cfg", sNewPath, map); 
+				PrintCenterText(client, "[TS] Failed to create or overwrite the map file: addons/stripper/%s/maps/%s.cfg", sNewPath, map); 
+			}
+			return;
+		}
+
+		CPrintToChat(client, "{green}[TS] %T", "Saving the content. Please Wait", client);
+
+		file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
+		file.WriteLine(";----------BY: %N----------------------||", client);
+		file.WriteLine("");
+		file.WriteLine("add:");
+
+		bHasObjectNotSavedYet = true;
+	}
+
+	for(int entity=MaxClients; entity < MAX_ENTITY; entity++)
+	{
+		if(g_bSpawned[entity] && IsValidEntity(entity))
+		{
+			if(client == 0 && !bHasObjectNotSavedYet)
+			{
+				LogSpawn("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				CPrintToChatAll("{red}!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				CPrintToChatAll("{red}!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				CPrintToChatAll("{red}!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+				PrintToServer("!!Detect objects not saved!! Auto save the objects on a 'Stripper' file");
+
+				file = OpenFile(FileName, "a+");
+				if(file == null)
+				{
+					if(client > 0)
+					{
+						CPrintToChat(client, "{green}[TS] Failed to create or overwrite the map file");
+						PrintHintText(client, "[TS] Failed to create or overwrite the map file");
+						PrintToConsole(client, "[TS] Failed to create or overwrite the map file");
+						PrintCenterText(client, "[TS] Failed to create or overwrite the map file");
+					}
+					return;
+				}
+
+				file.WriteLine(";----------FILE MODIFICATION [%s] ---------------||", sTime);
+				file.WriteLine(";----------BY: Server Console Auto Save----------------------||");
+				file.WriteLine("");
+				file.WriteLine("add:");
+
+				bHasObjectNotSavedYet = true;
+			}
+
+			GetEntityClassname(entity, classname, sizeof(classname));
+			if(strncmp(classname, "prop_dynamic", 12, false) == 0 || strncmp(classname, "prop_physics", 12, false) == 0)
+			{
+				GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vecOrigin);
+				GetEntPropVector(entity, Prop_Send, "m_angRotation", vecAngles);
+				GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+				file.WriteLine("{");
+				file.WriteLine("	\"targetname\" \"l4d2_spawn_props_object_%s\"", sTime);
+				if(strncmp(classname, "prop_dynamic_", 12, false) == 0)
+				{
+					if(g_bUnsolid[entity])
+					{
+						file.WriteLine("	\"solid\" \"1\"");
+					}
+					else
+					{
+						file.WriteLine("	\"solid\" \"6\"");
+					}
+				}
+				file.WriteLine("	\"origin\" \"%.2f %.2f %.2f\"", vecOrigin[0], vecOrigin[1], vecOrigin[2]);
+				file.WriteLine("	\"angles\" \"%.2f %.2f %.2f\"", vecAngles[0], vecAngles[1], vecAngles[2]);
+				file.WriteLine("	\"model\"	 \"%s\"", sModel);
+				if(strncmp(classname, "prop_dynamic", 12, false) == 0) file.WriteLine("	\"classname\"	\"prop_dynamic_override\"");
+				else file.WriteLine("	\"classname\"	\"prop_physics_override\"");
+				file.WriteLine("}");
+				file.WriteLine("");
+			}
+			else if(strcmp(classname, "weapon_melee", false) == 0)
+			{
+				GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vecOrigin);
+				GetEntPropVector(entity, Prop_Send, "m_angRotation", vecAngles);
+				//GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+				file.WriteLine("{");
+				file.WriteLine("	\"targetname\" \"l4d2_spawn_props_object_%s\"", sTime);
+				file.WriteLine("	\"solid\" \"6\"");
+				file.WriteLine("	\"classname\"	\"weapon_melee_spawn\"");
+				file.WriteLine("	\"origin\" \"%.2f %.2f %.2f\"", vecOrigin[0], vecOrigin[1], vecOrigin[2]);
+				file.WriteLine("	\"angles\" \"%.2f %.2f %.2f\"", vecAngles[0], vecAngles[1], vecAngles[2]);
+				file.WriteLine("	\"spawnflags\"	\"2\"");
+				file.WriteLine("	\"disableshadows\"	\"1\"");
+
+				if (HasEntProp(entity, Prop_Data, "m_strMapSetScriptName")) //support custom melee
+				{
+					GetEntPropString(entity, Prop_Data, "m_strMapSetScriptName", melee_name, sizeof(melee_name));
+					file.WriteLine("	\"melee_weapon\"	\"%s\"", melee_name);
+				}
+
+				file.WriteLine("	\"spawn_without_director\"	\"1\"");
+				file.WriteLine("	\"count\"	\"1\"");
+				
+				file.WriteLine("}");
+				file.WriteLine("");
+			}
+			else if(strncmp(classname, "weapon_", 7, false) == 0 || strcmp(classname, "upgrade_laser_sight", false) == 0)
+			{
+				GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vecOrigin);
+				GetEntPropVector(entity, Prop_Send, "m_angRotation", vecAngles);
+				GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+
+				file.WriteLine("{");
+				file.WriteLine("	\"targetname\" \"l4d2_spawn_props_object_%s\"", sTime);
+				file.WriteLine("	\"solid\" \"6\"");
+				file.WriteLine("	\"classname\"	\"%s\"", classname);
+				file.WriteLine("	\"origin\" \"%.2f %.2f %.2f\"", vecOrigin[0], vecOrigin[1], vecOrigin[2]);
+				file.WriteLine("	\"angles\" \"%.2f %.2f %.2f\"", vecAngles[0], vecAngles[1], vecAngles[2]);
+				file.WriteLine("	\"spawnflags\"	\"2\"");
+				file.WriteLine("	\"disableshadows\"	\"1\"");
+
+				if(strcmp(classname,"weapon_ammo_spawn") == 0) 
+					file.WriteLine("	\"model\"	 \"%s\"", sModel);
+
+				StringToLowerCase(sModel);
+				if(g_smModelCount.GetValue(sModel, count) && count > 0)
+					file.WriteLine("	\"count\"	\"%i\"", count);
+				
+				file.WriteLine("}");
+				file.WriteLine("");
+			}
+		}
+	}
+
+	if(!bHasObjectNotSavedYet) return;
+	
+	FlushFile(file);
+	CloseHandle(file);
+	if(client > 0) CPrintToChat(client, "{lightgreen}[TS] %T (addons/stripper/%s/maps/%s.cfg)", "Succesfully saved the map data", client, sNewPath, map); 
 }
 
 Action CmdRotate(int client, int args)
@@ -3830,20 +4164,6 @@ void CreateStringMap()
 	g_smModelCount.SetValue(MODEL_AMMO_L4D2, 5);
 	g_smModelCount.SetValue(MODEL_AMMO_L4D3, 5);
 	g_smModelCount.SetValue(MODEL_LASER, 0);
-
-	// g_smModelCount.SetValue("models/w_models/weapons/w_knife_t.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_bat.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_cricket_bat.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_crowbar.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_electric_guitar.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_fireaxe.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_frying_pan.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_katana.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_machete.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_tonfa.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_golfclub.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_pitchfork.mdl", 1);
-	// g_smModelCount.SetValue("models/weapons/melee/w_shovel.mdl", 1);
 }
 
 void StringToLowerCase(char[] input)
@@ -3925,6 +4245,8 @@ bool TracesObjectFilter(int entity, int contentsMask, int client)
 
 void LockGlow(int client, int Object)
 {
+	if(!g_bCvarGlow) return;
+	
 	int lastlockobject = EntRefToEntIndex(g_iLockObject[client]);
 	if(lastlockobject != INVALID_ENT_REFERENCE)
 	{

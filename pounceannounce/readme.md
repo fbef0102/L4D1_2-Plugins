@@ -69,7 +69,7 @@ Announces hunter pounces to the entire server
         * Max Pounce Damage 75
             ```php
             // z_pounce_damage_range_max = ((74 / 24) * 700) + 300
-            sm_cvar z_hunter_max_pounce_bonus_damage 29
+            sm_cvar z_hunter_max_pounce_bonus_damage 74
             sm_cvar z_pounce_damage_range_min 300
             sm_cvar z_pounce_damage_range_max 2458.333
             ```
@@ -174,7 +174,7 @@ Announces hunter pounces to the entire server
        * 最大高撲傷害: 75
             ```php
             // z_pounce_damage_range_max = ((74 / 24) * 700) + 300
-            sm_cvar z_hunter_max_pounce_bonus_damage 29
+            sm_cvar z_hunter_max_pounce_bonus_damage 74
             sm_cvar z_pounce_damage_range_min 300
             sm_cvar z_pounce_damage_range_max 2458.333
             ```

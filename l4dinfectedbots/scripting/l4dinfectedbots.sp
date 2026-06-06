@@ -3649,6 +3649,26 @@ void Event_FinaleStart(Event event, const char[] name, bool dontBroadcast)
 
 	g_bFinaleStarted = true;
 	CreateTimer(1.0, CheckIfBotsNeededLater, 2, TIMER_FLAG_NO_MAPCHANGE);
+
+	// kill all witches once final starts
+	if(g_ePluginSettings.m_bWitchSpawnFinal == false)
+	{
+		int witch, health;
+		while((witch = FindEntityByClassname(witch, "witch")) != -1)
+		{
+			if (!IsValidEntity(witch))
+				continue;	
+
+			if (!IsValidEntity(witch))
+				continue;	
+
+			health = GetEntProp(witch, Prop_Data, "m_iHealth");
+			if(health <= 0) 
+				continue;
+
+			SDKHooks_TakeDamage(witch, witch, witch, float(health), DMG_GENERIC);
+		}
+	}
 }
 
 void Event_PlayerDisconnect(Event event, char[] name, bool bDontBroadcast)

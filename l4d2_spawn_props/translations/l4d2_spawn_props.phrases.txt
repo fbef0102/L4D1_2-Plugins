@@ -161,61 +161,12 @@
 		"chi"	"选择储存方式"
 		"ru"	"Выберите метод сохранения"
 	}
-	"Save Stripper File"
-	{
-		"en"	"Save Stripper File"
-		"zho"	"儲存於 Stripper File"
-		"chi"	"储存于 Stripper File"
-		"ru"	"Сохр. файл Stripper"
-	}
 	"Are you sure?"
 	{
 		"en"	"Are you sure?"
 		"zho"	"你確定?"
 		"chi"	"你确定?"
 		"ru"	"Вы уверены?"
-	}
-	"Vehicles"
-	{
-		"en"	"Vehicles"
-		"zho"	"載具類"
-		"chi"	"载具类"
-		"ru"	"Машины"
-	}
-	"Foliage"
-	{
-		"en"	"Foliage"
-		"zho"	"植物類"
-		"chi"	"植物类"
-		"ru"	"Листва"
-	}
-	"Interior"
-	{
-		"en"	"Interior"
-		"zho"	"室內類"
-		"chi"	"室内类"
-		"ru"	"Интерьер"
-	}
-	"Exterior"
-	{
-		"en"	"Exterior"
-		"zho"	"室外類"
-		"chi"	"室外类"
-		"ru"	"Экстерьер"
-	}
-	"Decorative"
-	{
-		"en"	"Decorative"
-		"zho"	"裝飾類"
-		"chi"	"装饰类"
-		"ru"	"Декор"
-	}
-	"Misc"
-	{
-		"en"	"Misc"
-		"zho"	"雜項類"
-		"chi"	"杂项类"
-		"ru"	"Разное"
 	}
 	"Select an action:"
 	{
@@ -259,6 +210,13 @@
 		"chi"	"列印准心指向物件资讯"
 		"ru"	"Вывести информацию об объекте на курсоре"
 	}
+	"Rotate 0.1 degree (X axys)"
+	{
+		"en"	"Rotate 0.1 degree (X axys)"
+		"zho"	"選轉 0.1 度 (X 軸)"
+		"chi"	"旋转 0.1 度 (X 轴)"
+		"ru"	"Поворот на 0.1 гр. (гориз.)"
+	}
 	"Rotate 1 degree (X axys)"
 	{
 		"en"	"Rotate 1 degree (X axys)"
@@ -301,6 +259,13 @@
 		"chi"	"旋转 180 度 (X 轴)"
 		"ru"	"Поворот на 180 гр. (гориз.)"
 	}
+	"Back 0.1 degree (X axys)"
+	{
+		"en"	"Back 0.1 degree (X axys)"
+		"zho"	"退回 0.1 度 (X 軸)"
+		"chi"	"退回 0.1 度 (X 轴)"
+		"ru"	"Назад на 0.1 гр. (гориз.)"
+	}	
 	"Back 1 degree (X axys)"
 	{
 		"en"	"Back 1 degree (X axys)"
@@ -321,6 +286,13 @@
 		"zho"	"退回 15 度 (X 軸)"
 		"chi"	"退回 15 度 (X 轴)"
 		"ru"	"Назад на 15 гр. (гориз.)"
+	}
+	"Rotate 0.1 degree (Y axys)"
+	{
+		"en"	"Rotate 0.1 degree (Y axys)"
+		"zho"	"選轉 0.1 度 (Y 軸)"
+		"chi"	"旋转 0.1 度 (Y 轴)"
+		"ru"	"Поворот на 0.1 гр. (верт.)"
 	}
 	"Rotate 1 degree (Y axys)"
 	{
@@ -364,6 +336,13 @@
 		"chi"	"旋转 180 度 (Y 轴)"
 		"ru"	"Поворот на 180 гр. (верт.)"
 	}
+	"Back 0.1 degree (Y axys)"
+	{
+		"en"	"Back 0.1 degree (Y axys)"
+		"zho"	"退回 0.1 度 (Y 軸)"
+		"chi"	"退回 0.1 度 (Y 轴)"
+		"ru"	"Назад на 0.1 гр. (верт.)"
+	}
 	"Back 1 degree (Y axys)"
 	{
 		"en"	"Back 1 degree (Y axys)"
@@ -384,6 +363,13 @@
 		"zho"	"退回 15 度 (Y 軸)"
 		"chi"	"退回 15 度 (Y 轴)"
 		"ru"	"Назад на 15 гр. (верт.)"
+	}
+	"Rotate 0.1 degree (Z axys)"
+	{
+		"en"	"Rotate 0.1 degree (Z axys)"
+		"zho"	"選轉 0.1 度 (Z 軸)"
+		"chi"	"旋转 0.1 度 (Z 轴)"
+		"ru"	"Поворот на 0.1 гр. (диагон.)"
 	}
 	"Rotate 1 degree (Z axys)"
 	{
@@ -427,6 +413,13 @@
 		"chi"	"旋转 180 度 (Z 轴)"
 		"ru"	"Поворот на 180 гр. (диагон.)"
 	}
+	"Back 0.1 degree (Z axys)"
+	{
+		"en"	"Back 0.1 degree (Z axys)"
+		"zho"	"退回 0.1 度 (Z 軸)"
+		"chi"	"退回 0.1 度 (Z 轴)"
+		"ru"	"Назад на 0.1 гр. (диагон.)"
+	}
 	"Back 1 degree (Z axys)"
 	{
 		"en"	"Back 1 degree (Z axys)"
@@ -447,6 +440,13 @@
 		"zho"	"退回 15 度 (Z 軸)"
 		"chi"	"退回 15 度 (Z 轴)"
 		"ru"	"Назад на 15 гр. (диагон.)"
+	}
+	"Move Up 0.1 Unit"
+	{
+		"en"	"Z axys +0.1"
+		"zho"	"Z軸: +0.1"
+		"chi"	"Z轴: +0.1"
+		"ru"	"Поднять на 0.1 ед."
 	}
 	"Move Up 1 Unit"
 	{
@@ -469,6 +469,13 @@
 		"chi"	"Z轴: +30"
 		"ru"	"Поднять на 30 ед."
 	}
+	"Move Down 0.1 Unit"
+	{
+		"en"	"Z axys -0.1"
+		"zho"	"Z軸: -0.1"
+		"chi"	"Z轴: -0.1"
+		"ru"	"Опустить на 0.1 ед."
+	}
 	"Move Down 1 Unit"
 	{
 		"en"	"Z axys -1"
@@ -489,6 +496,13 @@
 		"zho"	"Z軸: -30"
 		"chi"	"Z轴: -30"
 		"ru"	"Опустить на 30 ед."
+	}
+	"Move Right 0.1 Unit"
+	{
+		"en"	"Y axys +0.1"
+		"zho"	"Y軸: +0.1"
+		"chi"	"Y轴: +0.1"
+		"ru"	"Сдвинуть вправо на 0.1 ед."
 	}
 	"Move Right 1 Unit"
 	{
@@ -511,6 +525,13 @@
 		"chi"	"Y轴: +30"
 		"ru"	"Сдвинуть вправо на 30 ед."
 	}
+	"Move Left 0.1 Unit"
+	{
+		"en"	"Y axys -0.1"
+		"zho"	"Y軸: -0.1"
+		"chi"	"Y轴: -0.1"
+		"ru"	"Сдвинуть влево на 0.1 ед."
+	}
 	"Move Left 1 Unit"
 	{
 		"en"	"Y axys -1"
@@ -532,6 +553,13 @@
 		"chi"	"Y轴: -30"
 		"ru"	"Сдвинуть влево на 30 ед."
 	}
+	"Move Forward 0.1 Unit"
+	{
+		"en"	"X axys +0.1"
+		"zho"	"X軸: +0.1"
+		"chi"	"X轴: +0.1"
+		"ru"	"Сдвинуть вперёд на 0.1 ед."
+	}
 	"Move Forward 1 Unit"
 	{
 		"en"	"X axys +1"
@@ -552,6 +580,13 @@
 		"zho"	"X軸: +30"
 		"chi"	"X轴: +30"
 		"ru"	"Сдвинуть вперёд на 30 ед."
+	}
+	"Move Backward 0.1 Unit"
+	{
+		"en"	"X axys -0.1"
+		"zho"	"X軸: -0.1"
+		"chi"	"X轴: -0.1"
+		"ru"	"Сдвинуть назад на 0.1 ед."
 	}
 	"Move Backward 1 Unit"
 	{
@@ -723,7 +758,7 @@
 	}
 	"Weapons"
 	{
-		"en"	"Weapons"
+		"en"	"Guns"
 		"zho"	"武器類"
 		"chi"	"武器类"
 		"ru"	"Оружие"
@@ -748,5 +783,330 @@
 		"zho"	"其他類"
 		"chi"	"其他类"
 		"ru"	"Другое"
+	}
+	"Object Spawner"
+	{
+		"en"	"Object Spawner"
+		"zho"	"選擇模型"
+		"chi"	"选择模型"
+	}
+	"rifles"
+	{
+		"en"	"Rifles"
+		"zho"	"步槍"
+		"chi"	"步枪"
+	}
+	"snipers"
+	{
+		"en"	"Snipers"
+		"zho"	"狙擊槍"
+		"chi"	"狙击枪"
+	}
+	"shotguns"
+	{
+		"en"	"Shotguns"
+		"zho"	"散彈槍"
+		"chi"	"散弹枪"
+	}
+	"SMGs"
+	{
+		"en"	"SMGs"
+		"zho"	"機槍"
+		"chi"	"机枪"
+	}
+	"pistols"
+	{
+		"en"	"Pistols"
+		"zho"	"手槍"
+		"chi"	"手枪"
+	}
+	
+	"Pistol"
+	{
+		"en"	"Pistol"
+		"zho"	"手槍"
+		"chi"	"手枪"
+	}
+	"Magnum"
+	{
+		"en"	"Magnum"
+		"zho"	"沙漠之鷹"
+		"chi"	"沙漠之鹰"
+	}
+	"Pumpshotgun"
+	{
+		"en"	"Pumpshotgun"
+		"zho"	"木製霰彈槍"
+		"chi"	"木制霰弹枪"
+	}
+	"Chrome Shotgun"
+	{
+		"en"	"Chrome Shotgun"
+		"zho"	"鐵製霰彈槍"
+		"chi"	"铁制霰弹枪"
+	}
+	"Smg"
+	{
+		"en"	"Smg"
+		"zho"	"機槍"
+		"chi"	"机枪"
+	}
+	"Silenced Smg"
+	{
+		"en"	"Silenced Smg"
+		"zho"	"消音機槍"
+		"chi"	"消音机枪"
+	}
+	"MP5"
+	{
+		"en"	"MP5"
+		"zho"	"MP5衝鋒槍"
+		"chi"	"MP5冲锋枪"
+	}
+	"Rifle"
+	{
+		"en"	"Rifle M16"
+		"zho"	"M16步槍"
+		"chi"	"M16步枪"
+	}
+	"AK47"
+	{
+		"en"	"AK-47"
+		"zho"	"AK-47"
+		"chi"	"AK-47"
+	}
+	"Desert Rifle"
+	{
+		"en"	"Desert Rifle"
+		"zho"	"三連發步槍"
+		"chi"	"三连发步枪"
+	}
+	"SG552"
+	{
+		"en"	"CSS SG552"
+		"zho"	"SG552步槍"
+		"chi"	"SG552步枪"
+	}
+	"Spas Shotgun"
+	{
+		"en"	"Spas Shotgun"
+		"zho"	"戰鬥霰彈槍"
+		"chi"	"战斗霰弹枪"
+	}
+	"Autoshotgun"
+	{
+		"en"	"Autoshotgun"
+		"zho"	"連發霰彈槍"
+		"chi"	"连发霰弹枪"
+	}
+	"Hunting Rifle"
+	{
+		"en"	"Hunting Rifle"
+		"zho"	"獵槍"
+		"chi"	"猎枪"
+	}
+	"Military Sniper"
+	{
+		"en"	"Military Sniper"
+		"zho"	"軍用狙擊槍"
+		"chi"	"军用狙击枪"
+	}
+	"SCOUT"
+	{
+		"en"	"CSS SCOUT"
+		"zho"	"SCOUT狙擊槍"
+		"chi"	"SCOUT狙击枪"
+	}
+	"AWP"
+	{
+		"en"	"AWP"
+		"zho"	"AWP"
+		"chi"	"AWP"
+	}
+	"Grenade Launcher"
+	{
+		"en"	"Grenade Launcher"
+		"zho"	"榴彈發射器"
+		"chi"	"榴弹发射器"
+	}
+	"M60 Machine Gun"
+	{
+		"en"	"M60 Machine Gun"
+		"zho"	"殲滅者 M60"
+		"chi"	"毁灭者 M60"
+	}
+	"chainsaw"
+	{
+		"en"	"Chainsaw"
+		"zho"	"奪魂鋸"
+		"chi"	"电锯"
+	}
+	"baseball_bat"
+	{
+		"en"	"Baseball Bat"
+		"zho"	"球棒"
+		"chi"	"球棒"
+	}
+	"cricket_bat"
+	{
+		"en"	"Cricket Bat"
+		"zho"	"板球拍"
+		"chi"	"板球拍"
+	}
+	"crowbar"
+	{
+		"en"	"Crowbar"
+		"zho"	"鐵撬"
+		"chi"	"铁撬"
+	}
+	"electric_guitar"
+	{
+		"en"	"Electric Guitar"
+		"zho"	"電吉他"
+		"chi"	"電吉他"
+	}
+	"fireaxe"
+	{
+		"en"	"Fire Axe"
+		"zho"	"斧頭"
+		"chi"	"斧头"
+	}
+	"frying_pan"
+	{
+		"en"	"Frying Pan"
+		"zho"	"平底鍋"
+		"chi"	"平底锅"
+	}
+	"katana"
+	{
+		"en"	"Katana"
+		"zho"	"武士刀"
+		"chi"	"武士刀"
+	}
+	"machete"
+	{
+		"en"	"Machete"
+		"zho"	"開山刀"
+		"chi"	"开山刀"
+	}
+	"tonfa"
+	{
+		"en"	"Tonfa"
+		"zho"	"警棍"
+		"chi"	"警棍"
+	}
+	"golfclub"
+	{
+		"en"	"Golf Club"
+		"zho"	"高爾夫球桿"
+		"chi"	"高尔夫球棍"
+	}
+	"knife"
+	{
+		"en"	"Knife"
+		"zho"	"小刀"
+		"chi"	"小刀"
+	}
+	"pitchfork"
+	{
+		"en"	"Pitchfork"
+		"zho"	"草叉"
+		"chi"	"草叉"
+	}
+	"shovel"
+	{
+		"en"	"Shovel"
+		"zho"	"鐵鏟"
+		"chi"	"铁铲"
+	}
+	"Defibrillator"
+	{
+		"en"	"Defibrillator"
+		"zho"	"電擊器"
+		"chi"	"电击器"
+	}
+	"First Aid Kit"
+	{
+		"en"	"First Aid Kit"
+		"zho"	"治療包"
+		"chi"	"治疗包"
+	}
+	"Pain Pill"
+	{
+		"en"	"Pain Pill"
+		"zho"	"止痛藥丸"
+		"chi"	"止痛药丸"
+	}
+	"Adrenaline"
+	{
+		"en"	"Adrenaline"
+		"zho"	"腎上腺素"
+		"chi"	"肾上腺素"
+	}
+	"Pipe Bomb"
+	{
+		"en"	"Pipe Bomb"
+		"zho"	"土製炸彈"
+		"chi"	"土制炸弹"
+	}
+	"Molotov"
+	{
+		"en"	"Molotov"
+		"zho"	"火瓶"
+		"chi"	"火瓶"
+	}
+	"Vomitjar"
+	{
+		"en"	"Vomitjar"
+		"zho"	"膽汁"
+		"chi"	"胆汁"
+	}
+	"Incendiary Pack"
+	{
+		"en"	"Incendiary Pack"
+		"zho"	"火焰包"
+		"chi"	"火焰包"
+	}
+	"Explosive Pack"
+	{
+		"en"	"Explosive Pack"
+		"zho"	"高爆彈"
+		"chi"	"高爆弹"
+	}
+	"Laser Sight"
+	{
+		"en"	"Laser Sight"
+		"zho"	"雷射裝置"
+		"chi"	"镭射装置"
+	}
+	"Ammo (L4D1 model)"
+	{
+		"en"	"Ammo (L4D1)"
+		"zho"	"Ammo (L4D1 版本)"
+		"chi"	"Ammo (L4D1 版本)"
+	}
+	"Ammo (L4D2 model)"
+	{
+		"en"	"Ammo (L4D2)"
+		"zho"	"Ammo (L4D2 版本)"
+		"chi"	"Ammo (L4D2 版本)"
+	}
+	"Ammo (Box model)"
+	{
+		"en"	"Ammo (Box model)"
+		"zho"	"Ammo (軍用箱 版本)"
+		"chi"	"Ammo (军用箱 版本)"
+	}
+	"Save Stripper File (Default Path)"
+	{
+		"en"	"Save Stripper File: Default Path"
+		"zho"	"儲存於 Stripper File: 預設路徑"
+		"chi"	"储存于 Stripper File: 预设路径"
+	}
+	"Save Stripper File (Random Path)"
+	{
+		"en"	"Save Stripper File: Random Path"
+		"zho"	"儲存於 Stripper File: 隨機路徑"
+		"chi"	"储存于 Stripper File: 随机路径"
 	}
 }

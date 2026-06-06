@@ -106,7 +106,7 @@ int g_iRoundStart, g_iPlayerSpawn, g_iEscapeTime, g_iCvarEscapeTime;
 int iSystemTime;
 int g_iRescueVehicle;
 bool g_bFinalHasTrigger_Multiple, g_bFinalEnd, g_bCvarAirStrike;
-bool g_bMapStarted, g_bValidMap, g_bHookStart;
+bool g_bMapStarted, g_bValidMap;
 Handle AntiPussyTimer, _AntiPussyTimer, AirstrikeTimer;
 
 Address TheNavMesh;
@@ -175,6 +175,8 @@ public void OnMapStart()
 	
 	if(g_bValidMap)
 	{
+		LoadData();
+
 		PrecacheSound(SOUND_ESCAPE, true);
 		PrecacheSound(EXPLOSION_SOUND);
 		if(g_bL4D2Version)
@@ -199,7 +201,6 @@ public void OnMapEnd()
 {
 	g_bMapStarted = false;
 	g_bValidMap = false;
-	g_bHookStart = false;
 
 	ResetPlugin();
 }
@@ -322,7 +323,7 @@ void OnGamemode(const char[] output, int caller, int activator, float delay)
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
-	if(g_bCvarAllow == false || g_bHookStart == false) return;
+	if(g_bCvarAllow == false) return;
 
 	switch (classname[0])
 	{
@@ -390,13 +391,14 @@ void OnNextFrame_trigger_finale(int entityRef)
 
 void OnNextFrame_trigger_finale_dlc3(int entityRef)
 {
+	//trigger_finale_dlc3會變成trigger_finale
 	int entity = EntRefToEntIndex(entityRef);
 	
 	if (entity == INVALID_ENT_REFERENCE)
 		return;
 
 	#if DEBUG
-		LogMessage("\x05trigger_finale late spawn here");
+		LogMessage("\x05trigger_finale_dlc3 late spawn here");
 	#endif
 
 	if(g_bValidMap == false) return;
@@ -462,7 +464,6 @@ void UnhookEvents()
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bFinalEnd = false;
-	g_bHookStart = false;
 	g_iEscapeTime = 0;
 	g_iRescueVehicle = 0;
 
@@ -482,8 +483,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 Action tmrStart(Handle timer)
 {
 	ResetPlugin();
-	InitRescueEntity();
-	g_bHookStart = true;
 
 	return Plugin_Continue;
 }
@@ -760,55 +759,6 @@ Action Timer_SlayPlayer(Handle timer, int userid)
 	}
 
 	return Plugin_Continue;
-}
-
-void InitRescueEntity()
-{
-	if(g_bValidMap == false) return;
-	if(LoadData() == false) return;
-	if(g_iEscapeTime == 0) return;
-
-	int entity;
-	if(g_bL4D2Version)
-	{
-	 	entity = FindEntityByClassname(MaxClients + 1, "trigger_finale");
-		if(entity > MaxClients && IsValidEntity(entity))
-		{
-			if(view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsSacrificeFinale")))
-			{
-				#if DEBUG
-					LogMessage("\x05Map is sacrifice finale in l4d2, disable the plugin");
-				#endif
-
-				return;
-			}
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		entity = FindEntityByClassname(MaxClients + 1, "trigger_finale_dlc3");
-		if(entity > MaxClients && IsValidEntity(entity))
-		{
-			#if DEBUG
-				LogMessage("\x05Map is sacrifice finale in l4d1, disable the plugin");
-			#endif
-			
-			return;
-		}
-	}
-
-	entity = MaxClients + 1;
-	while ((entity = FindEntityByClassname(entity, "trigger_multiple")) != -1)
-	{
-		if(!IsValidEntity(entity)) continue;
-
-		g_bFinalHasTrigger_Multiple = true;
-		break;
-	}
 }
 
 /* =============================================================================================================== *

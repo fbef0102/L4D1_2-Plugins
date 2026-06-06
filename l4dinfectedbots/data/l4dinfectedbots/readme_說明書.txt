@@ -91,8 +91,13 @@
 // witch生成多少秒才會踢出（不影響導演生成的witch）
 "witch_life"        "200.0"
 
-// 1 = Still spawn witch in final stage rescue
+// 0 = Don't spawn witch in final stage + Kill All witches once final starts
+// 1 = Still spawn witch in final stage
+// CAUTION: Please use carefully, If too many witches on the field during final stage, the game would stuck, unable to advances the Finale states
+// -
+// 0 = 最後一關救援開始後插件不生成任何witch + 救援開始後殺死所有場上的Witch
 // 1 = 最後一關救援開始後插件持續生成witch
+// 重要!: 請謹慎開啟此參數, 如果救援期間生成太多witch在場上, 將導致遊戲卡關, 無法推進下一個救援階段
 "witch_spawn_final"    "0"
 
 // 1 = Infected bots spawn on the same game frame (careful, this could cause sever laggy)

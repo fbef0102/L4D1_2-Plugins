@@ -42,7 +42,7 @@ Let admins spawn any kind of objects and saved to cfg
 			* Not all objects can be Solid (Go ask Valve)
 
 	* **Save Object**
-        1. Admin types ```!admin``` in chat->Spawn Objects->Save Objects->Save Stripper File
+        1. Admin types ```!admin``` in chat->Spawn Objects->Save Objects->Choose "Save Stripper File: Default Path"
 		2. All Spawned objects will be saved into ```addons\stripper\maps\xxxxx.cfg```
 			* xxxx is map name
 			* Auto-generate xxxxx.cfg if file not exist
@@ -69,30 +69,21 @@ Let admins spawn any kind of objects and saved to cfg
 * <details><summary>Q&A</summary>
 
 	* How to add more models and translate name?
-		* Modify [data/l4d2_spawn_props_models_english.txt](data/l4d2_spawn_props_models_english.txt)
+		* Modify [data/l4d2_spawn_props/model_english.cfg](data/l4d2_spawn_props/model_english.cfg)
+
+	* How to configure dynamic (read: random) path?
+		1. Spawn all the objects you want
+		2. Spawn Objects->Save Objects->Choose "Save Stripper File: Random Path", all spawned objects will be saved into ```addons\stripper\yyy\maps\xxxxx.cfg```
+			* xxx: the current map name (Ex: c5m2_park) 
+			* yyy: new folder created by plugin (Ex: versus_1) 
+		3. Open file and configure the desired paths for each gamemode: [data/l4d2_spawn_props/random_path.cfg](data/l4d2_spawn_props/random_path.cfg)
+		4. Choosing random stripper config on map loading depends on gamemode
 </details>
 
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d2_spawn_props.cfg
 		```php
-        // If 1, Enable the Decorative category
-        l4d2_spawn_props_category_decorative "1"
-
-        // If 1, Enable the Exterior category
-        l4d2_spawn_props_category_exterior "1"
-
-        // If 1, Enable the Foliage category
-        l4d2_spawn_props_category_foliage "1"
-
-        // If 1, Enable the Interior category
-        l4d2_spawn_props_category_interior "1"
-
-        // If 1, Enable the Misc category
-        l4d2_spawn_props_category_misc "1"
-
-        // If 1, Enable the Vehicles category
-        l4d2_spawn_props_category_vehicles "1"
 
         // If 1, Enable the Dynamic (Non-solid) Objects in the menu
         l4d2_spawn_props_dynamic "1"
@@ -109,10 +100,14 @@ Let admins spawn any kind of objects and saved to cfg
         // If 1, Log if an admin spawns an object?
         l4d2_spawn_props_log_actions "0"
 
-		// Model file to read, default: data/l4d2_spawn_props_models_english.txt
-		// -
-		// Default: "data/l4d2_spawn_props_models_english.txt"
-		l4d2_spawn_props_model_file "data/l4d2_spawn_props_models_english.txt"
+		// Model file to read, default: data/l4d2_spawn_props/model_english.cfg
+		l4d2_spawn_props_model_file "data/l4d2_spawn_props/model_english.cfg"
+
+		// Enable the plugin to auto load data/l4d2_spawn_props/random_path.cfg?
+		l4d2_spawn_props_autoload_random_path "0"
+
+		// If 1, make object glow on last placed objects or last locking object
+		l4d2_spawn_props_glow "1"
 		```
 </details>
 
@@ -186,6 +181,11 @@ Let admins spawn any kind of objects and saved to cfg
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.4 (2026-6-2)
+		* Delete old data file, Add new data to add more object categories
+		* Update cvars, translation
+		* Support custom melee spawn
+
 	* v4.3 (2026-3-15)
 		* Update translation
 		* Update cvars
@@ -235,7 +235,7 @@ Let admins spawn any kind of objects and saved to cfg
 			* 非所有模型都能變成固態 (去問Valve，認真你就輸了)
 
 	* 如何儲存物件?
-		1. 管理員輸入```!admin```->生成物件->儲存物件
+		1. 管理員輸入```!admin```->生成物件->儲存物件->選擇"儲存於 Stripper File: 預設路徑"
 		2. 生成的物件會儲存於```addons\stripper\maps\xxxxx.cfg```
 			* xxxx是地圖名
 			* 沒有此cfg也會自動產生
@@ -267,13 +267,21 @@ Let admins spawn any kind of objects and saved to cfg
 	* 如何變成中文模組菜單?
 		* 修改插件的指令
 			```c
-			// 取模組的文件檔案，換成中文菜單請修改成 "data/l4d2_spawn_props_models_chinese.txt"
-			l4d2_spawn_props_model_file "data/l4d2_spawn_props_models_chinese.txt"
+			// 取模組的文件檔案，換成中文菜單請修改成 "data/l4d2_spawn_props/model_chinese.cfg"
+			l4d2_spawn_props_model_file "data/l4d2_spawn_props/model_chinese.cfg"
 			```
 
 	* 如何增加更多模組?
-		* 編輯檔案 [data/l4d2_spawn_props_models_english.txt](data/l4d2_spawn_props_models_english.txt)
-		* 編輯檔案 [data/l4d2_spawn_props_models_chinese.txt](data/l4d2_spawn_props_models_chinese.txt)
+		* (英文版) 編輯檔案 [data/l4d2_spawn_props/model_english.cfg](data/l4d2_spawn_props/model_english.cfg)
+		* (中文版) 編輯檔案 [data/l4d2_spawn_props/model_chinese.cfg](data/l4d2_spawn_props/model_chinese.cfg)
+
+	* 如何配置地圖隨機路徑?
+		1. 生成任意物件
+		2. 管理員輸入```!admin```->生成物件->儲存物件->選擇"儲存於 Stripper File: 隨機路徑", 生成的物件會儲存於 ```addons\stripper\yyy\maps\xxxxx.cfg```
+			* xxx: 目前的地圖名稱 (譬如: c5m2_park) 
+			* yyy: 資料夾會被插件新增 (譬如: versus_1) 
+		3. 打開文件，為每個遊戲模式配置喜歡的地圖路徑: [data/l4d2_spawn_props/random_path.cfg](data/l4d2_spawn_props/random_path.cfg)
+		4. 地圖載入時根據遊戲模式隨機指定路徑
 </details>
 
 
@@ -281,24 +289,6 @@ Let admins spawn any kind of objects and saved to cfg
 
 	* cfg/sourcemod/l4d2_spawn_props.cfg
 		```php
-        // 為1時, 啟用 "裝飾類"
-        l4d2_spawn_props_category_decorative "1"
-
-        // 為1時, 啟用 "室外類"
-        l4d2_spawn_props_category_exterior "1"
-
-        // 為1時, 啟用 "植物類"
-        l4d2_spawn_props_category_foliage "1"
-
-        // 為1時, 啟用 "室內類"
-        l4d2_spawn_props_category_interior "1"
-
-        // 為1時, 啟用 "雜項類"
-        l4d2_spawn_props_category_misc "1"
-
-        // 為1時, 啟用 "載具類"
-        l4d2_spawn_props_category_vehicles "1"
-
         // 為1時, 啟用 "生成穿透物件"（擺好看）
         l4d2_spawn_props_dynamic "1"
 
@@ -314,9 +304,12 @@ Let admins spawn any kind of objects and saved to cfg
         // 為1時, 任何管理員的動作(生成或刪除)都會紀錄文件，位於addons/souremod/logs資料夾
         l4d2_spawn_props_log_actions "0"
 
-		// 取模組的文件檔案，想要換成中文菜單請修改成 "data/l4d2_spawn_props_models_chinese.txt"
-		// 預設: data/l4d2_spawn_props_models_english.txt
-		l4d2_spawn_props_model_file "data/l4d2_spawn_props_models_english.txt"
+		// 取模組的文件檔案，想要換成中文菜單請修改成 "data/l4d2_spawn_props/model_chinese.cfg"
+		// 預設: data/l4d2_spawn_props/model_english.cfg
+		l4d2_spawn_props_model_file "data/l4d2_spawn_props/model_english.cfg"
+
+		// 為1時, 使最後一個生成的物件或是鎖定的物件發光
+		l4d2_spawn_props_glow "1"
 		```
 </details>
 
