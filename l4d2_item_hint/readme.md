@@ -24,13 +24,15 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * Mark any weapons, items, infected and spots
         * 'Look' in vocalize menu
         <br/>![l4d2_item_hint_0.jpg](image/l4d2_item_hint_0.jpg)
-        * Type```!mark```
-        * Press shift+E
+        * Type```!mark```(Survivors only)
+        * Press Shift+E (Survivors only)
     * Marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
     * If not aiming target or item, the plugin detects what player is looking at using field of view angle
         * If has more than two targets, it finds the target nearest to your crosshair
     <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
-    * The infected is unable to mark, unable to see the mark and unable to hear the mark sound
+    * Infected players can also mark targets by pressing Shift
+    * Infected marker priority: Survivor > Item or Weapon > Spot marker
+    * Marks are only visible to teammates of the same team
 </details>
 
 * <details><summary>Important</summary>
@@ -55,195 +57,208 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/l4d2_item_hint.cfg
-        * Mark Cvars
+        * General Mark Controls
             ```php
-            // If 1, Player can type !mark cmd to mark
+            // If 1, Survivors can type !mark to mark targets
             l4d2_item_hint_cmd "1"
 
-            // If 1, Player can press Shift+E to mark
+            // If 1, Survivors can press Shift+E to mark targets
             l4d2_item_hint_shiftE "1"
 
-            // If 1, Player can use Vocalize "look" to mark
+            // If 1, Survivors can use vocalize "Look" to mark targets
             l4d2_item_hint_vocalize "1"
 
-            // If 1, Player can use mark if get pinned by S.I.
+            // If 1, pinned Survivors can still mark targets
             l4d2_item_hint_mark_capped "0"
 
-            // If 1, Player can use mark if is haning from ledge
+            // If 1, hanging Survivors can still mark targets
             l4d2_item_hint_mark_hanging "0"
 
-            // If 1, Dead player can use mark
+            // If 1, dead Survivors can still mark targets
             l4d2_item_hint_mark_dead "0"
 
-            // Display Instruction Hint Text in which language for all players? 0=Server Language (English), 1=Caller Language
+            // Instructor hint language. 0=Server language (English), 1=Caller language
             l4d2_item_hint_instructorhint_translate "0"
             ```
 
-        * Item Hint
+        * Item Marker (both teams)
             ```php
-            // Item Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Item Glow)
+            // Item marker glow color (RGB, space-separated). Empty = Off
             l4d2_item_marker_glow_color "0 255 255"
 
-            // Cold Down Time in seconds a player can use 'Look' Item Hint again.
+            // Cooldown between marking items (seconds)
             l4d2_item_marker_cooldown_time "1.0"
 
-            // How close can a player use 'Look' item hint.
+            // Max distance to mark an item
             l4d2_item_marker_use_range "150"
 
-            // Item Hint Sound. (relative to to sound/, Empty = OFF)
+            // Sound when marking an item. (relative to sound/, Empty = Off)
             l4d2_item_marker_use_sound "buttons/blip1.wav"
 
-            // Changes how Item Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
+            // Item marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_item_marker_announce_type "1"
 
-            // Item Glow Time.
+            // Item glow duration (seconds)
             l4d2_item_marker_glow_timer "10.0"
 
-            // Item Glow Range.
+            // Item glow visible range
             l4d2_item_marker_glow_range "800"
 
-            // If 1, Create instructor hint on marked item.
+            // If 1, show instructor hint on marked items
             l4d2_item_marker_instructorhint_enable "1"
 
-            // Instructor hint color on marked item. (If empty, off the item name display)
+            // Instructor hint color on items. (Empty = hide item name)
             l4d2_item_marker_instructorhint_color "0 255 255"
 
-            //Instructor icon name on marked item. (For more icons: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
+            // Instructor hint icon. (More icons: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
             l4d2_item_marker_instructorhint_icon "icon_interact"
             ```
-            
-        * Spot Marker
+
+        * Spot Marker (both teams)
             ```php
-            // Spot Marker Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Spot Marker)
+            // Spot marker color (RGB, space-separated). Empty = Off
             l4d2_spot_marker_color "200 200 200"
 
-            // Cold Down Time in seconds a player can use 'Look' Spot Marker again.
+            // Cooldown between spot marks (seconds)
             l4d2_spot_marker_cooldown_time "2.5"
 
-            // How far away can a player use 'Look' Spot Marker.
+            // Max distance to place a spot marker
             l4d2_spot_marker_use_range "1800"
 
-            // Spot Marker Sound. (relative to to sound/, Empty = OFF)
+            // Sound when placing a spot marker. (relative to sound/, Empty = Off)
             l4d2_spot_marker_use_sound "buttons/blip1.wav"
 
-            // Changes how Spot Marker Hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
-            l4d2_spot_marker_announce_type "0"
+            // Spot marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_spot_marker_announce_type "1"
 
-            // Spot Marker Duration.
+            // Spot marker duration (seconds)
             l4d2_spot_marker_duration "10.0"
 
-            // Spot Marker Sprite model. (Empty=Disable)
+            // Spot marker sprite model. (Empty = Off)
             l4d2_spot_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
-            // Spot Marker Sprite model height.
+            // Spot marker sprite height from ground
             l4d2_spot_marker_sprite_height "50.0"
 
-            // If 1, Create instructor hint on Spot Marker.
+            // If 1, show instructor hint on spot marker
             l4d2_spot_marker_instructorhint_enable "1"
 
-            // Instructor hint color on Spot Marker. (If empty, off the hint text display)
+            // Instructor hint color on spot marker. (Empty = hide text)
             l4d2_spot_marker_instructorhint_color "200 200 200"
 
-            // Instructor icon name on Spot Marker.
+            // Instructor hint icon on spot marker
             l4d2_spot_marker_instructorhint_icon "icon_info"
 
-            // Spot Marker initial beam ring radius.
+            // Spot marker beam ring starting radius
             l4d2_spot_marker_ring_start_radius  "35.0"
 
-            // Spot Marker final beam ring radius.
+            // Spot marker beam ring ending radius
             l4d2_spot_marker_ring_end_radius    "50.0"
 
-            // Spot Marker beam width.
+            // Spot marker beam ring width
             l4d2_spot_marker_ring_width         "2.0"
 
-            // Spawn particle on Spot Marker.
-            // Empty=No particle
-            // (See more in l4d2: https://forums.alliedmods.net/showthread.php?t=127111)
+            // Particle effect on spot marker. (Empty = Off, more: https://forums.alliedmods.net/showthread.php?t=127111)
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
-        * Infected Marker
+        * S.I. Marker (Survivors mark Special Infected)
             ```php
-            // Infected Marker Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Infected Marker)
+            // S.I. marker glow color (RGB, space-separated). Empty = Off. (Survivors mark S.I.)
             l4d2_infected_marker_glow_color "255 120 203"
 
-            // Cold Down Time in seconds a player can use 'Look' Infected Marker again.
+            // Cooldown for Survivors marking S.I. (seconds)
             l4d2_infected_marker_cooldown_time "0.25"
 
-            // How far away can a player use 'Look' Infected Marker.
+            // Max distance for Survivors to mark S.I.
             l4d2_infected_marker_use_range "1000"
 
-            // Infected Marker Sound. (relative to to sound/, Empty = OFF)
+            // Sound when Survivors mark S.I. (relative to sound/, Empty = Off)
             l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
 
-            // Changes how infected marker hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
+            // S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_infected_marker_announce_type "1"
 
-            // Infected Marker Glow Time.
+            // S.I. glow duration when marked by Survivors (seconds)
             l4d2_infected_marker_glow_timer "10.0"
 
-            // Infected Marker Glow Rang
+            // S.I. glow visible range when marked by Survivors
             l4d2_infected_marker_glow_range "2500"
 
-            // If 1, Enable 'Look' Infected Marker on witch.
-            l4d2_infected_marker_witch_enable "1"
-
-            // Enable 'Look' Infected Marker on Which SI? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add numbers together (127=All)
+            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
             l4d2_infected_marker_si_flag "127"
 
-            // If 1, Create instructor hint on Infected's head if marked.
+            // If 1, allow Survivors to mark Witch
+            l4d2_infected_marker_witch_enable "1"
+
+            // If 1, show instructor hint on S.I. marked by Survivors
             l4d2_infected_marker_instructorhint_enable "1"
 
-            // Instructor hint color on Infecfed Marker. (If empty, off the zombie class display)
+            // Instructor hint color on S.I. (Empty = hide S.I. name)
             l4d2_infected_marker_instructorhint_color "255 0 0"
 
-            // Instructor icon name on Infecfed Marker.
+            // Instructor hint icon on S.I. marker
             l4d2_infected_marker_instructorhint_icon "icon_skull"
 
-            // Fov angle to detect if player is looking speical infected
-            // Game vanilla: 45.0, 0=Off, crosshair aim only
+            // FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)
             l4d2_infected_marker_si_fov "15.0"
 
-            // Fov angle to detect if player is looking witch
-            // Game vanilla: 45.0, 0=Off, crosshair aim only
+            // FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)
             l4d2_infected_marker_witch_fov "15.0"
             ```
 
-        * Survivor Marker
+        * Survivor Marker (both teams mark survivors)
             ```php
-            // Survivor Marker Glow Color, Three values between 0-255 separated by spaces. (Empty = Disable Infected Marker)
+            // Survivor marker glow color (RGB, space-separated). Empty = Off. (Marking survivors)
             l4d2_survivor_marker_glow_color "0 200 0"
 
-            // Cold Down Time in seconds a player can use 'Look' Survivor Marker again.
+            // Cooldown between marking survivors (seconds)
             l4d2_survivor_marker_cooldown_time "1.0"
 
-            // How far away can a player use 'Look' Survivor Marker.
+            // Max distance to mark a survivor
             l4d2_survivor_marker_use_range "1000"
 
-            // Survivor Marker Sound. (relative to to sound/, Empty = OFF)
+            // Sound when marking a survivor. (relative to sound/, Empty = Off)
             l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
 
-            // Changes how Survivor marker hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
+            // Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_survivor_marker_announce_type "1"
 
-            // Survivor Marker Glow Time.
+            // Survivor glow duration when marked (seconds)
             l4d2_survivor_marker_glow_timer "10.0"
 
-            // Survivor Marker Glow Range
+            // Survivor glow visible range when marked
             l4d2_survivor_marker_glow_range "2000"
 
-            // If 1, Create instructor hint on Survivor's head if marked.
+            // If 1, show instructor hint on marked survivor
             l4d2_survivor_marker_instructorhint_enable "1"
 
-            // Instructor hint color on Survivor Marker. (If empty, off the name display)
+            // Instructor hint color on survivor. (Empty = hide name)
             l4d2_survivor_marker_instructorhint_color "0 200 0"
 
-            // Instructor icon name on Survivor Marker.
+            // Instructor hint icon on survivor marker
             l4d2_survivor_marker_instructorhint_icon "icon_alert"
 
-            // Fov angle to detect if player is looking teammate
-            // Game vanilla: 45.0, 0=Off, crosshair aim only
+            // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
             l4d2_survivor_marker_fov "15.0"
+
+            // If 1, notify the target when marked by an infected
+            l4d2_survivor_marker_infected_notify "1"
+            ```
+
+        * Infected Team Mark
+            ```php
+            // If 1, infected players can mark targets by pressing Shift
+            l4d2_infected_team_mark_enable "1"
+
+            // If 1, infected players can mark survivors
+            l4d2_infected_team_mark_survivor "1"
+
+            // If 1, infected players can mark items/weapons
+            l4d2_infected_team_mark_item "1"
+
+            // If 1, infected players can mark spots
+            l4d2_infected_team_mark_spot "1"
             ```
 </details>
 
@@ -267,6 +282,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v4.3 (2026-6-7)
+        * Infected players can now mark targets by pressing Shift
+        * New cvars for infected team marking and cross-team visibility
+        * Separate translation strings for infected mark messages
 
     * v4.2 (2025-5-25)
         * Update more cvars for spot marker
@@ -360,7 +380,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         * 如果有兩個目標以上，看哪一個目標離你的準心最近
         <br/>![l4d2_item_hint_7](image/zho/l4d2_item_hint_7.gif)
     * 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
-    * 特感看不見人類標記的光圈、標記提示，也聽不見標記音效
+    * 感染者也可以按下Shift鍵標記目標
+    * 感染者標記優先順序: 隊友(生還者) > 物品或武器 > 地點
+    * 雙方陣營看不見對方的標記與提示
 
 * 注意事項
     * 如果有其他插件會擋住視野的裝飾品譬如帽子插件，你可能無法使用標記功能，請安裝[Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)以修正
@@ -444,7 +466,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_spot_marker_use_sound "buttons/blip1.wav"
 
             // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
-            l4d2_spot_marker_announce_type "0"
+            l4d2_spot_marker_announce_type "1"
 
             // 標記的光圈顯示時間
             l4d2_spot_marker_duration "10.0"
@@ -563,5 +585,23 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_survivor_marker_fov "15.0"
+
+            // 為1時，感染者標記生還者後通知被標記的對象
+            l4d2_survivor_marker_infected_notify "1"
+            ```
+
+        * 感染者陣營標記 (Infected Team Mark)
+            ```php
+            // 為1時，感染者也可以標記目標
+            l4d2_infected_team_mark_enable "1"
+
+            // 為1時，感染者可以標記生還者
+            l4d2_infected_team_mark_survivor "1"
+
+            // 為1時，感染者可以標記物品/武器
+            l4d2_infected_team_mark_item "1"
+
+            // 為1時，感染者可以標記地點
+            l4d2_infected_team_mark_spot "1"
             ```
 </details>

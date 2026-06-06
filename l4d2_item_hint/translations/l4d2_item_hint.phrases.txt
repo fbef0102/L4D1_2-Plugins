@@ -6,7 +6,7 @@
 		"en"		"({green}Item{default}) {olive}{1}{default}: {2}"
 		"zho"		"({green}物品{default}) {olive}{1}{default}: {2}"
 		"chi"		"({green}物品{default}) {olive}{1}{default}: {2}"
-                 "hu"		"({green}Tétel{default}) {olive}{1}{default}: {2}"
+		"hu"		"({green}Tétel{default}) {olive}{1}{default}: {2}"
 	}
 
 	"Announce_Vocalize_ITEM"
@@ -15,7 +15,7 @@
 		"en"		"(Item) {1}: {2}"
 		"zho"		"(物品) {1}: {2}"
 		"chi"		"(物品) {1}: {2}"
-                "hu"		"(Tétel) {1}: {2}"
+		"hu"		"(Tétel) {1}: {2}"
 	}
 
 	"Announce_Vocalize_INFECTED (C)"
@@ -24,7 +24,7 @@
 		"en"		"({green}Infected{default}) {olive}{1}{default}: {red}{2}"
 		"zho"		"({green}特感{default}) {olive}{1}{default}: {red}{2}"
 		"chi"		"({green}特感{default}) {olive}{1}{default}: {red}{2}"
-                 "hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {red}{2}"
+		"hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {red}{2}"
 	}
 
 	"Announce_Vocalize_INFECTED"
@@ -33,7 +33,7 @@
 		"en"		"(Infected) {1}: {2}"
 		"zho"		"(特感) {1}: {2}"
 		"chi"		"(特感) {1}: {2}"
-                "hu"		"(Fertőzött) {1}: {2}"
+		"hu"		"(Fertőzött) {1}: {2}"
 	}
 
 	"Announce_Vocalize_SURVIVOR (C)"
@@ -42,7 +42,7 @@
 		"en"		"({green}Survivor{default}) {olive}{1}{default}: {Blue}{2}"
 		"zho"		"({green}倖存者{default}) {olive}{1}{default}: {Blue}{2}"
 		"chi"		"({green}生还者{default}) {olive}{1}{default}: {Blue}{2}"
-                 "hu"		"({green}Túlélő{default}) {olive}{1}{default}: {Blue}{2}"
+		"hu"		"({green}Túlélő{default}) {olive}{1}{default}: {Blue}{2}"
 	}
 
 	"Announce_Vocalize_SURVIVOR"
@@ -51,7 +51,7 @@
 		"en"		"(Survivor) {1}: {2}"
 		"zho"		"(倖存者) {1}: {2}"
 		"chi"		"(生还者) {1}: {2}"
-                "hu"		"(Túlélő) {1}: {2}"
+		"hu"		"(Túlélő) {1}: {2}"
 	}	
 	
 	"MARKED_SURVIVOR_BY (C)"
@@ -60,7 +60,7 @@
 		"en"		"[{green}Marker{default}] You were marked by {olive}{1}"
 		"zho"		"[{green}Marker{default}] 你被 {olive}{1} 標記"
 		"chi"		"[{green}Marker{default}] 你被 {olive}{1} 标记"
-                 "hu"		"[{green}Jelölő{default}] Megjelölt téged: {olive}{1}"
+		"hu"		"[{green}Jelölő{default}] Megjelölt téged: {olive}{1}"
 	}
 
 	"MARKED_SURVIVOR_BY"
@@ -69,7 +69,79 @@
 		"en"		"[Marker] You were marked by {1}"
 		"zho"		"[Marker] 你被 {1} 標記"
 		"chi"		"[Marker] 你被 {1} 标记"
-                "hu"		"[Jelölő] Megjelölt téged: {1}"
+		"hu"		"[Jelölő] Megjelölt téged: {1}"
+	}
+
+	"MARKED_SURVIVOR_BY_INFECTED (C)"
+	{
+		"#format"	"{1:N}"
+		"en"		"[{green}Marker{default}] You were marked by Infected {olive}{1}"
+		"zho"		"[{green}標記{default}] 你被感染者 {olive}{1} 標記"
+		"chi"		"[{green}标记{default}] 你被感染者 {olive}{1} 标记"
+		"hu"		"[{green}Jelölő{default}] Fertőzött megjelölt téged: {olive}{1}"
+	}
+
+	"MARKED_SURVIVOR_BY_INFECTED"
+	{
+		"#format"	"{1:N}"
+		"en"		"[Marker] You were marked by Infected {1}"
+		"zho"		"[標記] 你被感染者 {1} 標記"
+		"chi"		"[标记] 你被感染者 {1} 标记"
+		"hu"		"[Jelölő] Fertőzött megjelölt téged: {1}"
+	}
+
+	"Announce_Infected_Mark_SURVIVOR (C)"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"({green}Infected{default}) {olive}{1}{default}: {Blue}{2}"
+		"zho"		"({green}感染者{default}) {olive}{1}{default}: {Blue}{2}"
+		"chi"		"({green}感染者{default}) {olive}{1}{default}: {Blue}{2}"
+		"hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {Blue}{2}"
+	}
+
+	"Announce_Infected_Mark_SURVIVOR"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"(Infected) {1}: {2}"
+		"zho"		"(感染者) {1}: {2}"
+		"chi"		"(感染者) {1}: {2}"
+		"hu"		"(Fertőzött) {1}: {2}"
+	}
+
+	"Announce_Infected_Mark_ITEM (C)"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"({green}Infected{default}) {olive}{1}{default}: {2}"
+		"zho"		"({green}感染者{default}) {olive}{1}{default}: {2}"
+		"chi"		"({green}感染者{default}) {olive}{1}{default}: {2}"
+		"hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {2}"
+	}
+
+	"Announce_Infected_Mark_ITEM"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"(Infected) {1}: {2}"
+		"zho"		"(感染者) {1}: {2}"
+		"chi"		"(感染者) {1}: {2}"
+		"hu"		"(Fertőzött) {1}: {2}"
+	}
+
+	"Announce_Infected_Mark_SPOT (C)"
+	{
+		"#format"	"{1:N}"
+		"en"		"({green}Infected{default}) {olive}{1}{default} marked a position"
+		"zho"		"({green}感染者{default}) {olive}{1}{default} 標記了一個位置"
+		"chi"		"({green}感染者{default}) {olive}{1}{default} 标记了一个位置"
+		"hu"		"({green}Fertőzött{default}) {olive}{1}{default} megjelölt egy pozíciót"
+	}
+
+	"Announce_Infected_Mark_SPOT"
+	{
+		"#format"	"{1:N}"
+		"en"		"(Infected) {1} marked a position"
+		"zho"		"(感染者) {1} 標記了一個位置"
+		"chi"		"(感染者) {1} 标记了一个位置"
+		"hu"		"(Fertőzött) {1} megjelölt egy pozíciót"
 	}
 
 	"Announce_Spot_Marker (C)"
