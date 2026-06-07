@@ -2552,7 +2552,7 @@ void PlayerMarkHint(int client)
 
 void PlayerMarkHint_Infected(int client)
 {
-	if(!IsPlayerAlive(client)) return;
+	if(!IsPlayerAlive(client) && GetClientTeam(client) == TEAM_SURVIVOR) return;
 
 	float now = GetEngineTime();
 	if(g_fGlobalCoolDownTime[client] > now) return;
