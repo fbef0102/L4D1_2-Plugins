@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION 		"2.3-2026/2/14"
+#define PLUGIN_VERSION 		"2.4-2026/6/7"
 #define PLUGIN_NAME			"l4d_rescue_vehicle_leave_timer"
 #define DEBUG 0
 
@@ -100,18 +100,28 @@ static const char g_sVocalize[][] =
 ConVar g_hCvarMPGameMode;
 
 // Cvar Handles/Variables
-ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarAnnounceType, g_hCvarEscapeTime, g_hCvarAirStrike;
-int g_iRoundStart, g_iPlayerSpawn, g_iEscapeTime, g_iCvarEscapeTime;
+ConVar g_hCvarAllow, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
+int g_iRoundStart, g_iPlayerSpawn;
 
 int iSystemTime;
 int g_iRescueVehicle;
-bool g_bFinalHasTrigger_Multiple, g_bFinalEnd, g_bCvarAirStrike;
+bool g_bFinalHasTrigger_Multiple, g_bFinalEnd;
 bool g_bMapStarted, g_bValidMap;
 Handle AntiPussyTimer, _AntiPussyTimer, AirstrikeTimer;
 
 Address TheNavMesh;
 int g_iOffs_m_pRescueVehicleDepthArea = -1;
 Handle g_hSDK_CBaseTrigger_IsTouching;
+
+enum struct EDATA
+{
+	int m_iEscapeTime;
+	int m_iAnnounceType;
+	bool m_bAirStrike;
+}
+
+EDATA 
+	g_eGlobalDataSettings;
 
 public void OnPluginStart()
 {
@@ -137,9 +147,6 @@ public void OnPluginStart()
 	g_hCvarModes =			CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes",					"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
 	g_hCvarModesOff =		CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes_off",				"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog =		CreateConVar(	"l4d_rescue_vehicle_leave_timer_modes_tog",				"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
-	g_hCvarAnnounceType	= 	CreateConVar(	"l4d_rescue_vehicle_leave_timer_announce_type", 		"2", 			"Changes how count down tumer hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	g_hCvarEscapeTime	= 	CreateConVar(	"l4d_rescue_vehicle_leave_timer_escape_time_default", 	"60", 			"Default time to escape.", FCVAR_NOTIFY, true, 1.0);
-	g_hCvarAirStrike	= 	CreateConVar(	"l4d_rescue_vehicle_leave_timer_airstrike_enable", 		"1", 			"(L4D2) If 1, Enable AirStrike (explosion, missile, jets, fire)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	CreateConVar(							"l4d_rescue_vehicle_leave_timer_version",		PLUGIN_VERSION,	"Rescue vehicle leave timer plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AutoExecConfig(true,					"l4d_rescue_vehicle_leave_timer");
 
@@ -149,11 +156,6 @@ public void OnPluginStart()
 	g_hCvarModes.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesOff.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
-
-	GetCvars();
-	g_hCvarAnnounceType.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarEscapeTime.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarAirStrike.AddChangeHook(ConVarChanged_Cvars);
 }
 
 public void OnPluginEnd()
@@ -215,23 +217,9 @@ void ConVarChanged_Allow(Handle convar, const char[] oldValue, const char[] newV
 	IsAllowed();
 }
 
-void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	GetCvars();
-}
-
-int g_iCvarAnnounceType;
-void GetCvars()
-{
-	g_iCvarAnnounceType = g_hCvarAnnounceType.IntValue;
-	g_iCvarEscapeTime = g_hCvarEscapeTime.IntValue;
-	g_bCvarAirStrike = g_hCvarAirStrike.BoolValue;
-}
-
 bool g_bCvarAllow;
 void IsAllowed()
 {
-	GetCvars();
 	bool bCvarAllow = g_hCvarAllow.BoolValue;
 	bool bAllowMode = IsAllowedGameMode();
 
@@ -358,7 +346,7 @@ void OnNextFrame_trigger_finale(int entityRef)
 	#endif
 
 	if(g_bValidMap == false) return;
-	if(g_iEscapeTime == 0) return;
+	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
 
 	if(g_bL4D2Version)
 	{
@@ -402,7 +390,7 @@ void OnNextFrame_trigger_finale_dlc3(int entityRef)
 	#endif
 
 	if(g_bValidMap == false) return;
-	if(g_iEscapeTime == 0) return;
+	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
 
 	#if DEBUG
 		LogMessage("\x05Map is sacrifice finale in l4d1, disable the plugin");
@@ -419,7 +407,7 @@ void OnNextFrame_trigger_multiple(int entityRef)
 		return;
 
 	if(g_bValidMap == false) return;
-	if(g_iEscapeTime == 0) return;
+	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
 
 	if( GetEntProp(entity, Prop_Data, "m_iEntireTeam") != 2 )
 		return;
@@ -464,7 +452,6 @@ void UnhookEvents()
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	g_bFinalEnd = false;
-	g_iEscapeTime = 0;
 	g_iRescueVehicle = 0;
 
 	if( g_iPlayerSpawn == 1 && g_iRoundStart == 0 )
@@ -500,15 +487,13 @@ void Finale_FinalEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast)
 {
-	//if(g_bIsSacrificeFinale || g_iEscapeTime == 0) return;
-
 	if(!g_bFinalHasTrigger_Multiple) return;
 	
-	iSystemTime = g_iEscapeTime;
+	iSystemTime = g_eGlobalDataSettings.m_iEscapeTime;
 	delete AntiPussyTimer;
 	AntiPussyTimer = CreateTimer(1.0, Timer_AntiPussy, _, TIMER_REPEAT);
 
-	if(g_bL4D2Version && g_bCvarAirStrike)
+	if(g_bL4D2Version && g_eGlobalDataSettings.m_bAirStrike)
 	{
 		delete AirstrikeTimer;
 		AirstrikeTimer = CreateTimer(2.5, Timer_StartAirstrike, _, TIMER_REPEAT);
@@ -524,7 +509,7 @@ Action Timer_AntiPussy(Handle timer)
 		return Plugin_Stop;
 	}
 
-	switch(g_iCvarAnnounceType)
+	switch(g_eGlobalDataSettings.m_iAnnounceType)
 	{
 		case 0: {/*nothing*/}
 		case 1: {
@@ -546,7 +531,7 @@ Action Timer_AntiPussy(Handle timer)
 			g_iRescueVehicle = EntIndexToEntRef(iRescueVehicle);
 		}
 
-		if(g_bL4D2Version && g_bCvarAirStrike) EmitSoundToAll(NUKE_SOUND_L4D2);
+		if(g_bL4D2Version && g_eGlobalDataSettings.m_bAirStrike) EmitSoundToAll(NUKE_SOUND_L4D2);
 
 		CPrintToChatAll("{default}[{olive}TS{default}] %t", "Outside Slay");
 		delete _AntiPussyTimer;
@@ -571,7 +556,7 @@ Action Timer_Strike(Handle timer)
 		{
 			if(IsInFinalRescueVehicle(i)) continue;
 			
-			if(g_bL4D2Version && g_bCvarAirStrike) 
+			if(g_bL4D2Version && g_eGlobalDataSettings.m_bAirStrike) 
 			{
 				//explosion effect and fade
 				CreateTimer(GetRandomFloat(0.0, 0.5), Timer_Explode, GetClientUserId(i), TIMER_FLAG_NO_MAPCHANGE);
@@ -590,14 +575,14 @@ Action Timer_Strike(Handle timer)
 	return Plugin_Continue;
 }
 
-bool LoadData()
+void LoadData()
 {
 	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), DATA_FILE);
 	if( !FileExists(sPath) )
 	{
 		SetFailState("File Not Found: %s", sPath);
-		return false;
+		return;
 	}
 
 	// Load config
@@ -606,7 +591,22 @@ bool LoadData()
 	{
 		SetFailState("File Format Not Correct: %s", sPath);
 		delete hFile;
-		return false;
+		return;
+	}
+
+	if( hFile.JumpToKey("default") )
+	{
+		g_eGlobalDataSettings.m_iEscapeTime = hFile.GetNum("time", 0);
+		g_eGlobalDataSettings.m_iAnnounceType = hFile.GetNum("announce_type", 0);
+		g_eGlobalDataSettings.m_bAirStrike = view_as<bool>(hFile.GetNum("airstrike_enable", 0));
+
+		hFile.GoBack();
+	}
+	else
+	{
+		SetFailState("Keyvalue '%s' not found: %s", "default", sPath);
+		delete hFile;
+		return;
 	}
 
 	// Check for current map in the config
@@ -614,18 +614,16 @@ bool LoadData()
 	GetCurrentMap(sMap, sizeof(sMap));
 	//StringToLowerCase(sMap);
 
-	if( !hFile.JumpToKey(sMap) )
+	if( hFile.JumpToKey(sMap) )
 	{
-		g_iEscapeTime = g_iCvarEscapeTime;
-		delete hFile;
-		return true;
+		g_eGlobalDataSettings.m_iEscapeTime = hFile.GetNum("time", g_eGlobalDataSettings.m_iEscapeTime);
+		g_eGlobalDataSettings.m_iAnnounceType = hFile.GetNum("announce_type", g_eGlobalDataSettings.m_iAnnounceType);
+		g_eGlobalDataSettings.m_bAirStrike = view_as<bool>(hFile.GetNum("airstrike_enable", g_eGlobalDataSettings.m_bAirStrike));
+
+		hFile.GoBack();
 	}
-	
-	// Retrieve rescue timer
-	g_iEscapeTime = hFile.GetNum("time", g_iCvarEscapeTime);
 
 	delete hFile;
-	return true;
 }
 
 void ResetPlugin()

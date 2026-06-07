@@ -21,17 +21,18 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>How does it work?</summary>
 
-    * Mark any weapons, items, infected and spots
+    * Survivors can mark any weapons, items, infected and spots
         * 'Look' in vocalize menu
         <br/>![l4d2_item_hint_0.jpg](image/l4d2_item_hint_0.jpg)
         * Type```!mark```(Survivors only)
         * Press Shift+E (Survivors only)
-    * Marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
+    * Survivors marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
     * If not aiming target or item, the plugin detects what player is looking at using field of view angle
         * If has more than two targets, it finds the target nearest to your crosshair
-    <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
-    * Infected players can also mark targets by pressing Shift
-    * Infected marker priority: Survivor > Item or Weapon > Spot marker
+        <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
+    * Infected players can also mark targets
+        * Pressing Shift
+        * Infected marker priority: Survivor > Item or Weapon > Spot marker
     * Marks are only visible to teammates of the same team
 </details>
 
@@ -158,7 +159,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Spot marker beam ring width
             l4d2_spot_marker_ring_width         "2.0"
 
-            // Particle effect on spot marker. (Empty = Off, more: https://forums.alliedmods.net/showthread.php?t=127111)
+            // Particle effect on spot marker.
+            // Empty = Off
+            // See more: https://forums.alliedmods.net/showthread.php?t=127111)
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
@@ -185,11 +188,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // S.I. glow visible range when marked by Survivors
             l4d2_infected_marker_glow_range "2500"
 
-            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
-            l4d2_infected_marker_si_flag "127"
-
             // If 1, allow Survivors to mark Witch
             l4d2_infected_marker_witch_enable "1"
+
+            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
+            l4d2_infected_marker_si_flag "127"
 
             // If 1, show instructor hint on S.I. marked by Survivors
             l4d2_infected_marker_instructorhint_enable "1"
@@ -371,7 +374,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 使用語音雷達"看"可以標記任何物品、武器、地點、特感
 
 * 原理
-    * 可以標記準心指向的任何東西
+    * 人類可以標記準心指向的任何東西
         1. 使用角色語音雷達"看"
         <br/>![zho/l4d2_item_hint_0.jpg](image/zho/l4d2_item_hint_0.jpg)
         2. 輸入```!mark```
@@ -379,9 +382,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * 如果準心沒有指向任何東西，會依照玩家視野看到的目標進行標記
         * 如果有兩個目標以上，看哪一個目標離你的準心最近
         <br/>![l4d2_item_hint_7](image/zho/l4d2_item_hint_7.gif)
-    * 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
-    * 感染者也可以按下Shift鍵標記目標
-    * 感染者標記優先順序: 隊友(生還者) > 物品或武器 > 地點
+    * 人類標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
+    * 活著的特感或是靈魂特感也可以標記目標
+        * 按下Shift鍵
+        * 標記優先順序: 倖存者 > 物品或武器 > 地點
     * 雙方陣營看不見對方的標記與提示
 
 * 注意事項
