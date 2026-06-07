@@ -72,85 +72,12 @@
 		"hu"		"[Jelölő] Megjelölt téged: {1}"
 	}
 
-	"MARKED_SURVIVOR_BY_INFECTED (C)"
-	{
-		"#format"	"{1:N}"
-		"en"		"[{green}Marker{default}] You were marked by Infected {olive}{1}"
-		"zho"		"[{green}標記{default}] 你被感染者 {olive}{1} 標記"
-		"chi"		"[{green}标记{default}] 你被感染者 {olive}{1} 标记"
-		"hu"		"[{green}Jelölő{default}] Fertőzött megjelölt téged: {olive}{1}"
-	}
-
-	"MARKED_SURVIVOR_BY_INFECTED"
-	{
-		"#format"	"{1:N}"
-		"en"		"[Marker] You were marked by Infected {1}"
-		"zho"		"[標記] 你被感染者 {1} 標記"
-		"chi"		"[标记] 你被感染者 {1} 标记"
-		"hu"		"[Jelölő] Fertőzött megjelölt téged: {1}"
-	}
-
-	"Announce_Infected_Mark_SURVIVOR (C)"
-	{
-		"#format"	"{1:N},{2:s}"
-		"en"		"({green}Infected{default}) {olive}{1}{default}: {Blue}{2}"
-		"zho"		"({green}感染者{default}) {olive}{1}{default}: {Blue}{2}"
-		"chi"		"({green}感染者{default}) {olive}{1}{default}: {Blue}{2}"
-		"hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {Blue}{2}"
-	}
-
-	"Announce_Infected_Mark_SURVIVOR"
-	{
-		"#format"	"{1:N},{2:s}"
-		"en"		"(Infected) {1}: {2}"
-		"zho"		"(感染者) {1}: {2}"
-		"chi"		"(感染者) {1}: {2}"
-		"hu"		"(Fertőzött) {1}: {2}"
-	}
-
-	"Announce_Infected_Mark_ITEM (C)"
-	{
-		"#format"	"{1:N},{2:T}"
-		"en"		"({green}Infected{default}) {olive}{1}{default}: {2}"
-		"zho"		"({green}感染者{default}) {olive}{1}{default}: {2}"
-		"chi"		"({green}感染者{default}) {olive}{1}{default}: {2}"
-		"hu"		"({green}Fertőzött{default}) {olive}{1}{default}: {2}"
-	}
-
-	"Announce_Infected_Mark_ITEM"
-	{
-		"#format"	"{1:N},{2:T}"
-		"en"		"(Infected) {1}: {2}"
-		"zho"		"(感染者) {1}: {2}"
-		"chi"		"(感染者) {1}: {2}"
-		"hu"		"(Fertőzött) {1}: {2}"
-	}
-
-	"Announce_Infected_Mark_SPOT (C)"
-	{
-		"#format"	"{1:N}"
-		"en"		"({green}Infected{default}) {olive}{1}{default} marked a position"
-		"zho"		"({green}感染者{default}) {olive}{1}{default} 標記了一個位置"
-		"chi"		"({green}感染者{default}) {olive}{1}{default} 标记了一个位置"
-		"hu"		"({green}Fertőzött{default}) {olive}{1}{default} megjelölt egy pozíciót"
-	}
-
-	"Announce_Infected_Mark_SPOT"
-	{
-		"#format"	"{1:N}"
-		"en"		"(Infected) {1} marked a position"
-		"zho"		"(感染者) {1} 標記了一個位置"
-		"chi"		"(感染者) {1} 标记了一个位置"
-		"hu"		"(Fertőzött) {1} megjelölt egy pozíciót"
-	}
-
 	"Announce_Spot_Marker (C)"
 	{
 		"#format"	"{1:N}"
 		"en"		"({green}Spot{default}) {olive}{1}{default} marked a position"
 		"zho"		"({green}標記{default}) {olive}{1}{default} 標記了一個位置"
 		"chi"		"({green}标记{default}) {olive}{1}{default} 标记了一个位置"
-                 "hu"		"({green}Jelölés{default}) {olive}{1}{default} megjelölt egy pozíciót"
 	}
 
 	"Announce_Spot_Marker"
@@ -159,7 +86,6 @@
 		"en"		"(Spot) {1} marked a position"
 		"zho"		"(標記) {1} 標記了一個位置"
 		"chi"		"(标记) {1} 标记了一个位置"
-                "hu"		"(Jelölés) {1} megjelölt egy pozíciót"
 	}
 
 	"Spot_Maker"
@@ -701,5 +627,69 @@
 		"zho"			"未知的特感!"
 		"chi"			"未知的特感!"
                 "hu"			"Ismeretlen Fertőzött!"
+	}
+	
+	"MARKED_SURVIVOR_BY_INFECTED (C)"
+	{
+		"#format"	"{1:N}"
+		"en"		"[{green}Marker{default}] You were marked by Infected {red}{1}"
+		"zho"		"[{green}標記{default}] 你被感染者 {red}{1} 標記"
+		"chi"		"[{green}标记{default}] 你被感染者 {red}{1} 标记"
+	}
+
+	"MARKED_SURVIVOR_BY_INFECTED"
+	{
+		"#format"	"{1:N}"
+		"en"		"[Marker] You were marked by Infected {1}"
+		"zho"		"[標記] 你被感染者 {1} 標記"
+		"chi"		"[标记] 你被感染者 {1} 标记"
+	}
+
+	"Announce_Infected_Mark_SURVIVOR (C)"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"({green}Infected{default}) {green}{1}{default}: {Blue}{2}"
+		"zho"		"({green}感染者{default}) {green}{1}{default}: {Blue}{2}"
+		"chi"		"({green}感染者{default}) {green}{1}{default}: {Blue}{2}"
+	}
+
+	"Announce_Infected_Mark_SURVIVOR"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"(Infected) {1}: {2}"
+		"zho"		"(感染者) {1}: {2}"
+		"chi"		"(感染者) {1}: {2}"
+	}
+
+	"Announce_Infected_Mark_ITEM (C)"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"({green}Infected{default}) {green}{1}{default}: {2}"
+		"zho"		"({green}感染者{default}) {green}{1}{default}: {2}"
+		"chi"		"({green}感染者{default}) {green}{1}{default}: {2}"
+	}
+
+	"Announce_Infected_Mark_ITEM"
+	{
+		"#format"	"{1:N},{2:T}"
+		"en"		"(Infected) {1}: {2}"
+		"zho"		"(感染者) {1}: {2}"
+		"chi"		"(感染者) {1}: {2}"
+	}
+
+	"Announce_Infected_Mark_SPOT (C)"
+	{
+		"#format"	"{1:N}"
+		"en"		"({green}Infected{default}) {green}{1}{default} marked a position"
+		"zho"		"({green}感染者{default}) {green}{1}{default} 標記了一個位置"
+		"chi"		"({green}感染者{default}) {green}{1}{default} 标记了一个位置"
+	}
+
+	"Announce_Infected_Mark_SPOT"
+	{
+		"#format"	"{1:N}"
+		"en"		"(Infected) {1} marked a position"
+		"zho"		"(感染者) {1} 標記了一個位置"
+		"chi"		"(感染者) {1} 标记了一个位置"
 	}
 }

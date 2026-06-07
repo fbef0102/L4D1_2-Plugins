@@ -16,7 +16,8 @@ When rescue vehicle arrived and a timer will display how many time left before v
 * <details><summary>How does it work?</summary>
 
     * When rescue vehicle arrived and a timer will display how many time left before vehicle leaving
-    * The plugin supports all valve maps and all custom maps.
+    * The plugin supports all valve maps and all custom maps, see file: [data/l4d_rescue_vehicle_leave_timer.cfg](data/l4d_rescue_vehicle_leave_timer.cfg)
+        > Manual in this file, click for more details...
     * If the map finale is sacrifice, disable this plugin.
 </details>
 
@@ -39,22 +40,7 @@ When rescue vehicle arrived and a timer will display how many time left before v
 
         // Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.
         l4d_rescue_vehicle_leave_timer_modes_tog "0"
-
-        // Changes how count down tumer hint displays. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
-        l4d_rescue_vehicle_leave_timer_announce_type "2"
-
-        // Default time to escape.
-        l4d_rescue_vehicle_leave_timer_escape_time_default "60"
-
-        // (L4D2) If 1, Enable AirStrike (explosion, missile, jets, fire)
-        l4d_rescue_vehicle_leave_timer_airstrike_enable "1"
         ```
-</details>
-
-* <details><summary>Data Example</summary>
-
-    * [data/l4d_rescue_vehicle_leave_timer.cfg](data/l4d_rescue_vehicle_leave_timer.cfg)
-        > Manual in this file, click for more details...
 </details>
 
 * Translation Support | 支援翻譯
@@ -75,6 +61,10 @@ When rescue vehicle arrived and a timer will display how many time left before v
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.4 (2026-6-7)
+        * Update data
+        * Update cvars
 
     * v2.3 (2026-2-14)
         * Ignore the sacrifice final in l4d1
@@ -123,10 +113,10 @@ When rescue vehicle arrived and a timer will display how many time left before v
 * 原理
     * 當最後一關救援載具來臨時，顯示逃亡倒數剩餘時間
     * 沒有上救援載具的玩家將會被處死
-
-* 注意事項
     * 此插件適用所有官方地圖與三方圖
     * 不適用有犧牲結局的救援地圖
+    * 可自行調整關卡，設置每個章節逃亡倒數時間，查看文件: [data/l4d_rescue_vehicle_leave_timer.cfg](data/l4d_rescue_vehicle_leave_timer.cfg)
+        > 內有中文說明，可點擊查看
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -143,22 +133,5 @@ When rescue vehicle arrived and a timer will display how many time left before v
 
         // 什麼模式下啟動此插件. 0=所有模式, 1=戰役, 2=生存, 4=對抗, 8=清道夫. 請將數字相加起來
         l4d_rescue_vehicle_leave_timer_modes_tog "0"
-
-        // 倒數提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
-        l4d_rescue_vehicle_leave_timer_announce_type "2"
-
-        // 逃亡倒數時間
-        l4d_rescue_vehicle_leave_timer_escape_time_default "60"
-
-        // (L4D2) 為1時，啟用空軍轟炸特效 (爆炸, 導彈, 噴射機, 火焰....)
-        // (L4D2) 為0時，關閉空軍轟炸，避免太lag
-        l4d_rescue_vehicle_leave_timer_airstrike_enable "1"
         ```
-</details>
-
-* <details><summary>Data設定範例</summary>
-
-    * 可自行調整關卡，設置每個章節逃亡倒數時間
-    * [data/l4d_rescue_vehicle_leave_timer.cfg](data/l4d_rescue_vehicle_leave_timer.cfg)
-        > 內有中文說明，可點擊查看
 </details>

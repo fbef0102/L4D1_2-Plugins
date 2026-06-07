@@ -21,17 +21,18 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>How does it work?</summary>
 
-    * Mark any weapons, items, infected and spots
+    * Survivors can mark any weapons, items, infected and spots
         * 'Look' in vocalize menu
         <br/>![l4d2_item_hint_0.jpg](image/l4d2_item_hint_0.jpg)
         * Type```!mark```(Survivors only)
         * Press Shift+E (Survivors only)
-    * Marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
+    * Survivors marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
     * If not aiming target or item, the plugin detects what player is looking at using field of view angle
         * If has more than two targets, it finds the target nearest to your crosshair
-    <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
-    * Infected players can also mark targets by pressing Shift
-    * Infected marker priority: Survivor > Item or Weapon > Spot marker
+        <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
+    * Infected players can also mark targets
+        * Pressing Shift
+        * Infected marker priority: Survivor > Item or Weapon > Spot marker
     * Marks are only visible to teammates of the same team
 </details>
 
@@ -62,8 +63,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // If 1, Survivors can type !mark to mark targets
             l4d2_item_hint_cmd "1"
 
-            // If 1, Survivors can press Shift+E to mark targets
-            l4d2_item_hint_shiftE "1"
+            // Survivors press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
+            // You can add numbers together, ex. 131104=Shift + Use (0=off)
+            l4d2_item_hint_buttons "131104"
 
             // If 1, Survivors can use vocalize "Look" to mark targets
             l4d2_item_hint_vocalize "1"
@@ -158,7 +160,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Spot marker beam ring width
             l4d2_spot_marker_ring_width         "2.0"
 
-            // Particle effect on spot marker. (Empty = Off, more: https://forums.alliedmods.net/showthread.php?t=127111)
+            // Particle effect on spot marker.
+            // Empty = Off
+            // See more: https://forums.alliedmods.net/showthread.php?t=127111)
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
@@ -185,11 +189,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // S.I. glow visible range when marked by Survivors
             l4d2_infected_marker_glow_range "2500"
 
-            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
-            l4d2_infected_marker_si_flag "127"
-
             // If 1, allow Survivors to mark Witch
             l4d2_infected_marker_witch_enable "1"
+
+            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
+            l4d2_infected_marker_si_flag "127"
 
             // If 1, show instructor hint on S.I. marked by Survivors
             l4d2_infected_marker_instructorhint_enable "1"
@@ -248,7 +252,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
         * Infected Team Mark
             ```php
-            // If 1, infected players can mark targets by pressing Shift
+            // If 1, infected players can mark targets
             l4d2_infected_team_mark_enable "1"
 
             // If 1, infected players can mark survivors
@@ -259,6 +263,16 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // If 1, infected players can mark spots
             l4d2_infected_team_mark_spot "1"
+
+            // Infected players press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
+            // You can add numbers together, ex. 131104=Shift + Use (0=off)
+            l4d2_infected_team_buttons "131072"
+
+            // If 1, dead infected players can mark targets
+            l4d2_infected_team_dead "0"
+
+            // If 1, ghost infected players can mark targets
+            l4d2_infected_team_ghost "1"
             ```
 </details>
 
@@ -282,6 +296,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v4.4 (2026-6-7)
+        * Update cvars
+        * Deaad infected and Ghost infecte can mark targets
+        * Custom buttons to mark targets
 
     * v4.3 (2026-6-7)
         * Infected players can now mark targets by pressing Shift
@@ -371,7 +390,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 使用語音雷達"看"可以標記任何物品、武器、地點、特感
 
 * 原理
-    * 可以標記準心指向的任何東西
+    * 人類可以標記準心指向的任何東西
         1. 使用角色語音雷達"看"
         <br/>![zho/l4d2_item_hint_0.jpg](image/zho/l4d2_item_hint_0.jpg)
         2. 輸入```!mark```
@@ -379,9 +398,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * 如果準心沒有指向任何東西，會依照玩家視野看到的目標進行標記
         * 如果有兩個目標以上，看哪一個目標離你的準心最近
         <br/>![l4d2_item_hint_7](image/zho/l4d2_item_hint_7.gif)
-    * 標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
-    * 感染者也可以按下Shift鍵標記目標
-    * 感染者標記優先順序: 隊友(生還者) > 物品或武器 > 地點
+    * 人類標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
+    * 活著的特感或是靈魂特感也可以標記目標
+        * 按下Shift鍵
+        * 標記優先順序: 倖存者 > 物品或武器 > 地點
     * 雙方陣營看不見對方的標記與提示
 
 * 注意事項
@@ -394,13 +414,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * cfg/sourcemod/l4d2_item_hint.cfg
         * 標記指令
             ```php
-            // 為1時，玩家可以輸入```!mark```標記
+            // 為1時，倖存者與特感玩家可以輸入!mark標記
             l4d2_item_hint_cmd "1"
 
-            // 為1時，玩家可以按下Shift+E標記
-            l4d2_item_hint_shiftE "1"
+            // 倖存者玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
+            // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不使用鍵位)
+            l4d2_item_hint_buttons "131104"
 
-            // 為1時，玩家可以用"看"語音標記
+            // 為1時，倖存者玩家可以用"看"語音標記
             l4d2_item_hint_vocalize "1"
 
             // 為1時，被特感控制的玩家可以使用標記
@@ -416,7 +437,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_hint_instructorhint_translate "0"
             ```
 
-        * 物品、武器標記
+        * 物品、武器標記 (雙方隊伍)
             ```php
             // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=關閉此標記
@@ -450,7 +471,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_instructorhint_icon "icon_interact"
             ```
             
-        * 地點標記
+        * 地點標記 (雙方隊伍)
             ```php
             // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=關閉此標記
@@ -501,7 +522,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
-        * 特感標記
+        * 人類標記特感
             ```php
             // 特感標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=關閉此標記
@@ -549,7 +570,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_witch_fov "15.0"
             ```
 
-        * 標記隊友
+        * 標記倖存者 (雙方隊伍)
             ```php
             // 標記隊友的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=關閉此標記
@@ -590,18 +611,28 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_infected_notify "1"
             ```
 
-        * 感染者陣營標記 (Infected Team Mark)
+        * 特感陣營的標記
             ```php
-            // 為1時，感染者也可以標記目標
+            // 為1時，特感玩家也可以標記目標
             l4d2_infected_team_mark_enable "1"
 
-            // 為1時，感染者可以標記生還者
+            // 為1時，特感玩家可以標記生還者
             l4d2_infected_team_mark_survivor "1"
 
-            // 為1時，感染者可以標記物品/武器
+            // 為1時，特感玩家可以標記物品/武器
             l4d2_infected_team_mark_item "1"
 
-            // 為1時，感染者可以標記地點
+            // 為1時，特感玩家可以標記地點
             l4d2_infected_team_mark_spot "1"
+
+            // 特感玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
+            // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不使用鍵位)
+            l4d2_infected_team_buttons "131072"
+
+            // 為1時，死亡的特感玩家可以標記
+            l4d2_infected_team_dead "0"
+
+            // 為1時，靈魂狀態的特感玩家可以標記
+            l4d2_infected_team_ghost "1"
             ```
 </details>
