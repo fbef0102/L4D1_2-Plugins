@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "4.4-2026/6/7",
+	version     = "4.5-2026/6/16",
 	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
@@ -2386,16 +2386,13 @@ void PlayerMarkHint(int client)
 			if(g_fInfectedMarkWitchFov > 0.0)
 			{
 				int witch = -1;
-				while ((witch = FindEntityByClassname(witch, "witch")) != -1)
+				while( (witch = L4D_FindEntityByClassnameWithin(witch, "witch", vClientPos, g_fInfectedMarkUseRange)) != INVALID_ENT_REFERENCE )
 				{
-					if (!IsValidEntity(witch))
-						continue;	
-					
 					GetEntPropVector(witch, Prop_Data, "m_vecOrigin", vTargetPos);
-
-					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
-					if( !IsVisibleToEntity(vClientEyePos, vTargetPos, witch) ) continue;
-
+					//PrintToChatAll("IsVisible: %d, %d", IsVisibleToEntity(vClientEyePos, vTargetPos, witch), L4D2_IsVisibleToPlayer(client, TEAM_SURVIVOR, 0, 0, vTargetPos));
+					//if( !IsVisibleToEntity(vClientEyePos, vTargetPos, witch) ) continue;
+					if (!L4D2_IsVisibleToPlayer(client, TEAM_SURVIVOR, 0, 0, vTargetPos)) continue;
+				
 					degree = GetFovAngle(client, witch);
 					//PrintToChatAll("與Witch的夾角度: %.1f", degree);
 					// 官方是超過45度忽略
@@ -2883,7 +2880,7 @@ bool TraceFilter_VisibleToPlayer(int entity, int contentsMask, int player)
     return ge_bInvalidTrace[entity] ? false : true;
 }
 
-bool IsVisibleToEntity(float vClientEyePos[3], float vTargetPos[3], int witch)
+/*bool IsVisibleToEntity(float vClientEyePos[3], float vTargetPos[3], int witch)
 {
 	// MASK_SOLID_BRUSHONLY -> MASK_VISIBLE
 	Handle hTrace = TR_TraceRayFilterEx(vClientEyePos, vTargetPos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_VisibleToEntity, witch);
@@ -2910,7 +2907,7 @@ bool TraceFilter_VisibleToEntity(int entity, int contentsMask, int witch)
 		return false;
 
 	return ge_bInvalidTrace[entity] ? false : true;
-}
+}*/
 
 bool IsValidClientIndex(int client)
 {

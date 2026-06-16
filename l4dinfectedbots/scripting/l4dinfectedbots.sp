@@ -6517,7 +6517,7 @@ public Action L4D_OnGetScriptValueInt(const char[] sKey, int &retVal)
 		return Plugin_Handled;
 	}
 
-	// 影響到導演生成的tank包括: 地圖固定tank, 對抗生成的tank
+	// 影響到導演生成的tank包括: 地圖固定tank, 對抗生成的tank, 救援階段的tank
 	else if( g_ePluginSettings.m_bTankLimit_OverrideVSCript 
 			&& (strcmp(sKey, "TankLimit", false) == 0 || strcmp(sKey, "cm_TankLimit", false) == 0) 
 			) 

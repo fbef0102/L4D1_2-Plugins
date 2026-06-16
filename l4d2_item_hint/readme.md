@@ -65,6 +65,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // Survivors press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
             // You can add numbers together, ex. 131104=Shift + Use (0=off)
+            // See more buttons: https://github.com/alliedmodders/sourcemod/blob/master/plugins/include/entity_prop_stocks.inc#L100-L125
             l4d2_item_hint_buttons "131104"
 
             // If 1, Survivors can use vocalize "Look" to mark targets
@@ -297,6 +298,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v4.5 (2026-6-16)
+        * Optimize code
+
     * v4.4 (2026-6-7)
         * Update cvars
         * Deaad infected and Ghost infecte can mark targets
@@ -419,6 +423,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 倖存者玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
             // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不使用鍵位)
+            // 看更多按鈕: https://github.com/alliedmodders/sourcemod/blob/master/plugins/include/entity_prop_stocks.inc#L100-L125
             l4d2_item_hint_buttons "131104"
 
             // 為1時，倖存者玩家可以用"看"語音標記

@@ -68,7 +68,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.5-2025/1/3"
+#define PLUGIN_VERSION 		"5.6-2026/6/16"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -2273,7 +2273,7 @@ int FindWitchCurrentTarget(int witch)
 		{
 			int target = action.GetHandleEntity(52);
 
-			if (target != -1 && IsClientInGame(target))
+			if (target > 0 && target <= MaxClients && IsClientInGame(target))
 				return target;
 			else
 				return -1;
