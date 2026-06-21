@@ -7,9 +7,11 @@ Create a survivor bot in game + Teleport player
 	L4D2
 	```
 
-* Image
-	* teleport menu
-	<br/>![l4d_wind_1](image/l4d_wind_1.jpg)
+* <details><summary>How does it work?</summary>
+
+	* Admins type ```!teleport``` to teleport a player
+	* Admins type ```!addbot``` to add a survivor bot (in the crosshairs)
+</Chargedetails>
 
 * Require | 必要安裝
 	1. [l4d_CreateSurvivorBot](/l4d_CreateSurvivorBot)
@@ -71,12 +73,9 @@ Create a survivor bot in game + Teleport player
 # 中文說明
 新增Bot + 傳送玩家到其他位置上
 
-* 圖示
-	* 傳送玩家選單
-	<br/>![zho/l4d_wind_1](image/zho/l4d_wind_1.jpg)
-
 * 原理
-	* 管理員輸入!teleport 可以傳送指定玩家到準心上或是其他玩家身上
+	* 管理員輸入```!teleport``` 可以傳送指定玩家到準心上或是其他玩家身上
+	* 管理員輸入```!addbot``` 增加bot數量
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

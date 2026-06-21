@@ -5,7 +5,7 @@
 #include <sdkhooks>
 #include <left4dhooks>
 
-#define GETVERSION "2.5-2024/11/11"
+#define GETVERSION "2.6-2026/6/21"
 #define ARRAY_SIZE 2048
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn entity when it's index is above this
 #define EXLOPDE_INTERVAL 6.0
@@ -39,13 +39,17 @@ int g_iPlayerSpawn, g_iRoundStart;
 float g_GameExplodeTime;
 
 ConVar g_cvarMaxHealth, g_cvarRadius, g_cvarPower, g_cvarDamage,
-	g_cvarPanicEnable, g_cvarPanicChance, g_cvarInfected, g_cvarTankDamage, 
+	g_cvarPanicChance, 
 	g_cvarRemoveCarTime, g_cvarUnloadMap,
-	g_cvarExplosionDmg, g_cvarCarHealthState, g_cvarCarMethod;
+	g_cvarCarHealthState, g_cvarCarMethod,
+	g_cvarInfectedDmgToCar, g_cvarTankDmgToCar, g_cvarMeleeDmgToCar, g_cvarExplosiveDmgToCar, g_cvarPipeBombDmgToCar,
+	g_cvarGLDmgToCar, g_cvarFlameDmgToCar;
 
-int g_iMaxHealth, g_iPanicChance, g_iDamage, g_iCarMethod;
-float g_fRadius, g_fPower, g_fTankDamage, g_fRemoveCarTime;
-bool g_bPanicEnable, g_bInfected, g_bExplosionDmg, g_bCarHealthState;
+int g_iMaxHealth, g_iDamage, g_iCarMethod, g_iCvarPanicChance;
+float g_fRadius, g_fPower, g_fRemoveCarTime,
+	g_fCvarInfectedDmgToCar, g_fCvarTankDmgToCar, g_fCvarMeleeDmgToCar, g_fCvarExplosiveDmgToCar, g_fCvarPipeBombDmgToCar,
+	g_fCvarGLDmgToCar, g_fCvarFlameDmgToCar;
+bool g_bCarHealthState;
 char g_sUnloadMap[512];
 
 public Plugin myinfo = 
@@ -85,15 +89,19 @@ public void OnPluginStart()
 	g_cvarRadius 			= CreateConVar("l4d_explosive_cars_radius", 				"420", 	"Maximum radius of the explosion", FCVAR_NOTIFY, true, 0.0);
 	g_cvarPower 			= CreateConVar("l4d_explosive_cars_power", 					"300", 	"(L4D2 only) Power of the explosion when the car explodes", FCVAR_NOTIFY, true, 0.0);
 	g_cvarDamage 			= CreateConVar("l4d_explosive_cars_damage", 				"10", 	"Damage made by the explosion", FCVAR_NOTIFY, true, 0.0);
-	g_cvarPanicEnable 		= CreateConVar("l4d_explosive_cars_panic", 					"1", 	"Should the car explosion cause a panic event? (1: Yes 0: No)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_cvarPanicChance 		= CreateConVar("l4d_explosive_cars_panic_chance", 			"5", 	"Chance that the cars explosion might call a horde (1 / CVAR) [1: Always]", FCVAR_NOTIFY, true, 1.0);
-	g_cvarInfected 			= CreateConVar("l4d_explosive_cars_infected", 				"1", 	"Should infected trigger the car explosion? (1: Yes 0: No)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_cvarTankDamage 		= CreateConVar("l4d_explosive_cars_tank", 					"0", 	"How much damage do the tank deal to the cars? (0: Default, which is 999 from the engine)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarPanicChance 		= CreateConVar("l4d_explosive_cars_panic_chance", 			"20", 	"Chance that the cars explosion might call a horde [0~100]%", FCVAR_NOTIFY, true, 0.0, true, 100.0);
 	g_cvarRemoveCarTime 	= CreateConVar("l4d_explosive_cars_removetime", 			"60", 	"Time to wait before removing the exploded car in case it blockes the way. (0: Don't remove)", FCVAR_NOTIFY, true);
 	g_cvarUnloadMap 		= CreateConVar("l4d_explosive_cars_unload_map",		 		"", 	"On which maps should the plugin disable itself? separate by commas (no spaces). (Example: c5m3_cemetery,c5m5_bridge)", FCVAR_NOTIFY);
-	g_cvarExplosionDmg 		= CreateConVar("l4d_explosive_cars_explosion_damage", 		"1", 	"If 1, cars get damaged by another car's explosion", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_cvarCarHealthState 	= CreateConVar("l4d_explosive_cars_health_outline", 		"1", 	"(L4D2) If 1, Display outline glow of car's health", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_cvarCarMethod			= CreateConVar("l4d_explosive_cars_flying_method", 			"0",	"(L4D2) Which method to send survivor flying by car.\n0=Flings a player to the ground, like they were hit by a Charger\n1=Stagger player", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_cvarInfectedDmgToCar 	= CreateConVar("l4d_explosive_cars_inf_dmg_tocar", 			"0", 	"How much damage the special infecteds deal to the car (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarTankDmgToCar 		= CreateConVar("l4d_explosive_cars_tank_dmg_tocar", 		"999", 	"How much damage the tanks (rock, punch) deal to the cars? (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarMeleeDmgToCar 	= CreateConVar("l4d_explosive_cars_melee_dmg_tocar", 		"5", 	"(L4D2) How much damage the chainsaw and melee weapons deal to the cars? (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarExplosiveDmgToCar = CreateConVar("l4d_explosive_cars_explosive_dmg_tocar", 	"3000", "How much damage the explosion (env_explosion, env_physexplosion) deal to the cars? (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarPipeBombDmgToCar 	= CreateConVar("l4d_explosive_cars_pipebomb_dmg_tocar", 	"2000", "How much damage the pipebombs, prop tanks, oxy tanks deal to the cars? (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarGLDmgToCar		= CreateConVar("l4d_explosive_cars_grenade_dmg_tocar", 		"6000", "(L4D2) How much damage the grenade launcher deal to the cars? (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+	g_cvarFlameDmgToCar		= CreateConVar("l4d_explosive_cars_flame_dmg_tocar", 		"100",  "How much damage the fire (gascan, fireworks, molotov...) deal to the cars? (0: No damage)", FCVAR_NOTIFY, true, 0.0);
+
 	CreateConVar("l4d_explosive_cars_version", GETVERSION, "Version of the l4d Explosive Cars plugin", FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	AutoExecConfig(true, "l4d_explosive_cars");
 
@@ -102,15 +110,18 @@ public void OnPluginStart()
 	g_cvarRadius.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarPower.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarDamage.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarPanicEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarPanicChance.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarInfected.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarTankDamage.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarRemoveCarTime.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarUnloadMap.AddChangeHook(ConVarChanged_Cvars);
-	g_cvarExplosionDmg.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarCarHealthState.AddChangeHook(ConVarChanged_Cvars);
 	g_cvarCarMethod.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarInfectedDmgToCar.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarTankDmgToCar.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarMeleeDmgToCar.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarExplosiveDmgToCar.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarPipeBombDmgToCar.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarGLDmgToCar.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarFlameDmgToCar.AddChangeHook(ConVarChanged_Cvars);
 
 	//Events
 	HookEvent("player_spawn",		Event_PlayerSpawn,	EventHookMode_PostNoCopy);
@@ -134,15 +145,18 @@ void GetCvars()
 	g_fRadius = g_cvarRadius.FloatValue;
 	g_fPower = g_cvarPower.FloatValue;
 	g_iDamage = g_cvarDamage.IntValue;
-	g_bPanicEnable = g_cvarPanicEnable.BoolValue;
-	g_iPanicChance = g_cvarPanicChance.IntValue;
-	g_bInfected = g_cvarInfected.BoolValue;
-	g_fTankDamage = g_cvarTankDamage.FloatValue;
+	g_iCvarPanicChance = g_cvarPanicChance.IntValue;
 	g_fRemoveCarTime = g_cvarRemoveCarTime.FloatValue;
 	g_cvarUnloadMap.GetString(g_sUnloadMap, sizeof(g_sUnloadMap));
-	g_bExplosionDmg = g_cvarExplosionDmg.BoolValue;
 	g_bCarHealthState = g_cvarCarHealthState.BoolValue;
 	g_iCarMethod = g_cvarCarMethod.IntValue;
+	g_fCvarInfectedDmgToCar = g_cvarInfectedDmgToCar.FloatValue;
+	g_fCvarTankDmgToCar = g_cvarTankDmgToCar.FloatValue;
+	g_fCvarMeleeDmgToCar = g_cvarMeleeDmgToCar.FloatValue;
+	g_fCvarExplosiveDmgToCar = g_cvarExplosiveDmgToCar.FloatValue;
+	g_fCvarPipeBombDmgToCar = g_cvarPipeBombDmgToCar.FloatValue;
+	g_fCvarGLDmgToCar = g_cvarGLDmgToCar.FloatValue;
+	g_fCvarFlameDmgToCar = g_cvarFlameDmgToCar.FloatValue;
 }
 
 public void OnConfigsExecuted()
@@ -305,7 +319,6 @@ public void OnEntityDestroyed(int entity)
 		g_bMidWreck[entity] = false;
 		g_bHighWreck[entity] = false;
 		g_bCritWreck[entity] = false;
-		g_bHooked[entity] = false;
 		g_bExploded[entity] = false;
 		g_iParticle[entity] = -1;
 	}
@@ -382,50 +395,51 @@ void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int
 {
 	if(g_bDisabled) return;
 
-	if( inflictor > 0 && IsValidEntity(inflictor) && attacker > 0)
+	if( inflictor > 0 && IsValidEntity(inflictor) )
 	{
-		char attackerClass[256];
-		GetEdictClassname(attacker, attackerClass, sizeof(attackerClass));
-
 		char inflictorClass[256];
-		GetEdictClassname(inflictor, inflictorClass, sizeof(inflictorClass));
+		GetEntityClassname(inflictor, inflictorClass, sizeof(inflictorClass));
 
 		int MaxDamageHandle = g_iMaxHealth / 5;
 
 		//PrintToChatAll("%d - attackerClass: %s - inflictorClass: %s, %.1f damage", victim, attackerClass, inflictorClass, damage);
-		if(strcmp(attackerClass, "player")  == 0)
+		if(attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) == 3)
 		{
-			if(g_bL4D2Version && (strcmp(inflictorClass, "weapon_chainsaw") == 0 || strcmp(inflictorClass, "weapon_melee") == 0))
-			{
-				damage = 5.0;
-			}
-			else if(strcmp(inflictorClass, "tank_rock") == 0|| strcmp(inflictorClass, "weapon_tank_claw") == 0)
-			{
-				float tank_damage = g_fTankDamage;
-				if(tank_damage > 0.0)
-				{
-					damage = tank_damage;
-				}
-			}
-			if(attacker > 0 && attacker <= MaxClients && IsClientInGame(attacker) && GetClientTeam(attacker) == 3 && g_bInfected == false)
-			{
-				damage = 0.0;
-			}
+			damage = g_fCvarInfectedDmgToCar;
 		}
+		
 		if( strcmp(inflictorClass, "env_explosion") == 0 || strcmp(inflictorClass, "env_physexplosion") == 0) //explode dmg by another car
 		{
-			if(g_bExplosionDmg == false)
-				damage = 0.0;
-			else 
-				damage = 3000.0;
+			damage = g_fCvarExplosiveDmgToCar;
 		}
-		else if (strcmp(inflictorClass, "pipe_bomb_projectile") == 0 || (g_bL4D2Version && strcmp(inflictorClass, "grenade_launcher_projectile") == 0) )
+		else if (strcmp(inflictorClass, "pipe_bomb_projectile") == 0 )
 		{
-			damage = 3000.0;
+			damage = g_fCvarPipeBombDmgToCar;
+		}
+		else if (g_bL4D2Version && strcmp(inflictorClass, "grenade_launcher_projectile") == 0)
+		{
+			damage = g_fCvarGLDmgToCar;
 		}
 		else if (strcmp(inflictorClass, "inferno")  == 0 || (g_bL4D2Version &&strcmp(inflictorClass, "fire_cracker_blast") == 0) )
 		{
-			damage = 100.0;
+			damage = g_fCvarFlameDmgToCar;
+		}
+		else if(g_bL4D2Version && (strcmp(inflictorClass, "weapon_chainsaw") == 0 || strcmp(inflictorClass, "weapon_melee") == 0))
+		{
+			damage = g_fCvarMeleeDmgToCar;
+		}
+		else if(strcmp(inflictorClass, "tank_rock") == 0 || strcmp(inflictorClass, "weapon_tank_claw") == 0)
+		{
+			damage = g_fCvarTankDmgToCar;
+		}
+		else //其他武器如槍枝
+		{
+			//nothing
+		}
+
+		if(damage <= 0.0)
+		{
+			return;
 		}
 
 		g_iEntityDamage[victim] += RoundToFloor(damage);
@@ -745,17 +759,10 @@ void CreateExplosion(int car, float carPos[3])
 		}
 	}
 	
-	if(g_bPanicEnable == true)
+	if(GetRandomInt(1,100) <= g_iCvarPanicChance)
 	{
-		int luck = g_iPanicChance;
-		switch(GetRandomInt(1, luck))
-		{
-			case 1:
-			{
-				PanicEvent();
-				PrintToChatAll("\x04[SM] \x03The car exploded and the infected heard the noise!");
-			}
-		}
+		PanicEvent();
+		PrintToChatAll("\x04[SM] \x03The car exploded and the infected heard the noise!");
 	}
 	
 	float survivorPos[3], traceVec[3], resultingFling[3], currentVelVec[3];

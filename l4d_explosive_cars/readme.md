@@ -32,23 +32,14 @@ Cars explode after they take some damage
 		// Damage made by the explosion
 		l4d_explosive_cars_damage "10"
 
-		// Should the car explosion cause a panic event? (1: Yes 0: No)
-		l4d_explosive_cars_panic "1"
-
-		// Chance that the cars explosion might call a horde (1 / CVAR) [1: Always]
-		l4d_explosive_cars_panic_chance "5"
-
-		// Should infected trigger the car explosion? (1: Yes 0: No)
-		l4d_explosive_cars_infected "1"
-
-		// How much damage do the tank deal to the cars? (0: Default, which is 999 from the engine)
-		l4d_explosive_cars_tank "0"
+		// Chance that the cars explosion might call a horde [0~100]%
+		l4d_explosive_cars_panic_chance "20"
 
 		// Time to wait before removing the exploded car in case it blockes the way. (0: Don't remove)
 		l4d_explosive_cars_removetime "60"
 
 		// On which maps should the plugin disable itself? separate by commas (no spaces). (Example: c5m3_cemetery,c5m5_bridge)
-		l4d_explosive_cars_unload_map "c5m3_cemetery,c5m5_bridge"
+		l4d_explosive_cars_unload_map ""
 
 		// If 1, cars get damaged by another car's explosion
 		l4d_explosive_cars_explosion_damage "1"
@@ -60,10 +51,35 @@ Cars explode after they take some damage
 		// 0=Flings a player to the ground, like they were hit by a Charger
 		// 1=Stagger player
 		l4d_explosive_cars_flying_method "0"
+
+		// How much damage the special infecteds deal to the car (0: No damage)
+		l4d_explosive_cars_inf_dmg_tocar "0"
+
+		// How much damage the tanks (rock, punch) deal to the cars? (0: No damage)
+		l4d_explosive_cars_tank_dmg_tocar "999"
+
+		// (L4D2) How much damage the chainsaw and melee weapons deal to the cars? (0: No damage)
+		l4d_explosive_cars_melee_dmg_tocar "5"
+
+		// How much damage the explosion (env_explosion, env_physexplosion) deal to the cars? (0: No damage)
+		l4d_explosive_cars_explosive_dmg_tocar "3000"
+
+		// How much damage the pipebombs, prop tanks, oxy tanks deal to the cars? (0: No damage)
+		l4d_explosive_cars_pipebomb_dmg_tocar "2000"
+
+		// (L4D2) How much damage the grenade launcher deal to the cars? (0: No damage)
+		l4d_explosive_cars_grenade_dmg_tocar "6000"
+
+		// How much damage the fire (gascan, fireworks, molotov...) deal to the cars? (0: No damage)
+		l4d_explosive_cars_flame_dmg_tocar "100"
         ```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v2.6 (2026-6-21)
+		* Update cvars
+		* Adjust damage to cvars
 
 	* v2.5 (2024-11-11)
 		* Fixed not working in l4d1
@@ -120,23 +136,14 @@ Cars explode after they take some damage
 		// 爆炸所產生的傷害
 		l4d_explosive_cars_damage "10"
 
-		// 為1時，車子爆炸會導致屍潮
-		l4d_explosive_cars_panic "1"
-
-		// 車子爆炸導致屍潮的機率，機率 = 1/此數值 [1: 100%, 2: 50%, ...]
-		l4d_explosive_cars_panic_chance "5"
-
-		// 為1時，特感會抓傷車子引發爆炸
-		l4d_explosive_cars_infected "1"
-
-		// 設置Tank對車子造成的傷害值 (0: 遊戲預設, 一拳999傷害)
-		l4d_explosive_cars_tank "0"
+		// 車子爆炸導致屍潮的機率: [0~100]%，請填數值0~100
+		l4d_explosive_cars_panic_chance "20"
 
 		// 車子爆炸60秒後自動移除. (0: 不移除)
 		l4d_explosive_cars_removetime "60"
 
 		// 在這些地圖上關閉此插件, 逗號區隔 (無空白). (範例: c5m3_cemetery,c5m5_bridge)
-		l4d_explosive_cars_unload_map "c5m3_cemetery,c5m5_bridge"
+		l4d_explosive_cars_unload_map ""
 
 		// 為1時，車子爆炸後也會對周圍的車子產生連鎖爆炸效應
 		l4d_explosive_cars_explosion_damage "1"
@@ -148,6 +155,29 @@ Cars explode after they take some damage
 		// 0=撞飛倖存者, 就像被Charger撞到
 		// 1=震退倖存者
 		l4d_explosive_cars_flying_method "0"
+
+		// 特感對車子造成傷害的數值 (0: 不造成傷害)
+		l4d_explosive_cars_inf_dmg_tocar "0"
+
+		// Tank(石頭與拳頭)對車子造成傷害的數值 (0: 不造成傷害)
+		l4d_explosive_cars_tank_dmg_tocar "999"
+
+		// (L4D2) 電鋸與近戰武器對車子造成傷害的數值 (0: 不造成傷害)
+		l4d_explosive_cars_melee_dmg_tocar "5"
+
+		// 爆炸實體對車子造成傷害的數值 (0: 不造成傷害)
+		// env_explosion, env_physexplosion
+		l4d_explosive_cars_explosive_dmg_tocar "3000"
+
+		// 土製炸彈、瓦斯桶、氧氣罐對車子造成傷害的數值 (0: 不造成傷害)
+		l4d_explosive_cars_pipebomb_dmg_tocar "2000"
+
+		// (L4D2) 榴彈發射器對車子造成傷害的數值 (0: 不造成傷害)
+		l4d_explosive_cars_grenade_dmg_tocar "6000"
+
+		// 火焰對車子造成傷害的數值 (0: 不造成傷害)
+		// 汽油桶、煙火盒、火瓶...
+		l4d_explosive_cars_flame_dmg_tocar "100"
         ```
 </details>
 
