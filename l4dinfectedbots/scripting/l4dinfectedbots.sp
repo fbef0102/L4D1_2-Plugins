@@ -1,7 +1,7 @@
 //此插件0.0秒後設置血量(Tank與特感)
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.6 (2009-2026)
+* Version	: 3.0.7 (2009-2026)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371

@@ -435,6 +435,12 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.0.7 (2026-6-3)
+		* Added sm_config command: display all current configuration settings (PrintToConsole)
+		* Added Natives API: L4DInfectedBots_GetConfigInt / GetConfigFloat / GetConfigString for other plugins to query config values
+		* sm_config shows both admin-overridden and original config values when sm_zlimit/sm_timer changes are active
+		* Admin overrides reset on config reload (LoadData)
+
 	* v3.0.6 (2026-2-13)
 		* Update data, Any matching map names will overwrite duplicate data from the "Settings" section.
 

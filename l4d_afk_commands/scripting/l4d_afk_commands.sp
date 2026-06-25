@@ -82,10 +82,7 @@
 #include <dhooks>
 #include <multicolors>
 #include <left4dhooks>
-
-#undef REQUIRE_EXTENSIONS
 #include <actions>
-#define REQUIRE_EXTENSIONS
 
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d_team_unscramble> //https://github.com/fbef0102/Game-Private_Plugin/tree/main/Plugin_%E6%8F%92%E4%BB%B6/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble
@@ -340,11 +337,10 @@ public void OnPluginStart()
 	}
 }
 
-bool g_bExtensionActions, g_bL4DMultiSlotsAvailable, g_bUnscramble;
+bool g_bL4DMultiSlotsAvailable, g_bUnscramble;
 public void OnAllPluginsLoaded()
 {
 	g_bUnscramble = LibraryExists("l4d_team_unscramble");
-	g_bExtensionActions = LibraryExists("actionslib");
 	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
@@ -366,14 +362,12 @@ public void OnPluginEnd()
 public void OnLibraryAdded(const char[] name)
 {
 	g_bUnscramble = LibraryExists("l4d_team_unscramble");
-	g_bExtensionActions = LibraryExists("actionslib");
 	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
 public void OnLibraryRemoved(const char[] name)
 {
 	g_bUnscramble = LibraryExists("l4d_team_unscramble");
-	g_bExtensionActions = LibraryExists("actionslib");
 	g_bL4DMultiSlotsAvailable = LibraryExists("l4dmultislots");
 }
 
@@ -1773,17 +1767,10 @@ public void L4D2_OnStagger_Post(int client, int source)
 	if(!client || !IsClientInGame(client) || IsFakeClient(client) || GetClientTeam(client) != 2) return;
 	if(!IsWitch(source)) return;
 
-	if(g_bExtensionActions)
-	{
-		int curTaget = FindWitchCurrentTarget(source);
-		if(curTaget <= 0) return;
+	int curTaget = FindWitchCurrentTarget(source);
+	if(curTaget <= 0) return;
 
-		AddWitchAttack(source, curTaget);
-	}
-	else
-	{
-		AddWitchAttack(source, client);
-	}
+	AddWitchAttack(source, curTaget);
 }
 
 // Others-----

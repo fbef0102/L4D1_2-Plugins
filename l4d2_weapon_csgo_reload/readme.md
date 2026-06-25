@@ -1,5 +1,5 @@
 # Description | 內容
-(CS2 Reload Mechanism) Modern weapon reload + Abandon magazine when reload in L4D1/2
+(CSGO or CS2 Reload Mechanism) Modern weapon reload + Abandon magazine when reload in L4D1/2
 
 * Apply to | 適用於
     ```
@@ -7,28 +7,39 @@
     L4D2
     ```
 
-* [Video | 影片展示](https://youtu.be/KdO7PSD375Q)
+* [Video | 影片展示](https://youtu.be/JqhY-ubmoLo)
 
 * Image | 圖示
-    | Before (裝此插件之前)  			| After (裝此插件之後) |
-    | -------------|:-----------------:|
-    | ![l4d2_weapon_csgo_reload_before_1](image/l4d2_weapon_csgo_reload_before_1.gif)|![l4d2_weapon_csgo_reload_after_1](image/l4d2_weapon_csgo_reload_after_1.gif)|
-
+    * Before (裝此插件之前-官方的裝彈方式)
+    <br/>![l4d2_weapon_csgo_reload_1](image/l4d2_weapon_csgo_reload_1.gif)
+    * After-CSGO style (使用CSGO 風格)
+    <br/>![l4d2_weapon_csgo_reload_2](image/l4d2_weapon_csgo_reload_2.gif)
+    * After-CS2 style (使用CS2 風格)
+    <br/>![l4d2_weapon_csgo_reload_3](image/l4d2_weapon_csgo_reload_3.gif)
 
 * <details><summary>How does it work?</summary>
 
-    * The magazine will not be emptied when start reloading + Quickswitch Reloading
-        * For example, Reload Ak47: 30/360
-            * (Original) 0/390 -> (around 2.4 second) 40/350
-            * (After) 30/360-> (around 1.2 second) 40/350
-	* When reload weapon, abandon the magazine (You can disable in cvar)
-        * For example, Reload Ak47: 30/360
-            * (Original) -> 40/350
-            * (After) -> 40/320
+    * There are two reload method you can choose
+        1. CSGO style
+            * The magazine will not be emptied when start reloading
+            * Quickswitch Reloading
+            * Won't drop the entire magazine
+            * For example, Reload Ak47: 30/360
+                * (Original) 0/390 -> (around 2.4 second) 40/350
+                * (After) 30/360-> (around 1.2 second) 40/350
+        2. CS2 style
+            * The magazine will not be emptied when start reloading
+            * Quickswitch Reloading
+            * 🟦 Drop the entire magazine when finish reloading
+            * 🟦 Reserve ammo is displayed as exact magazines instead of total bullets
+            * For example, Reload Ak47: 30/360
+                * (Original) 0/390 -> (around 2.4 second) 40/350
+                * (After) 30/9 -> (around 1.2 second) 40/8
 </details>
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696) 
+    2. [sendproxy](https://github.com/jensewe/Left4SendProxy/releases)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -37,8 +48,10 @@
         // 0=Plugin off, 1=Plugin on.
         l4d2_weapon_csgo_reload_allow "1"
 
-        // How to abandon magazine when reload weapon like CS2? [0=Off, 1=When start reloading, 2=When finish reloading]
-        l4d2_weapon_csgo_reload_abandon_magazine "2"
+        // Choose weapon reload method
+        // 0=CSGO style: Don't drop the entire magazine
+        // 1=CS2 style: Drop the entire magazine when finish reloading, reserve ammo is displayed as exact magazines instead of total bullets.
+        l4d2_weapon_csgo_reload_magazine_type "1"
 
         // (L4D2) reload time for ak47
         l4d2_ak47_reload_clip_time "1.2"
@@ -107,6 +120,11 @@
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.6 (2026-6-25)
+        * Require sendproxy
+        * If choose cs2 reloading style, reserve ammo is displayed as exact magazines instead of total bullets
+        * Update cvars
+
     * v2.5 (2026-5-19)
         * When reload weapon, abandon the magazine like CS2 (You can disable in cvar)
         * Improve code
@@ -132,17 +150,25 @@
 
 - - - -
 # 中文說明
-將武器改成現代遊戲的裝子彈機制 (仿CS2裝彈設定)
+將武器改成現代遊戲的裝子彈機制 (仿CSGO或CS2裝彈設定)
 
 * 原理
-    * 裝子彈的時候，彈匣不會歸零+當武器動畫是裝上彈匣的時候，彈匣會填滿
-        * 譬如裝一個AK47武器: 30/360
-            * (裝此插件之前) 0/390 -> (大約2.4秒後) 40/350
-            * (裝此插件之後) 30/360-> (大約1.2秒後) 40/350
-    * 武器裝彈時放棄彈匣內的所有子彈 (可以透過指令關閉這這項功能)
-        * 譬如裝一個AK47武器: 30/360
-            * (裝此插件之前) -> 40/350
-            * (裝此插件之後) -> 40/320
+    * 有兩種裝彈方式
+        1. CSGO 風格
+            * 開始裝子彈的時候，彈匣不會歸零
+            * 當武器動畫是裝上彈匣的時候，彈匣會填滿
+            * 不會丟棄彈夾內所有子彈
+            * 譬如裝一個AK47武器: 30/360
+                * (裝此插件之前) 0/390 -> (大約2.4秒後) 40/350
+                * (裝此插件之後) 30/360-> (大約1.2秒後) 40/350
+        2. CS2 風格
+            * 開始裝子彈的時候，彈匣不會歸零
+            * 當武器動畫是裝上彈匣的時候，彈匣會填滿
+            * 🟦 裝彈完成後會丟棄彈夾內所有子彈
+            * 🟦 備用彈藥以彈匣數量顯示，而非子彈總數顯示
+            * 譬如裝一個AK47武器: 30/360
+                * (裝此插件之前) 0/390 -> (大約2.4秒後) 40/350
+                * (裝此插件之後) 30/9-> (大約1.2秒後) 40/8
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -151,8 +177,10 @@
         // 0=關閉插件, 1=啟動插件
         l4d2_weapon_csgo_reload_allow "1"
 
-        // 何時放棄彈匣內所有子彈? [0=關閉這項功能, 1=開始裝彈時, 2=裝彈完成時]
-        l4d2_weapon_csgo_reload_abandon_magazine "2"
+        // 選擇裝彈方式
+        // 0=CSGO 風格: 快速填裝+不會丟棄彈夾內所有子彈
+        // 1=CS2 風格: 快速填裝+裝彈完成後會丟棄彈夾內所有子彈+備用彈藥以彈匣數量顯示，而非子彈總數顯示
+        l4d2_weapon_csgo_reload_magazine_type "1"
 
         // (L4D2) ak47 裝彈時彈匣會填滿的時間
         l4d2_ak47_reload_clip_time "1.2"
