@@ -120,6 +120,10 @@
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.7 (2026-6-26)
+        * Add gamedata for l4d1
+        * Optimize code
+
     * v2.6 (2026-6-25)
         * Require sendproxy
         * If choose cs2 reloading style, reserve ammo is displayed as exact magazines instead of total bullets

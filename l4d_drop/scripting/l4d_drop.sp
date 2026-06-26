@@ -279,17 +279,18 @@ void DropWeapon(int client, int weapon)
 	int slot0 = GetPlayerWeaponSlot(client, 0);
 	int slot2 = GetPlayerWeaponSlot(client, 2);
 	float fNow = GetGameTime();
-	if ( g_iBlockDropMidAction == 1 && 
-	GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon)
+	
+	if ( GetEntPropEnt(client, Prop_Data, "m_hActiveWeapon") == weapon)
 	{
-		if(slot2 == weapon && g_iBlockDropMidAction == 2)
+		if(slot2 == weapon && (g_iBlockDropMidAction == 1 || g_iBlockDropMidAction == 2))
 		{
-			if(GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= fNow)
+			//if(GetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack") >= fNow)
+			if(GetOrSetPlayerAmmo(client, weapon) == 0)
 			{
 				return;
 			}
 		}
-		else if(slot0 == weapon )
+		else if(slot0 == weapon && g_iBlockDropMidAction == 1 )
 		{
 			if(g_bL4D2Version && g_bAvailable_miuwiki_autoscar && miuwiki_IsClientHoldAutoScar(client))
 			{
@@ -358,20 +359,14 @@ void DropWeapon(int client, int weapon)
 			second_clip = clip / 2 + 1;
 			clip = clip / 2;
 		}
-		
-		RemovePlayerItem(client, weapon);
-		RemoveEntity(weapon);
+
+		SetEntProp(weapon, Prop_Send, "m_isDualWielding", 0);
+		SetEntProp(weapon, Prop_Send, "m_hasDualWeapons", 0);
+		SetEntProp(weapon, Prop_Send, "m_iClip1", clip);
+		SDKHooks_DropWeapon(client, weapon);
+		if (strlen(g_sCvarDropSoundFile) > 0) PlaySoundAroundClient(client, g_sCvarDropSoundFile);
 
 		int single_pistol = CreateEntityByName("weapon_pistol");
-		if(single_pistol <= MaxClients) return;
-
-		DispatchSpawn(single_pistol);
-		EquipPlayerWeapon(client, single_pistol);
-		SDKHooks_DropWeapon(client, single_pistol);
-		if (strlen(g_sCvarDropSoundFile) > 0) PlaySoundAroundClient(client, g_sCvarDropSoundFile);
-		SetEntProp(single_pistol, Prop_Send, "m_iClip1", clip);
-
-		single_pistol = CreateEntityByName("weapon_pistol");
 		if(single_pistol <= MaxClients) return;
 
 		DispatchSpawn(single_pistol);
@@ -390,6 +385,7 @@ void DropWeapon(int client, int weapon)
 
 	if (!g_bL4D2Version) return;
 
+	// 修復電擊器被丟棄後消失看不見的問題
 	if (strcmp(classname, "weapon_defibrillator") == 0)
 	{
 		int modelindex = GetEntProp(weapon, Prop_Data, "m_nModelIndex");
@@ -494,7 +490,7 @@ int GetInfectedAttacker(int client)
 
 void PlaySoundAroundClient(int client, char[] sSoundName)
 {
-	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_AIRCRAFT, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
+	EmitSoundToAll(sSoundName, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, NULL_VECTOR, NULL_VECTOR, true, 0.0);
 }
 
 int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
@@ -507,7 +503,7 @@ int GetOrSetPlayerAmmo(int client, int iWeapon, int iAmmo = -1)
 		else
 		{
 			int ammo = GetEntData(client, g_iOffsetAmmo + offset);
-			return ammo >= 999 ? 999 : ammo;
+			return ammo;
 		}
 	}
 

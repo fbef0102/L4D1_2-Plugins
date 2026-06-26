@@ -223,7 +223,7 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 		{
 			float origin[3];
 			GetClientEyePosition(client, origin);
-			SDKHooks_DropWeapon(client, secondary, origin); //二代如果持雙手槍會掉兩把手槍
+			SDKHooks_DropWeapon(client, secondary, origin); //二代如果持雙手槍會掉兩把手槍 (兩把不同的實體單發手槍)
 
 			// 如果其他玩家體內隱藏的副武器是相同的, 則清除
 			for(int i = 1; i <= MaxClients; i++)
@@ -244,7 +244,7 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 			float ang[3];
 			GetClientEyePosition(client, origin);
 			GetClientEyeAngles(client, ang);
-			SDKHooks_DropWeapon(client, secondary, origin); //一代如果持雙手槍會掉兩把手槍
+			SDKHooks_DropWeapon(client, secondary, origin); //一代如果持雙手槍會掉兩把手槍 (一個實體 兩把手槍連一起的)
 		}
 	}
 
@@ -336,7 +336,7 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 		|| g_bIgnore[client] //(二代) bot取代玩家時 -> 玩家觸發: Event_BotReplacePlayer -> L4D_OnDeathDroppedWeapons, // (二代) 玩家取代bot時 -> bot觸發: L4D_OnDeathDroppedWeapons -> Event_PlayerReplaceBot
 		) 
 		return;
-	
+
 	int iDropWeapon = -1;
 	if(!IsClientInKickQueue(client))
 	{
@@ -459,7 +459,9 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 		float ang[3];
 		GetClientEyePosition(client, origin);
 		GetClientEyeAngles(client, ang);
-		SDKHooks_DropWeapon(client, iDropWeapon, origin); //一代與二代如果持雙手槍會掉兩把手槍
+		//一代如果持雙手槍會掉兩把手槍 (一個實體 兩把手槍連一起的)
+		//二代如果持雙手槍會掉兩把手槍 (兩把不同的實體單發手槍)
+		SDKHooks_DropWeapon(client, iDropWeapon, origin); 
 
 		if(g_bL4D2Version)
 		{

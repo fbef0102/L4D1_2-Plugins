@@ -3,10 +3,11 @@
 #include <sourcemod>
 #include <sdkhooks>
 #include <sdktools>
+#include <dhooks>
 #include <left4dhooks>
 #include <sendproxy>  //https://github.com/jensewe/Left4SendProxy/releases
 
-#define PLUGIN_VERSION	"2.6-2026/6/25"
+#define PLUGIN_VERSION	"2.7-2026/6/26"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -41,6 +42,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
+#define GAMEDATA_FILE           	 "l4d2_weapon_csgo_reload"
 #define MAXENTITIES                   2048
 #define PISTOL_RELOAD_INCAP_MULTIPLY_L4D2 1.25
 #define PISTOL_RELOAD_INCAP_MULTIPLY_L4D1 1.3
@@ -58,35 +60,6 @@ float g_SmgTimeCvar, g_RifleTimeCvar, g_HuntingRifleTimeCvar, g_PistolTimeCvar,
 	g_DualPistolTimeCvar, g_SmgSilencedTimeCvar, g_SmgMP5TimeCvar, g_AK47TimeCvar, g_RifleDesertTimeCvar,
 	g_SniperMilitaryTimeCvar, g_GrenadeTimeCvar, g_SG552TimeCvar, g_AWPTimeCvar, g_ScoutTimeCvar, g_MangumTimeCvar,
 	g_M60TimeCvar;
-
-enum AmmoType
-{
-	Ammo_Null = -1,
-	Ammo_None = 0,
-
-	Ammo_Pistol,
-	Ammo_PistolMagnum,
-	Ammo_AssaultRifle,
-	Ammo_Minigun,
-	Ammo_Smg,
-	Ammo_M60,
-	Ammo_Shotgun,
-	Ammo_Autoshotgun,
-	Ammo_HuntingRifle,
-	Ammo_SniperRifle,
-	Ammo_Turret,
-	Ammo_PipeBomb,
-	Ammo_Molotov,
-	Ammo_VomitJar,
-	Ammo_PainPills,
-	Ammo_FirstAid,
-	Ammo_GrenadeLauncher,
-	Ammo_Adrenaline,
-	Ammo_Chainsaw,
-	Ammo_CarriedItem,
-
-	Ammo_MAX = 32
-};
 
 enum WeaponID
 {
@@ -117,6 +90,47 @@ enum WeaponID
 WeaponID
 	g_iGlobalWeaponId[MAXENTITIES+1];
 
+enum L4D2_AmmoType
+{
+	L4D2_AmmoType_Null = -1,
+	L4D2_AmmoType_None = 0,
+
+	L4D2_AmmoType_AssaultRifle = 3,
+	L4D2_AmmoType_Minigun,
+	L4D2_AmmoType_Smg, //5
+	L4D2_AmmoType_M60,
+	L4D2_AmmoType_Shotgun,
+	L4D2_AmmoType_Autoshotgun,
+	L4D2_AmmoType_HuntingRifle,
+	L4D2_AmmoType_SniperRifle, //10
+	L4D2_AmmoType_Turret,
+	L4D2_AmmoType_PipeBomb,
+	L4D2_AmmoType_Molotov,
+	L4D2_AmmoType_VomitJar,
+	L4D2_AmmoType_PainPills, //15
+	L4D2_AmmoType_FirstAid,
+	L4D2_AmmoType_GrenadeLauncher,
+	L4D2_AmmoType_Adrenaline,
+	L4D2_AmmoType_Chainsaw,
+	L4D2_AmmoType_CarriedItem, //20
+
+	L4D2_AmmoType_MAX = 32
+};
+
+enum L4D1_AmmoType
+{
+	L4D1_AmmoType_Null = -1,
+	L4D1_AmmoType_None = 0,
+
+	L4D1_AmmoType_HuntingRifle = 2,
+	L4D1_AmmoType_AssaultRifle = 3,
+
+	L4D1_AmmoType_Smg = 5,
+	L4D1_AmmoType_Shotgun = 6,
+
+	L4D1_AmmoType_MAX = 32
+};
+
 StringMap 
 	g_smWeaponNameID;
 
@@ -125,21 +139,41 @@ float
 
 int 
 	WeaponMaxClip[view_as<int>(ID_WEAPON_MAX)],
-	g_iPreviousClip_L4D1[MAXENTITIES+1],
 	g_iGlobalWeapon_FakeMagazineLeft[MAXENTITIES+1],
 	g_iOffsetActive,
 	g_iOffsetClip,
 	g_iOffsetPrimaryAmmoType,
 	g_iOffsetInReload,
-	g_iOffsetAmmo;
+	g_iOffsetAmmo,
+	g_iOffset_PistolisDualWielding;
 
 public void OnPluginStart()
 {
-	g_iOffsetActive 			= FindSendPropInfo("CBaseCombatCharacter","m_hActiveWeapon");
-	g_iOffsetClip				= FindSendPropInfo("CBaseCombatWeapon", "m_iClip1");
-	g_iOffsetPrimaryAmmoType 	= FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
-	g_iOffsetInReload 			= FindSendPropInfo("CBaseCombatWeapon", "m_bInReload");
-	g_iOffsetAmmo 				= FindSendPropInfo("CCSPlayer", "m_iAmmo");
+	g_iOffsetActive 				= FindSendPropInfo("CBaseCombatCharacter","m_hActiveWeapon");
+	g_iOffsetClip					= FindSendPropInfo("CBaseCombatWeapon", "m_iClip1");
+	g_iOffsetPrimaryAmmoType 		= FindSendPropInfo("CBaseCombatWeapon", "m_iPrimaryAmmoType");
+	g_iOffsetInReload 				= FindSendPropInfo("CBaseCombatWeapon", "m_bInReload");
+	g_iOffsetAmmo 					= FindSendPropInfo("CCSPlayer", "m_iAmmo");
+	g_iOffset_PistolisDualWielding 	= FindSendPropInfo("CPistol", "m_isDualWielding");
+
+	if(!g_bL4D2Version)
+	{
+		GameData hGameData = new GameData(GAMEDATA_FILE);
+		if( hGameData == null ) SetFailState("Failed to load \"%s.txt\" gamedata.", GAMEDATA_FILE);
+
+		Handle hDetour = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
+		if( !hDetour )
+			SetFailState("Failed to setup detour handle: CTerrorGun::Reload");
+
+		if( !DHookSetFromConf(hDetour, hGameData, SDKConf_Signature, "CTerrorGun::Reload") )
+			SetFailState("Failed to find signature: CTerrorGun::Reload");
+
+		if( !DHookEnableDetour(hDetour, false, L4D1_OnGunReload_Pre) )
+			SetFailState("Failed to detour: CTerrorGun::Reload");
+
+		delete hDetour;
+		delete hGameData;
+	}
 
 	g_hAmmoRifle =		FindConVar("ammo_assaultrifle_max");
 	g_hAmmoSmg =		FindConVar("ammo_smg_max");
@@ -226,10 +260,10 @@ public void OnPluginStart()
 
 	HookEvent("round_start", RoundStart_Event);
 	HookEvent("weapon_reload", OnWeaponReload_Event, EventHookMode_Post);
-	if(!g_bL4D2Version) HookEvent("weapon_fire", Event_WeaponFire, EventHookMode_Post);
+	
 	AddCommandListener(CmdListen_weapon_reparse_server, "weapon_reparse_server");
 
-	SetWeaponNameId();
+	SetWeaponData();
 
 	if(bLate)
 	{
@@ -334,8 +368,21 @@ public void OnClientPutInServer(int iClient)
 	if (IsFakeClient(iClient))
 		return;
 
-	for (any i = 1; i < Ammo_MAX; i++)
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, i);
+	if(g_bL4D2Version)
+	{
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_AssaultRifle);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_Smg);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_M60);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_HuntingRifle);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_SniperRifle);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_GrenadeLauncher);
+	}
+	else
+	{
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D1_AmmoType_HuntingRifle);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D1_AmmoType_AssaultRifle);
+		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D1_AmmoType_Smg);
+	}
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -349,15 +396,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		case 'w':
 		{
-			if (strncmp(classname, "weapon_spawn", 12, false) == 0)
-			{
-				RequestFrame(OnWeaponNextFrame_weapon_spawn, EntIndexToEntRef(entity));
-				return;
-			}
-
-			if (strncmp(classname, "weapon_pistol", 13, false) == 0) //weapon_pistol, weapon_pistol_spawn
-				RequestFrame(OnWeaponNextFrame_weapon_pistol, EntIndexToEntRef(entity));
-
 			WeaponID weaponid = GetWeaponID(entity, classname);
 			if(weaponid == ID_NONE) return;
 			
@@ -403,25 +441,12 @@ void OnWeaponReload_Event(Event event, const char[] name, bool dontBroadcast)
 	g_fClientReload_Time[client] = GetEngineTime();
 	
 	WeaponID weaponid = g_iGlobalWeaponId[weapon];
-
-	if (!g_bL4D2Version)
+	if(weaponid == ID_PISTOL)
 	{
-		// 官方無限子彈時, 不會清除clip
-		if(!IsInifiniteAmmo(weaponid))
+		if( GetEntData(weapon, g_iOffset_PistolisDualWielding, 1) > 0) //dual pistol
 		{
-			int ammo = GetOrSetPlayerAmmo(client, weapon);
-			
-			switch(weaponid)
-			{
-				case ID_SMG,ID_RIFLE,ID_HUNTING_RIFLE:
-				{
-					int new_clip = g_iPreviousClip_L4D1[weapon];
-					int new_ammo = ammo-g_iPreviousClip_L4D1[weapon];
-
-					SetWeaponClip(weapon, new_clip);
-					GetOrSetPlayerAmmo(client, weapon, new_ammo);
-				}
-			}
+			g_iGlobalWeaponId[weapon] = ID_DUAL_PISTOL;
+			weaponid = ID_DUAL_PISTOL;
 		}
 	}
 	
@@ -508,50 +533,9 @@ void OnWeaponReload_Event(Event event, const char[] name, bool dontBroadcast)
 	pack.WriteCell(g_fClientReload_Time[client]);
 }
 
-void Event_WeaponFire(Event event, const char[] name, bool dontBroadcast) 
-{
-	if(!g_bCvarEnable) return;
-
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (!IsValidAliveSurvivor(client))
-		return;
-		
-	int iCurrentWeapon = GetEntDataEnt2(client, g_iOffsetActive); //抓人類目前裝彈的武器
-	if (iCurrentWeapon <= 0 || !IsValidEntity(iCurrentWeapon))
-	{
-		return;
-	}
-	
-	//PrintToChatAll("Event_WeaponFire: %N-%d", client, GetWeaponClip(iCurrentWeapon)-1);
-	g_iPreviousClip_L4D1[iCurrentWeapon] = GetWeaponClip(iCurrentWeapon)-1;
-}
-
-// OnPlayerRunCmd--
-
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
-{
-	if (g_bL4D2Version || g_bCvarEnable == false) return Plugin_Continue;
-	
-	if (IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client) && buttons & IN_RELOAD) //If survivor alive player is holding weapon and wants to reload
-	{
-		int iCurrentWeapon = GetEntDataEnt2(client, g_iOffsetActive); //抓人類目前裝彈的武器
-		if (iCurrentWeapon == -1 || !IsValidEntity(iCurrentWeapon))
-		{
-			return Plugin_Continue;
-		}
-		
-		if(GetEntData(iCurrentWeapon, g_iOffsetInReload, 1) == 0)
-		{
-			g_iPreviousClip_L4D1[iCurrentWeapon] = GetWeaponClip(iCurrentWeapon);
-		}
-	}
-
-	return Plugin_Continue;
-}
-
 // SDKHooks-----
 
-Action OnWeaponReload_Pre(int weapon)
+Action L4D2_OnWeaponReload_Pre(int weapon)
 {
 	if(g_bCvarEnable == false) return Plugin_Continue;
 
@@ -559,6 +543,15 @@ Action OnWeaponReload_Pre(int weapon)
 	if ( client != -1)
 	{
 		WeaponID weaponid = g_iGlobalWeaponId[weapon];
+		if(weaponid == ID_PISTOL)
+		{
+			if( GetEntData(weapon, g_iOffset_PistolisDualWielding, 1) > 0) //dual pistol
+			{
+				g_iGlobalWeaponId[weapon] = ID_DUAL_PISTOL;
+				weaponid = ID_DUAL_PISTOL;
+			}
+		}
+
 		int MaxClip = WeaponMaxClip[weaponid];
 		int previousclip = GetWeaponClip(weapon);
 
@@ -574,14 +567,14 @@ Action OnWeaponReload_Pre(int weapon)
 				if (0 < previousclip && previousclip < MaxClip)	//If his current mag equals the maximum allowed, remove reload from buttons
 				{
 					#if DEBUG
-						PrintToChatAll("OnWeaponReload_Pre client: %N, sWeaponName: (%d)%s, previousclip: %d", client, weapon, sWeaponName, previousclip);
+						PrintToChatAll("L4D2_OnWeaponReload_Pre client: %N, Weapon: %d, previousclip: %d", client, weapon, previousclip);
 					#endif
 					DataPack data = new DataPack();
 					data.WriteCell(GetClientUserId(client));
 					data.WriteCell(EntIndexToEntRef(weapon));
 					data.WriteCell(previousclip);
 					data.WriteCell(weaponid);
-					RequestFrame(OnNextFrame_RecoverWeaponClip_L4D2, data);
+					RequestFrame(OnNextFrame_RecoverWeaponClip, data);
 				}
 			}
 			default:
@@ -592,25 +585,66 @@ Action OnWeaponReload_Pre(int weapon)
 	}
 
 	return Plugin_Continue;
-}
-
-Action OnPistolUse(int weapon, int activator, int client, UseType type, float value) 
-{
-    if (client <= 0 || client > MaxClients || !IsClientInGame(client)) return Plugin_Continue;
-
-    int secondary_weapon = GetPlayerWeaponSlot(client, 1);
-    if(secondary_weapon <= MaxClients) return Plugin_Continue;
-
-    static char classname[32];
-    GetEntityClassname(secondary_weapon, classname, sizeof(classname));
-    if (strcmp(classname, "weapon_pistol") != 0) return Plugin_Continue;
-    if (GetEntProp(secondary_weapon, Prop_Send, "m_isDualWielding") > 0) return Plugin_Continue;
-
-    //PrintToChatAll("OnPistolUse %N picks up secondary pistol", client);
-	g_iGlobalWeaponId[secondary_weapon] = ID_DUAL_PISTOL;
-
-    return Plugin_Continue;
 } 
+
+// Dhooks---
+
+MRESReturn L4D1_OnGunReload_Pre(int pThis, Handle hReturn, Handle hParams)
+{
+	// Validate weapon
+	if( pThis > MaxClients )
+	{
+		int client = GetEntPropEnt(pThis, Prop_Send, "m_hOwnerEntity");
+
+		// Validate weapon owner
+		if( client > 0 && client <= MaxClients && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client) )
+		{
+			// Validate weapon in hand
+			int weapon = GetEntDataEnt2(client, g_iOffsetActive);
+			if( weapon > MaxClients && pThis == weapon )
+			{
+				WeaponID weaponid = g_iGlobalWeaponId[weapon];
+				if(weaponid == ID_PISTOL)
+				{
+					if( GetEntData(weapon, g_iOffset_PistolisDualWielding, 1) > 0) //dual pistol
+					{
+						g_iGlobalWeaponId[weapon] = ID_DUAL_PISTOL;
+						weaponid = ID_DUAL_PISTOL;
+					}
+				}
+
+				int MaxClip = WeaponMaxClip[weaponid];
+				int previousclip = GetWeaponClip(weapon);
+
+				// 官方無限子彈時, 不會清除clip
+				if(IsInifiniteAmmo(weaponid)) return MRES_Ignored;
+
+				switch(weaponid)
+				{
+					case ID_SMG,ID_RIFLE,ID_HUNTING_RIFLE:
+					{
+						if (0 < previousclip && previousclip < MaxClip)	//If his current mag equals the maximum allowed, remove reload from buttons
+						{
+							//PrintToChatAll("L4D1_OnGunReload_Pre client: %N, weapon: %d, previousclip: %d", client, weapon, previousclip);
+							DataPack data = new DataPack();
+							data.WriteCell(GetClientUserId(client));
+							data.WriteCell(EntIndexToEntRef(weapon));
+							data.WriteCell(previousclip);
+							data.WriteCell(weaponid);
+							RequestFrame(OnNextFrame_RecoverWeaponClip, data);
+						}
+					}
+					default:
+					{
+						return MRES_Ignored;
+					}
+				}
+			}
+		}
+	}
+
+	return MRES_Ignored;
+}
 
 // Timer & Frame----
 
@@ -619,28 +653,7 @@ void OnNextFrame_weapon_reparse_server()
 	SetWeaponMaxClip();
 }
 
-void OnWeaponNextFrame_weapon_spawn(int weapon)
-{
-    weapon = EntRefToEntIndex(weapon);
-    if( weapon == INVALID_ENT_REFERENCE ) return;
-
-    int m_weaponID = GetEntProp(weapon, Prop_Send, "m_weaponID");
-
-    if (m_weaponID == 1 ) //1=pistol
-    {
-        SDKHook(weapon, SDKHook_Use, OnPistolUse); // don't use SDKHook_UsePost
-    }
-}
-
-void OnWeaponNextFrame_weapon_pistol(int weapon)
-{
-    weapon = EntRefToEntIndex(weapon);
-    if( weapon == INVALID_ENT_REFERENCE ) return;
-
-    SDKHook(weapon, SDKHook_Use, OnPistolUse); // don't use  SDKHook_UsePost
-}
-
-void OnNextFrame_RecoverWeaponClip_L4D2(DataPack data) 
+void OnNextFrame_RecoverWeaponClip(DataPack data) 
 { 
 	data.Reset();
 	int client = GetClientOfUserId(data.ReadCell());
@@ -740,7 +753,7 @@ void OnNextFrameWeapon(int entityRef)
 	if (weapon == INVALID_ENT_REFERENCE)
 		return;
 
-	if(g_bL4D2Version) SDKHook(weapon, SDKHook_Reload, OnWeaponReload_Pre);
+	if(g_bL4D2Version) SDKHook(weapon, SDKHook_Reload, L4D2_OnWeaponReload_Pre);
 }
 
 // SendProxy ----
@@ -758,8 +771,8 @@ Action OnSendAmmoDisplay(int client, const char[] sProp, int &iValue, int iEleme
 		return Plugin_Continue;
 
 	int ammoType = iElement;
-	int iWeapon = GetWeaponFromAmmoType(client, ammoType);
-	if (iWeapon == -1)
+	int iWeapon = GetPlayerWeaponSlot(client, 0);
+	if (iWeapon == -1 || GetEntData(iWeapon, g_iOffsetPrimaryAmmoType) != ammoType)
 		return Plugin_Continue;
 
 	WeaponID weaponid = g_iGlobalWeaponId[iWeapon];
@@ -822,7 +835,7 @@ WeaponID GetWeaponID(int weapon, const char[] weapon_name)
 	{
 		if(index == ID_PISTOL)
 		{
-			if( GetEntProp(weapon, Prop_Send, "m_isDualWielding") > 0) //dual pistol
+			if( GetEntData(weapon, g_iOffset_PistolisDualWielding, 1) > 0) //dual pistol
 			{
 				return ID_DUAL_PISTOL;
 			}
@@ -913,28 +926,12 @@ bool IsInifiniteAmmo(WeaponID weaponid)
 	return false;
 }
 
-int GetWeaponFromAmmoType(int iClient, int ammoType)
-{
-	int iWeapon;
-	for (int slot = 0; slot <= 1; slot++)
-	{
-		iWeapon = GetPlayerWeaponSlot(iClient, slot);
-		if (iWeapon == -1
-			|| GetEntData(iWeapon, g_iOffsetPrimaryAmmoType) != ammoType)
-			continue;
-
-		return iWeapon;
-	}
-
-	return -1;
-}
-
 bool IsValidEntityIndex(int entity)
 {
     return (MaxClients+1 <= entity <= GetMaxEntities());
 }
 
-void SetWeaponNameId()
+void SetWeaponData()
 {
 	g_smWeaponNameID = new StringMap ();
 

@@ -1,0 +1,26 @@
+"Games"
+{
+	"left4dead"
+	{
+		"Offsets"
+		{
+			"CTerrorGun::Reload"
+			{
+				"windows"	"260"
+				"linux"		"261"
+			}
+		}
+
+		"Signatures"
+		{
+			"CTerrorGun::Reload"
+			{
+				"library"		"server"
+				"linux"			"@_ZN10CTerrorGun6ReloadEv"
+				"windows"		"\x83\x2A\x2A\x53\x56\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x85\x2A\x74\x2A\x8B"
+				/* 83 ? ? 53 56 8B ? E8 ? ? ? ? 8B ? 85 ? 74 ? 8B */
+				/* VTable method. Using "!player->CanAttack()" 1 call below. */
+			}
+		}
+	}
+}
