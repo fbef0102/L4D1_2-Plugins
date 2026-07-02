@@ -115,8 +115,8 @@ public void OnPluginStart()
 	g_hCvarDualPistol_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_dual_pistol_CycleTime",   	"0.1",   	"The dual pistol Cycle Time (fire rate, 0: keeps vanilla cycle rate of 0.075)", CVAR_FLAGS, true, 0.0);
 	g_hCvarDualPistol_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_dual_pistol_ReloadDuration",  "0",   		"The dual pistol Reload Duration (0: keeps vanilla reload duration of 2.333)", CVAR_FLAGS, true, 0.0);
 	g_hCvarShotGun_Fix_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_shotgun_fire_rate",  			"1",   		"If 1, Make shotgun fire rate obey \"CycleTime\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarShotGun_Fix_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_shotgun_reload",  			"1",   		"If 1, Make shotgun reload duration obey \"ReloadDuration\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarWeaponIncap_Fix_CycleTime 		= CreateConVar( PLUGIN_NAME ... "_incap_fire_rate",  			"1",   		"If 1, Use weapon_*.txt \"CycleTime\" or official cvar \"survivor_incapacitated_cycle_time\" for incap shooting cycle rate, depends on which cycle rate is slower than another\n(\"wh_use_incap_cycle_cvar\" must be 1)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarShotGun_Fix_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_shotgun_reload",  			"0",   		"If 1, Make shotgun reload duration obey \"ReloadDuration\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarWeaponIncap_Fix_CycleTime 		= CreateConVar( PLUGIN_NAME ... "_incap_fire_rate",  			"0",   		"If 1, Use weapon_*.txt \"CycleTime\" or official cvar \"survivor_incapacitated_cycle_time\" for incap shooting cycle rate, depends on which cycle rate is slower than another\n(\"wh_use_incap_cycle_cvar\" must be 1)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	if(g_bL4D2Version)
 	{
 		g_hCvarMelee_Fix_Refire_Delay			= CreateConVar( PLUGIN_NAME ... "_melee_swing",  				"0",   		"If 1, Make melee swing rate obey \"refire_delay\" keyvalue in melee\\*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -648,5 +648,7 @@ stock void DebugPrint(const char[] Message, any ...)
         VFormat(DebugBuff, sizeof(DebugBuff), Message, 2);
         PrintToChatAll("%s",DebugBuff);
         PrintToServer(DebugBuff);
-    #endif 
+	#else
+		#pragma unused Message
+	#endif
 }

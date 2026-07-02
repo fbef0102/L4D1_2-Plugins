@@ -19,7 +19,7 @@ Unable to call valve vote if player does not have access
 
 * Require | 必要安裝
     1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
-    2. [builtinvotes](https://github.com/fbef0102/Game-Private_Plugin/releases/tag/builtinvotes)
+    2. [builtinvotes](https://github.com/fbef0102/builtinvotes/releases)
 
 * <details><summary>ConVar | 指令</summary>
 

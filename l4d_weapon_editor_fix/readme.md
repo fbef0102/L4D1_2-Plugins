@@ -53,10 +53,10 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "0"
 
 		// If 1, Make shotgun fire rate obey "CycleTime" keyvalue in weapon_*.txt
-		l4d_weapon_editor_fix_shotgun_fire_rate "1"
+		l4d_weapon_editor_fix_shotgun_fire_rate "0"
 
 		// If 1, Make shotgun reload duration obey "ReloadDuration" keyvalue in weapon_*.txt
-		l4d_weapon_editor_fix_shotgun_reload "1"
+		l4d_weapon_editor_fix_shotgun_reload "0"
 
 		// If 1, Use weapon_*.txt "CycleTime" or official cvar "survivor_incapacitated_cycle_time" for incap shooting cycle rate, depends on which cycle rate is slower than another
 		// ("wh_use_incap_cycle_cvar" must be 1)
@@ -132,10 +132,10 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 		l4d_weapon_editor_fix_dual_pistol_ReloadDuration "0"
 
 		// 為1時，散彈槍的開槍間隔強制符合 weapon_*.txt 的武器參數"CycleTime"
-		l4d_weapon_editor_fix_shotgun_fire_rate "1"
+		l4d_weapon_editor_fix_shotgun_fire_rate "0"
 
 		// 為1時，散彈槍的裝彈時間強制符合 weapon_*.txt 的武器參數"ReloadDuration"
-		l4d_weapon_editor_fix_shotgun_reload "1"
+		l4d_weapon_editor_fix_shotgun_reload "0"
 
 		// 為1時，倒地狀態下的開槍間隔使用 weapon_*.txt 的武器參數"CycleTime" 或是官方指令 "survivor_incapacitated_cycle_time"，取決於哪一種數值比較大
 		// (WeaponHandling_API的插件指令 "wh_use_incap_cycle_cvar" 必須為1)

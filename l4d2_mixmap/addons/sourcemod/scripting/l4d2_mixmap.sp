@@ -13,7 +13,7 @@
 #include <sdkhooks>
 #include <left4dhooks>
 #include <multicolors>
-#include <builtinvotes> //https://github.com/fbef0102/Game-Private_Plugin/releases/tag/builtinvotes
+#include <builtinvotes> //https://github.com/fbef0102/builtinvotes/releases
 #undef REQUIRE_PLUGIN
 #tryinclude <readyup>
 #tryinclude <l4d2_map_transitions>
@@ -81,17 +81,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define DIR_CFGS_L4D2 		"l4d2_mixmap/l4d2/"
 #define DIR_CFGS_L4D1 		"l4d2_mixmap/l4d1/"
 #define PATH_KV  			"mapnames.txt"
-#define CFG_DEFAULT			"default"
-#define CFG_DODEFAULT		"disorderdefault"
-#define CFG_DODEFAULT_ST	"do"
-#define CFG_ALLOF			"official"
-#define CFG_ALLOF_ST		"of"
-#define	CFG_DOALLOF			"disorderofficial"
-#define	CFG_DOALLOF_ST		"doof"
-#define	CFG_UNOF			"unofficial"
-#define	CFG_UNOF_ST			"uof"
-#define	CFG_DOUNOF			"disorderunofficial"
-#define	CFG_DOUNOF_ST		"douof"
 #define BUF_SZ   			256
 
 ConVar 	g_cvNextMapPrint,
@@ -274,6 +263,11 @@ public void OnMapEnd()
 	delete g_hDifferAbortTimer;
 
 	ClearDefault();
+
+	if(!g_bL4D2Version && BuiltinVote_IsVoteInProgress())
+	{
+		CancelBuiltinVote();
+	}
 }
 
 public void OnClientPutInServer(int client)
