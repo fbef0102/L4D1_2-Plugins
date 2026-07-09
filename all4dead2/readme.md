@@ -11,7 +11,8 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * <details><summary>How does it work?</summary>
 
-    * Type !admin to call adm menu and you will see "ALL4DEAD" option
+    * Admins type ```!admin``` to call adm menu and you will see "ALL4DEAD" option
+    * It can spawn any items, weapons, infecteds.. in your crosshair location
     * Support custom melee
 </details>
 
@@ -113,6 +114,7 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * 原理
     * 管理員輸入```!admin```就能看到 "ALL4DEAD指令" 選項
+    * 生成任意武器、近戰武器、物品、醫療物品、特殊感染者... 在準心眼前
     * 支援生成三方圖近戰武器
 
 * 用意在哪?

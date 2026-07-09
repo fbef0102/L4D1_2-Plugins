@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.3h-2024/3/15"
+#define PLUGIN_VERSION "1.4h-2026/7/9"
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
 
@@ -503,14 +503,15 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 		DispatchSpawn(bot);
 		ActivateEntity(bot);
 		if(strlen(sModel) > 0) SetEntityModel(bot, sModel);
+		TeleportEntity(bot, pos, ang, NULL_VECTOR);
 		
-		DataPack data = new DataPack();
+		/*DataPack data = new DataPack();
 		data.WriteFloat(pos[0]);
 		data.WriteFloat(pos[1]);
 		data.WriteFloat(pos[2]);
 		data.WriteFloat(ang[1]);
 		data.WriteCell(GetClientUserId(bot));
-		RequestFrame(RequestFrame_SetPos, data);
+		RequestFrame(RequestFrame_SetPos, data);*/
 	}
 	else
 	{
@@ -597,7 +598,7 @@ Action Timer_Chase(Handle timer, int inf_ref)
 	return Plugin_Continue;
 }
 
-void RequestFrame_SetPos(DataPack data)
+/*void RequestFrame_SetPos(DataPack data)
 {
 	data.Reset();
 	float pos0 = data.ReadFloat();
@@ -612,7 +613,7 @@ void RequestFrame_SetPos(DataPack data)
 	float ang[3];ang[0]=0.0;ang[1]=ang1;ang[2]=0.0;
 	
 	TeleportEntity(bot, pos, ang, NULL_VECTOR);
-}
+}*/
 
 void GetGamedata()
 {

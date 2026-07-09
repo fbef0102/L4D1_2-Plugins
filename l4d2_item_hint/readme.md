@@ -33,7 +33,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * Infected players can also mark targets
         * Pressing Shift
         * Infected marker priority: Survivor > Item or Weapon > Spot marker
-    * Marks are only visible to teammates of the same team
+    * Marks, glow, sprite model, hins and Notifications are only visible to teammates of the same team
 </details>
 
 * <details><summary>Important</summary>
@@ -63,6 +63,12 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // If 1, Survivors can type !mark to mark targets
             l4d2_item_hint_cmd "1"
 
+            // Instructor hint language. 0=Server language (English), 1=Caller language
+            l4d2_item_hint_instructorhint_translate "0"
+            ```
+
+        * Survivor Team Mark Ability
+            ```php
             // Survivors press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
             // You can add numbers together, ex. 131104=Shift + Use (0=off)
             // See more buttons: https://github.com/alliedmodders/sourcemod/blob/master/plugins/include/entity_prop_stocks.inc#L100-L125
@@ -80,13 +86,47 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // If 1, dead Survivors can still mark targets
             l4d2_item_hint_mark_dead "0"
 
-            // Instructor hint language. 0=Server language (English), 1=Caller language
-            l4d2_item_hint_instructorhint_translate "0"
+            // If 1, survivor players can mark items/weapons
+            l4d2_survivor_team_mark_item "1"
+
+            // If 1, survivor players can mark S.I.
+            l4d2_survivor_team_mark_si "1"
+
+            // If 1, survivor players can mark spots
+            l4d2_survivor_team_mark_spot "1"
+
+            // If 1, survivor players can mark survivors
+            l4d2_survivor_team_mark_survivor "1"
             ```
 
-        * Item Marker (both teams)
+        * Infected Team Mark Ability
             ```php
-            // Item marker glow color (RGB, space-separated). Empty = Off
+            // If 1, infected players can use mark
+            l4d2_infected_team_mark_enable "1"
+
+            // If 1, infected players can mark survivors
+            l4d2_infected_team_mark_survivor "1"
+
+            // If 1, infected players can mark items/weapons
+            l4d2_infected_team_mark_item "1"
+
+            // If 1, infected players can mark spots
+            l4d2_infected_team_mark_spot "1"
+
+            // Infected players press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
+            // You can add numbers together, ex. 131104=Shift + Use (0=off)
+            l4d2_infected_team_buttons "131072"
+
+            // If 1, dead infected players can mark targets
+            l4d2_infected_team_dead "0"
+
+            // If 1, ghost infected players can mark targets
+            l4d2_infected_team_ghost "1"
+            ```
+
+        * Both teams mark "Item/Weapons"
+            ```php
+            // Item marker glow color (RGB, space-separated). Empty = Remove Glow
             l4d2_item_marker_glow_color "0 255 255"
 
             // Cooldown between marking items (seconds)
@@ -117,9 +157,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_instructorhint_icon "icon_interact"
             ```
 
-        * Spot Marker (both teams)
+        * Both teams mark "Spot"
             ```php
-            // Spot marker color (RGB, space-separated). Empty = Off
+            // Spot marker color (RGB, space-separated). Empty = Remove circle mark
             l4d2_spot_marker_color "200 200 200"
 
             // Cooldown between spot marks (seconds)
@@ -167,9 +207,49 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
-        * S.I. Marker (Survivors mark Special Infected)
+
+        * Both teams mark "Survivor"
             ```php
-            // S.I. marker glow color (RGB, space-separated). Empty = Off. (Survivors mark S.I.)
+            // Survivor marker glow color (RGB, space-separated). Empty = Remove Glow
+            l4d2_survivor_marker_glow_color "0 200 0"
+
+            // Cooldown between marking survivors (seconds)
+            l4d2_survivor_marker_cooldown_time "1.0"
+
+            // Max distance to mark a survivor
+            l4d2_survivor_marker_use_range "1000"
+
+            // Sound when marking a survivor. (relative to sound/, Empty = Off)
+            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
+
+            // Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_survivor_marker_announce_type "1"
+
+            // Survivor glow duration when marked (seconds)
+            l4d2_survivor_marker_glow_timer "10.0"
+
+            // Survivor glow visible range when marked
+            l4d2_survivor_marker_glow_range "2000"
+
+            // If 1, show instructor hint on marked survivor
+            l4d2_survivor_marker_instructorhint_enable "1"
+
+            // Instructor hint color on survivor. (Empty = hide name)
+            l4d2_survivor_marker_instructorhint_color "0 200 0"
+
+            // Instructor hint icon on survivor marker
+            l4d2_survivor_marker_instructorhint_icon "icon_alert"
+
+            // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
+            l4d2_survivor_marker_fov "15.0"
+
+            // If 1, notify the target when marked by an infected
+            l4d2_survivor_marker_infected_notify "1"
+            ```
+
+        * Survivors mark "Special Infected"
+            ```php
+            // S.I. marker glow color (RGB, space-separated). Empty = Remove Glow
             l4d2_infected_marker_glow_color "255 120 203"
 
             // Cooldown for Survivors marking S.I. (seconds)
@@ -211,75 +291,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)
             l4d2_infected_marker_witch_fov "15.0"
             ```
-
-        * Survivor Marker (both teams mark survivors)
-            ```php
-            // Survivor marker glow color (RGB, space-separated). Empty = Off. (Marking survivors)
-            l4d2_survivor_marker_glow_color "0 200 0"
-
-            // Cooldown between marking survivors (seconds)
-            l4d2_survivor_marker_cooldown_time "1.0"
-
-            // Max distance to mark a survivor
-            l4d2_survivor_marker_use_range "1000"
-
-            // Sound when marking a survivor. (relative to sound/, Empty = Off)
-            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
-
-            // Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
-            l4d2_survivor_marker_announce_type "1"
-
-            // Survivor glow duration when marked (seconds)
-            l4d2_survivor_marker_glow_timer "10.0"
-
-            // Survivor glow visible range when marked
-            l4d2_survivor_marker_glow_range "2000"
-
-            // If 1, show instructor hint on marked survivor
-            l4d2_survivor_marker_instructorhint_enable "1"
-
-            // Instructor hint color on survivor. (Empty = hide name)
-            l4d2_survivor_marker_instructorhint_color "0 200 0"
-
-            // Instructor hint icon on survivor marker
-            l4d2_survivor_marker_instructorhint_icon "icon_alert"
-
-            // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
-            l4d2_survivor_marker_fov "15.0"
-
-            // If 1, notify the target when marked by an infected
-            l4d2_survivor_marker_infected_notify "1"
-            ```
-
-        * Infected Team Mark
-            ```php
-            // If 1, infected players can mark targets
-            l4d2_infected_team_mark_enable "1"
-
-            // If 1, infected players can mark survivors
-            l4d2_infected_team_mark_survivor "1"
-
-            // If 1, infected players can mark items/weapons
-            l4d2_infected_team_mark_item "1"
-
-            // If 1, infected players can mark spots
-            l4d2_infected_team_mark_spot "1"
-
-            // Infected players press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
-            // You can add numbers together, ex. 131104=Shift + Use (0=off)
-            l4d2_infected_team_buttons "131072"
-
-            // If 1, dead infected players can mark targets
-            l4d2_infected_team_dead "0"
-
-            // If 1, ghost infected players can mark targets
-            l4d2_infected_team_ghost "1"
-            ```
 </details>
 
 * <details><summary>Command | 命令</summary>
 
-    * **Mark item/infected/spot**
+    * **Mark item/infected/spot. Both Team players can use this cmd**
         ```php
         sm_mark
         ```
@@ -298,7 +314,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v4.6 (2026-7-9)
     * v4.5 (2026-6-16)
+        * Update cvars
         * Optimize code
 
     * v4.4 (2026-6-7)
@@ -416,13 +434,19 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
     * cfg/sourcemod/l4d2_item_hint.cfg
-        * 標記指令
+        * 通用指令
             ```php
             // 為1時，倖存者與特感玩家可以輸入!mark標記
             l4d2_item_hint_cmd "1"
 
+            // 標記的導演提示該使用何種語言翻譯給大家看? 0=伺服器的語言 (英文), 1=呼叫標記的玩家的語言
+            l4d2_item_hint_instructorhint_translate "0"
+            ```
+
+        * 倖存者陣營的標記能力
+            ```php
             // 倖存者玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
-            // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不使用鍵位)
+            // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不能使用鍵位標記)
             // 看更多按鈕: https://github.com/alliedmodders/sourcemod/blob/master/plugins/include/entity_prop_stocks.inc#L100-L125
             l4d2_item_hint_buttons "131104"
 
@@ -438,14 +462,48 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 為1時，死亡的玩家可以使用標記
             l4d2_item_hint_mark_dead "0"
 
-            // 標記的導演提示該使用何種語言翻譯給大家看? 0=伺服器的語言 (英文), 1=呼叫標記的玩家的語言
-            l4d2_item_hint_instructorhint_translate "0"
+            // 為1時，人類可以標記物品
+            l4d2_survivor_team_mark_item "1"
+
+            // 為1時，人類可以標記特感
+            l4d2_survivor_team_mark_si "1"
+
+            // 為1時，人類可以標記地點
+            l4d2_survivor_team_mark_spot "1"
+
+            // 為1時，人類可以標記倖存者隊友
+            l4d2_survivor_team_mark_survivor "1"
             ```
 
-        * 物品、武器標記 (雙方隊伍)
+        * 特感陣營的標記能力
+            ```php
+            // 為1時，特感玩家也可以使用標記
+            l4d2_infected_team_mark_enable "1"
+
+            // 為1時，特感玩家可以標記生還者
+            l4d2_infected_team_mark_survivor "1"
+
+            // 為1時，特感玩家可以標記物品/武器
+            l4d2_infected_team_mark_item "1"
+
+            // 為1時，特感玩家可以標記地點
+            l4d2_infected_team_mark_spot "1"
+
+            // 特感玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
+            // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不能使用鍵位標記)
+            l4d2_infected_team_buttons "131072"
+
+            // 為1時，死亡的特感玩家可以標記
+            l4d2_infected_team_dead "0"
+
+            // 為1時，靈魂狀態的特感玩家可以標記
+            l4d2_infected_team_ghost "1"
+            ```
+
+        * 雙方隊伍標記"物品、武器"
             ```php
             // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=關閉此標記
+            // 空=移除光圈效果
             l4d2_item_marker_glow_color "0 255 255"
 
             // 玩家可以再次標記的時間間隔
@@ -476,10 +534,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_instructorhint_icon "icon_interact"
             ```
             
-        * 地點標記 (雙方隊伍)
+        * 雙方隊伍標記"地點"
             ```php
             // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=關閉此標記
+            // 空=移除光圈與中心模型圖案
             l4d2_spot_marker_color "200 200 200"
 
             // 玩家可以再次標記的時間間隔
@@ -527,10 +585,51 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
-        * 人類標記特感
+        * 雙方隊伍標記"倖存者"
+            ```php
+            // 標記隊友的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // 空=移除光圈
+            l4d2_survivor_marker_glow_color "0 200 0"
+
+            // 玩家可以再次標記隊友的時間間隔
+            l4d2_survivor_marker_cooldown_time "1.0"
+
+            // 能標記隊友的距離
+            l4d2_survivor_marker_use_range "1000"
+
+            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
+            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
+
+            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
+            l4d2_survivor_marker_announce_type "1"
+
+            // 標記的光圈顯示時間
+            l4d2_survivor_marker_glow_timer "10.0"
+
+            // 標記的光圈可見範圍
+            l4d2_survivor_marker_glow_range "2000"
+
+            // 為1時，啟用導演提示
+            l4d2_survivor_marker_instructorhint_enable "1"
+
+            // 導演提示的隊友名稱顏色 (空=無隊友名稱)
+            l4d2_survivor_marker_instructorhint_color "0 200 0"
+
+            // 導演提示的圖案 
+            l4d2_survivor_marker_instructorhint_icon "icon_alert"
+
+            // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_survivor_marker_fov "15.0"
+
+            // 為1時，感染者標記生還者後通知被標記的對象
+            l4d2_survivor_marker_infected_notify "1"
+            ```
+
+        * 人類標記"特感"
             ```php
             // 特感標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=關閉此標記
+            // 空=移除光圈
             l4d2_infected_marker_glow_color "255 120 203"
 
             // 玩家可以再次標記特感的時間間隔
@@ -574,70 +673,13 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_infected_marker_witch_fov "15.0"
             ```
-
-        * 標記倖存者 (雙方隊伍)
-            ```php
-            // 標記隊友的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=關閉此標記
-            l4d2_survivor_marker_glow_color "0 200 0"
-
-            // 玩家可以再次標記隊友的時間間隔
-            l4d2_survivor_marker_cooldown_time "1.0"
-
-            // 能標記隊友的距離
-            l4d2_survivor_marker_use_range "1000"
-
-            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
-            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
-
-            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
-            l4d2_survivor_marker_announce_type "1"
-
-            // 標記的光圈顯示時間
-            l4d2_survivor_marker_glow_timer "10.0"
-
-            // 標記的光圈可見範圍
-            l4d2_survivor_marker_glow_range "2000"
-
-            // 為1時，啟用導演提示
-            l4d2_survivor_marker_instructorhint_enable "1"
-
-            // 導演提示的隊友名稱顏色 (空=無隊友名稱)
-            l4d2_survivor_marker_instructorhint_color "0 200 0"
-
-            // 導演提示的圖案 
-            l4d2_survivor_marker_instructorhint_icon "icon_alert"
-
-            // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
-            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
-            l4d2_survivor_marker_fov "15.0"
-
-            // 為1時，感染者標記生還者後通知被標記的對象
-            l4d2_survivor_marker_infected_notify "1"
-            ```
-
-        * 特感陣營的標記
-            ```php
-            // 為1時，特感玩家也可以標記目標
-            l4d2_infected_team_mark_enable "1"
-
-            // 為1時，特感玩家可以標記生還者
-            l4d2_infected_team_mark_survivor "1"
-
-            // 為1時，特感玩家可以標記物品/武器
-            l4d2_infected_team_mark_item "1"
-
-            // 為1時，特感玩家可以標記地點
-            l4d2_infected_team_mark_spot "1"
-
-            // 特感玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
-            // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不使用鍵位)
-            l4d2_infected_team_buttons "131072"
-
-            // 為1時，死亡的特感玩家可以標記
-            l4d2_infected_team_dead "0"
-
-            // 為1時，靈魂狀態的特感玩家可以標記
-            l4d2_infected_team_ghost "1"
-            ```
 </details>
+
+* <details><summary>命令中文介紹 (點我展開)</summary>
+
+    * **使用標記. 雙方隊伍玩家皆可使用此命令**
+        ```php
+        sm_mark
+        ```
+</details>
+

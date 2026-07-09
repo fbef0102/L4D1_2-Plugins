@@ -53,6 +53,9 @@ Provide natives, spawn special infected without the director limits!
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.4h (2026-7-9)
+		* Teleport infected bot once spawn instead of waiting next frame
+
 	* v1.3h (2024-3-15)
 		* Use better way to spawn witch and bride witch
 		* Require left4dhooks
