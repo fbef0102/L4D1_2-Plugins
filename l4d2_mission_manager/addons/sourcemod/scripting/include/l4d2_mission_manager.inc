@@ -3,11 +3,11 @@
 #endif
 #define _l4d2_mission_manager_included_
 
-#define LEN_MISSION_NAME 64			// e.g. "Name" - L4D2C1
+#define LEN_MISSION_NAME 256		// e.g. "Name" - L4D2C1, GuangXiNanning
 #define LEN_DISPLAYTITLE_NAME 256	// e.g. "DisplayTitle" - #L4D360UI_Campaign_Airport, 广西-南宁 V1.15.1
-#define LEN_MAP_FILENAME 64			// e.g. "Map" - c1m1_hotel
+#define LEN_MAP_FILENAME 64			// e.g. "Map" - c1m1_hotel, nanningcity_chaoyang_square_m2
 #define LEN_MAP_DISPLAYNAME 256		// e.g. "DisplayName" - #L4D360UI_Chapter_Greenhouse, 2: 广场/Square
-#define LEN_GAMEMODE_NAME 32		// e.g. "modes" supports - coop, versus, scavenge, survival
+#define LEN_GAMEMODE_NAME 32		// e.g. "modes" - coop, versus, scavenge, survival
 #define LEN_LOCALIZED_NAME 256
 
 #define COUNT_LMM_GAMEMODE 4

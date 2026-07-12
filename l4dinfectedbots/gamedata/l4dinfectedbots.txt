@@ -1,133 +1,9 @@
 "Games"
 {
-	"left4dead" // Credit: Forgetest
+	"left4dead" 
 	{
-		"Signatures" 
-		{
-			"NextBotCreatePlayerBot<Smoker>"
-			{
-				"library"	"server"
-				"linux"		"@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
-			}
-			
-			"NextBotCreatePlayerBot<Boomer>"
-			{
-				"library"	"server"
-				"linux"		"@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
-			}
-			
-			"NextBotCreatePlayerBot<Hunter>"
-			{
-				"library"	"server"
-				"linux"		"@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
-			}
-			
-			"NextBotCreatePlayerBot<Tank>"
-			{
-				"library"	"server"
-				"linux"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
-			}
-
-			/*
-			 * ZombieManager::SpawnHunter(Vector const&, QAngle const&)
-			 *
-			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
-			 */
-			"ZombieManager::SpawnHunter"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13ZombieManager11SpawnHunterERK6VectorRK6QAngle"
-				"windows"	"\x56\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x03"
-				/* 56 68 ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 03 */
-			}
-
-			/*
-			 * ZombieManager::SpawnBoomer(Vector const&, QAngle const&)
-			 *
-			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
-			 */
-			"ZombieManager::SpawnBoomer"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13ZombieManager11SpawnBoomerERK6VectorRK6QAngle"
-				"windows"	"\x56\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x02"
-				/* 56 68 ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 02 */
-			}
-
-			/*
-			 * ZombieManager::SpawnSmoker(Vector const&, QAngle const&)
-			 *
-			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
-			 */
-			"ZombieManager::SpawnSmoker"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13ZombieManager11SpawnSmokerERK6VectorRK6QAngle"
-				"windows"	"\x56\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x01"
-				/* 56 68 ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 01 */
-			}
-
-			/*
-			 * ZombieManager::SpawnTank(Vector const&, QAngle const&)
-			 *
-			 * To find, look for non-unique string "common_", has three refs, one ref will have strings for all classes, that's CCommentaryZombieSpawner::InputSpawnZombie
-			 * SpawnTank will be called after string "tank"
-			 */
-			"ZombieManager::SpawnTank"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13ZombieManager9SpawnTankERK6VectorRK6QAngle"
-				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x83\x2A\x2A\x85\x2A\x75\x2A\x5E\xC2\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x6A\x2A\x6A\x2A\x6A\x2A\x8B\x2A\xFF\x2A\x6A\x2A\x8B\x2A\xE8\x2A\x2A\x2A\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x05"
-				/* ? ? ? ? ? ? E8 ? ? ? ? 8B ? 83 ? ? 85 ? 75 ? 5E C2 ? ? 8B ? ? ? ? ? ? ? 6A ? 6A ? 6A ? 8B ? FF ? 6A ? 8B ? E8 ? ? ? ? 8B ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 05 */
-			}
-		}
-
-		"Addresses"
-		{
-			"reloffs_NextBotCreatePlayerBot<Smoker>"
-			{
-				"signature"		"ZombieManager::SpawnSmoker"
-				"windows"
-				{
-					"offset"	"7"
-				}
-			}
-
-			"reloffs_NextBotCreatePlayerBot<Boomer>"
-			{
-				"signature"		"ZombieManager::SpawnBoomer"
-				"windows"
-				{
-					"offset"	"7"
-				}
-			}
-
-			"reloffs_NextBotCreatePlayerBot<Hunter>"
-			{
-				"signature"		"ZombieManager::SpawnHunter"
-				"windows"
-				{
-					"offset"	"7"
-				}
-			}
-
-			"reloffs_NextBotCreatePlayerBot<Tank>"
-			{
-				"signature"		"ZombieManager::SpawnTank"
-				"windows"
-				{
-					"offset"	"7"
-				}
-			}
-		}
-
 		"Offsets"
 		{
-			"OS"
-			{
-				"windows"	"0"
-				"linux"		"1"
-			}
 			"FlashlightIsOn"
 			{
 				"windows"    "356"
@@ -160,19 +36,8 @@
 		}
 	}
 	
-	"left4dead2" //credit: ProdigySim, Shadowysn
+	"left4dead2"
 	{
-		"Addresses"
-		{
-			"NextBotCreatePlayerBot.jumptable"
-			{
-				"windows"
-				{
-					"signature"	"CTerrorPlayer::ReplaceWithBot.jumptable"
-					"offset"	"7"
-				}
-			}
-		}
 		"Signatures"
 		{
 			"FlashLightTurnOn"
@@ -183,65 +48,11 @@
 				/* by Machine */
 				/* 55 8B EC A1 ? ? ? ? 83 EC ? 83 78 ? ? 56 8B F1 0F 8E ? ? ? ? 8B 16 */
 			}
-			
-			"CTerrorPlayer::ReplaceWithBot.jumptable"
-			{
-				"library"	"server"
-				// Switch jump with a bunch of cases matching...
-				// PUSH rel32
-				// CALL rel32
-				// JUMP rel8
-				// There are acutally 2 matches of this in the windows binary, 
-				// but they appear to be the same functionality--so it doesn't matter which we get.
-				/* FF 24 85 ? ? ? ? 68 ? ? ? ? E8 ? ? ? ? EB ? 68 ? ? ? ? E8 ? ? ? ? EB ? 68 ? ? ? ? E8 ? ? ? ? EB ? 68 ? ? ? ? E8 ? ? ? ? EB ? 68 ? ? ? ? E8 ? ? ? ? EB ? 68 ? ? ? ? E8 ? ? ? ? EB ? 68 ? ? ? ? E8 */
-				"windows"	"\xFF\x24\x85\x2A\x2A\x2A\x2A\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xEB\x2A\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xEB\x2A\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xEB\x2A\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xEB\x2A\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xEB\x2A\x68\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\xEB\x2A\x68\x2A\x2A\x2A\x2A\xE8"
-			}
-			"NextBotCreatePlayerBot<Smoker>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6SmokerEPT_PKc"
-			}
-			"NextBotCreatePlayerBot<Boomer>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6BoomerEPT_PKc"
-			}
-			"NextBotCreatePlayerBot<Hunter>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6HunterEPT_PKc"
-			}
-			"NextBotCreatePlayerBot<Spitter>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI7SpitterEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI7SpitterEPT_PKc"
-			}
-			"NextBotCreatePlayerBot<Jockey>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI6JockeyEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI6JockeyEPT_PKc"
-			}
-			"NextBotCreatePlayerBot<Charger>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI7ChargerEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI7ChargerEPT_PKc"
-			}
-			"NextBotCreatePlayerBot<Tank>"
-			{
-				"library"	"server"
-				"linux"	"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
-				"mac"		"@_Z22NextBotCreatePlayerBotI4TankEPT_PKc"
-			}
 		}
 
 		"Offsets"
 		{
+			/*Credit: Psykotikism-Mutant_Tanks*/
 			"Tank::GetIntentionInterface::Intention"
 			{
 				"linux"		"17176"
@@ -249,6 +60,7 @@
 				"windows"	"17204"
 			}
 
+			/*Credit: Psykotikism-Mutant_Tanks*/
 			"Action<Tank>::FirstContainedResponder"
 			{
 				"linux"		"2"
@@ -256,6 +68,7 @@
 				"windows"	"1"
 			}
 
+			/*Credit: Psykotikism-Mutant_Tanks*/
 			"TankIdle::GetName"
 			{
 				"linux"		"41"

@@ -98,6 +98,11 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		* All it does is to force updated server status to steam master server (Such as amount of players, latency and so fort, useful for matchmaking and serverbrowser). 
 		* Basically yelling to master server "HEY, I'M STILL ALIVE AND PLEASE GIVE ME PLAYERS"
 
+	* How can I set up private or friend-only dedicated server ?
+		* 🟥 You can not set up ```private``` or ```friend-only``` on dedicated server. 
+		* Even you did, random player can stil connect via ```connect ip```
+		* ```sv_steamgroup_exclusive``` is completely useless and not working on both L4D 1/2, random player(even they are not steam group members) can stil connect via ```connect ip```
+
 	> For more details, ask valve
 </details>
 
@@ -246,7 +251,12 @@ Removes lobby reservation when server is full, allow 9+ players to join server
 		* 強制更新伺服器狀態至 Steam Master Server (譬如: 玩家數量、延遲、地區...). 
 		* 告訴 Steam Master "嘿! 我這伺服器還他馬活著，請分配路人玩家給我"
 
-	> 詳細功能依然有很多未解之謎，問就是Valve的鍋，我們吃瓜就好
+	* 我如何將專屬伺服器設置"私人"或是"僅限好友"?
+		* 🟥 專屬伺服器無法設置"私人"或是"僅限好友"狀態
+		* 即使你從大廳開"私人"或是"僅限好友"匹配到專屬伺服器，伺服器依然會開放給路人玩家透過```connect ip```加入
+		* ```sv_steamgroup_exclusive``` 在L4D1與L4D2完全沒有任何作用，伺服器依然會開放給路人玩家(即使他們不是群組成員)透過```connect ip```加入
+
+	> 詳細功能依然有很多未解之謎，再問就是自己找Valve的客服
 </details>
 
 * <details><summary>指令中文介紹 (點我展開)</summary>

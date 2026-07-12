@@ -106,6 +106,9 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.6h (2026-7-12)
+        * Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
+
     * v2.5h (2024-8-27)
         * Fixed ghost infected bug
 

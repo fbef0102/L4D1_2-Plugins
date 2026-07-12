@@ -11,7 +11,7 @@ public Plugin myinfo = {
 	name = "L4D2 Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.7h - 2026/4/16",
+	version = "v1.8h - 2026/7/12",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -44,8 +44,10 @@ public void OnPluginStart()
 	CacheMissions();
 	LMM_InitLists();
 	ParseMissions();
-	LoadTranslations("missions.phrases");
-	LoadTranslations("maps.phrases");
+	LoadTranslations("maps_displayname.phrases");
+	LoadTranslations("maps_map.phrases");
+	LoadTranslations("missions_name.phrases");
+	LoadTranslations("missions_displaytitle.phrases");
 
 	FireEvent_OnLMMUpdateList();
 		

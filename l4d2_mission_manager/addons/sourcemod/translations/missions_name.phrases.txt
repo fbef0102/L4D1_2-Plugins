@@ -1,19 +1,10 @@
 "Phrases" 
 {
-	// Format:	
-	//  "L4D2C1" <- File name of the mission map, custom 3-rd maps mission file is located in left4dead2\missions.cache\ (auto-generated)
-	//	{
-	//			"en"	"English Translation"
-	//	}
-	
-	
-	// 格式:	
-	//  "L4D2C1" <- 地圖的missions文件名，三方圖的missions文件於left4dead2\missions.cache\資料夾內 (自動創建)
-	//	{
-	//			"en"	"英文顯示"
-	//			"zho"	"繁體中文"
-	//			"chi"	"简体中文"
-	//	}
+	// Translate "mission"->"Name" in mission file, custom 3-rd maps mission file is located in left4dead2\missions.cache folder (auto-generated)
+	// The author usually won't change the mission name even the map updates;
+	// --
+	// 翻譯地圖mission文件內的"mission"->"Name"，此為地圖名稱，三方圖的mission文件於left4dead2\missions.cache資料夾內 (自動創建)
+	// 即使地圖有更新, 作者通常不太會隨意修改地圖名稱, 因此可以多寫翻譯地圖名稱
 	
 	"L4D2C1"
 	{
@@ -99,28 +90,32 @@
 		"zho" 	"最後一刻"
 		"chi" 	"临死一搏"
 	}
-	"广州增城Lv7.3"
+	
+	"City17l4d2"
 	{
-		"en"		"广州增城Lv7.3"
+		"en" 	"City 17"
+		"zho" 	"城市17"
+		"chi" 	"城市17"
 	}
-	"广西-南宁 V1.15.1"
+	
+	"LingShanv29"
 	{
-		"en"		"广西-南宁 V1.15.1"
+		"en" 	"LingShan v29"
+		"zho" 	"廣西靈山 v29"
+		"chi" 	"广西灵山 v29"
 	}
-	"广西灵山V2.9"
+
+	"GuangXiNanning"
 	{
-		"en"		"广西灵山V2.9"
+		"en" 	"GuangXi Nanning"
+		"zho" 	"廣西-南寧"
+		"chi" 	"广西-南宁"
 	}
-	"The Cure"
+
+	"Zengchengone"
 	{
-		"en"		"The Cure"
-		"zho"		"治癒"
-		"chi"		"治愈"
-	}
-	"Vienna Calling 2"
-	{
-		"en" 	"Vienna Calling 2"
-		"zho" 	"维也纳"
-		"chi" 	"维也纳"
+		"en" 	"Zengchengone"
+		"zho" 	"廣西-南寧"
+		"chi" 	"广西-南宁"
 	}
 }

@@ -21,8 +21,8 @@ Mission manager for L4D2, provide information about map orders for other plugins
 </details>
 
 * Require | 必要安裝
-	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-	2. [[INC] localizer](https://github.com/dragokas/SM-Localizer/)
+    1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+    2. [[INC] localizer](https://github.com/dragokas/SM-Localizer/)
 
 * FAQ
     1. <details><summary>Why there are erros in logs\l4d2_mission_manager.log?</summary>
@@ -37,21 +37,21 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg/sourcemod/l4d2_mission_manager.cfg
-		```php
+    * cfg/sourcemod/l4d2_mission_manager.cfg
+        ```php
         // If 1, write error message in logs/l4d2_mission_manager.log when parsing mission files
         l4d2_mission_manager_log_message "1"
-		```
+        ```
 </details>
 
 * <details><summary>Command | 命令</summary>
 
-	* **List all installed maps on the server (ADMFLAG_ROOT)**
+    * **List all installed maps on the server (ADMFLAG_ROOT)**
         ```c
         sm_lmm_list [<coop|versus|scavenge|survival>]
         ```
 
-	* **Give you a list of maps that cannot be recognized in "mission.cache" folder (ADMFLAG_ROOT)**
+    * **Give you a list of maps that cannot be recognized in "mission.cache" folder (ADMFLAG_ROOT)**
         ```c
         sm_lmm_list invalid
         ```
@@ -66,18 +66,22 @@ Mission manager for L4D2, provide information about map orders for other plugins
 </details>
 
 * Translation Support | 支援翻譯
-	```
-	translations/maps.phrases.txt
-    translations/missions.phrases.txt
-	```
+    ```
+    translations/maps.phrases.txt
+    translations/missions_displaytitle.phrases.txt
+    translations/missions_name.phrases.txt
+    ```
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [sm_l4d_mapchanger](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Map_%E9%97%9C%E5%8D%A1/sm_l4d_mapchanger): Force change to next mission when current mission(final stage) end + Force change to next level when survivors wipe out + Vote to next map (Apply to Versus/Survival/Scavenge).
+    1. [sm_l4d_mapchanger](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Map_%E9%97%9C%E5%8D%A1/sm_l4d_mapchanger): Force change to next mission when current mission(final stage) end + Force change to next level when survivors wipe out + Vote to next map (Apply to Versus/Survival/Scavenge).
         > 最後一關結束時自動換圖 + 滅團N次後自動切換到下一個關卡 + 玩家投票下一張地圖 (生存/對抗/清道夫模式也適用)
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.8h (2026-7-12)
+        * Update translation file
 
     * v1.7h (2026-4-16)
         * Report error if map does not have key "DisplayName"
@@ -111,14 +115,14 @@ Mission manager for L4D2, provide information about map orders for other plugins
     * v1.0.2 (2023-4-17)
         * Get correct gamemode
 
-	* v1.0.1 (2023-4-16)
+    * v1.0.1 (2023-4-16)
         * Check if mission/map name translation phrase exists to prevent error
         * Do not check some missions.cache files if there are no corresponding map.
         * Separate error log, save error into logs\l4d2_mission_manager.log.
         * Reduce some annoying error
         * Replace Gamedata with left4dhooks
 
-	* v1.0.0
+    * v1.0.0
         * [Original Plugin by rikka0w0](https://github.com/rikka0w0/l4d2_mission_manager)
 </details>
 
@@ -151,21 +155,21 @@ Mission manager for L4D2, provide information about map orders for other plugins
         
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/l4d2_mission_manager.cfg
-		```php
+    * cfg/sourcemod/l4d2_mission_manager.cfg
+        ```php
         // 為1時，分析並檢查三方地圖mission文件，將錯誤報告寫在logs\l4d2_mission_manager.log
         l4d2_mission_manager_log_message "1"
-		```
+        ```
 </details>
 
 * <details><summary>命令中文介紹 (點我展開)</summary>
 
-	* **列出遊戲模式可支援的地圖列表 (權限: ADMFLAG_ROOT)**
+    * **列出遊戲模式可支援的地圖列表 (權限: ADMFLAG_ROOT)**
         ```c
         sm_lmm_list [<coop|versus|scavenge|survival>]
         ```
 
-	* **在"mission.cache"資料夾內無法被分析或不合法的地圖列表 (權限: ADMFLAG_ROOT)**
+    * **在"mission.cache"資料夾內無法被分析或不合法的地圖列表 (權限: ADMFLAG_ROOT)**
         ```c
         sm_lmm_list invalid
         ```

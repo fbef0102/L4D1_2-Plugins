@@ -53,6 +53,9 @@ Provide natives, spawn special infected without the director limits!
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.5h (2026-7-12)
+		* Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
+
 	* v1.4h (2026-7-9)
 		* Teleport infected bot once spawn instead of waiting next frame
 

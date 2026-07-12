@@ -7,7 +7,7 @@
 * @brief 			   Spawn special infected without the director limits!
 *
 * @param zomb          	S.I. Name: 
-*                             (L4D2) "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch"
+*                             (L4D2) "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch", "witch_bride"
 *                             (L4D1) "tank", "smoker", "hunter", "boomer", "witch"
 * @param vecPos        	Vector coordinate where the special will be spawned
 * @param vecAng        	QAngle where special will be facing
@@ -16,6 +16,7 @@
 *                             (L4D2) Boomer: 	1=L4D2 Model, 2=L4D1 Model, 3=Female Boomer, 0=Random.
 *                             (L4D2) Hunter: 	1=L4D2 Model, 2=L4D1 Model, 0=Random.
 *                             (L4D2) Tank: 		1=L4D2 Model, 2=DLC Model, 3=L4D1 Model, 0=Random.
+*                             (L4D2) Witch: 	1=Normal Model, 2=DLC Bride Model, 0=Random.
 *                             (L4D1) Tank: 		1=L4D1 Model, 2=DLC Model, 0=Random.
 *
 * @return               client index of the spawned special infected, -1 if fail to spawn

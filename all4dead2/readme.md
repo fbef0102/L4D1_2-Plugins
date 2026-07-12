@@ -71,6 +71,9 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v4.0 (2026-7-12)
+		* Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
+        
     * v3.9 (2024-3-30)
         * Update cvars
         * Update cmds

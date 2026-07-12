@@ -14,7 +14,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw Tank/S.I./Witch/Hittable instead of rock",
-	version = "2.5h-2024/8/27",
+	version = "2.6h-2026/7/12",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -544,11 +544,11 @@ stock int CreateSI(int thetank, const float pos[3], const float velocity[3])
 		{
 			if( g_bSpawnWitchBride )
 			{
-				selected = L4D2_SpawnWitchBride(pos, NULL_VECTOR);
+				selected = NoLimit_CreateInfected("witch", pos, NULL_VECTOR, 2);
 			}
 			else
 			{
-				selected = L4D2_SpawnWitch(pos, NULL_VECTOR);
+				selected = NoLimit_CreateInfected("witch", pos, NULL_VECTOR);
 			}
 			if(selected > MaxClients)
 			{

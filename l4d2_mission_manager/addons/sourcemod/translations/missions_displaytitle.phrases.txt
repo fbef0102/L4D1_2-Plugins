@@ -1,0 +1,36 @@
+"Phrases" 
+{
+	// Translate "mission"->"DisplayTitle" in mission file, custom 3-rd maps mission file is located in left4dead2\missions.cache folder (auto-generated)
+	// If the map updates, the author usually modifies the display title; translation is not recommended
+	// --
+	// 翻譯地圖mission文件內的"mission"->"DisplayTitle"，此為地圖海報標題，三方圖的mission文件於left4dead2\missions.cache資料夾內 (自動創建)
+	// 如果地圖有更新, 作者通常會修改海報標題, 不太建議翻譯海報標題
+	
+	"City 17 v3.2"
+	{
+		"en" 	"City 17 v3.2"
+		"zho" 	"城市17 v3.2"
+		"chi" 	"城市17 v3.2"
+	}
+	
+	"广西灵山V2.9"
+	{
+		"en" 	"China-LingShan V2.9"
+		"zho" 	"廣西靈山 V2.9"
+		"chi" 	"广西灵山 V2.9"
+	}
+	
+	"广西-南宁 V1.15.1"
+	{
+		"en" 	"China-Nanning, GuangXi V1.15.1"
+		"zho" 	"廣西-南寧 V1.15.1"
+		"chi" 	"广西-南宁 V1.15.1"
+	}
+	
+	"广州增城Lv7.3"
+	{
+		"en" 	"China-Zengcheng v7.3"
+		"zho" 	"廣州增城Lv7.3"
+		"chi" 	"广州增城Lv7.3"
+	}
+}

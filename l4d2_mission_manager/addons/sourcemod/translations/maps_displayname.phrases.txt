@@ -1,0 +1,34 @@
+"Phrases"
+{
+	// Translate "mission"->"modes"->...->"DisplayName" in mission file, custom 3-rd maps mission file is located in left4dead2\missions.cache folder (auto-generated)
+	// The author usually won't change the map name even the map updates;
+	// --
+	// 翻譯地圖mission文件內的"mission"->"modes"->...->"DisplayName"，此為關卡顯示名稱，三方圖的mission文件於left4dead2\missions.cache資料夾內 (自動創建)
+	// 如果地圖有更新, 作者可能會修改關卡地圖顯示名稱, 不太建議翻譯
+	
+	"1: Tunnels"
+	{
+		//City 17 level "DisplayName"
+		"en"	"1: Tunnels"
+	}
+	"2: To the surface"
+	{
+		//City 17 level "DisplayName"
+		"en"	"2: To the surface"
+	}
+	"3: Streets"
+	{
+		//City 17 level "DisplayName"
+		"en"	"3: Streets"
+	}
+	"4: Hospital"
+	{
+		//City 17 level "DisplayName"
+		"en"	"4: Hospital"
+	}
+	"5: Trainstation"
+	{
+		//City 17 level "DisplayName"
+		"en"	"5: Trainstation"
+	}
+}

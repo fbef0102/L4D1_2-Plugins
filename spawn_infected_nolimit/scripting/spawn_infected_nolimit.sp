@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.4h-2026/7/9"
+#define PLUGIN_VERSION "1.5h-2026/7/12"
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
 
@@ -132,22 +132,13 @@ ConVar version_cvar;
 #define MAXENTITIES                   2048
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
+int 
+	g_iMenuPos[MAXPLAYERS+1];
+
 /**
 * @brief 			   Spawn special infected without the director limits!
 *
-* @param zomb          	S.I. Name: 
-*                             (L4D2) "tank", "smoker", "hunter", "boomer"," jockey", "charger", "spitter", "witch"
-*                             (L4D1) "tank", "smoker", "hunter", "boomer", "witch"
-* @param vecPos        	Vector coordinate where the special will be spawned
-* @param vecAng        	QAngle where special will be facing
-* @param variantModel  	The zombie variant model 
-*                             (L4D2) Smoker: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
-*                             (L4D2) Boomer: 	1=L4D2 Model, 2=L4D1 Model, 3=Female Boomer, 0=Random
-*                             (L4D2) Hunter: 	1=L4D2 Model, 2=L4D1 Model, 0=Random
-*                             (L4D2) Tank: 		1=L4D2 Model, 2=DLC Model, 3=L4D1 Model, 0=Random
-*                             (L4D1) Tank: 		1=L4D1 Model, 2=DLC Model, 0=Random
-*
-* @return               client index of the spawned special infected, -1 if fail to spawn
+* see spawn_infected_nolimit.inc
 */
 //native int NoLimit_CreateInfected(const char[] zomb, const float vecPos[3], const float vecAng[3], int variantModel = 1);
 
@@ -225,40 +216,49 @@ Action Command_SpawnMenu(int client, int args)
 		ReplyToCommand(client, "[SIN] Menu is in-game only."); 
 		return Plugin_Handled; 
 	}
-	
-	Handle menu = CreateMenu(SpawnMenu_Handler);
-	SetMenuTitle(menu, "Direct ZSpawn Menu");
-	AddMenuItem(menu, "Smoker", "Smoker");
-	AddMenuItem(menu, "Boomer", "Boomer");
-	AddMenuItem(menu, "Hunter", "Hunter");
-	if (g_bLeft4Dead2)
-	{
-		AddMenuItem(menu, "Jockey", "Jockey");
-		AddMenuItem(menu, "Spitter", "Spitter");
-		AddMenuItem(menu, "Charger", "Charger");
-	}
-	AddMenuItem(menu, "Tank", "Tank");
-	AddMenuItem(menu, "Witch", "Witch");
-	if (g_bLeft4Dead2)
-	{ AddMenuItem(menu, "witch_bride", "Bride Witch"); }
-	AddMenuItem(menu, "", "Common");
-	AddMenuItem(menu, "chase", "Chasing Common");
-	SetMenuExitButton(menu, true);
-	DisplayMenu(menu, client, MENU_TIME_FOREVER);
+
+	g_iMenuPos[client] = 0;
+	GoToMainMenu(client);
+
 	return Plugin_Handled;
 }
 
-int SpawnMenu_Handler(Handle menu, MenuAction action, int client, int param) 
+void GoToMainMenu(int client)
+{
+	Menu menu = new Menu(SpawnMenu_Handler);
+	menu.SetTitle("Direct ZSpawn Menu");
+	menu.AddItem("Smoker", "Smoker");
+	menu.AddItem("Boomer", "Boomer");
+	menu.AddItem("Hunter", "Hunter");
+	if (g_bLeft4Dead2)
+	{
+		menu.AddItem("Jockey", "Jockey");
+		menu.AddItem("Spitter", "Spitter");
+		menu.AddItem("Charger", "Charger");
+	}
+	menu.AddItem("Tank", "Tank");
+	menu.AddItem("Witch", "Witch");
+	if (g_bLeft4Dead2)
+	{ menu.AddItem("witch_bride", "Bride Witch"); }
+	menu.AddItem("", "Common");
+	menu.AddItem("chase", "Chasing Common");
+	menu.ExitBackButton = true;
+	menu.DisplayAt(client, g_iMenuPos[client], MENU_TIME_FOREVER);
+}
+
+int SpawnMenu_Handler(Menu menu, MenuAction action, int client, int param) 
 {
 	switch (action)
 	{
 		case MenuAction_Select:
 		{
+			g_iMenuPos[client] = menu.Selection;
+
 			static char zombie[12];
 			GetMenuItem(menu, param, zombie, sizeof(zombie));
 			
 			CreateInfectedWithParams(client, zombie);
-			Command_SpawnMenu(client, 0);
+			GoToMainMenu(client);
 		}
 		case MenuAction_Cancel:
 		{
@@ -330,10 +330,27 @@ void CreateInfectedWithParams(int client, const char[] zomb, int mode = 0, int n
 		}
 	}
 	ang[0] = 0.0;ang[2] = 0.0;
-	int failed_Count = 0;
+	int failed_Count = 0, infected;
 	for (int i = 0;i < number;i++)
 	{
-		int infected = CreateInfected(zomb, pos, ang);
+		if (strcmp(zomb, "witch", false) == 0)
+		{
+			infected = CreateInfected("witch", pos, ang, 1);
+		}
+		else if(g_bLeft4Dead2 && strcmp(zomb, "witch_bride", false) == 0)
+		{
+			infected = CreateInfected("witch", pos, ang, 2);
+		}
+		else
+		{
+			infected = CreateInfected(zomb, pos, ang);
+		}
+
+		if( 0 < infected <= MaxClients )
+		{
+			CreateTimer(0.15, Timer_CheckIfStuck, GetClientUserId(infected));
+		}
+
 		if (!RealValidEntity(infected))
 		{ failed_Count += 1; }
 	}
@@ -342,6 +359,7 @@ void CreateInfectedWithParams(int client, const char[] zomb, int mode = 0, int n
 	else if (failed_Count > 0)
 	{ PrintToChat(client, "[SIN] Failed to spawn %s infected!", zomb); }
 }
+
 bool TraceRayDontHitPlayers(int entity, int mask, any data)
 {
 	if (IsValidClient(data))
@@ -349,6 +367,17 @@ bool TraceRayDontHitPlayers(int entity, int mask, any data)
 		return false;
 	}
 	return true;
+}
+
+Action Timer_CheckIfStuck(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if (client && IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client))
+	{
+		L4D_WarpToValidPositionIfStuck(client);
+	}
+
+	return Plugin_Continue;
 }
 
 int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], int variantModel = 1)
@@ -363,21 +392,22 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 	static char sModel[64];
 	sModel[0] = '\0';
 
-	if (strncmp(zomb, "witch", 5, false) == 0 || (g_bLeft4Dead2 && strncmp(zomb, "witch_bride", 11, false) == 0))
+	if (strcmp(zomb, "witch", false) == 0)
 	{
-		int witch = L4D2_SpawnWitch(pos, ang);
+		int witch = CreateEntityByName("witch");
+		if (witch == -1) return -1;
+		variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
 
-		return witch;
-	}
-	else if(g_bLeft4Dead2 && strncmp(zomb, "witch_bride", 11, false) == 0)
-	{
-		int witch = L4D2_SpawnWitchBride(pos, ang);
+		TeleportEntity(witch, pos, ang, NULL_VECTOR);
+		DispatchSpawn(witch);
+		ActivateEntity(witch);
+		if(g_bLeft4Dead2 && variantModel == 2) SetEntityModel(witch, MODEL_WITCHBRIDE);
 
 		return witch;
 	}
 	else if (strncmp(zomb, "smoker", 6, false) == 0)
 	{
-		bot = SDKCall(hCreateSmoker, "Smoker");
+		bot = SDKCall(hCreateSmoker, "Smoker Bot");
 		if(g_bLeft4Dead2)
 		{
 			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
@@ -396,7 +426,7 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 	}
 	else if (strncmp(zomb, "boomer", 6, false) == 0)
 	{
-		bot = SDKCall(hCreateBoomer, "Boomer");
+		bot = SDKCall(hCreateBoomer, "Boomer Bot");
 		if(g_bLeft4Dead2)
 		{
 			variantModel = (variantModel == 0) ? GetRandomInt(1, 3) : variantModel;
@@ -416,7 +446,7 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 	}
 	else if (strncmp(zomb, "hunter", 6, false) == 0)
 	{
-		bot = SDKCall(hCreateHunter, "Hunter");
+		bot = SDKCall(hCreateHunter, "Hunter Bot");
 		if(g_bLeft4Dead2)
 		{
 			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
@@ -435,22 +465,22 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 	}
 	else if (strncmp(zomb, "spitter", 7, false) == 0 && g_bLeft4Dead2)
 	{
-		bot = SDKCall(hCreateSpitter, "Spitter");
+		bot = SDKCall(hCreateSpitter, "Spitter Bot");
 		FormatEx(sModel, sizeof(sModel), "%s", MODEL_SPITTER);
 	}
 	else if (strncmp(zomb, "jockey", 6, false) == 0 && g_bLeft4Dead2)
 	{
-		bot = SDKCall(hCreateJockey, "Jockey");
+		bot = SDKCall(hCreateJockey, "Jockey Bot");
 		FormatEx(sModel, sizeof(sModel), "%s", MODEL_JOCKEY);
 	}
 	else if (strncmp(zomb, "charger", 7, false) == 0 && g_bLeft4Dead2)
 	{
-		bot = SDKCall(hCreateCharger, "Charger");
+		bot = SDKCall(hCreateCharger, "Charger Bot");
 		FormatEx(sModel, sizeof(sModel), "%s", MODEL_CHARGER);
 	}
 	else if (strncmp(zomb, "tank", 4, false) == 0)
 	{
-		bot = SDKCall(hCreateTank, "Tank");
+		bot = SDKCall(hCreateTank, "Tank Bot");
 		if(g_bLeft4Dead2)
 		{
 			variantModel = (variantModel == 0) ? GetRandomInt(1, 3) : variantModel;

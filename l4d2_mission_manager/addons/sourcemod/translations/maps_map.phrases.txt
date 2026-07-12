@@ -1,0 +1,70 @@
+"Phrases"
+{
+	// Translate "mission"->"modes"->...->"Map" in mission file, custom 3-rd maps mission file is located in left4dead2\missions.cache folder (auto-generated)
+	// The author usually won't change the map name even the map updates;
+	// --
+	// 翻譯地圖mission文件內的"mission"->"modes"->...->"Map"，此為關卡代碼，三方圖的mission文件於left4dead2\missions.cache資料夾內 (自動創建)
+	// 即使地圖有更新, 作者通常不太會隨意修改關卡地圖代碼, 因此可以多寫翻譯
+	
+	"c1m1_hotel"
+	{
+		"en"	"Dead Center Map 1"
+		"zho"	"死亡都心 第一關"
+		"chi"	"死亡中心 第一关"
+	}
+	"c1m2_streets"
+	{
+		"en"	"Dead Center Map 2"
+		"zho"	"死亡都心 第二關"
+		"chi"	"死亡中心 第二关"
+	}
+	"c1m3_mall"
+	{
+		"en"	"Dead Center Map 3"
+		"zho"	"死亡都心 第三關"
+		"chi"	"死亡中心 第三关"
+	}
+	"c1m4_atrium"
+	{
+		"en"	"Dead Center Final"
+		"zho"	"死亡都心 終關"
+		"chi"	"死亡中心 终关"
+	}
+	"c2m1_highway"
+	{
+		"en"	"Dark Carnival Map 1"
+		"zho"	"黑色嘉年華 第一關"
+		"chi"	"黑色狂欢节 第一关"
+	}
+	
+	"l4d2_city17_01"
+	{
+		"en"	"City 17 Map 1"
+		"zho"	"城市17 第一關"
+		"chi"	"城市17 第一关"
+	}
+	"l4d2_city17_02"
+	{
+		"en"	"City 17 Map 2"
+		"zho"	"城市17 第二關"
+		"chi"	"城市17 第二关"
+	}
+	"l4d2_city17_03"
+	{
+		"en"	"City 17 Map 3"
+		"zho"	"城市17 第三關"
+		"chi"	"城市17 第三关"
+	}
+	"l4d2_city17_04"
+	{
+		"en"	"City 17 Map 4"
+		"zho"	"城市17 第四關"
+		"chi"	"城市17 第四关"
+	}
+	"l4d2_city17_05"
+	{
+		"en"	"City 17 Map 5"
+		"zho"	"城市17 第五關"
+		"chi"	"城市17 第五关"
+	}
+}

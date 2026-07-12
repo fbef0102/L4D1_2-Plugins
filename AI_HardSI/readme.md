@@ -65,7 +65,7 @@ Improves the AI behaviour of special infected
             // How long an out-of-range Boomer will tolerate being visible before fleeing (Default: 1.0)
             boomer_exposed_time_tolerance 1000.0
 
-            // How long the Boomer waits before he vomits on his target on Normal difficulty (Default: 1.0)
+            // How long the Boomer waits before he vomits on his target (Default: 1.0)
             boomer_vomit_delay 0.1
             ```
 

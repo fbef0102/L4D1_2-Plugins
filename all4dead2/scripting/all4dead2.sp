@@ -10,14 +10,14 @@
 
 #define PLUGIN_NAME					"All4Dead"
 #define PLUGIN_TAG					"[A4D]"
-#define PLUGIN_VERSION				"3.9-2024/3/30"
+#define PLUGIN_VERSION				"4.0-2026/7/12"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
 	author = "James Richardson (grandwazir) & HarryPotter",
 	description = "Enables admins to have control over the AI Director and spawn all weapons, melee, items, special infected, and Uncommon Infected without using sv_cheats 1",
 	version = PLUGIN_VERSION,
-	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/all4dead2"
+	url = "https://github.com/fbef0102/L4D2-Plugins/tree/master/all4dead2"
 };
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
@@ -513,7 +513,8 @@ void Do_SpawnInfected(int client, const char[] type)
 	}
 	else
 	{
-		if( !SetTeleportEndPoint(client, vPos, vAng) ) {
+		if( !SetTeleportEndPoint(client, vPos, vAng) )
+		 {
 			PrintToChat(client, "%T", "Can not spawn, please try again", client);
 			return;
 		}
@@ -556,11 +557,27 @@ void Do_SpawnInfected(int client, const char[] type)
 	{
 		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", type);
 		LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
+
+		if (automatic_placement == false)
+		{
+			CreateTimer(0.15, Timer_CheckIfStuck, GetClientUserId(bot));
+		}
 	}
 	else
 	{
 		CPrintToChat(client, "%T", "Not enough player slots", client);
 	}
+}
+
+Action Timer_CheckIfStuck(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if (client && IsClientInGame(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client))
+	{
+		L4D_WarpToValidPositionIfStuck(client);
+	}
+
+	return Plugin_Continue;
 }
 
 void Do_SpawnInfected_Old(int client, const char[] type, bool spawning_uncommon ) {
@@ -636,11 +653,18 @@ void Do_SpawnWitch(const int client, const bool bAutoSpawn)
 		}
 	}
 
+	int witch;
 	if( g_bSpawnWitchBride ) {
-		L4D2_SpawnWitchBride(vPos,NULL_VECTOR);
+		witch = NoLimit_CreateInfected("witch", vPos, NULL_VECTOR, 2);
 	}
 	else {
-		L4D2_SpawnWitch(vPos,NULL_VECTOR);
+		witch = NoLimit_CreateInfected("witch", vPos, NULL_VECTOR);
+	}
+
+	if(witch < MaxClients)
+	{
+		PrintToChat(client, "%T", "Can not spawn, please try again", client);
+		return;
 	}
 
 	if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", "witch");

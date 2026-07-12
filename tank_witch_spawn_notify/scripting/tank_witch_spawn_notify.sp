@@ -65,8 +65,8 @@ public void OnPluginStart()
     GetCvars();
     g_hCvarTankAnnounce.AddChangeHook(ConVarChanged_Cvars);
     g_hCvarWitchAnnounce.AddChangeHook(ConVarChanged_Cvars);
-    g_hCvarTankSound.AddChangeHook(ConVarChanged_SoundCvars);
-    g_hCvarWitchSound.AddChangeHook(ConVarChanged_SoundCvars);
+    g_hCvarTankSound.AddChangeHook(ConVarChanged_Cvars);
+    g_hCvarWitchSound.AddChangeHook(ConVarChanged_Cvars);
 
     HookEvent("tank_spawn", Event_TankSpawn);
     HookEvent("witch_spawn", Event_WitchSpawn);
@@ -76,20 +76,9 @@ public void OnPluginStart()
 
 //-------------------------------Cvars-------------------------------
 
-public void ConVarChanged_Cvars(Handle hCvar, const char[] sOldVal, const char[] sNewVal)
+void ConVarChanged_Cvars(Handle hCvar, const char[] sOldVal, const char[] sNewVal)
 {
 	GetCvars();
-}
-
-public void ConVarChanged_SoundCvars(Handle hCvar, const char[] sOldVal, const char[] sNewVal)
-{
-    GetCvars();
-
-    if(g_bMapStarted)
-    {
-        if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarTankSound);
-        if (strlen(g_sCvarWitchSound) > 0) PrecacheSound(g_sCvarWitchSound);
-    }
 }
 
 void GetCvars()
@@ -99,6 +88,12 @@ void GetCvars()
 
     g_hCvarTankSound.GetString(g_sCvarTankSound, sizeof(g_sCvarTankSound));
     g_hCvarWitchSound.GetString(g_sCvarWitchSound, sizeof(g_sCvarWitchSound));
+
+    if(g_bMapStarted)
+    {
+        if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarTankSound);
+        if (strlen(g_sCvarWitchSound) > 0) PrecacheSound(g_sCvarWitchSound);
+    }
 }
 
 //-------------------------------Sourcemod API Forward-------------------------------
@@ -116,11 +111,9 @@ public void OnMapEnd()
 public void OnConfigsExecuted()
 {
     GetCvars();
-    if (strlen(g_sCvarTankSound) > 0) PrecacheSound(g_sCvarTankSound);
-    if (strlen(g_sCvarWitchSound) > 0) PrecacheSound(g_sCvarWitchSound);
 }
 
-public void Event_TankSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_TankSpawn(Event event, const char[] name, bool dontBroadcast)
 {
     if (g_bAliveTank)
         return;
@@ -131,13 +124,13 @@ public void Event_TankSpawn(Event event, const char[] name, bool dontBroadcast)
     g_bAliveTank = true;
 }
 
-public void Event_WitchSpawn(Event event, const char[] name, bool dontBroadcast)
+void Event_WitchSpawn(Event event, const char[] name, bool dontBroadcast)
 {
     if (strlen(g_sCvarWitchSound) > 0) EmitSoundToAll(g_sCvarWitchSound);
     if (g_bCvarWitchAnnounce) CPrintToChatAll("%t", "Witch");
 }
 
-public Action tmrAliveTankCheck(Handle timer)
+Action tmrAliveTankCheck(Handle timer)
 {
     if (!g_bAliveTank)
         return Plugin_Continue;
