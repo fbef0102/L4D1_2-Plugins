@@ -10,10 +10,11 @@ public Plugin myinfo =
 	name = "Modify every weapon damage done to Tank,SI,Witch,Common in l4d2",
 	author = "Harry Potter",
 	description = "as the name says, you dumb fuck",
-	version = "1.3-2024/2/23",
+	version = "1.4-2026/7/19",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
+bool bLate;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	EngineVersion test = GetEngineVersion();
@@ -23,6 +24,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
 		return APLRes_SilentFailure;
 	}
+
+	bLate = late;
 	return APLRes_Success;
 }
 
@@ -38,6 +41,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define ZC_TANK         	8
 
 #define CLASSNAME_LENGTH 	64
+#define MAXENTITIES                   2048
 
 //enum
 enum WeaponID
@@ -76,6 +80,10 @@ enum VictimID
 	Victim_Common,
 	Victim_MAX
 }
+
+VictimID
+	g_eVictimID[MAXENTITIES];
+
 
 ConVar g_hCvarAllow,
 	g_hCvarWeaponDamageModfiy[view_as<int>(ID_WEAPON_MAX)][view_as<int>(Victim_MAX)];
@@ -260,7 +268,7 @@ public void OnPluginStart()
 								FCVAR_NOTIFY, true, 0.0);		
 	g_hCvarWeaponDamageModfiy[ID_GRENADE][Victim_Common] = CreateConVar("l4d_grenadelauncher_damage_common_multi", "1.0",
 								"Modfiy grenade launcher Damage to Common multi. (0=No Damage, -1: Don't modify)",
-								FCVAR_NOTIFY, true, 0.0);																					
+								FCVAR_NOTIFY, true, 0.0);																				
 	g_hCvarWeaponDamageModfiy[ID_SG552][Victim_Tank] = CreateConVar("l4d_sg552_damage_tank_multi", "1.0",
 								"Modfiy sg552 Damage to tank multi. (0=No Damage, -1: Don't modify)",
 								FCVAR_NOTIFY, true, 0.0);
@@ -335,6 +343,45 @@ public void OnPluginStart()
 	}
 
 	SetWeaponNameId();
+
+	if(bLate)
+	{
+		LateLoad();
+	}
+}
+
+void LateLoad()
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (!IsClientInGame(client))
+			continue;
+
+		OnClientPutInServer(client);
+	}
+
+	int entity;
+	char classname[64];
+
+	entity = INVALID_ENT_REFERENCE;
+	while ((entity = FindEntityByClassname(entity, "infected")) != INVALID_ENT_REFERENCE)
+	{
+		if (!IsValidEntity(entity))
+			continue;
+
+		GetEntityClassname(entity, classname, sizeof(classname));
+		OnEntityCreated(entity, classname);
+	}
+
+	entity = INVALID_ENT_REFERENCE;
+	while ((entity = FindEntityByClassname(entity, "witch")) != INVALID_ENT_REFERENCE)
+	{
+		if (!IsValidEntity(entity))
+			continue;
+
+		GetEntityClassname(entity, classname, sizeof(classname));
+		OnEntityCreated(entity, classname);
+	}
 }
 
 void ConVarChanged_Cvars(Handle convar, const char[] oldValue, const char[] newValue)
@@ -374,7 +421,7 @@ void SetWeaponNameId()
 	g_smWeaponNameID.SetValue("weapon_rifle_ak47", ID_AK47);
 	g_smWeaponNameID.SetValue("weapon_rifle_desert", ID_RIFLE_DESERT);
 	g_smWeaponNameID.SetValue("weapon_sniper_military", ID_SNIPER_MILITARY);
-	g_smWeaponNameID.SetValue("weapon_grenade_launcher", ID_GRENADE);
+	//g_smWeaponNameID.SetValue("weapon_grenade_launcher", ID_GRENADE);
 	g_smWeaponNameID.SetValue("weapon_rifle_sg552", ID_SG552);
 	g_smWeaponNameID.SetValue("weapon_rifle_m60", ID_M60);
 	g_smWeaponNameID.SetValue("weapon_sniper_awp", ID_AWP);
@@ -385,7 +432,7 @@ void SetWeaponNameId()
 
 public void OnClientPutInServer(int client)
 {
-    SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage); 
+	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage); 
 }
 
 public void OnEntityCreated(int entity, const char[] classname) 
@@ -399,6 +446,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 		{
 			if(strncmp(classname, "infected", 18) == 0)
 			{
+				g_eVictimID[entity] = Victim_Common;
 				SDKHook(entity, SDKHook_OnTakeDamage, OnTakeDamage); 
 			}
 		}
@@ -406,24 +454,28 @@ public void OnEntityCreated(int entity, const char[] classname)
 		{
 			if(strncmp(classname, "witch", 18) == 0)
 			{
+				g_eVictimID[entity] = Victim_Witch;
 				SDKHook(entity, SDKHook_OnTakeDamage, OnTakeDamage);
 			}
 		}
 	}
 }
 
-Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(damage <= 0.0 || g_bCvarAllow == false) return Plugin_Continue;
-	if(!IsClientAndInGame(attacker) || 
+
+	if(attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) || 
 		GetClientTeam(attacker) != L4D_TEAM_SURVIVOR ||
 		attacker == victim
 	) return Plugin_Continue;
 
 	VictimID victimId = Victim_NONE;
 
-	if(IsClientAndInGame(victim) && GetClientTeam(victim) == L4D_TEAM_INFECTED && IsPlayerAlive(victim))
+	if(0 < victim <= MaxClients)
 	{
+		if(!IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_INFECTED || !IsPlayerAlive(victim)) return Plugin_Continue;
+
 		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
 		{
 			if(IsTankDying(victim)) return Plugin_Continue;
@@ -433,33 +485,54 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 		else
 			victimId = Victim_SI;
 	}
+	else
+	{
+		if(g_eVictimID[victim] == Victim_Common) victimId = Victim_Common;
+		if(g_eVictimID[victim] == Victim_Witch) victimId = Victim_Witch;
+	}
 
-	if(IsCommonInfected(victim)) victimId = Victim_Common;
-	if(IsWitch(victim)) victimId = Victim_Witch;
-	
 	if(victimId == Victim_NONE) return Plugin_Continue;
 
-	damage = float(RoundToNearest(damage));
-
+	int real_weapon = (inflictor <= MaxClients) ? weapon : inflictor;
+	if(!IsValidEntity(real_weapon)) return Plugin_Continue;
 	if(damagetype & DMG_BULLET)
 	{
-		static char sWeaponName[CLASSNAME_LENGTH];
-		GetClientWeapon(attacker,sWeaponName, sizeof(sWeaponName));
-		#if DEBUG
-			PrintToChatAll("%N use %s to attack %d, damage: %f - > %f",attacker,sWeaponName,victim,damage,damage * g_hCvarWeaponDamageModfiy[weaponId][victimId].FloatValue);
-		#endif
+		static char sWeaponName[64];
+		GetEntityClassname(real_weapon, sWeaponName, sizeof sWeaponName);
 		WeaponID weaponId = GetWeaponID(sWeaponName);
+
+		//PrintToChatAll("%N use %s to attack %d, damage: %.1f - > %.1f", attacker, 
+		//	sWeaponName, victim, damage, damage * g_hCvarWeaponDamageModfiy[weaponId][victimId].FloatValue);
+		
 		if(weaponId == ID_NONE) return Plugin_Continue; //找不到武器名稱
 		if(g_fCvarWeaponDamageModfiy[weaponId][victimId] < 0.0) return Plugin_Continue; //不修改
 
 		damage = damage * g_fCvarWeaponDamageModfiy[weaponId][victimId];
 	}
-	else if(damagetype & DMG_BLAST)
+	// 一顆榴彈有兩次傷害, 第一次是處死殭屍 (傷害很高, DMG_PLASMA + DMG_BLAST), 第二次是震退 (傷害很低, 通常是0.0~1.0, DMG_AIRBOAT)
+	else if(damagetype == DMG_PLASMA + DMG_BLAST)
 	{
-		static char classname[CLASSNAME_LENGTH];
-		GetEntityClassname(inflictor, classname, sizeof(classname));
-		if(strncmp(classname, "grenade_launcher_projectile", 27, false) != 0 ) return Plugin_Continue; //非榴彈發射器
+		static char sWeaponName[64];
+		GetEntityClassname(real_weapon, sWeaponName, sizeof sWeaponName);
+
+		if(strncmp(sWeaponName, "grenade_launcher_projectile", 27, false) != 0 ) return Plugin_Continue; //非榴彈發射器
 		if(g_fCvarWeaponDamageModfiy[ID_GRENADE][victimId] < 0.0) return Plugin_Continue; //不修改
+
+		//PrintToChatAll("%N use grenade_launcher to attack %d, first damage: %.1f - > %.1f", attacker, 
+		//	victim, damage, damage * g_hCvarWeaponDamageModfiy[ID_GRENADE][victimId].FloatValue);
+
+		damage = damage * g_fCvarWeaponDamageModfiy[ID_GRENADE][victimId];
+	}
+	else if(damagetype == DMG_AIRBOAT)
+	{
+		static char sWeaponName[64];
+		GetEntityClassname(real_weapon, sWeaponName, sizeof sWeaponName);
+
+		if(strncmp(sWeaponName, "grenade_launcher_projectile", 27, false) != 0 ) return Plugin_Continue; //非榴彈發射器
+		if(g_fCvarWeaponDamageModfiy[ID_GRENADE][victimId] < 0.0) return Plugin_Continue; //不修改
+
+		//PrintToChatAll("%N use grenade_launcher to attack %d, second damage: %.1f - > %.1f", attacker, 
+		//	victim, damage, damage * g_hCvarWeaponDamageModfiy[ID_GRENADE][victimId].FloatValue);
 		
 		damage = damage * g_fCvarWeaponDamageModfiy[ID_GRENADE][victimId];
 	}
@@ -469,15 +542,6 @@ Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, in
 	}
 
 	return Plugin_Changed;
-}
-
-stock bool IsClientAndInGame(int client)
-{
-	if (0 < client && client <= MaxClients)
-	{	
-		return IsClientInGame(client);
-	}
-	return false;
 }
 
 WeaponID GetWeaponID(char[] sWeaponName)
@@ -492,32 +556,8 @@ WeaponID GetWeaponID(char[] sWeaponName)
 	return index;
 }
 
-bool IsCommonInfected(int entity)
-{
-	if(entity && IsValidEntity(entity) && IsValidEdict(entity))
-	{
-		char classname[32];
-		GetEdictClassname(entity, classname, sizeof(classname));
-		return StrEqual(classname, "infected");
-	}
-	return false;
-} 
-
-bool IsWitch(int entity)
-{
-	if(entity && IsValidEntity(entity) && IsValidEdict(entity))
-	{
-		char classname[32];
-		GetEdictClassname(entity, classname, sizeof(classname));
-		return StrEqual(classname, "witch");
-	}
-	return false;
-}  
-
 bool IsTankDying(int tankclient)
 {
-	if (!tankclient) return false;
- 
 	return view_as<bool>(GetEntData(tankclient, g_iOffset_Incapacitated));
 }
 

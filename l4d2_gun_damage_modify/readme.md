@@ -279,6 +279,9 @@ Modify every weapon damage done to Tank, SI, Witch, Common in l4d2
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v1.4 (2026-7-19)
+        * Get actual weapon instead of player's current active weapon
+        
     * v1.3 (2024-2-23)
         * Update cvars
 

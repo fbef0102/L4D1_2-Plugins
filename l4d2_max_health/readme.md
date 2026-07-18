@@ -18,7 +18,7 @@ Custom maximum survivor health
 </Chargedetails>
 
 * Require | 必要安裝
-<br/>None
+    1. [l4d2_healthbuffer_fix](https://github.com/xiaolinRM/L4D2Plugins/tree/main/l4d2_healthbuffer_fix)
 
 * <details><summary>ConVar | 指令</summary>
 
