@@ -101,6 +101,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		// If 1, Block player from using 'sb_takecontrol' command in console.
 		l4d_afk_commands_takecontrol_block "1"
 
+		// If 1, Block player idle state, take over survivor bot or become fully spectator
+		// If 1, Skip the idle state when joining a game in coop/realism/survival
+		l4d_afk_commands_idle_block "0"
+
 		// If 1, Infected player can not change team while pouncing/ridding/charging/pulling a survivor.
 		l4d_afk_commands_infected_cap_block "1"
 
@@ -135,7 +139,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 * <details><summary>Command</summary>
 	
-	* **Change team to Spectate**
+	* **Change team to Spectate (Become idle state in coop mode)**
 		```php
 		sm_afk
 		sm_s
@@ -150,7 +154,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		sm_js
 		```
 
-	* **Change team to Survivor**
+	* **Change team to Survivor (Become idle state in coop mode)**
 		```php
 		sm_join
 		sm_bot
@@ -176,7 +180,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		sm_zombie
 		```
 
-	* **Switch team to fully an observer**
+	* **Switch team to fully an observer (No idle state)**
 		```php
 		sm_observer
 		sm_ob
@@ -207,6 +211,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v5.7 (2026-7-20)
+		* Add new cvar: Skip the idle state when joining a game in coop (like in versus)
+		* Update cvars
 
 	* v5.6 (2026-6-16)
 		* Fixed an error: witch's target is invalid client
@@ -371,6 +379,10 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 
 		// 為1時，禁止玩家在控制台輸入 'sb_takecontrol' 指令
 		l4d_afk_commands_takecontrol_block "1"
+
+		// 為1時，禁止玩家進入閒置狀態，加入倖存者時直接取代bot，加入旁觀者時直接變成完全旁觀者
+		// 為1時，在戰役/寫實/生存模式下，新玩家加入遊戲後直接取代bot而非閒置狀態 (像對抗模式那樣)
+		l4d_afk_commands_idle_block "0"
 
 		// 為1時，當特感抓住倖存者期間禁止換隊
 		l4d_afk_commands_infected_cap_block "1"

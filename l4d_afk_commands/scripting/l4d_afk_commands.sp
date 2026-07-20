@@ -68,7 +68,7 @@
 * evidence: https://i.imgur.com/aLECLqz.jpg
 */
 
-#define PLUGIN_VERSION 		"5.6-2026/6/16"
+#define PLUGIN_VERSION 		"5.7-2026/7/20"
 #define PLUGIN_NAME			"[L4D(2)] AFK and Join Team Commands Improved"
 #define PLUGIN_AUTHOR		"MasterMe & HarryPotter"
 #define PLUGIN_DES			"Adds commands to let the player spectate and join team. (!afk, !survivors, !infected, etc.), but no change team abuse"
@@ -140,7 +140,7 @@ ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSe
 	g_hGetVomitBlock,
 	g_hInfectedCapBlock, g_hInfectedAttackBlock, g_hWitchAttackBlock, g_hWPressMBlock, g_hImmuneAccess,
 	g_hTakeABreakBlock, g_hSpecCommandAccess, g_hInfCommandAccess, g_hSurCommandAccess,
-	g_hObsCommandAccess,
+	g_hObsCommandAccess, g_hIDLEBlock,
 	g_hTakeControlBlock, g_hBreakPropCooldown, g_hThrowableBlock, g_hGrenadeBlock, g_hInfectedSpawnCooldown,
 	g_hVSCommandBalance, g_hVSUnBalanceLimit, g_hShowMessages;
 
@@ -148,7 +148,7 @@ ConVar g_hCoolTime, g_hDeadSurvivorBlock, g_hGameTimeBlock, g_hSurvivorSuicideSe
 char g_sImmuneAcclvl[AdminFlags_TOTAL], g_sSpecCommandAccesslvl[AdminFlags_TOTAL], g_sInfCommandAccesslvl[AdminFlags_TOTAL], 
 	g_sSurCommandAccesslvl[AdminFlags_TOTAL], g_sObsCommandAccesslvl[AdminFlags_TOTAL];
 bool g_bDeadSurvivorBlock, g_bTakeControlBlock, g_bWeaponReloadBlock, g_bGetUpStaggerBlock, g_bThrowableBlock, g_bGrenadeBlock,
-	g_bInfectedAttackBlock, g_bGetVomitBlock, g_bInfectedCapBlock,
+	g_bInfectedAttackBlock, g_bGetVomitBlock, g_bInfectedCapBlock, g_bIDLEBlock,
 	g_bWitchAttackBlock, g_bPressMBlock, g_bTakeABreakBlock, g_bVSCommandBalance, g_bShowMessages;
 float g_fBreakPropCooldown, g_fSurvivorSuicideSeconds, g_fInfectedSpawnCooldown;
 int g_iCvarGameTimeBlock, g_iCountDownTime, g_iVSUnBalanceLimit;
@@ -256,8 +256,9 @@ public void OnPluginStart()
 	g_hGrenadeBlock = 			CreateConVar("l4d_afk_commands_grenade_block", 					"1", 	"(L4D2) If 1, Player can not change team after firing the grenade launcher (0=off).", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hBreakPropCooldown = 		CreateConVar("l4d_afk_commands_igniteprop_cooltime_block", 		"15.0", "Cold Down Time in seconds a player can not change team after ignites molotov, gas can, firework crate or barrel fuel. (0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hWPressMBlock = 			CreateConVar("l4d_afk_commands_pressM_block", 					"1", 	"If 1, Block player from using 'jointeam' command in console. (This also blocks player from switching team by choosing team menu)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hTakeABreakBlock = 		CreateConVar("l4d_afk_commands_takeabreak_block", 				"0", 	"If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break')", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hTakeABreakBlock = 		CreateConVar("l4d_afk_commands_takeabreak_block", 				"0", 	"If 1, Block player from using 'go_away_from_keyboard' command in console. (This also blocks player from going idle with 'esc->take a break'", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hTakeControlBlock = 		CreateConVar("l4d_afk_commands_takecontrol_block", 				"1", 	"If 1, Block player from using 'sb_takecontrol' command in console.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hIDLEBlock = 				CreateConVar("l4d_afk_commands_idle_block", 					"0", 	"If 1, If any player is in idle state, take over survivor bot immediately", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedCapBlock = 		CreateConVar("l4d_afk_commands_infected_cap_block", 			"1", 	"If 1, Infected player can not change team while pouncing/ridding/charging/pulling a survivor.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedSpawnCooldown = 	CreateConVar("l4d_afk_commands_infected_spawn_cooltime_block", 	"10.0", "Cold Down Time in seconds an infected player can not change team after spawned alive (Not ghost, 0=off).", FCVAR_NOTIFY, true, 0.0);
 	g_hImmuneAccess = 			CreateConVar("l4d_afk_commands_immune_block_flag", 				"-1", 	"Players with these flags have immune to all 'block' limit (Empty = Everyone, -1: Nobody)", FCVAR_NOTIFY);
@@ -286,6 +287,7 @@ public void OnPluginStart()
 	g_hInfectedCapBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hWPressMBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hTakeControlBlock.AddChangeHook(ConVarChanged_Cvars);
+	g_hIDLEBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hTakeABreakBlock.AddChangeHook(ConVarChanged_Cvars);
 	g_hBreakPropCooldown.AddChangeHook(ConVarChanged_Cvars);
 	g_hThrowableBlock.AddChangeHook(ConVarChanged_Cvars);
@@ -690,6 +692,7 @@ void GetCvars()
 	g_bPressMBlock = g_hWPressMBlock.BoolValue;
 	g_bTakeABreakBlock = g_hTakeABreakBlock.BoolValue;
 	g_bTakeControlBlock = g_hTakeControlBlock.BoolValue;
+	g_bIDLEBlock = g_hIDLEBlock.BoolValue;
 	g_fCoolTime = g_hCoolTime.FloatValue;
 	g_fBreakPropCooldown = g_hBreakPropCooldown.FloatValue;
 	g_bThrowableBlock = g_hThrowableBlock.BoolValue;
@@ -859,7 +862,7 @@ Action TurnClientToSpectate(int client, int argCount)
 	{
 		if(CanClientChangeTeam(client,1) == false) return Plugin_Handled;
 		
-		if(iTeam == 2 && L4D_HasPlayerControlledZombies() == false)
+		if(!g_bIDLEBlock && iTeam == 2 && L4D_HasPlayerControlledZombies() == false)
 		{
 			if(IsPlayerAlive(client)) 
 			{
@@ -1042,7 +1045,7 @@ Action TurnClientToSurvivors(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	if(L4D_HasPlayerControlledZombies() == false) //coop/survival
+	if(!g_bIDLEBlock || L4D_HasPlayerControlledZombies() == false) //coop/survival
 	{
 		if(team == 3) ChangeClientTeam(client,1);
 
@@ -1652,6 +1655,11 @@ Action ClientReallyChangeTeam(Handle timer, int usrid)
 		case 1:
 		{
 			if(!bIdle) CleanUpStateAndMusic(client);
+
+			if(g_bIDLEBlock && bIdle)
+			{
+				L4D_TakeOverBot(client);
+			}
 		}
 		case 2:
 		{
