@@ -53,6 +53,10 @@ Provide natives, spawn special infected without the director limits!
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.6h (2026-7-233)
+		* Fixed special infected variants
+		* Update inc
+
 	* v1.5h (2026-7-12)
 		* Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
 

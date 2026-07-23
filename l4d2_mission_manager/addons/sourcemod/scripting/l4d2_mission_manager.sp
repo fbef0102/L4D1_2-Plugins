@@ -8,13 +8,12 @@
 #pragma newdecls required
 
 public Plugin myinfo = {
-	name = "L4D2 Mission Manager",
+	name = "[L4D1/2] Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.8h - 2026/7/12",
+	version = "v1.9h - 2026/7/23",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
-
 
 ConVar
 	g_hCvarLogFile;
@@ -136,16 +135,25 @@ int Native_IsOnFinalMap(Handle plugin, int numParams){
 
 /* ========== Register Native APIs ========== */
 Handle g_hForward_OnLMMUpdateList;
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 
 	EngineVersion test = GetEngineVersion();
 
-	if( test != Engine_Left4Dead2 )
+	if( test == Engine_Left4Dead )
 	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
+		g_bL4D2Version = false;
+	}
+	else if( test == Engine_Left4Dead2 )
+	{
+		g_bL4D2Version = true;
+	}
+	else
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
 		return APLRes_SilentFailure;
 	}
-	
+
 	if( !IsDedicatedServer() )
 	{
 		strcopy(error, err_max, "Get a dedicated server. This plugin does not work on Listen servers.");
@@ -199,97 +207,116 @@ int Native_GetCurrentGameMode(Handle plugin, int numParams) {
 	mp_gamemode.GetString(strGameMode, sizeof(strGameMode));
 	
 	//Set the global gamemode int for this plugin
-	if(StrEqual(strGameMode, "coop", false))
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "realism", false))
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode,"versus", false))
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "teamversus", false))
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "scavenge", false))
-		gamemode = LMM_GAMEMODE_SCAVENGE;
-	else if(StrEqual(strGameMode, "teamscavenge", false))
-		gamemode = LMM_GAMEMODE_SCAVENGE;
-	else if(StrEqual(strGameMode, "survival", false))
-		gamemode = LMM_GAMEMODE_SURVIVAL;
-	else if(StrEqual(strGameMode, "mutation1", false))		//Last Man On Earth
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation2", false))		//Headshot!
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation3", false))		//Bleed Out
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation4", false))		//Hard Eight
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation5", false))		//Four Swordsmen
-		gamemode = LMM_GAMEMODE_COOP;
-	//else if(StrEqual(strGameMode, "mutation6", false))	//Nothing here
-	//	gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation7", false))		//Chainsaw Massacre
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation8", false))		//Ironman
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation9", false))		//Last Gnome On Earth
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation10", false))	//Room For One
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation11", false))	//Healthpackalypse!
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "mutation12", false))	//Realism Versus
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "mutation13", false))	//Follow the Liter
-		gamemode = LMM_GAMEMODE_SCAVENGE;
-	else if(StrEqual(strGameMode, "mutation14", false))	//Gib Fest
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation15", false))	//Versus Survival
-		gamemode = LMM_GAMEMODE_SURVIVAL;
-	else if(StrEqual(strGameMode, "mutation16", false))	//Hunting Party
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation17", false))	//Lone Gunman
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "mutation18", false))	//Bleed Out Versus
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "mutation19", false))	//Taaannnkk!
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "mutation20", false))	//Healing Gnome
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "community1", false))	//Special Delivery
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "community2", false))	//Flu Season
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "community3", false))	//Riding My Survivor
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "community4", false))	//Nightmare
-		gamemode = LMM_GAMEMODE_SURVIVAL;
-	else if(StrEqual(strGameMode, "community5", false))	//Death's Door
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "community6", false))	//Confogl
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "rocketdude", false))	//RocketDude
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "gunbrain", false))	//GunBrain
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "tankrun", false))	//TankRun
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "l4d1coop", false))	//L4D1 Co-op
-		gamemode = LMM_GAMEMODE_COOP;
-	else if(StrEqual(strGameMode, "l4d1vs", false))	//L4D1 Versus
-		gamemode = LMM_GAMEMODE_VERSUS;
-	else if(StrEqual(strGameMode, "l4d1survival", false))	//L4D1 Survival
-		gamemode = LMM_GAMEMODE_SURVIVAL;
-	else if(StrEqual(strGameMode, "dash", false))	//Dash (parishdash.txt)
-		gamemode = LMM_GAMEMODE_UNKNOWN;
-	else if(StrEqual(strGameMode, "holdout", false))	//Holdout (holdouttraining.txtoldoutchallenge.txt)
-		gamemode = LMM_GAMEMODE_UNKNOWN;
-	else if(StrEqual(strGameMode, "shootzones", false))	//Shootzones (shootzones.txt)
-		gamemode = LMM_GAMEMODE_UNKNOWN;
+	if(g_bL4D2Version)
+	{
+		if(StrEqual(strGameMode, "coop", false))
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "realism", false))
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode,"versus", false))
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "teamversus", false))
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "scavenge", false))
+			gamemode = LMM_GAMEMODE_SCAVENGE;
+		else if(StrEqual(strGameMode, "teamscavenge", false))
+			gamemode = LMM_GAMEMODE_SCAVENGE;
+		else if(StrEqual(strGameMode, "survival", false))
+			gamemode = LMM_GAMEMODE_SURVIVAL;
+		else if(StrEqual(strGameMode, "mutation1", false))		//Last Man On Earth
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation2", false))		//Headshot!
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation3", false))		//Bleed Out
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation4", false))		//Hard Eight
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation5", false))		//Four Swordsmen
+			gamemode = LMM_GAMEMODE_COOP;
+		//else if(StrEqual(strGameMode, "mutation6", false))	//Nothing here
+		//	gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation7", false))		//Chainsaw Massacre
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation8", false))		//Ironman
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation9", false))		//Last Gnome On Earth
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation10", false))	//Room For One
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation11", false))	//Healthpackalypse!
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "mutation12", false))	//Realism Versus
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "mutation13", false))	//Follow the Liter
+			gamemode = LMM_GAMEMODE_SCAVENGE;
+		else if(StrEqual(strGameMode, "mutation14", false))	//Gib Fest
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation15", false))	//Versus Survival
+			gamemode = LMM_GAMEMODE_SURVIVAL;
+		else if(StrEqual(strGameMode, "mutation16", false))	//Hunting Party
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation17", false))	//Lone Gunman
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "mutation18", false))	//Bleed Out Versus
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "mutation19", false))	//Taaannnkk!
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "mutation20", false))	//Healing Gnome
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "community1", false))	//Special Delivery
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "community2", false))	//Flu Season
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "community3", false))	//Riding My Survivor
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "community4", false))	//Nightmare
+			gamemode = LMM_GAMEMODE_SURVIVAL;
+		else if(StrEqual(strGameMode, "community5", false))	//Death's Door
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "community6", false))	//Confogl
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "rocketdude", false))	//RocketDude
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "gunbrain", false))	//GunBrain
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "tankrun", false))	//TankRun
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "l4d1coop", false))	//L4D1 Co-op
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode, "l4d1vs", false))	//L4D1 Versus
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "l4d1survival", false))	//L4D1 Survival
+			gamemode = LMM_GAMEMODE_SURVIVAL;
+		else if(StrEqual(strGameMode, "dash", false))	//Dash (parishdash.txt)
+			gamemode = LMM_GAMEMODE_UNKNOWN;
+		else if(StrEqual(strGameMode, "holdout", false))	//Holdout (holdouttraining.txtoldoutchallenge.txt)
+			gamemode = LMM_GAMEMODE_UNKNOWN;
+		else if(StrEqual(strGameMode, "shootzones", false))	//Shootzones (shootzones.txt)
+			gamemode = LMM_GAMEMODE_UNKNOWN;
+		else
+		{
+			if(L4D_IsCoopMode() || L4D2_IsRealismMode()) gamemode = LMM_GAMEMODE_COOP;
+			else if(L4D_IsVersusMode()) gamemode = LMM_GAMEMODE_VERSUS;
+			else if(L4D_IsSurvivalMode()) gamemode = LMM_GAMEMODE_SURVIVAL;
+			else if(L4D2_IsScavengeMode()) gamemode = LMM_GAMEMODE_SCAVENGE;
+			else gamemode = LMM_GAMEMODE_UNKNOWN;
+		}
+	}
 	else
 	{
-		if(L4D_IsCoopMode() || L4D2_IsRealismMode()) gamemode = LMM_GAMEMODE_COOP;
-		else if(L4D_IsVersusMode()) gamemode = LMM_GAMEMODE_VERSUS;
-		else if(L4D_IsSurvivalMode()) gamemode = LMM_GAMEMODE_SURVIVAL;
-		else if(L4D2_IsScavengeMode()) gamemode = LMM_GAMEMODE_SCAVENGE;
-		else gamemode = LMM_GAMEMODE_UNKNOWN;
+		if(StrEqual(strGameMode, "coop", false))
+			gamemode = LMM_GAMEMODE_COOP;
+		else if(StrEqual(strGameMode,"versus", false))
+			gamemode = LMM_GAMEMODE_VERSUS;
+		else if(StrEqual(strGameMode, "survival", false))
+			gamemode = LMM_GAMEMODE_SURVIVAL;
+		else
+		{
+			if(L4D_IsCoopMode()) gamemode = LMM_GAMEMODE_COOP;
+			else if(L4D_IsVersusMode()) gamemode = LMM_GAMEMODE_VERSUS;
+			else if(L4D_IsSurvivalMode()) gamemode = LMM_GAMEMODE_SURVIVAL;
+			else gamemode = LMM_GAMEMODE_UNKNOWN;
+		}
 	}
 		
 	return view_as<int>(gamemode);
@@ -305,90 +332,102 @@ int Native_StringToGamemode(Handle plugin, int numParams) {
 	char[] gamemodeName = new char[length+1];
 	GetNativeString(1, gamemodeName, length+1);
 	
-	if(StrEqual(gamemodeName, "coop", false))
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "realism", false))
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName,"versus", false))
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "teamversus", false))
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "scavenge", false))
-		return view_as<int>(LMM_GAMEMODE_SCAVENGE);
-	else if(StrEqual(gamemodeName, "teamscavenge", false))
-		return view_as<int>(LMM_GAMEMODE_SCAVENGE);
-	else if(StrEqual(gamemodeName, "survival", false))
-		return view_as<int>(LMM_GAMEMODE_SURVIVAL);
-	else if(StrEqual(gamemodeName, "mutation1", false))		//Last Man On Earth
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation2", false))		//Headshot!
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation3", false))		//Bleed Out
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation4", false))		//Hard Eight
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation5", false))		//Four Swordsmen
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	//else if(StrEqual(gamemodeName, "mutation6", false))	//Nothing here
-	//	return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation7", false))		//Chainsaw Massacre
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation8", false))		//Ironman
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation9", false))		//Last Gnome On Earth
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation10", false))	//Room For One
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation11", false))	//Healthpackalypse!
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "mutation12", false))	//Realism Versus
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "mutation13", false))	//Follow the Liter
-		return view_as<int>(LMM_GAMEMODE_SCAVENGE);
-	else if(StrEqual(gamemodeName, "mutation14", false))	//Gib Fest
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation15", false))	//Versus Survival
-		return view_as<int>(LMM_GAMEMODE_SURVIVAL);
-	else if(StrEqual(gamemodeName, "mutation16", false))	//Hunting Party
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation17", false))	//Lone Gunman
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "mutation18", false))	//Bleed Out Versus
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "mutation19", false))	//Taaannnkk!
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "mutation20", false))	//Healing Gnome
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "community1", false))	//Special Delivery
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "community2", false))	//Flu Season
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "community3", false))	//Riding My Survivor
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "community4", false))	//Nightmare
-		return view_as<int>(LMM_GAMEMODE_SURVIVAL);
-	else if(StrEqual(gamemodeName, "community5", false))	//Death's Door
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "community6", false))	//Confogl
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "rocketdude", false))	//RocketDude
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "gunbrain", false))	//GunBrain
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "tankrun", false))	//TankRun
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "l4d1coop", false))	//L4D1 Co-op
-		return view_as<int>(LMM_GAMEMODE_COOP);
-	else if(StrEqual(gamemodeName, "l4d1vs", false))	//L4D1 Versus
-		return view_as<int>(LMM_GAMEMODE_VERSUS);
-	else if(StrEqual(gamemodeName, "l4d1survival", false))	//L4D1 Survival
-		return view_as<int>(LMM_GAMEMODE_SURVIVAL);
-	else if(StrEqual(gamemodeName, "dash", false))	//Dash (parishdash.txt)
-		return view_as<int>(LMM_GAMEMODE_UNKNOWN);
-	else if(StrEqual(gamemodeName, "holdout", false))	//Holdout (holdouttraining.txtoldoutchallenge.txt)
-		return view_as<int>(LMM_GAMEMODE_UNKNOWN);
-	else if(StrEqual(gamemodeName, "shootzones", false)) //Shootzones  (shootzones.txt)
-		return view_as<int>(LMM_GAMEMODE_UNKNOWN);
+	if(g_bL4D2Version)
+	{
+		if(StrEqual(gamemodeName, "coop", false))
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "realism", false))
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName,"versus", false))
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "teamversus", false))
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "scavenge", false))
+			return view_as<int>(LMM_GAMEMODE_SCAVENGE);
+		else if(StrEqual(gamemodeName, "teamscavenge", false))
+			return view_as<int>(LMM_GAMEMODE_SCAVENGE);
+		else if(StrEqual(gamemodeName, "survival", false))
+			return view_as<int>(LMM_GAMEMODE_SURVIVAL);
+		else if(StrEqual(gamemodeName, "mutation1", false))		//Last Man On Earth
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation2", false))		//Headshot!
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation3", false))		//Bleed Out
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation4", false))		//Hard Eight
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation5", false))		//Four Swordsmen
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		//else if(StrEqual(gamemodeName, "mutation6", false))	//Nothing here
+		//	return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation7", false))		//Chainsaw Massacre
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation8", false))		//Ironman
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation9", false))		//Last Gnome On Earth
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation10", false))	//Room For One
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation11", false))	//Healthpackalypse!
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "mutation12", false))	//Realism Versus
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "mutation13", false))	//Follow the Liter
+			return view_as<int>(LMM_GAMEMODE_SCAVENGE);
+		else if(StrEqual(gamemodeName, "mutation14", false))	//Gib Fest
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation15", false))	//Versus Survival
+			return view_as<int>(LMM_GAMEMODE_SURVIVAL);
+		else if(StrEqual(gamemodeName, "mutation16", false))	//Hunting Party
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation17", false))	//Lone Gunman
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "mutation18", false))	//Bleed Out Versus
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "mutation19", false))	//Taaannnkk!
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "mutation20", false))	//Healing Gnome
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "community1", false))	//Special Delivery
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "community2", false))	//Flu Season
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "community3", false))	//Riding My Survivor
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "community4", false))	//Nightmare
+			return view_as<int>(LMM_GAMEMODE_SURVIVAL);
+		else if(StrEqual(gamemodeName, "community5", false))	//Death's Door
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "community6", false))	//Confogl
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "rocketdude", false))	//RocketDude
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "gunbrain", false))	//GunBrain
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "tankrun", false))	//TankRun
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "l4d1coop", false))	//L4D1 Co-op
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName, "l4d1vs", false))	//L4D1 Versus
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "l4d1survival", false))	//L4D1 Survival
+			return view_as<int>(LMM_GAMEMODE_SURVIVAL);
+		else if(StrEqual(gamemodeName, "dash", false))	//Dash (parishdash.txt)
+			return view_as<int>(LMM_GAMEMODE_UNKNOWN);
+		else if(StrEqual(gamemodeName, "holdout", false))	//Holdout (holdouttraining.txtoldoutchallenge.txt)
+			return view_as<int>(LMM_GAMEMODE_UNKNOWN);
+		else if(StrEqual(gamemodeName, "shootzones", false)) //Shootzones  (shootzones.txt)
+			return view_as<int>(LMM_GAMEMODE_UNKNOWN);
+	}
+	else
+	{
+		if(StrEqual(gamemodeName, "coop", false))
+			return view_as<int>(LMM_GAMEMODE_COOP);
+		else if(StrEqual(gamemodeName,"versus", false))
+			return view_as<int>(LMM_GAMEMODE_VERSUS);
+		else if(StrEqual(gamemodeName, "survival", false))
+			return view_as<int>(LMM_GAMEMODE_SURVIVAL);
+	}
 
 	return view_as<int>(LMM_GAMEMODE_UNKNOWN);
 }
@@ -402,21 +441,41 @@ int Native_GamemodeToString(Handle plugin, int numParams) {
 	int length = GetNativeCell(3);
 	char gamemodeName[LEN_GAMEMODE_NAME];
 
-	switch (gamemode) {
-		case LMM_GAMEMODE_COOP: {
-			strcopy(gamemodeName, sizeof(gamemodeName), "coop");
+	if(g_bL4D2Version)
+	{
+		switch (gamemode) {
+			case LMM_GAMEMODE_COOP: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "coop");
+			}
+			case LMM_GAMEMODE_VERSUS: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "versus");
+			}
+			case LMM_GAMEMODE_SCAVENGE: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "scavenge");
+			}
+			case LMM_GAMEMODE_SURVIVAL: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "survival");
+			}
+			default: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "unknown");
+			}
 		}
-		case LMM_GAMEMODE_VERSUS: {
-			strcopy(gamemodeName, sizeof(gamemodeName), "versus");
-		}
-		case LMM_GAMEMODE_SCAVENGE: {
-			strcopy(gamemodeName, sizeof(gamemodeName), "scavenge");
-		}
-		case LMM_GAMEMODE_SURVIVAL: {
-			strcopy(gamemodeName, sizeof(gamemodeName), "survival");
-		}
-		default: {
-			strcopy(gamemodeName, sizeof(gamemodeName), "unknown");
+	}
+	else
+	{
+		switch (gamemode) {
+			case LMM_GAMEMODE_COOP: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "coop");
+			}
+			case LMM_GAMEMODE_VERSUS: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "versus");
+			}
+			case LMM_GAMEMODE_SURVIVAL: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "survival");
+			}
+			default: {
+				strcopy(gamemodeName, sizeof(gamemodeName), "unknown");
+			}
 		}
 	}
 	
@@ -971,22 +1030,23 @@ SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_qu
 		case MPS_ROOT: {
 			if(strcmp("mission", name, false)==0) {
 				g_MissionParser_State = MPS_MISSION;
+				//PrintToServer("Entering modes section");
 			} else {
 				g_MissionParser_UnknownPreState = g_MissionParser_State;
 				g_MissionParser_UnknownCurLayer = 1;
 				g_MissionParser_State = MPS_UNKNOWN;
-				// PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
+				//PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
 			}
 		}
 		case MPS_MISSION: {
 			if(StrEqual("modes", name, false)) {
 				g_MissionParser_State = MPS_MODES;
-				// PrintToServer("Entering modes section");
+				//PrintToServer("Entering modes section");
 			} else {
 				g_MissionParser_UnknownPreState = g_MissionParser_State;
 				g_MissionParser_UnknownCurLayer = 1;
 				g_MissionParser_State = MPS_UNKNOWN;
-				// PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
+				//PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
 			}
 		}
 		case MPS_MODES: {
@@ -995,7 +1055,7 @@ SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_qu
 				g_MissionParser_UnknownPreState = g_MissionParser_State;
 				g_MissionParser_UnknownCurLayer = 1;
 				g_MissionParser_State = MPS_UNKNOWN;
-				// PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
+				//PrintToServer("MissionParser_NewSection found an unknown structure: %s",name);
 			} else {
 				delete g_aMissionParser_MapIndex;
 				delete g_aMissionParser_MapName;
@@ -1009,7 +1069,7 @@ SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_qu
 				g_MissionParser_State = MPS_GAMEMODE;
 			}
 			
-			// PrintToServer("Enter gamemode: %d (%s)", g_MissionParser_CurGameMode, name);
+			//PrintToServer("Enter gamemode: %d (%s)", g_MissionParser_CurGameMode, name);
 		}
 		case MPS_GAMEMODE: {
 			int mapID = StringToInt(name);

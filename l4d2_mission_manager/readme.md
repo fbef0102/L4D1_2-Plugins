@@ -7,6 +7,7 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * Apply to | 適用於
     ```
+    L4D1 Dedicated Server
     L4D2 Dedicated Server
     ```
 
@@ -67,7 +68,8 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * Translation Support | 支援翻譯
     ```
-    translations/maps.phrases.txt
+    translations/maps_displayname.phrases.txt
+    translations/maps_map.phrases.txt
     translations/missions_displaytitle.phrases.txt
     translations/missions_name.phrases.txt
     ```
@@ -79,6 +81,9 @@ Mission manager for L4D2, provide information about map orders for other plugins
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.9h (2026-7-23)
+        * Support L4D1
 
     * v1.8h (2026-7-12)
         * Update translation file

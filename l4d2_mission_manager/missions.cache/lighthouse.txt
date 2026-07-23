@@ -1,0 +1,53 @@
+//Fixed l4d1 mission file format by Harry
+//Please do not modify or delete this file if playing l4d1
+
+"mission"
+{
+	"Name"		"Lighthouse"
+	"Version"       "1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com/app/500/"
+	"BuiltIn"       "1"
+	"DisplayTitle"		"#L4D360UI_Campaign_Lighthouse"
+	"Description"		"#L4D_Mission_Lighthouse_Objective"
+	"OuttroImage"		"vgui/outroTitle_Lighthouse"
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		"LoadingScreen_LastStand"
+
+		// We don't display the poster title in english since its already on the poster
+		// We display the translated names overlayed in other languages
+		"posterTitle"		"#L4D360UI_LighthouseCampaignTitle"  //[$!ENGLISH]
+		"posterTitle_y"		"320"
+		
+		"posterTagline"		"#L4D360UI_LighthouseCampaignTagline"  //[$!ENGLISH]
+		"posterTagline_y"	"380"
+		
+		"francis_player_name_x"	"-120"
+		"francis_player_name_y"	"-40"
+		
+		"louis_player_name_x"	"-28"
+		"louis_player_name_y"	"-80"
+		
+		"zoey_player_name_x"	"39"
+		"zoey_player_name_y"	"-10"
+		
+		"bill_player_name_x"	"118"
+		"bill_player_name_y"	"-48"			
+	}
+
+	"modes"
+	{
+		"survival"
+		{
+			"1"
+			{
+				"Map"	"l4d_sv_lighthouse"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Lighthouse"
+				"Image" "maps/l4d_sv_lighthouse"
+			}
+		}
+	}
+}

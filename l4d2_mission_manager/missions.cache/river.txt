@@ -1,0 +1,262 @@
+//This l4d1 mission file is same as official, nothing needed to be fixed
+//Please do not modify or delete this file if playing l4d1
+
+"mission"
+{
+	"Name"				"River"
+	"Version"			"1"
+	"Author"			"Turtle Rock"
+	"Website"			"http://www.turtlerockstudios.com/"
+	"BuiltIn"			"0"
+	"DisplayTitle"		"#L4D_Mission_River_Title"
+	"Description"		"#L4D_Mission_River_Objective"
+	"OuttroImage"		"VGUI\outroTitle_sacrifice"
+
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		"LoadingScreen_TheSacrifice"
+
+	//	"posterTitle"		"#L4D360UI_RiverCampaignTitle"  [$!ENGLISH]
+	//	"posterTitle_y"		"320"
+		
+	//	"posterTagline"		"#L4D360UI_RiverCampaignTagline"  [$!ENGLISH]
+	//	"posterTagline_y"	"380"		
+		
+		"bill_player_name_x"	"-16"
+		"bill_player_name_y"	"-94"
+		
+		"louis_player_name_x"	"44"
+		"louis_player_name_y"	"-40"
+		
+		"zoey_player_name_x"	"101" // left to right -left +right
+		"zoey_player_name_y"	"-14" // top to bottom -raises +lowers
+		
+		"francis_player_name_x"	"-77"
+		"francis_player_name_y"	"-66" 
+	}
+	
+	
+
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "l4d_river01_docks"
+				"DisplayName" "#L4D360UI_Chapter_Docks"
+				"Image" "maps/l4d_river01_docks"
+				"TankVariant" "models/infected/hulk_dlc3.mdl"
+				"SpawnBossThreats" "1"	
+				"coop_boss_spawning"
+				{
+					"boss_threat_radius" 			"500"
+					"boss_threat_separation_min" 	"6000"
+					"boss_threat_separation_max" 	"6000"
+					"spawn_witches"					"1"
+					"spawn_tanks"					"0"
+				}				
+			}
+
+			"2"
+			{
+				"Map" "l4d_river02_barge"
+				"DisplayName" "#L4D360UI_Chapter_Barge"
+				"Image" "maps/l4d_river02_barge"
+				"SpawnBossThreats" "1"
+				"coop_boss_spawning"
+				{
+					"boss_threat_radius" 			"1500"
+					"boss_threat_separation_min" 	"6000"
+					"boss_threat_separation_max" 	"9000"
+					"spawn_witches"					"1"
+					"spawn_tanks"					"1"
+				}
+			}
+			
+			"3"
+			{
+				"Map" "l4d_river03_port"
+				"DisplayName" "#L4D360UI_Chapter_Port"
+				"Image" "maps/l4d_river03_port"
+				"SpawnBossThreats" "0"
+				"coop_boss_spawning"
+				{
+					"spawn_witches"					"0"
+					"spawn_tanks"					"0"
+				}
+			}	
+
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "l4d_river01_docks"
+				"DisplayName" "#L4D360UI_Chapter_Docks"
+				"Image" "maps/l4d_river01_docks"
+				"TankVariant" "models/infected/hulk_dlc3.mdl"
+				"VersusModifier" "1.0"
+				"VersusConvertPills" "0.25"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.55"
+					"spawn_pos_max"		"0.95"
+					"tank_chance"		"0"
+					"witch_chance"		"1.0"
+					"witch_and_tank"	"0"
+				}					
+			}
+
+			"2"
+			{
+				"Map" "l4d_river02_barge"
+				"DisplayName" "#L4D360UI_Chapter_Barge"
+				"Image" "maps/l4d_river02_barge"
+				"VersusModifier" "1.5"
+				"VersusConvertPills" "0.25"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.3"
+					"spawn_pos_max"		"0.9"
+					"tank_chance"		"1.0"
+					"witch_chance"		"1.0"
+					"witch_and_tank"	"1"
+				}					
+			}
+			
+			"3"
+			{
+				"Map" "l4d_river03_port"
+				"DisplayName" "#L4D360UI_Chapter_Port"
+				"Image" "maps/l4d_river03_port"
+				"VersusModifier" "3.5"	
+				"VersusFinaleProgressScoreFactor" "0.85"
+				"VersusConvertPills" "0"
+				"versus_boss_spawning"
+				{
+					"tank_chance"		"0"
+					"witch_chance"		"0"
+				}
+			}
+		}
+	
+		"survival"
+		{			
+			
+			"1"
+			{
+				"Map" "l4d_river01_docks"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Docks"
+				"Image" "maps/l4d_river01_tankcar"
+				"TankVariant" "models/infected/hulk_dlc3.mdl"
+			}
+			
+			"2"
+			{
+				"Map" "l4d_river03_port"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Port"
+				"Image" "maps/l4d_river03_port"
+			}
+		}
+			
+	} // "modes"
+	
+	
+	// "SpawnBossThreats"
+	// In CoOp games, controls whether or not a map can randomly spawn witches / tanks. 
+	// By default, the first map in a campaign can't. 
+	// If this value is set for a map, it overrides the default. (0 for false, 1 for true)
+	
+	// "versus_boss_spawning"
+	// In versus games, there are a set of console variables that are used to govern how witches and 
+	// tanks spawn. If you wish to override those defaults for a map in this campaign, you can do that here. 
+	// If you don't specify a mapma or a specific value for a map, 
+	// it will use the console variables defaults instead. 
+	//
+	// spawn_pos_min - (float: 0.01 ... 0.99)
+	//	The minimum random position on a map to spawn a boss. 
+	//	0.01 means right near the beginning, 0.99 means near the end
+	// 
+	// spawn_pos_max - (float: 0.01 ... 0.99)
+	//	The maximum random position on a map to spawn a boss. 
+	//	0.01 means right near the beginning, 0.99 means near the end
+	//
+	// tank_chance - (float: 0.0 ... 1.0)
+	//	The random chance that a Tank will spawn, 0 being never and 1 being always.
+	//
+	// witch_chance - (float: 0.0 ... 1.0)
+	//	The random chance that a witch will spawn, 0 being never and 1 being always.
+	//
+	// witch_and_tank - (int: 0 or 1)
+	//	If both a witch and a tank randomly spawn, this controls whether 
+	// 	the tank is supressed in favor of the witch. 
+	// 	0 means only spawn the witch if they would both spawn, 1 means spawn them both. 
+	//	
+	
+	// "VersusFinaleProgressScoreFactor" (float: 0.0 ... 1.0)
+	// This controls how much of the player's progress through the finale (rather than movement through the map)
+	// is counted towards their score. Generally, you want a higher number if there is little distance 
+	// between the checkpoint and the finale, and a lower number if there is significant distance
+	// from the checkpoint to the finale.
+	// 0.0 is the default behavior, which means that the score is based on movement through the map. 
+	// 1.0 means that the score is based completely on progress during the finale. 
+	// 0.85 means that 85% comes from progress in the finale, and 15% from movement through the map. 
+	
+	// "VersusConvertPills" (float: 0.0 ... 1.0)
+	// This controls how many pills are converted to kits at the beginning of the map. By default, 
+	// the game references the director_vs_convert_pills convar for this value, but you can 
+	// override it here. 
+	
+	// "ThirdTankDelay" (float: 0.0 .... 9999)
+	// This controls the delay before the third tank is spawned in the finale. 
+	// This is the tank that shows up while the survivors are rushing for the escape vehicle. 
+	// By default, the delay is twice the "director_finale_stage_delay" convar. 
+	
+	// "FinaleVehicleEvent"
+	// This allows designers to change what message is displayed when the escape vehicle is ready. 
+	
+	// "FinaleEscapeKillIncapped"  - (int: 0 or 1)
+	// If set to 1, any characters that are incapped when the escape starts will be killed. 
+	// This is primarily a cutscene aid, it doesn't change the way points are awarded, etc. 
+	// By default, survivors are left alone
+	
+	// "SpawnFinalePZClose"  - (int: 0 or 1)
+	// If set to 1, the Director will try to spawn PZs closer to the survivors during the 
+	// finale, which can be useful for finales with a very large playable area and many potential
+	// spawn locations. 
+	// The behavior of this is controlled by the convars "z_finale_pz_spawnable_area_*".
+	// By default, PZs are spawned randomly in the nav areas marked FINALE
+	
+	// "coop_boss_spawning"
+	// In Co-Op & Single-Player games, there are a set of console variables that are used to govern how witches and 
+	// tanks spawn. If you wish to override those defaults for a map in this campaign, you can do that here. 
+	// If you don't specify a specific value for a map, 
+	// it will use the console variables defaults instead. 
+	//
+	// Tanks and witches are spawned periodically at certain distances along the escape route, so the longer the map,
+	// the more potential boss encounters you'll get. 
+	//
+	// "boss_threat_separation_min" - (float: 0.0 ... 100000.0)
+	//  Minimum distance between boss spawns
+	//
+	// "boss_threat_separation_max" - (float: 0.0 ... 100000.0)
+	//  Max distance between boss spawns
+	//
+	// "boss_threat_radius" - (float: 0.0 ... 10000.0)
+	//  Random distance off the escape route that the boss can be spawned
+	//
+	// "spawn_witches" - (int: 0 or 1)
+	//  Controls whether or not witches will spawn on the map
+	//
+	// "spawn_tanks" - (int: 0 or 1)
+	//  Controls whether or not Tanks will spawn on the map
+	//
+	
+	
+} // "mission"
+

@@ -6,6 +6,49 @@
 	// 翻譯地圖mission文件內的"mission"->"Name"，此為地圖名稱，三方圖的mission文件於left4dead2\missions.cache資料夾內 (自動創建)
 	// 即使地圖有更新, 作者通常不太會隨意修改地圖名稱, 因此可以多寫翻譯地圖名稱
 	
+	"Hospital"
+	{
+		"en" 	"No Mercy"
+		"zho" 	"毫不留情"
+		"chi" 	"毫不留情"
+	}
+	"Garage"
+	{
+		"en" 	"Crash Course"
+		"zho" 	"速成課程"
+		"chi" 	"坠机险途"
+	}
+	"SmallTown"
+	{
+		"en" 	"Death Toll"
+		"zho" 	"死亡喪鐘"
+		"chi" 	"死亡丧钟"
+	}
+	"Airport"
+	{
+		"en" 	"Dead Air"
+		"zho" 	"死亡機場"
+		"chi" 	"静寂时分"
+	}
+	"Farm"
+	{
+		"en" 	"Blood Harvest"
+		"zho" 	"嗜血豐收"
+		"chi" 	"血腥收获"
+	}
+	"River"
+	{
+		"en" 	"The Sacrifice"
+		"zho" 	"犧牲"
+		"chi" 	"牺牲"
+	}
+	"Lighthouse"
+	{
+		"en"  	"Light House"
+		"zho" 	"燈塔"
+		"chi" 	"灯塔"
+	}
+
 	"L4D2C1"
 	{
 		"en" 	"Dead Center"

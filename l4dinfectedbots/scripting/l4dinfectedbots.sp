@@ -5012,7 +5012,7 @@ Action SpawnWitchAuto(Handle timer)
 			}
 			else
 			{
-				witch = NoLimit_CreateInfected("witch", vecPos, NULL_VECTOR, 1);
+				witch = NoLimit_CreateInfected("witch", vecPos, NULL_VECTOR);
 			}
 
 			if(witch > 0) CreateTimer(g_ePluginSettings.m_fWitchLife,KickWitch_Timer,EntIndexToEntRef(witch),TIMER_FLAG_NO_MAPCHANGE);

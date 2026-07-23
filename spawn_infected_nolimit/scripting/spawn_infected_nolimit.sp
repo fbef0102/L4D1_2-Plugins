@@ -1,7 +1,7 @@
 #define PLUGIN_NAME "[L4D1/2] Manual-Spawn Special Infected"
 #define PLUGIN_AUTHOR "Shadowysn, ProdigySim (Major Windows Fix), Harry"
 #define PLUGIN_DESC "Spawn special infected without the director limits!"
-#define PLUGIN_VERSION "1.5h-2026/7/12"
+#define PLUGIN_VERSION "1.6h-2026/7/23"
 #define PLUGIN_NAME_SHORT "Manual-Spawn Special Infected"
 #define PLUGIN_NAME_TECH "spawn_infected_nolimit"
 
@@ -396,7 +396,6 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 	{
 		int witch = CreateEntityByName("witch");
 		if (witch == -1) return -1;
-		variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
 
 		TeleportEntity(witch, pos, ang, NULL_VECTOR);
 		DispatchSpawn(witch);
@@ -410,13 +409,11 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 		bot = SDKCall(hCreateSmoker, "Smoker Bot");
 		if(g_bLeft4Dead2)
 		{
-			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
-
 			switch(variantModel)
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER_L4D1);
-				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
+				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
@@ -429,14 +426,12 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 		bot = SDKCall(hCreateBoomer, "Boomer Bot");
 		if(g_bLeft4Dead2)
 		{
-			variantModel = (variantModel == 0) ? GetRandomInt(1, 3) : variantModel;
-
 			switch(variantModel)
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER_L4D1);
 				case 3: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER_BOOMETTE);
-				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
+				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
@@ -449,13 +444,11 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 		bot = SDKCall(hCreateHunter, "Hunter Bot");
 		if(g_bLeft4Dead2)
 		{
-			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
-
 			switch(variantModel)
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER_L4D1);
-				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
+				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
@@ -483,25 +476,21 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 		bot = SDKCall(hCreateTank, "Tank Bot");
 		if(g_bLeft4Dead2)
 		{
-			variantModel = (variantModel == 0) ? GetRandomInt(1, 3) : variantModel;
-
 			switch(variantModel)
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_DLC);
 				case 3: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_L4D1);
-				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
+				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
 		{
-			variantModel = (variantModel == 0) ? GetRandomInt(1, 2) : variantModel;
-
 			switch(variantModel)
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_DLC);
-				default: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
+				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 	}

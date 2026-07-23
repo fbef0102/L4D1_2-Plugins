@@ -1,0 +1,149 @@
+//Fixed l4d1 mission file format by Harry
+//Please do not modify or delete this file if playing l4d1
+
+"mission"
+{
+	"Name" 		 	"Farm"
+	"Version"       "1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com/app/500/"
+	"BuiltIn"       "1"
+	"DisplayTitle"		"#L4D360UI_Campaign_Farm"
+	"Description"		"#L4D_Mission_Farm_Objective"
+	"OuttroImage"		"vgui/outroTitle_BloodHarvest"
+
+	"poster"
+	{
+		"posterImage"		"LoadingScreen_BloodHarvest"
+		
+		// We don't display the poster title in english since its already on the poster
+		// We display the translated names overlayed in other languages
+		"posterTitle"		"#L4D360UI_HilltopCampaignTitle" //[$!ENGLISH]
+		"posterTitle_y"		"362" //[$!JAPANESE]
+		"posterTitle_y"		"300" //[$JAPANESE]
+		
+		"posterTagline"		"#L4D360UI_HilltopCampaignTagline" //[$!ENGLISH]
+		"posterTagline_y"	"375"
+		
+		"bill_player_name_x"	"-115"
+		"bill_player_name_y"	"-102"
+		
+		"louis_player_name_x"	"-42"
+		"louis_player_name_y"	"-67"
+		
+		"zoey_player_name_x"	"20"
+		"zoey_player_name_y"	"-35"
+		
+		"francis_player_name_x"	"109"
+		"francis_player_name_y"	"-82"	
+	}
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "l4d_farm01_hilltop"
+				"DisplayName" "#L4D360UI_Chapter_Hilltop"
+				"Image" "maps/l4d_farm01_hilltop"
+			}
+
+			"2"
+			{
+				"Map" "l4d_farm02_traintunnel"
+				"DisplayName" "#L4D360UI_Chapter_TrainTunnel"
+				"Image" "maps/l4d_farm02_traintunnel"
+			}
+
+			"3"
+			{
+				"Map" "l4d_farm03_bridge"
+				"DisplayName" "#L4D360UI_Chapter_Bridge"
+				"Image" "maps/l4d_farm03_bridge"
+			}
+
+			"4"		
+			{
+				"Map" "l4d_farm04_barn"
+				"DisplayName" "#L4D360UI_Chapter_Barn"
+				"Image" "maps/l4d_farm04_barn"
+			}
+
+			"5"		
+			{
+				"Map" "l4d_farm05_cornfield"
+				"DisplayName" "#L4D360UI_Chapter_Farm"
+				"Image" "maps/l4d_farm05_cornfield"
+			}
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "l4d_vs_farm01_hilltop"
+				"DisplayName" "#L4D360UI_Chapter_Hilltop"
+				"Image" "maps/l4d_farm01_hilltop"
+				"VersusModifier" "1.0"
+			}
+	
+			"2"		
+			{
+				"Map" "l4d_vs_farm02_traintunnel"
+				"DisplayName" "#L4D360UI_Chapter_TrainTunnel"
+				"Image" "maps/l4d_farm02_traintunnel"
+				"VersusModifier" "1.3"
+			}
+	
+			"3"		
+			{
+				"Map" "l4d_vs_farm03_bridge"
+				"DisplayName" "#L4D360UI_Chapter_Bridge"
+				"Image" "maps/l4d_farm03_bridge"
+				"VersusModifier" "1.4"
+			}
+	
+			"4"		
+			{
+				"Map" "l4d_vs_farm04_barn"
+				"DisplayName" "#L4D360UI_Chapter_Barn"
+				"Image" "maps/l4d_farm04_barn"
+				"VersusModifier" "1.5"
+			}
+	
+			"5"		
+			{
+				"Map" "l4d_vs_farm05_cornfield"
+				"DisplayName" "#L4D360UI_Chapter_Farm"
+				"Image" "maps/l4d_farm05_cornfield"
+				"VersusModifier" "2.0"
+			}
+		}	
+	
+		"survival"
+		{
+			"1"		
+			{
+				"Map" "l4d_farm02_traintunnel"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_TrainTunnel"
+				"Image" "maps/l4d_farm02_traintunnel"
+			}
+	
+			"2"		
+			{
+				"Map" "l4d_farm03_bridge"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Bridge"
+				"Image" "maps/l4d_farm03_bridge"
+			}
+	
+			"3"		
+			{
+				"Map" "l4d_vs_farm05_cornfield"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Farm"
+				"Image" "maps/l4d_farm05_cornfield"
+			}
+		}	
+	}
+}
+

@@ -1,0 +1,151 @@
+//Fixed l4d1 mission file format by Harry
+//Please do not modify or delete this file if playing l4d1
+
+"mission"
+{
+	"Name"				"Garage"
+	"Version"			"1"
+	"Author"			"Valve"
+	"Website"			"http://www.turtlerockstudios.com/"
+	"BuiltIn"			"1"
+	"DisplayTitle"		"#L4D360UI_Campaign_Garage"
+	"Description"		"#L4D_Mission_Garage_Objective"
+	"OuttroImage"		"vgui/outroTitle_CrashCourse"
+
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		"LoadingScreen_CrashCourse"
+
+		"posterTitle"		"#L4D360UI_GarageCampaignTitle" //[$!ENGLISH]
+		"posterTitle_y"		""
+
+		"posterTagline"		"#L4D360UI_GarageCampaignTagline" //[$!ENGLISH]
+		"posterTagline_y"	""
+
+		"bill_player_name_x"	"-93"
+		"bill_player_name_y"	"0"
+
+		"francis_player_name_x"	"-35"
+		"francis_player_name_y"	"-85"		
+		
+		"louis_player_name_x"	"45"
+		"louis_player_name_y"	"-60"
+
+		"zoey_player_name_x"	"103"
+		"zoey_player_name_y"	"-25"
+	}
+	
+	
+	// "SpawnBossThreats"
+	// Controls whether or not a map can randomly spawn witches / tanks. By default, the first map in a campaign can't. 
+	// If this value is set for a map, it overrides the default. (0 for false, 1 for true)
+	
+	// "versus_boss_spawning"
+	// In versus games, there are a set of console variables that are used to govern how witches and 
+	// tanks spawn. If you wish to override those defaults for a map in this campaign, you can do that here. 
+	// If you don't specify a mapma or a specific value for a map, 
+	// it will use the console variables defaults instead. 
+	//
+	// spawn_pos_min - (float: 0.01 ... 0.99)
+	//	The minimum random position on a map to spawn a boss. 
+	//	0.01 means right near the beginning, 0.99 means near the end
+	// 
+	// spawn_pos_max - (float: 0.01 ... 0.99)
+	//	The maximum random position on a map to spawn a boss. 
+	//	0.01 means right near the beginning, 0.99 means near the end
+	//
+	// tank_chance - (float: 0.0 ... 1.0)
+	//	The random chance that a Tank will spawn, 0 being never and 1 being always.
+	//
+	// witch_chance - (float: 0.0 ... 1.0)
+	//	The random chance that a witch will spawn, 0 being never and 1 being always.
+	//
+	// witch_and_tank - (int: 0 or 1)
+	//	If both a witch and a tank randomly spawn, this controls whether 
+	// 	the tank is supressed in favor of the witch. 
+	// 	0 means only spawn the witch if they would both spawn, 1 means spawn them both. 
+	//	
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "l4d_garage01_alleys"
+				"DisplayName" "#L4D360UI_Chapter_Alleys"
+				"Image" "maps/l4d_garage01_alleys"
+				"SpawnBossThreats" "1"
+			}
+
+			"2"
+			{
+				"Map" "l4d_garage02_lots"
+				"DisplayName" "#L4D360UI_Chapter_Depot"
+				"Image" "maps/l4d_garage02_lots"
+				"SpawnBossThreats" "1"
+			}
+
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "l4d_garage01_alleys"
+				"DisplayName" "#L4D360UI_Chapter_Alleys"
+				"Image" "maps/l4d_garage01_alleys"
+				"VersusModifier" "1.0"
+				"SpawnBossThreats" "1"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.3"
+					"spawn_pos_max"		"0.9"
+					"tank_chance"		"0.4"
+					"witch_chance"		"0.75"
+					"witch_and_tank"	"0.25"
+				}
+			}
+	
+			"2"		
+			{
+				"Map" "l4d_garage02_lots"
+				"DisplayName" "#L4D360UI_Chapter_Depot"
+				"Image" "maps/l4d_garage02_lots"
+				"VersusModifier" "2.0"
+				"SpawnBossThreats" "1"				
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.1"
+					"spawn_pos_max"		"0.8"
+					"tank_chance"		"0.35"
+					"witch_chance"		"0.75"
+					"witch_and_tank"	"0"				
+				}
+			}
+	
+		}	
+	
+		"survival"
+		{
+			"1"		
+			{
+				"Map" "l4d_garage01_alleys"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Alleys"
+				"Image" "maps/l4d_garage01_alleys"
+			}
+			
+			"2"		
+			{
+				"Map" "l4d_garage02_lots"
+				"DisplayName" "#L4D360UI_Holdout_Chapter_Depot"
+				"Image" "maps/l4d_garage02_lots"
+			}
+		}
+			
+	} // "modes"
+	
+} // "mission"
+
