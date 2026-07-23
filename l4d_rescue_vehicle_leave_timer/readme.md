@@ -62,6 +62,9 @@ When rescue vehicle arrived and a timer will display how many time left before v
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.5 (2026-7-23)
+        * Fixed not working due to poorly written code
+
     * v2.4 (2026-6-7)
         * Update data
         * Update cvars

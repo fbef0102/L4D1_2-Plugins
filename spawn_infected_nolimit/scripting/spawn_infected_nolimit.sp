@@ -413,12 +413,11 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER_L4D1);
-				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
 		{
-			FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
+			//FormatEx(sModel, sizeof(sModel), "%s", MODEL_SMOKER);
 		}
 	}
 	else if (strncmp(zomb, "boomer", 6, false) == 0)
@@ -431,12 +430,11 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER_L4D1);
 				case 3: FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER_BOOMETTE);
-				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
 		{
-			FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
+			//FormatEx(sModel, sizeof(sModel), "%s", MODEL_BOOMER);
 		}
 	}
 	else if (strncmp(zomb, "hunter", 6, false) == 0)
@@ -448,28 +446,27 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER_L4D1);
-				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
 		{
-			FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
+			//FormatEx(sModel, sizeof(sModel), "%s", MODEL_HUNTER);
 		}
 	}
 	else if (strncmp(zomb, "spitter", 7, false) == 0 && g_bLeft4Dead2)
 	{
 		bot = SDKCall(hCreateSpitter, "Spitter Bot");
-		FormatEx(sModel, sizeof(sModel), "%s", MODEL_SPITTER);
+		//FormatEx(sModel, sizeof(sModel), "%s", MODEL_SPITTER);
 	}
 	else if (strncmp(zomb, "jockey", 6, false) == 0 && g_bLeft4Dead2)
 	{
 		bot = SDKCall(hCreateJockey, "Jockey Bot");
-		FormatEx(sModel, sizeof(sModel), "%s", MODEL_JOCKEY);
+		//FormatEx(sModel, sizeof(sModel), "%s", MODEL_JOCKEY);
 	}
 	else if (strncmp(zomb, "charger", 7, false) == 0 && g_bLeft4Dead2)
 	{
 		bot = SDKCall(hCreateCharger, "Charger Bot");
-		FormatEx(sModel, sizeof(sModel), "%s", MODEL_CHARGER);
+		//FormatEx(sModel, sizeof(sModel), "%s", MODEL_CHARGER);
 	}
 	else if (strncmp(zomb, "tank", 4, false) == 0)
 	{
@@ -481,7 +478,6 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_DLC);
 				case 3: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_L4D1);
-				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 		else
@@ -490,7 +486,6 @@ int CreateInfected(const char[] zomb, const float pos[3], const float ang[3], in
 			{
 				case 1: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK);
 				case 2: FormatEx(sModel, sizeof(sModel), "%s", MODEL_TANK_DLC);
-				default: FormatEx(sModel, sizeof(sModel), "");
 			}
 		}
 	}

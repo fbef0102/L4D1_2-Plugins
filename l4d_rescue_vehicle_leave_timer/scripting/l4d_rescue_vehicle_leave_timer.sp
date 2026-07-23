@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION 		"2.4-2026/6/7"
+#define PLUGIN_VERSION 		"2.5-2026/7/23"
 #define PLUGIN_NAME			"l4d_rescue_vehicle_leave_timer"
 #define DEBUG 0
 
@@ -105,7 +105,7 @@ int g_iRoundStart, g_iPlayerSpawn;
 
 int iSystemTime;
 int g_iRescueVehicle;
-bool g_bFinalHasTrigger_Multiple, g_bFinalEnd;
+bool g_bFinalEnd;
 bool g_bMapStarted, g_bValidMap;
 Handle AntiPussyTimer, _AntiPussyTimer, AirstrikeTimer;
 
@@ -163,8 +163,11 @@ public void OnPluginEnd()
 	ResetPlugin();
 }
 
+char g_sMap[64];
 public void OnMapStart()
 {
+	GetCurrentMap(g_sMap, sizeof(g_sMap));
+
 	TheNavMesh = L4D_GetPointer(POINTER_NAVMESH);
 
 	g_bMapStarted = true;
@@ -309,9 +312,10 @@ void OnGamemode(const char[] output, int caller, int activator, float delay)
 }
 
 
-public void OnEntityCreated(int entity, const char[] classname)
+/*public void OnEntityCreated(int entity, const char[] classname)
 {
-	if(g_bCvarAllow == false) return;
+	// 註解原因: 因為IsAllowed問題會錯過OnEntityCreated時間點
+	//if(g_bCvarAllow == false) return;
 
 	switch (classname[0])
 	{
@@ -326,101 +330,13 @@ public void OnEntityCreated(int entity, const char[] classname)
 			{
 				RequestFrame(OnNextFrame_trigger_finale_dlc3, EntIndexToEntRef(entity));
 			}
-			else if (strncmp(classname, "trigger_multiple", 16) == 0) //late spawn
+			else if (strcmp(classname, "trigger_multiple") == 0) //late spawn
 			{
 				RequestFrame(OnNextFrame_trigger_multiple, EntIndexToEntRef(entity));
 			}
 		}
 	}
-}
-
-void OnNextFrame_trigger_finale(int entityRef)
-{
-	int entity = EntRefToEntIndex(entityRef);
-	
-	if (entity == INVALID_ENT_REFERENCE)
-		return;
-
-	#if DEBUG
-		LogMessage("\x05trigger_finale late spawn here");
-	#endif
-
-	if(g_bValidMap == false) return;
-	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
-
-	if(g_bL4D2Version)
-	{
-		if(view_as<bool>(GetEntProp(entity, Prop_Data, "m_bIsSacrificeFinale")))
-		{
-			#if DEBUG
-				LogMessage("\x05Map is sacrifice finale, disable the plugin");
-			#endif
-
-			return;
-		}
-	}
-
-	entity = MaxClients + 1;
-	while ((entity = FindEntityByClassname(entity, "trigger_multiple")) != -1)
-	{
-		if( !IsValidEntity(entity) )
-			continue;
-
-		if( GetEntProp(entity, Prop_Data, "m_iEntireTeam") != 2 )
-			continue;
-
-		if( !(GetEntProp(entity, Prop_Data, "m_spawnflags") & 1) )
-			continue;
-
-		g_bFinalHasTrigger_Multiple = true;
-		break;
-	}
-}
-
-void OnNextFrame_trigger_finale_dlc3(int entityRef)
-{
-	//trigger_finale_dlc3會變成trigger_finale
-	int entity = EntRefToEntIndex(entityRef);
-	
-	if (entity == INVALID_ENT_REFERENCE)
-		return;
-
-	#if DEBUG
-		LogMessage("\x05trigger_finale_dlc3 late spawn here");
-	#endif
-
-	if(g_bValidMap == false) return;
-	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
-
-	#if DEBUG
-		LogMessage("\x05Map is sacrifice finale in l4d1, disable the plugin");
-	#endif
-
-	g_bFinalHasTrigger_Multiple = false;
-}
-
-void OnNextFrame_trigger_multiple(int entityRef)
-{
-	int entity = EntRefToEntIndex(entityRef);
-	
-	if (entity == INVALID_ENT_REFERENCE)
-		return;
-
-	if(g_bValidMap == false) return;
-	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
-
-	if( GetEntProp(entity, Prop_Data, "m_iEntireTeam") != 2 )
-		return;
-
-	if( !(GetEntProp(entity, Prop_Data, "m_spawnflags") & 1) )
-		return;
-
-	#if DEBUG
-		LogMessage("trigger_multiple %d HookSingleEntityOutput", entity);
-	#endif
-
-	g_bFinalHasTrigger_Multiple = true;
-}
+}*/
 
 // ====================================================================================================
 //					EVENTS
@@ -487,8 +403,9 @@ void Finale_FinalEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast)
 {
-	if(!g_bFinalHasTrigger_Multiple) return;
-	
+	if(g_bValidMap == false) return;
+	if(g_eGlobalDataSettings.m_iEscapeTime == 0) return;
+
 	iSystemTime = g_eGlobalDataSettings.m_iEscapeTime;
 	delete AntiPussyTimer;
 	AntiPussyTimer = CreateTimer(1.0, Timer_AntiPussy, _, TIMER_REPEAT);
@@ -529,6 +446,10 @@ Action Timer_AntiPussy(Handle timer)
 		if(iRescueVehicle > MaxClients)
 		{
 			g_iRescueVehicle = EntIndexToEntRef(iRescueVehicle);
+		}
+		else
+		{
+			LogError("Rescue Area Not Found in this map: %s", g_sMap);
 		}
 
 		if(g_bL4D2Version && g_eGlobalDataSettings.m_bAirStrike) EmitSoundToAll(NUKE_SOUND_L4D2);
@@ -610,11 +531,9 @@ void LoadData()
 	}
 
 	// Check for current map in the config
-	char sMap[64];
-	GetCurrentMap(sMap, sizeof(sMap));
-	//StringToLowerCase(sMap);
+	//StringToLowerCase(g_sMap);
 
-	if( hFile.JumpToKey(sMap) )
+	if( hFile.JumpToKey(g_sMap) )
 	{
 		g_eGlobalDataSettings.m_iEscapeTime = hFile.GetNum("time", g_eGlobalDataSettings.m_iEscapeTime);
 		g_eGlobalDataSettings.m_iAnnounceType = hFile.GetNum("announce_type", g_eGlobalDataSettings.m_iAnnounceType);
@@ -630,7 +549,6 @@ void ResetPlugin()
 {
 	g_iRoundStart = 0;
 	g_iPlayerSpawn = 0;
-	g_bFinalHasTrigger_Multiple = false;
 
 	delete AntiPussyTimer;
 	delete _AntiPussyTimer;
