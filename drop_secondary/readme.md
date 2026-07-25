@@ -44,6 +44,10 @@ Survivor players will drop their secondary weapon (including melee) when they di
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v2.9 (2026-7-25)
+		* Use gamedata to detect the exact moment a survivor is killed and get the hidden secondary weapon
+		* Optimize code
+
 	* v2.8 (2026-4-20)
 		* Update cvars
 		* Fix melee weapon sometimes drops from player who does not have melee weapon at all

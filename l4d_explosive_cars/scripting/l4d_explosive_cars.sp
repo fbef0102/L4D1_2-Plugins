@@ -33,7 +33,7 @@ bool g_bCritWreck[ARRAY_SIZE+1];
 bool g_bExploded[ARRAY_SIZE+1];
 bool g_bHooked[ARRAY_SIZE+1];
 int g_iEntityDamage[ARRAY_SIZE+1];
-int g_iParticle[ARRAY_SIZE+1] = {-1};
+int g_iParticle[ARRAY_SIZE+1] = {-1, ...};
 bool g_bDisabled = false;
 int g_iPlayerSpawn, g_iRoundStart;
 float g_GameExplodeTime;

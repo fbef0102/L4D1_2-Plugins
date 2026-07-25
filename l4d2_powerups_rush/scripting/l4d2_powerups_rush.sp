@@ -13,25 +13,25 @@
 //Used to track who has the weapon firing.
 //Index goes up to 18, but each index has a value indicating a client index with
 //DT so the plugin doesn't have to cycle a full 18 times per game frame
-int g_iDTRegisterIndex[64] = {-1};
+int g_iDTRegisterIndex[64] = {-1, ...};
 //and this tracks how many have DT
 int g_iDTRegisterCount = 0;
 //this tracks the current active 'weapon id' in case the player changes guns
-int g_iDTEntid[64] = {-1};
+int g_iDTEntid[64] = {-1, ...};
 //this tracks the engine time of the next attack for the weapon, after modification
 //(modified interval + engine time)
-float g_flDTNextTime[64] = {-1.0};
+float g_flDTNextTime[64] = {-1.0, ...};
 
 //similar to Double Tap
-int g_iMARegisterIndex[64] = {-1};
+int g_iMARegisterIndex[64] = {-1, ...};
 //and this tracks how many have MA
 int g_iMARegisterCount = 0;
 //these are similar to those used by Double Tap
 float g_flMANextTime[64] = {-1.0};
-int g_iMAEntid[64] = {-1};
-int g_iMAEntid_notmelee[64] = {-1};
+int g_iMAEntid[64] = {-1, ...};
+int g_iMAEntid_notmelee[64] = {-1, ...};
 //this tracks the attack count, similar to twinSF
-int g_iMAAttCount[64] = {-1};
+int g_iMAAttCount[64] = {-1, ...};
 
 //Rates of the attacks
 ConVar g_hDT_rate;

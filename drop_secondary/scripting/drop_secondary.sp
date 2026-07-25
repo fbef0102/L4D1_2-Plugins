@@ -11,8 +11,9 @@
 #pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <left4dhooks>
+#include <dhooks>
 
-#define PLUGIN_VERSION			"2.8-2026/4/20"
+#define PLUGIN_VERSION			"2.9-2026/7/25"
 #define PLUGIN_NAME			    "drop_secondary"
 #define DEBUG 0
 
@@ -25,7 +26,7 @@ public Plugin myinfo =
 	url			= "https://steamcommunity.com/profiles/76561198026784913/"
 };
 
-bool g_bL4D2Version, bLate;
+bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
@@ -44,12 +45,34 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
-	bLate = late;
 	return APLRes_Success; 
 }
 
+#define GAMEDATA_FILE          	 	  "drop_secondary"
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
+
+methodmap GameDataWrapper < GameData {
+	public GameDataWrapper(const char[] file) {
+		GameData gd = new GameData(file);
+		if (!gd) SetFailState("Missing gamedata \"%s\"", file);
+		return view_as<GameDataWrapper>(gd);
+	}
+	public DynamicDetour CreateDetourOrFail(
+			const char[] name,
+			DHookCallback preHook = INVALID_FUNCTION,
+			DHookCallback postHook = INVALID_FUNCTION) {
+		DynamicDetour hSetup = DynamicDetour.FromConf(this, name);
+		if (!hSetup)
+			SetFailState("Missing detour setup \"%s\"", name);
+		if (preHook != INVALID_FUNCTION && !hSetup.Enable(Hook_Pre, preHook))
+			SetFailState("Failed to pre-detour \"%s\"", name);
+		if (postHook != INVALID_FUNCTION && !hSetup.Enable(Hook_Post, postHook))
+			SetFailState("Failed to post-detour \"%s\"", name);
+		return hSetup;
+	}
+}
+
 
 ConVar director_no_survivor_bots;
 bool g_bCvar_director_no_survivor_bots;
@@ -62,8 +85,8 @@ int iOffs_m_SecondaryWeaponDoublePistolPreDead = -1;
 int iOffs_m_SecondaryWeaponIDPreDead = -1;
 
 int 
-	//g_iSecondary[MAXPLAYERS+1] = {-1},
-	g_iHidden[MAXPLAYERS+1] = {-1};
+	g_iSecondary[MAXPLAYERS+1] = {-1, ...},
+	g_iHidden[MAXPLAYERS+1] = {-1, ...};
 
 bool 
 	g_bIgnore[MAXPLAYERS+1];
@@ -72,6 +95,10 @@ public void OnPluginStart()
 {
 	if(g_bL4D2Version)
 	{
+		GameDataWrapper gd = new GameDataWrapper(GAMEDATA_FILE);
+		delete gd.CreateDetourOrFail("CTerrorPlayer::Event_Killed", DTR_CTerrorPlayer_Event_Killed_Pre);
+		delete gd;
+
 		iOffs_m_SecondaryWeaponIDPreDead = FindSendPropInfo("CTerrorPlayer", "m_knockdownTimer") + 108;
 		iOffs_m_SecondaryWeaponDoublePistolPreDead = FindSendPropInfo("CTerrorPlayer", "m_knockdownTimer") + 112;
 		iOffs_m_hSecondaryHiddenWeaponPreDead = FindSendPropInfo("CTerrorPlayer", "m_knockdownTimer") + 116;
@@ -90,28 +117,8 @@ public void OnPluginStart()
 
 	HookEvent("round_start",  				Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("player_spawn", 				Event_PlayerSpawn,	EventHookMode_Post);
-	//HookEvent("player_death", 				OnPlayerDeathPre, 		EventHookMode_Pre);
-	HookEvent("player_incapacitated", 		PlayerIncap_Event);
-	HookEvent("revive_success", 			Event_ReviveSuccess);
-	if(g_bL4D2Version) HookEvent("weapon_drop", 				Event_WeaponDrop);
 
 	HookEvent("player_bot_replace", 		Event_BotReplacePlayer);
-
-	if(bLate)
-	{
-		LateLoad();
-	}
-}
-
-void LateLoad()
-{
-    for (int client = 1; client <= MaxClients; client++)
-    {
-        if (!IsClientInGame(client))
-            continue;
-
-        OnClientPutInServer(client);
-    }
 }
 
 // Cvars-------------------------------
@@ -136,25 +143,6 @@ void GetCvars()
     g_bCvarBotDropKick = g_hCvarBotDropKick.BoolValue;
 }
 
-// Sourcemod API Forward-------------------------------
-
-public void OnClientPutInServer(int client)
-{
-	if(g_bL4D2Version) return;
-
-	SDKHook(client, SDKHook_WeaponDrop, OnWeaponDropped);
-}
-
-// SDKHooks----
-
-void OnWeaponDropped(int client, int weapon)
-{
-	if(weapon <= MaxClients || GetClientTeam(client) != 2)
-		return;
-
-	if(weapon == g_iHidden[client]) g_iHidden[client] = -1;
-}
-
 // Event-------------------------------
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) 
@@ -175,7 +163,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	if(client && IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client))
 	{
 		Clear(client);
-		if(g_bL4D2Version) CreateTimer(0.1, Timer_TraceHiddenWeapon, userid);
 	}
 }
 
@@ -190,109 +177,24 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-/*void OnPlayerDeathPre(Event event, const char[] name, bool dontBroadcast) 
+// Dhooks---
+
+// 玩家確定死亡的事件
+// CTerrorPlayer::Event_Killed -> L4DD::CTerrorPlayer::DropWeapons
+MRESReturn DTR_CTerrorPlayer_Event_Killed_Pre(int client, DHookParam hParams)
 {
-	int userid = event.GetInt("userid");
-	int client = GetClientOfUserId(userid);
-	
-	if(!client || !IsClientInGame(client) || GetClientTeam(client) != 2)
-		return;
+	if(client <= 0 || !IsClientInGame(client) || GetClientTeam(client) != 2) return MRES_Ignored;
 
-	int secondary = EntRefToEntIndex(g_iSecondary[client]);
-	int HiddenWeapon = EntRefToEntIndex(g_iHidden[client]);
-	//PrintToChatAll("OnPlayerDeathPre %N - secondary: %d, hidden: %d", client, secondary, HiddenWeapon);
-	if(g_bL4D2Version)
-	{
-		if(HiddenWeapon != INVALID_ENT_REFERENCE && GetEntPropEnt(HiddenWeapon, Prop_Data, "m_hOwnerEntity") == client)
-		{
-			float origin[3];
-			GetClientEyePosition(client, origin);
-			SDKHooks_DropWeapon(client, HiddenWeapon, origin);
+	//提前抓slot1武器與隱藏的副武器
+	int slot1 = GetPlayerWeaponSlot(client, 1);
+	int hidden = GetSecondaryHiddenWeaponPreDead(client);
+	//PrintToChatAll("DTR_CTerrorPlayer_Event_Killed_Pre %N, slot1: %d, HiddenWeapon: %d", client, slot1, hidden);
 
-			// 如果其他玩家體內隱藏的副武器是相同的, 則清除
-			for(int i = 1; i <= MaxClients; i++)
-			{
-				if(!IsClientInGame(i)) continue;
+	if(slot1 > MaxClients) g_iSecondary[client] = EntIndexToEntRef(slot1);
+	if(hidden > MaxClients) g_iHidden[client] = EntIndexToEntRef(hidden);
+	RequestFrame(NextFrame_Event_Killed, client);
 
-				if(GetSecondaryHiddenWeaponPreDead(i) != HiddenWeapon) continue;
-
-				SetSecondaryHiddenWeapon(i, -1);
-			}
-		}
-		else if(secondary != INVALID_ENT_REFERENCE && GetEntPropEnt(secondary, Prop_Data, "m_hOwnerEntity") == client)
-		{
-			float origin[3];
-			GetClientEyePosition(client, origin);
-			SDKHooks_DropWeapon(client, secondary, origin); //二代如果持雙手槍會掉兩把手槍 (兩把不同的實體單發手槍)
-
-			// 如果其他玩家體內隱藏的副武器是相同的, 則清除
-			for(int i = 1; i <= MaxClients; i++)
-			{
-				if(!IsClientInGame(i)) continue;
-
-				if(GetSecondaryHiddenWeaponPreDead(i) != secondary) continue;
-
-				SetSecondaryHiddenWeapon(i, -1);
-			}
-		}
-	}
-	else
-	{
-		if(secondary != INVALID_ENT_REFERENCE)
-		{
-			float origin[3];
-			float ang[3];
-			GetClientEyePosition(client, origin);
-			GetClientEyeAngles(client, ang);
-			SDKHooks_DropWeapon(client, secondary, origin); //一代如果持雙手槍會掉兩把手槍 (一個實體 兩把手槍連一起的)
-		}
-	}
-
-	// 清空死掉的玩家體內隱藏的副武器
-	// 避免bug 1: 復活之後掛邊再救活會得到副武器
-	// 避免bug 2: 副武器佔據實體空間位置
-	if(g_bL4D2Version)
-	{
-		int hidden = GetSecondaryHiddenWeaponPreDead(client);
-		if(hidden > MaxClients && IsValidEntity(hidden))
-		{
-			RemoveEntity(hidden);
-		}
-	}
-
-	Clear(client);
-}*/
-
-void PlayerIncap_Event(Event event, const char[] name, bool dontBroadcast) 
-{
-	int userid = event.GetInt("userid");
-	int client = GetClientOfUserId(userid);
-	
-	if(!client || !IsClientInGame(client) || GetClientTeam(client) != 2 )
-		return;
-
-	g_iHidden[client] = -1;
-
-	if(g_bL4D2Version) CreateTimer(0.1, Timer_TraceHiddenWeapon, userid);
-}
-
-void Event_ReviveSuccess(Event event, const char[] name, bool dontBroadcast) 
-{
-	int subject = GetClientOfUserId(event.GetInt("subject"));
-	
-	g_iHidden[subject] = -1;
-}
-
-void Event_WeaponDrop(Event event, const char[] name, bool dontBroadcast)
-{
-	int entity = event.GetInt("propid");	
-	if(entity <= MaxClients) return;
-
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (client && IsClientInGame(client) && GetClientTeam(client) == 2)
-	{
-		if(entity == g_iHidden[client]) g_iHidden[client] = -1;
-	}
+	return MRES_Ignored;
 }
 
 // API---------------
@@ -337,34 +239,36 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 		) 
 		return;
 
-	int iDropWeapon = -1;
+	int iDropWeapon = -1, iCurrentSlot1Weapon = -1;
 	if(!IsClientInKickQueue(client))
 	{
 		// 死前觸發 (L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_death" pre -> "player_death" post )
-		// (director_no_survivor_bots=1) 玩家從倖存者切換隊伍時觸發 (L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_team" event)
+		// (director_no_survivor_bots=1) 玩家從倖存者陣營切換到別的隊伍時觸發 (L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_team" event)
 
 		if(g_bL4D2Version)
 		{
 			bool bIsInap = false;
+			iCurrentSlot1Weapon = EntRefToEntIndex(g_iSecondary[client]);
+
 			if(L4D_IsPlayerIncapacitated(client) && !L4D_IsPlayerHangingFromLedge(client))
 			{
 				// 如果持近戰或是電鋸->倒地期間給予其他副武器的話(如l4d2_incap_gun_replace插件)->L4D_OnDeathDroppedWeapons時隱藏的副武器與weapons[1]會被替換成剛才給予的副武器
-				// 所以需要事先知道隱藏的副武器
+				// 所以需要事先在"CTerrorPlayer::Event_Killed"知道隱藏的副武器
 				iDropWeapon = EntRefToEntIndex(g_iHidden[client]);
-				if(iDropWeapon == INVALID_ENT_REFERENCE) iDropWeapon = GetSecondaryHiddenWeaponPreDead(client);
+				if(iDropWeapon == INVALID_ENT_REFERENCE) iDropWeapon = iCurrentSlot1Weapon;
 				
 				bIsInap = true;
 			}
 			else
 			{
 				// 如果是死亡, 持麥格農/電鋸/近戰武器時, GetPlayerWeaponSlot(client, 1)=-1
-				iDropWeapon = GetPlayerWeaponSlot(client, 1);
-				if(iDropWeapon <= MaxClients) iDropWeapon = weapons[1];
+				// 所以需要事先在"CTerrorPlayer::Event_Killed"知道slot1武器
+				iDropWeapon = iCurrentSlot1Weapon;
 			}
 
 			if(iDropWeapon <= MaxClients) return;
 
-			//PrintToChatAll("L4D_OnDeathDroppedWeapons(1) %d - %d - %d - slot 1: %d", client, weapons[1], iDropWeapon, GetPlayerWeaponSlot(client, 1));
+			//PrintToChatAll("L4D_OnDeathDroppedWeapons(1) %d - iDropWeapon: %d, iHdden: %d, iCurrentSlot1: %d", client, iDropWeapon, EntRefToEntIndex(g_iHidden[client]), iCurrentSlot1Weapon);
 
 			// 玩家拿近戰或電鋸->閒置->bot先倒地->取代->死亡->該近戰或電鋸的m_hOwnerEntity為-1, 而非玩家 (會有error)
 			// 玩家拿近戰或電鋸->先倒地->閒置->bot取代->死亡->該近戰的m_hOwnerEntity為玩家, 而非bot (會有error)
@@ -372,13 +276,14 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 			//PrintToChatAll("L4D_OnDeathDroppedWeapons(1) owner: %d, client: %d", GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity"), client);
 			if(bIsInap)
 			{
+				if(iCurrentSlot1Weapon > MaxClients && iCurrentSlot1Weapon != iDropWeapon)
+				{
+					RemovePlayerItem(client, iCurrentSlot1Weapon);
+					RemoveEntity(iCurrentSlot1Weapon);
+				}
+
 				if(GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity") != client)
 				{
-					if(weapons[1] > MaxClients && weapons[1] != iDropWeapon)
-					{
-						RemovePlayerItem(client, weapons[1]);
-						RemoveEntity(weapons[1]);
-					}
 					SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity", -1);
 					SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner", -1);
 					EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwnerEntity
@@ -409,32 +314,36 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 			if(g_bL4D2Version)
 			{
 				bool bIsInap = false;
+				iCurrentSlot1Weapon = GetPlayerWeaponSlot(client, 1);
 
+				// 倒地期間被踢
 				if(L4D_IsPlayerIncapacitated(client) && !L4D_IsPlayerHangingFromLedge(client))
 				{
-					iDropWeapon = EntRefToEntIndex(g_iHidden[client]);
-					if(iDropWeapon == INVALID_ENT_REFERENCE) iDropWeapon = GetSecondaryHiddenWeaponPreDead(client);
+					//iDropWeapon = EntRefToEntIndex(g_iHidden[client]);
+					iDropWeapon = GetSecondaryHiddenWeaponPreDead(client);
+					if(iDropWeapon == INVALID_ENT_REFERENCE) iDropWeapon = iCurrentSlot1Weapon;
 					
 					bIsInap = true;
 				}
 				else
 				{
-					iDropWeapon = GetPlayerWeaponSlot(client, 1);
+					iDropWeapon = iCurrentSlot1Weapon;
 				}
 
 				if(iDropWeapon <= MaxClients) return;
 
-				//PrintToChatAll("L4D_OnDeathDroppedWeapons(2) %d - %d - %d", client, weapons[1], iDropWeapon);
+				//PrintToChatAll("L4D_OnDeathDroppedWeapons(2) %d - weapons[1]: %d, iDropWeapon: %d, iCurrentSlot1: %d", client, weapons[1], iDropWeapon, iCurrentSlot1Weapon);
 				if(bIsInap)
 				{
 					//PrintToChatAll("L4D_OnDeathDroppedWeapons(2) owner: %d, client: %d", GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity"), client);
+					if(iCurrentSlot1Weapon > MaxClients && iCurrentSlot1Weapon != iDropWeapon)
+					{
+						RemovePlayerItem(client, iCurrentSlot1Weapon);
+						RemoveEntity(iCurrentSlot1Weapon);
+					}
+					
 					if(GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity") != client)
 					{
-						if(weapons[1] > MaxClients && weapons[1] != iDropWeapon)
-						{
-							RemovePlayerItem(client, weapons[1]);
-							RemoveEntity(weapons[1]);
-						}
 						SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity", -1);
 						SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner", -1);
 						EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwnerEntity
@@ -474,6 +383,9 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 				SetSecondaryHiddenWeapon(i, -1);
 			}
 
+			// 清空死掉的玩家體內隱藏的副武器
+			// 避免bug 1: 復活之後掛邊再救活會得到副武器
+			// 避免bug 2: 副武器佔據實體空間位置
 			SetSecondaryWeaponIDPreDead(client, 1);
 			SetSecondaryWeaponDoublePistolPreDead(client, 0);
 			SetSecondaryHiddenWeapon(client, -1);
@@ -488,24 +400,10 @@ void NextFrame_Replace(int client)
 	g_bIgnore[client] = false;
 }
 
-Action Timer_TraceHiddenWeapon(Handle Timer, int client)
+void NextFrame_Event_Killed(int client)
 {
-	client = GetClientOfUserId(client);
-	if(!client || !IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client) || !L4D_IsPlayerIncapacitated(client))
-		return Plugin_Continue;
-
-	int hidden = GetSecondaryHiddenWeaponPreDead(client);
-	//PrintToChatAll("Timer_TraceHiddenWeapon %d", hidden);
-	if(hidden > MaxClients && IsValidEntity(hidden))
-	{
-		g_iHidden[client] = EntIndexToEntRef(hidden);
-	}
-	else
-	{
-		g_iHidden[client] = -1;
-	}
-
-	return Plugin_Continue;
+	g_iHidden[client] = -1;
+	g_iSecondary[client] = -1;
 }
 
 // Function-------------------------------
@@ -522,7 +420,7 @@ int GetClientIdleBot(int client)
 			if(HasEntProp(i, Prop_Send, "m_humanSpectatorUserID"))
 			{
 				if(GetClientOfUserId(GetEntProp(i, Prop_Send, "m_humanSpectatorUserID")) == client)
-						return i;
+					return i;
 			}
 		}
 	}
@@ -537,10 +435,7 @@ void Clear(int client)
 		SetSecondaryWeaponIDPreDead(client, 1);
 		SetSecondaryWeaponDoublePistolPreDead(client, 0);
 		SetSecondaryHiddenWeapon(client, -1);
-		g_iHidden[client] = -1;
 	}
-
-	//g_iSecondary[client] = -1;
 }
 
 /*int GetSecondaryWeaponIDPreDead(int client)
