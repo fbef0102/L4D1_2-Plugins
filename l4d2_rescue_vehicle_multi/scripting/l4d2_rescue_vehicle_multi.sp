@@ -17,7 +17,7 @@
 #include <left4dhooks>
 
 #define PLUGIN_NAME			    "l4d2_rescue_vehicle_multi"
-#define PLUGIN_VERSION 			"1.1h-2026/2/14"
+#define PLUGIN_VERSION 			"1.2h-2026/8/4"
 
 public Plugin myinfo=
 {
@@ -158,8 +158,8 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 void Event_FinaleEnd(Event event, const char[] name, bool dontBroadcast)
 {
-	g_bFinalEnd = true;
 	if(g_bFinalEnd) return;
+	g_bFinalEnd = true;
 
 	for(int i = 1; i <= MaxClients; i++)
 	{

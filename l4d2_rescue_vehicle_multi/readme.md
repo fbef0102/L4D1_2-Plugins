@@ -34,6 +34,9 @@ Try to fix extra 5+ survivors bug after finale rescue leaving, such as: die, fal
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.2h (2026-8-4)
+		* Fixed final event code
+
 	* v1.1h (2026-2-14)
 		* Fixed error in l4d1
 
