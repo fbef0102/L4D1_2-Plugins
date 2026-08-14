@@ -8,7 +8,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
-#define PLUGIN_VERSION 			"4.3-2025/8/1"
+#define PLUGIN_VERSION 			"4.4-2026/8/15"
 
 public Plugin myinfo = 
 {
@@ -43,18 +43,19 @@ public APLRes AskPluginLoad2( Handle myself, bool late, char[] error, int err_ma
 
 ConVar g_hCvarEnable, g_hCvarAnnounceType, hCvar_EnableHuman, hCvar_EnableBots, hCvar_RespawnRespect, 
 	hCvar_RespawnLimit, hCvar_RespawnTimeout, hCvar_RespawnHP, hCvar_RespawnBuffHP, hCvar_BotReplaced, 
-	hCvar_InvincibleTime, hCvar_EscapeDisable, hCvar_MsgEnable,
+	hCvar_InvincibleTime, hCvar_EscapeDisable, hCvar_FinalDisable, hCvar_MsgEnable,
 	FirstWeapon, SecondWeapon, ThirdWeapon, FourthWeapon, FifthWeapon;
 
 bool g_bCvarEnable, g_bEnableHuman, g_bEnableBots, g_bEnablesRespawnLimit;
 int g_iCvarAnnounceType, g_iRespawnLimit, g_iRespawnTimeout,
 	g_iFirstWeapon, g_iSecondWeapon, g_iThirdWeapon, g_iFourthWeapon, g_iFifthWeapon;
-bool g_bEscapeDisable, g_bCvar_MsgEnable;
+bool g_bCvar_EscapeDisable, g_bCvar_FinalDisable, g_bCvar_MsgEnable;
 float g_fInvincibleTime, g_fRespawnTimeout;
 
 bool bRescuable[ MAXPLAYERS + 1 ] = {false};
-bool bFinaleEscapeStarted = false;
-bool g_bRoundEnd = false;
+bool 
+	g_bFinaleEscapeStarted, g_bFinalStarted,
+	g_bRoundEnd;
 
 TopMenu hTopMenu;
 
@@ -168,6 +169,7 @@ public void OnPluginStart()
 	hCvar_BotReplaced 		= CreateConVar("l4d_survivorrespawn_botreplaced", 			"1", 	"Respawn bots if is dead in case of using Take Over.",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_InvincibleTime 	= CreateConVar("l4d_survivorrespawn_invincibletime", 		"10.0", "Invincible time after survivor respawn.",  FCVAR_NOTIFY, true, 0.0);
 	hCvar_EscapeDisable 	= CreateConVar("l4d_survivorrespawn_disable_rescue_escape", "1", 	"If 1, disable respawning while the final escape starts (rescue vehicle ready)",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hCvar_FinalDisable 		= CreateConVar("l4d_survivorrespawn_disable_final", 		"0", 	"If 1, disable respawning after final stage starts",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hCvar_MsgEnable 		= CreateConVar("l4d_survivorrespawn_msg_enable", 			"1", 	"If 1, display message to All when someone has been auto-respawned",  FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	if ( g_bL4D2Version ) {
@@ -194,6 +196,7 @@ public void OnPluginStart()
 	hCvar_RespawnTimeout.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_InvincibleTime.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_EscapeDisable.AddChangeHook(ConVarChanged_Cvars);
+	hCvar_FinalDisable.AddChangeHook(ConVarChanged_Cvars);
 	hCvar_MsgEnable.AddChangeHook(ConVarChanged_Cvars);
 	FirstWeapon.AddChangeHook(ConVarChanged_Cvars);
 	SecondWeapon.AddChangeHook(ConVarChanged_Cvars);
@@ -217,7 +220,10 @@ public void OnPluginStart()
 	HookEvent("finale_win", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("finale_escape_start", Finale_Escape_Start);
 	HookEvent("finale_vehicle_ready", Finale_Vehicle_Ready);
-	
+    HookEvent("finale_start", 			OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, some of final maps won't trigger
+    HookEvent("finale_radio_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //final starts, all final maps trigger
+    if(g_bL4D2Version) HookEvent("gauntlet_finale_start", 	OnFinaleStart_Event, EventHookMode_PostNoCopy); //(l4d2 only) final starts, only rushing maps trigger (C5M5, C13M4)
+
 	RegAdminCmd("sm_respawnex", CMD_Respawn, ADMFLAG_BAN, "Respawn Target/s At Your Crosshair." );
 	RegAdminCmd("sm_respawnexmenu", CMD_DisplayMenu, ADMFLAG_BAN, "Create A Menu Of Clients List And Respawn Targets At Your Crosshair." );
 	
@@ -289,7 +295,8 @@ void GetCvars()
 	g_iRespawnTimeout = hCvar_RespawnTimeout.IntValue;
 	g_fRespawnTimeout = hCvar_RespawnTimeout.FloatValue;
 	g_fInvincibleTime = hCvar_InvincibleTime.FloatValue;
-	g_bEscapeDisable = hCvar_EscapeDisable.BoolValue;
+	g_bCvar_EscapeDisable = hCvar_EscapeDisable.BoolValue;
+	g_bCvar_FinalDisable = hCvar_FinalDisable.BoolValue;
 	g_bCvar_MsgEnable = hCvar_MsgEnable.BoolValue;
 
 	g_iFirstWeapon = FirstWeapon.IntValue;
@@ -303,7 +310,8 @@ void Event_RoundStart( Event hEvent, const char[] sName, bool bDontBroadcast )
 {
 	g_bIsOpenSafeRoom = false;
 	g_bRoundEnd = false;
-	bFinaleEscapeStarted = false;
+	g_bFinaleEscapeStarted = false;
+	g_bFinalStarted = false;
 	for ( int client = 1; client <= MaxClients; client ++ )
 	{
 		RespawnLimit[client] = 0;
@@ -334,12 +342,12 @@ void Event_RoundEnd( Event hEvent, const char[] sName, bool bDontBroadcast )
 
 void Finale_Escape_Start(Event event, const char[] name, bool dontBroadcast) 
 {
-	bFinaleEscapeStarted = true;
+	g_bFinaleEscapeStarted = true;
 }
 
 void Finale_Vehicle_Ready(Event event, const char[] name, bool dontBroadcast) 
 {
-	bFinaleEscapeStarted = true;
+	g_bFinaleEscapeStarted = true;
 }
 
 void OnBotSwap(Event event, const char[] name, bool dontBroadcast)
@@ -376,7 +384,7 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 		switch(g_iCvarAnnounceType)
 		{
 			case 1: {
-				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open. (C)", client );
 			}
 			case 2: {
 				PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
@@ -388,18 +396,36 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 		
 		return;
 	}
-	if ( bFinaleEscapeStarted && g_bEscapeDisable)
+	if ( g_bCvar_EscapeDisable && g_bFinaleEscapeStarted )
 	{
 		switch(g_iCvarAnnounceType)
 		{
 			case 1: {
-				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+				CPrintToChat(client, "%T", "Couldn't respawn when final vehicle is coming. (C)", client );
 			}
 			case 2: {
 				PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
 			}
 			case 3: {
-				PrintCenterText(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+				PrintCenterText(client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+			}
+		}
+
+		return;
+	}
+
+	if(g_bCvar_FinalDisable && g_bFinalStarted)
+	{
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Couldn't respawn after final starts. (C)", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Couldn't respawn after final starts.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Couldn't respawn after final starts.", client );
 			}
 		}
 
@@ -411,7 +437,7 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 		switch(g_iCvarAnnounceType)
 		{
 			case 1: {
-				CPrintToChat(client, "%T", "You will be respawned again.", client );
+				CPrintToChat(client, "%T", "You will be respawned again. (C)", client );
 			}
 			case 2: {
 				PrintHintText( client, "%T", "You will be respawned again.", client );
@@ -464,7 +490,7 @@ void Event_PlayerDeath( Event hEvent, const char[] sName, bool bDontBroadcast )
 			switch(g_iCvarAnnounceType)
 			{
 				case 1: {
-					CPrintToChat(client, "%T", "Respawn Limit", client );
+					CPrintToChat(client, "%T", "Respawn Limit (C)", client );
 				}
 				case 2: {
 					PrintHintText( client, "%T", "Respawn Limit", client );
@@ -485,7 +511,12 @@ void Event_BotReplace( Event hEvent, const char[] sName, bool bDontBroadcast )
 
 	int bot = GetClientOfUserId( hEvent.GetInt( "bot" ) );
 	
-	if (!IsValidClient( bot ) || IsPlayerAlive(bot) || !hCvar_BotReplaced.BoolValue || g_bIsOpenSafeRoom || (bFinaleEscapeStarted && g_bEscapeDisable) || g_bRoundEnd ) return;
+	if (!IsValidClient( bot ) || IsPlayerAlive(bot) 
+		|| !hCvar_BotReplaced.BoolValue 
+		|| g_bIsOpenSafeRoom 
+		|| (g_bCvar_EscapeDisable && g_bFinaleEscapeStarted) 
+		|| (g_bCvar_FinalDisable && g_bFinalStarted)
+		|| g_bRoundEnd ) return;
 
 	if ( !g_bEnablesRespawnLimit)
 	{
@@ -540,7 +571,7 @@ void Event_PlayerReplace( Event hEvent, const char[] sName, bool bDontBroadcast 
 				switch(g_iCvarAnnounceType)
 				{
 					case 1: {
-						CPrintToChat(client, "%T", "Respawn Limit", client );
+						CPrintToChat(client, "%T", "Respawn Limit (C)", client );
 					}
 					case 2: {
 						PrintHintText( client, "%T", "Respawn Limit", client );
@@ -629,7 +660,7 @@ Action Timer_Event_PlayerSpawn(Handle timer, int client)
 			switch(g_iCvarAnnounceType)
 			{
 				case 1: {
-					CPrintToChat(client, "%T", "Respawn Limit", client );
+					CPrintToChat(client, "%T", "Respawn Limit (C)", client );
 				}
 				case 2: {
 					PrintHintText( client, "%T", "Respawn Limit", client );
@@ -650,6 +681,13 @@ void Event_ReviveSuccess( Event hEvent, const char[] sName, bool bDontBroadcast 
 {
 	int client = GetClientOfUserId( hEvent.GetInt( "victim" ) );
 	bRescuable[client] = false;
+}
+
+void OnFinaleStart_Event(Event event, const char[] name, bool dontBroadcast) 
+{
+    if(g_bFinalStarted) return;
+
+    g_bFinalStarted = true;
 }
 
 /******************************************************************************************************/
@@ -790,16 +828,13 @@ Action Timer_Respawn( Handle hTimer, any client )
 		return Plugin_Continue;
 	}
 
-	if(g_bIsOpenSafeRoom || g_bRoundEnd) 
+	if(g_bIsOpenSafeRoom 
+		|| (g_bCvar_EscapeDisable && g_bFinaleEscapeStarted)
+		|| (g_bCvar_FinalDisable && g_bFinalStarted)
+		|| g_bRoundEnd) 
 	{
 		return Plugin_Continue;
 	}
-
-	if(bFinaleEscapeStarted && g_bEscapeDisable)
-	{
-		return Plugin_Continue;
-	}
-
 	if ( IsValidClient( client ) )
 	{
 		if(!IsPlayerAlive( client ))
@@ -836,7 +871,7 @@ Action TimerCount( Handle hTimer, int client )
 		switch(g_iCvarAnnounceType)
 		{
 			case 1: {
-				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open.", client );
+				CPrintToChat(client, "%T", "Couldn't respawn after the saferoom door is open. (C)", client );
 			}
 			case 2: {
 				PrintHintText( client, "%T", "Couldn't respawn after the saferoom door is open.", client );
@@ -851,18 +886,38 @@ Action TimerCount( Handle hTimer, int client )
 		return Plugin_Stop;
 	}
 
-	if(bFinaleEscapeStarted && g_bEscapeDisable)
+	if(g_bCvar_EscapeDisable && g_bFinaleEscapeStarted)
 	{
 		switch(g_iCvarAnnounceType)
 		{
 			case 1: {
-				CPrintToChat(client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+				CPrintToChat(client, "%T", "Couldn't respawn when final vehicle is coming. (C)", client );
 			}
 			case 2: {
 				PrintHintText( client, "%T", "Couldn't respawn when final vehicle is coming.", client );
 			}
 			case 3: {
 				PrintCenterText(client, "%T", "Couldn't respawn when final vehicle is coming.", client );
+			}
+		}
+
+		delete RespawnTimer[client];
+		CountTimer[client] = null;
+		return Plugin_Stop;
+	}
+
+	if(g_bCvar_FinalDisable && g_bFinalStarted)
+	{
+		switch(g_iCvarAnnounceType)
+		{
+			case 1: {
+				CPrintToChat(client, "%T", "Couldn't respawn after final starts. (C)", client );
+			}
+			case 2: {
+				PrintHintText( client, "%T", "Couldn't respawn after final starts.", client );
+			}
+			case 3: {
+				PrintCenterText(client, "%T", "Couldn't respawn after final starts.", client );
 			}
 		}
 
@@ -881,7 +936,7 @@ Action TimerCount( Handle hTimer, int client )
 			switch(g_iCvarAnnounceType)
 			{
 				case 1: {
-					CPrintToChat(client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
+					CPrintToChat(client, "%T", "Seconds To Respawn limit (1) (C)", client, Seconds[client] );
 				}
 				case 2: {
 					PrintHintText( client, "%T", "Seconds To Respawn limit (1)", client, Seconds[client] );
@@ -896,7 +951,7 @@ Action TimerCount( Handle hTimer, int client )
 			switch(g_iCvarAnnounceType)
 			{
 				case 1: {
-					CPrintToChat(client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
+					CPrintToChat(client, "%T", "Seconds To Respawn limit (C)", client, Seconds[client], left );
 				}
 				case 2: {
 					PrintHintText( client, "%T", "Seconds To Respawn limit", client, Seconds[client], left );
@@ -912,7 +967,7 @@ Action TimerCount( Handle hTimer, int client )
 		switch(g_iCvarAnnounceType)
 		{
 			case 1: {
-				CPrintToChat(client, "%T", "Seconds To Respawn", client, Seconds[client] );
+				CPrintToChat(client, "%T", "Seconds To Respawn (C)", client, Seconds[client] );
 			}
 			case 2: {
 				PrintHintText( client, "%T", "Seconds To Respawn", client, Seconds[client] );

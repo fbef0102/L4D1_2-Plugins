@@ -49,6 +49,9 @@ When a Survivor dies, will respawn after a period of time.
 		// Invincible time after survivor respawn.
 		l4d_survivorrespawn_invincibletime "10.0"
 
+		// If 1, disable respawning after final stage starts
+		l4d_survivorrespawn_disable_final "0"
+
 		// If 1, disable respawning while the final escape starts (rescue vehicle ready)
 		l4d_survivorrespawn_disable_rescue_escape "1"
 
@@ -116,6 +119,9 @@ When a Survivor dies, will respawn after a period of time.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v4.4 (2026-8-15)
+		* Update cvars
 
 	* v4.3 (2025-8-1)
 		* Fixed weapon drop the ground in L4D1
@@ -199,6 +205,9 @@ When a Survivor dies, will respawn after a period of time.
 
 		// 復活後的無敵時間
 		l4d_survivorrespawn_invincibletime "10.0"
+
+		// 為1時，救援階段開始之後不能再復活
+		l4d_survivorrespawn_disable_final "0"
 
 		// 為1時，救援載具來臨之後不能再復活
 		l4d_survivorrespawn_disable_rescue_escape "1"

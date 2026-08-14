@@ -1,5 +1,39 @@
+/*
+	支援以下顏色:
+	 - {default}	(白色)
+	 - {green}		(橘色)
+	 - {olive}		(綠色)
+	 - {lightgreen}	(淺綠色)
+	 - {red}		(紅色) - 特感隊伍要有人或bot在才會顯示紅色，否則顯示橘色
+	 - {blue}		(藍色) - 人類隊伍要有人或bot在才會顯示藍色，否則顯示橘色
+	 注意事項: 藍色, 紅色, 淺綠色，這三種顏色的其中任意兩種不可出現在同一句話裡
+*/
+
+/*
+	Following named colors are supported:
+	 - {default}	(whilte)
+	 - {green}		(olive color)
+	 - {olive}		(green color)
+	 - {lightgreen}	(light green)
+	 - {red}		(red) - There must be at least one player or bot in infected team，or red will turn into {green} color
+	 - {blue}		(blue) - There must be at least one player or bot in survivor team，or blue will turn into {green} color 
+	 Warning:  2 of (Blue, Red, Lightgreen) colors can not be used together in one sentence
+*/
+
 "Phrases"
 {
+	"Respawn Limit (C)"
+	{
+		"en"			"{green}You have reached your respawn limit and will be unable to revive on your own"	
+		"es"			"{green}Has alcanzado tu límite de Auto-Respawns y no podrás Auto-Revivir!"
+		"hu"			"{green}Elérted az újjászületési limitedet és nem tudsz majd magadtól feléledni."
+		"ru"			"{green}Вы достигли предела возрождения и не сможете возродиться самостоятельно"
+		"zho"			"{green}你已達到復活次數限制並且不能再自動復活了"
+		"chi"			"{green}你已达到复活次数限制并且不能再自动复活了"
+		"pt"			"{green}Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
+		"pt_p"			"{green}Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
+		"jp"			"{green}リスポーン回数の制限に達したためリスポーンを行えません"
+	}
 	"Respawn Limit"
 	{
 		"en"			"You have reached your respawn limit and will be unable to revive on your own"	
@@ -11,6 +45,19 @@
 		"pt"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
 		"pt_p"			"Você atingiu seu limite de respawn e não será capaz de reviver por conta própria"
 		"jp"			"リスポーン回数の制限に達したためリスポーンを行えません"
+	}
+	"Seconds To Respawn (C)"
+	{
+		"#format"		"{1:i}"
+		"en"			"You will Auto-Respawn in {green}{1}{default} seconds!"
+		"es"			"Vas a revivir en {green}{1}{default} segundos!"
+		"hu"			"Automatikusan újjászületsz {green}{1}{default} másodperc múlva!"
+		"ru"			"Вы автоматически возродитесь через {green}{1}{default} сек.!"
+		"zho"			"你將於 {green}{1}{default} 秒後自動復活!"
+		"chi"			"你将于 {green}{1}{default} 秒后自动复活!"
+		"pt"			"Você irá respawnar automaticamente em {green}{1}{default} segundos!"
+		"pt_p"			"Você irá respawnar automaticamente em {green}{1}{default} segundos!"
+		"jp"			"あと {green}{1}{default} 秒でリスポーンします!"
 	}
 	"Seconds To Respawn"
 	{
@@ -25,6 +72,14 @@
 		"pt_p"			"Você irá respawnar automaticamente em {1} segundos!"
 		"jp"			"あと {1} 秒でリスポーンします!"
 	}
+	"Seconds To Respawn limit (C)"
+	{
+		"#format"        "{1:i},{2:i}"
+		"en"            "You will respawn in {green}{1}{default} seconds! ({green}{2}{default} lives left) " 
+		"zho"			"你將於 {green}{1}{default} 秒後自動復活! (剩餘 {green}{2}{default} 條命) "
+		"chi"			"你将于 {green}{1}{default} 秒后自动复活! (剩余 {green}{2}{default} 条命) "
+		"ru"            "Вы возродитесь через {green}{1}{default} сек.! (Осталось жизней: {green}{2}{default}) "
+	}	
 	"Seconds To Respawn limit"
 	{
 		"#format"        "{1:i},{2:i}"
@@ -32,6 +87,14 @@
 		"zho"			"你將於 {1} 秒後自動復活! (剩餘 {2} 條命) "
 		"chi"			"你将于 {1} 秒后自动复活! (剩余 {2} 条命) "
 		"ru"            "Вы возродитесь через {1} сек.! (Осталось жизней: {2}) "
+	}
+	"Seconds To Respawn limit (1) (C)"
+	{
+		"#format"        "{1:i}"
+		"en"            "You will respawn in {green}{1}{default} seconds! (1 live left) "
+		"zho"			"你將於 {green}{1}{default} 秒後自動復活! (剩餘 1 條命) "
+		"chi"			"你将于 {green}{1}{default} 秒后自动复活! (剩余 1 条命) "
+		"ru"            "Вы возродитесь через {green}{1}{default} сек.! (Осталась 1 жизнь) "
 	}
 	"Seconds To Respawn limit (1)"
 	{
@@ -99,8 +162,8 @@
 		"es"			"{lightgreen}{1} {default}No Necesitó Reaparecer!"
 		"hu"			"{lightgreen}{1} {default}-nak nem kell újjászületnie!"
 		"ru"			"{lightgreen}{1} {default}не нужно было возрождать!"
-		"zho"			"{1} {default}不需要被復活!"
-		"chi"			"{1} 不需要被复活!"
+		"zho"			"{lightgreen}{1} {default}不需要被復活!"
+		"chi"			"{lightgreen}{1} {default}不需要被复活!"
 		"pt"			"{lightgreen}{1} {default}não precisa de respawn!"
 		"pt_p"			"{lightgreen}{1} {default}não precisa de respawn!"
 		"jp"			"{lightgreen}{1} {default}はリスポーンする必要がありません!"
@@ -173,6 +236,14 @@
 		"chi" "此时此刻无法复活!!"	
 		"jp" "今はリスポーン出来ません。"
 	}
+	"Couldn't respawn after the saferoom door is open. (C)"
+	{
+		"en" 	"{green}Couldn't respawn after the saferoom door is open."
+		"ru" 	"{green}Невозможно возродиться после открытия двери убежища."
+		"zho" 	"{green}安全大門開啟後不得復活!!"
+		"chi" 	"{green}安全大门开启后不得复活!!"	
+		"jp" 	"{green}セーフルームの扉が開いているためリスポーン出来ません。"
+	}	
 	"Couldn't respawn after the saferoom door is open."
 	{
 		"en" "Couldn't respawn after the saferoom door is open."
@@ -181,6 +252,15 @@
 		"chi" "安全大门开启后不得复活!!"	
 		"jp" "セーフルームの扉が開いているためリスポーン出来ません。"
 	}
+	"Couldn't respawn when final vehicle is coming. (C)"
+	{
+		"en" 	"{green}Couldn't respawn when final vehicle rescue is coming."
+		"ru" 	"{green}Невозможно возродиться, когда наступает последний этап."
+		"zho" 	"{green}最後救援開始後不得復活!!"
+		"chi" 	"{green}最后救援开始后不得复活!!"	
+		"jp" 	"{green}救助が来ているためリスポーン出来ません。"
+	}	
+	
 	"Couldn't respawn when final vehicle is coming."
 	{
 		"en" "Couldn't respawn when final vehicle rescue is coming."
@@ -189,6 +269,30 @@
 		"chi" "最后救援开始后不得复活!!"	
 		"jp" "救助が来ているためリスポーン出来ません。"
 	}
+	
+	"Couldn't respawn after final starts. (C)"
+	{
+		"en" 	"{green}Couldn't respawn after final starts."
+		"zho" 	"{green}救援開始後不得復活!!"
+		"chi" 	"{green}救援开始后不得复活!!"	
+	}	
+	
+	"Couldn't respawn after final starts."
+	{
+		"en" "Couldn't respawn after final starts."
+		"zho" "救援開始後不得復活!!"
+		"chi" "救援开始后不得复活!!"	
+	}	
+	
+	"You will be respawned again. (C)"
+	{
+		"en" 	"{green}You will be respawned again."
+		"ru" 	"{green}Вы будете возрождены снова."
+		"zho" 	"{green}你稍後會再次復活!!"
+		"chi" 	"{green}稍后还能再次复活!!"
+		"jp" 	"{green}再度リスポーンします。"
+	}	
+	
 	"You will be respawned again."
 	{
 		"en" "You will be respawned again."
