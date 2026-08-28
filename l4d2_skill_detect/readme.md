@@ -3,6 +3,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * Apply to | 適用於
 	```
+	L4D1
 	L4D2
 	```
 
@@ -141,6 +142,11 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 	```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.3h (2026-8-28)
+        * Support
+		* Convert code to latest syntax
+		* Fix warnings when compiling above SourceMod 1.12 
 
     * v2.2h (2026-1-7)
         * Update API

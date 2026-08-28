@@ -314,6 +314,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v4.7 (2026-8-28)
+        * Fixed prop_mounted_machine_gun glow
+
     * v4.6 (2026-7-9)
     * v4.5 (2026-6-16)
         * Update cvars

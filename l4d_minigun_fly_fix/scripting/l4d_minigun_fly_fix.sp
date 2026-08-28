@@ -110,6 +110,7 @@ public void OnEntityCreated(int entity, const char[] classname)
             {
                 RequestFrame(OnNextFrame_minigun, EntIndexToEntRef(entity));
             }
+            // (L4D2) 下一偵, classname 變成prop_minigun
             else if( strncmp(classname, "prop_mounted_machine_gun", 24, false) == 0 )
             {
                 RequestFrame(OnNextFrame_minigun, EntIndexToEntRef(entity));

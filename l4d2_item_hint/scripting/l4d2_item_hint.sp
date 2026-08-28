@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "4.6-2026/7/9",
+	version     = "4.7-2026/8/28",
 	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
@@ -78,7 +78,7 @@ ConVar g_hItemCvarCMD, g_hHintTransType,
 	g_hSpotMarkUseRange, g_hSpotMarkUseSound, g_hSpotMarkAnnounceType, g_hSpotMarkGlowTimer, g_hSpotMarkCvarColor, g_hSpotMarkSpriteModel, g_hSpotMarkSpriteHeight,
 	g_hSpotMarkInstructorHint, g_hSpotMarkInstructorColor, g_hSpotMarkInstructorIcon,
 	g_hSpotMarkRingStartRadius, g_hSpotMarkRingEndRadius, g_hSpotMarkRingWidth, g_hSpotMarkParticle,
-	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkSI,
+	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkSIFlag,
 	g_hInfectedMarkInstructorHint, g_hInfectedMarkInstructorColor, g_hInfectedMarkInstructorIcon,
 	g_hInfectedMarkWitchEnable, g_hInfectedMarkSIFov, g_hInfectedMarkWitchFov,
 	g_hSurvivorMarkUseRange, g_hSurvivorMarkUseSound, g_hSurvivorMarkAnnounceType, g_hSurvivorMarkGlowTimer, g_hSurvivorMarkGlowRange, g_hSurvivorMarkCvarColor,
@@ -92,7 +92,7 @@ ConVar g_hItemCvarCMD, g_hHintTransType,
 int g_iItemCvarButtons, g_iHintTransType,
 	g_iItemAnnounceType, g_iItemGlowRange, g_iItemCvarColor,
 	g_iSpotMarkCvarColorArray[3], g_iSpotMarkAnnounceType,
-	g_iInfectedMarkAnnounceType, g_iInfectedMarkGlowRange, g_iInfectedMarkCvarColor, g_iInfectedMarkSI,
+	g_iInfectedMarkAnnounceType, g_iInfectedMarkGlowRange, g_iInfectedMarkCvarColor, g_iInfectedMarkSIFlag,
 	g_iSurvivorMarkAnnounceType, g_iSurvivorMarkGlowRange, g_iSurvivorMarkCvarColor,
 	g_iInfectedTeamButtons;
 
@@ -234,7 +234,7 @@ public void OnPluginStart()
 	g_hInfectedMarkAnnounceType		= CreateConVar("l4d2_infected_marker_announce_type",			"1", 					"S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text", FCVAR_NOTIFY, true, 0.0, true, 3.0);
 	g_hInfectedMarkGlowTimer   		= CreateConVar("l4d2_infected_marker_glow_timer", 				"10.0", 				"S.I. glow duration when marked by Survivors (seconds)", FCVAR_NOTIFY, true, 0.0);
 	g_hInfectedMarkGlowRange   		= CreateConVar("l4d2_infected_marker_glow_range", 				"2500", 				"S.I. glow visible range when marked by Survivors", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedMarkSI    			= CreateConVar("l4d2_infected_marker_si_flag", 					"127", 					"Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)", FCVAR_NOTIFY, true, 0.0, true, 127.0);
+	g_hInfectedMarkSIFlag    		= CreateConVar("l4d2_infected_marker_si_flag", 					"127", 					"Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)", FCVAR_NOTIFY, true, 0.0, true, 127.0);
 	g_hInfectedMarkInstructorHint	= CreateConVar("l4d2_infected_marker_instructorhint_enable", 	"1", 					"If 1, show instructor hint on S.I. marked by Survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hInfectedMarkInstructorColor	= CreateConVar("l4d2_infected_marker_instructorhint_color", 	"255 0 0", 				"Instructor hint color on S.I. (Empty = hide S.I. name)", FCVAR_NOTIFY);
 	g_hInfectedMarkInstructorIcon	= CreateConVar("l4d2_infected_marker_instructorhint_icon", 		"icon_skull", 			"Instructor hint icon on spot marker", FCVAR_NOTIFY);
@@ -312,7 +312,7 @@ public void OnPluginStart()
 	g_hInfectedMarkGlowTimer.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkGlowRange.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkCvarColor.AddChangeHook(ConVarChanged_Cvars);
-	g_hInfectedMarkSI.AddChangeHook(ConVarChanged_Cvars);
+	g_hInfectedMarkSIFlag.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorHint.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorColor.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedMarkInstructorIcon.AddChangeHook(ConVarChanged_Cvars);
@@ -485,7 +485,7 @@ void GetCvars()
 	g_iInfectedMarkGlowRange = g_hInfectedMarkGlowRange.IntValue;
 	g_hInfectedMarkCvarColor.GetString(sColor, sizeof(sColor));
 	g_iInfectedMarkCvarColor = GetColor(sColor);
-	g_iInfectedMarkSI = g_hInfectedMarkSI.IntValue;
+	g_iInfectedMarkSIFlag = g_hInfectedMarkSIFlag.IntValue;
 	g_bInfectedMarkInstructorHint = g_hInfectedMarkInstructorHint.BoolValue;
 	g_hInfectedMarkInstructorColor.GetString(g_sInfectedMarkInstructorColor, sizeof(g_sInfectedMarkInstructorColor));
 	g_hInfectedMarkInstructorIcon.GetString(g_sInfectedMarkInstructorIcon, sizeof(g_sInfectedMarkInstructorIcon));
@@ -958,6 +958,11 @@ public void OnEntityCreated(int entity, const char[] classname)
 				SDKHook(entity, SDKHook_SpawnPost, SpawnPost);
 			}
 			else if( strcmp(classname, "prop_minigun") == 0 )
+			{
+				SDKHook(entity, SDKHook_SpawnPost, SpawnPost);
+			}
+			// (L4D2) 下一偵, classname 變成prop_minigun
+			else if( strncmp(classname, "prop_mounted_machine_gun", 24, false) == 0 )
 			{
 				SDKHook(entity, SDKHook_SpawnPost, SpawnPost);
 			}
@@ -2312,7 +2317,7 @@ void PlayerMarkHint_Survivor(int client)
 			}
 			class--;
 
-			if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSI))
+			if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSIFlag))
 			{
 				GetEntPropVector(clientAim, Prop_Data, "m_vecOrigin", vTargetPos);
 				if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) && CreateInfectedMarker(client, clientAim) == true )
@@ -2365,7 +2370,7 @@ void PlayerMarkHint_Survivor(int client)
 						}
 						class--;
 
-						if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSI))
+						if(class >=0 && class <=6 && ((1 << class) & g_iInfectedMarkSIFlag))
 						{
 							GetClientEyePosition(i, vTargetPos);
 							if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
