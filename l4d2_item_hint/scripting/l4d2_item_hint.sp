@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "4.7-2026/8/29",
+	version     = "4.9-2026/8/30",
 	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
@@ -1422,76 +1422,80 @@ bool CreateInfectedMarker(int client, int infected, bool bIsWitch = false)
 	{
 		if(!g_bL4D2Version)
 		{
+			// Delete previous mark first
+			RemoveEntityModelGlow(infected);
+
 			static char sKillDelay[32];
 
+			int sprite       = CreateEntityByName(CLASSNAME_ENV_SPRITE);
+			if( CheckIfEntitySafe(sprite) )
 			{
-				int sprite       = CreateEntityByName(CLASSNAME_ENV_SPRITE);
-				if( CheckIfEntitySafe(sprite) )
+				DispatchKeyValue(sprite, "spawnflags", "1");
+
+				DispatchKeyValue(sprite, "model", g_sInfectedMarkSpriteModel);
+				DispatchKeyValue(sprite, "rendercolor", g_sInfectedMarkCvarColor);
+				DispatchKeyValue(sprite, "renderamt", "255"); // If renderamt goes before rendercolor, it doesn't render
+				DispatchKeyValue(sprite, "scale", "0.25");
+				DispatchKeyValue(sprite, "fademindist", "-1");
+
+				DispatchSpawn(sprite);
+				ActivateEntity(sprite);
+
+				g_iMarkTeam[sprite] = TEAM_SURVIVOR;
+				SDKHook(sprite, SDKHook_SetTransmit, Hook_SetTransmit_MarkerTeam);
+
+				SetVariantString("!activator");
+				AcceptEntityInput(sprite, "SetParent", infected); // parent the sprite to infected
+
+				float vSpritePos[3];
+				if(bIsWitch)
 				{
-					DispatchKeyValue(sprite, "spawnflags", "1");
+					SetVariantString("forward");
+					AcceptEntityInput(sprite, "SetParentAttachment");
+					vSpritePos[2] += 15.0;
+				}
+				else
+				{
+					//一代特感模型沒有eyes與forward的Attachment (fxck you, valve)
+					//SetVariantString("eyes");
+					//AcceptEntityInput(sprite, "SetParentAttachment");
 
-					DispatchKeyValue(sprite, "model", g_sInfectedMarkSpriteModel);
-					DispatchKeyValue(sprite, "rendercolor", g_sInfectedMarkCvarColor);
-					DispatchKeyValue(sprite, "renderamt", "255"); // If renderamt goes before rendercolor, it doesn't render
-					DispatchKeyValue(sprite, "scale", "0.25");
-					DispatchKeyValue(sprite, "fademindist", "-1");
+					float vAbsOriginPos[3], vEyePos[3];
+					GetAbsOrigin(infected, vAbsOriginPos);
+					GetClientEyePosition(infected, vEyePos);
 
-					DispatchSpawn(sprite);
-					ActivateEntity(sprite);
+					vSpritePos[0] += vEyePos[0] - vAbsOriginPos[0];
+					vSpritePos[1] += vEyePos[1] - vAbsOriginPos[1];
+					vSpritePos[2] += vEyePos[2] - vAbsOriginPos[2];
 
-					g_iMarkTeam[sprite] = TEAM_SURVIVOR;
-					SDKHook(sprite, SDKHook_SetTransmit, Hook_SetTransmit_MarkerTeam);
-
-					SetVariantString("!activator");
-					AcceptEntityInput(sprite, "SetParent", infected); // parent the sprite to infected
-
-					float vSpritePos[3];
-					if(bIsWitch)
+					if(zClass == ZC_SMOKER)
 					{
-						SetVariantString("forward");
-						AcceptEntityInput(sprite, "SetParentAttachment");
+						vSpritePos[2] += 20.0;
+					}
+					else if(zClass == ZC_BOOMER)
+					{
+						vSpritePos[2] += 10.0;
+					}
+					else if(zClass == ZC_HUNTER)
+					{
+						vSpritePos[2] += 5.0;
+					}
+					else if(zClass == ZC_TANK)
+					{
 						vSpritePos[2] += 15.0;
 					}
-					else
-					{
-						//一代特感模型沒有eyes與forward的Attachment (fxck you, valve)
-						//SetVariantString("eyes");
-						//AcceptEntityInput(sprite, "SetParentAttachment");
-
-						float vAbsOriginPos[3], vEyePos[3];
-						GetAbsOrigin(infected, vAbsOriginPos);
-						GetClientEyePosition(infected, vEyePos);
-
-						vSpritePos[0] += vEyePos[0] - vAbsOriginPos[0];
-						vSpritePos[1] += vEyePos[1] - vAbsOriginPos[1];
-						vSpritePos[2] += vEyePos[2] - vAbsOriginPos[2];
-
-						if(zClass == ZC_SMOKER)
-						{
-							vSpritePos[2] += 20.0;
-						}
-						else if(zClass == ZC_BOOMER)
-						{
-							vSpritePos[2] += 10.0;
-						}
-						else if(zClass == ZC_HUNTER)
-						{
-							vSpritePos[2] += 5.0;
-						}
-						else if(zClass == ZC_TANK)
-						{
-							vSpritePos[2] += 15.0;
-						}
-					}
-					TeleportEntity(sprite, vSpritePos, NULL_VECTOR, NULL_VECTOR);
-
-					AcceptEntityInput(sprite, "ShowSprite");
-
-					FormatEx(sKillDelay, sizeof(sKillDelay), "OnUser1 !self:Kill::%.2f:-1", g_fInfectedMarkSpriteTimer);
-					SetVariantString(sKillDelay);
-					AcceptEntityInput(sprite, "AddOutput");
-					AcceptEntityInput(sprite, "FireUser1");
 				}
+				TeleportEntity(sprite, vSpritePos, NULL_VECTOR, NULL_VECTOR);
+
+				AcceptEntityInput(sprite, "ShowSprite");
+
+				FormatEx(sKillDelay, sizeof(sKillDelay), "OnUser1 !self:Kill::%.2f:-1", g_fInfectedMarkSpriteTimer);
+				SetVariantString(sKillDelay);
+				AcceptEntityInput(sprite, "AddOutput");
+				AcceptEntityInput(sprite, "FireUser1");
+
+				g_iModelIndex[infected] = EntIndexToEntRef(sprite);
+				g_iMarkOwner[sprite] = client;
 			}
 		}
 		else
@@ -1630,45 +1634,46 @@ bool CreateSurvivorMarker(int client, int survivor)
 	{
 		if(!g_bL4D2Version)
 		{
-			float vEndPos[3];
-			GetClientEyePosition(survivor, vEndPos);
+			// Delete previous mark first
+			RemoveEntityModelGlow(survivor);
 
+			static char sKillDelay[32];
+
+			int sprite       = CreateEntityByName(CLASSNAME_ENV_SPRITE);
+			if( CheckIfEntitySafe(sprite) )
 			{
-				static char sKillDelay[32];
+				DispatchKeyValue(sprite, "spawnflags", "1");
 
-				int sprite       = CreateEntityByName(CLASSNAME_ENV_SPRITE);
-				if( CheckIfEntitySafe(sprite) )
-				{
-					DispatchKeyValue(sprite, "spawnflags", "1");
+				DispatchKeyValue(sprite, "model", g_sSurvivorMarkSpriteModel);
+				DispatchKeyValue(sprite, "rendercolor", g_sSurvivorMarkCvarColor);
+				DispatchKeyValue(sprite, "renderamt", "255"); // If renderamt goes before rendercolor, it doesn't render
+				DispatchKeyValue(sprite, "scale", "0.25");
+				DispatchKeyValue(sprite, "fademindist", "-1");
 
-					DispatchKeyValue(sprite, "model", g_sSurvivorMarkSpriteModel);
-					DispatchKeyValue(sprite, "rendercolor", g_sSurvivorMarkCvarColor);
-					DispatchKeyValue(sprite, "renderamt", "255"); // If renderamt goes before rendercolor, it doesn't render
-					DispatchKeyValue(sprite, "scale", "0.25");
-					DispatchKeyValue(sprite, "fademindist", "-1");
+				DispatchSpawn(sprite);
+				ActivateEntity(sprite);
 
-					DispatchSpawn(sprite);
-					ActivateEntity(sprite);
+				g_iMarkTeam[sprite] = iMarkerTeam;
+				SDKHook(sprite, SDKHook_SetTransmit, Hook_SetTransmit_MarkerTeam);
 
-					g_iMarkTeam[sprite] = iMarkerTeam;
-					SDKHook(sprite, SDKHook_SetTransmit, Hook_SetTransmit_MarkerTeam);
+				SetVariantString("!activator");
+				AcceptEntityInput(sprite, "SetParent", survivor); // parent the sprite to infected
+				SetVariantString("eyes");
+				AcceptEntityInput(sprite, "SetParentAttachment");
 
-					SetVariantString("!activator");
-					AcceptEntityInput(sprite, "SetParent", survivor); // parent the sprite to infected
-					SetVariantString("eyes");
-					AcceptEntityInput(sprite, "SetParentAttachment");
+				float vSpritePos[3];
+				vSpritePos[2] += 10.0;
+				TeleportEntity(sprite, vSpritePos, NULL_VECTOR, NULL_VECTOR);
 
-					float vSpritePos[3];
-					vSpritePos[2] += 10.0;
-					TeleportEntity(sprite, vSpritePos, NULL_VECTOR, NULL_VECTOR);
+				AcceptEntityInput(sprite, "ShowSprite");
 
-					AcceptEntityInput(sprite, "ShowSprite");
+				FormatEx(sKillDelay, sizeof(sKillDelay), "OnUser1 !self:Kill::%.2f:-1", g_fSurvivorMarkSpriteTimer);
+				SetVariantString(sKillDelay);
+				AcceptEntityInput(sprite, "AddOutput");
+				AcceptEntityInput(sprite, "FireUser1");
 
-					FormatEx(sKillDelay, sizeof(sKillDelay), "OnUser1 !self:Kill::%.2f:-1", g_fSurvivorMarkSpriteTimer);
-					SetVariantString(sKillDelay);
-					AcceptEntityInput(sprite, "AddOutput");
-					AcceptEntityInput(sprite, "FireUser1");
-				}
+				g_iModelIndex[survivor] = EntIndexToEntRef(sprite);
+				g_iMarkOwner[sprite] = client;
 			}
 		}
 		else

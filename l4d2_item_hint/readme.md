@@ -410,6 +410,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v4.9 (2026-8-30)
+        * Fixed sprite model in l4d1
+
     * v4.8 (2026-8-29)
         * Support L4D1
         * Update cvars
