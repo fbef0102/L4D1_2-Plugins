@@ -1,5 +1,16 @@
 ﻿"Games"
 {
+	"left4dead"
+	{
+		"Offsets"
+		{
+			"FindUseEntity"
+			{
+				"windows"	"412"
+				"linux"		"413"
+			}
+		}
+	}
 	"left4dead2"
 	{
 		"Offsets"

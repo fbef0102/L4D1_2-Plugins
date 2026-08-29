@@ -17,19 +17,19 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg/sourcemod/lfd_both_fixUpgradePack.cfg
+	* cfg/sourcemod/l4d_both_fixUpgradePack.cfg
         ```php
         // Play sound when ammo already used
-        lfd_both_fixUpgradePack_denied_sound "1"
+        l4d_both_fixUpgradePack_denied_sound "1"
 
         // Explosive ammo multiplier on pickup (Max clip in L4D: 254)
-        lfd_both_fixUpgradePack_explosive_multi "1.0"
+        l4d_both_fixUpgradePack_explosive_multi "1.0"
 
         // Incendiary ammo multiplier on pickup (Max clip in L4D: 254)
-        lfd_both_fixUpgradePack_incendiary_multi "1.0"
+        l4d_both_fixUpgradePack_incendiary_multi "1.0"
 
         // Time in seconds to remove upgradepack after first use. (0=off)
-        lfd_both_fixUpgradePack_clear_time "100"
+        l4d_both_fixUpgradePack_clear_time "100"
         ```
 </details>
 
@@ -58,18 +58,18 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/lfd_both_fixUpgradePack.cfg
+	* cfg/sourcemod/l4d_both_fixUpgradePack.cfg
         ```php
         // 第二次重複拾取時，提示音效
-        lfd_both_fixUpgradePack_denied_sound "1"
+        l4d_both_fixUpgradePack_denied_sound "1"
 
         // 高爆彈藥拾取時，數量加倍 (子彈最多只能到254，認真你就輸了)
-        lfd_both_fixUpgradePack_explosive_multi "1.0"
+        l4d_both_fixUpgradePack_explosive_multi "1.0"
 
         // 燃燒彈藥拾取時，數量加倍 (子彈最多只能到254，認真你就輸了)
-        lfd_both_fixUpgradePack_incendiary_multi "1.0"
+        l4d_both_fixUpgradePack_incendiary_multi "1.0"
 
         // 當彈藥包被第一個人拾取時，100秒之後自動移除 (0=不移除直到所有人都拾取一次)
-        lfd_both_fixUpgradePack_clear_time "100"
+        l4d_both_fixUpgradePack_clear_time "100"
         ```
 </details>

@@ -51,7 +51,7 @@ Allows admins to force the game to pause, only adm can unpause the game.
 		* Remake code
 		* Only Adm can pause and unpause the gmae
 		* Chat Color during pause
-		* Fixed compatibility with plugin "lfd_noTeamSay" v2.2+ by HarryPotter
+		* Fixed compatibility with plugin "smd_noTeamSay" v2.2+ by HarryPotter
 
 	* v0.2.1
 		* [Original plugin by pvtschlag](https://forums.alliedmods.net/showthread.php?t=110029)

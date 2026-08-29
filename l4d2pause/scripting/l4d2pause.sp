@@ -56,13 +56,6 @@ public void OnPluginStart()
 
 }
 
-//ConVar g_hNoTeamSayPlugin = null;
-//public void OnAllPluginsLoaded()
-//{
-//	// lfd_noTeamSay
-//	g_hNoTeamSayPlugin = FindConVar("noteamsay_ignorelist");
-//}
-
 public void OnMapStart()
 {
 	g_bIsPaused = false;
@@ -137,50 +130,6 @@ Action Command_SMForcePause(int client, int args)
 	}
 	return Plugin_Handled;
 }
-
-/*Action Say_Command(int client, const char[] command, int args)
-{
-	if (!g_bIsPaused || client == 0 || BaseComm_IsClientGagged(client) == true) return Plugin_Continue;
-
-	char buffer[256];
-	GetCmdArg(1, buffer, sizeof(buffer));
-	if (IsSayCommandPrivate(buffer)) return Plugin_Continue; // If its a private chat trigger, return continue
-
-	int team = GetClientTeam(client);
-	if(team == 1)
-		CPrintToChatAll("(Spec) {lightgreen}%N{default} : %s", client, buffer);
-	else if(team == 2)
-		CPrintToChatAll("(Sur) {lightgreen}%N{default} : %s", client, buffer);
-	else if(team == 3)
-		CPrintToChatAll("(Inf) {lightgreen}%N{default} : %s", client, buffer);
-		
-	return Plugin_Handled;
-}
-
-Action SayTeam_Command(int client, const char[] command, int args)
-{
-	if (!g_bIsPaused || client == 0 || BaseComm_IsClientGagged(client) == true ) return Plugin_Continue;
-	if(g_hNoTeamSayPlugin != null) return Plugin_Continue;
-
-	char buffer[256];
-	GetCmdArg(1, buffer, sizeof(buffer));
-	if (IsSayCommandPrivate(buffer)) return Plugin_Continue; // If its a private chat trigger, return continue
-	
-	int team = GetClientTeam(client);
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (!IsClientInGame(i) || IsFakeClient(i) || GetClientTeam(i) != team) continue;
-		if(team == 1)
-			CPrintToChat(i, "{default}(Spec)(team) {default}%N{default} : %s", client, buffer);
-		else if(team == 2)
-			CPrintToChat(i, "{default}(Sur)(team) {blue}%N{default} : %s", client, buffer);
-		else if(team == 3)
-			CPrintToChat(i, "{default}(Inf)(team) {red}%N{default} : %s", client, buffer);
-	}
-		
-	return Plugin_Handled;
-
-}*/
 
 Action UnpauseCountdown(Handle timer, any client)
 {

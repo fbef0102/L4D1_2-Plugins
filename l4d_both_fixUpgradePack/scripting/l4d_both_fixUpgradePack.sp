@@ -62,16 +62,16 @@ public void OnAllPluginsLoaded() {
 }
 
 public void OnPluginStart() {
-	Handle hGameData = LoadGameConfigFile("lfd_both_fixUpgradePack");
+	Handle hGameData = LoadGameConfigFile("l4d_both_fixUpgradePack");
 	g_UpgradePackCanUseCount = GameConfGetOffset(hGameData, "m_iUpgradePackCanUseCount");
 	delete hGameData;
 
 	ResetAllUsedUpgrades();
 
-	cvarDeniedSound 		= CreateConVar("lfd_both_fixUpgradePack_denied_sound", 		"1", 	"Play sound when ammo already used", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	cvarIncendiaryMulti 	= CreateConVar("lfd_both_fixUpgradePack_incendiary_multi", 	"1.0", 	"Incendiary ammo multiplier on pickup (Max clip in L4D: 254)", FCVAR_NOTIFY, true, 1.0);
-	cvarExplosiveMulti 		= CreateConVar("lfd_both_fixUpgradePack_explosive_multi", 	"1.0", 	"Explosive ammo multiplier on pickup (Max clip in L4D: 254)", FCVAR_NOTIFY, true, 1.0);
-	cvarClearUpgradeTime 	= CreateConVar("lfd_both_fixUpgradePack_clear_time", 		"100", 	"Time in seconds to remove upgradepack after first use. (0=off)", FCVAR_NOTIFY, true, 0.0);
+	cvarDeniedSound 		= CreateConVar("l4d_both_fixUpgradePack_denied_sound", 		"1", 	"Play sound when ammo already used", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvarIncendiaryMulti 	= CreateConVar("l4d_both_fixUpgradePack_incendiary_multi", 	"1.0", 	"Incendiary ammo multiplier on pickup (Max clip in L4D: 254)", FCVAR_NOTIFY, true, 1.0);
+	cvarExplosiveMulti 		= CreateConVar("l4d_both_fixUpgradePack_explosive_multi", 	"1.0", 	"Explosive ammo multiplier on pickup (Max clip in L4D: 254)", FCVAR_NOTIFY, true, 1.0);
+	cvarClearUpgradeTime 	= CreateConVar("l4d_both_fixUpgradePack_clear_time", 		"100", 	"Time in seconds to remove upgradepack after first use. (0=off)", FCVAR_NOTIFY, true, 0.0);
 
 	GetCvars();
 	cvarDeniedSound.AddChangeHook(OnConVarChange);
@@ -83,7 +83,7 @@ public void OnPluginStart() {
 	HookEvent("player_bot_replace", OnBotSwap);
 	HookEvent("bot_player_replace", OnBotSwap);
 
-	AutoExecConfig(true, "lfd_both_fixUpgradePack");
+	AutoExecConfig(true, "l4d_both_fixUpgradePack");
 }
 
 public void OnMapStart()

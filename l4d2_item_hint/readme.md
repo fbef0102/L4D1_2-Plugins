@@ -3,21 +3,26 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
 * Apply to | 適用於
     ```
+    L4D1
     L4D2
     ```
 
 * [Video | 影片展示](https://youtu.be/FxFyhFxaZug)
 
-* Image | 圖示
+* <details><summary>Image | 圖示</summary>
+
     * Mark weapons and items (標記武器與物品)
     <br/>![l4d2_item_hint_1](image/l4d2_item_hint_1.jpg)
     <br/>![l4d2_item_hint_2](image/l4d2_item_hint_2.jpg)
     * Mark place and infected (標記地點與特殊感染者)
     <br/>![l4d2_item_hint_3](image/l4d2_item_hint_3.jpg)
-    * Support director hint (支援指導系統圖案提示)
+    <br/>![l4d2_item_hint_3_2](image/l4d2_item_hint_3_2.jpg)
+    * (L4D2) Support director hint (支援指導系統圖案提示)
     <br/>![l4d2_item_hint_4](image/l4d2_item_hint_4.jpg)
     * Mark your teammates (標記隊友)
     <br/>![l4d2_item_hint_5](image/l4d2_item_hint_5.jpg)
+    <br/>![l4d2_item_hint_5_2](image/l4d2_item_hint_5_2.jpg)
+</details>
 
 * <details><summary>How does it work?</summary>
 
@@ -34,14 +39,16 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         * Pressing Shift
         * Infected marker priority: Survivor > Item or Weapon > Spot marker
     * Marks, glow, sprite model, hins and Notifications are only visible to teammates of the same team
+    * (L4D1) Only items/weapons can glow, and the color is locked to white only. Ask Valve
+    * (L4D1) There are no instruction hints. Ask Valve
 </details>
 
 * <details><summary>Important</summary>
 
     * Hats and others attaching stuff to players could block the players "use" function, which makes you unable to use 'look' item hint. Install [Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511) plugin to fix.
-    * Player must Enabled GAME INSTRUCTOR, in ESC -> Options -> Multiplayer, or they can't see the hint
+    * (L4D2) Player must Enabled GAME INSTRUCTOR, in ESC -> Options -> Multiplayer, or they can't see the hint
     <br/>![l4d2_item_hint_6.jpg](image/l4d2_item_hint_6.jpg)
-    * DO NOT modify convar ```sv_gameinstructor_disable``` this force all clients to disable their game instructors.
+    * (L4D2) DO NOT modify convar ```sv_gameinstructor_disable``` this force all clients to disable their game instructors.
 </details>
 
 * Require | 必要安裝
@@ -124,42 +131,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_team_ghost "1"
             ```
 
-        * Both teams mark "Item/Weapons"
-            ```php
-            // Item marker glow color (RGB, space-separated). Empty = Remove Glow
-            l4d2_item_marker_glow_color "0 255 255"
-
-            // Cooldown between marking items (seconds)
-            l4d2_item_marker_cooldown_time "1.0"
-
-            // Max distance to mark an item
-            l4d2_item_marker_use_range "150"
-
-            // Sound when marking an item. (relative to sound/, Empty = Off)
-            l4d2_item_marker_use_sound "buttons/blip1.wav"
-
-            // Item marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
-            l4d2_item_marker_announce_type "1"
-
-            // Item glow duration (seconds)
-            l4d2_item_marker_glow_timer "10.0"
-
-            // Item glow visible range
-            l4d2_item_marker_glow_range "800"
-
-            // If 1, show instructor hint on marked items
-            l4d2_item_marker_instructorhint_enable "1"
-
-            // Instructor hint color on items. (Empty = hide item name)
-            l4d2_item_marker_instructorhint_color "0 255 255"
-
-            // Instructor hint icon. (More icons: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
-            l4d2_item_marker_instructorhint_icon "icon_interact"
-            ```
-
         * Both teams mark "Spot"
             ```php
-            // Spot marker color (RGB, space-separated). Empty = Remove circle mark
+            // (L4D2) Spot marker color (RGB, space-separated). Empty = Remove circle mark
             l4d2_spot_marker_color "200 200 200"
 
             // Cooldown between spot marks (seconds)
@@ -207,10 +181,87 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
-
-        * Both teams mark "Survivor"
+        * (L4D2) Both teams mark "Item/Weapons"
             ```php
-            // Survivor marker glow color (RGB, space-separated). Empty = Remove Glow
+            // (L4D2) Item marker glow color (RGB, space-separated). Empty = Remove Glow
+            l4d2_item_marker_glow_color "0 255 255"
+
+            // Cooldown between marking items (seconds)
+            l4d2_item_marker_cooldown_time "1.0"
+
+            // Max distance to mark an item
+            l4d2_item_marker_use_range "150"
+
+            // Sound when marking an item. (relative to sound/, Empty = Off)
+            l4d2_item_marker_use_sound "buttons/blip1.wav"
+
+            // Item marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_item_marker_announce_type "1"
+
+            // Item glow duration (seconds)
+            l4d2_item_marker_glow_timer "10.0"
+
+            // Item glow visible range
+            l4d2_item_marker_glow_range "800"
+
+            // If 1, show instructor hint on marked items
+            l4d2_item_marker_instructorhint_enable "1"
+
+            // Instructor hint color on items. (Empty = hide item name)
+            l4d2_item_marker_instructorhint_color "0 255 255"
+
+            // Instructor hint icon. (More icons: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
+            l4d2_item_marker_instructorhint_icon "icon_interact"
+            ```
+
+        * (L4D2) Survivors mark "Special Infected"
+            ```php
+            // S.I. marker glow color (RGB, space-separated). Empty = Remove Glow
+            l4d2_infected_marker_glow_color "255 120 203"
+
+            // Cooldown for Survivors marking S.I. (seconds)
+            l4d2_infected_marker_cooldown_time "0.25"
+
+            // Max distance for Survivors to mark S.I.
+            l4d2_infected_marker_use_range "1000"
+
+            // Sound when Survivors mark S.I. (relative to sound/, Empty = Off)
+            l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
+
+            // S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_infected_marker_announce_type "1"
+
+            // S.I. glow duration when marked by Survivors (seconds)
+            l4d2_infected_marker_glow_timer "10.0"
+
+            // S.I. glow visible range when marked by Survivors
+            l4d2_infected_marker_glow_range "2500"
+
+            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
+            l4d2_infected_marker_si_flag "127"
+
+            // If 1, allow Survivors to mark Witch
+            l4d2_infected_marker_witch_enable "1"
+
+            // If 1, show instructor hint on S.I. marked by Survivors
+            l4d2_infected_marker_instructorhint_enable "1"
+
+            // Instructor hint color on S.I. (Empty = hide S.I. name)
+            l4d2_infected_marker_instructorhint_color "255 0 0"
+
+            // Instructor hint icon on S.I. marker
+            l4d2_infected_marker_instructorhint_icon "icon_skull"
+
+            // FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)
+            l4d2_infected_marker_si_fov "15.0"
+
+            // FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)
+            l4d2_infected_marker_witch_fov "15.0"
+            ```
+
+        * (L4D2) Both teams mark "Survivor"
+            ```php
+            // (L4D2) Survivor marker glow color (RGB, space-separated). Empty = Remove Glow
             l4d2_survivor_marker_glow_color "0 200 0"
 
             // Cooldown between marking survivors (seconds)
@@ -247,10 +298,37 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_infected_notify "1"
             ```
 
-        * Survivors mark "Special Infected"
+        * (L4D1) Both teams mark "Item/Weapons"
             ```php
-            // S.I. marker glow color (RGB, space-separated). Empty = Remove Glow
-            l4d2_infected_marker_glow_color "255 120 203"
+            // (L4D1) If 1, Enable white glow when mark items
+            l4d2_item_marker_glow_enable "1"
+
+            // Cooldown between marking items (seconds)
+            l4d2_item_marker_cooldown_time "1.0"
+
+            // Max distance to mark an item
+            l4d2_item_marker_use_range "150"
+
+            // Sound when marking an item. (relative to sound/, Empty = Off)
+            l4d2_item_marker_use_sound "buttons/blip1.wav"
+
+            // Item marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_item_marker_announce_type "1"
+
+            // Item glow duration (seconds)
+            l4d2_item_marker_glow_timer "10.0"
+
+            // Item glow visible range
+            l4d2_item_marker_glow_range "800"
+            ```
+
+        * (L4D1) Survivors mark "Special Infected"
+            ```php
+            // (L4D1) S.I. marker color (RGB, space-separated). Empty = Off.
+            l4d2_infected_marker_sprite_color "255 0 0"
+
+            // Infected marker sprite model.
+            l4d2_infected_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
             // Cooldown for Survivors marking S.I. (seconds)
             l4d2_infected_marker_cooldown_time "0.25"
@@ -264,32 +342,50 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_infected_marker_announce_type "1"
 
-            // S.I. glow duration when marked by Survivors (seconds)
-            l4d2_infected_marker_glow_timer "10.0"
+            // S.I. marker duration when marked by Survivors (seconds)
+            l4d2_infected_marker_sprite_timer "10.0"
 
-            // S.I. glow visible range when marked by Survivors
-            l4d2_infected_marker_glow_range "2500"
+            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank. Add together (15=All)
+            l4d2_infected_marker_si_flag "15"
 
             // If 1, allow Survivors to mark Witch
             l4d2_infected_marker_witch_enable "1"
-
-            // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
-            l4d2_infected_marker_si_flag "127"
-
-            // If 1, show instructor hint on S.I. marked by Survivors
-            l4d2_infected_marker_instructorhint_enable "1"
-
-            // Instructor hint color on S.I. (Empty = hide S.I. name)
-            l4d2_infected_marker_instructorhint_color "255 0 0"
-
-            // Instructor hint icon on S.I. marker
-            l4d2_infected_marker_instructorhint_icon "icon_skull"
 
             // FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)
             l4d2_infected_marker_si_fov "15.0"
 
             // FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)
             l4d2_infected_marker_witch_fov "15.0"
+            ```
+
+        * (L4D1) Both teams mark "Survivor"
+            ```php
+            // (L4D1) Survivor marker color (RGB, space-separated). Empty = Off.
+            l4d2_survivor_marker_sprite_color "0 200 0"
+
+            // Survivor marker sprite model.
+            l4d2_survivor_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
+
+            // Cooldown between marking survivors (seconds)
+            l4d2_survivor_marker_cooldown_time "1.0"
+
+            // Max distance to mark a survivor
+            l4d2_survivor_marker_use_range "1000"
+
+            // Sound when marking a survivor. (relative to sound/, Empty = Off)
+            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
+
+            // Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_survivor_marker_announce_type "1"
+
+            // Survivor marker duration
+            l4d2_survivor_marker_sprite_timer "10.0"
+
+            // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
+            l4d2_survivor_marker_fov "15.0"
+
+            // If 1, notify the target when marked by an infected
+            l4d2_survivor_marker_infected_notify "1"
             ```
 </details>
 
@@ -313,6 +409,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v4.8 (2026-8-29)
+        * Support L4D1
+        * Update cvars
+        * Update gamedata
 
     * v4.7 (2026-8-28)
         * Fixed prop_mounted_machine_gun glow
@@ -428,11 +529,13 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         * 按下Shift鍵
         * 標記優先順序: 倖存者 > 物品或武器 > 地點
     * 雙方陣營看不見對方的標記與提示
+    * (L4D1) 只有物品與武器能發光，且光圈顏色強制白色，認真你就輸了，問Value
+    * (L4D1) 沒有導演提示，認真你就輸了，問Value
 
 * 注意事項
     * 如果有其他插件會擋住視野的裝飾品譬如帽子插件，你可能無法使用標記功能，請安裝[Use Priority Patch](https://forums.alliedmods.net/showthread.php?t=327511)以修正
-    * 玩家必須啟動[遊戲指導系統](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game#啟動遊戲指導系統)，否則玩家看不見標記提示
-    * 伺服器端不要修改指令 ```sv_gameinstructor_disable```，這會關閉所有玩家的遊戲指導系統
+    * (L4D2) 玩家必須啟動[遊戲指導系統](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Game#啟動遊戲指導系統)，否則玩家看不見標記提示
+    * (L4D2) 伺服器端不要修改指令 ```sv_gameinstructor_disable```，這會關閉所有玩家的遊戲指導系統
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -503,40 +606,6 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_team_ghost "1"
             ```
 
-        * 雙方隊伍標記"物品、武器"
-            ```php
-            // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=移除光圈效果
-            l4d2_item_marker_glow_color "0 255 255"
-
-            // 玩家可以再次標記的時間間隔
-            l4d2_item_marker_cooldown_time "1.0"
-
-            // 能標記的距離
-            l4d2_item_marker_use_range "150"
-
-            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
-            l4d2_item_marker_use_sound "buttons/blip1.wav"
-
-            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
-            l4d2_item_marker_announce_type "1"
-
-            // 標記的光圈顯示時間
-            l4d2_item_marker_glow_timer "10.0"
-
-            // 標記的光圈可見範圍
-            l4d2_item_marker_glow_range "800"
-
-            // 為1時，啟用導演提示
-            l4d2_item_marker_instructorhint_enable "1"
-
-            // 導演提示的文字顏色 (空=無文字)
-            l4d2_item_marker_instructorhint_color "0 255 255"
-
-            // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
-            l4d2_item_marker_instructorhint_icon "icon_interact"
-            ```
-            
         * 雙方隊伍標記"地點"
             ```php
             // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
@@ -588,9 +657,92 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_spot_marker_particle           "sline_sparks"
             ```
 
-        * 雙方隊伍標記"倖存者"
+
+        * (L4D2遊戲) 雙方隊伍標記"物品、武器"
             ```php
-            // 標記隊友的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // (L4D2) 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // 空=移除光圈效果
+            l4d2_item_marker_glow_color "0 255 255"
+
+            // 玩家可以再次標記的時間間隔
+            l4d2_item_marker_cooldown_time "1.0"
+
+            // 能標記的距離
+            l4d2_item_marker_use_range "150"
+
+            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
+            l4d2_item_marker_use_sound "buttons/blip1.wav"
+
+            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
+            l4d2_item_marker_announce_type "1"
+
+            // 標記的光圈顯示時間
+            l4d2_item_marker_glow_timer "10.0"
+
+            // 標記的光圈可見範圍
+            l4d2_item_marker_glow_range "800"
+
+            // 為1時，啟用導演提示
+            l4d2_item_marker_instructorhint_enable "1"
+
+            // 導演提示的文字顏色 (空=無文字)
+            l4d2_item_marker_instructorhint_color "0 255 255"
+
+            // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
+            l4d2_item_marker_instructorhint_icon "icon_interact"
+            ```
+
+        * (L4D2遊戲) 人類標記"特感"
+            ```php
+            // (L4D2) 特感標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // 空=移除光圈
+            l4d2_infected_marker_glow_color "255 120 203"
+
+            // 玩家可以再次標記特感的時間間隔
+            l4d2_infected_marker_cooldown_time "0.25"
+
+            // 能標記特感的距離
+            l4d2_infected_marker_use_range "1000"
+
+            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
+            l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
+
+            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
+            l4d2_infected_marker_announce_type "1"
+
+            // 標記的光圈顯示時間
+            l4d2_infected_marker_glow_timer "10.0"
+
+            // 標記的光圈可見範圍
+            l4d2_infected_marker_glow_range "2500"
+
+            // 可以標記哪些特感? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. 請將數字相加 (127=全部)
+            l4d2_infected_marker_si_flag "127"
+
+            // 為1時，也可以標記Witch
+            l4d2_infected_marker_witch_enable "1"
+
+            // 為1時，啟用導演提示
+            l4d2_infected_marker_instructorhint_enable "1"
+
+            // 導演提示的特感名稱顏色 (空=無特感名稱)
+            l4d2_infected_marker_instructorhint_color "255 0 0"
+
+            // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
+            l4d2_infected_marker_instructorhint_icon "icon_skull"
+
+            // 檢測玩家的視野是否正在看特感, 此數值代表特感與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_infected_marker_si_fov "15.0"
+
+            // 檢測玩家的視野是否正在看Witch, 此數值代表Witch與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_infected_marker_witch_fov "15.0"
+            ```
+
+        * (L4D2遊戲) 雙方隊伍標記"倖存者"
+            ```php
+            // (L4D2) 標記隊友的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=移除光圈
             l4d2_survivor_marker_glow_color "0 200 0"
 
@@ -629,11 +781,38 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_infected_notify "1"
             ```
 
-        * 人類標記"特感"
+        * (L4D1遊戲) 雙方隊伍標記"物品、武器"
             ```php
-            // 特感標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=移除光圈
-            l4d2_infected_marker_glow_color "255 120 203"
+            // (L4D1) 為1時，標記"物品、武器"時會出現白色光圈
+            l4d2_item_marker_glow_enable "1"
+
+            // 玩家可以再次標記的時間間隔
+            l4d2_item_marker_cooldown_time "1.0"
+
+            // 能標記的距離
+            l4d2_item_marker_use_range "150"
+
+            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
+            l4d2_item_marker_use_sound "buttons/blip1.wav"
+
+            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
+            l4d2_item_marker_announce_type "1"
+
+            // 標記的光圈顯示時間
+            l4d2_item_marker_glow_timer "10.0"
+
+            // 標記的光圈可見範圍
+            l4d2_item_marker_glow_range "800"
+            ```
+
+        * (L4D1遊戲) 人類標記"特感"
+            ```php
+            // (L4D1) 特感被標記的顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // 空=移除標籤
+            l4d2_infected_marker_sprite_color "255 0 0"
+
+            // 特感被標記時，頭上出現的模型圖案
+            l4d2_infected_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
             // 玩家可以再次標記特感的時間間隔
             l4d2_infected_marker_cooldown_time "0.25"
@@ -647,26 +826,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
             l4d2_infected_marker_announce_type "1"
 
-            // 標記的光圈顯示時間
-            l4d2_infected_marker_glow_timer "10.0"
+            // 標記時間 (秒數)
+            l4d2_infected_marker_sprite_timer "1"
 
-            // 標記的光圈可見範圍
-            l4d2_infected_marker_glow_range "2500"
+            // 可以標記哪些特感? 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank. 請將數字相加 (15=全部)
+            l4d2_infected_marker_si_flag "15"
 
             // 為1時，也可以標記Witch
             l4d2_infected_marker_witch_enable "1"
-
-            // 可以標記哪些特感? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. 請將數字相加 (127=全部)
-            l4d2_infected_marker_si_flag "127"
-
-            // 為1時，啟用導演提示
-            l4d2_infected_marker_instructorhint_enable "1"
-
-            // 導演提示的特感名稱顏色 (空=無特感名稱)
-            l4d2_infected_marker_instructorhint_color "255 0 0"
-
-            // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
-            l4d2_infected_marker_instructorhint_icon "icon_skull"
 
             // 檢測玩家的視野是否正在看特感, 此數值代表特感與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
@@ -675,6 +842,38 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 檢測玩家的視野是否正在看Witch, 此數值代表Witch與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_infected_marker_witch_fov "15.0"
+            ```
+
+        * (L4D1遊戲) 雙方隊伍標記"倖存者"
+            ```php
+            // (L4D1) 人類被標記的顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // 空=移除標籤
+            l4d2_survivor_marker_sprite_color "0 200 0"
+
+            // 人類被標記時，頭上出現的模型圖案
+            l4d2_survivor_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
+
+            // 玩家可以再次標記隊友的時間間隔
+            l4d2_survivor_marker_cooldown_time "1.0"
+
+            // 能標記隊友的距離
+            l4d2_survivor_marker_use_range "1000"
+
+            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
+            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
+
+            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
+            l4d2_survivor_marker_announce_type "1"
+
+            // 標記時間 (秒數)
+            l4d2_survivor_marker_sprite_timer "10.0"
+
+            // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
+            // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
+            l4d2_survivor_marker_fov "15.0"
+
+            // 為1時，感染者標記生還者後通知被標記的對象
+            l4d2_survivor_marker_infected_notify "1"
             ```
 </details>
 

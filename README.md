@@ -238,7 +238,7 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修改每一種槍械武器對普通殭屍/Tank/Witch/特感 的傷害倍率
 * <s><b>[l4d2_ai_damagefix](/l4d2_ai_damagefix)</b>: (Archived) Makes AI SI take (and do) damage like human SI.</s>
     * <s>(棄案) 對AI Hunter與 AI Charger造成的傷害數據跟真人玩家一樣</s>
-* <b>[lfd_both_fixUpgradePack](/lfd_both_fixUpgradePack)</b>: Fixes upgrade packs pickup bug when there are 5+ survivors
+* <b>[l4d_both_fixUpgradePack](/l4d_both_fixUpgradePack)</b>: Fixes upgrade packs pickup bug when there are 5+ survivors
     * 修正高爆彈與燃燒彈無法被重複角色模組的倖存者撿起來
 * <b>[l4d2_chainsaw_refuelling](/l4d2_chainsaw_refuelling)</b>: Allow refuelling of a chainsaw
     * 可以使用汽油桶重新填充電鋸油量
@@ -314,6 +314,10 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 播放地圖的過場動畫時，倖存者不會受傷
 * <b>[l4d_ghost_spawn_exploit](/l4d_ghost_spawn_exploit)</b>: Fix exploit where ghost infected player can spawn and teleport to survivor at the same time
     * 禁止靈魂特感玩家利用遊戲漏洞，瞬間傳送在倖存者臉上復活
+* <b>[l4d_both_fixChainsaw](/l4d_both_fixChainsaw)</b>: Fixed an issue where Survivors could use the chainsaw while reviving a teammate at the same time
+    * 修正倖存者救人期間可以同時使用電鋸攻擊
+* <b>[l4d_both_ledge](/l4d_both_ledge)</b>: When revived from a ledge, you recover the health you had before hanging the ledge
+    * 掛邊的玩家被救起來之後，血量恢復到掛邊之前的狀態
 
 # Scripting Compiler
 * [sourcemod v1.12 compiler](https://www.sourcemod.net/downloads.php?branch=1.12-dev): scripting folder
