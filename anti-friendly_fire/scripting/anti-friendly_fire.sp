@@ -11,7 +11,7 @@ public Plugin myinfo =
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.8-2024/8/6",
+	version = "1.9-2029/9/6",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -41,8 +41,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #define CLASSNAME_LENGTH 64
 
 ConVar g_hGod,
-	g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hGLDisable, g_hDamageShield, g_hDamageMulti;
-bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bGLDisable;
+	g_hEnable, g_hFireDisable, g_hPipeBombDisable, g_hGLDisable, g_hChargerDisable, g_hDamageShield, g_hDamageMulti;
+bool g_bGod, g_bEnable, g_bFireDisable, g_bPipeBombDisable, g_bGLDisable, g_bChargerDisable;
 int g_iDamageShield;
 float g_fDamageMulti;
 
@@ -88,13 +88,13 @@ enum struct CTakeDamageInfo_L4D1
 
 enum struct CTakeDamageInfo_L4D2
 {
-	float			m_vecDamageForce[3];
-	float			m_vecDamagePosition[3];
-	float			m_vecReportedPosition[3];	// Position players are told damage is coming from
-	float			m_vecUnknown[3];
+	float			m_vecDamageForce[3]; //0,1,2
+	float			m_vecDamagePosition[3]; //3,4,5
+	float			m_vecReportedPosition[3]; //6,7,8	// Position players are told damage is coming from 
+	float			m_vecUnknown[3]; //9,10,11
 	
-	int				m_hInflictor;
-	int				m_hAttacker;
+	int				m_hInflictor; //12
+	int				m_hAttacker; //13
 	int				m_hWeapon;
 	
 	float			m_flDamage;
@@ -143,6 +143,10 @@ public void OnPluginStart()
 		g_hGLDisable = CreateConVar( "anti_friendly_fire_immue_GL", "0",
 								"(L4D2) 1=Disable Grenade Launcher friendly fire and reflect damage\n0=Enable friendly fire damage",
 								FCVAR_NOTIFY, true, 0.0, true, 1.0 );
+
+		g_hChargerDisable = CreateConVar( "anti_friendly_fire_immue_charger_carry", "1",
+									"(L4D2) 1=Disable weapon friendly fire if victim is carried by charger and don't reflect damage\n0=Enable friendly fire damage",
+									FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	}
 
 	g_hDamageShield = CreateConVar( "anti_friendly_fire_damage_sheild", "0",
@@ -158,7 +162,11 @@ public void OnPluginStart()
 	g_hEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_hFireDisable.AddChangeHook(ConVarChanged_Cvars);
 	g_hPipeBombDisable.AddChangeHook(ConVarChanged_Cvars);
-	if(g_bL4D2Version) g_hGLDisable.AddChangeHook(ConVarChanged_Cvars);
+	if(g_bL4D2Version)
+	{
+		g_hGLDisable.AddChangeHook(ConVarChanged_Cvars);
+		g_hChargerDisable.AddChangeHook(ConVarChanged_Cvars);
+	}
 	g_hDamageShield.AddChangeHook(ConVarChanged_Cvars);
 	g_hDamageMulti.AddChangeHook(ConVarChanged_Cvars);
 
@@ -190,7 +198,11 @@ void GetCvars()
 	g_bEnable = g_hEnable.BoolValue;
 	g_bFireDisable = g_hFireDisable.BoolValue;
 	g_bPipeBombDisable = g_hPipeBombDisable.BoolValue;
-	if(g_bL4D2Version) g_bGLDisable = g_hGLDisable.BoolValue;
+	if(g_bL4D2Version)
+	{
+		g_bGLDisable = g_hGLDisable.BoolValue;
+		g_bChargerDisable = g_hChargerDisable.BoolValue;
+	}
 	g_iDamageShield = g_hDamageShield.IntValue;
 	g_fDamageMulti = g_hDamageMulti.FloatValue;
 }
@@ -413,7 +425,6 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 
 	//PrintToChatAll("DTR__AllowDamage %N attack %N, temp Health: %d, main Health: %d, damage: %f", attacker, client, L4D_GetPlayerTempHealth(client), GetClientHealth(client), damage);
 	
-	bool bIsSpecialWeapon = false;
 	if(inflictor > MaxClients && IsValidEntity(inflictor))
 	{
 		static char WeaponName[CLASSNAME_LENGTH];
@@ -423,21 +434,34 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 
 		if( (damagetype & DMG_BURN) && !(damagetype & DMG_BULLET) )
 		{
-			bIsSpecialWeapon = true;
-			if(g_bFireDisable== false) return MRES_Ignored;
+			if(g_bFireDisable)
+			{
+				hReturn.Value = 0;
+				return MRES_Supercede;
+			}
 		}
 		else if(strncmp(WeaponName, "pipe_bomb_projectile", 20, false) == 0) 
 		{
-			bIsSpecialWeapon = true;
-			if(g_bPipeBombDisable == false) return MRES_Ignored;
+			if(g_bPipeBombDisable)
+			{
+				hReturn.Value = 0;
+				return MRES_Supercede;
+			}
 		}
 		else if(g_bL4D2Version && strncmp(WeaponName, "grenade_launcher_projectile", 27, false) == 0 ) 
 		{
-			if(g_bGLDisable == false) return MRES_Ignored;
+			if(g_bGLDisable == false) return MRES_Supercede;
+		}
+
+		if( g_bL4D2Version && g_bChargerDisable && (damagetype & DMG_BULLET) 
+			&& PinnedByCharger(client))
+		{
+			hReturn.Value = 0;
+			return MRES_Supercede;
 		}
 	}
 	
-	if(!bIsSpecialWeapon && GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
+	if(GetClientTeam(attacker) == L4D_TEAM_SURVIVOR)
 	{
 		DataPack hPack = new DataPack();
 		hPack.WriteCell(GetClientUserId(attacker));
@@ -583,4 +607,14 @@ void RestoreHp(int client)
 	//PrintToChatAll("%d %.2f", g_iMainHealth[client], g_fTempHealth[client]);
 	SetEntityHealth(client, g_iMainHealth[client]);
 	L4D_SetTempHealth(client, g_fTempHealth[client]);
+}
+
+bool PinnedByCharger(int client)
+{
+	int attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
+	if( attacker < 1 ) attacker = GetEntPropEnt(client, Prop_Send, "m_carryAttacker");
+	if( attacker < 1 ) attacker = L4D2_GetQueuedPummelAttacker(client);
+	if( attacker > 0 ) return true;
+
+	return false;
 }

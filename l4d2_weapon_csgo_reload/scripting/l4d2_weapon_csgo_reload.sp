@@ -161,14 +161,14 @@ public void OnPluginStart()
 		GameData hGameData = new GameData(GAMEDATA_FILE);
 		if( hGameData == null ) SetFailState("Failed to load \"%s.txt\" gamedata.", GAMEDATA_FILE);
 
-		Handle hDetour = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
+		DynamicDetour hDetour = new DynamicDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
 		if( !hDetour )
 			SetFailState("Failed to setup detour handle: CTerrorGun::Reload");
 
-		if( !DHookSetFromConf(hDetour, hGameData, SDKConf_Signature, "CTerrorGun::Reload") )
+		if( !hDetour.SetFromConf(hGameData, SDKConf_Signature, "CTerrorGun::Reload") )
 			SetFailState("Failed to find signature: CTerrorGun::Reload");
 
-		if( !DHookEnableDetour(hDetour, false, L4D1_OnGunReload_Pre) )
+		if( !hDetour.Enable(Hook_Pre, L4D1_OnGunReload_Pre) )
 			SetFailState("Failed to detour: CTerrorGun::Reload");
 
 		delete hDetour;

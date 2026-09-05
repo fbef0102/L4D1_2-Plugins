@@ -13,7 +13,7 @@ When revived from a ledge, you recover the health you had before hanging the led
         1. The Survivor will lose some health if they hang from the ledge for a while
             * Example: 100hp -> hang from the ledge -> revived -> 98hp
         2. Fall from ledge having 1 HP and 0 Temp HP -> revived -> get 30 free temp health (By official cvar ```survivor_revive_health``` default value)
-    * (裝此插件之後) 
+    * (After) 
         1. The Survivor recovers the health they had before hanging from the ledge
             * Example: 100hp -> hang from the ledge -> revived -> still 100hp
         2. Disabling abuse method of receiving free health

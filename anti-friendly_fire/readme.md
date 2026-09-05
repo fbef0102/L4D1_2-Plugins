@@ -33,6 +33,10 @@ shoot your teammate = shoot yourself
         // 0=Enable friendly fire damage
         anti_friendly_fire_immue_GL "1"
 
+        // (L4D2) 1=Disable weapon friendly fire if victim is carried by charger and don't reflect damage
+        // 0=Enable friendly fire damage
+        anti_friendly_fire_immue_charger_carry "1"
+
         // Disable friendly fire damage and don't reflect damage if damage is below this value. (0=Off)
         anti_friendly_fire_damage_sheild "0"
 
@@ -57,6 +61,10 @@ shoot your teammate = shoot yourself
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.9 (2026-9-6)
+        * Disable weapon friendly fire if victim is carried by charger
+        * Update cvars
 
     * v1.8 (2024-8-6)
         * Add Gamedata
@@ -99,6 +107,10 @@ shoot your teammate = shoot yourself
         // (L4D2) 1=榴彈發射器不造成友傷並反彈友傷
         // 0=啟動友傷
         anti_friendly_fire_immue_GL "1"
+
+        // (L4D2) 1=槍枝對被Charger抓到或是攜帶的受害者不造成友傷也不反彈友傷
+        // 0=啟動友傷
+        anti_friendly_fire_immue_charger_carry "1"
 
         // 友傷低於此數值時，不造成友傷也不反彈友傷 (0=關閉).
         anti_friendly_fire_damage_sheild "0"

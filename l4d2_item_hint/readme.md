@@ -29,8 +29,8 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * Survivors can mark any weapons, items, infected and spots
         * 'Look' in vocalize menu
         <br/>![l4d2_item_hint_0.jpg](image/l4d2_item_hint_0.jpg)
-        * Type```!mark```(Survivors only)
-        * Press Shift+E (Survivors only)
+        * Type```!mark```
+        * Press Shift+E
     * Survivors marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
     * If not aiming target or item, the plugin detects what player is looking at using field of view angle
         * If has more than two targets, it finds the target nearest to your crosshair
