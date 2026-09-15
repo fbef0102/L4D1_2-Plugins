@@ -23,20 +23,20 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
 
     * cfg/sourcemod/l4d2_powerups_rush.cfg
         ```php
-        // (L4D2) If 1, set adrenaline effect time same as l4d_powerups_duration (Progress bar faster, such as use kits faster, save teammates faster... etc)
-        l4d_powerups_add_adrenaline_effect "1"
-
-        // If 1, players will be given adrenaline when leaving saferoom? (0 = OFF)
-        l4d_powerups_adren_give_on "0"
-
-        // (1.0 = Minspeed(Default speed) 2.0 = 2x speed of recovery
-        l4d_powerups_animspeed "2.0"
+        // If 1, enable this plugin ? (0 = Disable)
+        l4d_powerups_plugin_on "1"
 
         // How are players notified when connecting to server about the powerups? (0: Disable, 1:In chat, 2: In Hint Box, 3: Chat/Hint Both)
         l4d_powerups_broadcast_type "1"
 
-        // Changes how countdown timer hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
-        l4d_powerups_coutdown_type "2"
+        // (L4D2) If 1, players will be given adrenaline when leaving saferoom? (0 = OFF)
+        l4d_powerups_adren_give_on "0"
+
+        // If 1, players will be given pills when leaving saferoom? (0 = OFF)
+        l4d_powerups_pills_give_on "0"
+
+        // (L4D2) If 1, players will be given either adrenaline or pills when leaving saferoom? (0 = OFF)
+        l4d_powerups_random_give_on "0"
 
         // How long should the duration of the boosts last?
         l4d_powerups_duration "20"
@@ -44,26 +44,26 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
         // Changes how activation hint and deactivation hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
         l4d_powerups_notify_type "1"
 
-        // If 1, players will be given pills when leaving saferoom? (0 = OFF)
-        l4d_powerups_pills_give_on "0"
+        // Changes how countdown timer hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)
+        l4d_powerups_coutdown_type "2"
 
-        // The luckey change for pills that will grant the boost. (0=Off, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)", FCVAR_NOTIFY, true, 0.0)
-        l4d_powerups_pills_luck "3"
+        // (L4D2) If 1, official adrenaline effect time will be same as _powerups_duration cvar (Progress bar faster, such as use kits faster, save teammates faster... etc)
+        l4d_powerups_add_adrenaline_effect "1"
 
-        // If 1, enable this plugin ? (0 = Disable)
-        l4d_powerups_plugin_on "1"
+        // The luckey change for pills that will grant the boost. [1~100]%
+        l4d_powerups_pills_luck "30"
 
-        // If 1, players will be given either adrenaline or pills when leaving saferoom? (0 = OFF)
-        l4d_powerups_random_give_on "0"
-
-        // The interval between bullets fired is multiplied by this value. WARNING: a short enough interval will make SMGs' and rifles' firing accuracy distorted (clamped between 0.02 ~ 0.9)
-        l4d_powerups_weaponfiring_rate "0.7"
+        // The interval incurred by reloading is multiplied by this value (clamped between 0.2 ~ 0.9)
+        l4d_powerups_weaponreload_rate "0.5714"
 
         // The interval for swinging melee weapon (clamped between 0.3 ~ 0.9)
         l4d_powerups_weaponmelee_rate "0.45"
 
-        // The interval incurred by reloading is multiplied by this value (clamped between 0.2 ~ 0.9)
-        l4d_powerups_weaponreload_rate "0.5714"
+        // The interval between bullets fired is multiplied by this value. WARNING: a short enough interval will make SMGs' and rifles' firing accuracy distorted (clamped between 0.02 ~ 0.9)
+        l4d_powerups_weaponfiring_rate "0.7"
+
+        // (1.0 = Minspeed(Default speed) 2.0 = 2x speed of recovery
+        l4d_powerups_animspeed "2.0"
         ```
 </details>
 
@@ -92,10 +92,11 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    ```php
-    //Dusty1029 @ 2010
-    //HarryPotter @ 2021-2023
-    ```
+    * v1.1h (2026-9-15)
+        * Fixed not working in l4d1
+        * Update cvars
+        * Optimize code
+
     * v1.0h (2023-7-5)
         * Add translation
 
@@ -128,63 +129,63 @@ When a client pops an adrenaline (or pills), various actions are perform faster 
 
     * cfg/sourcemod/l4d2_powerups_rush.cfg
         ```php
-        // 為1時, 開啟這個插件 (0 = 關閉插件)
+        // 1=開啟這個插件, 0=關閉插件
         l4d_powerups_plugin_on "1"
-
-        // (只限二代) 為1時, 腎上腺素的效果時間與官方指令l4d_powerups_duration設置的值相等 (譬如拯救隊友變快、治療變快、罐汽油變快... 等等)
-        l4d_powerups_add_adrenaline_effect "1"
-
-        // 為1時, 當玩家離開安全室時給予腎上腺素
-        l4d_powerups_adren_give_on "0"
-
-        // 為1時, 當玩家離開安全室時給予止痛藥
-        l4d_powerups_pills_give_on "0"
-
-        // 為1時, 當玩家離開安全室時給予止痛藥或腎上腺素(隨機二選一) (0 = OFF)
-        l4d_powerups_random_give_on "0"
-
-        // 被震暈以及起身回復的速度 (1.0 = 預設 2.0 = 兩倍快 )
-        l4d_powerups_animspeed "2.0"
 
         // 如何提示給玩家知道藥效的功能? (0: 關閉提示, 1:聊天框, 2: 螢幕下方黑底白字框, 3: 螢幕正中間)
         l4d_powerups_broadcast_type "1"
 
-        // 如何顯示藥效的剩餘時間 (0: 關閉提示, 1:聊天框, 2: 螢幕下方黑底白字框, 3: 螢幕正中間)
-        l4d_powerups_coutdown_type "2"
+        // (只限二代) 為1時，當玩家離開安全室時給予腎上腺素
+        l4d_powerups_adren_give_on "0"
 
-        // 如何顯示服用生效與失效的提示 (0: 關閉提示, 1:聊天框, 2: 螢幕下方黑底白字框, 3: 螢幕正中間)
-        l4d_powerups_notify_type "1"
+        // 為1時，當玩家離開安全室時給予止痛藥
+        l4d_powerups_pills_give_on "0"
 
-        // 止痛藥丸也會獲得跟腎上腺素一樣的效果，機率為 (0=沒效果, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4 等等)
-        l4d_powerups_pills_luck "3"
+        // (只限二代) 為1時，當玩家離開安全室時給予止痛藥或腎上腺素(隨機二選一) (0 = OFF)
+        l4d_powerups_random_give_on "0"
 
         // 腎上腺素的效時間多長?
         l4d_powerups_duration "20"
 
-        // 設置開槍射速 (介於 0.02 ~ 0.9)
-        l4d_powerups_weaponfiring_rate "0.7"
+        // 如何顯示服用生效與失效的提示 (0: 關閉提示, 1:聊天框, 2: 螢幕下方黑底白字框, 3: 螢幕正中間)
+        l4d_powerups_notify_type "1"
+
+        // 如何顯示藥效的剩餘時間 (0: 關閉提示, 1:聊天框, 2: 螢幕下方黑底白字框, 3: 螢幕正中間)
+        l4d_powerups_coutdown_type "2"
+
+        // (只限二代) 為1時，改變官方的腎上腺素效果時間，時間為插件指令_powerups_duration設置的值 (譬如拯救隊友變快、治療變快、罐汽油變快... 等等)
+        l4d_powerups_add_adrenaline_effect "1"
+
+        // 止痛藥丸也會獲得跟腎上腺素一樣的效果，機率為 [1~100]%
+        l4d_powerups_pills_luck "3"
+
+        // 設置裝彈速度 (介於 0.2 ~ 0.9)
+        l4d_powerups_weaponreload_rate "0.5714"
 
         // 設置近戰砍速 (介於 0.3 ~ 0.9)
         l4d_powerups_weaponmelee_rate "0.45"
 
-        // 設置裝彈速度 (介於 0.2 ~ 0.9)
-        l4d_powerups_weaponreload_rate "0.5714"
+        // 設置開槍射速 (介於 0.02 ~ 0.9)
+        l4d_powerups_weaponfiring_rate "0.7"
+
+        // 被震暈以及起身回復的速度 (1.0 = 預設 2.0 = 兩倍快 )
+        l4d_powerups_animspeed "2.0"
         ```
 </details>
 
 * <details><summary>命令中文介紹(點我展開)</summary>
-
-    * **管理員給予所有倖存者腎上腺素 (權限: ADMFLAG_CHEATS)**
-        ```php
-        sm_giveadren
-        ```
 
     * **管理員給予所有倖存者藥丸 (權限: ADMFLAG_CHEATS)**
         ```php
         sm_givepills
         ```
 
-    * **管理員給予所有倖存者藥丸或腎上腺素 (隨機二選一). (權限: ADMFLAG_CHEATS)**
+    * (只限二代) **管理員給予所有倖存者腎上腺素 (權限: ADMFLAG_CHEATS)**
+        ```php
+        sm_giveadren
+        ```
+
+    * (只限二代) **管理員給予所有倖存者藥丸或腎上腺素 (隨機二選一). (權限: ADMFLAG_CHEATS)**
         ```php
         sm_giverandom
         ```

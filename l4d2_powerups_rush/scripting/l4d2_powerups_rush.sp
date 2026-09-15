@@ -1,4 +1,3 @@
-#define PLUGIN_VERSION "1.0h-2023/7/5"
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -7,7 +6,8 @@
 #include <sdktools>
 #include <left4dhooks>
 #include <multicolors>
-//Set this value to 1 to enable debugging
+
+#define PLUGIN_VERSION "1.1h-2026/9/15"
 #define DEBUG 0
 
 //Used to track who has the weapon firing.
@@ -99,11 +99,11 @@ ConVar pills_luck;
 
 public Plugin myinfo = 
 {
-	name = "[L4D2] PowerUps rush",
-	author = "Dusty1029 (a.k.a. {L.2.K} LOL) & HarryPotter",
+	name = "[L4D1/2] PowerUps rush",
+	author = "Dusty1029 (a.k.a. {L.2.K} LOL), HarryPotter",
 	description = "When a client pops an adrenaline (or pills), various actions are perform faster (reload, melee swings, firing rates)",
 	version = PLUGIN_VERSION,
-	url = "http://forums.alliedmods.net/showthread.php?t=127513"
+	url = "https://github.com/fbef0102/L4D1_2-Plugins"
 }
 
 bool bLate;
@@ -144,24 +144,28 @@ public void OnPluginStart()
 	LoadTranslations(TRANSLATION_FILE);
 
 	//ConVars
-	RegAdminCmd("sm_giveadren", Command_GiveAdrenaline, ADMFLAG_CHEATS, "Gives Adrenaline to all Survivors.");
 	RegAdminCmd("sm_givepills", Command_GivePills, ADMFLAG_CHEATS, "Give Pills to all Survivors.");
-	RegAdminCmd("sm_giverandom", Command_GiveRandom, ADMFLAG_CHEATS, "Give Random item (Adrenaline or Pills) to all Survivors.");
-	powerups_plugin_on = CreateConVar("l4d_powerups_plugin_on", "1", "If 1, enable this plugin ? (0 = Disable)", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	powerups_broadcast_type = CreateConVar("l4d_powerups_broadcast_type", "1", "How are players notified when connecting to server about the powerups? (0: Disable, 1:In chat, 2: In Hint Box, 3: Chat/Hint Both)", FCVAR_SPONLY, true, 0.0, true, 3.0);
-	adren_give_on = CreateConVar("l4d_powerups_adren_give_on", "0", "If 1, players will be given adrenaline when leaving saferoom? (0 = OFF)", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	pills_give_on = CreateConVar("l4d_powerups_pills_give_on", "0", "If 1, players will be given pills when leaving saferoom? (0 = OFF)", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	random_give_on = CreateConVar("l4d_powerups_random_give_on", "0", "If 1, players will be given either adrenaline or pills when leaving saferoom? (0 = OFF)", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	powerups_duration = CreateConVar("l4d_powerups_duration", "20", "How long should the duration of the boosts last?", FCVAR_NOTIFY, true, 1.0);
-	powerups_notify_type = CreateConVar("l4d_powerups_notify_type", "1", "Changes how activation hint and deactivation hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	powerups_timer_type = CreateConVar("l4d_powerups_coutdown_type", "2", "Changes how countdown timer hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	if(g_bL4D2Version) powerups_adrenaline_effect = CreateConVar("l4d_powerups_add_adrenaline_effect", "1", "(L4D2) If 1, set adrenaline effect time same as l4d_powerups_duration (Progress bar faster, such as use kits faster, save teammates faster... etc)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	pills_luck = CreateConVar("l4d_powerups_pills_luck", "3", "The luckey change for pills that will grant the boost. (0=Off, 1 = 1/1  2 = 1/2  3 = 1/3  4 = 1/4  etc.)", FCVAR_NOTIFY, true, 0.0);
+	if(g_bL4D2Version) RegAdminCmd("sm_giveadren", Command_GiveAdrenaline, ADMFLAG_CHEATS, "Gives Adrenaline to all Survivors.");
+	if(g_bL4D2Version) RegAdminCmd("sm_giverandom", Command_GiveRandom, ADMFLAG_CHEATS, "Give Random item (Adrenaline or Pills) to all Survivors.");
 	
-	g_h_reload_rate = CreateConVar("l4d_powerups_weaponreload_rate", "0.5714", "The interval incurred by reloading is multiplied by this value (clamped between 0.2 ~ 0.9)", FCVAR_NOTIFY, true, 0.2, true, 0.9);
-	g_h_melee_rate = CreateConVar("l4d_powerups_weaponmelee_rate", "0.45", "The interval for swinging melee weapon (clamped between 0.3 ~ 0.9)", FCVAR_NOTIFY, true, 0.3, true, 0.9);
-	g_hDT_rate = CreateConVar("l4d_powerups_weaponfiring_rate", "0.7", "The interval between bullets fired is multiplied by this value. WARNING: a short enough interval will make SMGs' and rifles' firing accuracy distorted (clamped between 0.02 ~ 0.9)" , FCVAR_NOTIFY, true, 0.02, true, 0.9);
-	hCvar_AnimSpeed = CreateConVar("l4d_powerups_animspeed", "2.0", "(1.0 = Minspeed(Default speed) 2.0 = 2x speed of recovery", FCVAR_NOTIFY, true, 1.0, true, 100.0);
+	powerups_plugin_on = 				CreateConVar("l4d_powerups_plugin_on", 				"1", 		"If 1, enable this plugin ? (0 = Disable)", FCVAR_SPONLY, true, 0.0, true, 1.0);
+	powerups_broadcast_type = 			CreateConVar("l4d_powerups_broadcast_type", 		"1", 		"How are players notified when connecting to server about the powerups? (0: Disable, 1:In chat, 2: In Hint Box, 3: Chat/Hint Both)", FCVAR_SPONLY, true, 0.0, true, 3.0);
+	if(g_bL4D2Version) 
+		adren_give_on = 				CreateConVar("l4d_powerups_adren_give_on", 			"0", 		"(L4D2) If 1, players will be given adrenaline when leaving saferoom? (0 = OFF)", FCVAR_SPONLY, true, 0.0, true, 1.0);
+	pills_give_on = 					CreateConVar("l4d_powerups_pills_give_on", 			"0", 		"If 1, players will be given pills when leaving saferoom? (0 = OFF)", FCVAR_SPONLY, true, 0.0, true, 1.0);
+	if(g_bL4D2Version) 
+		random_give_on = 				CreateConVar("l4d_powerups_random_give_on", 		"0", 		"(L4D2) If 1, players will be given either adrenaline or pills when leaving saferoom? (0 = OFF)", FCVAR_SPONLY, true, 0.0, true, 1.0);
+	powerups_duration = 				CreateConVar("l4d_powerups_duration", 				"20", 		"How long should the duration of the boosts last?", FCVAR_NOTIFY, true, 1.0);
+	powerups_notify_type = 				CreateConVar("l4d_powerups_notify_type", 			"1", 		"Changes how activation hint and deactivation hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	powerups_timer_type = 				CreateConVar("l4d_powerups_coutdown_type", 			"2", 		"Changes how countdown timer hint display. (0: Disable, 1:In chat, 2: In Hint Box, 3: In center text)", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+	if(g_bL4D2Version) 
+		powerups_adrenaline_effect = 	CreateConVar("l4d_powerups_add_adrenaline_effect",  "1", 		"(L4D2) If 1, official adrenaline effect time will be same as _powerups_duration cvar (Progress bar faster, such as use kits faster, save teammates faster... etc)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	
+	pills_luck = 						CreateConVar("l4d_powerups_pills_luck", 			"30", 		"The luckey change for pills that will grant the boost. [1~100]%", FCVAR_NOTIFY, true, 0.0, true, 100.0);
+	g_h_reload_rate = 					CreateConVar("l4d_powerups_weaponreload_rate", 		"0.5714", 	"The interval incurred by reloading is multiplied by this value (clamped between 0.2 ~ 0.9)", FCVAR_NOTIFY, true, 0.2, true, 0.9);
+	g_h_melee_rate = 					CreateConVar("l4d_powerups_weaponmelee_rate", 		"0.45", 	"The interval for swinging melee weapon (clamped between 0.3 ~ 0.9)", FCVAR_NOTIFY, true, 0.3, true, 0.9);
+	g_hDT_rate = 						CreateConVar("l4d_powerups_weaponfiring_rate", 		"0.7", 		"The interval between bullets fired is multiplied by this value. WARNING: a short enough interval will make SMGs' and rifles' firing accuracy distorted (clamped between 0.02 ~ 0.9)" , FCVAR_NOTIFY, true, 0.02, true, 0.9);
+	hCvar_AnimSpeed = 					CreateConVar("l4d_powerups_animspeed", 				"2.0", 		"(1.0 = Minspeed(Default speed) 2.0 = 2x speed of recovery", FCVAR_NOTIFY, true, 1.0, true, 100.0);
 	
 	CvarsChanged();
 	powerups_plugin_on.AddChangeHook(Convar_Cvars);
@@ -174,7 +178,7 @@ public void OnPluginStart()
 
 	//Event Hooks
 	HookEvent("weapon_reload", Event_Reload);
-	HookEvent("adrenaline_used", Event_AdrenalineUsed);
+	if(g_bL4D2Version) HookEvent("adrenaline_used", Event_AdrenalineUsed);
 	HookEvent("pills_used", Event_PillsUsed);
 	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
 	HookEvent("player_team", Event_PlayerTeam);
@@ -307,7 +311,6 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	for(int i = 1; i <= MaxClients; i++)
 		fGameTimeSave[i] = 0.0;
 
-	g_bIsLoading = false;
 	ClearAll();
 
 	delete PlayerLeftStartTimer;
@@ -318,9 +321,9 @@ Action Timer_PlayerLeftStart(Handle Timer)
 {
 	if (L4D_HasAnySurvivorLeftSafeArea())
 	{
-		CreateTimer(0.1, Timer_GiveAdrenaline);
+		if(g_bL4D2Version) CreateTimer(0.1, Timer_GiveAdrenaline);
 		CreateTimer(0.2, Timer_GivePills);
-		CreateTimer(0.3, Timer_GiveRandom);
+		if(g_bL4D2Version) CreateTimer(0.3, Timer_GiveRandom);
 		
 		PlayerLeftStartTimer = null;
 		return Plugin_Stop;
@@ -443,76 +446,66 @@ void GiveRandomToAll()
 //Popping the Adrenaline
 void Event_AdrenalineUsed (Event event, const char[] name, bool dontBroadcast)
 {
+	int client = GetClientOfUserId(event.GetInt("subject"));
+	if (client == 0 || !IsClientInGame(client) || GetClientTeam(client) != 2) return;
+
 	if (g_powerups_plugin_on)
 	{
-		int client = GetClientOfUserId(event.GetInt("userid"));
-		if (client == 0 || !IsClientInGame(client)) return;
-
-		if (GetClientTeam(client) == 2)
+		//We need to reset the timer in case the client decides to
+		//use a second adrenaline while the first one is still active
+		delete g_powerups_countdown[client];
+		#if DEBUG
+			CPrintToChat(client, "{green}[DEBUG] {lightgreen}Resetting powerups timers");
+		#endif
+		g_usedhealth[client] = 0;
+		
+		switch(powerups_notify_type.IntValue)
 		{
-			//We need to reset the timer in case the client decides to
-			//use a second adrenaline while the first one is still active
-			delete g_powerups_countdown[client];
-			#if DEBUG
-				CPrintToChat(client, "{green}[DEBUG] {lightgreen}Resetting powerups timers");
-			#endif
-			g_usedhealth[client] = 0;
-			
-			switch(powerups_notify_type.IntValue)
-			{
-				case 0: {/*nothing*/}
-				case 1: {CPrintToChat(client, "%T", "notify (C)", client);}
-				case 2: {PrintHintText(client, "%T", "notify", client);}
-				case 3: {PrintCenterText(client, "%T", "notify", client);}
-			}
-			
-			g_powerups_timeleft[client] = powerups_duration.FloatValue;
-			g_usedhealth[client] = 1;
-			RebuildAll();
-
-			g_powerups_countdown[client] = CreateTimer(1.0, Timer_Countdown, client, TIMER_REPEAT);
-			//Multiply by 1.0 to prevent tag mismatch
+			case 0: {/*nothing*/}
+			case 1: {CPrintToChat(client, "%T", "notify (C)", client);}
+			case 2: {PrintHintText(client, "%T", "notify", client);}
+			case 3: {PrintCenterText(client, "%T", "notify", client);}
 		}
+		
+		g_powerups_timeleft[client] = powerups_duration.FloatValue;
+		g_usedhealth[client] = 1;
+		RebuildAll();
+
+		g_powerups_countdown[client] = CreateTimer(1.0, Timer_Countdown, client, TIMER_REPEAT);
+		//Multiply by 1.0 to prevent tag mismatch
 	}
 }
 
 //Popping the Pills
 void Event_PillsUsed (Event event, const char[] name, bool dontBroadcast)
 {
-	if (g_powerups_plugin_on && pills_luck.IntValue != 0)
-	{
-		int client = GetClientOfUserId(event.GetInt("subject"));
-		if (client == 0 || !IsClientInGame(client)) return;
-		
-		if (GetClientTeam(client) == 2)
-		{
-			int luck = GetRandomInt(1, pills_luck.IntValue);
-			if (luck == 1)
-			{
-				//We need to reset the timer in case the client decides to use
-				//a second bottle of pills while the first one is still active
-				delete g_powerups_countdown[client];
-				#if DEBUG
-				CPrintToChat(client, "{green}[DEBUG] {lightgreen}Resetting powerups timers");
-				#endif
-				g_usedhealth[client] = 0;
-				
-				switch(powerups_notify_type.IntValue)
-				{
-					case 0: {/*nothing*/}
-					case 1: {CPrintToChat(client, "%T", "notify (C)", client);}
-					case 2: {PrintHintText(client, "%T", "notify", client);}
-					case 3: {PrintCenterText(client, "%T", "notify", client);}
-				}
-				
-				g_powerups_timeleft[client] = powerups_duration.FloatValue;
-				g_usedhealth[client] = 1;
-				RebuildAll();
+	int client = GetClientOfUserId(event.GetInt("subject"));
+	if (client == 0 || !IsClientInGame(client) || GetClientTeam(client) != 2) return;
 
-				g_powerups_countdown[client] = CreateTimer(1.0, Timer_Countdown, client, TIMER_REPEAT);
-				//Multiply by 1.0 to prevent tag mismatch
-			}
+	if (g_powerups_plugin_on && GetRandomInt(1, 100) <= pills_luck.IntValue)
+	{
+		//We need to reset the timer in case the client decides to use
+		//a second bottle of pills while the first one is still active
+		delete g_powerups_countdown[client];
+		#if DEBUG
+		CPrintToChat(client, "{green}[DEBUG] {lightgreen}Resetting powerups timers");
+		#endif
+		g_usedhealth[client] = 0;
+		
+		switch(powerups_notify_type.IntValue)
+		{
+			case 0: {/*nothing*/}
+			case 1: {CPrintToChat(client, "%T", "notify (C)", client);}
+			case 2: {PrintHintText(client, "%T", "notify", client);}
+			case 3: {PrintCenterText(client, "%T", "notify", client);}
 		}
+		
+		g_powerups_timeleft[client] = powerups_duration.FloatValue;
+		g_usedhealth[client] = 1;
+		RebuildAll();
+
+		g_powerups_countdown[client] = CreateTimer(1.0, Timer_Countdown, client, TIMER_REPEAT);
+		//Multiply by 1.0 to prevent tag mismatch
 	}
 }
 
@@ -627,26 +620,26 @@ void AdrenReload (int client)
 		{
 			//create a pack to send clientid and gunid through to the timer
 			DataPack hPack;
-			CreateDataTimer(0.1,Timer_AutoshotgunStart, hPack);
-			WritePackCell(hPack, client);
-			WritePackCell(hPack, iEntid);
+			CreateDataTimer(0.1, Timer_AutoshotgunStart, hPack, TIMER_FLAG_NO_MAPCHANGE);
+			hPack.WriteCell(GetClientUserId(client));
+			hPack.WriteCell(EntIndexToEntRef(iEntid));
 			return;
 		}
 		else if (StrContains(stClass,"shotgun_spas",false) != -1)
 		{
 			//similar to the autoshotgun, create a pack to send
 			DataPack hPack;
-			CreateDataTimer(0.1,Timer_SpasShotgunStart,hPack);
-			WritePackCell(hPack, client);
-			WritePackCell(hPack, iEntid);
+			CreateDataTimer(0.1, Timer_SpasShotgunStart, hPack, TIMER_FLAG_NO_MAPCHANGE);
+			hPack.WriteCell(GetClientUserId(client));
+			hPack.WriteCell(EntIndexToEntRef(iEntid));
 			return;
 		}
 		else if (StrContains(stClass,"pumpshotgun",false) != -1 || StrContains(stClass,"shotgun_chrome",false) != -1)
 		{
 			DataPack hPack;
-			CreateDataTimer(0.1,Timer_PumpshotgunStart,hPack);
-			WritePackCell(hPack, client);
-			WritePackCell(hPack, iEntid);
+			CreateDataTimer(0.1, Timer_PumpshotgunStart, hPack, TIMER_FLAG_NO_MAPCHANGE);
+			hPack.WriteCell(GetClientUserId(client));
+			hPack.WriteCell(EntIndexToEntRef(iEntid));
 			return;
 		}
 	}
@@ -675,20 +668,27 @@ void MagStart (int iEntid, int client)
 	float flNextTime_calc = ( flNextTime_ret - flGameTime ) * g_fl_reload_rate ;
 	//we change the playback rate of the gun, just so the player can "see" the gun reloading faster
 	SetEntDataFloat(iEntid, g_iPlayRateO, 1.0/g_fl_reload_rate, true);
+
+	
+	/*
 	//create a timer to reset the playrate after time equal to the modified attack interval
-	CreateTimer( flNextTime_calc, Timer_MagEnd, iEntid);
-	//experiment to remove double-playback bug
-	DataPack hPack = new DataPack();
-	WritePackCell(hPack, client);
-	//this calculates the equivalent time for the reload to end
-	float flStartTime_calc = flGameTime - ( flNextTime_ret - flGameTime ) * ( 1 - g_fl_reload_rate ) ;
-	WritePackFloat(hPack, flStartTime_calc);
+	CreateTimer( flNextTime_calc, Timer_MagEnd, EntIndexToEntRef(iEntid), TIMER_FLAG_NO_MAPCHANGE);
+
 	//now we create the timer that will prevent the annoying double playback
 	if ( (flNextTime_calc - 0.4) > 0 )
-		CreateTimer( flNextTime_calc - 0.4 , Timer_MagEnd2, hPack, TIMER_DATA_HNDL_CLOSE);
+	{
+		//experiment to remove double-playback bug
+		DataPack hPack;
+		CreateDataTimer( flNextTime_calc - 0.4 , Timer_MagEnd2, hPack, TIMER_FLAG_NO_MAPCHANGE);
+		hPack.WriteCell(GetClientUserId(client));
+		//this calculates the equivalent time for the reload to end
+		float flStartTime_calc = flGameTime - ( flNextTime_ret - flGameTime ) * ( 1 - g_fl_reload_rate ) ;
+		hPack.WriteFloat(flStartTime_calc);
+	}*/
+
 	//and finally we set the end reload time into the gun so the player can actually shoot with it at the end
 	flNextTime_calc += flGameTime;
-	SetEntDataFloat(iEntid, g_iTimeIdleO, flNextTime_calc, true);
+	//SetEntDataFloat(iEntid, g_iTimeIdleO, flNextTime_calc, true); // <--this line causes double reload animation
 	SetEntDataFloat(iEntid, g_iNextPAttO, flNextTime_calc, true);
 	SetEntDataFloat(client, g_iNextAttO, flNextTime_calc, true);
 	#if DEBUG
@@ -706,27 +706,21 @@ void MagStart (int iEntid, int client)
 //called for autoshotguns
 Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 {
-	ResetPack(hPack);
-	int iCid = ReadPackCell(hPack);
-	int iEntid = ReadPackCell(hPack);
+	hPack.Reset();
+	int userid = hPack.ReadCell();
+	int ref = hPack.ReadCell();
+	int iCid = GetClientOfUserId(userid);
+	int iEntid = EntRefToEntIndex(ref);
 
 	if (IsServerProcessing() == false)
 	{
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
-	DataPack hPack2 = new DataPack();
-	WritePackCell(hPack2, iCid);
-	WritePackCell(hPack2, iEntid);
-
-	if (iCid <= 0
-		|| iEntid <= 0
-		|| IsValidEntity(iCid) == false
-		|| IsValidEntity(iEntid) == false
-		|| IsClientInGame(iCid) == false)
+	if (!iCid || !IsClientInGame(iCid)
+		|| iEntid == INVALID_ENT_REFERENCE)
 	{
-		delete hPack2;
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
 	#if DEBUG
@@ -753,17 +747,21 @@ Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
 	//but first check the reload state; if it's 2, then it needs a pump/cock before it can shoot again, and thus needs more time
+	DataPack hPack2;
 	if (g_bL4D2Version)
 	{
-		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
+		CreateDataTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
 	{
 		if (GetEntData(iEntid,g_iShotRelStateO)==2)
-			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
+			CreateDataTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 		else
-			CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT|TIMER_DATA_HNDL_CLOSE);
+			CreateDataTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	}
+
+	hPack2.WriteCell(userid);
+	hPack2.WriteCell(ref);
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
@@ -773,31 +771,22 @@ Action Timer_AutoshotgunStart (Handle timer, DataPack hPack)
 			);
 	#endif
 
-	return Plugin_Stop;
+	return Plugin_Continue;
 }
 
 Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
 {
-	ResetPack(hPack);
-	int iCid = ReadPackCell(hPack);
-	int iEntid = ReadPackCell(hPack);
-	if (IsServerProcessing() == false)
-	{
-		return Plugin_Stop;
-	}
+	hPack.Reset();
+	int userid = hPack.ReadCell();
+	int ref = hPack.ReadCell();
+	int iCid = GetClientOfUserId(userid);
+	int iEntid = EntRefToEntIndex(ref);
 
-	DataPack hPack2 = new DataPack();
-	WritePackCell(hPack2, iCid);
-	WritePackCell(hPack2, iEntid);
-
-	if (iCid <= 0
-		|| iEntid <= 0
-		|| IsValidEntity(iCid) == false
-		|| IsValidEntity(iEntid) == false
-		|| IsClientInGame(iCid) == false)	
+	if (IsServerProcessing() == false
+		|| !iCid || !IsClientInGame(iCid)
+		|| iEntid == INVALID_ENT_REFERENCE)
 	{
-		delete hPack2;
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
 	#if DEBUG
@@ -824,7 +813,10 @@ Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
 	//but first check the reload state; if it's 2, then it needs a pump/cock before it can shoot again, and thus needs more time
-	CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
+	DataPack hPack2;
+	CreateDataTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
+	hPack2.WriteCell(userid);
+	hPack2.WriteCell(ref);
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
@@ -840,27 +832,21 @@ Action Timer_SpasShotgunStart (Handle timer, DataPack hPack)
 //called for pump/chrome shotguns
 Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 {
-	ResetPack(hPack);
-	int iCid = ReadPackCell(hPack);
-	int iEntid = ReadPackCell(hPack);
+	hPack.Reset();
+	int userid = hPack.ReadCell();
+	int ref = hPack.ReadCell();
+	int iCid = GetClientOfUserId(userid);
+	int iEntid = EntRefToEntIndex(ref);
 
 	if (IsServerProcessing() == false)
 	{
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
-	DataPack hPack2 = new DataPack();
-	WritePackCell(hPack2, iCid);
-	WritePackCell(hPack2, iEntid);
-
-	if (iCid <= 0
-		|| iEntid <= 0
-		|| IsValidEntity(iCid) == false
-		|| IsValidEntity(iEntid) == false
-		|| IsClientInGame(iCid) == false)
+	if (!iCid || !IsClientInGame(iCid)
+		|| iEntid == INVALID_ENT_REFERENCE)
 	{
-		delete hPack2;
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
 	#if DEBUG
@@ -886,17 +872,20 @@ Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 	SetEntDataFloat(iEntid, g_iPlayRateO, 1.0/g_fl_reload_rate, true);
 
 	//and then call a timer to periodically check whether the gun is still reloading or not to reset the animation
+	DataPack hPack2;
 	if (g_bL4D2Version)
 	{
-		CreateTimer(0.3,Timer_ShotgunEnd,hPack2,TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
+		CreateDataTimer(0.3, Timer_ShotgunEnd,hPack2,TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else if (g_bL4D2Version)
 	{
 		if (GetEntData(iEntid,g_iShotRelStateO) == 2)
-			CreateTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
+			CreateDataTimer(0.3, Timer_ShotgunEndCock, hPack2, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		else
-			CreateTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT | TIMER_DATA_HNDL_CLOSE);
+			CreateDataTimer(0.3, Timer_ShotgunEnd, hPack2, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 	}
+	hPack2.WriteCell(userid);
+	hPack2.WriteCell(ref);
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}- after mod, start {default}%f{lightgreen}, insert {default}%f{lightgreen}, end {default}%f",
@@ -906,13 +895,15 @@ Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 			);
 	#endif
 
-	return Plugin_Stop;
+	return Plugin_Continue;
 }
 // ////////////////////////////////////////////////////////////////////////////
 //this resets the playback rate on non-shotguns
-Action Timer_MagEnd (Handle timer, any iEntid)
+Action Timer_MagEnd (Handle timer, int iEntid)
 {
-	if (IsServerProcessing() == false)
+	iEntid = EntRefToEntIndex(iEntid);
+
+	if (iEntid == INVALID_ENT_REFERENCE || IsServerProcessing() == false)
 		return Plugin_Stop;
 
 	#if DEBUG
@@ -930,33 +921,30 @@ Action Timer_MagEnd (Handle timer, any iEntid)
 
 Action Timer_MagEnd2 (Handle timer, DataPack hPack)
 {
-	ResetPack(hPack);
-	int iCid = ReadPackCell(hPack);
-	float flStartTime_calc = ReadPackFloat(hPack);
+	hPack.Reset();
+	int iCid = GetClientOfUserId(hPack.ReadCell());
+	float flStartTime_calc = hPack.ReadFloat();
 
 	if (IsServerProcessing() == false)
 	{
-		return Plugin_Stop;
+		return Plugin_Continue;
 	}
 
 	#if DEBUG
 		CPrintToChatAll("{lightgreen}Reset playback, magazine loader");
 	#endif
 
-	if (iCid <= 0
-		|| IsValidEntity(iCid) == false
+	if (!iCid
 		|| IsClientInGame(iCid) == false)
-		return Plugin_Stop;
+		return Plugin_Continue;
 
 	//experimental, remove annoying double-playback
 	int iVMid = GetEntDataEnt2(iCid,g_iViewModelO);
 	SetEntDataFloat(iVMid, g_iVMStartTimeO, flStartTime_calc, true);
 
-	#if DEBUG
-		CPrintToChatAll("{lightgreen}- end mag loader, icid {default}%i{lightgreen} starttime {default}%f{lightgreen} gametime {default}%f", iCid, flStartTime_calc, GetGameTime());
-	#endif
+	//CPrintToChatAll("{lightgreen}- end mag loader, icid {default}%i{lightgreen} starttime {default}%f{lightgreen} gametime {default}%f", iCid, flStartTime_calc, GetGameTime());
 
-	return Plugin_Stop;
+	return Plugin_Continue;
 }
 
 Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
@@ -965,16 +953,13 @@ Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
 		CPrintToChatAll("{lightgreen}-autoshotgun tick");
 	#endif
 
-	ResetPack(hPack);
-	int iCid = ReadPackCell(hPack);
-	int iEntid = ReadPackCell(hPack);
+	hPack.Reset();
+	int iCid = GetClientOfUserId(hPack.ReadCell());
+	int iEntid = EntRefToEntIndex(hPack.ReadCell());
 
 	if (IsServerProcessing() == false
-		|| iCid <= 0
-		|| iEntid <= 0
-		|| IsValidEntity(iCid) == false
-		|| IsValidEntity(iEntid) == false
-		|| IsClientInGame(iCid) == false)
+		|| !iCid || !IsClientInGame(iCid)
+		|| iEntid == INVALID_ENT_REFERENCE)
 	{
 		return Plugin_Stop;
 	}
@@ -995,6 +980,7 @@ Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
 
 		return Plugin_Stop;
 	}
+
 	return Plugin_Continue;
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1006,16 +992,13 @@ Action Timer_ShotgunEndCock (Handle timer, DataPack hPack)
 		CPrintToChatAll("{lightgreen}-autoshotgun tick");
 	#endif
 
-	ResetPack(hPack);
-	int iCid = ReadPackCell(hPack);
-	int iEntid = ReadPackCell(hPack);
+	hPack.Reset();
+	int iCid = GetClientOfUserId(hPack.ReadCell());
+	int iEntid = EntRefToEntIndex(hPack.ReadCell());
 
 	if (IsServerProcessing() == false
-		|| iCid <= 0
-		|| iEntid <= 0
-		|| IsValidEntity(iCid) == false
-		|| IsValidEntity(iEntid) == false
-		|| IsClientInGame(iCid) == false)
+		|| !iCid || !IsClientInGame(iCid)
+		|| iEntid == INVALID_ENT_REFERENCE)
 	{
 		return Plugin_Stop;
 	}
@@ -1059,6 +1042,13 @@ public void OnMapEnd()
 {
 	ClearAll();
 	g_bIsLoading = true;
+	ResetTimer();
+}
+
+public void OnConfigsExecuted()
+{
+	ClearAll();
+	g_bIsLoading = false;
 	ResetTimer();
 }
 
@@ -1387,9 +1377,8 @@ void DT_OnGameFrame()
 		if (g_iDTEntid[iCid] == iEntid
 			&& g_flDTNextTime[iCid] < flNextTime_ret)
 		{
-			#if DEBUG
-				CPrintToChatAll("{lightgreen}DT after adjusted shot\n-pre, client {default}%i{lightgreen}; entid {default}%i{lightgreen}; enginetime{default} %f{lightgreen}; NextTime_orig {default} %f{lightgreen}; interval {default}%f",iCid,iEntid,flGameTime,flNextTime_ret, flNextTime_ret-flGameTime );
-			#endif
+			//CPrintToChatAll("{lightgreen}DT after adjusted shot\n-pre, client {default}%i{lightgreen}; entid {default}%i{lightgreen}; enginetime{default} %f{lightgreen}; NextTime_orig {default} %f{lightgreen}; interval {default}%f",iCid,iEntid,flGameTime,flNextTime_ret, flNextTime_ret-flGameTime );
+		
 			//this is a calculation of when the next primary attack
 			//will be after applying double tap values
 			flNextTime_calc = ( flNextTime_ret - flGameTime ) * g_flDT_rate + flGameTime;
@@ -1485,37 +1474,62 @@ void hOnPostThinkPost(int client)
 
 bool ShouldGetUpFaster(int client)
 {
-	int Activity = PlayerAnimState.FromPlayer(client).GetMainActivity();
-	switch (Activity) 
+	int Activity;
+	if(g_bL4D2Version)
 	{
-		case L4D2_ACT_TERROR_SHOVED_FORWARD_MELEE, // 633, 634, 635, 636: stumble
-			L4D2_ACT_TERROR_SHOVED_BACKWARD_MELEE,
-			L4D2_ACT_TERROR_SHOVED_LEFTWARD_MELEE,
-			L4D2_ACT_TERROR_SHOVED_RIGHTWARD_MELEE: 
-				return true;
-
-		case L4D2_ACT_TERROR_POUNCED_TO_STAND: // 771: get up from hunter
-			return true;
-
-		case L4D2_ACT_TERROR_CHARGERHIT_LAND_SLOW: // 526: get up from charger
-			return true;
-
-		case L4D2_ACT_TERROR_HIT_BY_CHARGER, // 524, 525, 526: flung by a nearby Charger impact
-			L4D2_ACT_TERROR_IDLE_FALL_FROM_CHARGERHIT: 
-			return true;
-
-		case L4D2_ACT_TERROR_HIT_BY_TANKPUNCH,
-			L4D2_ACT_TERROR_IDLE_FALL_FROM_TANKPUNCH,
-			L4D2_ACT_TERROR_TANKPUNCH_LAND: // hit by tank
-			return true;
-
-		/*case L4D2_ACT_TERROR_INCAP_TO_STAND: // 697, revive from incap or death
+		Activity = PlayerAnimState.FromPlayer(client).GetMainActivity();
+		switch (Activity) 
 		{
-			if(!L4D_IsPlayerIncapacitated(client)) // revive by defibrillator
-			{
+			case L4D2_ACT_TERROR_SHOVED_FORWARD_MELEE, // 633, 634, 635, 636: stumble
+				L4D2_ACT_TERROR_SHOVED_BACKWARD_MELEE,
+				L4D2_ACT_TERROR_SHOVED_LEFTWARD_MELEE,
+				L4D2_ACT_TERROR_SHOVED_RIGHTWARD_MELEE: 
+					return true;
+
+			case L4D2_ACT_TERROR_POUNCED_TO_STAND: // 771: get up from hunter
 				return true;
-			}
-		}*/
+
+			case L4D2_ACT_TERROR_CHARGERHIT_LAND_SLOW: // 526: get up from charger
+				return true;
+
+			case L4D2_ACT_TERROR_HIT_BY_CHARGER, // 524, 525, 526: flung by a nearby Charger impact
+				L4D2_ACT_TERROR_IDLE_FALL_FROM_CHARGERHIT: 
+				return true;
+
+			case L4D2_ACT_TERROR_HIT_BY_TANKPUNCH,
+				L4D2_ACT_TERROR_IDLE_FALL_FROM_TANKPUNCH,
+				L4D2_ACT_TERROR_TANKPUNCH_LAND: // hit by tank
+				return true;
+
+			/*case L4D2_ACT_TERROR_INCAP_TO_STAND: // 697, revive from incap or death
+			{
+				if(!L4D_IsPlayerIncapacitated(client)) // revive by defibrillator
+				{
+					return true;
+				}
+			}*/
+		}
+	}
+	else
+	{
+		Activity = L4D1_GetMainActivity(client);
+
+		switch (Activity) 
+		{
+			case L4D1_ACT_TERROR_SHOVED_FORWARD, // 1145, 1146, 1147, 1148: stumble
+				L4D1_ACT_TERROR_SHOVED_BACKWARD,
+				L4D1_ACT_TERROR_SHOVED_LEFTWARD,
+				L4D1_ACT_TERROR_SHOVED_RIGHTWARD: 
+					return true;
+
+			case L4D1_ACT_TERROR_POUNCED_TO_STAND: // 1263: get up from hunter
+				return true;
+
+			case L4D1_ACT_TERROR_HIT_BY_TANKPUNCH, // 1077, 1078, 1079: HIT BY TANK PUNCH
+				L4D1_ACT_TERROR_IDLE_FALL_FROM_TANKPUNCH,
+				L4D1_ACT_TERROR_TANKPUNCH_LAND:
+				return true;
+		}
 	}
 	
 	return false;

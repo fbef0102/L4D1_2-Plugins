@@ -7,7 +7,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION "1.2h-2026/3/11"
+#define PLUGIN_VERSION "1.3h-2026/9/15"
 
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
@@ -36,9 +36,9 @@ char  SOUND_EFFECT[]         = "./level/loud/climber.wav";
 
 ConVar cvarisEnabled/*, cvarNoFallDamageProtectFromIncap*/;
 ConVar karmaJump, karmaAwardConfirmed, karmaDamageAwardConfirmed, karmaOnlyConfirmed,
-	karmaSlowTimeOnServer, karmaSlowSpeed,
-	/*cvarCooldown,*/ cvarAllowDefib;
-bool g_bEnabled, g_bkarmaJump, g_bkarmaAwardConfirmed, g_bkarmaOnlyConfirmed, g_bAllowDefib;
+	karmaSlowTimeOnServer, karmaSlowSpeed;
+	/*cvarCooldown,*/
+bool g_bEnabled, g_bkarmaJump, g_bkarmaAwardConfirmed, g_bkarmaOnlyConfirmed;
 int g_ikarmaDamageAwardConfirmed;
 float g_fkarmaSlowTimeOnServer, g_fkarmaSlowSpeed/*, g_fCooldown*/;
 
@@ -195,15 +195,14 @@ public void OnPluginStart()
 
 	cvarFatalFallDamage = FindConVar("survivor_incap_max_fall_damage");
 
+	cvarisEnabled                    = CreateConVar("l4d2_karma_kill_enabled", 					"1", 	"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	karmaJump                        = CreateConVar("l4d2_karma_jump", 							"1", 	"Enable karma jumping. Karma jumping only registers on confirmed kills.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	karmaAwardConfirmed              = CreateConVar("l4d2_karma_award_confirmed", 				"1", 	"Award a confirmed karma maker with a player_death event.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	karmaDamageAwardConfirmed        = CreateConVar("l4d2_karma_damage_award_confirmed", 		"300", 	"Damage to award on confirmed kills, or -1 to disable. Requires _karma_award_confirmed set to 1", CVAR_FLAGS, true, -1.0);
 	karmaOnlyConfirmed               = CreateConVar("l4d2_karma_only_confirmed", 				"0", 	"Whenever or not to make karma announce only happen upon death.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	karmaSlowTimeOnServer            = CreateConVar("l4d2_karma_kill_slowtime_on_server", 		"5.0", 	"How long does Time get slowed for the server", CVAR_FLAGS, true, 1.0);
 	karmaSlowSpeed                   = CreateConVar("l4d2_karma_kill_slowspeed", 				"0.2", 	"How slow Time gets. Hardwired to minimum 0.03 or the server crashes", CVAR_FLAGS, true, 0.03);
-	cvarisEnabled                    = CreateConVar("l4d2_karma_kill_enabled", 					"1", 	"Turn Karma Kills on and off ", CVAR_FLAGS, true, 0.0, true, 1.0);
 	//cvarCooldown                     = CreateConVar("l4d2_karma_kill_cooldown", 				"0.0", 	"How long does it take for the next karma to freeze the entire map. Begins counting from the end of the previous freeze", CVAR_FLAGS, true, 0.0);
-	cvarAllowDefib                   = CreateConVar("l4d2_karma_kill_allow_defib", 				"0", 	"Allow karma victims to be revived with defibrillator? 0 - No, 1 - Yes.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	CreateConVar("l4d2_karma_charge_version", PLUGIN_VERSION, " L4D2 Karma Charge Plugin Version ", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true, "l4d2_karma_kill");
 
@@ -217,7 +216,6 @@ public void OnPluginStart()
 	karmaSlowSpeed.AddChangeHook(ConVarChanged_Cvars);
 	cvarisEnabled.AddChangeHook(ConVarChanged_Cvars);
 	//cvarCooldown.AddChangeHook(ConVarChanged_Cvars);
-	cvarAllowDefib.AddChangeHook(ConVarChanged_Cvars);
 
 	if(bLate)
 	{
@@ -271,11 +269,6 @@ Action SDKEvent_OnTakeDamage(int victim, int& attacker, int& inflictor, float& d
 		AllKarmaRegisterTimer[victim] = CreateTimer(3.0, RegisterAllKarmaDelay, victim);
 
 		RegisterCaptor(victim);
-
-		if (g_bAllowDefib)
-		{
-			SetEntProp(victim, Prop_Send, "m_isFallingFromLedge", false);
-		}
 
 		if ( L4D_GetAttackerCarry(victim) != 0)
 		{
@@ -344,6 +337,7 @@ void ConVarChanged_Cvars(Handle hCvar, const char[] sOldVal, const char[] sNewVa
 
 void GetCvars()
 {
+	g_bEnabled = cvarisEnabled.BoolValue;
 	g_fFatalFallDamage = cvarFatalFallDamage.FloatValue;
 	g_bkarmaJump = karmaJump.BoolValue;
 	g_bkarmaAwardConfirmed = karmaAwardConfirmed.BoolValue;
@@ -351,9 +345,7 @@ void GetCvars()
 	g_bkarmaOnlyConfirmed = karmaOnlyConfirmed.BoolValue;
 	g_fkarmaSlowTimeOnServer = karmaSlowTimeOnServer.FloatValue;
 	g_fkarmaSlowSpeed = karmaSlowSpeed.FloatValue;
-	g_bEnabled = cvarisEnabled.BoolValue;
 	//g_fCooldown = cvarCooldown.FloatValue;
-	g_bAllowDefib = cvarAllowDefib.BoolValue;
 }
 
 public void Plugins_OnJockeyJumpPost(int victim, int jockey, float fForce)
@@ -2165,45 +2157,6 @@ bool IsDoubleCharged(int victim)
 	return count >= 2;
 }
 
-// Todo: check if clearing with netprops causes the jockey teleport to shadow realm bug.
-// WARNING!!! This will permanently freeze the victim, but I'm killing him so IDGAF.
-void ClearAllPinners(int victim)
-{
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (!IsClientInGame(i))
-			continue;
-
-		else if (GetClientTeam(i) != view_as<int>(L4DTeam_Infected))
-			continue;
-
-		if (GetEntPropEnt(i, Prop_Send, "m_pounceVictim") == victim)
-			SetEntPropEnt(i, Prop_Send, "m_pounceVictim", -1);
-
-		if (GetEntPropEnt(i, Prop_Send, "m_tongueVictim") == victim)
-			SetEntPropEnt(i, Prop_Send, "m_tongueVictim", -1);
-
-		if (GetEntPropEnt(i, Prop_Send, "m_pummelVictim") == victim)
-			SetEntPropEnt(i, Prop_Send, "m_pummelVictim", -1);
-
-		if (GetEntPropEnt(i, Prop_Send, "m_carryVictim") == victim)
-			SetEntPropEnt(i, Prop_Send, "m_carryVictim", -1);
-	}
-
-	SetEntPropEnt(victim, Prop_Send, "m_pounceAttacker", -1);
-	SetEntPropEnt(victim, Prop_Send, "m_tongueOwner", -1);
-	SetEntPropEnt(victim, Prop_Send, "m_pummelAttacker", -1);
-	SetEntPropEnt(victim, Prop_Send, "m_carryAttacker", -1);
-
-	if (GetEntPropEnt(victim, Prop_Send, "m_jockeyAttacker") != -1)
-	{
-		L4D2_Jockey_EndRide(victim, GetEntPropEnt(victim, Prop_Send, "m_jockeyAttacker"));
-	}
-
-	// Detach from chargers.
-	AcceptEntityInput(victim, "ClearParent");
-}
-
 bool IsServerDebugMode()
 {
 	return TEST_DEBUG;
@@ -2392,136 +2345,6 @@ void ResetKarma(int client)
 	delete PunchRegisterTimer[client];
 	delete JumpRegisterTimer[client];
 	delete SmokeRegisterTimer[client];
-}
-
-void OnCheckKarmaZoneTouch(int victim, int entity, const char[] zone_name, int pinner = 0)
-{
-	if (!IsPlayerAlive(victim) || L4D_IsPlayerGhost(victim))
-		return;
-
-	// This is for bad out of bounds areas that we don't want to exist.
-	if (StrContains(zone_name, "ForcePummel", false) != -1)
-	{
-		L4DTeam team = L4D_GetClientTeam(victim);
-
-		if (team == L4DTeam_Infected)
-		{
-			if (L4D2_GetPlayerZombieClass(victim) == L4D2ZombieClass_Charger)
-			{
-				int trueVictim = L4D_GetVictimCarry(victim);
-
-				if (trueVictim != 0)
-				{
-					int ability = L4D_GetPlayerCustomAbility(victim);
-
-					if (ability > MaxClients)
-					{
-						// Make game think we're on ground because you don't pummel mid-air.
-						SetEntityFlags(victim, GetEntityFlags(victim) | FL_ONGROUND);
-
-						// Set time at which we started charging to the beginning of the map, usually over 100 seconds.
-						SetEntPropFloat(ability, Prop_Send, "m_chargeStartTime", 0.0);
-
-						SetEntityFlags(victim, GetEntityFlags(victim) | FL_ONGROUND);
-
-						TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, view_as<float>({ 0.0, 0.0, 0.0 }));
-					}
-				}
-			}
-		}
-	}
-
-	if (StrContains(zone_name, "KarmaKill", false) == -1)
-		return;
-
-	L4DTeam team = L4D_GetClientTeam(victim);
-
-	int trueVictim = 0;
-
-	if (team == L4DTeam_Infected)
-	{
-		trueVictim = L4D_GetPinnedSurvivor(victim);
-
-		if (trueVictim != 0)
-		{
-			// Thanks for Haigen, smokers can be in karma zone while the victim is not, must wait for survivors to trip that alarm.
-			if(L4D2_GetPlayerZombieClass(victim) != L4D2ZombieClass_Smoker)
-			{
-				OnCheckKarmaZoneTouch(trueVictim, entity, zone_name, victim);
-			}
-
-			if (!IsPlayerAlive(trueVictim))
-				CreateTimer(0.1, Timer_ResetAbility, GetClientUserId(victim), TIMER_FLAG_NO_MAPCHANGE);
-		}
-	}
-
-	bool bInfectedKiller = false;
-
-	if (StrContains(zone_name, "KarmaKillAll", false) != -1 || StrContains(zone_name, "KarmaKillAny", false) != -1)
-		bInfectedKiller = true;
-
-	if (team == L4DTeam_Infected && !bInfectedKiller)
-		return;
-
-	float fOrigin[3], fZoneOrigin[3];
-
-	GetEntPropVector(victim, Prop_Data, "m_vecAbsOrigin", fOrigin);
-	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", fZoneOrigin);
-
-	// 62.0 is player height
-	if (fOrigin[2] + 62.0 < fZoneOrigin[2])
-	{
-		float fVelocity[3];
-		GetEntPropVector(victim, Prop_Data, "m_vecVelocity", fVelocity);
-
-		if (fVelocity[2] > 0.0)
-			fVelocity[2] = 0.0;
-
-		TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, fVelocity);
-
-		return;
-	}
-
-	if (team == L4DTeam_Survivor)
-	{
-		if (IsDoubleCharged(victim) && pinner != 0)
-		{
-			ClearAllPinners(victim);
-
-			float fPinnerOrigin[3];
-
-			GetEntPropVector(pinner, Prop_Data, "m_vecAbsOrigin", fPinnerOrigin);
-
-			TeleportEntity(victim, fPinnerOrigin, NULL_VECTOR, NULL_VECTOR);
-		}
-
-		// Enable ability to register karma kills by simulating fall damage
-		delete AllKarmaRegisterTimer[victim];
-
-		AllKarmaRegisterTimer[victim] = CreateTimer(3.0, RegisterAllKarmaDelay, victim);
-
-		if (g_bAllowDefib)
-		{
-		// Makes body undefibable.
-		SetEntProp(victim, Prop_Send, "m_isFallingFromLedge", true);
-		}
-
-		// Incap & kill, this should not trigger the SDKHook_OnTakeDamage
-		SDKHooks_TakeDamage(victim, victim, victim, 10000.0, DMG_FALL);
-		SDKHooks_TakeDamage(victim, victim, victim, 10000.0, DMG_FALL);
-
-		// Safety measures.
-		if (IsPlayerAlive(victim))
-		{
-			ForcePlayerSuicide(victim);
-
-			int type;
-			int lastKarma = GetAnyLastKarma(victim, type);
-
-			if (lastKarma > 0 && IsClientInGame(lastKarma))
-				AnnounceKarma(lastKarma, victim, type, false, true);
-		}
-	}
 }
 
 bool IsValidEntRef(int entity)

@@ -32,6 +32,9 @@ Very Very loudly announces the predicted event of a player leaving the map and o
 
     * cfg/sourcemod/l4d2_karma_kill.cfg
         ```php
+        // Turn Karma Kills on and off 
+        l4d2_karma_kill_enabled "1"
+
         // Enable karma jumping. Karma jumping only registers on confirmed kills.
         l4d2_karma_jump "1"
 
@@ -49,12 +52,6 @@ Very Very loudly announces the predicted event of a player leaving the map and o
 
         // How slow Time gets. Hardwired to minimum 0.03 or the server crashes
         l4d2_karma_kill_slowspeed "0.2"
-
-        // Turn Karma Kills on and off 
-        l4d2_karma_kill_enabled "1"
-
-        // Allow karma victims to be revived with defibrillator? 0 - No, 1 - Yes.
-        l4d2_karma_kill_allow_defib "0"
         ```
 </details>
 
@@ -67,6 +64,10 @@ Very Very loudly announces the predicted event of a player leaving the map and o
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.3h (2026-9-15)
+        * Optimize code
+        * Update cvars
 
     * v1.2h (2026-3-11)
         * Optimize code, delete "m_flLaggedMovementValue"
@@ -106,6 +107,9 @@ Very Very loudly announces the predicted event of a player leaving the map and o
 
     * cfg/sourcemod/l4d2_karma_kill.cfg
         ```php
+        // 1=開啟插件, 0=關閉插件
+        l4d2_karma_kill_enabled "1"
+
         // 為1時，玩家自己跳樓自殺也會有慢動作效果
         l4d2_karma_jump "1"
 
@@ -123,11 +127,5 @@ Very Very loudly announces the predicted event of a player leaving the map and o
 
         // 慢動作速度? (最小值0.03)
         l4d2_karma_kill_slowspeed "0.2"
-
-        // 為1時，慢動作時有音效
-        l4d2_karma_kill_enabled "1"
-
-        // 為1時，慢動作效果而死亡的倖存者屍體可以使用電擊器復活
-        l4d2_karma_kill_allow_defib "0"
         ```
 </details>
