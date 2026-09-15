@@ -40,7 +40,7 @@ shoot your teammate = shoot yourself
         // Disable friendly fire damage and don't reflect damage if damage is below this value. (0=Off)
         anti_friendly_fire_damage_sheild "0"
 
-        // Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)
+        // Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value, 0=No Damage)
         anti_friendly_fire_damage_multi "1.5"
         ```
 </details>
@@ -62,6 +62,7 @@ shoot your teammate = shoot yourself
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.0 (2026-9-16)
     * v1.9 (2026-9-6)
         * Disable weapon friendly fire if victim is carried by charger
         * Update cvars
@@ -115,7 +116,7 @@ shoot your teammate = shoot yourself
         // 友傷低於此數值時，不造成友傷也不反彈友傷 (0=關閉).
         anti_friendly_fire_damage_sheild "0"
 
-        // 友傷 x 數值，然後再反彈 (1.0 = 反彈一樣的傷害)
+        // 友傷 x 數值，然後再反彈 (1.0 = 反彈一樣的傷害, 0=無傷)
         anti_friendly_fire_damage_multi "1.5"
         ```
 </details>
