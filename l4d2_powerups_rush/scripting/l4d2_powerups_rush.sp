@@ -73,8 +73,8 @@ int g_iPlayRateO		= -1;
 int g_iShotRelStateO	= -1;
 int g_iNextAttO			= -1;
 int g_iTimeIdleO		= -1;
-int g_iVMStartTimeO		= -1;
-int g_iViewModelO		= -1;
+//int g_iVMStartTimeO		= -1;
+//int g_iViewModelO		= -1;
 int g_iNextSAttO		= -1;
 int g_ActiveWeaponOffset;
 
@@ -198,8 +198,8 @@ public void OnPluginStart()
 	g_iShotRelStateO	=	FindSendPropInfo("CBaseShotgun","m_reloadState");
 	g_iNextAttO			=	FindSendPropInfo("CTerrorPlayer","m_flNextAttack");
 	g_iTimeIdleO		=	FindSendPropInfo("CTerrorGun","m_flTimeWeaponIdle");
-	g_iVMStartTimeO		=	FindSendPropInfo("CTerrorViewModel","m_flLayerStartTime");
-	g_iViewModelO		=	FindSendPropInfo("CTerrorPlayer","m_hViewModel");
+	//g_iVMStartTimeO		=	FindSendPropInfo("CTerrorViewModel","m_flLayerStartTime");
+	//g_iViewModelO		=	FindSendPropInfo("CTerrorPlayer","m_hViewModel");
 	
 	g_ActiveWeaponOffset = FindSendPropInfo("CBasePlayer", "m_hActiveWeapon");
 	g_iNextSAttO		=	FindSendPropInfo("CBaseCombatWeapon","m_flNextSecondaryAttack");
@@ -899,7 +899,7 @@ Action Timer_PumpshotgunStart (Handle timer, DataPack hPack)
 }
 // ////////////////////////////////////////////////////////////////////////////
 //this resets the playback rate on non-shotguns
-Action Timer_MagEnd (Handle timer, int iEntid)
+/*Action Timer_MagEnd (Handle timer, int iEntid)
 {
 	iEntid = EntRefToEntIndex(iEntid);
 
@@ -945,7 +945,7 @@ Action Timer_MagEnd2 (Handle timer, DataPack hPack)
 	//CPrintToChatAll("{lightgreen}- end mag loader, icid {default}%i{lightgreen} starttime {default}%f{lightgreen} gametime {default}%f", iCid, flStartTime_calc, GetGameTime());
 
 	return Plugin_Continue;
-}
+}*/
 
 Action Timer_ShotgunEnd (Handle timer, DataPack hPack)
 {

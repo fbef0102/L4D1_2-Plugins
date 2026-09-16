@@ -87,7 +87,7 @@ HUD with cs kill info list.
 
     1. [l4d2_scripted_hud](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Server_伺服器/l4d2_scripted_hud): Display text for up to 5 scripted HUD slots on the screen.
         * 在玩家畫面上方五個Hud位置顯示不同的特殊文字
-    2. [l4d2_kills_manager](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_特感/l4d2_kills_manager): Sets the real killer of a special infected, based on who inflicted the most damage, instead of last shot.
+    2. [l4d2_kills_manager_remake](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_特感/l4d2_kills_manager_remake): Sets the real killer of a special infected, based on who inflicted the most damage, instead of last shot.
         * 強制將特感擊殺者改成造成傷害最多的玩家
 </details>
 

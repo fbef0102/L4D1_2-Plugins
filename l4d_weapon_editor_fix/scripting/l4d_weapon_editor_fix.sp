@@ -38,7 +38,7 @@
 #include <left4dhooks>          // https://forums.alliedmods.net/showthread.php?t=321696
 #include <WeaponHandling>       // https://forums.alliedmods.net/showthread.php?t=319947
 
-#define PLUGIN_VERSION			"1.3-2025/5/10"
+#define PLUGIN_VERSION			"1.4-2026/9/16"
 #define PLUGIN_NAME			    "l4d_weapon_editor_fix"
 #define DEBUG 0
 
@@ -105,18 +105,27 @@ char
     g_sMeleeClass[16][32];
 
 int 
-	g_iMeleeClassCount;
+	g_iMeleeClassCount,
+	g_iOffsetInReload,
+	g_iNextPAttO,
+	g_iOffsetPlaybackRate,
+	g_iOffsetClip;
 
 public void OnPluginStart()
 {
+	g_iOffsetInReload 				= 	FindSendPropInfo("CBaseCombatWeapon", "m_bInReload");
+	g_iNextPAttO					=	FindSendPropInfo("CBaseCombatWeapon","m_flNextPrimaryAttack");
+	g_iOffsetPlaybackRate			= 	FindSendPropInfo("CBaseCombatWeapon","m_flPlaybackRate");
+	g_iOffsetClip					= 	FindSendPropInfo("CBaseCombatWeapon", "m_iClip1");
+
 	g_hCvar_IncapCycle = FindConVar("survivor_incapacitated_cycle_time");
 
 	g_hCvarEnable 							= CreateConVar( PLUGIN_NAME ... "_enable",        				"1",   		"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarDualPistol_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_dual_pistol_CycleTime",   	"0.1",   	"The dual pistol Cycle Time (fire rate, 0: keeps vanilla cycle rate of 0.075)", CVAR_FLAGS, true, 0.0);
 	g_hCvarDualPistol_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_dual_pistol_ReloadDuration",  "0",   		"The dual pistol Reload Duration (0: keeps vanilla reload duration of 2.333)", CVAR_FLAGS, true, 0.0);
-	g_hCvarShotGun_Fix_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_shotgun_fire_rate",  			"1",   		"If 1, Make shotgun fire rate obey \"CycleTime\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarShotGun_Fix_CycleTime 			= CreateConVar( PLUGIN_NAME ... "_shotgun_fire_rate",  			"0",   		"If 1, Make shotgun fire rate obey \"CycleTime\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarShotGun_Fix_ReloadDuration 		= CreateConVar( PLUGIN_NAME ... "_shotgun_reload",  			"0",   		"If 1, Make shotgun reload duration obey \"ReloadDuration\" keyvalue in weapon_*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarWeaponIncap_Fix_CycleTime 		= CreateConVar( PLUGIN_NAME ... "_incap_fire_rate",  			"0",   		"If 1, Use weapon_*.txt \"CycleTime\" or official cvar \"survivor_incapacitated_cycle_time\" for incap shooting cycle rate, depends on which cycle rate is slower than another\n(\"wh_use_incap_cycle_cvar\" must be 1)", CVAR_FLAGS, true, 0.0, true, 1.0);
+	g_hCvarWeaponIncap_Fix_CycleTime 		= CreateConVar( PLUGIN_NAME ... "_incap_fire_rate",  			"1",   		"If 1, Use weapon_*.txt \"CycleTime\" or official cvar \"survivor_incapacitated_cycle_time\" for incap shooting cycle rate, depends on which cycle rate is slower than another\n(\"wh_use_incap_cycle_cvar\" must be 1)", CVAR_FLAGS, true, 0.0, true, 1.0);
 	if(g_bL4D2Version)
 	{
 		g_hCvarMelee_Fix_Refire_Delay			= CreateConVar( PLUGIN_NAME ... "_melee_swing",  				"0",   		"If 1, Make melee swing rate obey \"refire_delay\" keyvalue in melee\\*.txt", CVAR_FLAGS, true, 0.0, true, 1.0);
@@ -282,11 +291,11 @@ public void WH_OnGetRateOfFire(int client, int weapon, L4D2WeaponType weapontype
 				{
 					if(g_fCvarDualPistol_CycleTime == 0.0) return;
 
-					speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 0.075 * (1.0/0.2) : 0.075 *(1.0/g_fCvarDualPistol_CycleTime); // dual pistol "CycleTime" = 0.075 
+					speedmodifier = (GetEntData(weapon, g_iOffsetClip) <= 0) ? 0.075 * (1.0/0.2) : 0.075 *(1.0/g_fCvarDualPistol_CycleTime); // dual pistol "CycleTime" = 0.075 
 				}
 				/*else
 				{
-					speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 0.175 * (1.0/0.2625) : 0.175 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pistol]); // single pistol "CycleTime" = 0.175 
+					speedmodifier = (GetEntData(weapon, g_iOffsetClip) <= 0) ? 0.175 * (1.0/0.2625) : 0.175 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pistol]); // single pistol "CycleTime" = 0.175 
 				}*/
 			}
 			case L4D2WeaponType_Pumpshotgun:
@@ -294,28 +303,28 @@ public void WH_OnGetRateOfFire(int client, int weapon, L4D2WeaponType weapontype
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 				if(g_fWeapon_CycleTime[L4D2WeaponType_Pumpshotgun] <= 0.0) return;
 
-				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pumpshotgun]); // Pumpshotgun "CycleTime" = 0.875 
+				speedmodifier = (GetEntData(weapon, g_iOffsetClip) <= 0) ? 1.0 : 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Pumpshotgun]); // Pumpshotgun "CycleTime" = 0.875 
 			}
 			case L4D2WeaponType_PumpshotgunChrome:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 				if(g_fWeapon_CycleTime[L4D2WeaponType_PumpshotgunChrome] <= 0.0) return;
 
-				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_PumpshotgunChrome]); // PumpshotgunChrome "CycleTime" = 0.875 
+				speedmodifier = (GetEntData(weapon, g_iOffsetClip) <= 0) ? 1.0 : 0.875 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_PumpshotgunChrome]); // PumpshotgunChrome "CycleTime" = 0.875 
 			}
 			case L4D2WeaponType_Autoshotgun:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 				if(g_fWeapon_CycleTime[L4D2WeaponType_Autoshotgun] <= 0.0) return;
 
-				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Autoshotgun]); // Autoshotgun "CycleTime" = 0.250 
+				speedmodifier = (GetEntData(weapon, g_iOffsetClip) <= 0) ? 1.0 : 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_Autoshotgun]); // Autoshotgun "CycleTime" = 0.250 
 			}
 			case L4D2WeaponType_AutoshotgunSpas:
 			{
 				if(!g_bCvarShotGun_Fix_CycleTime) return;
 				if(g_fWeapon_CycleTime[L4D2WeaponType_AutoshotgunSpas] <= 0.0) return;
 
-				speedmodifier = (GetEntProp(weapon, Prop_Send, "m_iClip1") <= 0) ? 1.0 : 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_AutoshotgunSpas]); // AutoshotgunSpas "CycleTime" = 0.250 
+				speedmodifier = (GetEntData(weapon, g_iOffsetClip) <= 0) ? 1.0 : 0.250 *(1.0/g_fWeapon_CycleTime[L4D2WeaponType_AutoshotgunSpas]); // AutoshotgunSpas "CycleTime" = 0.250 
 			}
 		}
 	}
@@ -379,7 +388,7 @@ public void WH_OnMeleeSwing(int client, int weapon, float &speedmodifier)
 	if (meleeWeaponId < 0 || meleeWeaponId >= g_iMeleeClassCount)
 		return;
 
-	float fRealDelay = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack") - GetGameTime();
+	float fRealDelay = GetEntDataFloat(weapon, g_iNextPAttO) - GetGameTime();
 	DebugPrint(" (%s) refire_delay: %.3f, fRealDelay: %.3f", g_sMeleeClass[meleeWeaponId], g_fMelee_RefireDelay[meleeWeaponId], fRealDelay);
 
 	if(GetEntProp(client, Prop_Send, "m_isIncapacitated", 1))
@@ -413,10 +422,157 @@ public void WH_OnMeleeSwing(int client, int weapon, float &speedmodifier)
 	DebugPrint("WH_OnMeleeSwing finish - %.3f", client, speedmodifier);
 }
 
+// Left4dhooks API-----
+
+public void L4D_OnSwingStart(int client, int weapon)
+{
+	if (GetClientTeam(client) != TEAM_SURVIVOR || !IsPlayerAlive(client))  return;
+	if (weapon <= MaxClients || !IsValidEntity(weapon)) return;
+	if (HasEntProp(weapon, Prop_Send, "m_bInReload") == false || GetEntData(weapon, g_iOffsetInReload, 1) == 0) return;
+
+	static char sClassname[64];
+	GetClientWeapon(client, sClassname, sizeof(sClassname));
+
+	L4D2WeaponType weapontype = GetWeaponTypeFromClassname(sClassname);
+	if(weapontype == L4D2WeaponType_Unknown) return;
+
+	float playbackRate;
+	int clip = GetEntData(weapon, g_iOffsetClip);
+	if(weapontype == L4D2WeaponType_Pistol)
+	{
+		if(GetEntProp(weapon, Prop_Send, "m_isDualWielding", 1))
+		{
+			if(g_fCvarDualPistol_ReloadDuration == 0.0)
+			{
+				return;
+			}
+			else
+			{
+				if(clip <= 1) 
+				{
+					playbackRate = 2.516 / g_fCvarDualPistol_ReloadDuration;
+				}
+				else
+				{
+					playbackRate = 2.35 / g_fCvarDualPistol_ReloadDuration;
+				}
+			}
+		}
+		else
+		{
+			if(g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol] <= 0.0)
+			{
+				DebugPrint("該武器沒設定裝彈時間: %s", sClassname);
+				return;
+			}
+
+			if(clip == 0) 
+			{
+				playbackRate = 2.016 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+			}
+			else
+			{
+				playbackRate = 1.68 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+			}
+		}
+	}
+	else
+	{
+		if(g_fWeapon_ReloadDuration[weapontype] <= 0.0)
+		{
+			//PrintToChatAll("該武器沒設定裝彈時間: %s", sClassname);
+			return;
+		}
+
+		switch(weapontype)
+		{
+			case L4D2WeaponType_Pistol:
+			{
+
+			}
+			case L4D2WeaponType_Magnum:
+			{
+				if(clip == 0) 
+				{
+					playbackRate = 2.016 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+				}
+				else
+				{
+					playbackRate = 1.65 / g_fWeapon_ReloadDuration[L4D2WeaponType_Pistol];
+				}
+			}
+			case L4D2WeaponType_Rifle:
+			{
+				playbackRate = 2.216 / g_fWeapon_ReloadDuration[L4D2WeaponType_Rifle];
+			}
+			case L4D2WeaponType_RifleAk47:
+			{
+				playbackRate = 2.373 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleAk47];
+			}
+			case L4D2WeaponType_RifleDesert:
+			{
+				playbackRate = 3.316 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleDesert];
+			}
+			case L4D2WeaponType_RifleM60:
+			{
+				playbackRate = 2.4 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleM60];
+			}
+			case L4D2WeaponType_RifleSg552:
+			{
+				playbackRate = 3.433 / g_fWeapon_ReloadDuration[L4D2WeaponType_RifleSg552];
+			}
+			case L4D2WeaponType_HuntingRifle:
+			{
+				playbackRate = 3.14 / g_fWeapon_ReloadDuration[L4D2WeaponType_HuntingRifle];
+			}
+			case L4D2WeaponType_SniperAwp:
+			{
+				playbackRate = 3.66 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperAwp];
+			}
+			case L4D2WeaponType_SniperMilitary:
+			{
+				playbackRate = 3.35 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperMilitary];
+			}
+			case L4D2WeaponType_SniperScout:
+			{
+				playbackRate = 2.916 / g_fWeapon_ReloadDuration[L4D2WeaponType_SniperScout];
+			}
+			case L4D2WeaponType_SMG:
+			{
+				playbackRate = 2.251 / g_fWeapon_ReloadDuration[L4D2WeaponType_SMG];
+			}
+			case L4D2WeaponType_SMGSilenced:
+			{
+				playbackRate = 2.251 / g_fWeapon_ReloadDuration[L4D2WeaponType_SMGSilenced];
+			}
+			case L4D2WeaponType_SMGMp5:
+			{
+				playbackRate = 3.069 / g_fWeapon_ReloadDuration[L4D2WeaponType_Magnum];
+			}
+			case L4D2WeaponType_GrenadeLauncher:
+			{
+				playbackRate = 3.35 / g_fWeapon_ReloadDuration[L4D2WeaponType_GrenadeLauncher];
+			}
+			default:
+			{
+				return;
+			}
+		}
+	}
+
+	//PrintToChatAll("playbackRate %f", playbackRate);
+	SetEntDataFloat(weapon, g_iOffsetPlaybackRate, playbackRate);
+
+	DataPack hPack = new DataPack();
+	hPack.WriteCell(EntIndexToEntRef(weapon));
+	hPack.WriteFloat(playbackRate);
+	RequestFrame(OnNextFrame, hPack);
+}
+
 // ====================================================================================================
 // KEYBINDS
 // ====================================================================================================
-public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
+/*public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
 	if (!(buttons & IN_ATTACK2)) {
 		return;
@@ -439,14 +595,14 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 	L4D2WeaponType weapontype = GetWeaponTypeFromClassname(sClassname);
 	if(weapontype == L4D2WeaponType_Unknown) return;
 
-	/*float m_flPlaybackRate = GetEntPropFloat(ActiveWeapon, Prop_Send, "m_flPlaybackRate");
-	PrintToChatAll("%d %s %f", weapontype, sClassname, m_flPlaybackRate);
-	if(m_flPlaybackRate >= 1.0) //裝彈比原本快
-	{
-		if(g_fATTACK2Timeout[client] > GetEngineTime()) return; 
+	//float m_flPlaybackRate = GetEntPropFloat(ActiveWeapon, Prop_Send, "m_flPlaybackRate");
+	//PrintToChatAll("%d %s %f", weapontype, sClassname, m_flPlaybackRate);
+	//if(m_flPlaybackRate >= 1.0) //裝彈比原本快
+	//{
+	//	if(g_fATTACK2Timeout[client] > GetEngineTime()) return; 
 
-		g_fATTACK2Timeout[client] = GetEngineTime() + 3.8;
-	}*/
+	//	g_fATTACK2Timeout[client] = GetEngineTime() + 3.8;
+	//}
 
 	float playbackRate;
 	int clip = GetEntProp(ActiveWeapon, Prop_Send, "m_iClip1");
@@ -575,6 +731,22 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 	//PrintToChatAll("playbackRate %f", playbackRate);
 	SetEntPropFloat(ActiveWeapon, Prop_Send, "m_flPlaybackRate", playbackRate);
 }
+*/
+
+// Timer & Frame
+
+void OnNextFrame(DataPack hPack)
+{
+	hPack.Reset();
+	int weapon = EntRefToEntIndex(hPack.ReadCell());
+	float playbackRate = hPack.ReadFloat();
+	delete hPack;
+
+	if(weapon == INVALID_ENT_REFERENCE) return;
+
+	SetEntDataFloat(weapon, g_iOffsetPlaybackRate, playbackRate, true);
+}
+
 
 // Function-------------------------------
 

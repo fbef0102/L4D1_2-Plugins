@@ -316,7 +316,7 @@ MRESReturn Detour_CWeaponAmmoSpawnUse_Post()
 // Change ammo when pick up weapon first time
 //撿起地上的新武器並裝備時觸發
 //滾輪切換已有的武器不會觸發
-//(l4d_multiple_equipment) 切換副裝備會觸發
+//(l4d_multiple_equipment_remake) 切換副裝備會觸發
 // 從weapon_xxx_spawner撿起相同武器時也會觸發: WeaponCanUse -> WeaponCanUsePost -> "weapon_drop" -> OnWeaponEquip -> WeaponEquipPost -> "spawner_give_item"
 // @note: 此插件從weapon_xxx_spawner撿起武器之後會給予此插件設置的彈藥數量, 但是如果用Give則依然是給予官方指令設置的彈藥數量
 // @note: 因此需要在OnWeaponEquipPost修改

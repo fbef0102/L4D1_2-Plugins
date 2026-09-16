@@ -11,7 +11,7 @@ public Plugin myinfo =
 	name = "anti-friendly_fire",
 	author = "HarryPotter",
 	description = "shoot teammate = shoot yourself",
-	version = "1.9-2029/9/6",
+	version = "2.0-2029/9/16",
 	url = "https://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -109,11 +109,11 @@ enum struct CTakeDamageInfo_L4D2
 	float			m_flRadius;
 }
 
-int 
-	g_iMainHealth[MAXPLAYERS+1];
+//int 
+//	g_iMainHealth[MAXPLAYERS+1];
 
-float 
-	g_fTempHealth[MAXPLAYERS+1];
+//float 
+//	g_fTempHealth[MAXPLAYERS+1];
 
 StringMap 
 	g_smIgnoreClassName;
@@ -154,7 +154,7 @@ public void OnPluginStart()
 								FCVAR_NOTIFY, true, 0.0);
 
 	g_hDamageMulti = CreateConVar( "anti_friendly_fire_damage_multi", "1.5",
-								"Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value)",
+								"Multiply friendly fire damage value and reflect to attacker. (1.0=original damage value, 0=No Damage)",
 								FCVAR_NOTIFY, true, 0.0 );	
 
 	GetCvars();
@@ -172,7 +172,7 @@ public void OnPluginStart()
 
 	AutoExecConfig(true, "anti-friendly_fire");
 
-	HookEvent("player_hurt", Event_Hurt);
+	//HookEvent("player_hurt", Event_Hurt);
 	//HookEvent("player_incapacitated_start", Event_IncapacitatedStart);
 
 	g_smIgnoreClassName = new StringMap();
@@ -210,7 +210,7 @@ void GetCvars()
 public void OnClientPutInServer(int client)
 {
 	//SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
+	//SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
 // 不可偵測到SDKHooks_TakeDamage，此時玩家未扣血
@@ -322,7 +322,7 @@ public void OnClientPutInServer(int client)
 // 如果傷害造成玩家即將死亡，會觸發此涵式
 // 可偵測到SDKHooks_TakeDamage，此時玩家未扣血
 // 使用return Plugin_Handled; 依然會有螢幕上的紅色傷害提示，只是角色不會因為受傷而說話
-Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+/*Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
 {
 	if(g_bEnable == false || g_bGod == true) return Plugin_Continue;
 
@@ -335,7 +335,7 @@ Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damag
 	g_iMainHealth[victim] = GetClientHealth(victim);
 	g_fTempHealth[victim] = L4D_GetTempHealth(victim);
 
-	/*if(damage <= 0.0) return Plugin_Continue;
+	if(damage <= 0.0) return Plugin_Continue;
 	if(IsClientInGodFrame(victim)) return Plugin_Continue;
 
 	// 最後實際傷害為"浮點數的傷害數值的整數", 小數點後無條件捨去
@@ -380,17 +380,18 @@ Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damag
 		}
 
 		return Plugin_Handled;
-	}*/
+	}
 
 	return Plugin_Continue;
 }
+*/
 
 //沒有倒地的傷害順序: SDKHook_OnTakeDamage -> DTR__AllowDamage -> SDKHook_OnTakeDamageAlive -> "player_hurt" event -> SDKHook_OnTakeDamageAlivePost -> SDKHook_OnTakeDamagePost
 //會倒地的傷害順序: SDKHook_OnTakeDamage -> DTR__AllowDamage (return MRES_Ignored) -> "player_incapacitated_start" event -> "player_incapacitated" event -> SDKHook_OnTakeDamagePost
 //會倒地的傷害順序: SDKHook_OnTakeDamage -> DTR__AllowDamage (return MRES_Supercede) -> SDKHook_OnTakeDamagePost
 //會死亡(非倒地)的傷害順序: SDKHook_OnTakeDamage -> DTR__AllowDamage (return MRES_Ignored) -> SDKHook_OnTakeDamageAlive -> "player_hurt" event -> SDKHook_OnTakeDamageAlivePost -> "player_death" event -> SDKHook_OnTakeDamagePost
 //會死亡(非倒地)的傷害順序: SDKHook_OnTakeDamage -> DTR__AllowDamage (return MRES_Supercede) -> SDKHook_OnTakeDamagePost
-
+//玩家處於god frame或是指令god 1期間不觸發此涵式
 //可偵測到SDKHooks_TakeDamage，此時玩家還沒倒地
 //@note 在這涵式內使用SDKHooks_TakeDamage會崩潰
 MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
@@ -421,10 +422,15 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 		GetClientTeam(attacker) == L4D_TEAM_INFECTED ||
 		GetClientTeam(client) != L4D_TEAM_SURVIVOR) return MRES_Ignored;
 
-	if(IsClientInGodFrame(client)) return MRES_Ignored;
-
-	//PrintToChatAll("DTR__AllowDamage %N attack %N, temp Health: %d, main Health: %d, damage: %f", attacker, client, L4D_GetPlayerTempHealth(client), GetClientHealth(client), damage);
+	PrintToChatAll("DTR__AllowDamage %N attack %N, temp Health: %d, main Health: %d, damage: %f", attacker, client, L4D_GetPlayerTempHealth(client), GetClientHealth(client), damage);
 	
+	int iDamage = RoundToFloor(damage);
+	if(iDamage <= g_iDamageShield)
+	{
+		hReturn.Value = 0;
+		return MRES_Supercede;
+	}
+
 	if(inflictor > MaxClients && IsValidEntity(inflictor))
 	{
 		static char WeaponName[CLASSNAME_LENGTH];
@@ -450,7 +456,7 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 		}
 		else if(g_bL4D2Version && strncmp(WeaponName, "grenade_launcher_projectile", 27, false) == 0 ) 
 		{
-			if(g_bGLDisable == false) return MRES_Supercede;
+			if(g_bGLDisable == false) return MRES_Ignored;
 		}
 
 		if( g_bL4D2Version && g_bChargerDisable && (damagetype & DMG_BULLET) 
@@ -466,24 +472,26 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 		DataPack hPack = new DataPack();
 		hPack.WriteCell(GetClientUserId(attacker));
 		hPack.WriteFloat(damage);
-		RequestFrame(OnNextFrame_HurtDamage, hPack);
+		RequestFrame(OnNextFrame_ReflectDamage, hPack);
 	}
 
 	hReturn.Value = 0;
 	return MRES_Supercede;
 }
 
-void OnNextFrame_HurtDamage(DataPack hPack)
+void OnNextFrame_ReflectDamage(DataPack hPack)
 {
 	hPack.Reset();
 	int attacker = GetClientOfUserId(hPack.ReadCell());
 	float damage = hPack.ReadFloat();
 	delete hPack;
 
+	if(!attacker || !IsClientInGame(attacker) || GetClientTeam(attacker) != L4D_TEAM_SURVIVOR) return;
+
 	HurtEntity(attacker, attacker, damage);
 }
 
-void Event_Hurt(Event event, const char[] name, bool dontBroadcast) 
+/*void Event_Hurt(Event event, const char[] name, bool dontBroadcast) 
 {
 	if(g_bEnable == false || g_bGod == true) return;
 
@@ -531,7 +539,7 @@ void Event_Hurt(Event event, const char[] name, bool dontBroadcast)
 		if(!IsIncapacitated(victim)) RestoreHp(victim);
 		if(GetClientTeam(attacker) == L4D_TEAM_SURVIVOR) HurtEntity(attacker, attacker, float(damage));
 	}
-}
+}*/
 
 /*void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast) 
 {
@@ -589,7 +597,7 @@ bool IsClientAndInGame(int client)
 	return false;
 }
 
-bool IsClientInGodFrame( int client )
+/*bool IsClientInGodFrame( int client )
 {
 	CountdownTimer timer = L4D2Direct_GetInvulnerabilityTimer(client);
 	if(timer == CTimer_Null) return false;
@@ -607,7 +615,7 @@ void RestoreHp(int client)
 	//PrintToChatAll("%d %.2f", g_iMainHealth[client], g_fTempHealth[client]);
 	SetEntityHealth(client, g_iMainHealth[client]);
 	L4D_SetTempHealth(client, g_fTempHealth[client]);
-}
+}*/
 
 bool PinnedByCharger(int client)
 {

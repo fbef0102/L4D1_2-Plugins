@@ -347,7 +347,7 @@ void OnFrame_WeaponCanUsePost(DataPack dPack)
 	}
 
 	// l4d2_max_ammo 在SDKHook_WeaponEquipPost的下一偵修改彈藥
-	// l4d_multiple_equipment 在EquipPlayerWeapon的下一行修改彈藥
+	// l4d_multiple_equipment_remake 在EquipPlayerWeapon的下一行修改彈藥
 }
 
 void OnFrame_Event_SpawnerGiveItem(int client)

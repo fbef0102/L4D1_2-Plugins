@@ -67,7 +67,7 @@
 #include <left4dhooks>
 #include <multicolors>
 #undef REQUIRE_PLUGIN
-#tryinclude <l4d2_kills_manager>
+#tryinclude <l4d2_kills_manager_remake>
 
 #define PLUGIN_VERSION "2.3h-2026/8/28"
 #define DEBUG 0
@@ -637,7 +637,7 @@ public void OnPluginStart()
 	}
 }
 
-bool g_bAvailable_l4d2_kills_manager;
+bool g_bAvailable_l4d2_kills_manager_remake;
 public void OnAllPluginsLoaded()
 {
 	g_hCvarMaxPounceDistance = FindConVar("z_pounce_damage_range_max");
@@ -647,17 +647,17 @@ public void OnAllPluginsLoaded()
 	if ( g_hCvarMinPounceDistance == null ) { g_hCvarMinPounceDistance = CreateConVar( "z_pounce_damage_range_min",  		"300.0", 	"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
 	if ( g_hCvarMaxPounceDamage == null ) 	{ g_hCvarMaxPounceDamage = CreateConVar( "z_hunter_max_pounce_bonus_damage",  	"24", 		"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
 
-	g_bAvailable_l4d2_kills_manager = LibraryExists("l4d2_kills_manager");
+	g_bAvailable_l4d2_kills_manager_remake = LibraryExists("l4d2_kills_manager_remake");
 }
 
 public void OnLibraryAdded(const char[] name)
 {
-	g_bAvailable_l4d2_kills_manager = LibraryExists("l4d2_kills_manager");
+	g_bAvailable_l4d2_kills_manager_remake = LibraryExists("l4d2_kills_manager_remake");
 }
 
 public void OnLibraryRemoved(const char[] name)
 {
-	g_bAvailable_l4d2_kills_manager = LibraryExists("l4d2_kills_manager");
+	g_bAvailable_l4d2_kills_manager_remake = LibraryExists("l4d2_kills_manager_remake");
 }
 
 void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
@@ -1186,7 +1186,7 @@ void TraceAttack_JockeyPost (int victim, int attacker, int inflictor, float dama
 
 public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int attacker, const char[] attackername, int attackerentid, const char[] weapon, bool headshot, bool attackerisbot, const char[] victimname, bool victimisbot, bool abort, int type, float victim_x, float victim_y, float victim_z)
 {
-	if(!g_bAvailable_l4d2_kills_manager) return;
+	if(!g_bAvailable_l4d2_kills_manager_remake) return;
 
 	int victim = GetClientOfUserId( userid );
 	attacker = GetClientOfUserId( attacker ); 
@@ -1360,7 +1360,7 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 
 void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 {
-	if(g_bAvailable_l4d2_kills_manager) return;
+	if(g_bAvailable_l4d2_kills_manager_remake) return;
 
 	int victim = GetClientOfUserId( event.GetInt("userid") );
 	int attacker = GetClientOfUserId( event.GetInt("attacker") ); 

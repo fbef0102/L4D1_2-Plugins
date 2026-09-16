@@ -157,7 +157,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         * Add hunter skeet assist report
 
     * v1.9h (2024-12-20)
-        * Compatible with with l4d2_kills_manager by Harry
+        * Compatible with with l4d2_kills_manager_remake by Harry
 
     * v1.8h (2024-8-6)
         * Update API

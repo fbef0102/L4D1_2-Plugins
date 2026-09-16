@@ -79,6 +79,9 @@ Fix some Weapon attribute not exactly obey keyvalue in weapon_*.txt
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v1.4 (2026-9-6)
+		* Optimize code
+
 	* v1.3 (2025-5-10)
 		* Fixed Shotgun fire rate when incap
 
