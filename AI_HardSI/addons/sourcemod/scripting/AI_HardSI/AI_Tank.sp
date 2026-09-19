@@ -31,13 +31,13 @@ void Tank_OnModuleStart()
 	GetOfficialCvars();
 	g_hTankThrowForce.AddChangeHook(OfficialCvarChanged);
 
-	g_hCvarEnable 				= CreateConVar("AI_HardSI_Tank_enable",   				"1",   		"0=Improves the Tank behaviour off, 1=Improves the Tank behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarEnable 				= CreateConVar("AI_HardSI_Tank_enable",   						"1",   		"0=Improves the Tank behaviour off, 1=Improves the Tank behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	g_hCvarTankBhop 			= CreateConVar("ai_tank_bhop", 							"1", 		"If 1, enable bhop facsimile on AI tanks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTankRock 			= CreateConVar("ai_tank_rock", 							"1", 		"1=AI tanks throw rock, 0=AI tanks won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarTankThrow 			= CreateConVar("ai_tank_smart_throw", 					"1", 		"If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)\nIf 1, AI tank can quickly turn around if someone behind him after throws", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarAimOffsetSensitivity = CreateConVar("ai_tank_smart_rock_offset_sensitivity",	"22.5",		"If the AI Tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)", _, true, -1.0, true, 180.0);
-	g_hCvarSmartRockRange 		= CreateConVar("ai_tank_smart_rock_range",				"1200.0",	"AI Tank rock flies at the closest survivor within this range", FCVAR_NOTIFY, true, 1.0, true, 99999.0);
+	g_hCvarTankBhop 			= CreateConVar("AI_HardSI_Tank_bhop_enable", 					"1", 		"If 1, enable bhop facsimile on AI tanks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTankRock 			= CreateConVar("AI_HardSI_Tank_rock", 							"1", 		"1=AI tanks throw rock, 0=AI tanks won't throw rocks", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarTankThrow 			= CreateConVar("AI_HardSI_Tank_smart_throw", 					"1", 		"If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)\nIf 1, AI tank can quickly turn around if someone behind him after throws", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarAimOffsetSensitivity = CreateConVar("AI_HardSI_Tank_smart_rock_offset_sensitivity",	"22.5",		"If the AI Tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)", _, true, -1.0, true, 180.0);
+	g_hCvarSmartRockRange 		= CreateConVar("AI_HardSI_Tank_smart_rock_range",				"1200.0",	"AI Tank rock flies at the closest survivor within this range", FCVAR_NOTIFY, true, 1.0, true, 99999.0);
 
 	GetCvars();
 	g_hTankThrowForce.AddChangeHook(CvarChanged);

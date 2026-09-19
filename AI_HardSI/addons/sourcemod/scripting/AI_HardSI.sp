@@ -64,7 +64,7 @@ public Plugin myinfo =
 	name = "[L4D1/L4D2] AI: Hard SI",
 	author = "Breezy & HarryPotter",
 	description = "Improves the AI behaviour of special infected",
-	version = "2.5-2025/8/31",
+	version = "2.6-2026/9/19",
 	url = "github.com/breezyplease"
 };
 
@@ -88,7 +88,7 @@ public void OnPluginStart()
 	g_hCvarEnable 				 	= CreateConVar( "AI_HardSI_enable",        		"1",   	"0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	if(g_bL4D2Version)
 	{
-		g_hCvarAssaultReminderInterval 	= CreateConVar( "ai_assault_reminder_interval", "2", 	"Frequency(sec) at which the 'nb_assault' command is fired to make AI S.I. attack instead of ambush (0=off)", CVAR_FLAGS, true, 0.0 );
+		g_hCvarAssaultReminderInterval 	= CreateConVar( "AI_HardSI_assault_reminder_interval", "2", 	"(L4D2) Frequency(sec) at which the 'nb_assault' command is fired to make AI S.I. attack instead of ambush (0=off)", CVAR_FLAGS, true, 0.0 );
 	}
 	g_hCvarExecAggressiveCfg 		= CreateConVar( "AI_HardSI_aggressive_cfg", 	"aggressive_ai.cfg", 	"File to execute for AI aggressive cvars (in cfg/AI_HardSI folder)\nExecute file every map changed", CVAR_FLAGS );
 
@@ -127,6 +127,14 @@ public void OnPluginStart()
 
 void LateLoad()
 {
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (!IsClientInGame(client))
+			continue;
+
+		OnClientPutInServer(client);
+	}
+
 	if(g_bL4D2Version && L4D_HasAnySurvivorLeftSafeArea())
 	{
 		CreateTimer( g_fCvarAssaultReminderInterval, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
@@ -179,6 +187,13 @@ public void OnConfigsExecuted()
 	{
 		ServerCommand("exec AI_HardSI/%s", g_sCvarExecAggressiveCfg);
 	}
+}
+
+public void OnClientPutInServer(int client)
+{
+	if(!g_bCvarEnable) return;
+
+	SDKHook(client, SDKHook_OnTakeDamage, Boomer_OnTakeDamage);
 }
 
 /***********************************************************************************************************************************************************************************
@@ -360,8 +375,6 @@ void ability_use(Event event, char[] name, bool dontBroadcast) {
 			ability_use_OnPounce(bot);
 		} else if( g_bL4D2Version && strcmp(abilityName, "ability_charge") == 0) {
 			ability_use_OnCharge(bot);
-		} else if( strcmp(abilityName, "ability_vomit") == 0) {
-			ability_use_OnVomit(bot);
 		}
 	}
 }

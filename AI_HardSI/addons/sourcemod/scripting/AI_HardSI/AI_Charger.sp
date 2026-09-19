@@ -2,14 +2,15 @@
 #pragma newdecls required //強制1.7以後的新語法
 
 #define DEBUG_CHARGER_TARGET 0
-#define FIXFLY			1
+#define FIXFLY			0
+#define DEBUG			0
 
-static ConVar g_hCvarEnable, g_hChargerBhop,
+static ConVar g_hCvarEnable, g_hChargerBhop, g_hChargerM2,
 	g_hCvarChargeProximity, g_hCvarAimOffsetSensitivity, g_hCvarHealthThreshold,
 	g_hChargeMaxSpeed, g_hChargeStartSpeed;
 static int g_iCvarChargeProximity, g_iCvarHealthThreshold;
 static float g_fCvarAimOffsetSensitivity, g_fChargeMaxSpeed, g_fChargeStartSpeed;
-static bool g_bCvarEnable, g_bChargerBhop;
+static bool g_bCvarEnable, g_bChargerBhop, g_bChargerM2;
 
 static int 
 	g_bShouldCharge[MAXPLAYERS+ 1];
@@ -18,12 +19,13 @@ static bool
 	g_bModify[MAXPLAYERS + 1];
 
 void Charger_OnModuleStart() {
-	g_hCvarEnable 						= CreateConVar("AI_HardSI_Charger_enable",   			"1",   		"0=Improves the Charger behaviour off, 1=Improves the Charger behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarEnable 						= CreateConVar("AI_HardSI_Charger_enable",   				"1",   		"0=Improves the Charger behaviour off, 1=Improves the Charger behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	g_hChargerBhop 						= CreateConVar("ai_charger_bhop",			  			"1",	 	"If 1, enable bhop facsimile on AI chargers", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarChargeProximity 				= CreateConVar("ai_charger_proximity", 		  			"300", 		"How close a charger will approach before charging", FCVAR_NOTIFY, true, 0.0);	
-	g_hCvarAimOffsetSensitivity 		= CreateConVar("ai_charger_aim_offset_sensitivity", 	"22.5", 	"If the charger has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius", FCVAR_NOTIFY, true, 0.0, true, 179.0);
-	g_hCvarHealthThreshold 				= CreateConVar("ai_charger_health_threshold", 			"300", 		"Charger will charge if its health drops to this level", FCVAR_NOTIFY, true, 0.0);	
+	g_hChargerBhop 						= CreateConVar("AI_HardSI_Charger_bhop_enable",				"1",	 	"If 1, enable bhop facsimile on AI chargers", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hChargerM2 						= CreateConVar("AI_HardSI_Charger_bhop_m2", 				"1", 		"If 1, AI chargers scratch while doing bhop", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarChargeProximity 				= CreateConVar("AI_HardSI_Charger_proximity", 		  		"300", 		"How close a charger will approach before charging", FCVAR_NOTIFY, true, 0.0);	
+	g_hCvarAimOffsetSensitivity 		= CreateConVar("AI_HardSI_Charger_aim_offset_sensitivity", 	"22.5", 	"If the charger has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius", FCVAR_NOTIFY, true, 0.0, true, 179.0);
+	g_hCvarHealthThreshold 				= CreateConVar("AI_HardSI_Charger_health_threshold", 		"300", 		"Charger will charge if its health drops to this level", FCVAR_NOTIFY, true, 0.0);	
 
 	g_hChargeMaxSpeed =			FindConVar("z_charge_max_speed");
 	g_hChargeStartSpeed =		FindConVar("z_charge_start_speed");
@@ -31,6 +33,7 @@ void Charger_OnModuleStart() {
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);
 	g_hChargerBhop.AddChangeHook(CvarChanged);
+	g_hChargerM2.AddChangeHook(CvarChanged);
 	g_hCvarChargeProximity.AddChangeHook(CvarChanged);
 	g_hCvarAimOffsetSensitivity.AddChangeHook(CvarChanged);
 	g_hCvarHealthThreshold.AddChangeHook(CvarChanged);
@@ -71,6 +74,7 @@ static void GetCvars()
 {
 	g_bCvarEnable = g_hCvarEnable.BoolValue;
 	g_bChargerBhop = g_hChargerBhop.BoolValue;
+	g_bChargerM2 = g_hChargerM2.BoolValue;
 	g_iCvarChargeProximity = g_hCvarChargeProximity.IntValue;
 	g_fCvarAimOffsetSensitivity = g_hCvarAimOffsetSensitivity.FloatValue;
 	g_iCvarHealthThreshold = g_hCvarHealthThreshold.IntValue;
@@ -147,7 +151,7 @@ stock Action Charger_OnPlayerRunCmd(int charger, int &buttons) {
 
 		if (CurTargetDistance(charger) > 100.0 && -1.0 < nearestSurDist < 1500) {
 			GetClientEyeAngles(charger, vAng);
-			buttons |= IN_ATTACK2;
+			if(g_bChargerM2) buttons |= IN_ATTACK2;
 			return BunnyHop(charger, buttons, vAng);
 		}
 	}
@@ -315,7 +319,7 @@ static void ChargePrediction(int charger, int survivor) {
 }
 
 static bool CanCharge(int client) {
-	if (GetEntPropEnt(client, Prop_Send, "m_pummelVictim") > 0 || GetEntPropEnt(client, Prop_Send, "m_carryVictim") > 0)
+	if (GetEntPropEnt(client, Prop_Send, "m_pummelVictim") > 0 || L4D2_GetQueuedPummelVictim(client) > 0 || GetEntPropEnt(client, Prop_Send, "m_carryVictim") > 0)
 		return false;
 
 	static int ent;
@@ -421,6 +425,7 @@ static int GetClosestSur(int client, float range, int exclude = -1) {
 
 // left4dhooks api------------------
 
+/*
 #if FIXFLY
 	// 避免charger仰角携带玩家冲出地图外 (from umlka AI_HardSI/ai_charger.sp)
 	public void L4D2_OnStartCarryingVictim_Post(int victim, int attacker) {
@@ -454,7 +459,40 @@ static int GetClosestSur(int client, float range, int exclude = -1) {
 
 		float vVel[3];
 		GetEntPropVector(attacker, Prop_Data, "m_vecVelocity", vVel);
+		float vel = GetVectorLength(vVel);
+		#if DEBUG
+			if (vel > g_fFallSpeedFatal && GetDistanceToRoof(attacker) > 250.0) {
+				vVel[0] = vVel[1] = 0.0;
+				vVel[2] = vel;
+			}
+			else if (vVel[2] > 0.0){
+				vVel[2] = 0.0;
+				NormalizeVector(vVel, vVel);
+				ScaleVector(vVel, vel);
+			}
+			#else
+			if (vVel[2] <= 0.0)
+				return;
+
+			vVel[2] = 0.0;
+			NormalizeVector(vVel, vVel);
+			ScaleVector(vVel, vel);
+		#endif
 
 		TeleportEntity(attacker, NULL_VECTOR, NULL_VECTOR, vVel);
 	}
 #endif
+*/
+/*
+//如果charger抓住人類墬樓，則會放開　(from umlka AI_HardSI/ai_charger.sp)
+public void L4D_OnFalling(int client) {
+	if (!IsFakeClient(client) || GetClientTeam(client) != 3 || !IsPlayerAlive(client) || GetEntProp(client, Prop_Send, "m_zombieClass") != 6)
+		return;
+
+	int victim = GetEntPropEnt(client, Prop_Send, "m_carryVictim");
+	if (IsAliveSur(victim)) {
+		L4D2_Charger_EndPummel(victim, client);
+		SetEntityMoveType(client, MOVETYPE_WALK);
+		SetEntityMoveType(victim, MOVETYPE_WALK);
+	}
+}*/

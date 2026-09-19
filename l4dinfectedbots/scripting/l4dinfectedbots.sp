@@ -5100,12 +5100,13 @@ void ResetTimer()
 }
 
 // prevent infecetd fall damage on coop
-Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damageType)
+// 在戰役模式中Boomer墬樓會死亡 victim: boomer, attacker: boomer, inflictor: boomer, damage: 100.00, damagetype: DMG_FALL, weapon: -1
+Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(g_bCvarAllow == false || L4D_HasPlayerControlledZombies() || victim <= 0 || victim > MaxClients || !IsClientInGame(victim) || IsFakeClient(victim)) return Plugin_Continue;
-	if(attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) ) return Plugin_Continue;
 
-	if(attacker == victim && GetClientTeam(attacker) == TEAM_INFECTED && !IsPlayerTank(attacker))
+	if(attacker == victim && attacker == inflictor && GetClientTeam(attacker) == TEAM_INFECTED && !IsPlayerTank(attacker) && weapon == -1
+		&& damagetype & DMG_FALL)
 	{
 		return Plugin_Handled;
 	}

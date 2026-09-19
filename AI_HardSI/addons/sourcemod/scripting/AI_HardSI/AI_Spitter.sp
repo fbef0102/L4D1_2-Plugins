@@ -5,19 +5,23 @@
 
 static ConVar
 	g_hCvarEnable,
-	g_hSpitterBhop;
+	g_hSpitterBhop,
+	g_hSpitterM2;
 
 static bool
 	g_bCvarEnable,	
-	g_bSpitterBhop;
+	g_bSpitterBhop,
+	g_bSpitterM2;
 
 void Spitter_OnModuleStart() {
-	g_hCvarEnable 		= CreateConVar( "AI_HardSI_Spitter_enable",   "1",   "0=Improves the Spitter behaviour off, 1=Improves the Spitter behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSpitterBhop 		= CreateConVar( "ai_spitter_bhop", 			  "1", 	 "If 1, enable bhop facsimile on AI spitters", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarEnable 		= CreateConVar( "AI_HardSI_Spitter_enable",   				"1", "0=Improves the Spitter behaviour off, 1=Improves the Spitter behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSpitterBhop 		= CreateConVar( "AI_HardSI_Spitter_bhop_enable", 			"1", "If 1, enable bhop facsimile on AI spitters", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSpitterM2 		= CreateConVar(	"AI_HardSI_Spitter_bhop_m2", 				"1", "If 1, AI spitters scratch while doing bhop", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);
 	g_hSpitterBhop.AddChangeHook(CvarChanged);
+	g_hSpitterM2.AddChangeHook(CvarChanged);
 }
 
 static void _OnModuleStart()
@@ -50,6 +54,7 @@ static void CvarChanged(ConVar convar, const char[] oldValue, const char[] newVa
 static void GetCvars() {
 	g_bCvarEnable = g_hCvarEnable.BoolValue;
 	g_bSpitterBhop = g_hSpitterBhop.BoolValue;
+	g_bSpitterM2 = g_hSpitterM2.BoolValue;
 }
 
 stock Action Spitter_OnPlayerRunCmd(int client, int &buttons) {
@@ -68,7 +73,7 @@ stock Action Spitter_OnPlayerRunCmd(int client, int &buttons) {
 		if (150.0 < NearestSurDistance(client) < 1500.0) {
 			static float vAng[3];
 			GetClientEyeAngles(client, vAng);
-			buttons |= IN_ATTACK2;
+			if(g_bSpitterM2) buttons |= IN_ATTACK2;
 			return BunnyHop(client, buttons, vAng);
 		}
 	}

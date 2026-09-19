@@ -7,6 +7,9 @@ Improves the AI behaviour of special infected
     L4D2
     ```
 
+* Image | 圖示
+	<br/>![AI_HardSI_1](image/AI_HardSI_1.gif)
+
 * <details><summary>How does it work?</summary>
 
     * Improves the AI behaviour of special infected, make each of them very aggresive
@@ -27,21 +30,21 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // If 1, bhop facsimile on AI tanks
-            ai_tank_bhop "1"
+            AI_HardSI_Tank_bhop_enable "1"
 
             // 1=AI tanks throw rock
             // 0=AI tanks won't throw rocks
-            ai_tank_rock "1"
+            AI_HardSI_Tank_rock "1"
 
             // If 1, Prevents AI tanks from throwing underhand rocks (L4D2 only)
             // If 1, AI tank can quickly turn around if someone behind him after throws
-            ai_tank_smart_throw "1"
+            AI_HardSI_Tank_smart_throw "1"
 
             // If the AI Tank has a target while throwing the rock, the rock would fly to the closest survivor if the target's aim on the horizontal axis is within this radius (-1=Off)
-            ai_tank_smart_rock_offset_sensitivity "22.5"
+            AI_HardSI_Tank_smart_rock_offset_sensitivity "22.5"
 
             // AI Tank rock flies at the closest survivor within this range
-            ai_tank_smart_rock_range "1200.0"
+            AI_HardSI_Tank_smart_rock_range "1200.0"
             ```
     </details>
 
@@ -72,7 +75,16 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // If 1, enable bhop facsimile on AI boomers
-            ai_boomer_bhop "1"
+            AI_HardSI_Boomer_bhop_enable "1"
+
+            // If 1, AI boomers scratch while doing bhop
+            AI_HardSI_Boomer_bhop_m2 "1"
+
+            // If 1, AI boomers try to vomit on multi survivors instead of only one target
+            AI_HardSI_Boomer_multi_vomit "1"
+
+            // If 1, AI boomers no longer explode from fall damage on coop/realism/survival mode
+            AI_HardSI_Boomer_prevent_fall "1"
             ```
     </details>
 
@@ -102,28 +114,28 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // At what distance to start pouncing fast
-            ai_hunter_fast_pounce_proximity 1000
+            AI_HardSI_Hunter_fast_pounce_proximity 1000
 
             // Vertical angle to which AI hunter pounces will be restricted
-            ai_hunter_pounce_vertical_angle 7
+            AI_HardSI_Hunter_pounce_vertical_angle 7
 
             // Mean angle produced by Gaussian RNG
-            ai_hunter_pounce_angle_mean 10
+            AI_HardSI_Hunter_pounce_angle_mean 10
 
             // One standard deviation from mean as produced by Gaussian RNG
-            ai_hunter_pounce_angle_std 20
+            AI_HardSI_Hunter_pounce_angle_std 20
 
             // Distance to nearest survivor at which hunter will consider pouncing straight
-            ai_hunter_straight_pounce_proximity 200
+            AI_HardSI_Hunter_straight_pounce_proximity 200
 
             // If the hunter has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius
-            ai_hunter_aim_offset_sensitivity 30
+            AI_HardSI_Hunter_aim_offset_sensitivity 30
 
             // How far in front of himself infected bot will check for a wall. Use '-1' to disable feature
-            ai_hunter_wall_detection_distance -1
+            AI_HardSI_Hunter_wall_detection_distance -1
 
             // If 1, Hunter do scratch animation when pouncing
-            ai_hunter_pounce_dancing_enable "1"
+            AI_HardSI_Hunter_pounce_dancing_enable "1"
             ```
     </details>
 
@@ -132,7 +144,10 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // If 1, enable bhop facsimile on AI spitters
-            ai_spitter_bhop "1"
+            AI_HardSI_Spitter_bhop_enable "1"
+
+            // If 1, AI spitters scratch while doing bhop
+            AI_HardSI_Spitter_bhop_m2 "1"
             ```
     </details>
 
@@ -146,8 +161,11 @@ Improves the AI behaviour of special infected
 
         * Plugin ConVar
             ```php
+            // If 1, AI jockeys scratch while doing hopping
+            AI_HardSI_Jockey_m2 "1"
+
             // How close a jockey will approach before it starts hopping
-            ai_jockey_hop_activation_proximity 500
+            AI_HardSI_Jockey_hop_activation_proximity 500
             ```
     </details>
 
@@ -156,16 +174,19 @@ Improves the AI behaviour of special infected
         * Plugin ConVar
             ```php
             // If 1, enable bhop facsimile on AI chargers
-            ai_charger_bhop "1"
+            AI_HardSI_Charger_bhop_enable "1"
+
+            // If 1, enable bhop facsimile on AI chargers
+            AI_HardSI_Charger_bhop_m2 "1"
 
             // How close a charger will approach before charging
-            ai_charger_proximity 300
+            AI_HardSI_Charger_proximity 300
 
             // If the charger has a target, it will not straight pounce if the target's aim on the horizontal axis is within this radius
-            ai_charger_aim_offset_sensitivity 22.5
+            AI_HardSI_Charger_aim_offset_sensitivity 22.5
 
             // Charger will charge if its health drops to this level
-            ai_charger_health_threshold 300
+            AI_HardSI_Charger_health_threshold 300
             ```
     </details>
 
@@ -209,8 +230,8 @@ Improves the AI behaviour of special infected
         // 0=Plugin off, 1=Plugin on.
         AI_HardSI_enable "1"
 
-        // Frequency(sec) at which the 'nb_assault' command is fired to make AI S.I. attack instead of ambush (0=off)
-        ai_assault_reminder_interval "2"
+        // (L4D2) Frequency(sec) at which the 'nb_assault' command is fired to make AI S.I. attack instead of ambush (0=off)
+        AI_HardSI_assault_reminder_interval "2"
 
         // File to execute for AI aggressive cvars (in cfg/AI_HardSI folder)
         // Execute file every map changed
@@ -249,6 +270,9 @@ Improves the AI behaviour of special infected
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.6 (2026-9-19)
+        * Update cvars
 
     * v2.5 (2025-8-31)
         * Support L4D1
@@ -321,22 +345,22 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 為1時，AI Tank會連跳
-            ai_tank_bhop "1"
+            AI_HardSI_Tank_bhop_enable "1"
 
             // 1=AI tanks會丟石頭
             // 0=AI tanks不丟石頭
-            ai_tank_rock "1"
+            AI_HardSI_Tank_rock "1"
 
             // (L4D2) 為1時，AI Tank不會丟"低手投擲"石頭 (因為瞄準率0%)
             // 為1時，AI Tank丟完石頭之後馬上轉身打背後的倖存者
-            ai_tank_smart_throw "1"
+            AI_HardSI_Tank_smart_throw "1"
 
             // 當AI Tank正在丟石頭時，如果目標不在此數值的視野角度範圍內，石頭改變目標轉向至距離最近的倖存者 (-1=關閉這項功能)
             // 請填0~180, 視野角度
-            ai_tank_smart_rock_offset_sensitivity "22.5"
+            AI_HardSI_Tank_smart_rock_offset_sensitivity "22.5"
 
             // AI Tank石頭轉向至此距離最近的倖存者 (距離內沒有倖存者則石頭不會改變目標轉向)
-            ai_tank_smart_rock_range "1200.0"
+            AI_HardSI_Tank_smart_rock_range "1200.0"
             ```
     </details>
 
@@ -366,7 +390,16 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 為1時，AI Boomer會連跳
-            ai_boomer_bhop "1"
+            AI_HardSI_Boomer_bhop_enable "1"
+
+            // 為1時，AI Boomer會一邊連跳一邊使用右鍵爪子
+            AI_HardSI_Boomer_bhop_m2 "1"
+
+            // 為1時，AI Boomer會嘗試嘔吐多個倖存者而非每次都只噴一位
+            AI_HardSI_Boomer_multi_vomit "1"
+
+            // 為1時，AI Boomer不會受到墬樓傷害倒地死亡爆炸 (戰役/寫實/生存 模式)
+            AI_HardSI_Boomer_prevent_fall "1"
             ```
     </details>
 
@@ -395,26 +428,26 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 強迫AI Hunter在1000公尺範圍內蹲下準備撲人
-            ai_hunter_fast_pounce_proximity 1000
+            AI_HardSI_Hunter_fast_pounce_proximity 1000
 
             // 強迫AI Hunter跳躍的最大傾角 (避免飛過頭或飛太高)
-            ai_hunter_pounce_vertical_angle 7
+            AI_HardSI_Hunter_pounce_vertical_angle 7
 
             // 強制左右飛撲靠近目標，不要垂直飛向目標
-            ai_hunter_pounce_angle_mean 10
-            ai_hunter_pounce_angle_std 20
+            AI_HardSI_Hunter_pounce_angle_mean 10
+            AI_HardSI_Hunter_pounce_angle_std 20
 
             // 離目標200公尺範圍內考慮直接垂直飛向目標
-            ai_hunter_straight_pounce_proximity 200
+            AI_HardSI_Hunter_straight_pounce_proximity 200
 
             // 目標倖存者的準心如果在瞄自身AI Hunter的身體低於30度視野範圍內則強制飛撲
-            ai_hunter_aim_offset_sensitivity 30
+            AI_HardSI_Hunter_aim_offset_sensitivity 30
 
             // 前面有牆壁的範圍內則飛撲的角度會變高，嘗試越過障礙物 (-1: 無限範圍)
-            ai_hunter_wall_detection_distance -1
+            AI_HardSI_Hunter_wall_detection_distance -1
 
             // 為1時，Hunter邊飛撲邊嘗試做出抓傷動作
-            ai_hunter_pounce_dancing_enable "1"
+            AI_HardSI_Hunter_pounce_dancing_enable "1"
             ```
     </details>
 
@@ -423,7 +456,10 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 為1時，AI Spitter會連跳
-            ai_spitter_bhop "1"
+            AI_HardSI_Spitter_bhop_enable "1"
+
+            // 為1時，AI Spitter會一邊跳一邊使用右鍵爪子
+            AI_HardSI_Spitter_bhop_m2 "1"
             ```
     </details>
 
@@ -437,8 +473,11 @@ Improves the AI behaviour of special infected
 
         * 插件自帶的指令
             ```php
+            // 為1時，AI Jockey會一邊跳一邊使用右鍵爪子
+            AI_HardSI_Jockey_m2 "1"
+
             // 強迫AI Jockey在500公尺範圍內開始連跳
-            ai_jockey_hop_activation_proximity 500
+            AI_HardSI_Jockey_hop_activation_proximity 500
             ```
     </details>
 
@@ -447,16 +486,19 @@ Improves the AI behaviour of special infected
         * 插件自帶的指令
             ```php
             // 為1時，AI Charger會連跳
-            ai_charger_bhop "1"
+            AI_HardSI_Charger_bhop_enable "1"
+
+            // 為1時，AI Charger會一邊連跳一邊使用右鍵爪子
+            AI_HardSI_Charger_bhop_m2 "1"
 
             // 強迫AI Charger在300公尺範圍內開始衝刺
-            ai_charger_proximity 300
+            AI_HardSI_Charger_proximity 300
 
             // 目標倖存者的準心如果在瞄自身AI Charger的身體低於20度視野範圍內則強制衝刺
-            ai_charger_aim_offset_sensitivity 22.5
+            AI_HardSI_Charger_aim_offset_sensitivity 22.5
 
             // 當Charger低於300血量時，強迫AI Charger開始衝刺
-            ai_charger_health_threshold 300
+            AI_HardSI_Charger_health_threshold 300
             ```
     </details>
 
@@ -474,8 +516,8 @@ Improves the AI behaviour of special infected
         // 0=關閉插件, 1=啟動插件
         AI_HardSI_enable "1"
 
-        // 每兩秒執行 nb_assault 命令，強迫所有特感Bots主動往前攻擊倖存者而非原地埋伏 (0=關閉這項功能)
-        ai_assault_reminder_interval "2"
+        // (L4D2) 每兩秒執行 nb_assault 命令，強迫所有特感Bots主動往前攻擊倖存者而非原地埋伏 (0=關閉這項功能)
+        AI_HardSI_assault_reminder_interval "2"
 
         // 修改官方指令強化AI智商的文件 (位於 cfg/AI_HardSI 資料夾)
         // 每次換圖都會執行一次

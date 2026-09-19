@@ -8,8 +8,8 @@ enum Angle_Vector {
 
 static ConVar g_hJockeyLeapRange;
 static float g_fJockeyLeapRange;
-static ConVar g_hCvarEnable, g_hCvarHopActivationProximity; 
-static bool g_bCvarEnable;
+static ConVar g_hCvarEnable, g_hJockeyM2, g_hCvarHopActivationProximity; 
+static bool g_bCvarEnable, g_bJockeyM2;
 static int g_iCvarHopActivationProximity;
 
 static bool 
@@ -21,13 +21,15 @@ void Jockey_OnModuleStart()
 	GetOfficialCvars();
 	g_hJockeyLeapRange.AddChangeHook(OnJockeyCvarChange);
 
-	g_hCvarEnable 		= CreateConVar( "AI_HardSI_Jockey_enable",   "1",   "0=Improves the Jockey behaviour off, 1=Improves the Jockey behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarEnable 					= CreateConVar( "AI_HardSI_Jockey_enable",   				"1",   	"0=Improves the Jockey behaviour off, 1=Improves the Jockey behaviour on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hJockeyM2 					= CreateConVar(	"AI_HardSI_Jockey_m2", 						"1", 	"If 1, AI jockeys scratch while doing hopping", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
-	g_hCvarHopActivationProximity = CreateConVar("ai_jockey_hop_activation_proximity", "500", "How close a jockey will approach before it starts hopping", FCVAR_NOTIFY, true, 0.0);
+	g_hCvarHopActivationProximity 	= CreateConVar(	"AI_HardSI_Jockey_hop_activation_proximity", "500", "How close a jockey will approach before it starts hopping", FCVAR_NOTIFY, true, 0.0);
 
 
 	GetCvars();
 	g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);
+	g_hJockeyM2.AddChangeHook(ConVarChanged_EnableCvars);
 	g_hCvarHopActivationProximity.AddChangeHook(CvarChanged);
 
 	if(g_bCvarEnable) _OnModuleStart();
@@ -74,6 +76,7 @@ static void CvarChanged(ConVar hCvar, const char[] sOldVal, const char[] sNewVal
 static void GetCvars()
 {
 	g_bCvarEnable = g_hCvarEnable.BoolValue;
+	g_bJockeyM2 = g_hJockeyM2.BoolValue;
 	g_iCvarHopActivationProximity = g_hCvarHopActivationProximity.IntValue;
 }
 
@@ -105,7 +108,7 @@ stock Action Jockey_OnPlayerRunCmd(int jockey, int &buttons)
 		{
 			buttons &= ~IN_JUMP;
 			buttons &= ~IN_ATTACK;
-			buttons |= IN_ATTACK2;
+			if(g_bJockeyM2) buttons |= IN_ATTACK2;
 		}
 
 		if (g_bDoNormalJump[jockey]) {
