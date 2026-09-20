@@ -15,10 +15,11 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
     * Provides a set of APIs which allows other plugins to access the third-party mission/map list
         * e.g. which map comes after the current one. Coop, versus, scavenge and survival modes are currently supported.
-        * For better description, read [this](https://github.com/rikka0w0/l4d2_mission_manager#function-description)
     * Install only when other plugin requires this plugin
     * It requires some time to initialize map list at first time server launch. (20 - 60 sec, and < 2 sec. next times)
     * The plugin would auto-generate mission file in left4dead2\missions.cache folder
+        * This folder is auto-created
+        * Those text files are packed inside VPK files (official maps and custom maps) and mapped to an in-game filesystem by the Source engine.
 </details>
 
 * Require | 必要安裝
@@ -34,6 +35,14 @@ Mission manager for L4D2, provide information about map orders for other plugins
         * Solution 1: The problem lies entirely with the map. Please contact or complain to the map author.
         * Solution 2: Try reading the error messages and manually editing the map’s mission file in left4dead2\missions.cache\, then save it. Repeat until no errors are reported.
         * Solution 3: 🟥 This error report does not affect the server in any way and can be safely ignored.
+    </details>
+
+    2. <details><summary>How to add map name translation phrase?</summary>
+
+		* [translations/maps_displayname.phrases.txt](addons/sourcemod/translations/maps_displayname.phrases.txt): Translate "mission"->"modes"->...->"DisplayName" in mission file
+		* [translations/maps_map.phrases.txt](addons/sourcemod/translations/maps_map.phrases.txt): Translate "mission"->"modes"->...->"Map" in mission file
+		* [translations/missions_displaytitle.phrases.txt](addons/sourcemod/translations/missions_displaytitle.phrases.txt): Translate "mission"->"DisplayTitle" in mission file
+		* [translations/missions_name.phrases.txt](addons/sourcemod/translations/missions_name.phrases.txt): Translate "mission"->"Name" in mission file
     </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -81,6 +90,10 @@ Mission manager for L4D2, provide information about map orders for other plugins
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.0h (2026-9-20)
+        * Optimize code
+        * Update API
 
     * v1.9h (2026-7-23)
         * Support L4D1
@@ -136,8 +149,9 @@ Mission manager for L4D2, provide information about map orders for other plugins
 地圖管理器，提供給其他插件做依賴與API串接
 
 * 原理
-    * 能自動抓取官方圖與三方圖所有的地圖名與關卡名，掃描資料夾missions與maps並複製其內容到mission.cache資料夾裡
+    * 能自動抓取官方圖與三方圖所有的地圖名與關卡名，並複製其內容到```mission.cache```資料夾裡
         * mission.cache 是插件創立的資料夾，伺服器本身並沒有這個資料夾
+        * 此資料夾內出現的文件都是官方地圖或是三方地圖的資訊 (這些文件只封裝於.vpk檔案內)
     * 這插件只是一個輔助插件，等其他插件真需要的時候再安裝
         * 🟥白話點說，你不是源碼開發者也沒有插件需要依賴這個插件就不要亂裝
 
@@ -156,6 +170,14 @@ Mission manager for L4D2, provide information about map orders for other plugins
         * 解決方式法一：所以鍋都是地圖問題，請去跟地圖作者抱怨
         * 解決方式法一：嘗試閱讀錯誤並修改left4dead2\missions.cache\ 的地圖mission文件然後儲存，直到沒有錯誤報告為止
         * 解決方式法三：🟥這份錯誤報告不會對伺服器產生任何影響，可以選擇忽略
+    </details>
+
+    2. <details><summary>如何新增地圖名稱的翻譯?</summary>
+
+		* [translations/maps_displayname.phrases.txt](addons/sourcemod/translations/maps_displayname.phrases.txt): 翻譯地圖mission文件內的"mission"->"modes"->...->"DisplayName"，此為關卡顯示名
+		* [translations/maps_map.phrases.txt](addons/sourcemod/translations/maps_map.phrases.txt): 翻譯地圖mission文件內的"mission"->"modes"->...->"Map"，此為關卡代碼
+		* [translations/missions_displaytitle.phrases.txt](addons/sourcemod/translations/missions_displaytitle.phrases.txt): 翻譯地圖mission文件內的"mission"->"DisplayTitle"，此為地圖海報標題
+		* [translations/missions_name.phrases.txt](addons/sourcemod/translations/missions_name.phrases.txt): 翻譯地圖mission文件內的"mission"->"Name"，此為地圖名稱
     </details>
         
 * <details><summary>指令中文介紹 (點我展開)</summary>

@@ -11,129 +11,10 @@ public Plugin myinfo = {
 	name = "[L4D1/2] Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v1.9h - 2026/7/23",
+	version = "v2.0h - 2026/9/20",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
-ConVar
-	g_hCvarLogFile;
-
-bool 
-	g_bCvarLogFile;
-
-ConVar mp_gamemode;
-char g_sFile[128];
-StringMap g_hMissionsMap;
-
-Localizer loc;
-public void OnPluginStart()
-{
-	loc = new Localizer(LC_INSTALL_MODE_FULLCACHE); 
-	mp_gamemode = FindConVar("mp_gamemode");
-
-	g_hCvarLogFile 	= CreateConVar( "l4d2_mission_manager_log_message",        "1",   "If 1, write error message in logs/l4d2_mission_manager.log when parsing mission files", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	AutoExecConfig(true,            "l4d2_mission_manager");
-	
-	GetCvars();
-	g_hCvarLogFile.AddChangeHook(ConVarChanged_Cvars);
-
-	BuildPath(Path_SM, g_sFile, PLATFORM_MAX_PATH, "/logs/l4d2_mission_manager.log");
-	g_hMissionsMap = new StringMap();
-
-	CacheMissions();
-	LMM_InitLists();
-	ParseMissions();
-	LoadTranslations("maps_displayname.phrases");
-	LoadTranslations("maps_map.phrases");
-	LoadTranslations("missions_name.phrases");
-	LoadTranslations("missions_displaytitle.phrases");
-
-	FireEvent_OnLMMUpdateList();
-		
-	RegAdminCmd("sm_lmm_list", Command_List, ADMFLAG_ROOT, "Usage: sm_lmm_list [<coop|versus|scavenge|survival|invalid>]");
-}
-
-public void OnPluginEnd() {
-	LMM_FreeLists();
-	delete g_hMissionsMap;
-}
-
-void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
-{
-	GetCvars();
-}
-
-void GetCvars()
-{
-    g_bCvarLogFile = g_hCvarLogFile.BoolValue;
-}
-
-Action Command_List(int iClient, int args) {
-	if (args < 1) {
-		for (int i=0; i<4; i++) {
-			LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(i);
-			DumpMissionInfo(iClient, gamemode);
-		}
-	} else {
-		char gamemodeName[LEN_GAMEMODE_NAME];
-		GetCmdArg(1, gamemodeName, sizeof(gamemodeName));
-		
-		if (StrEqual("invalid", gamemodeName, false)) {
-			int missionCount = LMM_GetNumberOfInvalidMissions();
-			ReplyToCommand(iClient, "Invalid missions (count:%d):", missionCount);
-			for (int iMission=0; iMission<missionCount; iMission++) {
-				char missionName[LEN_MISSION_NAME];
-				LMM_GetInvalidMissionName(iMission, missionName, sizeof(missionName));
-				ReplyToCommand(iClient, ", %s", missionName);
-			}
-		} else {
-			LMM_GAMEMODE gamemode = LMM_StringToGamemode(gamemodeName);
-			if(gamemode == LMM_GAMEMODE_UNKNOWN) return Plugin_Handled;
-			
-			DumpMissionInfo(iClient, gamemode);
-		}
-	}
-	return Plugin_Handled;
-}
-
-void DumpMissionInfo(int client, LMM_GAMEMODE gamemode) {
-	char gamemodeName[LEN_GAMEMODE_NAME];
-	LMM_GamemodeToString(gamemode, gamemodeName, sizeof(gamemodeName));
-
-	int missionCount = LMM_GetNumberOfMissions(gamemode);
-	char missionName[LEN_MISSION_NAME];
-	char mapName[LEN_MAP_FILENAME];
-	char localizedName[LEN_LOCALIZED_NAME];
-	
-	ReplyToCommand(client, "--GAMEMODE = %s (%d MISSIONS)--", gamemodeName, missionCount);
-
-	for (int iMission=0; iMission<missionCount; iMission++) {
-		LMM_GetMissionName(gamemode, iMission, missionName, sizeof(missionName));
-		int mapCount = LMM_GetNumberOfMaps(gamemode, iMission);
-		if (LMM_GetMissionLocalizedName(gamemode, iMission, localizedName, sizeof(localizedName), LANG_SERVER) > 0) {
-			ReplyToCommand(client, "%d. %s <%s> %d maps", iMission+1, missionName, localizedName, mapCount);
-		} else {
-			ReplyToCommand(client, "%d. !! <%s> (%d maps)", iMission+1, missionName, mapCount);
-		}
-		
-		for (int iMap=0; iMap<mapCount; iMap++) {
-			LMM_GetMapName(gamemode, iMission, iMap, mapName, sizeof(mapName));
-			if (LMM_GetMapLocalizedName(gamemode, iMission, iMap, localizedName, sizeof(localizedName), LANG_SERVER) > 0) {
-				ReplyToCommand(client, "> %d. %s <%s>", iMap+1, localizedName, mapName);
-			} else {
-				ReplyToCommand(client, "> %d. !! <%s>", iMap+1, mapName);
-			}
-		}
-	}
-	if(client > 0) ReplyToCommand(client, "-------------------");
-}
-
-
-int Native_IsOnFinalMap(Handle plugin, int numParams){
-  return L4D_IsMissionFinalMap(true);
-}
-
-/* ========== Register Native APIs ========== */
 Handle g_hForward_OnLMMUpdateList;
 bool g_bL4D2Version;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -194,6 +75,185 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	return APLRes_Success;
 }
+
+ConVar
+	g_hCvarLogFile;
+
+bool 
+	g_bCvarLogFile;
+
+ConVar mp_gamemode;
+
+char 
+	g_sFile[128];
+
+StringMap 
+	g_smValidMissionsFiles,
+	g_hMapStamp,
+	g_smTrashOfficialFileName;
+
+ArrayList
+	g_aL4DOfficialFileNameList;
+
+Localizer loc;
+public void OnPluginStart()
+{
+	LoadTranslations("maps_displayname.phrases");
+	LoadTranslations("maps_map.phrases");
+	LoadTranslations("missions_name.phrases");
+	LoadTranslations("missions_displaytitle.phrases");
+
+	loc = new Localizer(LC_INSTALL_MODE_FULLCACHE); 
+	mp_gamemode = FindConVar("mp_gamemode");
+
+	g_hCvarLogFile 	= CreateConVar( "l4d2_mission_manager_log_message",        "1",   "If 1, write error message in logs/l4d2_mission_manager.log when parsing mission files", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	AutoExecConfig(true,            "l4d2_mission_manager");
+	
+	GetCvars();
+	g_hCvarLogFile.AddChangeHook(ConVarChanged_Cvars);
+		
+	RegAdminCmd("sm_lmm_list", Command_List, ADMFLAG_ROOT, "Usage: sm_lmm_list [<coop|versus|scavenge|survival|invalid>]");
+
+
+	BuildPath(Path_SM, g_sFile, PLATFORM_MAX_PATH, "/logs/l4d2_mission_manager.log");
+	
+	g_hMapStamp = new StringMap();
+	g_aL4DOfficialFileNameList = new ArrayList(LEN_MISSION_FILENAME);
+	g_smTrashOfficialFileName = new StringMap();
+	if(g_bL4D2Version)
+	{
+		g_aL4DOfficialFileNameList.PushString("campaign1.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign2.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign3.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign4.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign5.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign6.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign7.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign8.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign9.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign10.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign11.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign12.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign13.txt");
+		g_aL4DOfficialFileNameList.PushString("campaign14.txt");
+
+		g_smTrashOfficialFileName.SetValue("holdoutchallenge.txt", true);
+		g_smTrashOfficialFileName.SetValue("holdouttraining.txt", true);
+		g_smTrashOfficialFileName.SetValue("parishdash.txt", true);
+		g_smTrashOfficialFileName.SetValue("shootzones.txt", true);
+		g_smTrashOfficialFileName.SetValue("credits.txt", true);
+	}
+	else 
+	{
+		g_aL4DOfficialFileNameList.PushString("hospital.txt");
+		g_aL4DOfficialFileNameList.PushString("garage.txt");
+		g_aL4DOfficialFileNameList.PushString("smalltown.txt");
+		g_aL4DOfficialFileNameList.PushString("airport.txt");
+		g_aL4DOfficialFileNameList.PushString("farm.txt");
+		g_aL4DOfficialFileNameList.PushString("river.txt");
+		g_aL4DOfficialFileNameList.PushString("lighthouse.txt");
+
+		g_smTrashOfficialFileName.SetValue("credits.txt", true);
+	}
+
+	RegisterAddonMaps();
+	LMM_InitLists();
+	CacheMissions();
+	ParseMissions();
+	FireEvent_OnLMMUpdateList();
+}
+
+public void OnPluginEnd() {
+	LMM_FreeLists();
+}
+
+void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+{
+	GetCvars();
+}
+
+void GetCvars()
+{
+    g_bCvarLogFile = g_hCvarLogFile.BoolValue;
+}
+
+public void OnMapStart()
+{
+	if( IsAddonChanged() )
+	{
+		LMM_InitLists();
+		CacheMissions();
+		ParseMissions();
+		FireEvent_OnLMMUpdateList();
+	}
+}
+
+Action Command_List(int iClient, int args) {
+	if (args < 1) {
+		for (int i=0; i<4; i++) {
+			LMM_GAMEMODE gamemode = view_as<LMM_GAMEMODE>(i);
+			DumpMissionInfo(iClient, gamemode);
+		}
+	} else {
+		char gamemodeName[LEN_GAMEMODE_NAME];
+		GetCmdArg(1, gamemodeName, sizeof(gamemodeName));
+		
+		if (StrEqual("invalid", gamemodeName, false)) {
+			int missionCount = LMM_GetNumberOfInvalidMissions();
+			ReplyToCommand(iClient, "Invalid missions (count:%d):", missionCount);
+			for (int iMission=0; iMission<missionCount; iMission++) {
+				char missionName[LEN_MISSION_NAME];
+				LMM_GetInvalidMissionName(iMission, missionName, sizeof(missionName));
+				ReplyToCommand(iClient, ", %s", missionName);
+			}
+		} else {
+			LMM_GAMEMODE gamemode = LMM_StringToGamemode(gamemodeName);
+			if(gamemode == LMM_GAMEMODE_UNKNOWN) return Plugin_Handled;
+			
+			DumpMissionInfo(iClient, gamemode);
+		}
+	}
+	return Plugin_Handled;
+}
+
+void DumpMissionInfo(int client, LMM_GAMEMODE gamemode) {
+	char gamemodeName[LEN_GAMEMODE_NAME];
+	LMM_GamemodeToString(gamemode, gamemodeName, sizeof(gamemodeName));
+
+	int missionCount = LMM_GetNumberOfMissions(gamemode);
+	char missionName[LEN_MISSION_NAME];
+	char mapName[LEN_MAP_NAME];
+	char localizedName[LEN_LOCALIZED_NAME];
+	
+	ReplyToCommand(client, "--GAMEMODE = %s (%d MISSIONS)--", gamemodeName, missionCount);
+
+	for (int iMission=0; iMission<missionCount; iMission++) {
+		LMM_GetMissionName(gamemode, iMission, missionName, sizeof(missionName));
+		int mapCount = LMM_GetNumberOfMaps(gamemode, iMission);
+		if (LMM_GetMissionLocalizedName(gamemode, iMission, localizedName, sizeof(localizedName), LANG_SERVER) > 0) {
+			ReplyToCommand(client, "%d. %s <%s> %d maps", iMission+1, missionName, localizedName, mapCount);
+		} else {
+			ReplyToCommand(client, "%d. !! <%s> (%d maps)", iMission+1, missionName, mapCount);
+		}
+		
+		for (int iMap=0; iMap<mapCount; iMap++) {
+			LMM_GetMapName(gamemode, iMission, iMap, mapName, sizeof(mapName));
+			if (LMM_GetMapLocalizedName(gamemode, iMission, iMap, localizedName, sizeof(localizedName), LANG_SERVER) > 0) {
+				ReplyToCommand(client, "> %d. %s <%s>", iMap+1, localizedName, mapName);
+			} else {
+				ReplyToCommand(client, "> %d. !! <%s>", iMap+1, mapName);
+			}
+		}
+	}
+	if(client > 0) ReplyToCommand(client, "-------------------");
+}
+
+
+int Native_IsOnFinalMap(Handle plugin, int numParams){
+  return L4D_IsMissionFinalMap(true);
+}
+
+/* ========== Register Native APIs ========== */
 
 void FireEvent_OnLMMUpdateList() {
 	Call_StartForward(g_hForward_OnLMMUpdateList);
@@ -494,31 +554,37 @@ ArrayList
 	g_hStr_Maps[COUNT_LMM_GAMEMODE],			// The value of nth element in g_hInt_CoopEntries is the offset of nth mission's first map 
 	g_hStr_MapDisplayNames[COUNT_LMM_GAMEMODE];
 
-void LMM_InitLists() {
+void LMM_InitLists() 
+{
 	delete g_hStr_InvalidMissionNames;
 	g_hStr_InvalidMissionNames = new ArrayList(LEN_MISSION_NAME);
+
+	delete g_smValidMissionsFiles;
+	g_smValidMissionsFiles = new StringMap();
 
 	for (int i=0; i<COUNT_LMM_GAMEMODE; i++) {
 		delete g_hStr_MissionNames[i];
 		g_hStr_MissionNames[i] = new ArrayList(LEN_MISSION_NAME);
 
 		delete g_hStr_MissionDisplayTitles[i];
-		g_hStr_MissionDisplayTitles[i] = new ArrayList(LEN_DISPLAYTITLE_NAME);
+		g_hStr_MissionDisplayTitles[i] = new ArrayList(LEN_MISSION_DISPLAYTITLE);
 
 		delete g_hInt_Entries[i];
 		g_hInt_Entries[i] = new ArrayList(1);
 		g_hInt_Entries[i].Push(0);
 
 		delete g_hStr_Maps[i];
-		g_hStr_Maps[i] = new ArrayList(LEN_MAP_FILENAME);
+		g_hStr_Maps[i] = new ArrayList(LEN_MAP_NAME);
 
 		delete g_hStr_MapDisplayNames[i];
 		g_hStr_MapDisplayNames[i] = new ArrayList(LEN_MAP_DISPLAYNAME);
 	}
 }
 
-void LMM_FreeLists() {
+void LMM_FreeLists() 
+{
 	delete g_hStr_InvalidMissionNames;
+	delete g_smValidMissionsFiles;
 
 	for (int i=0; i<COUNT_LMM_GAMEMODE; i++) {
 		delete g_hStr_MissionNames[i];
@@ -632,7 +698,7 @@ int Native_GetMissionDisplayTitle(Handle plugin, int numParams) {
 	if (missionDisplayTitleList == null)
 		return -1;
 	
-	char displayTitleName[LEN_DISPLAYTITLE_NAME];
+	char displayTitleName[LEN_MISSION_DISPLAYTITLE];
 	missionDisplayTitleList.GetString(missionIndex, displayTitleName, sizeof(displayTitleName));
 	
 	if (SetNativeString(3, displayTitleName, length, false) != SP_ERROR_NONE)
@@ -655,7 +721,7 @@ int Native_GetMissionLocalizedDisplayTitle(Handle plugin, int numParams) {
 	if (missionDisplayTitleList == null)
 		return -1;
 	
-	char displayTitleName[LEN_DISPLAYTITLE_NAME];
+	char displayTitleName[LEN_MISSION_DISPLAYTITLE];
 	missionDisplayTitleList.GetString(missionIndex, displayTitleName, sizeof(displayTitleName));
 	
 	char localizedName[LEN_LOCALIZED_NAME];
@@ -798,7 +864,7 @@ int Native_GetMapName(Handle plugin, int numParams) {
 	int mapIndexOffset = entryList.Get(missionIndex);
 	ArrayList mapList = LMM_GetMapList(gamemode);
 	
-	char mapName[LEN_MAP_FILENAME];
+	char mapName[LEN_MAP_NAME];
 	mapList.GetString(mapIndexOffset+mapIndex, mapName, sizeof(mapName));
 	
 	if (SetNativeString(4, mapName, length, false) != SP_ERROR_NONE)
@@ -853,7 +919,7 @@ int Native_GetMapLocalizedName(Handle plugin, int numParams) {
 	
 	
 	ArrayList mapList = LMM_GetMapList(gamemode);
-	char mapFileName[LEN_MAP_FILENAME];
+	char mapFileName[LEN_MAP_NAME];
 	int offset = entryList.Get(missionIndex);
 	mapList.GetString(offset + mapIndex, mapFileName, sizeof(mapFileName));
 	
@@ -1017,7 +1083,7 @@ enum
 
 LMM_GAMEMODE g_MissionParser_CurGameMode;
 char g_MissionParser_MissionName[LEN_MISSION_NAME],
-	g_MissionParser_DisplayTitle[LEN_DISPLAYTITLE_NAME];
+	g_MissionParser_DisplayTitle[LEN_MISSION_DISPLAYTITLE];
 int g_MissionParser_CurMapID;
 ArrayList 
 	g_aMissionParser_MapIndex,
@@ -1062,7 +1128,7 @@ SMCResult MissionParser_NewSection(SMCParser smc, const char[] name, bool opt_qu
 				delete g_aMissionParser_MapDisplayNameIndex;
 				delete g_aMissionParser_DisplayName;
 				g_aMissionParser_MapIndex = new ArrayList(1);
-				g_aMissionParser_MapName = new ArrayList(LEN_MAP_FILENAME);
+				g_aMissionParser_MapName = new ArrayList(LEN_MAP_NAME);
 				g_aMissionParser_MapDisplayNameIndex = new ArrayList(1);
 				g_aMissionParser_DisplayName = new ArrayList(LEN_MAP_DISPLAYNAME);
 
@@ -1112,7 +1178,7 @@ SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] v
 			}
 			else if (strcmp("DisplayTitle", key, false)==0) 
 			{
-				strcopy(g_MissionParser_DisplayTitle, LEN_DISPLAYTITLE_NAME, value);
+				strcopy(g_MissionParser_DisplayTitle, LEN_MISSION_DISPLAYTITLE, value);
 			}
 		}
 		case MPS_MAP: 
@@ -1120,7 +1186,7 @@ SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] v
 			if (strcmp("Map", key, false)==0) 
 			{
 				g_aMissionParser_MapIndex.Push(g_MissionParser_CurMapID);
-				char mapFileName[LEN_MAP_FILENAME];
+				char mapFileName[LEN_MAP_NAME];
 				String_ToLower(value, mapFileName, sizeof(mapFileName));
 				g_aMissionParser_MapName.PushString(mapFileName);
 				// PrintToServer("Map %d: %s", g_MissionParser_CurMapID, value);
@@ -1128,7 +1194,7 @@ SMCResult MissionParser_KeyValue(SMCParser smc, const char[] key, const char[] v
 			else if (strcmp("DisplayName", key, false)==0) 
 			{
 				g_aMissionParser_MapDisplayNameIndex.Push(g_MissionParser_CurMapID);
-				char mapDisplayName[LEN_MAP_FILENAME];
+				char mapDisplayName[LEN_MAP_NAME];
 				FormatEx(mapDisplayName, LEN_MAP_DISPLAYNAME, value);
 				g_aMissionParser_DisplayName.PushString(mapDisplayName);
 			}
@@ -1154,7 +1220,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			g_MissionParser_State = MPS_MODES;
 			
 			int numOfValidMaps = 0;
-			char mapFile[LEN_MAP_FILENAME];
+			char mapFile[LEN_MAP_NAME];
 			int index, index2;
 			// Make sure that all map indexes are consecutive and start from 1
 			// And validate maps
@@ -1170,7 +1236,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 						if (g_hStr_InvalidMissionNames.FindString(g_MissionParser_MissionName) < 0) {
 							g_hStr_InvalidMissionNames.PushString(g_MissionParser_MissionName);
 						}
-						SaveMessage("Error! Mission %s contains invalid \"%s\" section (Does not have map #%d)", g_MissionParser_MissionName, gamemodeName, iMap);
+						SaveMessage("Error! Mission \"%s\" contains invalid \"%s\" section (Does not have map #%d)", g_MissionParser_MissionName, gamemodeName, iMap);
 					}
 					continue;
 					//return SMCParse_HaltFail;
@@ -1183,7 +1249,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 					if (g_hStr_InvalidMissionNames.FindString(g_MissionParser_MissionName) < 0) {
 						g_hStr_InvalidMissionNames.PushString(g_MissionParser_MissionName);
 					}
-					SaveMessage("Error! Mission %s contains invalid map: \"%s\", gamemode: \"%s\"", g_MissionParser_MissionName, mapFile, gamemodeName);
+					SaveMessage("Error! Mission \"%s\" contains invalid map: \"%s\", gamemode: \"%s\"", g_MissionParser_MissionName, mapFile, gamemodeName);
 					continue;
 					//return SMCParse_HaltFail;
 				}
@@ -1196,7 +1262,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 			if (numOfValidMaps < 1) {
 				char gamemodeName[LEN_GAMEMODE_NAME];
 				LMM_GamemodeToString(g_MissionParser_CurGameMode, gamemodeName, sizeof(gamemodeName));
-				SaveMessage("Error! Mission %s does not contain any valid map in gamemode: \"%s\"", g_MissionParser_MissionName, gamemodeName);
+				SaveMessage("Error! Mission \"%s\" has gamemode \"%s\" keyvalue but does not contain any valid map", g_MissionParser_MissionName, gamemodeName);
 				return SMCParse_Continue;
 			}
 
@@ -1221,7 +1287,7 @@ SMCResult MissionParser_EndSection(SMCParser smc) {
 				index2 = g_aMissionParser_MapDisplayNameIndex.FindValue(iMap);
 				if (index2 < 0)
 				{
-					SaveMessage("Error! Mission %s does not have key \"DisplayName\" in map #%d", g_MissionParser_MissionName, iMap);
+					SaveMessage("Error! Mission \"%s\" does not have key \"DisplayName\" in map #%d", g_MissionParser_MissionName, iMap);
 					mapDisplayNameList.PushString(mapFile);
 					continue;
 				}
@@ -1292,23 +1358,37 @@ void CacheMissions() {
 		
 		char missionFileName[PLATFORM_MAX_PATH];
 		FileType fileType;
-		while(dirList.GetNext(missionFileName, PLATFORM_MAX_PATH, fileType)) {
-			if (fileType == FileType_File &&
-			strcmp("credits.txt", missionFileName, false) != 0
-			) {
+		while(dirList.GetNext(missionFileName, PLATFORM_MAX_PATH, fileType)) 
+		{
+			if(g_smTrashOfficialFileName.ContainsKey(missionFileName)) continue;
+
+			if ( fileType == FileType_File) 
+			{
+				g_smValidMissionsFiles.SetValue(missionFileName, true);
+
+				if(!g_bL4D2Version)
+				{
+					if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1) continue;
+				}
+				
 				char missionSrc[PLATFORM_MAX_PATH];
 				char missionCache[PLATFORM_MAX_PATH];
 				missionSrc = "missions/";
 
 				Format(missionSrc, PLATFORM_MAX_PATH, "missions/%s", missionFileName);
 				Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
+
 				// PrintToServer("Cached mission file %s", missionFileName);
 				
-				if (!FileExists(missionCache, true, NULL_STRING)) {
-					CopyFile(missionSrc, missionCache);
+				//if (!FileExists(missionCache, true, NULL_STRING)) 
+				//{
+				if(g_bL4D2Version)
+				{
+					if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1) continue;
 				}
 
-				g_hMissionsMap.SetValue(missionFileName, true);
+				CopyFile(missionSrc, missionCache);
+				//}
 			}
 			
 		}
@@ -1317,7 +1397,8 @@ void CacheMissions() {
 	}
 }
 
-void ParseMissions() {
+void ParseMissions() 
+{
 	DirectoryListing dirList;
 	dirList = OpenDirectory("missions.cache", true, NULL_STRING);
 	
@@ -1334,7 +1415,7 @@ void ParseMissions() {
 		g_aMissionParser_MapIndex = new ArrayList(1);
 		
 		delete g_aMissionParser_MapName;
-		g_aMissionParser_MapName = new ArrayList(LEN_MAP_FILENAME);
+		g_aMissionParser_MapName = new ArrayList(LEN_MAP_NAME);
 
 		delete g_aMissionParser_MapDisplayNameIndex;
 		g_aMissionParser_MapDisplayNameIndex = new ArrayList(1);
@@ -1344,20 +1425,40 @@ void ParseMissions() {
 	
 		char missionCache[PLATFORM_MAX_PATH];
 		char missionFileName[PLATFORM_MAX_PATH];
+
+		for(int i = 0; i < g_aL4DOfficialFileNameList.Length; i++)
+		{
+			g_aL4DOfficialFileNameList.GetString(i, missionFileName, sizeof missionFileName);
+
+			if(!g_bL4D2Version) Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/l4d1_official/%s", missionFileName);
+			else Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
+
+			// Process the official mission file				
+			g_MissionParser_State = MPS_ROOT;
+			SMCError err = parser.ParseFile(missionCache);
+			if (err != SMCError_Okay) {
+				g_hStr_InvalidMissionNames.PushString(missionCache);
+				SaveMessage("An error occured while parsing \"%s\", code: %d", missionCache, err);
+			}
+		}
+
 		FileType fileType;
 		bool bTemp;
-		while(dirList.GetNext(missionFileName, PLATFORM_MAX_PATH, fileType)) {
-			if (fileType == FileType_File) {
-				if(g_hMissionsMap.GetValue(missionFileName, bTemp) == false) continue;
+		while(dirList.GetNext(missionFileName, PLATFORM_MAX_PATH, fileType)) 
+		{
+			if (fileType == FileType_File) 
+			{
+				if(g_smValidMissionsFiles.GetValue(missionFileName, bTemp) == false) continue;
+				if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1) continue;
 
 				Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
 				
-				// Process the mission file				
+				// Process the unofficial mission file				
 				g_MissionParser_State = MPS_ROOT;
 				SMCError err = parser.ParseFile(missionCache);
 				if (err != SMCError_Okay) {
 					g_hStr_InvalidMissionNames.PushString(missionCache);
-					SaveMessage("An error occured while parsing %s, code:%d", missionCache, err);
+					SaveMessage("An error occured while parsing \"%s\", code: %d", missionCache, err);
 				}
 			}
 		}
@@ -1420,4 +1521,97 @@ void SaveMessage(const char[] message, any ...)
 
 	WriteFileLine(fileHandle, DebugBuff);
 	delete fileHandle;
+}
+
+// if "addon" or "addons/workshop" folder has .vpk changed/added/removed.
+bool IsAddonChanged()
+{
+	char addonFile[PLATFORM_MAX_PATH];
+	FileType fileType;
+	int iLen, iStamp, iOldStamp;
+	DirectoryListing hDir;
+	bool bChanged;
+	char Paths[][] = {
+		"addons", "addons/workshop"
+	};
+	int newNumbers = 0;
+	for( int i = 0; i < sizeof(Paths); i++ )
+	{
+		hDir = OpenDirectory(Paths[i], false);
+		if( hDir )
+		{
+			while( hDir.GetNext(addonFile, PLATFORM_MAX_PATH, fileType) )
+			{
+				if( fileType == FileType_File )
+				{
+					iLen = strlen(addonFile);
+					
+					if( iLen >= 4 && strcmp(addonFile[iLen - 4], ".vpk") == 0 )
+					{
+						newNumbers ++;
+						Format(addonFile, sizeof(addonFile), "%s/%s", Paths[i], addonFile);
+						iStamp = GetFileTime(addonFile, FileTime_Created);
+						
+						//LogError("%s-%d-%d", addonFile, iStamp, iOldStamp);
+						// 新增 || 修改
+						if( !g_hMapStamp.GetValue(addonFile, iOldStamp) || iStamp != iOldStamp )
+						{
+							bChanged = true;
+						}
+
+						g_hMapStamp.SetValue(addonFile, iStamp);
+					}
+				}
+			}
+			delete hDir;
+		}
+	}
+
+	// 有vpk被移除, 數量對不上之前的數量
+	if(g_hMapStamp.Size != newNumbers)
+	{
+		bChanged = true;
+		RegisterAddonMaps();
+	}
+
+
+	return bChanged;
+}
+
+void RegisterAddonMaps()
+{
+	delete g_hMapStamp;
+	g_hMapStamp = new StringMap();
+
+	int iLen, iStamp;
+	char addonFile[PLATFORM_MAX_PATH];
+	FileType fileType;
+	DirectoryListing hDir;
+	char Paths[][] = {
+		"addons", "addons/workshop"
+	};
+
+	for( int i = 0; i < sizeof(Paths); i++ )
+	{
+		hDir = OpenDirectory(Paths[i], false);
+		if( hDir )
+		{
+			while( hDir.GetNext(addonFile, PLATFORM_MAX_PATH, fileType) )
+			{
+				if( fileType == FileType_File )
+				{
+					iLen = strlen(addonFile);
+					
+					if( iLen >= 4 && strcmp(addonFile[iLen - 4], ".vpk") == 0 )
+					{
+						Format(addonFile, sizeof(addonFile), "%s/%s", Paths[i], addonFile);
+						iStamp = GetFileTime(addonFile, FileTime_Created);
+
+						g_hMapStamp.SetValue(addonFile, iStamp);
+					}
+				}
+			}
+			delete hDir;
+		}
+	}
 }
