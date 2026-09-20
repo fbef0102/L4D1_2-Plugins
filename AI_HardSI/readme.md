@@ -8,6 +8,7 @@ Improves the AI behaviour of special infected
     ```
 
 * Image | 圖示
+    * AI Boomer behaviour
 	<br/>![AI_HardSI_1](image/AI_HardSI_1.gif)
 
 * <details><summary>How does it work?</summary>

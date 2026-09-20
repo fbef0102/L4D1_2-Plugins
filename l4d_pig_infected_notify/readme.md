@@ -1,5 +1,5 @@
 # Description | 內容
-Show who is pig teammate in infected team
+Show who is weak teammate in infected team
 
 * Apply to | 適用於
 	```
@@ -8,7 +8,7 @@ Show who is pig teammate in infected team
 	```
 
 * Image
-	* Pig teammate moment
+	* Weak infected moment
     <br/>![l4d_pig_infected_notify_1](image/l4d_pig_infected_notify_1.jpg)  
 
 * Require | 必要安裝

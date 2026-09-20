@@ -1,0 +1,176 @@
+"mission"
+{
+	"Name"		"L4D2C1"
+	"Version"	"1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com"
+
+	"DisplayTitle"	"#L4D360UI_CampaignName_C1"
+	"Description"	"#L4D360UI_CampaignName_C1Objective"
+	"Image"		"maps/c1"
+	"OuttroImage"	"vgui/outroTitle_DeadCenter"
+
+	"x360ctx"	"3"
+
+	"meleeweapons"	"fireaxe;crowbar;cricket_bat;katana;baseball_bat;golfclub;knife"
+
+	"allow_cola"	"1"
+	"no_wpn_restore"	"1"		// on player wipe, don't keep any weapons
+	"no_female_boomers"	"1"		// Can't have female Boomers because there's no audio support
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		            "LoadingScreen_Campaign1"
+		"posterImage_widescreen"		"LoadingScreen_Campaign1_widescreen"
+		
+		"fullscreen"		"1"
+		
+		"posterTitle"		"#L4D360UI_CampaignTitle_C1"
+		"posterTitle_y"		"320"
+		
+		"posterTagline"		"#L4D360UI_CampaignTagline_C1"
+		"posterTagline_y"	"380"
+		
+		"l4d2_names"				"1"
+		
+		"gambler_player_name_x"		"9999"
+		"gambler_player_name_y"		"9999"
+		
+		"producer_player_name_x"	"9999"		
+		"producer_player_name_y"	"9999"	
+		
+		"coach_player_name_x"		"9999"	
+		"coach_player_name_y"		"9999"	
+		
+		"mechanic_player_name_x"	"9999"
+		"mechanic_player_name_y"	"9999"
+
+		"character_order"		"coach;mechanic;gambler;producer"
+	}
+
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c1m1_hotel"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C1M1"
+				"Image" "maps/c1m1_hotel"
+			}
+
+			"2"
+			{
+				"Map" "c1m2_streets"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C1M2"
+				"Image" "maps/c1m2_streets"
+			}
+
+			"3"
+			{
+				"Map" "c1m3_mall"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C1M3"
+				"Image" "maps/c1m3_mall"
+			}
+
+			"4"		
+			{
+				"Map" "c1m4_atrium"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C1M4"
+				"Image" "maps/c1m4_atrium"
+			}
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c1m1_hotel"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C1M1"
+				"Image" "maps/c1m1_hotel"
+				"VersusCompletionScore"	"500"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.79"
+					"spawn_pos_max"		"0.90"
+					"tank_chance"		"0.3"
+					"witch_chance"		"0.3"
+				}
+			}
+
+			"2"
+			{
+				"Map" "c1m2_streets"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C1M2"
+				"Image" "maps/c1m2_streets"
+				"VersusCompletionScore"	"600"
+			}
+
+			"3"
+			{
+				"Map" "c1m3_mall"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C1M3"
+				"Image" "maps/c1m3_mall"
+				"VersusCompletionScore"	"700"
+			}
+
+			"4"		
+			{
+				"Map" "c1m4_atrium"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C1M4"
+				"Image" "maps/c1m4_atrium"
+				"VersusCompletionScore"	"800"
+			}
+		}	
+	
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c1m2_streets"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C1M2"
+				"Image" "maps/c1m2_gunshop"
+			}
+
+			"2"
+			{
+				"Map" "c1m4_atrium"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C1M4"
+				"Image" "maps/c1m4_atrium"
+				"x360ctx"	"13"
+
+				"x360leaderboard"
+				{
+					":id"		"23"
+					"besttime"
+					{
+						"prop"	"536870989" // "0x2000004D"
+					}
+				}
+			}
+		}	
+
+		"scavenge"
+		{
+			"1"
+			{
+				"Map" "c1m4_atrium"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C1M4"
+				"Image" "maps/c1m4_atrium"
+				"x360ctx"	"23"
+			}
+		}	
+
+		"mutation10"
+		{
+			"1"		
+			{
+				"Map" "c1m4_atrium"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C1M4"
+				"Image" "maps/c1m4_atrium"
+			}
+		}
+	}
+}

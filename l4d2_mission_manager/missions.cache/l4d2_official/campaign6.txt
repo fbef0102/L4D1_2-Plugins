@@ -1,0 +1,206 @@
+"mission"
+{
+	"Name"		"L4D2C6"
+	"Version"	"1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com"
+
+	"DisplayTitle"	"#L4D360UI_CampaignName_C6"
+	"Description"	"#L4D360UI_CampaignName_C6Objective"
+	"Image"		"maps/c6"
+	"OuttroImage"	"vgui/outroTitle_ThePassing"
+
+	"x360ctx"	"8"
+	"dlcmask"	"0x0000000000000002"
+
+	"meleeweapons"	"fireaxe;crowbar;golfclub;katana;baseball_bat;shovel"
+	"allow_cola"	"0"
+	"no_wpn_restore"	"1"		// on player wipe, don't keep any weapons
+	"no_female_boomers"	"1"		// Can't have female Boomers because there's no audio support
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		            "LoadingScreen_ThePassing"
+		"posterImage_widescreen"		"LoadingScreen_ThePassing_widescreen"
+		
+		"fullscreen"		"1"
+		
+		"posterTitle"		"#L4D360UI_CampaignTitle_C6"
+		"posterTitle_y"		"320"
+		
+		"posterTagline"		"#L4D360UI_CampaignTagline_C6"
+		"posterTagline_y"	"380"
+		
+		"l4d2_names"				"1"
+		
+		"gambler_player_name_x"		"9999"
+		"gambler_player_name_y"		"9999"
+		
+		"producer_player_name_x"	"9999"		
+		"producer_player_name_y"	"9999"	
+		
+		"coach_player_name_x"		"9999"	
+		"coach_player_name_y"		"9999"	
+		
+		"mechanic_player_name_x"	"9999"
+		"mechanic_player_name_y"	"9999"
+
+		"character_order"		"mechanic;producer;coach;gambler"
+	}
+
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c6m1_riverbank"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C6M1"
+				"Image" "maps/c6m1_riverbank"
+				"WitchVariant" "models/infected/witch_bride.mdl"
+			}
+
+			"2"
+			{
+				"Map" "c6m2_bedlam"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C6M2"
+				"Image" "maps/c6m2_bedlam"
+			}
+
+			"3"
+			{
+				"Map" "c6m3_port"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C6M3"
+				"Image" "maps/c6m3_port"
+			}
+
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c6m1_riverbank"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C6M1"
+				"Image" "maps/c6m1_riverbank"
+				"VersusCompletionScore"	"500"
+				"WitchVariant" "models/infected/witch_bride.mdl"
+			}
+
+			"2"
+			{
+				"Map" "c6m2_bedlam"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C6M2"
+				"Image" "maps/c6m2_bedlam"
+				"VersusCompletionScore"	"600"
+			}
+
+			"3"
+			{
+				"Map" "c6m3_port"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C6M3"
+				"Image" "maps/c6m3_port"
+				"VersusCompletionScore"	"700"
+			}
+
+		}	
+	
+
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c6m1_riverbank"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C6M1"
+				"Image" "maps/c6m1_riverbank_survival"
+				"x360ctx"	"37"
+
+				"x360leaderboard"
+				{
+					":id"		"24"
+					"besttime"
+					{
+						"prop"	"536870990" // "0x2000004E"
+					}
+				}
+			}
+
+			"2"
+			{
+				"Map" "c6m2_bedlam"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C6M2"
+				"Image" "maps/c6m2_bedlam_survival"
+				"x360ctx"	"38"
+
+				"x360leaderboard"
+				{
+					":id"		"25"
+					"besttime"
+					{
+						"prop"	"536870991" // "0x2000004F"
+					}
+				}
+			}
+
+			"3"
+			{
+				"Map" "c6m3_port"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C6M3"
+				"Image" "maps/c6m3_port"
+				"x360ctx"	"39"
+
+				"x360leaderboard"
+				{
+					":id"		"26"
+					"besttime"
+					{
+						"prop"	"536870992" // "0x20000050"
+					}
+				}
+			}
+
+		}	
+
+		"scavenge"
+		{
+			"1"
+			{
+				"Map" "c6m1_riverbank"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C6M1"
+				"Image" "maps/c6m1_riverbank"
+				"x360ctx"	"34"
+			}
+
+			"2"
+			{
+				"Map" "c6m2_bedlam"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C6M2"
+				"Image" "maps/c6m2_bedlam"
+				"x360ctx"	"35"
+			}
+
+			"3"
+			{
+				"Map" "c6m3_port"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C6M3"
+				"Image" "maps/c6m3_port"
+				"x360ctx"	"36"
+			}
+
+		}	
+
+		"mutation10"
+		{
+			"1"
+			{
+				"Map" "c6m3_port"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C6M3"
+				"Image" "maps/c6m3_port"
+			}
+
+		}
+
+	}
+}

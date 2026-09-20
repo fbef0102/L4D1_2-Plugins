@@ -14,12 +14,15 @@ Mission manager for L4D2, provide information about map orders for other plugins
 * <details><summary>How does it work?</summary>
 
     * Provides a set of APIs which allows other plugins to access the third-party mission/map list
+        * Automatic parsing of custom maps vpk files - no need to add map names manually
         * e.g. which map comes after the current one. Coop, versus, scavenge and survival modes are currently supported.
     * Install only when other plugin requires this plugin
     * It requires some time to initialize map list at first time server launch. (20 - 60 sec, and < 2 sec. next times)
     * The plugin would auto-generate mission file in left4dead2\missions.cache folder
         * This folder is auto-created
         * Those text files are packed inside VPK files (official maps and custom maps) and mapped to an in-game filesystem by the Source engine.
+    * (L4D1) Some official mission files fail to parse due to incorrect source keyvalue format, stupid valve
+    * (L4D1) Please download [Fixed L4D1 Mission Files](missions.cache/l4d1_official) instead, place them in the same folder
 </details>
 
 * Require | 必要安裝
@@ -91,6 +94,7 @@ Mission manager for L4D2, provide information about map orders for other plugins
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.1h (2026-9-21)
     * v2.0h (2026-9-20)
         * Optimize code
         * Update API
@@ -149,14 +153,15 @@ Mission manager for L4D2, provide information about map orders for other plugins
 地圖管理器，提供給其他插件做依賴與API串接
 
 * 原理
-    * 能自動抓取官方圖與三方圖所有的地圖名與關卡名，並複製其內容到```mission.cache```資料夾裡
+    * 能自動抓取並解析官方圖與三方圖所有的地圖名與關卡名，並複製其內容到```mission.cache```資料夾裡
         * mission.cache 是插件創立的資料夾，伺服器本身並沒有這個資料夾
         * 此資料夾內出現的文件都是官方地圖或是三方地圖的資訊 (這些文件只封裝於.vpk檔案內)
-    * 這插件只是一個輔助插件，等其他插件真需要的時候再安裝
+    * 給開發者使用，提供許多API串，這插件只是一個輔助插件，等其他插件真需要的時候再安裝
         * 🟥白話點說，你不是源碼開發者也沒有插件需要依賴這個插件就不要亂裝
+    * (L4D1) 由於官方地圖文件寫的Source鍵值（KeyValue）格式不正確，導致部分檔案解析失敗，愚蠢的valve
+    * (L4D1) 請下載 [修復版的L4D1 Mission Files](missions.cache/l4d1_official)，放到相同資料夾即可
 
 * 功能
-    * 給開發者使用，提供許多API串接 
     * 所有關於地圖mission文件的錯誤報告都寫在logs\l4d2_mission_manager.log
     * 第一次啟動伺服器時，插件需要花30~60秒讀取分析地圖，因此伺服器卡住是正常的現象，請等待插件跑完
     * 每當安裝新的三方圖時，left4dead2\missions.cache\會有新的.txt檔案產生，是三方圖對應的mission文件備份

@@ -1,0 +1,308 @@
+mission
+{
+	"Name"				"L4D2C11"
+	"Version"    		"1"
+	"Author"			"Valve"
+	"Website"			"http://store.steampowered.com"
+	"BuiltIn"       	"1"
+	"DisplayTitle"		"#L4D360UI_CampaignName_C11"
+	"Description"		"#L4D360UI_CampaignName_C11Objective"
+	"Image"				"maps/c11"
+	"OuttroImage"		"vgui/outroTitle_DeadAir"
+
+	"meleeweapons"		"electric_guitar;crowbar;cricket_bat;katana;baseball_bat;tonfa;golfclub;knife"
+	"allow_cola"		"0"
+	"no_wpn_restore"	"1"		// on player wipe, don't keep any weapons
+	"no_female_boomers"	"1"		// Can't have female Boomers because there's no audio support
+	
+	"survivor_set"		"1"		// Which set of survivors should be used. 1=L4D1, 2=L4D2
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"				"LoadingScreen_DeadAir"
+		"posterImage_widescreen"	"LoadingScreen_DeadAir_widescreen"
+		"fullscreen"				"1"
+		
+		"posterTitle"				"#L4D360UI_CampaignTitle_C11"
+		"posterTitle_y"				"395"
+		
+		"posterTagline"				"#L4D360UI_CampaignTagline_C11"
+		"posterTagline_y"			"50"
+		
+		"character_order"			"teengirl;manager;biker;namvet"
+	}
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c11m1_greenhouse"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C11M1"
+				"Image" "maps/c11m1_greenhouse"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"2"
+			{
+				"Map" "c11m2_offices"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C11M2"
+				"Image" "maps/c11m2_offices"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"3"
+			{
+				"Map" "c11m3_garage"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C11M3"
+				"Image" "maps/c11m3_garage"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"4"		
+			{
+				"Map" "c11m4_terminal"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C11M4"
+				"Image" "maps/c11m4_terminal"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"5"		
+			{
+				"Map" "c11m5_runway"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C11M5"
+				"Image" "maps/c11m5_runway"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c11m1_greenhouse"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_c11M1"
+				"Image" "maps/c11m1_greenhouse"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+				"VersusCompletionScore"	"400"
+				"versus_boss_spawning"
+				{
+					"tank_chance"	"0.30"
+				}
+			}
+	
+			"2"		
+			{
+				"Map" "c11m2_offices"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_c11M2"
+				"Image" "maps/c11m2_offices"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+				"VersusCompletionScore"	"500"
+			}
+	
+			"3"		
+			{
+				"Map" "c11m3_garage"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_c11M3"
+				"Image" "maps/c11m3_garage"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+				"VersusCompletionScore"	"600"
+			}
+	
+			"4"		
+			{
+				"Map" "c11m4_terminal"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_c11M4"
+				"Image" "maps/c11m4_terminal"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+				"VersusCompletionScore"	"700"
+			}
+	
+			"5"		
+			{
+				"Map" "c11m5_runway"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_c11M5"
+				"Image" "maps/c11m5_runway"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+				"VersusCompletionScore"	"800"
+				"versus_boss_spawning"
+				{
+					"tank_chance"	"0"
+					"witch_chance"	"0"
+				}
+			}
+		}
+
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c11m2_offices"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C11M2"
+				"Image" "maps/c11m2_offices"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"2"
+			{
+				"Map" "c11m3_garage"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C11M3"
+				"Image" "maps/c11m3_garage"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"3"		
+			{
+				"Map" "c11m4_terminal"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C11M4"
+				"Image" "maps/c11m4_terminal"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+
+			"4"		
+			{
+				"Map" "c11m5_runway"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C11M5"
+				"Image" "maps/c11m5_runway"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+		}	
+	
+		"scavenge"
+		{
+			"1"		
+			{
+				"Map" "c11m4_terminal"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_c11M4"
+				"Image" "maps/c11m4_terminal"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}			
+		}	
+
+		"mutation10"
+		{
+			"1"		
+			{
+				"Map" "c11m5_runway"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_c11M5"
+				"Image" "maps/c11m5_runway"
+				"TankVariant" "models/infected/hulk_l4d1.mdl"
+				"HunterVariant" "models/infected/hunter_l4d1.mdl"
+				"SmokerVariant" "models/infected/smoker_l4d1.mdl"
+				"BoomerVariant" "models/infected/boomer_l4d1.mdl"
+				"TankArmsVariant" "models\v_models\weapons\v_claw_hulk_L4D1.mdl"
+				"HunterArmsVariant" "models\v_models\weapons\v_claw_hunter_l4d1.mdl"
+				"SmokerArmsVariant" "models\v_models\weapons\v_claw_smoker_l4d1.mdl"
+				"BoomerArmsVariant" "models\v_models\weapons\v_claw_boomer_l4d1.mdl"
+			}
+		}
+	}
+}
+

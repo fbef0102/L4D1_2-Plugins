@@ -11,7 +11,7 @@ public Plugin myinfo = {
 	name = "[L4D1/2] Mission Manager",
 	author = "Rikka0w0, Harry",
 	description = "Mission manager for L4D2, provide information about map orders for other plugins",
-	version = "v2.0h - 2026/9/20",
+	version = "v2.1h - 2026/9/21",
 	url = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_mission_manager"
 }
 
@@ -90,10 +90,11 @@ char
 StringMap 
 	g_smValidMissionsFiles,
 	g_hMapStamp,
-	g_smTrashOfficialFileName;
+	g_smIgnoreOfficialFileName;
 
 ArrayList
-	g_aL4DOfficialFileNameList;
+	g_aL4DOfficialFileNameList,
+	g_aTrashOfficialFileNameList;
 
 Localizer loc;
 public void OnPluginStart()
@@ -119,7 +120,8 @@ public void OnPluginStart()
 	
 	g_hMapStamp = new StringMap();
 	g_aL4DOfficialFileNameList = new ArrayList(LEN_MISSION_FILENAME);
-	g_smTrashOfficialFileName = new StringMap();
+	g_aTrashOfficialFileNameList = new ArrayList(LEN_MISSION_FILENAME);
+	g_smIgnoreOfficialFileName = new StringMap();
 	if(g_bL4D2Version)
 	{
 		g_aL4DOfficialFileNameList.PushString("campaign1.txt");
@@ -137,11 +139,12 @@ public void OnPluginStart()
 		g_aL4DOfficialFileNameList.PushString("campaign13.txt");
 		g_aL4DOfficialFileNameList.PushString("campaign14.txt");
 
-		g_smTrashOfficialFileName.SetValue("holdoutchallenge.txt", true);
-		g_smTrashOfficialFileName.SetValue("holdouttraining.txt", true);
-		g_smTrashOfficialFileName.SetValue("parishdash.txt", true);
-		g_smTrashOfficialFileName.SetValue("shootzones.txt", true);
-		g_smTrashOfficialFileName.SetValue("credits.txt", true);
+		g_aTrashOfficialFileNameList.PushString("holdoutchallenge.txt");
+		g_aTrashOfficialFileNameList.PushString("holdouttraining.txt");
+		g_aTrashOfficialFileNameList.PushString("parishdash.txt");
+		g_aTrashOfficialFileNameList.PushString("shootzones.txt");
+
+		g_smIgnoreOfficialFileName.SetValue("credits.txt", true);
 	}
 	else 
 	{
@@ -153,7 +156,7 @@ public void OnPluginStart()
 		g_aL4DOfficialFileNameList.PushString("river.txt");
 		g_aL4DOfficialFileNameList.PushString("lighthouse.txt");
 
-		g_smTrashOfficialFileName.SetValue("credits.txt", true);
+		g_smIgnoreOfficialFileName.SetValue("credits.txt", true);
 	}
 
 	RegisterAddonMaps();
@@ -1360,35 +1363,75 @@ void CacheMissions() {
 		FileType fileType;
 		while(dirList.GetNext(missionFileName, PLATFORM_MAX_PATH, fileType)) 
 		{
-			if(g_smTrashOfficialFileName.ContainsKey(missionFileName)) continue;
-
 			if ( fileType == FileType_File) 
 			{
+				if(g_smIgnoreOfficialFileName.ContainsKey(missionFileName)) continue;
+
 				g_smValidMissionsFiles.SetValue(missionFileName, true);
 
-				if(!g_bL4D2Version)
-				{
-					if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1) continue;
-				}
-				
 				char missionSrc[PLATFORM_MAX_PATH];
 				char missionCache[PLATFORM_MAX_PATH];
 				missionSrc = "missions/";
 
-				Format(missionSrc, PLATFORM_MAX_PATH, "missions/%s", missionFileName);
-				Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
-
-				// PrintToServer("Cached mission file %s", missionFileName);
-				
-				//if (!FileExists(missionCache, true, NULL_STRING)) 
-				//{
 				if(g_bL4D2Version)
 				{
-					if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1) continue;
-				}
+					if (!DirExists("missions.cache/l4d2_official")) {
+						CreateDirectory("missions.cache/l4d2_official", 511);
+					}
 
-				CopyFile(missionSrc, missionCache);
-				//}
+					if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1
+						|| g_aTrashOfficialFileNameList.FindString(missionFileName) != -1)
+					{
+						Format(missionSrc, PLATFORM_MAX_PATH, "missions/%s", missionFileName);
+						Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/l4d2_official/%s", missionFileName);
+
+						if (FileExists(missionCache, true, NULL_STRING)) continue;
+
+						// PrintToServer("Cached official mission file %s -> %s", missionSrc, missionCache);
+
+						CopyFile(missionSrc, missionCache);
+					}
+					else
+					{
+						Format(missionSrc, PLATFORM_MAX_PATH, "missions/%s", missionFileName);
+						Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
+
+						//if (FileExists(missionCache, true, NULL_STRING)) continue;
+
+						// PrintToServer("Cached custom mission file %s -> %s", missionSrc, missionCache);
+
+						CopyFile(missionSrc, missionCache);
+					}
+				}
+				else
+				{
+					if (!DirExists("missions.cache/l4d1_official")) {
+						CreateDirectory("missions.cache/l4d1_official", 511);
+					}
+
+					if(g_aL4DOfficialFileNameList.FindString(missionFileName) != -1)
+					{
+						Format(missionSrc, PLATFORM_MAX_PATH, "missions/%s", missionFileName);
+						Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/l4d1_official/%s", missionFileName);
+
+						if (FileExists(missionCache, true, NULL_STRING)) continue;
+
+						// PrintToServer("Cached official mission file %s -> %s", missionSrc, missionCache);
+
+						CopyFile(missionSrc, missionCache);
+					}
+					else
+					{
+						Format(missionSrc, PLATFORM_MAX_PATH, "missions/%s", missionFileName);
+						Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
+
+						//if (FileExists(missionCache, true, NULL_STRING)) continue;
+
+						// PrintToServer("Cached custom mission file %s -> %s", missionSrc, missionCache);
+
+						CopyFile(missionSrc, missionCache);
+					}
+				}
 			}
 			
 		}
@@ -1431,7 +1474,7 @@ void ParseMissions()
 			g_aL4DOfficialFileNameList.GetString(i, missionFileName, sizeof missionFileName);
 
 			if(!g_bL4D2Version) Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/l4d1_official/%s", missionFileName);
-			else Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/%s", missionFileName);
+			else Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/l4d2_official/%s", missionFileName);
 
 			// Process the official mission file				
 			g_MissionParser_State = MPS_ROOT;
@@ -1439,6 +1482,24 @@ void ParseMissions()
 			if (err != SMCError_Okay) {
 				g_hStr_InvalidMissionNames.PushString(missionCache);
 				SaveMessage("An error occured while parsing \"%s\", code: %d", missionCache, err);
+			}
+		}
+
+		if(g_bL4D2Version)
+		{
+			for(int i = 0; i < g_aTrashOfficialFileNameList.Length; i++)
+			{
+				g_aTrashOfficialFileNameList.GetString(i, missionFileName, sizeof missionFileName);
+
+				Format(missionCache, PLATFORM_MAX_PATH, "missions.cache/l4d2_official/%s", missionFileName);
+
+				// Process the official mission file				
+				g_MissionParser_State = MPS_ROOT;
+				SMCError err = parser.ParseFile(missionCache);
+				if (err != SMCError_Okay) {
+					g_hStr_InvalidMissionNames.PushString(missionCache);
+					SaveMessage("An error occured while parsing \"%s\", code: %d", missionCache, err);
+				}
 			}
 		}
 

@@ -1,0 +1,206 @@
+"mission"
+{
+	"Name"		"L4D2C2"
+	"Version"	"1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com"
+
+	"DisplayTitle"	"#L4D360UI_CampaignName_C2"
+	"Description"	"#L4D360UI_CampaignName_C2Objective"
+	"Image"			"maps/c2"
+	"OuttroImage"	"vgui/outroTitle_DarkCarnival"
+
+	"x360ctx"	"4"
+
+	"meleeweapons"	"electric_guitar;katana;fireaxe;crowbar;baseball_bat;knife"
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		        "LoadingScreen_DarkCarnival"
+		"posterImage_widescreen"	"LoadingScreen_DarkCarnival_widescreen"
+		
+		"fullscreen"		"1"
+		
+		"posterTitle"		"#L4D360UI_CampaignTitle_C2"
+		"posterTitle_y"		"320"
+		
+		"posterTagline"		"#L4D360UI_CampaignTagline_C2"
+		"posterTagline_y"	"380"
+		
+		"l4d2_names"				"1"
+		
+		"gambler_player_name_x"		"9999"
+		"gambler_player_name_y"		"9999"
+		
+		"producer_player_name_x"	"9999"		
+		"producer_player_name_y"	"9999"	
+		
+		"coach_player_name_x"		"9999"	
+		"coach_player_name_y"		"9999"	
+		
+		"mechanic_player_name_x"	"9999"
+		"mechanic_player_name_y"	"9999"
+		"character_order"		"producer;gambler;coach;mechanic"
+	}
+
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c2m1_highway"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C2M1"
+				"Image" "maps/c2m1_highway"
+			}
+
+			"2"
+			{
+				"Map" "c2m2_fairgrounds"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C2M2"
+				"Image" "maps/c2m2_fairgrounds"
+			}
+
+			"3"
+			{
+				"Map" "c2m3_coaster"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C2M3"
+				"Image" "maps/c2m3_coaster"
+			}
+
+			"4"		
+			{
+				"Map" "c2m4_barns"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C2M4"
+				"Image" "maps/c2m4_barns"
+			}
+
+			"5"		
+			{
+				"Map" "c2m5_concert"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C2M5"
+				"Image" "maps/c2m5_concert"
+			}
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c2m1_highway"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C2M1"
+				"Image" "maps/c2m1_highway"
+				"VersusCompletionScore"	"400"
+			}
+
+			"2"
+			{
+				"Map" "c2m2_fairgrounds"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C2M2"
+				"Image" "maps/c2m2_fairgrounds"
+				"VersusCompletionScore"	"500"
+			}
+
+			"3"
+			{
+				"Map" "c2m3_coaster"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C2M3"
+				"Image" "maps/c2m3_coaster"
+				"VersusCompletionScore"	"600"
+			}
+
+			"4"		
+			{
+				"Map" "c2m4_barns"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C2M4"
+				"Image" "maps/c2m4_barns"
+				"VersusCompletionScore"	"700"
+			}
+
+			"5"		
+			{
+				"Map" "c2m5_concert"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C2M5"
+				"Image" "maps/c2m5_concert"
+				"VersusCompletionScore"	"800"
+			}
+		}	
+	
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c2m1_highway"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C2M1"
+				"Image" "maps/c2m1_motel"
+				"x360ctx"	"14"
+
+				"x360leaderboard"
+				{
+					":id"		"12"
+					"besttime"
+					{
+						"prop"	"536870978" // "0x20000042"
+					}
+				}
+			}
+
+			"2"		
+			{
+				"Map" "c2m4_barns"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C2M4"
+				"Image" "maps/c2m4_barns"
+				"x360ctx"	"15"
+
+				"x360leaderboard"
+				{
+					":id"		"14"
+					"besttime"
+					{
+						"prop"	"536870980" // "0x20000044"
+					}
+				}
+			}
+
+			"3"		
+			{
+				"Map" "c2m5_concert"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C2M5"
+				"Image" "maps/c2m5_concert"
+				"x360ctx"	"16"
+
+				"x360leaderboard"
+				{
+					":id"		"15"
+					"besttime"
+					{
+						"prop"	"536870981" // "0x20000045"
+					}
+				}
+			}
+		}	
+
+		"scavenge"
+		{
+			"1"
+			{
+				"Map" "c2m1_highway"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C2M1"
+				"Image" "maps/c2m1_motel"
+				"x360ctx"	"24"
+			}
+		}	
+
+		"mutation10"
+		{
+			"1"		
+			{
+				"Map" "c2m5_concert"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C2M5"
+				"Image" "maps/c2m5_concert"
+			}
+		}
+	}
+}

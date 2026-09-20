@@ -1,0 +1,42 @@
+"mission"
+{
+	"Name"			"shootzones"
+	"Version"		"1"
+	"Author"		"Valve"
+	"Website"		"http://store.steampowered.com"
+	"BuiltIn"		"0"
+	
+	"DisplayTitle"	"Carnival Shoot Zones"
+	"Description"	"Play the Shoot Zones sample mode in the carnival"	
+	
+	"Image"		"maps/c2"
+	"OuttroImage"	"vgui/Left4Dead2Logo"
+	
+	"meleeweapons"	"fireaxe;machete;tonfa;katana;baseball_bat;knife"
+	
+	"survivor_set"		"1"		// Which set of survivors should be used. 1=L4D1, 2=L4D2
+
+	"modes"
+	{
+		"shootzones"
+		{
+			"1"
+			{
+				"Map" "c2m2_fairgrounds"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C2M2"
+				"Image" "maps/c2m2_fairgrounds"
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+

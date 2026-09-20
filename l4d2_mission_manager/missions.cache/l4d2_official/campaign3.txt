@@ -1,0 +1,187 @@
+"mission"
+{
+	"Name"		"L4D2C3"
+	"Version"	"1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com"
+
+	"DisplayTitle"	"#L4D360UI_CampaignName_C3"
+	"Description"	"#L4D360UI_CampaignName_C3Objective"
+	"Image"			"maps/c3"
+	"OuttroImage"	"vgui/outroTitle_SwampFever"
+
+	"x360ctx"	"5"
+
+	"meleeweapons"	"machete;fireaxe;frying_pan;cricket_bat;shovel;baseball_bat;knife;pitchfork"
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		        "LoadingScreen_SwampFever"
+		"posterImage_widescreen"	"LoadingScreen_SwampFever_widescreen"
+		
+		"fullscreen"		"1"
+		
+		"posterTitle"		"#L4D360UI_CampaignTitle_C3"
+		"posterTitle_y"		"320"
+		
+		"posterTagline"		"#L4D360UI_CampaignTagline_C3"
+		"posterTagline_y"	"380"
+		
+		"l4d2_names"				"1"
+		
+		"mechanic_player_name_x"		"9999"
+		"mechanic_player_name_y"		"9999"
+		
+		"coach_player_name_x"		"9999"		
+		"coach_player_name_y"		"9999"	
+		
+		"producer_player_name_x"		"9999"	
+		"producer_player_name_y"		"9999"	
+		
+		"gambler_player_name_x"		"9999"
+		"gambler_player_name_y"		"9999"
+
+		"character_order"		"mechanic;coach;producer;gambler"
+	}
+
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c3m1_plankcountry"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C3M1"
+				"Image" "maps/c3m1_plankcountry"
+			}
+
+			"2"
+			{
+				"Map" "c3m2_swamp"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C3M2"
+				"Image" "maps/c3m2_swamp"
+			}
+
+			"3"
+			{
+				"Map" "c3m3_shantytown"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C3M3"
+				"Image" "maps/c3m3_shantytown"
+			}
+
+			"4"		
+			{
+				"Map" "c3m4_plantation"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C3M4"
+				"Image" "maps/c3m4_plantation"
+			}
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c3m1_plankcountry"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C3M1"
+				"Image" "maps/c3m1_plankcountry"
+				"VersusCompletionScore"	"500"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.6"
+					"tank_chance"		"0.3"
+					"witch_chance"		"0.3"
+				}
+			}
+
+			"2"
+			{
+				"Map" "c3m2_swamp"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C3M2"
+				"Image" "maps/c3m2_swamp"
+				"VersusCompletionScore"	"600"
+			}
+
+			"3"
+			{
+				"Map" "c3m3_shantytown"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C3M3"
+				"Image" "maps/c3m3_shantytown"
+				"VersusCompletionScore"	"700"
+			}
+
+			"4"		
+			{
+				"Map" "c3m4_plantation"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C3M4"
+				"Image" "maps/c3m4_plantation"
+				"VersusCompletionScore"	"800"
+			}
+		}	
+	
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c3m1_plankcountry"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C3M1"
+				"Image" "maps/c3m1_village"
+				"x360ctx"	"17"
+
+				"x360leaderboard"
+				{
+					":id"		"16"
+					"besttime"
+					{
+						"prop"	"536870982" // "0x20000046"
+					}
+				}
+			}
+
+			"2"	
+			{
+				"Map" "c3m3_shantytown"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C3M3"
+				"Image" "maps/c3m3_shantytown"
+			}
+
+			"3"		
+			{
+				"Map" "c3m4_plantation"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C3M4"
+				"Image" "maps/c3m4_plantation"
+				"x360ctx"	"18"
+
+				"x360leaderboard"
+				{
+					":id"		"17"
+					"besttime"
+					{
+						"prop"	"536870983" // "0x20000047"
+					}
+				}
+			}
+		}	
+		"scavenge"
+		{
+			"1"
+			{
+				"Map" "c3m1_plankcountry"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C3M1"
+				"Image" "maps/c3m1_plankcountry"
+				"x360ctx"	"25"
+			}
+		}	
+
+		"mutation10"
+		{
+			"1"		
+			{
+				"Map" "c3m4_plantation"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C3M4"
+				"Image" "maps/c3m4_plantation"
+			}
+		}
+	}
+}

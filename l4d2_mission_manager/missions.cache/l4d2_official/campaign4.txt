@@ -1,0 +1,226 @@
+"mission"
+{
+	"Name"		"L4D2C4"
+	"Version"	"1"
+	"Author"	"Valve"
+	"Website"	"http://store.steampowered.com"
+
+	"DisplayTitle"	"#L4D360UI_CampaignName_C4"
+	"Description"	"#L4D360UI_CampaignName_C4Objective"
+	"Image"			"maps/c4"
+	"OuttroImage"	"vgui/outroTitle_HardRain"
+
+	"x360ctx"	"6"
+
+	"meleeweapons"	"katana;crowbar;frying_pan;fireaxe;shovel;baseball_bat;knife;pitchfork"
+
+	"allow_cola"	"0"
+	"no_female_boomers"	"1"		// Can't have female Boomers because there's no audio support
+
+	"allow_diesel"	"1"
+
+	// Loading poster data
+	"poster"
+	{
+		"posterImage"		        "LoadingScreen_Campaign4"
+		"posterImage_widescreen"	"LoadingScreen_Campaign4_widescreen"
+		
+		"fullscreen"		    "1"
+		
+		"posterTitle"		"#L4D360UI_CampaignTitle_C4"
+		"posterTitle_y"		"320"
+		
+		"posterTagline"		"#L4D360UI_CampaignTagline_C4"
+		"posterTagline_y"	"380"
+		
+		"l4d2_names"				"1"
+		
+		"gambler_player_name_x"		"9999"
+		"gambler_player_name_y"		"9999"
+		
+		"producer_player_name_x"	"9999"		
+		"producer_player_name_y"	"9999"	
+		
+		"coach_player_name_x"		"9999"	
+		"coach_player_name_y"		"9999"	
+		
+		"mechanic_player_name_x"	"9999"
+		"mechanic_player_name_y"	"9999"
+
+		"character_order"		"gambler;producer;mechanic;coach"
+	}
+
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c4m1_milltown_a"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C4M1"
+				"Image" "maps/c4m1_milltown_a"
+				"revisitable"	"1"				// mark this level as a potential source for item revisiting
+			}
+
+			"2"
+			{
+				"Map" "c4m2_sugarmill_a"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C4M2"
+				"Image" "maps/c4m2_sugarmill_a"
+				"revisitable"	"1"				// mark this level as a potential source for item revisiting
+			}
+
+			"3"
+			{
+				"Map" "c4m3_sugarmill_b"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C4M3"
+				"Image" "maps/c4m3_sugarmill_b"
+				"revisit_source"	"c4m2_sugarmill_a"
+			}
+
+			"4"		
+			{
+				"Map" "c4m4_milltown_b"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C4M4"
+				"Image" "maps/c4m4_milltown_b"
+				"revisit_source"	"c4m1_milltown_a"
+			}
+			
+			"5"		
+			{
+				"Map" "c4m5_milltown_escape"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C4M5"
+				"Image" "maps/c4m5_milltown_escape"
+				"revisit_source"	"c4m1_milltown_a"
+			}
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c4m1_milltown_a"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C4M1"
+				"Image" "maps/c4m1_milltown_a"
+				"VersusCompletionScore"	"400"
+			}
+
+			"2"
+			{
+				"Map" "c4m2_sugarmill_a"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C4M2"
+				"Image" "maps/c4m2_sugarmill_a"
+				"VersusCompletionScore"	"500"
+			}
+
+			"3"
+			{
+				"Map" "c4m3_sugarmill_b"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C4M3"
+				"Image" "maps/c4m3_sugarmill_b"
+				"VersusCompletionScore"	"600"
+			}
+
+			"4"		
+			{
+				"Map" "c4m4_milltown_b"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C4M4"
+				"Image" "maps/c4m4_milltown_b"
+				"VersusCompletionScore"	"700"
+				"versus_boss_spawning"
+				{
+					"tank_chance"	"1.0"
+				}
+			}
+
+			"5"		
+			{
+				"Map" "c4m5_milltown_escape"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C4M5"
+				"Image" "maps/c4m5_milltown_escape"
+				"VersusCompletionScore"	"800"
+			}
+		}	
+	
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c4m1_milltown_a"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C4M1"
+				"Image" "maps/c4m1_burgertank"
+				"x360ctx"	"19"
+
+				"x360leaderboard"
+				{
+					":id"		"18"
+					"besttime"
+					{
+						"prop"	"536870984" // "0x20000048"
+					}
+				}
+			}
+
+			"2"
+			{
+				"Map" "c4m2_sugarmill_a"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C4M2"
+				"Image" "maps/c4m2_sugarmill_a"
+				"x360ctx"	"20"
+
+				"x360leaderboard"
+				{
+					":id"		"19"
+					"besttime"
+					{
+						"prop"	"536870985" // "0x20000049"
+					}
+				}
+			}
+
+			"3"
+			{
+				"Map" "c4m3_sugarmill_b"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C4M3"
+				"Image" "maps/c4m3_sugarmill_b"
+			}
+		}	
+
+		"scavenge"
+		{
+			"1"
+			{
+				"Map" "c4m1_milltown_a"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C4M1"
+				"Image" "maps/c4m1_milltown_a"
+				"x360ctx"	"26"
+			}
+
+			"2"
+			{
+				"Map" "c4m2_sugarmill_a"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C4M2"
+				"Image" "maps/c4m2_sugarmill_a"
+				"x360ctx"	"27"
+			}
+
+			"3"
+			{
+				"Map" "c4m3_sugarmill_b"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C4M3"
+				"Image" "maps/c4m3_sugarmill_b"
+			}
+		}	
+
+		"mutation10"
+		{
+			"1"		
+			{
+				"Map" "c4m5_milltown_escape"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C4M1"
+				"Image" "maps/c4m5_milltown_escape"
+			}
+		}
+	}
+}

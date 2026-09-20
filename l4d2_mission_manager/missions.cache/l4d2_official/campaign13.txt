@@ -1,0 +1,181 @@
+mission
+{
+	"Name"			"L4D2C13"
+	"Version"		"1"
+	"Author"		"Valve"
+	"Website"		"http://store.steampowered.com"
+	"BuiltIn"		"1"
+	
+	"DisplayTitle"	"#L4D360UI_CampaignName_C13"
+	"Description"	"#L4D360UI_CampaignName_C13Objective"	
+	
+	"Image"			"maps/c13"
+	"OuttroImage"	"vgui/OutroTitle_Coldstream"
+	
+	"meleeweapons"	"fireaxe;machete;tonfa;katana;shovel;baseball_bat;knife"
+	
+	//"allow_cola"	"1"
+	//"allow_diesel"	"1"
+	//"no_wpn_restore"	"1"		// on player wipe, don't keep any weapons
+	//"no_female_boomers"	"1"		// Can't have female Boomers because there's no audio support
+	//"no_cs_weapons"	"1"		// no CS weapons
+
+	"poster"
+	{
+		"l4d2_names"		"1"
+		"character_order"	"gambler;mechanic;producer;coach"
+
+		"fullscreen"		"1"
+		"posterImage"			"loadingscreen_coldstream"
+		"posterImage_widescreen"	"loadingscreen_coldstream_widescreen"
+
+		"posterTitle"		"#L4D360UI_CampaignTitle_C13"
+		//"posterTitle_x"	"-25"
+		"posterTitle_y"		"390"
+
+		"posterTagline"		"#L4D360UI_CampaignTagline_C13"
+		"posterTagline_y"	"492"
+
+		"producer_player_name_x"	"9999"		
+		"producer_player_name_y"	"9999"	
+
+		"gambler_player_name_x"		"9999"
+		"gambler_player_name_y"		"9999"	
+
+		"coach_player_name_x"		"9999"	
+		"coach_player_name_y"		"9999"	
+
+		"mechanic_player_name_x"	"9999"
+		"mechanic_player_name_y"	"9999"
+	}
+
+	"modes"
+	{
+		"coop"
+		{
+			"1"
+			{
+				"Map" "c13m1_alpinecreek"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C13M1"
+				"Image" "maps/c13m1_alpinecreek"
+			}
+ 
+			"2"
+			{
+				"Map" "c13m2_southpinestream"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C13M2"
+				"Image" "maps/c13m2_southpinestream"
+			}
+			
+			"3"
+			{
+				"Map" "c13m3_memorialbridge"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C13M3"
+				"Image" "maps/c13m3_memorialbridge"
+			}
+			
+			"4"
+			{
+				"Map" "c13m4_cutthroatcreek"
+				"DisplayName" "#L4D360UI_LevelName_COOP_C13M4"
+				"Image" "maps/c13m4_cutthroatcreek"
+			}
+
+		}
+
+		"versus"
+		{
+			"1"
+			{
+				"Map" "c13m1_alpinecreek"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C13M1"
+				"Image" "maps/c13m1_alpinecreek"
+				"VersusCompletionScore"	"500"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.3"
+					"spawn_pos_max"		"0.9"
+					"tank_chance"		"0"
+					"witch_chance"		"0.6"
+				}
+			}
+             
+			"2"
+			{
+				"Map" "c13m2_southpinestream"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C13M2"
+				"Image" "maps/c13m2_southpinestream"
+				"VersusCompletionScore"	"600"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.70"
+					"spawn_pos_max"		"0.95"
+					"tank_chance"		"0"
+					"witch_chance"		"1.0"
+				}
+			}
+			
+			"3"
+			{
+				"Map" "c13m3_memorialbridge"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C13M3"
+				"Image" "maps/c13m3_memorialbridge"
+				"VersusCompletionScore"	"700"
+				"versus_boss_spawning"
+				{
+					"spawn_pos_min"		"0.15"
+					"spawn_pos_max"		"0.45"
+					"tank_chance"		"0.2"
+					"witch_chance"		"1.0"
+				}
+			}
+			
+			"4"
+			{
+				"Map" "c13m4_cutthroatcreek"
+				"DisplayName" "#L4D360UI_LevelName_VERSUS_C13M4"
+				"Image" "maps/c13m4_cutthroatcreek"
+				"VersusCompletionScore"	"800"
+			}
+		}
+
+		"survival"
+		{
+			"1"
+			{
+				"Map" "c13m3_memorialbridge"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C13M3"
+				"Image" "maps/c13m3_junkyard"
+			}
+			
+			"2"
+			{
+				"Map" "c13m4_cutthroatcreek"
+				"DisplayName" "#L4D360UI_LevelName_SURVIVAL_C13M4"
+				"Image" "maps/c13m4_waterworks"
+			}
+
+		}
+
+		"mutation10"
+		{
+			"1"		
+			{
+				"Map" "c13m4_cutthroatcreek"
+				"DisplayName" "#L4D360UI_LevelName_SCAVENGE_C13M4"
+				"Image" "maps/c13m4_cutthroatcreek"
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
