@@ -240,10 +240,10 @@
 	}
 	"Rotate 45 degree (X axys)"
 	{
-		"en"	"Rotate 40 degree (X axys)"
-		"zho"	"選轉 40 度 (X 軸)"
-		"chi"	"旋转 40 度 (X 轴)"
-		"ru"	"Поворот на 40 гр. (гориз.)"
+		"en"	"Rotate 45 degree (X axys)"
+		"zho"	"選轉 45 度 (X 軸)"
+		"chi"	"旋转 45 度 (X 轴)"
+		"ru"	"Поворот на 45 гр. (гориз.)"
 	}
 	"Rotate 90 degree (X axys)"
 	{
@@ -317,10 +317,10 @@
 	}
 	"Rotate 45 degree (Y axys)"
 	{
-		"en"	"Rotate 40 degree (Y axys)"
-		"zho"	"選轉 40 度 (Y 軸)"
-		"chi"	"旋转 40 度 (Y 轴)"
-		"ru"	"Поворот на 40 гр. (верт.)"
+		"en"	"Rotate 45 degree (Y axys)"
+		"zho"	"選轉 45 度 (Y 軸)"
+		"chi"	"旋转 45 度 (Y 轴)"
+		"ru"	"Поворот на 45 гр. (верт.)"
 	}
 	"Rotate 90 degree (Y axys)"
 	{
@@ -394,10 +394,10 @@
 	}
 	"Rotate 45 degree (Z axys)"
 	{
-		"en"	"Rotate 40 degree (Z axys)"
-		"zho"	"選轉 40 度 (Z 軸)"
-		"chi"	"旋转 40 度 (Z 轴)"
-		"ru"	"Поворот на 40 гр. (диагон.)"
+		"en"	"Rotate 45 degree (Z axys)"
+		"zho"	"選轉 45 度 (Z 軸)"
+		"chi"	"旋转 45 度 (Z 轴)"
+		"ru"	"Поворот на 45 гр. (диагон.)"
 	}
 	"Rotate 90 degree (Z axys)"
 	{

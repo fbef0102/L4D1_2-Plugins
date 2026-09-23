@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "When using 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker like back 4 blood.",
-	version     = "4.9-2026/8/30",
+	version     = "5.0-2026/9/23",
 	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
@@ -81,9 +81,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define MODEL_PAINPILLS               "models/w_models/weapons/w_eq_painpills.mdl"
 
-ConVar g_hCvarCMDEnable, g_hHintTransType, 
-	g_hCvarButtons, g_hCvarVocalizeEnable, g_hCappedMark, g_hHaningMark, g_hDeadMark,
-	g_hSurvivorTeamMarkSI, g_hSurvivorTeamMarkSurvivor, g_hSurvivorTeamMarkItem, g_hSurvivorTeamMarkSpot,
+ConVar g_hCvarCMDEnable, g_hHintTransType, g_hSurvivorTeamVocalizeEnable, 
+	g_hSurvivorTeamButtons, g_hSurvivorTeamAliveMark, g_hSurvivorTeamIncapMark, g_hSurvivorTeamHaningMark, g_hSurvivorTeamCappedMark, g_hSurvivorTeamDeadMark,
 	g_hItemHintCoolDown, g_hSpotMarkCoolDown, g_hInfectedMarkCoolDown, g_hSurvivorMarkCoolDown,
 	g_hItemUseHintRange, g_hItemUseSound, g_hItemAnnounceType, g_hItemGlowTimer, g_hItemGlowRange, g_hItemCvarColor,
 	g_hItemInstructorHint, g_hItemInstructorColor, g_hItemInstructorIcon,
@@ -93,23 +92,22 @@ ConVar g_hCvarCMDEnable, g_hHintTransType,
 	g_hSpotMarkRingStartRadius, g_hSpotMarkRingEndRadius, g_hSpotMarkRingWidth, g_hSpotMarkParticle,
 	g_hInfectedMarkUseRange, g_hInfectedMarkUseSound, g_hInfectedMarkAnnounceType, g_hInfectedMarkGlowTimer, g_hInfectedMarkGlowRange, g_hInfectedMarkCvarColor, g_hInfectedMarkSIFlag,
 	g_hInfectedMarkInstructorHint, g_hInfectedMarkInstructorColor, g_hInfectedMarkInstructorIcon,
-	g_hInfectedMarkWitchEnable, g_hInfectedMarkSIFov, g_hInfectedMarkWitchFov,
+	g_hInfectedMarkSIFov, g_hInfectedMarkWitchFov,
 	g_hInfectedMarkSpriteModel, g_hInfectedMarkSpriteTimer,
 	g_hSurvivorMarkUseRange, g_hSurvivorMarkUseSound, g_hSurvivorMarkAnnounceType, g_hSurvivorMarkGlowTimer, g_hSurvivorMarkGlowRange, g_hSurvivorMarkCvarColor,
 	g_hSurvivorMarkInstructorHint, g_hSurvivorMarkInstructorColor, g_hSurvivorMarkInstructorIcon,
 	g_hSurvivorMarkFov,
 	g_hSurvivorMarkInfectedNotify,
 	g_hSurvivorMarkSpriteModel, g_hSurvivorMarkSpriteTimer,
-	g_hInfectedTeamMarkEnable,
-	g_hInfectedTeamMarkSurvivor, g_hInfectedTeamMarkItem, g_hInfectedTeamMarkSpot,
-	g_hInfectedTeamButtons, g_hInfectedTeamDeadMark, g_hInfectedTeamGhostMark;
+	g_hInfectedTeamMarkEnable, g_hInfectedTeamButtons, g_hInfectedTeamAliveMark, g_hInfectedTeamDeadMark, g_hInfectedTeamGhostMark;
 
-int g_iCvarButtons, g_iHintTransType,
+int g_iHintTransType,
+	g_iSurvivorTeamButtons, g_iSurvivorTeamAliveMark, g_iSurvivorTeamIncapMark, g_iSurvivorTeamHaningMark, g_iSurvivorTeamCappedMark, g_iSurvivorTeamDeadMark,
 	g_iItemAnnounceType, g_iItemGlowRange, g_iItemCvarColor,
 	g_iSpotMarkCvarColorArray[3], g_iSpotMarkAnnounceType,
 	g_iInfectedMarkAnnounceType, g_iInfectedMarkGlowRange, g_iInfectedMarkCvarColor, g_iInfectedMarkSIFlag,
 	g_iSurvivorMarkAnnounceType, g_iSurvivorMarkGlowRange, g_iSurvivorMarkCvarColor,
-	g_iInfectedTeamButtons;
+	g_iInfectedTeamButtons, g_iInfectedTeamAliveMark, g_iInfectedTeamDeadMark, g_iInfectedTeamGhostMark;
 
 float g_fItemHintCoolDown, g_fSpotMarkCoolDown, g_fInfectedMarkCoolDown, g_fSurvivorMarkCoolDown,
 	g_fItemUseHintRange, g_fItemGlowTimer,
@@ -128,15 +126,13 @@ char g_sItemInstructorColor[12], g_sItemInstructorIcon[16], g_sSpotMarkCvarColor
 			g_sSurvivorMarkSpriteModel[PLATFORM_MAX_PATH];
 
 bool g_bCvarCMDEnable, g_bItemInstructorHint, 
-	g_bCvarVocalizeEnable, g_bCappedMark, g_bHaningMark, g_bDeadMark,
+	g_bSurvivorTeamVocalizeEnable,
 	g_bItemMarkGlowEnable,
-	g_bSurvivorTeamMarkSI, g_bSurvivorTeamMarkSurvivor, g_bSurvivorTeamMarkItem, g_bSurvivorTeamMarkSpot,
 	g_bSpotMarkInstructorHint,
-	g_bInfectedMarkInstructorHint, g_bInfectedMarkWitchEnable,
+	g_bInfectedMarkInstructorHint,
 	g_bSurvivorMarkInstructorHint,
 	g_bSurvivorMarkInfectedNotify,
-	g_bInfectedTeamMarkEnable, g_bInfectedTeamMarkSurvivor, g_bInfectedTeamMarkItem, g_bInfectedTeamMarkSpot,
-	g_bInfectedTeamDeadMark, g_bInfectedTeamGhostMark;
+	g_bInfectedTeamMarkEnable;
 
 float       
 	g_fGlobalCoolDownTime[MAXPLAYERS + 1],
@@ -170,11 +166,22 @@ StringMap
 	g_smModelHeight,
 	g_smModelNotGlow;
 
-enum EHintType {
+enum EHintType 
+{
 	eItemHint,
 	eSpotMarker,
 	eInfectedMaker,
 	eSurvivorMaker,
+}
+
+enum /*EMarkFlag*/
+{
+	eMarkFlag_None 				= 0,
+	eMarkFlag_SI 				= (1 << 0),
+	eMarkFlag_Witch 			= (1 << 1),
+	eMarkFlag_Survivors 		= (1 << 2),
+	eMarkFlag_ItemsWeapons 		= (1 << 3),
+	eMarkFlag_Spots 			= (1 << 4),
 }
 
 public void OnPluginStart()
@@ -210,15 +217,14 @@ public void OnPluginStart()
 
 	g_hCvarCMDEnable				= CreateConVar("l4d2_item_hint_cmd", 							"1", 			"If 1, Survivors can type !mark to mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hHintTransType				= CreateConVar("l4d2_item_hint_instructorhint_translate", 		"0", 			"Instructor hint language. 0=Server language (English), 1=Caller language", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarButtons					= CreateConVar("l4d2_item_hint_buttons", 						"131104", 		"Survivors press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex. 131104=Shift + Use (0=off)", FCVAR_NOTIFY, true, 0.0);
-	g_hCvarVocalizeEnable 			= CreateConVar("l4d2_item_hint_vocalize", 						"1", 			"If 1, Survivors can use vocalize \"Look\" to mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCappedMark					= CreateConVar("l4d2_item_hint_mark_capped", 					"0", 			"If 1, pinned Survivors can still mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hHaningMark					= CreateConVar("l4d2_item_hint_mark_hanging", 					"0", 			"If 1, hanging Survivors can still mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hDeadMark						= CreateConVar("l4d2_item_hint_mark_dead", 						"0", 			"If 1, dead Survivors can still mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorTeamMarkSI			= CreateConVar("l4d2_survivor_team_mark_si",					"1",			"If 1, survivor players can mark S.I.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorTeamMarkSurvivor		= CreateConVar("l4d2_survivor_team_mark_survivor",				"1",			"If 1, survivor players can mark survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorTeamMarkItem			= CreateConVar("l4d2_survivor_team_mark_item",					"1",			"If 1, survivor players can mark items/weapons", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hSurvivorTeamMarkSpot			= CreateConVar("l4d2_survivor_team_mark_spot",					"1",			"If 1, survivor players can mark spots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	
+	g_hSurvivorTeamVocalizeEnable 	= CreateConVar("l4d2_item_hint_sur_vocalize", 					"1", 			"If 1, Survivors can use vocalize \"Look\" to mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hSurvivorTeamButtons			= CreateConVar("l4d2_item_hint_sur_buttons", 					"131104", 		"Survivors press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex. 131104=Shift + Use (0=off)", FCVAR_NOTIFY, true, 0.0);
+	g_hSurvivorTeamAliveMark		= CreateConVar("l4d2_item_hint_sur_alive_mark", 				"31", 			"Standing Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)", FCVAR_NOTIFY, true, 0.0, true, 31.0);
+	g_hSurvivorTeamIncapMark		= CreateConVar("l4d2_item_hint_sur_incap_mark", 				"19", 			"Incapped Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)", FCVAR_NOTIFY, true, 0.0, true, 31.0);
+	g_hSurvivorTeamHaningMark		= CreateConVar("l4d2_item_hint_sur_hanging_mark", 				"16", 			"Survivors Hanging from ledge can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)", FCVAR_NOTIFY, true, 0.0, true, 31.0);
+	g_hSurvivorTeamCappedMark		= CreateConVar("l4d2_item_hint_sur_capped_mark", 				"1", 			"Pinned Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)", FCVAR_NOTIFY, true, 0.0, true, 31.0);
+	g_hSurvivorTeamDeadMark			= CreateConVar("l4d2_item_hint_sur_dead_mark", 					"16", 			"Dead Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)", FCVAR_NOTIFY, true, 0.0, true, 31.0);
 	
 	if(g_bL4D2Version)
 	{
@@ -262,18 +268,17 @@ public void OnPluginStart()
 
 	if(g_bL4D2Version)
 	{
-		g_hInfectedMarkCvarColor   		= CreateConVar("l4d2_infected_marker_glow_color", 				"255 120 203",			"(L4D2) S.I. marker glow color (RGB, space-separated). Empty = Remove Glow.", FCVAR_NOTIFY);
-		g_hInfectedMarkCoolDown			= CreateConVar("l4d2_infected_marker_cooldown_time", 			"0.25", 				"Cooldown for Survivors marking S.I. (seconds)", FCVAR_NOTIFY, true, 0.0);
-		g_hInfectedMarkUseRange     	= CreateConVar("l4d2_infected_marker_use_range", 				"1000", 				"Max distance for Survivors to mark S.I.", FCVAR_NOTIFY, true, 1.0);
-		g_hInfectedMarkUseSound			= CreateConVar("l4d2_infected_marker_use_sound", 				"items/suitchargeok1.wav", "Sound when Survivors mark S.I. (relative to sound/, Empty = Off)", FCVAR_NOTIFY);
-		g_hInfectedMarkAnnounceType		= CreateConVar("l4d2_infected_marker_announce_type",			"1", 					"S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-		g_hInfectedMarkGlowTimer   		= CreateConVar("l4d2_infected_marker_glow_timer", 				"10.0", 				"S.I. glow duration when marked by Survivors (seconds)", FCVAR_NOTIFY, true, 0.0);
-		g_hInfectedMarkGlowRange   		= CreateConVar("l4d2_infected_marker_glow_range", 				"2500", 				"S.I. glow visible range when marked by Survivors", FCVAR_NOTIFY, true, 0.0);
+		g_hInfectedMarkCvarColor   		= CreateConVar("l4d2_infected_marker_glow_color", 				"255 120 203",			"(L4D2) S.I./Witch marker glow color (RGB, space-separated). Empty = Remove Glow.", FCVAR_NOTIFY);
+		g_hInfectedMarkCoolDown			= CreateConVar("l4d2_infected_marker_cooldown_time", 			"0.25", 				"Cooldown for Survivors marking S.I./Witch (seconds)", FCVAR_NOTIFY, true, 0.0);
+		g_hInfectedMarkUseRange     	= CreateConVar("l4d2_infected_marker_use_range", 				"1000", 				"Max distance for Survivors to mark S.I./Witch", FCVAR_NOTIFY, true, 1.0);
+		g_hInfectedMarkUseSound			= CreateConVar("l4d2_infected_marker_use_sound", 				"items/suitchargeok1.wav", "Sound when Survivors mark S.I./Witch (relative to sound/, Empty = Off)", FCVAR_NOTIFY);
+		g_hInfectedMarkAnnounceType		= CreateConVar("l4d2_infected_marker_announce_type",			"1", 					"S.I./Witch marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+		g_hInfectedMarkGlowTimer   		= CreateConVar("l4d2_infected_marker_glow_timer", 				"10.0", 				"S.I./Witch glow duration when marked by Survivors (seconds)", FCVAR_NOTIFY, true, 0.0);
+		g_hInfectedMarkGlowRange   		= CreateConVar("l4d2_infected_marker_glow_range", 				"2500", 				"S.I./Witch glow visible range when marked by Survivors", FCVAR_NOTIFY, true, 0.0);
 		g_hInfectedMarkSIFlag    		= CreateConVar("l4d2_infected_marker_si_flag", 					"127", 					"Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)", FCVAR_NOTIFY, true, 0.0, true, 127.0);
-		g_hInfectedMarkInstructorHint	= CreateConVar("l4d2_infected_marker_instructorhint_enable", 	"1", 					"If 1, show instructor hint on S.I. marked by Survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-		g_hInfectedMarkInstructorColor	= CreateConVar("l4d2_infected_marker_instructorhint_color", 	"255 0 0", 				"Instructor hint color on S.I. (Empty = hide S.I. name)", FCVAR_NOTIFY);
-		g_hInfectedMarkInstructorIcon	= CreateConVar("l4d2_infected_marker_instructorhint_icon", 		"icon_skull", 			"Instructor hint icon on spot marker", FCVAR_NOTIFY);
-		g_hInfectedMarkWitchEnable    	= CreateConVar("l4d2_infected_marker_witch_enable", 			"1", 					"If 1, allow Survivors to mark Witch", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		g_hInfectedMarkInstructorHint	= CreateConVar("l4d2_infected_marker_instructorhint_enable", 	"1", 					"If 1, show instructor hint on S.I./Witch marked by Survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		g_hInfectedMarkInstructorColor	= CreateConVar("l4d2_infected_marker_instructorhint_color", 	"255 0 0", 				"Instructor hint color on S.I./Witch marker (Empty = hide S.I./Witch name)", FCVAR_NOTIFY);
+		g_hInfectedMarkInstructorIcon	= CreateConVar("l4d2_infected_marker_instructorhint_icon", 		"icon_skull", 			"Instructor hint icon on S.I./Witch marker", FCVAR_NOTIFY);
 		g_hInfectedMarkSIFov			= CreateConVar("l4d2_infected_marker_si_fov", 					"15.0", 				"FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 		g_hInfectedMarkWitchFov			= CreateConVar("l4d2_infected_marker_witch_fov", 				"15.0", 				"FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 
@@ -285,22 +290,21 @@ public void OnPluginStart()
 		g_hSurvivorMarkGlowTimer   		= CreateConVar("l4d2_survivor_marker_glow_timer", 				"10.0", 					"Survivor glow duration when marked (seconds)", FCVAR_NOTIFY, true, 0.0);
 		g_hSurvivorMarkGlowRange   		= CreateConVar("l4d2_survivor_marker_glow_range", 				"2000", 					"Survivor glow visible range when marked", FCVAR_NOTIFY, true, 0.0);
 		g_hSurvivorMarkInstructorHint	= CreateConVar("l4d2_survivor_marker_instructorhint_enable", 	"1", 						"If 1, show instructor hint on marked survivor", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-		g_hSurvivorMarkInstructorColor	= CreateConVar("l4d2_survivor_marker_instructorhint_color", 	"0 200 0", 					"Instructor hint color on survivor. (Empty = hide name)", FCVAR_NOTIFY);
-		g_hSurvivorMarkInstructorIcon	= CreateConVar("l4d2_survivor_marker_instructorhint_icon", 		"icon_alert", 				"Instructor hint icon on spot marker", FCVAR_NOTIFY);
+		g_hSurvivorMarkInstructorColor	= CreateConVar("l4d2_survivor_marker_instructorhint_color", 	"0 200 0", 					"Instructor hint color on survivor marker. (Empty = hide name)", FCVAR_NOTIFY);
+		g_hSurvivorMarkInstructorIcon	= CreateConVar("l4d2_survivor_marker_instructorhint_icon", 		"icon_alert", 				"Instructor hint icon on survivor marker", FCVAR_NOTIFY);
 		g_hSurvivorMarkFov				= CreateConVar("l4d2_survivor_marker_fov", 						"15.0", 					"FOV angle to detect if player is looking at a survivor. (0=Crosshair only)", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 		g_hSurvivorMarkInfectedNotify	= CreateConVar("l4d2_survivor_marker_infected_notify",			"1",						"If 1, notify the target when marked by an infected", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	}
 	else
 	{
-		g_hInfectedMarkCvarColor   		= CreateConVar("l4d2_infected_marker_sprite_color", 			"255 0 0",				"(L4D1) S.I. marker color (RGB, space-separated). Empty = Off.", FCVAR_NOTIFY);
-		g_hInfectedMarkSpriteModel      = CreateConVar("l4d2_infected_marker_sprite_model", 			"materials/vgui/icon_arrow_down.vmt", "Infected marker sprite model.", FCVAR_NOTIFY);
-		g_hInfectedMarkCoolDown			= CreateConVar("l4d2_infected_marker_cooldown_time", 			"0.25", 				"Cooldown for Survivors marking S.I. (seconds)", FCVAR_NOTIFY, true, 0.0);
-		g_hInfectedMarkUseRange     	= CreateConVar("l4d2_infected_marker_use_range", 				"1000", 				"Max distance for Survivors to mark S.I.", FCVAR_NOTIFY, true, 1.0);
-		g_hInfectedMarkUseSound			= CreateConVar("l4d2_infected_marker_use_sound", 				"items/suitchargeok1.wav", "Sound when Survivors mark S.I. (relative to sound/, Empty = Off)", FCVAR_NOTIFY);
-		g_hInfectedMarkAnnounceType		= CreateConVar("l4d2_infected_marker_announce_type",			"1", 					"S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-		g_hInfectedMarkSpriteTimer   	= CreateConVar("l4d2_infected_marker_sprite_timer", 			"10.0", 				"S.I. marker duration when marked by Survivors (seconds)", FCVAR_NOTIFY, true, 0.0);
+		g_hInfectedMarkCvarColor   		= CreateConVar("l4d2_infected_marker_sprite_color", 			"255 0 0",				"(L4D1) S.I./Witch marker color (RGB, space-separated). Empty = Off.", FCVAR_NOTIFY);
+		g_hInfectedMarkSpriteModel      = CreateConVar("l4d2_infected_marker_sprite_model", 			"materials/vgui/icon_arrow_down.vmt", "S.I./Witch marker sprite model.", FCVAR_NOTIFY);
+		g_hInfectedMarkCoolDown			= CreateConVar("l4d2_infected_marker_cooldown_time", 			"0.25", 				"Cooldown for Survivors marking S.I./Witch (seconds)", FCVAR_NOTIFY, true, 0.0);
+		g_hInfectedMarkUseRange     	= CreateConVar("l4d2_infected_marker_use_range", 				"1000", 				"Max distance for Survivors to mark S.I./Witch", FCVAR_NOTIFY, true, 1.0);
+		g_hInfectedMarkUseSound			= CreateConVar("l4d2_infected_marker_use_sound", 				"items/suitchargeok1.wav", "Sound when Survivors mark S.I./Witch (relative to sound/, Empty = Off)", FCVAR_NOTIFY);
+		g_hInfectedMarkAnnounceType		= CreateConVar("l4d2_infected_marker_announce_type",			"1", 					"S.I./Witch marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text", FCVAR_NOTIFY, true, 0.0, true, 3.0);
+		g_hInfectedMarkSpriteTimer   	= CreateConVar("l4d2_infected_marker_sprite_timer", 			"10.0", 				"S.I./Witch marker duration when marked by Survivors (seconds)", FCVAR_NOTIFY, true, 0.0);
 		g_hInfectedMarkSIFlag    		= CreateConVar("l4d2_infected_marker_si_flag", 					"15", 					"Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank. Add together (15=All)", FCVAR_NOTIFY, true, 0.0, true, 15.0);
-		g_hInfectedMarkWitchEnable    	= CreateConVar("l4d2_infected_marker_witch_enable", 			"1", 					"If 1, allow Survivors to mark Witch", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 		g_hInfectedMarkSIFov			= CreateConVar("l4d2_infected_marker_si_fov", 					"15.0", 				"FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 		g_hInfectedMarkWitchFov			= CreateConVar("l4d2_infected_marker_witch_fov", 				"15.0", 				"FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)", FCVAR_NOTIFY, true, 0.0, true, 90.0);
 
@@ -315,28 +319,25 @@ public void OnPluginStart()
 		g_hSurvivorMarkInfectedNotify	= CreateConVar("l4d2_survivor_marker_infected_notify",			"1",					"If 1, notify the target when marked by an infected", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	}
 
-	g_hInfectedTeamMarkEnable		= CreateConVar("l4d2_infected_team_mark_enable",					"1",			"If 1, infected players can use mark", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedTeamMarkSurvivor		= CreateConVar("l4d2_infected_team_mark_survivor",					"1",			"If 1, infected players can mark survivors", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedTeamMarkItem			= CreateConVar("l4d2_infected_team_mark_item",						"1",			"If 1, infected players can mark items/weapons", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedTeamMarkSpot			= CreateConVar("l4d2_infected_team_mark_spot",						"1",			"If 1, infected players can mark spots", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedTeamButtons			= CreateConVar("l4d2_infected_team_buttons", 						"131072", 		"Infected players press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex. 131104=Shift + Use (0=off)", FCVAR_NOTIFY, true, 0.0);
-	g_hInfectedTeamDeadMark			= CreateConVar("l4d2_infected_team_dead", 							"0", 			"If 1, dead infected players can mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hInfectedTeamGhostMark		= CreateConVar("l4d2_infected_team_ghost", 							"1", 			"If 1, ghost infected players can mark targets", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedTeamMarkEnable		= CreateConVar("l4d2_item_hint_inf_team_mark_enable",				"1",			"If 1, infected players can use mark", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hInfectedTeamButtons			= CreateConVar("l4d2_item_hint_inf_team_mark_buttons", 				"131072", 		"Infected players press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse\nYou can add numbers together, ex. 131104=Shift + Use (0=off)", FCVAR_NOTIFY, true, 0.0);
+	g_hInfectedTeamAliveMark		= CreateConVar("l4d2_item_hint_inf_alive_mark", 					"20", 			"Alive infected players can mark, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 28=All)", FCVAR_NOTIFY, true, 0.0, true, 28.0);
+	g_hInfectedTeamDeadMark			= CreateConVar("l4d2_item_hint_inf_dead_mark", 						"20", 			"Dead infected players can mark, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 28=All)", FCVAR_NOTIFY, true, 0.0, true, 28.0);
+	g_hInfectedTeamGhostMark		= CreateConVar("l4d2_item_hint_inf_ghost_mark", 					"20", 			"Ghost infected players can mark, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 28=All)", FCVAR_NOTIFY, true, 0.0, true, 28.0);
 
 	AutoExecConfig(true, "l4d2_item_hint");
 
 	GetCvars();
 	g_hCvarCMDEnable.AddChangeHook(ConVarChanged_Cvars);
 	g_hHintTransType.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarButtons.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarVocalizeEnable.AddChangeHook(ConVarChanged_Cvars);
-	g_hCappedMark.AddChangeHook(ConVarChanged_Cvars);
-	g_hHaningMark.AddChangeHook(ConVarChanged_Cvars);
-	g_hDeadMark.AddChangeHook(ConVarChanged_Cvars);
-	g_hSurvivorTeamMarkSI.AddChangeHook(ConVarChanged_Cvars);
-	g_hSurvivorTeamMarkSurvivor.AddChangeHook(ConVarChanged_Cvars);
-	g_hSurvivorTeamMarkItem.AddChangeHook(ConVarChanged_Cvars);
-	g_hSurvivorTeamMarkSpot.AddChangeHook(ConVarChanged_Cvars);
+
+	g_hSurvivorTeamVocalizeEnable.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorTeamButtons.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorTeamAliveMark.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorTeamIncapMark.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorTeamHaningMark.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorTeamCappedMark.AddChangeHook(ConVarChanged_Cvars);
+	g_hSurvivorTeamDeadMark.AddChangeHook(ConVarChanged_Cvars);
 
 	if(g_bL4D2Version)
 	{
@@ -391,7 +392,6 @@ public void OnPluginStart()
 		g_hInfectedMarkInstructorHint.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkInstructorColor.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkInstructorIcon.AddChangeHook(ConVarChanged_Cvars);
-		g_hInfectedMarkWitchEnable.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkSIFov.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkWitchFov.AddChangeHook(ConVarChanged_Cvars);
 
@@ -418,7 +418,6 @@ public void OnPluginStart()
 		g_hInfectedMarkAnnounceType.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkSpriteTimer.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkSIFlag.AddChangeHook(ConVarChanged_Cvars);
-		g_hInfectedMarkWitchEnable.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkSIFov.AddChangeHook(ConVarChanged_Cvars);
 		g_hInfectedMarkWitchFov.AddChangeHook(ConVarChanged_Cvars);
 
@@ -434,10 +433,8 @@ public void OnPluginStart()
 	}
 
 	g_hInfectedTeamMarkEnable.AddChangeHook(ConVarChanged_Cvars);
-	g_hInfectedTeamMarkSurvivor.AddChangeHook(ConVarChanged_Cvars);
-	g_hInfectedTeamMarkItem.AddChangeHook(ConVarChanged_Cvars);
-	g_hInfectedTeamMarkSpot.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedTeamButtons.AddChangeHook(ConVarChanged_Cvars);
+	g_hInfectedTeamAliveMark.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedTeamDeadMark.AddChangeHook(ConVarChanged_Cvars);
 	g_hInfectedTeamGhostMark.AddChangeHook(ConVarChanged_Cvars);
 
@@ -529,15 +526,14 @@ void GetCvars()
 
 	g_bCvarCMDEnable = g_hCvarCMDEnable.BoolValue;
 	g_iHintTransType = g_hHintTransType.IntValue;
-	g_iCvarButtons = g_hCvarButtons.IntValue;
-	g_bCvarVocalizeEnable = g_hCvarVocalizeEnable.BoolValue;
-	g_bCappedMark = g_hCappedMark.BoolValue;
-	g_bHaningMark = g_hHaningMark.BoolValue;
-	g_bDeadMark = g_hDeadMark.BoolValue;
-	g_bSurvivorTeamMarkSI = g_hSurvivorTeamMarkSI.BoolValue;
-	g_bSurvivorTeamMarkSurvivor = g_hSurvivorTeamMarkSurvivor.BoolValue;
-	g_bSurvivorTeamMarkItem = g_hSurvivorTeamMarkItem.BoolValue;
-	g_bSurvivorTeamMarkSpot = g_hSurvivorTeamMarkSpot.BoolValue;
+
+	g_bSurvivorTeamVocalizeEnable = g_hSurvivorTeamVocalizeEnable.BoolValue;
+	g_iSurvivorTeamButtons = g_hSurvivorTeamButtons.IntValue;
+	g_iSurvivorTeamAliveMark = g_hSurvivorTeamAliveMark.IntValue;
+	g_iSurvivorTeamIncapMark = g_hSurvivorTeamIncapMark.IntValue;
+	g_iSurvivorTeamHaningMark = g_hSurvivorTeamHaningMark.IntValue;
+	g_iSurvivorTeamCappedMark = g_hSurvivorTeamCappedMark.IntValue;
+	g_iSurvivorTeamDeadMark = g_hSurvivorTeamDeadMark.IntValue;
 
 	if(g_bL4D2Version)
 	{
@@ -605,7 +601,6 @@ void GetCvars()
 		g_bInfectedMarkInstructorHint = g_hInfectedMarkInstructorHint.BoolValue;
 		g_hInfectedMarkInstructorColor.GetString(g_sInfectedMarkInstructorColor, sizeof(g_sInfectedMarkInstructorColor));
 		g_hInfectedMarkInstructorIcon.GetString(g_sInfectedMarkInstructorIcon, sizeof(g_sInfectedMarkInstructorIcon));
-		g_bInfectedMarkWitchEnable = g_hInfectedMarkWitchEnable.BoolValue;
 		g_fInfectedMarkSIFov = g_hInfectedMarkSIFov.FloatValue;
 		g_fInfectedMarkWitchFov = g_hInfectedMarkWitchFov.FloatValue;
 
@@ -636,7 +631,6 @@ void GetCvars()
 		g_iInfectedMarkAnnounceType = g_hInfectedMarkAnnounceType.IntValue;
 		g_fInfectedMarkSpriteTimer = g_hInfectedMarkSpriteTimer.FloatValue;
 		g_iInfectedMarkSIFlag = g_hInfectedMarkSIFlag.IntValue;
-		g_bInfectedMarkWitchEnable = g_hInfectedMarkWitchEnable.BoolValue;
 		g_fInfectedMarkSIFov = g_hInfectedMarkSIFov.FloatValue;
 		g_fInfectedMarkWitchFov = g_hInfectedMarkWitchFov.FloatValue;
 
@@ -654,12 +648,10 @@ void GetCvars()
 	}
 
 	g_bInfectedTeamMarkEnable = g_hInfectedTeamMarkEnable.BoolValue;
-	g_bInfectedTeamMarkSurvivor = g_hInfectedTeamMarkSurvivor.BoolValue;
-	g_bInfectedTeamMarkItem = g_hInfectedTeamMarkItem.BoolValue;
-	g_bInfectedTeamMarkSpot = g_hInfectedTeamMarkSpot.BoolValue;
 	g_iInfectedTeamButtons = g_hInfectedTeamButtons.IntValue;
-	g_bInfectedTeamDeadMark = g_hInfectedTeamDeadMark.BoolValue;
-	g_bInfectedTeamGhostMark = g_hInfectedTeamGhostMark.BoolValue;
+	g_iInfectedTeamAliveMark = g_hInfectedTeamAliveMark.IntValue;
+	g_iInfectedTeamDeadMark = g_hInfectedTeamDeadMark.IntValue;
+	g_iInfectedTeamGhostMark = g_hInfectedTeamGhostMark.IntValue;
 }
 
 void CreateStringMap()
@@ -904,9 +896,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 		{
 			case TEAM_SURVIVOR:
 			{
-				if (g_iCvarButtons == 0) return Plugin_Continue;
+				if (g_iSurvivorTeamButtons == 0) return Plugin_Continue;
 
-				if (buttons & g_iCvarButtons == g_iCvarButtons) // SHIFT + E
+				if (buttons & g_iSurvivorTeamButtons == g_iSurvivorTeamButtons) // SHIFT + E
 				{
 					PlayerMarkHint_Survivor(client);
 				}
@@ -997,7 +989,7 @@ void Event_WitchKilled(Event event, const char[] name, bool dontBroadcast)
 
 Action Vocalize_Listener(int client, const char[] command, int argc)
 {
-	if(!g_bCvarVocalizeEnable) return Plugin_Continue;
+	if(!g_bSurvivorTeamVocalizeEnable) return Plugin_Continue;
 
 	if (IsRealSur(client))
 	{
@@ -2291,10 +2283,6 @@ void NotifyMessage(int client, const char[] sItemPhrase, EHintType eType, bool b
 	}
 }
 
-bool IsHandingFromLedge(int client)
-{
-	return view_as<bool>(GetEntProp(client, Prop_Send, "m_isHangingFromLedge") || GetEntProp(client, Prop_Send, "m_isFallingFromLedge"));
-}
 
 int my_GetInfectedAttacker(int client)
 {
@@ -2646,9 +2634,32 @@ bool TRDontHitSelf(int entity, int mask, any data) {
 
 void PlayerMarkHint_Survivor(int client)
 {
-	if(!g_bHaningMark && IsHandingFromLedge(client)) return;
-	if(!g_bCappedMark && my_GetInfectedAttacker(client) != -1) return;
-	if(!g_bDeadMark && !IsPlayerAlive(client)) return;
+	int iMarkflags = eMarkFlag_None;
+	if(IsPlayerAlive(client))
+	{
+		if(my_GetInfectedAttacker(client) != -1)
+		{
+			iMarkflags = g_iSurvivorTeamCappedMark;
+		}
+		else
+		{
+			if(L4D_IsPlayerIncapacitated(client))
+			{
+				if(L4D_IsPlayerHangingFromLedge(client)) iMarkflags = g_iSurvivorTeamHaningMark;
+				else iMarkflags = g_iSurvivorTeamIncapMark;
+			}
+			else
+			{
+				iMarkflags = g_iSurvivorTeamAliveMark;
+			}
+		}
+	}
+	else
+	{
+		iMarkflags = g_iSurvivorTeamDeadMark;
+	}
+
+	if(iMarkflags == eMarkFlag_None) return;
 
 	float now = GetEngineTime();
 	if(g_fGlobalCoolDownTime[client] > now) return;
@@ -2667,7 +2678,7 @@ void PlayerMarkHint_Survivor(int client)
 
 	if (1 <= clientAim <= MaxClients && IsClientInGame(clientAim))
 	{
-		if(g_bSurvivorTeamMarkSI && GetClientTeam(clientAim) == TEAM_INFECTED && IsPlayerAlive(clientAim) && !IsPlayerGhost(clientAim))
+		if(iMarkflags & eMarkFlag_SI && GetClientTeam(clientAim) == TEAM_INFECTED && IsPlayerAlive(clientAim) && !IsPlayerGhost(clientAim))
 		{
 			bIsAimPlayer = true;
 			//PrintToChatAll("look at %N", clientAim);
@@ -2687,7 +2698,7 @@ void PlayerMarkHint_Survivor(int client)
 					return;
 			}
 		}
-		else if(g_bSurvivorTeamMarkSurvivor && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
+		else if(iMarkflags & eMarkFlag_Survivors && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
 		{
 			bIsAimPlayer = true;
 			//PrintToChatAll("look at %N", clientAim);
@@ -2697,7 +2708,7 @@ void PlayerMarkHint_Survivor(int client)
 				return;
 		}
 	}
-	else if ( g_bInfectedMarkWitchEnable && IsWitch(clientAim) )
+	else if ( iMarkflags & eMarkFlag_Witch && IsWitch(clientAim) )
 	{
 		bIsAimWitch = true;
 
@@ -2713,7 +2724,7 @@ void PlayerMarkHint_Survivor(int client)
 		float degree, degree_Lowest = 360.0;
 		int Target_FovNearBy;
 
-		if ( g_bSurvivorTeamMarkSI )
+		if ( iMarkflags & eMarkFlag_SI )
 		{
 			Target_FovNearBy = 0;
 			if(g_fInfectedMarkSIFov > 0.0)
@@ -2760,8 +2771,11 @@ void PlayerMarkHint_Survivor(int client)
 					}
 				}
 			}
+		}
 
-			if(g_bInfectedMarkWitchEnable && g_fInfectedMarkWitchFov > 0.0)
+		if(iMarkflags & eMarkFlag_Witch)
+		{
+			if(g_fInfectedMarkWitchFov > 0.0)
 			{
 				int witch = -1;
 				while( (witch = L4D_FindEntityByClassnameWithin(witch, "witch", vClientPos, g_fInfectedMarkUseRange)) != INVALID_ENT_REFERENCE )
@@ -2802,7 +2816,7 @@ void PlayerMarkHint_Survivor(int client)
 		}
 
 		// 隊友次要
-		if ( g_bSurvivorTeamMarkSurvivor && g_fSurvivorMarkFov > 0.0)
+		if ( iMarkflags & eMarkFlag_Survivors && g_fSurvivorMarkFov > 0.0)
 		{
 			Target_FovNearBy = 0;
 			for(int i = 1; i <= MaxClients; i++)
@@ -2840,7 +2854,7 @@ void PlayerMarkHint_Survivor(int client)
 	}
 
 	int iEntity = 0;
-	if(g_bSurvivorTeamMarkItem)
+	if(iMarkflags & eMarkFlag_ItemsWeapons)
 	{
 		if(IsPlayerAlive(client)) iEntity = GetUseEntity(client, g_fItemUseHintRange);
 		else
@@ -2952,7 +2966,7 @@ void PlayerMarkHint_Survivor(int client)
 	}
 
 	// world
-	if(g_bSurvivorTeamMarkSpot)
+	if(iMarkflags & eMarkFlag_Spots)
 	{
 		CreateSpotMarker(client, bIsAimPlayer, false);
 	}
@@ -2960,8 +2974,24 @@ void PlayerMarkHint_Survivor(int client)
 
 void PlayerMarkHint_Infected(int client)
 {
-	if(!g_bInfectedTeamDeadMark && !IsPlayerAlive(client)) return;
-	if(!g_bInfectedTeamGhostMark && IsPlayerGhost(client)) return;
+	int iMarkflags = eMarkFlag_None;
+	if(IsPlayerAlive(client))
+	{
+		if(L4D_IsPlayerGhost(client))
+		{
+			iMarkflags = g_iInfectedTeamGhostMark;
+		}
+		else
+		{
+			iMarkflags = g_iInfectedTeamAliveMark;
+		}
+	}
+	else
+	{
+		iMarkflags = g_iInfectedTeamDeadMark;
+	}
+
+	if(iMarkflags == eMarkFlag_None) return;
 
 	float now = GetEngineTime();
 	if(g_fGlobalCoolDownTime[client] > now) return;
@@ -2980,7 +3010,7 @@ void PlayerMarkHint_Infected(int client)
 	// 1. Check crosshair target (survivor)
 	if (1 <= clientAim <= MaxClients && IsClientInGame(clientAim))
 	{
-		if(g_bInfectedTeamMarkSurvivor && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
+		if(iMarkflags & eMarkFlag_Survivors && GetClientTeam(clientAim) == TEAM_SURVIVOR && IsPlayerAlive(clientAim))
 		{
 			bIsAimPlayer = true;
 			GetEntPropVector(clientAim, Prop_Data, "m_vecOrigin", vTargetPos);
@@ -2990,7 +3020,7 @@ void PlayerMarkHint_Infected(int client)
 	}
 
 	// 2. FOV scan for survivors
-	if(!bIsAimPlayer && g_bInfectedTeamMarkSurvivor && g_fSurvivorMarkFov > 0.0)
+	if(!bIsAimPlayer && iMarkflags & eMarkFlag_Survivors && g_fSurvivorMarkFov > 0.0)
 	{
 		float degree, degree_Lowest = 360.0;
 		int Target_FovNearBy = 0;
@@ -3026,7 +3056,7 @@ void PlayerMarkHint_Infected(int client)
 	}
 
 	// 3. Try to detect item via trace
-	if(!bIsAimPlayer && g_bInfectedTeamMarkItem)
+	if(!bIsAimPlayer && iMarkflags & eMarkFlag_ItemsWeapons)
 	{
 		float vPos[3], vAng[3];
 		GetClientEyePosition(client, vPos);
@@ -3137,7 +3167,7 @@ void PlayerMarkHint_Infected(int client)
 	}
 
 	// 4. Fallback: spot marker
-	if(g_bInfectedTeamMarkSpot)
+	if(iMarkflags & eMarkFlag_Spots)
 	{
 		// world
 		CreateSpotMarker(client, bIsAimPlayer, true);

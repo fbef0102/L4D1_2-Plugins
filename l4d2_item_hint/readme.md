@@ -31,7 +31,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         <br/>![l4d2_item_hint_0.jpg](image/l4d2_item_hint_0.jpg)
         * Type```!mark```
         * Press Shift+E
-    * Survivors marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
+        * Survivors marker priority: Infected > Witch > Survivor > Item or Weapon > Spot marker
     * If not aiming target or item, the plugin detects what player is looking at using field of view angle
         * If has more than two targets, it finds the target nearest to your crosshair
         <br/>![l4d2_item_hint_7](image/l4d2_item_hint_7.gif)
@@ -62,6 +62,19 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         * 可以自由變成其他角色或NPC的模組
 </details>
 
+* Directory Structure | 檔案結構
+    ```
+    /
+    ├── gamedata/
+    │   └── l4d2_item_hint.txt                # GameData | 遊戲數據
+    ├── plugins/
+    │   └── l4d2_item_hint.smx                # Compiled Plugin | 已編譯的插件
+    ├── scripting/
+    │   └── l4d2_item_hint.sp                 # Source code | 源碼
+    └── translations/
+        └── l4d2_item_hint.phrases.txt        # Multi-language translations | 翻譯多國語言
+    ```
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/l4d2_item_hint.cfg
@@ -76,59 +89,47 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
         * Survivor Team Mark Ability
             ```php
+            // If 1, Survivors can use vocalize "Look" to mark targets
+            l4d2_item_hint_sur_vocalize "1"
+
             // Survivors press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
             // You can add numbers together, ex. 131104=Shift + Use (0=off)
             // See more buttons: https://github.com/alliedmodders/sourcemod/blob/master/plugins/include/entity_prop_stocks.inc#L100-L125
-            l4d2_item_hint_buttons "131104"
+            l4d2_item_hint_sur_buttons "131104"
 
-            // If 1, Survivors can use vocalize "Look" to mark targets
-            l4d2_item_hint_vocalize "1"
+            // Standing Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)
+            l4d2_item_hint_sur_alive_mark "31"
 
-            // If 1, pinned Survivors can still mark targets
-            l4d2_item_hint_mark_capped "0"
+            // Incapped Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)
+            l4d2_item_hint_sur_incap_mark "19"
 
-            // If 1, hanging Survivors can still mark targets
-            l4d2_item_hint_mark_hanging "0"
+            // Survivors Hanging from ledge can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)
+            l4d2_item_hint_sur_hanging_mark "16"
 
-            // If 1, dead Survivors can still mark targets
-            l4d2_item_hint_mark_dead "0"
+            // Pinned Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)
+            l4d2_item_hint_sur_capped_mark "1"
 
-            // If 1, survivor players can mark items/weapons
-            l4d2_survivor_team_mark_item "1"
-
-            // If 1, survivor players can mark S.I.
-            l4d2_survivor_team_mark_si "1"
-
-            // If 1, survivor players can mark spots
-            l4d2_survivor_team_mark_spot "1"
-
-            // If 1, survivor players can mark survivors
-            l4d2_survivor_team_mark_survivor "1"
+            // Dead Survivors can mark, 1=S.I., 2=Witch, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 31=All)
+            l4d2_item_hint_sur_dead_mark "16"
             ```
 
         * Infected Team Mark Ability
             ```php
             // If 1, infected players can use mark
-            l4d2_infected_team_mark_enable "1"
-
-            // If 1, infected players can mark survivors
-            l4d2_infected_team_mark_survivor "1"
-
-            // If 1, infected players can mark items/weapons
-            l4d2_infected_team_mark_item "1"
-
-            // If 1, infected players can mark spots
-            l4d2_infected_team_mark_spot "1"
+            l4d2_item_hint_inf_team_mark_enable "1"
 
             // Infected players press which buttons to mark targets, 131072=Shift, 4=Ctrl, 32=Use, 8192=Reload, 524288=Middle Mouse
             // You can add numbers together, ex. 131104=Shift + Use (0=off)
-            l4d2_infected_team_buttons "131072"
+            l4d2_item_hint_inf_team_mark_buttons "131072"
 
-            // If 1, dead infected players can mark targets
-            l4d2_infected_team_dead "0"
+            // Alive infected players can mark, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 28=All)
+            l4d2_item_hint_inf_alive_mark "20"
 
-            // If 1, ghost infected players can mark targets
-            l4d2_infected_team_ghost "1"
+            // Dead infected players can mark, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 28=All)
+            l4d2_item_hint_inf_dead_mark "20"
+
+            // Ghost infected players can mark, 4=Survivors, 8=Items/Weapons, 16=Spots (Add numbers togethoer, 28=All)
+            l4d2_item_hint_inf_ghost_mark "20"
             ```
 
         * Both teams mark "Spot"
@@ -214,42 +215,39 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_instructorhint_icon "icon_interact"
             ```
 
-        * (L4D2) Survivors mark "Special Infected"
+        * (L4D2) Survivors mark "Special Infected" or "Witch"
             ```php
-            // S.I. marker glow color (RGB, space-separated). Empty = Remove Glow
+            // S.I./Witch marker glow color (RGB, space-separated). Empty = Remove Glow
             l4d2_infected_marker_glow_color "255 120 203"
 
-            // Cooldown for Survivors marking S.I. (seconds)
+            // Cooldown for Survivors marking S.I./Witch (seconds)
             l4d2_infected_marker_cooldown_time "0.25"
 
-            // Max distance for Survivors to mark S.I.
+            // Max distance for Survivors to mark S.I./Witch
             l4d2_infected_marker_use_range "1000"
 
-            // Sound when Survivors mark S.I. (relative to sound/, Empty = Off)
+            // Sound when Survivors mark S.I./Witch (relative to sound/, Empty = Off)
             l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
 
-            // S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            // S.I./Witch marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_infected_marker_announce_type "1"
 
-            // S.I. glow duration when marked by Survivors (seconds)
+            // S.I./Witch glow duration when marked by Survivors (seconds)
             l4d2_infected_marker_glow_timer "10.0"
 
-            // S.I. glow visible range when marked by Survivors
+            // S.I./Witch glow visible range when marked by Survivors
             l4d2_infected_marker_glow_range "2500"
 
             // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. Add together (127=All)
             l4d2_infected_marker_si_flag "127"
 
-            // If 1, allow Survivors to mark Witch
-            l4d2_infected_marker_witch_enable "1"
-
-            // If 1, show instructor hint on S.I. marked by Survivors
+            // If 1, show instructor hint on S.I./Witch marked by Survivors
             l4d2_infected_marker_instructorhint_enable "1"
 
-            // Instructor hint color on S.I. (Empty = hide S.I. name)
+            // Instructor hint color on S.I./Witch marker (Empty = hide S.I./Witch  name)
             l4d2_infected_marker_instructorhint_color "255 0 0"
 
-            // Instructor hint icon on S.I. marker
+            // Instructor hint icon on S.I./Witch marker
             l4d2_infected_marker_instructorhint_icon "icon_skull"
 
             // FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)
@@ -285,7 +283,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // If 1, show instructor hint on marked survivor
             l4d2_survivor_marker_instructorhint_enable "1"
 
-            // Instructor hint color on survivor. (Empty = hide name)
+            // Instructor hint color on survivor marker. (Empty = hide name)
             l4d2_survivor_marker_instructorhint_color "0 200 0"
 
             // Instructor hint icon on survivor marker
@@ -322,34 +320,31 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_glow_range "800"
             ```
 
-        * (L4D1) Survivors mark "Special Infected"
+        * (L4D1) Survivors mark "Special Infected" or "Witch"
             ```php
-            // (L4D1) S.I. marker color (RGB, space-separated). Empty = Off.
+            // (L4D1) S.I./Witch marker color (RGB, space-separated). Empty = Off.
             l4d2_infected_marker_sprite_color "255 0 0"
 
-            // Infected marker sprite model.
+            // S.I./Witch marker sprite model.
             l4d2_infected_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
-            // Cooldown for Survivors marking S.I. (seconds)
+            // Cooldown for Survivors marking S.I./Witch (seconds)
             l4d2_infected_marker_cooldown_time "0.25"
 
-            // Max distance for Survivors to mark S.I.
+            // Max distance for Survivors to mark S.I./Witch
             l4d2_infected_marker_use_range "1000"
 
-            // Sound when Survivors mark S.I. (relative to sound/, Empty = Off)
+            // Sound when Survivors mark S.I./Witch (relative to sound/, Empty = Off)
             l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
 
-            // S.I. marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            // S.I./Witch marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_infected_marker_announce_type "1"
 
-            // S.I. marker duration when marked by Survivors (seconds)
+            // S.I./Witch marker duration when marked by Survivors (seconds)
             l4d2_infected_marker_sprite_timer "10.0"
 
             // Which S.I. can Survivors mark? 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank. Add together (15=All)
             l4d2_infected_marker_si_flag "15"
-
-            // If 1, allow Survivors to mark Witch
-            l4d2_infected_marker_witch_enable "1"
 
             // FOV angle to detect if Survivor is looking at S.I. (0=Crosshair only)
             l4d2_infected_marker_si_fov "15.0"
@@ -397,11 +392,6 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         ```
 </details>
 
-* Translation Support | 支援翻譯
-    ```
-    translations/l4d2_item_hint.phrases.txt
-    ```
-
 * <details><summary>Related Plugin | 相關插件</summary>
 
     1. [l4d2_infected_hp_hint](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d2_infected_hp_hint): Display corresponding health value hint of all Special Infected
@@ -409,6 +399,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v5.0 (2026-9-23)
+        * Update cvars
 
     * v4.9 (2026-8-30)
         * Fixed sprite model in l4d1
@@ -527,10 +520,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
     * 如果準心沒有指向任何東西，會依照玩家視野看到的目標進行標記
         * 如果有兩個目標以上，看哪一個目標離你的準心最近
         <br/>![l4d2_item_hint_7](image/zho/l4d2_item_hint_7.gif)
-    * 人類標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
+        * 人類標記優先順序: 特感 > Witch > 隊友 > 物品或武器 > 地點
     * 活著的特感或是靈魂特感也可以標記目標
         * 按下Shift鍵
-        * 標記優先順序: 倖存者 > 物品或武器 > 地點
+        * 特感標記優先順序: 倖存者 > 物品或武器 > 地點
     * 雙方陣營看不見對方的標記與提示
     * (L4D1) 只有物品與武器能發光，且光圈顏色強制白色，認真你就輸了，問Value
     * (L4D1) 沒有導演提示，認真你就輸了，問Value
@@ -554,59 +547,47 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
         * 倖存者陣營的標記能力
             ```php
+            // 為1時，倖存者玩家可以用"看"語音標記
+            l4d2_item_hint_sur_vocalize "1"
+
             // 倖存者玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
             // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不能使用鍵位標記)
             // 看更多按鈕: https://github.com/alliedmodders/sourcemod/blob/master/plugins/include/entity_prop_stocks.inc#L100-L125
-            l4d2_item_hint_buttons "131104"
+            l4d2_item_hint_sur_buttons "131104"
 
-            // 為1時，倖存者玩家可以用"看"語音標記
-            l4d2_item_hint_vocalize "1"
+            // 站立的倖存者玩家可以標記哪些? 1=特感, 2=Witch, 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 31=全部)
+            l4d2_item_hint_sur_alive_mark "31"
 
-            // 為1時，被特感控制的玩家可以使用標記
-            l4d2_item_hint_mark_capped "0"
+            // 倒地的倖存者玩家可以標記哪些? 1=特感, 2=Witch, 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 31=全部)
+            l4d2_item_hint_sur_incap_mark "19"
 
-            // 為1時，掛邊的玩家可以使用標記
-            l4d2_item_hint_mark_hanging "0"
+            // 掛邊的倖存者玩家可以標記哪些? 1=特感, 2=Witch, 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 31=全部)
+            l4d2_item_hint_sur_hanging_mark "16"
 
-            // 為1時，死亡的玩家可以使用標記
-            l4d2_item_hint_mark_dead "0"
+            // 被特感控的倖存者玩家可以標記哪些? 1=特感, 2=Witch, 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 31=全部)
+            l4d2_item_hint_sur_capped_mark "1"
 
-            // 為1時，人類可以標記物品
-            l4d2_survivor_team_mark_item "1"
-
-            // 為1時，人類可以標記特感
-            l4d2_survivor_team_mark_si "1"
-
-            // 為1時，人類可以標記地點
-            l4d2_survivor_team_mark_spot "1"
-
-            // 為1時，人類可以標記倖存者隊友
-            l4d2_survivor_team_mark_survivor "1"
+            // 死亡的倖存者玩家可以標記哪些? 1=特感, 2=Witch, 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 31=全部)
+            l4d2_item_hint_sur_dead_mark "16"
             ```
 
-        * 特感陣營的標記能力
+        * Infected Team Mark Ability
             ```php
             // 為1時，特感玩家也可以使用標記
-            l4d2_infected_team_mark_enable "1"
-
-            // 為1時，特感玩家可以標記生還者
-            l4d2_infected_team_mark_survivor "1"
-
-            // 為1時，特感玩家可以標記物品/武器
-            l4d2_infected_team_mark_item "1"
-
-            // 為1時，特感玩家可以標記地點
-            l4d2_infected_team_mark_spot "1"
+            l4d2_item_hint_inf_team_mark_enable "1"
 
             // 特感玩家按下哪一個按鈕進行標記? 131072=Shift, 4=Ctrl, 32=E鍵, 8192=R鍵, 524288=滾輪鍵
             // 可以將數字相加, 舉例: 131104=必須同時按Shift + E鍵 (0=不能使用鍵位標記)
-            l4d2_infected_team_buttons "131072"
+            l4d2_item_hint_inf_team_mark_buttons "131072"
 
-            // 為1時，死亡的特感玩家可以標記
-            l4d2_infected_team_dead "0"
+            // 活著的特感玩家可以標記哪些? 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 28=全部)
+            l4d2_item_hint_inf_alive_mark "20"
 
-            // 為1時，靈魂狀態的特感玩家可以標記
-            l4d2_infected_team_ghost "1"
+            // 死亡等待重生的特感玩家可以標記哪些? 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 28=全部)
+            l4d2_item_hint_inf_dead_mark "20"
+
+            // 靈魂特感玩家可以標記哪些? 4=倖存者, 8=物品/武器, 16=地點 (請將數字相加, 28=全部)
+            l4d2_item_hint_inf_ghost_mark "20"
             ```
 
         * 雙方隊伍標記"地點"
@@ -695,16 +676,16 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_instructorhint_icon "icon_interact"
             ```
 
-        * (L4D2遊戲) 人類標記"特感"
+        * (L4D2遊戲) 人類標記"特感"或"Witch"
             ```php
-            // (L4D2) 特感標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // (L4D2) 特感/Witch標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=移除光圈
             l4d2_infected_marker_glow_color "255 120 203"
 
-            // 玩家可以再次標記特感的時間間隔
+            // 玩家可以再次標記特感/Witch的時間間隔
             l4d2_infected_marker_cooldown_time "0.25"
 
-            // 能標記特感的距離
+            // 能標記特感/Witch的距離
             l4d2_infected_marker_use_range "1000"
 
             // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
@@ -722,13 +703,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 可以標記哪些特感? 1=Smoker, 2=Boomer, 4=Hunter, 8=Spitter, 16=Jockey, 32=Charger, 64=Tank. 請將數字相加 (127=全部)
             l4d2_infected_marker_si_flag "127"
 
-            // 為1時，也可以標記Witch
-            l4d2_infected_marker_witch_enable "1"
-
             // 為1時，啟用導演提示
             l4d2_infected_marker_instructorhint_enable "1"
 
-            // 導演提示的特感名稱顏色 (空=無特感名稱)
+            // 導演提示的特感/Witch名稱顏色 (空=不顯示特感/Witch名稱)
             l4d2_infected_marker_instructorhint_color "255 0 0"
 
             // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
@@ -808,19 +786,19 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_item_marker_glow_range "800"
             ```
 
-        * (L4D1遊戲) 人類標記"特感"
+        * (L4D1遊戲) 人類標記"特感"或"Witch"
             ```php
-            // (L4D1) 特感被標記的顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // (L4D1) 特感/Witch被標記的顏色，填入RGB三色 (三個數值介於0~255，需要空格)
             // 空=移除標籤
             l4d2_infected_marker_sprite_color "255 0 0"
 
-            // 特感被標記時，頭上出現的模型圖案
+            // 特感/Witch被標記時，頭上出現的模型圖案
             l4d2_infected_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
-            // 玩家可以再次標記特感的時間間隔
+            // 玩家可以再次標記特感/Witch的時間間隔
             l4d2_infected_marker_cooldown_time "0.25"
 
-            // 能標記特感的距離
+            // 能標記特感/Witch的距離
             l4d2_infected_marker_use_range "1000"
 
             // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
@@ -834,9 +812,6 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 可以標記哪些特感? 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank. 請將數字相加 (15=全部)
             l4d2_infected_marker_si_flag "15"
-
-            // 為1時，也可以標記Witch
-            l4d2_infected_marker_witch_enable "1"
 
             // 檢測玩家的視野是否正在看特感, 此數值代表特感與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
