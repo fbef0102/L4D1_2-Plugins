@@ -134,11 +134,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
         * Both teams mark "Spot"
             ```php
-            // (L4D2) Spot marker color (RGB, space-separated). Empty = Remove circle mark
-            l4d2_spot_marker_color "200 200 200"
+            // Spot marker beam ring color (RGB, space-separated). Empty = Remove beam ring
+            l4d2_spot_marker_circle_color ""
 
             // Cooldown between spot marks (seconds)
-            l4d2_spot_marker_cooldown_time "2.5"
+            l4d2_spot_marker_cooldown_time "0.25"
 
             // Max distance to place a spot marker
             l4d2_spot_marker_use_range "1800"
@@ -152,10 +152,13 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Spot marker duration (seconds)
             l4d2_spot_marker_duration "10.0"
 
-            // Spot marker sprite model. (Empty = Off)
+            // Spot marker icon color (RGB, space-separated). (Empty = Remove icon)
+            l4d2_spot_marker_sprite_color "200 200 200"
+
+            // Spot marker icon model.
             l4d2_spot_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
-            // Spot marker sprite height from ground
+            // Spot marker icon height from ground
             l4d2_spot_marker_sprite_height "50.0"
 
             // If 1, show instructor hint on spot marker
@@ -176,10 +179,13 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Spot marker beam ring width
             l4d2_spot_marker_ring_width         "2.0"
 
-            // Particle effect on spot marker.
+            // Particle effect on spot marker. (e.g., sline_sparks) 
             // Empty = Off
             // See more: https://forums.alliedmods.net/showthread.php?t=127111)
-            l4d2_spot_marker_particle           "sline_sparks"
+            l4d2_spot_marker_particle           ""
+
+            // If 1, Remove previous spot marker if same player marks again
+            l4d2_spot_marker_remove_previous "1"
             ```
 
         * (L4D2) Both teams mark "Item/Weapons"
@@ -199,10 +205,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Item marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_item_marker_announce_type "1"
 
-            // Item glow duration (seconds)
+            // Item marker glow duration (seconds)
             l4d2_item_marker_glow_timer "10.0"
 
-            // Item glow visible range
+            // Item marker glow visible range
             l4d2_item_marker_glow_range "800"
 
             // If 1, show instructor hint on marked items
@@ -213,6 +219,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // Instructor hint icon. (More icons: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
             l4d2_item_marker_instructorhint_icon "icon_interact"
+
+            // If 1, Remove previous Item marker if same player marks again
+            l4d2_item_marker_remove_previous "0"
             ```
 
         * (L4D2) Survivors mark "Special Infected" or "Witch"
@@ -227,7 +236,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_use_range "1000"
 
             // Sound when Survivors mark S.I./Witch (relative to sound/, Empty = Off)
-            l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
+            l4d2_infected_marker_use_sound "ui/alert_clink.wav"
 
             // S.I./Witch marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_infected_marker_announce_type "1"
@@ -255,6 +264,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)
             l4d2_infected_marker_witch_fov "15.0"
+
+            // If 1, Remove previous S.I./Witch marker if same player marks again
+            l4d2_infected_marker_remove_previous "1"
             ```
 
         * (L4D2) Both teams mark "Survivor"
@@ -263,7 +275,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_glow_color "0 200 0"
 
             // Cooldown between marking survivors (seconds)
-            l4d2_survivor_marker_cooldown_time "1.0"
+            l4d2_survivor_marker_cooldown_time "0.25"
 
             // Max distance to mark a survivor
             l4d2_survivor_marker_use_range "1000"
@@ -274,10 +286,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_survivor_marker_announce_type "1"
 
-            // Survivor glow duration when marked (seconds)
+            // Survivor marker glow duration when marked (seconds)
             l4d2_survivor_marker_glow_timer "10.0"
 
-            // Survivor glow visible range when marked
+            // Survivor marker glow visible range when marked
             l4d2_survivor_marker_glow_range "2000"
 
             // If 1, show instructor hint on marked survivor
@@ -291,6 +303,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
             l4d2_survivor_marker_fov "15.0"
+
+            // If 1, Remove previous survivor marker if same player marks again
+            l4d2_survivor_marker_remove_previous "1"
 
             // If 1, notify the target when marked by an infected
             l4d2_survivor_marker_infected_notify "1"
@@ -313,11 +328,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // Item marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_item_marker_announce_type "1"
 
-            // Item glow duration (seconds)
+            // Item marker glow duration (seconds)
             l4d2_item_marker_glow_timer "10.0"
 
-            // Item glow visible range
+            // Item marker glow visible range
             l4d2_item_marker_glow_range "800"
+
+            // If 1, Remove previous Item marker if same player marks again
+            l4d2_item_marker_remove_previous "0"
             ```
 
         * (L4D1) Survivors mark "Special Infected" or "Witch"
@@ -335,7 +353,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_use_range "1000"
 
             // Sound when Survivors mark S.I./Witch (relative to sound/, Empty = Off)
-            l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
+            l4d2_infected_marker_use_sound "ui/alert_clink.wav"
 
             // S.I./Witch marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text
             l4d2_infected_marker_announce_type "1"
@@ -351,6 +369,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // FOV angle to detect if Survivor is looking at Witch. (0=Crosshair only)
             l4d2_infected_marker_witch_fov "15.0"
+
+            // If 1, Remove previous S.I./Witch marker if same player marks again
+            l4d2_infected_marker_remove_previous "1"
             ```
 
         * (L4D1) Both teams mark "Survivor"
@@ -362,7 +383,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
             // Cooldown between marking survivors (seconds)
-            l4d2_survivor_marker_cooldown_time "1.0"
+            l4d2_survivor_marker_cooldown_time "0.25"
 
             // Max distance to mark a survivor
             l4d2_survivor_marker_use_range "1000"
@@ -378,6 +399,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
             l4d2_survivor_marker_fov "15.0"
+
+            // If 1, Remove previous survivor marker if same player marks again
+            l4d2_survivor_marker_remove_previous "1"
 
             // If 1, notify the target when marked by an infected
             l4d2_survivor_marker_infected_notify "1"
@@ -399,6 +423,10 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v5.1 (2026-9-25)
+        * Update cvars
+        * Remove previous marker if same player marks again
 
     * v5.0 (2026-9-23)
         * Update cvars
@@ -593,11 +621,11 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
         * 雙方隊伍標記"地點"
             ```php
             // 標記的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=移除光圈與中心模型圖案
-            l4d2_spot_marker_color "200 200 200"
+            // 空=移除光圈
+            l4d2_spot_marker_circle_color ""
 
             // 玩家可以再次標記的時間間隔
-            l4d2_spot_marker_cooldown_time "2.5"
+            l4d2_spot_marker_cooldown_time "0.25"
 
             // 能標記的距離
             l4d2_spot_marker_use_range "1800"
@@ -611,19 +639,23 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 標記的光圈顯示時間
             l4d2_spot_marker_duration "10.0"
 
-            // 標記的中心模型圖案 (空=無中心模型圖案)
+            // 標記的中心圖案顏色，填入RGB三色 (三個數值介於0~255，需要空格)
+            // 空=移除中心圖案
+            l4d2_spot_marker_sprite_color "200 200 200"
+
+            // 標記的中心圖案的模型
             l4d2_spot_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
-            // 中心模型圖案距離地面的高度.
+            // 中心圖案距離地面的高度.
             l4d2_spot_marker_sprite_height "50.0"
 
-            // 為1時，啟用導演提示
+            // (L4D2) 為1時，啟用導演提示
             l4d2_spot_marker_instructorhint_enable "1"
 
-            // 導演提示的文字顏色 (空=無文字)
+            // (L4D2) 導演提示的文字顏色 (空=無文字)
             l4d2_spot_marker_instructorhint_color "200 200 200"
 
-            // 導演提示的圖案 
+            // (L4D2) 導演提示的圖案 
             l4d2_spot_marker_instructorhint_icon "icon_info"
 
             // 標記的圓圈起始半徑.
@@ -635,12 +667,14 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 標記的圓圈寬度.
             l4d2_spot_marker_ring_width         "2.0"
 
-            // 標記時有特效, 請填入特效名稱
+            // 標記時有特效, 請填入特效名稱  (範例: sline_sparks) 
             // 空=不出現特效
             // (查看更多l4d2特效: https://forums.alliedmods.net/showthread.php?t=127111)
-            l4d2_spot_marker_particle           "sline_sparks"
-            ```
+            l4d2_spot_marker_particle           ""
 
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_spot_marker_remove_previous "1"
+            ```
 
         * (L4D2遊戲) 雙方隊伍標記"物品、武器"
             ```php
@@ -674,6 +708,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 導演提示的圖案 (查找更多圖案: https://developer.valvesoftware.com/wiki/Env_instructor_hint)
             l4d2_item_marker_instructorhint_icon "icon_interact"
+
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_item_marker_remove_previous "0"
             ```
 
         * (L4D2遊戲) 人類標記"特感"或"Witch"
@@ -689,7 +726,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_use_range "1000"
 
             // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
-            l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
+            l4d2_infected_marker_use_sound "ui/alert_clink.wav"
 
             // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
             l4d2_infected_marker_announce_type "1"
@@ -719,6 +756,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 檢測玩家的視野是否正在看Witch, 此數值代表Witch與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_infected_marker_witch_fov "15.0"
+
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_infected_marker_remove_previous "1"
             ```
 
         * (L4D2遊戲) 雙方隊伍標記"倖存者"
@@ -728,7 +768,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_glow_color "0 200 0"
 
             // 玩家可以再次標記隊友的時間間隔
-            l4d2_survivor_marker_cooldown_time "1.0"
+            l4d2_survivor_marker_cooldown_time "0.25"
 
             // 能標記隊友的距離
             l4d2_survivor_marker_use_range "1000"
@@ -758,6 +798,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_survivor_marker_fov "15.0"
 
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_survivor_marker_remove_previous "1"
+
             // 為1時，感染者標記生還者後通知被標記的對象
             l4d2_survivor_marker_infected_notify "1"
             ```
@@ -784,6 +827,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
 
             // 標記的光圈可見範圍
             l4d2_item_marker_glow_range "800"
+
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_item_marker_remove_previous "0"
             ```
 
         * (L4D1遊戲) 人類標記"特感"或"Witch"
@@ -802,7 +848,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_infected_marker_use_range "1000"
 
             // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
-            l4d2_infected_marker_use_sound "items/suitchargeok1.wav"
+            l4d2_infected_marker_use_sound "ui/alert_clink.wav"
 
             // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
             l4d2_infected_marker_announce_type "1"
@@ -820,6 +866,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 檢測玩家的視野是否正在看Witch, 此數值代表Witch與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_infected_marker_witch_fov "15.0"
+
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_infected_marker_remove_previous "1"
             ```
 
         * (L4D1遊戲) 雙方隊伍標記"倖存者"
@@ -832,7 +881,7 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             l4d2_survivor_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
 
             // 玩家可以再次標記隊友的時間間隔
-            l4d2_survivor_marker_cooldown_time "1.0"
+            l4d2_survivor_marker_cooldown_time "0.25"
 
             // 能標記隊友的距離
             l4d2_survivor_marker_use_range "1000"
@@ -849,6 +898,9 @@ When using 'Look' in vocalize menu, print corresponding item to chat area and ma
             // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
             // 遊戲預設: 45.0, 0=不使用, 只算準心有指到
             l4d2_survivor_marker_fov "15.0"
+
+            // 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_survivor_marker_remove_previous "1"
 
             // 為1時，感染者標記生還者後通知被標記的對象
             l4d2_survivor_marker_infected_notify "1"
