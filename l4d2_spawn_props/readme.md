@@ -66,6 +66,22 @@ Let admins spawn any kind of objects and saved to cfg
 	* Auto save the objects when map change or round ends. For people who always forget to save objects :(
 </details>
 
+* Directory Structure | 檔案結構
+    ```
+	/
+	├── data/l4d2_spawn_props/
+	│   ├── model_chinese.cfg                 # Chinese Model List | 模型列表 (中文名稱)
+	│   ├── model_english.cfg                 # English Model List | 模型列表 (英文名稱)
+	│   └── random_path.cfg                   # Random stripper config | 隨機地圖路徑
+	├── logs/                                 # Logs | 生成物件紀錄
+	├── plugins/
+	│   └── l4d2_spawn_props.smx              # Compiled Plugin | 已編譯的插件
+	├── scripting/
+	│   └── l4d2_spawn_props.sp               # Source code | 源碼
+	└── translations/
+		└── l4d2_spawn_props.phrases.txt      # Multi-language translations | 翻譯多國語言
+    ```
+
 * <details><summary>Q&A</summary>
 
 	* How to add more models and translate name?
@@ -173,11 +189,6 @@ Let admins spawn any kind of objects and saved to cfg
 		sm_prop_print
 		```
 </details>
-
-* Translation Support | 支援翻譯
-	```
-	translations/l4d2_spawn_props.phrases.txt
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

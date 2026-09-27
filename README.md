@@ -198,8 +198,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 膽汁瓶會噴到倖存者身上，Boomer爆炸的膽汁噴到特感、Tank、Witch、普通感染者
 * <b>[l4d2_gifts](/l4d2_gifts)</b>: Drop gifts when a special infected or a tank/witch killed by survivor.
     * 殺死特感會掉落禮物盒，會獲得驚喜物品，聖誕嘉年華
-* <b>[l4d2_item_hint](/l4d2_item_hint)</b>: When using 'Look' in vocalize menu, print corresponding item to chat area.
-    * 使用語音雷達"看"可以標記任何物品、武器、地點、特感
+* <b>[l4d2_item_hint](/l4d2_item_hint)</b>: Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker
+    * 使用!mark或是語音雷達"看"可以標記任何物品、武器、地點、特感
 * <b>[l4d2_karma_kill](/l4d2_karma_kill)</b>: Very Very loudly announces the predicted event of a player leaving the map and or life through height or drown.    
     * 被Charger撞飛、Tank打飛、Jockey騎走墬樓、自殺跳樓等等會有慢動作特效
 * <b>[l4d2_skill_detect](/l4d2_skill_detect)</b>: Detects and reports skeets, crowns, levels, highpounces, etc.
