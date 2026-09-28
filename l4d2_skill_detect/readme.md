@@ -2,81 +2,113 @@
 Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * Apply to | 適用於
-	```
-	L4D1
-	L4D2
-	```
+    ```
+    L4D1
+    L4D2
+    ```
 
 * Image
-	* Skill moment
+    * Skill moment
     <br/>![l4d2_skill_detect_1](image/l4d2_skill_detect_1.jpg)  
 
 * <details><summary>How does it work?</summary>
 
     * Detects and reports skeets, crowns, levels, highpounces, etc. Also provide api functions
-    * Report Flag in source code
-        ```php
-        REP_SKEET				(2 ^ 0 = 1) //Skeet or Team-Skeet hunter/jokcey
-        REP_HURTSKEET			(2 ^ 1 = 2) //Hurt Skeet or Team-Skeet hunter/jokcey (Less damage)
-        REP_LEVEL				(2 ^ 2 = 4) //Level Charger
-        REP_HURTLEVEL			(2 ^ 3 = 8) //HurtLevel Charger (Less damage)
-        REP_CROWN				(2 ^ 4 = 16) //Crown Witch and no one get hurt
-        REP_DRAWCROWN			(2 ^ 5 = 32) //DrawCrown Witch and no one get hurt
-        REP_TONGUECUT			(2 ^ 6 = 64) //Cut Smoker Tongue
-        REP_SELFCLEAR			(2 ^ 7 = 128) //Self Clear Smoker Tongue
-        REP_SELFCLEARSHOVE		(2 ^ 8 = 256) //Self Clear Shove Smoker Tongue
-        REP_ROCKSKEET			(2 ^ 9 = 512) //Skeet Tank Rock
-        REP_DEADSTOP			(2 ^ 10 = 1024) //DeadStop hunter/jokcey
-        REP_POP					(2 ^ 11 = 2048) //POP a Boomer
-        REP_SHOVE				(2 ^ 12 = 4096) //Shove a Special Infecteed
-        REP_HUNTERDP			(2 ^ 13 = 8192) //Hunter DP (High Damage Pounce)
-        REP_JOCKEYDP			(2 ^ 14 = 16384) //Jockey DP (High Ride)
-        REP_DEATHCHARGE			(2 ^ 15 = 32768) //Charger Death Charge
-        REP_INSTACLEAR			(2 ^ 16 = 65536) //Insta Clear (Save teammate quickly)
-        REP_BHOPSTREAK			(2 ^ 17 = 131072) //Bunny hop
-        REP_CARALARM			(2 ^ 18 = 262144) //Trigger Car Alarm
-        REP_POPSTOP				(2 ^ 19 = 524288) //Shove Boomer before vomit
-        REP_VOMIT				(2 ^ 20 = 1048576) //Boomer Perfect Vomit (Vomit 4+ survivors)
-        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //Team-Skeet hunter/jokcey assist report 
-        ```
-        ```php
-        // Report Flag by default
-        // 2076671 = 1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512 + 1024 + 2048 + 8192 + 32768 + 65536 + 131072 + 262144 + 524288 + 1048576
-        sm_skill_report_flags "2076671"
-        ```
-
-    * Example
-        ```php
-        // Display Message "Skeet Tank Rock" (Report Flag is 512)、"Hunter DP" (Report Flag is 8192)
-        // (512 + 8192) = 8704
-        sm_skill_report_flagss 8704
-        ```
-        ```php
-        // Display Message "Skeet hunter/jokcey" (Report Flag is 1)、"Skeet Tank Rock" (Report Flag is 512)、"Trigger Car Alarm" (Report Flag is 數值是262144)
-        // (1 + 512 + 262144) = 262657
-        sm_skill_report_flagss 262657
-        ```
-        ```php
-        // Display All Messages
-        sm_skill_report_flagss 4194303
-        ```
+    * See "ConVar" for more details
 </details>
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
-	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+    2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+
+* Directory Structure | 檔案結構
+	```
+	addons/sourcemod/
+	├── plugins/
+	│	└── l4d2_skill_detect.smx			# Compiled plugin | 已編譯的插件
+	├── translations/
+	│	└── l4d2_skill_detect.phrases.txt	# Multi-language translation | 翻譯多國語言
+	└── scripting/
+		├── include/ 
+		│	└── l4d2_skill_detect.inc		# API | 給會寫插件的人
+		└── l4d2_skill_detect.sp			# Source code | 源碼
+	```
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg/sourcemod/l4d2_skill_detect.cfg
-		```php
-        // Whether to report in chat (see sm_skill_report_flags).
+    * cfg/sourcemod/l4d2_skill_detect.cfg
+        ```php
+        // Whether to report in chat.
         sm_skill_report_enable "1"
 
-        // Report Flag
-        // bitflags: 1,2:skeets/hurt; 4,8:level/chip; 16,32:crown/draw; 64,128:cut/selfclear, ...
-        // See Source code for more bitflags.
-        sm_skill_report_flags "2076671"
+        // Enable hunter/jockey skeet reporting.
+        sm_skill_report_skeet "1"
+
+        // Enable hunter/jockey hurt-skeet reporting.
+        sm_skill_report_hurtskeet "1"
+
+        // Enable level reporting.
+        sm_skill_report_level "1"
+
+        // Enable hurt-level reporting.
+        sm_skill_report_hurtlevel "1"
+
+        // Enable crow reporting.
+        sm_skill_report_crow "1"
+
+        // Enable draw-crow reporting.
+        sm_skill_report_drawcrow "1"
+
+        // Enable tongue-cut reporting.
+        sm_skill_report_tonguecut "1"
+
+        // Enable self clear reporting.
+        sm_skill_report_sc "1"
+
+        // Enable self clear Shove reporting.
+        sm_skill_report_scs "1"
+
+        // Enable rock-skeet reporting.
+        sm_skill_report_rockskeet "1"
+
+        // Enable Tank name reporting.
+        sm_skill_report_rockname "0"
+
+        // Enable deadstop reporting.
+        sm_skill_report_deadstop "1"
+
+        // Enable pop reporting.
+        sm_skill_report_pop "1"
+
+        // Enable shove reporting.
+        sm_skill_report_shove "0"
+
+        // Enable hunter DP reporting.
+        sm_skill_report_hunterdp "1"
+
+        // Enable jockey DP reporting.
+        sm_skill_report_jockeydp "0"
+
+        // Enable deadcharger reporting.
+        sm_skill_report_deadcharger "1"
+
+        // Enable instan-clear reporting.
+        sm_skill_report_instanclear "1"
+
+        // Enable bhop streak reporting.
+        sm_skill_report_bhop "1"
+
+        // Enable car alarm reporting.
+        sm_skill_report_caralarm "1"
+
+        // Enable pop stop reporting.
+        sm_skill_report_pop_stop "1"
+
+        // Enable Boomer Perfect Vomit reporting (Vomit 4+ survivors).
+        sm_skill_report_vomit_perfect "1"
+
+        // Hunter/Jockey team skeet assist report.
+        sm_skill_report_teamskeet "0"
 
         // Whether to count/forward shotgun skeets.
         sm_skill_skeet_shotgun "1"
@@ -125,28 +157,19 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
         // How many survivors a boomer must at least vomit to count as wonderful-vomit.
         sm_skill_vomit_number "4"
-		```
-</details>
-
-* <details><summary>API | 串接</summary>
-
-    * [skill_detect.inc](scripting/include/skill_detect.inc)
-        ```php
-        library name: skill_detect
         ```
 </details>
 
-* Translation Support | 支援翻譯
-	```
-	translations/l4d2_skill_detect.phrases.txt
-	```
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.4h (2026-9-28)
+        * Skeet assists are counted even when sm_skill_report_enable is 0
+        * Update cvars
 
     * v2.3h (2026-8-28)
         * Support
-		* Convert code to latest syntax
-		* Fix warnings when compiling above SourceMod 1.12 
+        * Convert code to latest syntax
+        * Fix warnings when compiling above SourceMod 1.12 
 
     * v2.2h (2026-1-7)
         * Update API
@@ -183,7 +206,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
     * v1.2h (2023-3-24)
         * Separate translation for the jockey and hunter
-		* Fixed Self clear, fast clear smoker tongue in versus/survival/cavenge
+        * Fixed Self clear, fast clear smoker tongue in versus/survival/cavenge
         * New Skill Reqport, "boomer vomits all survivors"
 
     * v1.1h (2022-12-16)
@@ -201,24 +224,89 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 顯示人類與特感各種花式技巧 (譬如推開特感、速救隊友、一槍爆頭、近戰砍死、高撲傷害等等)
 
 * 圖示
-	* 大佬裝B的瞬間
+    * 大佬裝B的瞬間
     <br/>![l4d2_skill_detect_2](image/l4d2_skill_detect_2.jpg)  
 
 * 原理
-	* 每當有高手展現實力，打印在聊天視窗
+    * 每當有高手展現實力，打印在聊天視窗
     * 戰役/對抗/寫實/生存都適用
+    * 查看"指令中文介紹"選擇打印哪些花式技巧
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/l4d2_skill_detect.cfg
-		```php
-        // 為1時，打印大佬裝B的各種特殊技巧 (查看指令 sm_skill_report_flags).
+    * cfg/sourcemod/l4d2_skill_detect.cfg
+        ```php
+        // 為1時，打印大佬裝B的各種特殊技巧
         sm_skill_report_enable "1"
 
-        // 控制此指令選擇打印哪些特殊技巧 (請查看中文說明書教學)
-        // bitflags: 1,2:skeets/hurt; 4,8:level/chip; 16,32:crown/draw; 64,128:cut/selfclear, ...
-        // 源碼內或說明書查看 bitflags.
-        sm_skill_report_flags "2076671"
+        // 為1時，打印: 一人空爆或多人合力空爆 hunter/jockey"
+        sm_skill_report_skeet "1"
+
+        // 為1時，打印: 一人空爆或多人合力空爆 hunter/jockey (傷害較低)
+        sm_skill_report_hurtskeet "1"
+
+        // 為1時，打印: 近戰砍死衝鋒的Charger
+        sm_skill_report_level "1"
+
+        // 為1時，打印: 近戰砍死衝鋒的Charger (傷害較低)
+        sm_skill_report_hurtlevel "1"
+
+        // 為1時，打印: 一槍殺死Witch並無人受傷
+        sm_skill_report_crow "1"
+
+        // 為1時，打印: 兩槍以上殺死Witch並無人受傷
+        sm_skill_report_drawcrow "1"
+
+        // 為1時，打印: 砍斷Smoker的舌頭
+        sm_skill_report_tonguecut "1"
+
+        // 為1時，打印: 自解Smoker的舌頭
+        sm_skill_report_sc "1"
+
+        // 為1時，打印: 推開自解Smoker的舌頭
+        sm_skill_report_scs "1"
+
+        // 為1時，打印: 打碎Tank石頭
+        sm_skill_report_rockskeet "1"
+
+        // 為1時，打印: 打碎Tank石頭時顯示Tank玩家的名稱
+        sm_skill_report_rockname "0"
+
+        // 為1時，打印: 推停飛撲的hunter/jockey
+        sm_skill_report_deadstop "1"
+
+        // 為1時，打印: 殺死Boomer不被嘔吐
+        sm_skill_report_pop "1"
+
+        // 為1時，打印: 推開特感
+        sm_skill_report_shove "0"
+
+        // 為1時，打印: Hunter高撲傷害
+        sm_skill_report_hunterdp "1"
+
+        // 為1時，打印: Jockey高空騎到人類
+        sm_skill_report_jockeydp "0"
+
+        // 為1時，打印: Charger衝鋒帶走人類墬樓
+        sm_skill_report_deadcharger "1"
+
+        // 為1時，打印: 快速拯救隊友
+        sm_skill_report_instanclear "1"
+
+        // 為1時，打印: 連跳
+        sm_skill_report_bhop "1"
+
+        // 為1時，打印: 警報車
+        sm_skill_report_caralarm "1"
+
+        // 為1時，打印: 推開Boomer不被嘔吐
+        sm_skill_report_pop_stop "1"
+
+        // 為1時，打印: Boomer 完美嘔吐 (一次吐到4位倖存者以上)
+        sm_skill_report_vomit_perfect "1"
+
+        // 為1時，打印: 打印多人合力空爆hunter/jockey的協力者 (非擊殺者)
+        sm_skill_report_teamskeet "0"
 
         // 為1時，打印 散彈槍空爆 並輸出API
         sm_skill_skeet_shotgun "1"
@@ -267,56 +355,5 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
         // Boomer一次吐到4位倖存者以上才算 "Boomer 完美嘔吐"
         sm_skill_vomit_number "4"
-		```
-</details>
-
-* <details><summary>控制指令選擇打印哪些特殊技巧</summary>
-
-    * 花式技巧
-        ```php
-        REP_SKEET				(2 ^ 0 = 1) //一人空爆或多人合力空爆 hunter/jokcey
-        REP_HURTSKEET			(2 ^ 1 = 2) //一人空爆或多人合力空爆 hunter/jokcey (傷害較低)
-        REP_LEVEL				(2 ^ 2 = 4) //近戰砍死衝鋒的Charger
-        REP_HURTLEVEL			(2 ^ 3 = 8) //近戰砍死衝鋒的Charger (傷害較低)
-        REP_CROWN				(2 ^ 4 = 16) //一槍殺死Witch並無人受傷
-        REP_DRAWCROWN			(2 ^ 5 = 32) //兩槍以上殺死Witch並無人受傷
-        REP_TONGUECUT			(2 ^ 6 = 64)  //砍斷Smoker的舌頭
-        REP_SELFCLEAR			(2 ^ 7 = 128) //自解Smoker的舌頭
-        REP_SELFCLEARSHOVE		(2 ^ 8 = 256) //推開自解Smoker的舌頭
-        REP_ROCKSKEET			(2 ^ 9 = 512) //打碎Tank石頭
-        REP_DEADSTOP			(2 ^ 10 = 1024) //推停飛撲的hunter/jokcey
-        REP_POP					(2 ^ 11 = 2048) //殺死Boomer不被嘔吐
-        REP_SHOVE				(2 ^ 12 = 4096) //推開特感
-        REP_HUNTERDP			(2 ^ 13 = 8192) //Hunter高撲傷害
-        REP_JOCKEYDP			(2 ^ 14 = 16384) //Jockey高空騎到人類
-        REP_DEATHCHARGE			(2 ^ 15 = 32768) //Charger衝鋒帶走人類墬樓
-        REP_INSTACLEAR			(2 ^ 16 = 65536) //快速拯救隊友
-        REP_BHOPSTREAK			(2 ^ 17 = 131072) //連跳
-        REP_CARALARM			(2 ^ 18 = 262144) //警報車
-        REP_POPSTOP				(2 ^ 19 = 524288) //推開Boomer不被嘔吐
-        REP_VOMIT				(2 ^ 20 = 1048576) //Boomer 完美嘔吐 (一次吐到4位倖存者以上)
-        REP_SKEET_ASSIST		(2 ^ 21 = 2097152) //打印多人合力空爆hunter/jokcey的協力者 (非擊殺者)
-        ```
-        ```php
-        // 此指令用來決定顯示哪些花式技巧
-        // 2076671 = 1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512 + 1024 + 2048 + 8192 + 32768 + 65536 + 131072 + 262144 + 524288 + 1048576
-        sm_skill_report_flags "2076671"
-        ```
-
-    * 舉例
-        ```php
-        // 只顯示 "打碎Tank石頭"(數值是512)、"Hunter高撲傷害"(數值是8192)
-        // (512 + 8192) = 8704
-        sm_skill_report_flagss 8704
-        ```
-        ```php
-        // 只顯示 "空爆hunter/jokcey"(數值是1)、"打碎Tank石頭"(數值是512)、"警報車"(數值是262144)
-        // (1 + 512 + 262144) = 262657
-        sm_skill_report_flagss 262657
-        ```
-        ```php
-        // 顯示所有花式技巧
-        // 總數值
-        sm_skill_report_flags 4194303
         ```
 </details>
