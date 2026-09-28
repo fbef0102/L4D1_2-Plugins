@@ -23,7 +23,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * Directory Structure | 檔案結構
 	```
-	addons/sourcemod/
+	/
 	├── plugins/
 	│	└── l4d2_skill_detect.smx			# Compiled plugin | 已編譯的插件
 	├── translations/
@@ -78,6 +78,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         sm_skill_report_deadstop "1"
 
         // Enable pop reporting.
+        // 1. Kill the real Boomer player without anyone getting vomited.
+        // 2. Kill the AI Boomer quickly while it is spraying, without anyone getting vomited. 
+        // 3. Kill the AI Boomer quickly within 5 seconds once it gets close, without anyone getting vomited. 
         sm_skill_report_pop "1"
 
         // Enable shove reporting.
@@ -102,9 +105,11 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         sm_skill_report_caralarm "1"
 
         // Enable pop stop reporting.
+        // (Shove Boomer while it is spraying, without anyone getting vomited)
         sm_skill_report_pop_stop "1"
 
-        // Enable Boomer Perfect Vomit reporting (Vomit 4+ survivors).
+        // Enable Boomer Perfect Vomit reporting
+        // (Vomit 4+ survivors)
         sm_skill_report_vomit_perfect "1"
 
         // Hunter/Jockey team skeet assist report.
@@ -161,6 +166,11 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.5h (2026-9-29)
+        * Fix cvars not working
+        * Update translations
+        * Rewrite "pop a boomer" logic
 
     * v2.4h (2026-9-28)
         * Skeet assists are counted even when sm_skill_report_enable is 0
@@ -275,7 +285,10 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         // 為1時，打印: 推停飛撲的hunter/jockey
         sm_skill_report_deadstop "1"
 
-        // 為1時，打印: 殺死Boomer不被嘔吐
+        // 為1時，打印: 安全地殺死Boomer，沒有人被嘔吐
+        // 1. 解決真人Boomer，沒有人被嘔吐
+        // 2. 解決正在嘔吐的AI Boomer，沒有人被嘔吐
+        // 3. 五秒內解決靠近倖存者的AI Boomer，沒有人被嘔吐
         sm_skill_report_pop "1"
 
         // 為1時，打印: 推開特感
@@ -299,10 +312,11 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         // 為1時，打印: 警報車
         sm_skill_report_caralarm "1"
 
-        // 為1時，打印: 推開Boomer不被嘔吐
+        // 為1時，打印: 推開正在噴人的Boomer，沒有人被嘔吐
         sm_skill_report_pop_stop "1"
 
-        // 為1時，打印: Boomer 完美嘔吐 (一次吐到4位倖存者以上)
+        // 為1時，打印: Boomer 完美嘔吐
+        // (一次吐到4位倖存者以上)
         sm_skill_report_vomit_perfect "1"
 
         // 為1時，打印: 打印多人合力空爆hunter/jockey的協力者 (非擊殺者)

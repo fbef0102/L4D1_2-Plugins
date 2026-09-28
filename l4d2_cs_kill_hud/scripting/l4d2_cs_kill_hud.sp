@@ -3,8 +3,9 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <left4dhooks>
 
-#define PLUGIN_VERSION			"2.0h-2025/7/17"
+#define PLUGIN_VERSION			"2.1h-2026/9/29"
 #define PLUGIN_NAME			    "l4d2_cs_kill_hud"
 #define DEBUG 0
 
@@ -32,6 +33,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
+#define DATA_FILE		        "data/" ... PLUGIN_NAME ... ".cfg"
+
 #define CVAR_FLAGS                    FCVAR_NOTIFY
 #define CVAR_FLAGS_PLUGIN_VERSION     FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_SPONLY
 
@@ -40,6 +43,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define CLASSNAME_INFECTED            "infected"
 #define CLASSNAME_WITCH               "witch"
+#define MAXENTITIES 2048
 
 //	#define HUD_LEFT_TOP	0
 //	#define HUD_LEFT_BOT	1
@@ -89,52 +93,38 @@ ArrayList g_hud_killinfo;
 Handle g_hKillHUDDecreaseTimer;
 int g_iHUDFlags;
 
-static const char g_kill_type[][] =
+enum EKillType
 {
-	"■■‖:::::::>",     //0 melee
+	eKillType_None,
 
-	"/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿",        //1 pistol
+	eKillType_melee,
+	eKillType_pistol,
+	eKillType_smg,
+	eKillType_rifle,
+	eKillType_shotgun,
+	eKillType_sniper,
+	eKillType_bomb,
+	eKillType_burn,
+	eKillType_fireworkcrate,
+	eKillType_M60,
+	eKillType_grenade_launcher_projectile,
+	eKillType_sur_m2_melee,
+	eKillType_mini_gun,
+	eKillType_world,
+	eKillType_special_infected,
+	eKillType_witch,
+	eKillType_common_infected,
+	eKillType_chainsaw,
+	eKillType_behind_wall,
+	eKillType_headshot,
+	eKillType_falling,
+	eKillType_SYSTEM,
+	eKillType_Unknown,
 
-	"⌐╤═─",         //2 smg
+	eKillType_Max,
+}
 
-	"︻╦╦═─",   //3 rifle
-
-	"▄︻═══∶∷",      //4 shotgun
-
-	"︻╦̵̵͇̿̿̿̿╤───",    //5 sniper
-
-	"☆BOMB☆",          //6 pipe bomb, explosive
-
-	"__∫∫∫∫__",      //7 inferno, entityflame
-
-	"▄︻╤■══一",		//8 M60
-
-	"︻■■■■ ●",	    //9 grenade_launcher_projectile
-
-	"(●｀・ω・)=Ｏ",	     //10 killed by push, shove melee
-
-	"↼■╦══",	     //11 killed by mini gun
-
-	"X_X",           //12 killed by world, worldspawn, trigger_hurt
-
-	"*皿*彡",         //13 killed by special infected,
-
-	"→‖",           //14 kill behind wall
-	
-	"→⊙",           //15 headshot
-
-	"(ﾒﾟДﾟ)ﾒ彡",           //16 killed by witch
-
-	"☠",         //17 killed by common infected
-
-	"<ʖ͡=::::::⊃",         //18 killed by chainsaw
-
-	"⬇ X_X",         //19 Die due to falling from roof
-
-	"SYSTEM X_X",         //20 ForcePlayerSuicide / SI committed suicide / Tank committed suicide
-
-	"→☠",         //21 Unknown weapons
-};
+char g_kill_type[eKillType_Max][64];
 
 #define KILL_HUD_BASE 9
 #define KILL_INFO_MAX 6
@@ -176,8 +166,11 @@ enum struct HUD
 }
 
 StringMap 
-	g_smSpecialWeapons,
+	g_smIgnoreHS_BH,
 	g_smIgnoreWallWeapons;
+
+bool
+	ge_bInvalidTrace[MAXENTITIES+1];
 
 public void OnPluginStart()
 {
@@ -216,7 +209,6 @@ public void OnPluginStart()
 	HookEvent("round_start",            Event_RoundStart, 	EventHookMode_PostNoCopy);
 
 	g_hud_killinfo = new ArrayList(ByteCountToCells(128));
-	LoadEventWeaponName();
 }
 
 //Cvars-------------------------------
@@ -280,6 +272,9 @@ public void OnMapStart()
 	 * 在OnMapStart()函数内部启用即可.	
 	 */
 	GameRules_SetProp("m_bChallengeModeActive", true, _, _, true);
+
+	LoadData();
+	LoadEventWeaponName();
 }
 
 public void OnMapEnd()
@@ -288,6 +283,94 @@ public void OnMapEnd()
 	g_hud_killinfo = new ArrayList(ByteCountToCells(128));
 
 	delete g_hKillHUDDecreaseTimer;
+}
+
+public void OnEntityCreated(int entity, const char[] classname)
+{
+	if (!IsValidEntityIndex(entity))
+		return;
+		
+	switch (classname[0])
+	{
+		case 't':
+		{
+			if (StrEqual(classname, "tank_rock"))
+				ge_bInvalidTrace[entity] = true;
+		}
+		case 'i':
+		{
+			if (StrEqual(classname, "infected"))
+				ge_bInvalidTrace[entity] = true;
+		}
+		case 'w':
+		{
+			if (StrEqual(classname, "witch"))
+				ge_bInvalidTrace[entity] = true;
+		}
+		case 'e':
+		{
+			if (StrEqual(classname, "env_physics_blocker") 
+				|| StrEqual(classname, "env_player_blocker"))
+				ge_bInvalidTrace[entity] = true;
+		}
+	}
+}
+
+public void OnEntityDestroyed(int entity)
+{
+	if (!IsValidEntityIndex(entity))
+		return;
+
+	ge_bInvalidTrace[entity] = false;
+}
+
+// Data------------
+
+void LoadData()
+{
+	char sPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, sPath, sizeof(sPath), DATA_FILE);
+
+	if( !FileExists(sPath) )
+	{
+		SetFailState("File Not Found: %s", sPath);
+		return;
+	}
+
+	// Load config
+	KeyValues hFile = new KeyValues(PLUGIN_NAME);
+	if( !hFile.ImportFromFile(sPath) )
+	{
+		SetFailState("File Format Not Correct: %s", sPath);
+		delete hFile;
+		return;
+	}
+
+	hFile.GetString("melee", g_kill_type[eKillType_melee], sizeof g_kill_type[], "Unset");
+	hFile.GetString("pistol", g_kill_type[eKillType_pistol], sizeof g_kill_type[], "Unset");
+	hFile.GetString("smg", g_kill_type[eKillType_smg], sizeof g_kill_type[], "Unset");
+	hFile.GetString("rifle", g_kill_type[eKillType_rifle], sizeof g_kill_type[], "Unset");
+	hFile.GetString("shotgun", g_kill_type[eKillType_shotgun], sizeof g_kill_type[], "Unset");
+	hFile.GetString("sniper", g_kill_type[eKillType_sniper], sizeof g_kill_type[], "Unset");
+	hFile.GetString("bomb", g_kill_type[eKillType_bomb], sizeof g_kill_type[], "Unset");
+	hFile.GetString("burn", g_kill_type[eKillType_burn], sizeof g_kill_type[], "Unset");
+	hFile.GetString("fireworkcrate", g_kill_type[eKillType_fireworkcrate], sizeof g_kill_type[], "Unset");
+	hFile.GetString("M60", g_kill_type[eKillType_M60], sizeof g_kill_type[], "Unset");
+	hFile.GetString("grenade_launcher_projectile", g_kill_type[eKillType_grenade_launcher_projectile], sizeof g_kill_type[], "Unset");
+	hFile.GetString("sur_m2_melee", g_kill_type[eKillType_sur_m2_melee], sizeof g_kill_type[], "Unset");
+	hFile.GetString("mini_gun", g_kill_type[eKillType_mini_gun], sizeof g_kill_type[], "Unset");
+	hFile.GetString("world", g_kill_type[eKillType_world], sizeof g_kill_type[], "Unset");
+	hFile.GetString("special_infected", g_kill_type[eKillType_special_infected], sizeof g_kill_type[], "Unset");
+	hFile.GetString("witch", g_kill_type[eKillType_witch], sizeof g_kill_type[], "Unset");
+	hFile.GetString("common_infected", g_kill_type[eKillType_common_infected], sizeof g_kill_type[], "Unset");
+	hFile.GetString("chainsaw", g_kill_type[eKillType_chainsaw], sizeof g_kill_type[], "Unset");
+	hFile.GetString("behind_wall", g_kill_type[eKillType_behind_wall], sizeof g_kill_type[], "Unset");
+	hFile.GetString("headshot", g_kill_type[eKillType_headshot], sizeof g_kill_type[], "Unset");
+	hFile.GetString("falling", g_kill_type[eKillType_falling], sizeof g_kill_type[], "Unset");
+	hFile.GetString("SYSTEM", g_kill_type[eKillType_SYSTEM], sizeof g_kill_type[], "Unset");
+	hFile.GetString("Unknown", g_kill_type[eKillType_Unknown], sizeof g_kill_type[], "Unset");
+	
+	delete hFile;
 }
 
 //Event-------------------------------
@@ -364,27 +447,27 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 			int attackid = event.GetInt("attackerentid");
 			if(IsWitch(attackid))
 			{
-				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[16],victim_name);
+				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_witch],victim_name);
 			}
 			else if(IsCommonInfected(attackid))
 			{
-				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[17],victim_name);
+				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_common_infected],victim_name);
 			}
 			else if(damagetype & DMG_BURN)
 			{
-				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[7],victim_name);
+				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_burn],victim_name);
 			}
 			else if(damagetype & DMG_FALL)
 			{
-				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[19],victim_name);
+				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_falling],victim_name);
 			}
 			else if(damagetype & DMG_BLAST)
 			{
-				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[6],victim_name);
+				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_bomb],victim_name);
 			}
 			else 
 			{
-				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[12],victim_name);
+				FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_world],victim_name);
 			}
 			
 			DisplayKillList(killinfo);
@@ -410,7 +493,7 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 			{
 				if(damagetype == (DMG_PREVENT_PHYSICS_FORCE + DMG_NEVERGIB) && strcmp(sWeapon, "world", false) == 0) // 傷害類型: 6144, 武器: world, 原因: ForcePlayerSuicide
 				{
-					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[20],victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_SYSTEM],victim_name);
 					DisplayKillList(killinfo);
 					return;
 				}
@@ -420,19 +503,19 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 				int zombie = GetEntProp(victim, Prop_Send, "m_zombieClass");
 				if(damagetype & DMG_FALL) // 特感墬樓傷害自己死掉
 				{
-					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[19],victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_falling],victim_name);
 					DisplayKillList(killinfo);
 					return;
 				}
 				else if(damagetype == (DMG_PREVENT_PHYSICS_FORCE + DMG_NEVERGIB) && strcmp(sWeapon, "world", false) == 0) // 傷害類型: 6144, 武器: world, 原因: ForcePlayerSuicide 或 特感自動被導演處死
 				{
-					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[20],victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_SYSTEM],victim_name);
 					DisplayKillList(killinfo);
 					return;
 				}
 				else if(zombie == ZC_TANK && damagetype == DMG_BULLET && strcmp(sWeapon, "tank_claw", false) == 0) // 傷害類型: 2, 武器: tank_claw, 原因: Tank卡住自動被處死
 				{
-					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[20],victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_SYSTEM],victim_name);
 					DisplayKillList(killinfo);
 					return;
 				}
@@ -464,7 +547,7 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 			FormatEx(attacker_name, sizeof(attacker_name), "%N", attacker);
 		}
 
-		FormatEx(killinfo,sizeof(killinfo),"%s  %s  %s",attacker_name,g_kill_type[13],victim_name);
+		FormatEx(killinfo,sizeof(killinfo),"%s  %s  %s",attacker_name,g_kill_type[eKillType_witch],victim_name);
 		DisplayKillList(killinfo);
 		return;
 	}
@@ -473,23 +556,26 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 	if( strncmp(sWeapon, "world", 5, false) == 0 || // "world", "worldspawn" (倒地流血死亡或其他自然死亡)
 		strncmp(sWeapon, "trigger_hurt", 12, false) == 0 ) // "trigger_hurt", "trigger_hurt_ghost" (地圖上的即死傷害)
 	{
-		FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[12],victim_name);
+		FormatEx(killinfo,sizeof(killinfo),"    %s  %s",g_kill_type[eKillType_world],victim_name);
 		DisplayKillList(killinfo);
 		return;
 	}
 
 	if(!bIsAttackerPlayer) return;
+
+	// 人類殺死特感
+	// 人類殺死Witch
 		
 	static char sWeaponType[64];
 	if(g_weapon_name.GetString(sWeapon, sWeaponType, sizeof(sWeaponType)) == false)
 	{
 		// Unknown weapons
-		FormatEx(sWeaponType, sizeof(sWeaponType), "%s", g_kill_type[21]);
+		FormatEx(sWeaponType, sizeof(sWeaponType), "%s", g_kill_type[eKillType_Unknown]);
 	}
 
 	//PrintToChatAll("sWeaponType: %s", sWeaponType);
 
-	if(g_smSpecialWeapons.ContainsKey(sWeaponType) ) //不需要穿牆跟爆頭提示
+	if(g_smIgnoreHS_BH.ContainsKey(sWeaponType) )
 	{
 		FormatEx(killinfo,sizeof(killinfo),"%N  %s  %s",attacker, sWeaponType, victim_name);
 	}
@@ -500,14 +586,14 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 			if( headshot )
 			{
 				if( !g_smIgnoreWallWeapons.ContainsKey(sWeaponType) && IsPlayerKilledBehindWall(attacker, victim) )
-					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s %s  %s",attacker,g_kill_type[14],g_kill_type[15],sWeaponType,victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s %s  %s",attacker,g_kill_type[eKillType_behind_wall],g_kill_type[eKillType_headshot],sWeaponType,victim_name);
 				else
-					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[15],sWeaponType,victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[eKillType_headshot],sWeaponType,victim_name);
 			}
 			else
 			{
 				if( !g_smIgnoreWallWeapons.ContainsKey(sWeaponType) && IsPlayerKilledBehindWall(attacker, victim) )
-					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[14],sWeaponType,victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[eKillType_behind_wall],sWeaponType,victim_name);
 				else
 					FormatEx(killinfo,sizeof(killinfo),"%N  %s  %s",attacker,sWeaponType,victim_name);
 			}
@@ -517,14 +603,14 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 			if( headshot )
 			{
 				if( !g_smIgnoreWallWeapons.ContainsKey(sWeaponType) && IsEntityKilledBehindWall(attacker, entityid) )
-					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s %s  %s",attacker,g_kill_type[14],g_kill_type[15],sWeaponType,victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s %s  %s",attacker,g_kill_type[eKillType_behind_wall],g_kill_type[eKillType_headshot],sWeaponType,victim_name);
 				else
-					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[15],sWeaponType,victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[eKillType_headshot],sWeaponType,victim_name);
 			}
 			else
 			{
 				if( !g_smIgnoreWallWeapons.ContainsKey(sWeaponType) && IsEntityKilledBehindWall(attacker, entityid) )
-					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[14],sWeaponType,victim_name);
+					FormatEx(killinfo,sizeof(killinfo),"%N  %s %s  %s",attacker,g_kill_type[eKillType_behind_wall],sWeaponType,victim_name);
 				else
 					FormatEx(killinfo,sizeof(killinfo),"%N  %s  %s",attacker,sWeaponType,victim_name);
 			}
@@ -609,12 +695,18 @@ void DisplayKillList(const char[] info)
 	g_hKillHUDDecreaseTimer = CreateTimer(g_fCvarHudDecrease, Timer_KillHUDDecrease, _, TIMER_REPEAT);
 }
 
-bool IsPlayerKilledBehindWall(int attacker,int client)
+bool IsPlayerKilledBehindWall(int attacker, int client)
 {
 	float vPos_a[3],vPos_c[3];
 	GetClientEyePosition(attacker, vPos_a);
-	GetClientEyePosition(client,vPos_c);
-	Handle hTrace = TR_TraceRayFilterEx(vPos_a, vPos_c,MASK_PLAYERSOLID, RayType_EndPoint,TraceRayNoPlayers,client);
+	GetClientEyePosition(client, vPos_c);
+
+	if(L4D2_IsVisibleToPlayer(attacker, L4D_TEAM_SURVIVOR, L4D_TEAM_INFECTED, 0, vPos_c) == false)
+	{
+		return true;
+	}
+
+	/*Handle hTrace = TR_TraceRayFilterEx(vPos_a, vPos_c,MASK_PLAYERSOLID, RayType_EndPoint,TraceRayNoPlayers,client);
 	if( hTrace != null )
 	{
 		if( TR_DidHit(hTrace) )
@@ -623,117 +715,128 @@ bool IsPlayerKilledBehindWall(int attacker,int client)
 			return true;
 		}
 	}
+	delete hTrace;*/
+
+	return false;
+}
+
+/*bool TraceRayNoPlayers(int entity, int mask, any data)
+{
+    if( entity == data || (entity >= 1 && entity <= MaxClients) )
+    {
+        return false;
+    }
+    return true;
+}*/
+
+bool IsEntityKilledBehindWall(int attacker, int entity)
+{
+	float vTargetPos[3], vClientEyePos[3];
+	GetClientEyePosition(attacker, vClientEyePos);
+	GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vTargetPos);
+	
+	//get endpoint for teleport
+	Handle hTrace = TR_TraceRayFilterEx(vClientEyePos, vTargetPos, MASK_VISIBLE, RayType_EndPoint, TraceFilter_VisibleToEntity, entity);
+	
+	if (TR_DidHit(hTrace))
+	{
+		delete hTrace;
+		return true;
+	}
+
 	delete hTrace;
 	return false;
 }
 
-bool TraceRayNoPlayers(int entity, int mask, any data)
+bool TraceFilter_VisibleToEntity(int entity, int contentsMask, int witch)
 {
-    if( entity == data || (entity >= 1 && entity <= MaxClients) )
-    {
-        return false;
-    }
-    return true;
-}
+	if (entity == 0)
+		return true;
 
-bool IsEntityKilledBehindWall(int attacker, int entity)
-{
-	float vAngles[3],vOrigin[3];
-	
-	GetClientEyePosition(attacker, vOrigin);
-	GetClientEyeAngles(attacker, vAngles);
-	
-	//get endpoint for teleport
-	Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceRayNoEntities);
-	
-	if(TR_DidHit(trace))
-	{
-		if(TR_GetEntityIndex(trace)==entity)
-		{
-			delete trace;
-			return false;
-		}
-	}
+	if (entity == witch)
+		return false;
 
-	delete trace;
-	return true;
-}
+	if (1 <= entity <= MaxClients)
+		return false;
 
-bool TraceRayNoEntities(int entity, int mask, any data)
-{
-    if( entity == data || (entity >= 1 && entity <= MaxClients) )
-    {
-        return false;
-    }
-    return true;
+	return ge_bInvalidTrace[entity] ? false : true;
 }
 
 void LoadEventWeaponName()
 {
+	delete g_weapon_name;
 	g_weapon_name = new StringMap();
 
-	g_weapon_name.SetString("melee",g_kill_type[0]);
+	g_weapon_name.SetString("melee",g_kill_type[eKillType_melee]);
 
-	g_weapon_name.SetString("pistol",g_kill_type[1]);
-	g_weapon_name.SetString("pistol_magnum",g_kill_type[1]);
-	g_weapon_name.SetString("dual_pistols",g_kill_type[1]);
+	g_weapon_name.SetString("pistol",g_kill_type[eKillType_pistol]);
+	g_weapon_name.SetString("pistol_magnum",g_kill_type[eKillType_pistol]);
+	g_weapon_name.SetString("dual_pistols",g_kill_type[eKillType_pistol]);
 
-	g_weapon_name.SetString("smg",g_kill_type[2]);
-	g_weapon_name.SetString("smg_silenced",g_kill_type[2]);
-	g_weapon_name.SetString("smg_mp5",g_kill_type[2]);
+	g_weapon_name.SetString("smg",g_kill_type[eKillType_smg]);
+	g_weapon_name.SetString("smg_silenced",g_kill_type[eKillType_smg]);
+	g_weapon_name.SetString("smg_mp5",g_kill_type[eKillType_smg]);
 
-	g_weapon_name.SetString("rifle",g_kill_type[3]);
-	g_weapon_name.SetString("rifle_ak47",g_kill_type[3]);
-	g_weapon_name.SetString("rifle_sg552",g_kill_type[3]);
-	g_weapon_name.SetString("rifle_desert",g_kill_type[3]);
+	g_weapon_name.SetString("rifle",g_kill_type[eKillType_rifle]);
+	g_weapon_name.SetString("rifle_ak47",g_kill_type[eKillType_rifle]);
+	g_weapon_name.SetString("rifle_sg552",g_kill_type[eKillType_rifle]);
+	g_weapon_name.SetString("rifle_desert",g_kill_type[eKillType_rifle]);
 
-	g_weapon_name.SetString("pumpshotgun",g_kill_type[4]);
-	g_weapon_name.SetString("shotgun_chrome",g_kill_type[4]);
-	g_weapon_name.SetString("autoshotgun",g_kill_type[4]);
-	g_weapon_name.SetString("shotgun_spas",g_kill_type[4]);
+	g_weapon_name.SetString("pumpshotgun",g_kill_type[eKillType_shotgun]);
+	g_weapon_name.SetString("shotgun_chrome",g_kill_type[eKillType_shotgun]);
+	g_weapon_name.SetString("autoshotgun",g_kill_type[eKillType_shotgun]);
+	g_weapon_name.SetString("shotgun_spas",g_kill_type[eKillType_shotgun]);
 
-	g_weapon_name.SetString("hunting_rifle",g_kill_type[5]);
-	g_weapon_name.SetString("sniper_military",g_kill_type[5]);
-	g_weapon_name.SetString("sniper_scout",g_kill_type[5]);
-	g_weapon_name.SetString("sniper_awp",g_kill_type[5]);
+	g_weapon_name.SetString("hunting_rifle",g_kill_type[eKillType_sniper]);
+	g_weapon_name.SetString("sniper_military",g_kill_type[eKillType_sniper]);
+	g_weapon_name.SetString("sniper_scout",g_kill_type[eKillType_sniper]);
+	g_weapon_name.SetString("sniper_awp",g_kill_type[eKillType_sniper]);
 
 	// explode
-	g_weapon_name.SetString("pipe_bomb",g_kill_type[6]);
-	g_weapon_name.SetString("env_explosion",g_kill_type[6]);
+	g_weapon_name.SetString("pipe_bomb",g_kill_type[eKillType_bomb]);
+	g_weapon_name.SetString("env_explosion",g_kill_type[eKillType_bomb]);
 
 	// fire
-	g_weapon_name.SetString("inferno",g_kill_type[7]);
-	g_weapon_name.SetString("entityflame",g_kill_type[7]);
+	g_weapon_name.SetString("inferno",g_kill_type[eKillType_burn]);
+	g_weapon_name.SetString("entityflame",g_kill_type[eKillType_burn]);
 
-	g_weapon_name.SetString("rifle_m60",g_kill_type[8]);
+	// fireworkcrate
+	g_weapon_name.SetString("fire_cracker_blast",g_kill_type[eKillType_fireworkcrate]);
 
-	g_weapon_name.SetString("grenade_launcher_projectile",g_kill_type[9]);
+	g_weapon_name.SetString("rifle_m60",g_kill_type[eKillType_M60]);
+
+	g_weapon_name.SetString("grenade_launcher_projectile",g_kill_type[eKillType_grenade_launcher_projectile]);
 
 	// boomer/player killed by push
-	g_weapon_name.SetString("boomer",g_kill_type[10]);
-	g_weapon_name.SetString("player",g_kill_type[10]);
+	g_weapon_name.SetString("boomer",g_kill_type[eKillType_sur_m2_melee]);
+	g_weapon_name.SetString("player",g_kill_type[eKillType_sur_m2_melee]);
 
-	g_weapon_name.SetString("prop_minigun_l4d1",g_kill_type[11]);
-	g_weapon_name.SetString("prop_minigun",g_kill_type[11]);
+	g_weapon_name.SetString("prop_minigun_l4d1",g_kill_type[eKillType_mini_gun]);
+	g_weapon_name.SetString("prop_minigun",g_kill_type[eKillType_mini_gun]);
 
 	// killed by map
-	g_weapon_name.SetString("world",g_kill_type[12]);
-	g_weapon_name.SetString("worldspawn",g_kill_type[12]);
-	g_weapon_name.SetString("trigger_hurt",g_kill_type[12]);
+	g_weapon_name.SetString("world",g_kill_type[eKillType_world]);
+	g_weapon_name.SetString("worldspawn",g_kill_type[eKillType_world]);
+	g_weapon_name.SetString("trigger_hurt",g_kill_type[eKillType_world]);
 
-	g_weapon_name.SetString("chainsaw",g_kill_type[18]);
+	g_weapon_name.SetString("chainsaw",g_kill_type[eKillType_chainsaw]);
 
-	g_smSpecialWeapons = new StringMap();
-	g_smSpecialWeapons.SetValue(g_kill_type[6], true);
-	g_smSpecialWeapons.SetValue(g_kill_type[7], true);
-	g_smSpecialWeapons.SetValue(g_kill_type[10], true);
-	g_smSpecialWeapons.SetValue(g_kill_type[21], true);
+	 // 不需要爆頭提示與穿牆提示
+	delete g_smIgnoreHS_BH;
+	g_smIgnoreHS_BH = new StringMap();
+	g_smIgnoreHS_BH.SetValue(g_kill_type[eKillType_bomb], true);
+	g_smIgnoreHS_BH.SetValue(g_kill_type[eKillType_burn], true);
+	g_smIgnoreHS_BH.SetValue(g_kill_type[eKillType_sur_m2_melee], true);
+	g_smIgnoreHS_BH.SetValue(g_kill_type[eKillType_Unknown], true);
+	g_smIgnoreHS_BH.SetValue(g_kill_type[eKillType_grenade_launcher_projectile], true);
 
+	// 不需要穿牆提示
+	delete g_smIgnoreWallWeapons;
 	g_smIgnoreWallWeapons = new StringMap();
-	g_smIgnoreWallWeapons.SetValue(g_kill_type[9], true);
-	g_smIgnoreWallWeapons.SetValue(g_kill_type[0], true);
-	g_smIgnoreWallWeapons.SetValue(g_kill_type[18], true);
-	g_smIgnoreWallWeapons.SetValue(g_kill_type[21], true);
+	g_smIgnoreWallWeapons.SetValue(g_kill_type[eKillType_grenade_launcher_projectile], true);
+	g_smIgnoreWallWeapons.SetValue(g_kill_type[eKillType_melee], true);
+	g_smIgnoreWallWeapons.SetValue(g_kill_type[eKillType_chainsaw], true);
+	g_smIgnoreWallWeapons.SetValue(g_kill_type[eKillType_Unknown], true);
 }
 
 bool IsWitch(int entity)
@@ -756,6 +859,11 @@ bool IsCommonInfected(int entity)
 		return StrEqual(entType, CLASSNAME_INFECTED);
 	}
 	return false;
+}
+
+bool IsValidEntityIndex(int entity)
+{
+	return (MaxClients + 1 <= entity <= GetMaxEntities());
 }
 
 // HUD-------------------------------

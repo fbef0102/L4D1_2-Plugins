@@ -1,25 +1,31 @@
-// Skeet or Team-Skeet hunter/jockey
-// Hurt Skeet or Team-Skeet hunter/jockey (Less damage)
-// Level Charger
-// HurtLevel Charger (Less damage)
-// Crown Witch and no one get hurt
-// DrawCrown Witch and no one get hurt
-// Cut Smoker Tongue
-// Self Clear Smoker Tongue
-// Self Clear Shove Smoker Tongue
-// Skeet Tank Rock
-// DeadStop hunter/jockey
-// POP a Boomer
-// Shove a Special Infecteed
-// Hunter DP (High Damage Pounce)
-// Jockey DP (High Ride)
-// Charger Death Charge
-// Insta Clear (Save teammate quickly)
-// Bunny hop
-// Trigger Car Alarm
-// Shove Boomer before vomit
-// Boomer Perfect Vomit (Vomit 4+ survivors)
-// Hunter team skeet assist report 
+/** 
+ * 
+ * REP_SKEET			// Skeet or Team-Skeet hunter/jokcey
+ * REP_HURTSKEET		// Hurt Skeet or Team-Skeet hunter/jokcey (Less damage)
+ * REP_LEVEL			// Level Charger
+ * REP_HURTLEVEL		// HurtLevel Charger (Less damage)
+ * REP_CROWN			// Crown Witch and no one get hurt
+ * REP_DRAWCROWN		// DrawCrown Witch and no one get hurt
+ * REP_TONGUECUT		// Cut Smoker Tongue
+ * REP_SELFCLEAR		// Self Clear Smoker Tongue
+ * REP_SELFCLEARSHOVE	// Self Clear Shove Smoker Tongue
+ * REP_ROCKSKEET		// Skeet Tank Rock
+ * REP_DEADSTOP			// DeadStop hunter/jokcey
+ * REP_POP				// POP a Boomer
+ *							1. Kill the real Boomer player without anyone getting vomited.
+ *							2. Kill the AI Boomer quickly while it is spraying, without anyone getting vomited. 
+ *							3. Kill the AI Boomer quickly within 5 seconds once it gets close, without anyone getting vomited. 
+ * REP_SHOVE			// Shove a Special Infecteed
+ * REP_HUNTERDP			// Hunter DP (High Damage Pounce)
+ * REP_JOCKEYDP			// Jockey DP (High Ride)
+ * REP_DEATHCHARGE		// Charger Death Charge
+ * REP_INSTACLEAR		// Insta Clear (Save teammate quickly)
+ * REP_BHOPSTREAK		// Bunny hop
+ * REP_CARALARM			// Trigger Car Alarm
+ * REP_POPSTOP			// Shove Boomer while it is spraying, without anyone getting vomited
+ * REP_VOMIT			// Boomer Perfect Vomit (Vomit 4+ survivors)
+ * REP_SKEET_ASSIST		// Hunter team skeet assist report 
+*/
 
 /**
  *	L4D2_skill_detect
@@ -62,7 +68,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "2.4h-2026/9/28"
+#define PLUGIN_VERSION "2.5h-2026/9/29"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -478,17 +484,24 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 // Cvar
 ConVar
+	z_pounce_damage_interrupt, //z_pounce_damage_interrupt
+	z_leap_damage_interrupt, //z_pounce_damage_interrupt, from github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_jockey_skeet.sp
 	g_hCvarChargerHealth,
 	g_hCvarWitchHealth,
 	g_hCvarMaxPounceDistance,
 	g_hCvarMinPounceDistance,
-	g_hCvarMaxPounceDamage,
-	z_pounce_damage_interrupt, //z_pounce_damage_interrupt
-	z_leap_damage_interrupt; //z_pounce_damage_interrupt, from github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_jockey_skeet.sp
+	g_hCvarMaxPounceDamage;
 
 int 
+	g_iCvarChargerHealth,
+	g_iCvarWitchHealth,
 	g_iCvar_z_pounce_damage_interrupt = 150,
 	g_iCvar_z_leap_damage_interrupt;
+
+float 
+	g_fCvarMaxPounceDistance,
+	g_fCvarMinPounceDistance,
+	g_fCvarMaxPounceDamage;
 
 ConVar
 	g_cvarReport,
@@ -557,10 +570,29 @@ bool
 	g_bCvarRepCarAlarm,
 	g_bCvarRepPopStop,
 	g_bCvarRepVomitPerfect,
-	g_bCvarRepTeamSkeet;
+	g_bCvarRepTeamSkeet,
+	g_bCvarAllowShotgun,
+	g_bCvarAllowMagnum,
+	g_bCvarAllowMelee,	
+	g_bCvarAllowSniper,
+	g_bCvarAllowGLSkeet,
+	g_bCvarHideFakeDamage;
 
 int 
+	g_iCvarDrawCrownThresh,
+	g_iCvarSelfClearThresh,
+	g_iCvarBHopMinStreak,
 	g_iCvarVomitNumber;
+
+float 
+	g_fCvarHunterDPThresh,
+	g_fCvarJockeyDPThresh,
+	g_fCvarDeathChargeHeight,
+	g_fCvarInstaTime,
+	g_fCvarBHopMinInitSpeed,
+	g_fCvarBHopContSpeed;
+
+
 public void OnPluginStart()
 {
 	LoadTranslations("l4d2_skill_detect.phrases");
@@ -657,10 +689,46 @@ public void OnPluginStart()
 
 	GetCvars();
 	g_cvarReport.AddChangeHook(ConVarChanged_Cvars);
-	g_hCvarVomitNumber.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepSkeet.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepHurtSkeet.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepLevel.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepHurtLevel.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepCrow.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepDrawCrow.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepTongueCut.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepSelfClear.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepSelfClearShove.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepRockSkeet.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepRockName.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepDeadStop.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepPop.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepShove.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepHunterDP.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepJockeyDP.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepDeathCharge.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepInstanClear.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepBhopStreak.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepCarAlarm.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepPopStop.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepVomitPerfect.AddChangeHook(ConVarChanged_Cvars);
+	g_cvarRepTeamSkeet.AddChangeHook(ConVarChanged_Cvars);
 	
-	g_hCvarChargerHealth = FindConVar("z_charger_health");
-	g_hCvarWitchHealth = FindConVar("z_witch_health");
+	g_hCvarAllowShotgun.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAllowMagnum.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAllowMelee.AddChangeHook(ConVarChanged_Cvars);	
+	g_hCvarAllowSniper.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarAllowGLSkeet.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarDrawCrownThresh.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarSelfClearThresh.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarHunterDPThresh.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarJockeyDPThresh.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarHideFakeDamage.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarDeathChargeHeight.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarInstaTime.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarBHopMinStreak.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarBHopMinInitSpeed.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarBHopContSpeed.AddChangeHook(ConVarChanged_Cvars);
+	g_hCvarVomitNumber.AddChangeHook(ConVarChanged_Cvars);
 	
 	// tries
 	g_hTrieWeapons = new StringMap();
@@ -706,21 +774,33 @@ public void OnPluginStart()
 bool g_bAvailable_l4d2_kills_manager_remake;
 public void OnAllPluginsLoaded()
 {
+	g_bAvailable_l4d2_kills_manager_remake = LibraryExists("l4d2_kills_manager_remake");
+	
+	z_pounce_damage_interrupt = FindConVar("z_pounce_damage_interrupt");
+	if(g_bL4D2Version)
+	{
+		z_leap_damage_interrupt = FindConVar("z_leap_damage_interrupt");
+		g_hCvarChargerHealth = FindConVar("z_charger_health");
+	}
+	g_hCvarWitchHealth = FindConVar("z_witch_health");
 	g_hCvarMaxPounceDistance = FindConVar("z_pounce_damage_range_max");
 	g_hCvarMinPounceDistance = FindConVar("z_pounce_damage_range_min");
 	g_hCvarMaxPounceDamage = FindConVar("z_hunter_max_pounce_bonus_damage");
-	if ( g_hCvarMaxPounceDistance == null ) { g_hCvarMaxPounceDistance = CreateConVar( "z_pounce_damage_range_max",  		"1000.0", 	"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
-	if ( g_hCvarMinPounceDistance == null ) { g_hCvarMinPounceDistance = CreateConVar( "z_pounce_damage_range_min",  		"300.0", 	"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
-	if ( g_hCvarMaxPounceDamage == null ) 	{ g_hCvarMaxPounceDamage = CreateConVar( "z_hunter_max_pounce_bonus_damage",  	"24", 		"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
-
-	g_bAvailable_l4d2_kills_manager_remake = LibraryExists("l4d2_kills_manager_remake");
-
-	z_pounce_damage_interrupt = FindConVar("z_pounce_damage_interrupt");
-	z_leap_damage_interrupt = FindConVar("z_leap_damage_interrupt");
+	if ( g_hCvarMaxPounceDistance == null ) { g_hCvarMaxPounceDistance 	= CreateConVar( "z_pounce_damage_range_max",  		"1000.0", 	"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
+	if ( g_hCvarMinPounceDistance == null ) { g_hCvarMinPounceDistance 	= CreateConVar( "z_pounce_damage_range_min",  		"300.0", 	"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
+	if ( g_hCvarMaxPounceDamage == null ) 	{ g_hCvarMaxPounceDamage 	= CreateConVar( "z_hunter_max_pounce_bonus_damage", "24", 		"Not available on this server, added by l4d2_skill_detect.", FCVAR_NONE, true, 0.0, false ); }
 
 	GetOfficialCvars();
 	z_pounce_damage_interrupt.AddChangeHook(ConVarChanged_OfficialCvars);
-	if(z_leap_damage_interrupt != null) z_leap_damage_interrupt.AddChangeHook(ConVarChanged_OfficialCvars);
+	if(g_bL4D2Version)
+	{
+		if(z_leap_damage_interrupt != null) z_leap_damage_interrupt.AddChangeHook(ConVarChanged_OfficialCvars);
+		g_hCvarChargerHealth.AddChangeHook(ConVarChanged_OfficialCvars);
+	}
+	g_hCvarWitchHealth.AddChangeHook(ConVarChanged_OfficialCvars);
+	g_hCvarMaxPounceDistance.AddChangeHook(ConVarChanged_OfficialCvars);
+	g_hCvarMinPounceDistance.AddChangeHook(ConVarChanged_OfficialCvars);
+	g_hCvarMaxPounceDamage.AddChangeHook(ConVarChanged_OfficialCvars);
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -765,6 +845,21 @@ void GetCvars()
 	g_bCvarRepVomitPerfect = g_cvarRepVomitPerfect.BoolValue;
 	g_bCvarRepTeamSkeet = g_cvarRepTeamSkeet.BoolValue;
 
+	g_bCvarAllowShotgun = g_hCvarAllowShotgun.BoolValue;
+	g_bCvarAllowMagnum = g_hCvarAllowMagnum.BoolValue;
+	g_bCvarAllowMelee = g_hCvarAllowMelee.BoolValue;
+	g_bCvarAllowSniper = g_hCvarAllowSniper.BoolValue;
+	g_bCvarAllowGLSkeet = g_hCvarAllowGLSkeet.BoolValue;
+	g_iCvarDrawCrownThresh = g_hCvarDrawCrownThresh.IntValue;
+	g_iCvarSelfClearThresh = g_hCvarSelfClearThresh.IntValue;
+	g_fCvarHunterDPThresh = g_hCvarHunterDPThresh.FloatValue;
+	g_fCvarJockeyDPThresh = g_hCvarJockeyDPThresh.FloatValue;
+	g_bCvarHideFakeDamage = g_hCvarHideFakeDamage.BoolValue;
+	g_fCvarDeathChargeHeight = g_hCvarDeathChargeHeight.FloatValue;
+	g_fCvarInstaTime = g_hCvarInstaTime.FloatValue;
+	g_iCvarBHopMinStreak = g_hCvarBHopMinStreak.IntValue;
+	g_fCvarBHopMinInitSpeed = g_hCvarBHopMinInitSpeed.FloatValue;
+	g_fCvarBHopContSpeed = g_hCvarBHopContSpeed.FloatValue;
 	g_iCvarVomitNumber = g_hCvarVomitNumber.IntValue;
 }
 
@@ -776,9 +871,16 @@ void ConVarChanged_OfficialCvars(ConVar hCvar, const char[] sOldVal, const char[
 void GetOfficialCvars()
 {
 	g_iCvar_z_pounce_damage_interrupt = z_pounce_damage_interrupt.IntValue;
-
-	if ( z_leap_damage_interrupt == null ) g_iCvar_z_leap_damage_interrupt = g_iCvar_z_pounce_damage_interrupt;
-	else g_iCvar_z_leap_damage_interrupt = z_leap_damage_interrupt.IntValue;
+	if(g_bL4D2Version)
+	{
+		if ( z_leap_damage_interrupt == null ) g_iCvar_z_leap_damage_interrupt = g_iCvar_z_pounce_damage_interrupt;
+		else g_iCvar_z_leap_damage_interrupt = z_leap_damage_interrupt.IntValue;
+		g_iCvarChargerHealth = g_hCvarChargerHealth.IntValue;
+	}
+	g_iCvarWitchHealth = g_hCvarWitchHealth.IntValue;
+	g_fCvarMaxPounceDistance = g_hCvarMaxPounceDistance.FloatValue;
+	g_fCvarMinPounceDistance = g_hCvarMinPounceDistance.FloatValue;
+	g_fCvarMaxPounceDamage = g_hCvarMaxPounceDamage.FloatValue;
 }
 
 public void OnClientPutInServer(int client)
@@ -926,7 +1028,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 					event.GetString("weapon", weaponB, sizeof(weaponB));
 					if ( g_hTrieWeapons.GetValue(weaponB, weaponTypeB) && weaponTypeB == WPTYPE_GL )
 					{
-						if ( g_hCvarAllowGLSkeet.BoolValue ) {
+						if ( g_bCvarAllowGLSkeet ) {
 							HandleSkeet( attacker, victim, WPTYPE_GL, 1, false, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
 						}
 					}
@@ -947,7 +1049,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 							{
 								if ( damage >= damage_interrupt )
 								{
-									if ( g_hCvarAllowSniper.BoolValue ) {
+									if ( g_bCvarAllowSniper ) {
 										HandleSkeet( attacker, victim, WPTYPE_SNIPER,
 											g_iHunterShotCount[victim][attacker],
 											false, 
@@ -958,7 +1060,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 								else
 								{
 									// hurt skeet
-									if ( g_hCvarAllowSniper.BoolValue ) {
+									if ( g_bCvarAllowSniper ) {
 										HandleNonSkeet( attacker, victim, damage,
 											( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > damage_interrupt ), 
 											WPTYPE_SNIPER,
@@ -980,7 +1082,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 							{
 								if ( damage >= damage_interrupt )
 								{
-									if ( g_hCvarAllowMagnum.BoolValue ) {
+									if ( g_bCvarAllowMagnum ) {
 										HandleSkeet( attacker, victim, WPTYPE_MAGNUM,
 											g_iHunterShotCount[victim][attacker],
 											false, 
@@ -991,7 +1093,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 								else
 								{
 									// hurt skeet
-									if ( g_hCvarAllowMagnum.BoolValue ) {
+									if ( g_bCvarAllowMagnum ) {
 										HandleNonSkeet( attacker, victim, damage,
 											( g_iHunterOverkill[victim] + g_iHunterShotDmgTeam[victim] > damage_interrupt ), 
 											WPTYPE_MAGNUM,
@@ -1020,7 +1122,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 					// melee skeet
 					if ( damage >= damage_interrupt )
 					{
-						if ( g_hCvarAllowMelee.BoolValue && health == 0 ) {
+						if ( g_bCvarAllowMelee && health == 0 ) {
 							HandleSkeet( attacker, victim, WPTYPE_MELEE, 1, false, zClass == ZC_HUNTER, hitgroup == HITGROUP_HEAD );
 						}
 						//g_bHunterKilledPouncing[victim] = true;
@@ -1028,7 +1130,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 					else if ( health == 0 )
 					{
 						// hurt skeet (always overkill)
-						if ( g_hCvarAllowMelee.BoolValue ) {
+						if ( g_bCvarAllowMelee ) {
 							HandleNonSkeet( attacker, 
 								victim, 
 								damage, 
@@ -1062,12 +1164,12 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 				// check for levels
 				if ( health == 0 && ( damagetype & DMG_CLUB || damagetype & DMG_SLASH ) )
 				{
-					int iChargeHealth = g_hCvarChargerHealth.IntValue;
+					int iChargeHealth = g_iCvarChargerHealth;
 					int abilityEnt = GetEntPropEnt( victim, Prop_Send, "m_customAbility" );
 					if ( IsValidEntity(abilityEnt) && GetEntProp(abilityEnt, Prop_Send, "m_isCharging") )
 					{
 						// fix fake damage?
-						if ( g_hCvarHideFakeDamage.BoolValue )
+						if ( g_bCvarHideFakeDamage )
 						{
 							damage = g_iChargerHealth[victim];
 						}
@@ -1173,6 +1275,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		delete g_hBoomerVomitTimer[client];
 		g_bBoomerLanded[client] = false;
 		g_iBoomerGotShoved[client] = 0;
+		g_fBoomerNearTime[client] = 0.0;
 	}
 	else if(zClass == ZC_SMOKER)
 	{
@@ -1205,7 +1308,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_ChargerPost);
 		SDKHook(client, SDKHook_TraceAttackPost, TraceAttack_ChargerPost);
 		
-		g_iChargerHealth[client] = g_hCvarChargerHealth.IntValue;
+		g_iChargerHealth[client] = g_iCvarChargerHealth;
 	}
 }
 
@@ -1311,7 +1414,7 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 			
 			strWeaponType weaponType = WPTYPE_NONE;
 			g_hTrieWeapons.GetValue(weapon, weaponType);
-			if(weaponType == WPTYPE_SHOTGUN && g_hCvarAllowShotgun.BoolValue == false) ResetHunter(victim, true);
+			if(weaponType == WPTYPE_SHOTGUN && g_bCvarAllowShotgun == false) ResetHunter(victim, true);
 
 			if ( g_iHunterShotDmgTeam[victim] > 0 && g_bHunterKilledPouncing[victim] )
 			{
@@ -1368,13 +1471,13 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 			if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 			
 			//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
-			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_hCvarSelfClearThresh.IntValue);
+			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_iCvarSelfClearThresh);
 
 			if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
 			{
 				if (	g_iSmokerVictim[victim] > 0 &&
 						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
+						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 				{
 						HandleSmokerSelfClear( attacker, victim, false, headshot );
 				}
@@ -1401,7 +1504,7 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 			{
 				if (	g_bSmokerClearCheck[victim] &&
 						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
+						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 				{
 						HandleSmokerSelfClear( attacker, victim, false, headshot );
 				}
@@ -1490,7 +1593,7 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 			event.GetString("weapon",weapon_type, sizeof(weapon_type));
 			strWeaponType weaponType = WPTYPE_NONE;
 			g_hTrieWeapons.GetValue(weapon_type, weaponType);
-			if(weaponType == WPTYPE_SHOTGUN && g_hCvarAllowShotgun.BoolValue == false) ResetHunter(victim, true);
+			if(weaponType == WPTYPE_SHOTGUN && g_bCvarAllowShotgun == false) ResetHunter(victim, true);
 
 			if ( g_iHunterShotDmgTeam[victim] > 0 && g_bHunterKilledPouncing[victim] )
 			{
@@ -1544,13 +1647,13 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 			if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 			
 			//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
-			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_hCvarSelfClearThresh.IntValue);
+			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_iCvarSelfClearThresh);
 
 			if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
 			{
 				if (	g_iSmokerVictim[victim] > 0 &&
 						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
+						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 				{
 						HandleSmokerSelfClear( attacker, victim, false, headshot );
 				}
@@ -1577,7 +1680,7 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 			{
 				if (	g_bSmokerClearCheck[victim] &&
 						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_hCvarSelfClearThresh.IntValue ) 
+						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 				{
 						HandleSmokerSelfClear( attacker, victim, false, headshot );
 				}
@@ -1796,9 +1899,9 @@ void Event_LungePounce(Event event, const char[] name, bool dontBroadcast)
 	// distance supplied isn't the actual 2d vector distance needed for damage calculation. See more about it at
 	// http://forums.alliedmods.net/showthread.php?t=93207
 	
-	float fMin = g_hCvarMinPounceDistance.FloatValue;
-	float fMax = g_hCvarMaxPounceDistance.FloatValue;
-	float fMaxDmg = g_hCvarMaxPounceDamage.FloatValue;
+	float fMin = g_fCvarMinPounceDistance;
+	float fMax = g_fCvarMaxPounceDistance;
+	float fMaxDmg = g_fCvarMaxPounceDamage;
 	
 	// calculate 2d distance between previous position and pounce position
 	int distance = RoundToNearest( GetVectorDistance(g_fPouncePosition[client], endPos) );
@@ -1874,7 +1977,7 @@ void Event_PlayerJumped(Event event, const char[] name, bool dontBroadcast)
 		
 		if ( !g_bIsHopping[client] )
 		{
-			if ( fLengthNew >= g_hCvarBHopMinInitSpeed.FloatValue )
+			if ( fLengthNew >= g_fCvarBHopMinInitSpeed )
 			{
 				// starting potential hop streak
 				g_fHopTopVelocity[client] = fLengthNew;
@@ -1888,7 +1991,7 @@ void Event_PlayerJumped(Event event, const char[] name, bool dontBroadcast)
 			fLengthOld = GetVectorLength(g_fLastHop[client]);
 			
 			// if they picked up speed, count it as a hop, otherwise, we're done hopping
-			if ( fLengthNew - fLengthOld > HOP_ACCEL_THRESH || fLengthNew >= g_hCvarBHopContSpeed.FloatValue )
+			if ( fLengthNew - fLengthOld > HOP_ACCEL_THRESH || fLengthNew >= g_fCvarBHopContSpeed )
 			{
 				g_iHops[client]++;
 				
@@ -2196,7 +2299,7 @@ Action Timer_DeathChargeCheck( Handle timer, int userid )
 					OR took plenty of map damage
 				
 			old.. need?
-				fHeight > g_hCvarDeathChargeHeight.FloatValue
+				fHeight > g_fCvarDeathChargeHeight
 		*/
 		if (	(	( flags & VICFLG_DROWN || flags & VICFLG_FALL ) &&
 					( flags & VICFLG_HURTLOTS || flags & VICFLG_AIRDEATH ) ||
@@ -2412,7 +2515,6 @@ void Event_PlayerBoomed (Event event, const char[] name, bool dontBroadcast)
 	if ( byBoom && IS_VALID_INFECTED(attacker) )
 	{
 		g_bBoomerHitSomebody[attacker] = true;
-		
 		// check if it was vomit spray
 		if ( event.GetBool("exploded") == false )
 		{
@@ -2440,15 +2542,18 @@ Action Timer_BoomVomitCheck ( Handle timer, int client )
 void Event_BoomerExploded (Event event, const char[] name, bool dontBroadcast) 
 {
 	int client = GetClientOfUserId( event.GetInt("userid") );
+	if(!client || !IsClientInGame(client)) return;
+
 	bool biled = event.GetBool("splashedbile");
 	//PrintToChatAll("%d %d %d", biled, g_bBoomerHitSomebody[client], g_bBoomerNearSomebody[client]);
-	if ( !biled && !g_bBoomerHitSomebody[client] && g_bBoomerNearSomebody[client] )
+	if ( !biled && !g_bBoomerHitSomebody[client] )
 	{
 		int attacker = GetClientOfUserId( event.GetInt("attacker") );
 		if ( IS_VALID_SURVIVOR(attacker) )
 		{
 			HandlePop( attacker, client, g_iBoomerGotShoved[client],
 				(GetEngineTime() - g_fSpawnTime[client]),
+				g_bBoomerNearSomebody[client],
 				(GetEngineTime() - g_fBoomerNearTime[client]) );
 		}
 	}
@@ -2471,7 +2576,7 @@ void Event_WitchSpawned (Event event, const char[] name, bool dontBroadcast)
 	int witch_dmg_array[MAXPLAYERS+DMGARRAYEXT];
 	static char witch_key[10];
 	FormatEx(witch_key, sizeof(witch_key), "%x", witch);
-	witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
+	witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_iCvarWitchHealth;
 	g_hWitchTrie.SetArray(witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 }
 
@@ -2506,7 +2611,7 @@ void Event_WitchHarasserSet (Event event, const char[] name, bool dontBroadcast)
 		{
 			witch_dmg_array[i] = 0;
 		}
-		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
+		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_iCvarWitchHealth;
 		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_STARTLED)] = 1;	// harasser set
 		g_hWitchTrie.SetArray(witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 	}
@@ -2535,7 +2640,7 @@ void OnTakeDamageByWitchPost ( int victim, int attacker, int inflictor, float da
 				{
 					witch_dmg_array[i] = 0;
 				}
-				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
+				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_iCvarWitchHealth;
 				witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_GOTSLASH)] = 1;	// failed
 				g_hWitchTrie.SetArray(witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 			}
@@ -2562,7 +2667,7 @@ void OnTakeDamage_WitchPost ( int victim, int attacker, int inflictor, float dam
 		{
 			witch_dmg_array[i] = 0;
 		}
-		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_hCvarWitchHealth.IntValue;
+		witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_HEALTH)] = g_iCvarWitchHealth;
 		g_hWitchTrie.SetArray(witch_key, witch_dmg_array, MAXPLAYERS+DMGARRAYEXT, false);
 	}
 	
@@ -2619,7 +2724,7 @@ void CheckWitchCrown ( int witch, int attacker, bool bOneShot = false )
 	}
 	
 	int chipDamage = 0;
-	int iWitchHealth = g_hCvarWitchHealth.IntValue;
+	int iWitchHealth = g_iCvarWitchHealth;
 	
 	/*
 		the attacker is the last one that did damage to witch
@@ -2669,7 +2774,7 @@ void CheckWitchCrown ( int witch, int attacker, bool bOneShot = false )
 				   chipDamage);*/
 
 		// make sure that we don't count any type of chip
-		if ( g_hCvarHideFakeDamage.BoolValue )
+		if ( g_bCvarHideFakeDamage )
 		{
 			chipDamage = 0;
 			for ( int i = 0; i <= MAXPLAYERS; i++ )
@@ -2681,12 +2786,12 @@ void CheckWitchCrown ( int witch, int attacker, bool bOneShot = false )
 		}
 		HandleCrown( attacker, witch_dmg_array[attacker] );
 	}
-	else if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] >= g_hCvarDrawCrownThresh.IntValue )
+	else if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] >= g_iCvarDrawCrownThresh )
 	{
 		/*LogError("Witch Crown Check: Draw crown detected. Attacker: %N, Crown Shot: %i, Threshold: %i",
 				   attacker,
 				   witch_dmg_array[MAXPLAYERS + WTCH_CROWNSHOT],
-				   g_hCvarDrawCrownThresh.IntValue);*/
+				   g_iCvarDrawCrownThresh);*/
 
 		// draw crown: harassed + over X damage done by one survivor -- in ONE shot
 		
@@ -2703,7 +2808,7 @@ void CheckWitchCrown ( int witch, int attacker, bool bOneShot = false )
 		//LogError("Witch Crown Check: Chip Damage Calculated: %i, Total Health: %i", chipDamage, iWitchHealth);
 		
 		// make sure that we don't count any type of chip
-		if ( g_hCvarHideFakeDamage.BoolValue )
+		if ( g_bCvarHideFakeDamage )
 		{
 			// unlikely to happen, but if the chip was A LOT
 			if ( chipDamage >= iWitchHealth ) {
@@ -2719,7 +2824,7 @@ void CheckWitchCrown ( int witch, int attacker, bool bOneShot = false )
 					   chipDamage);*/
 
 			// re-check whether it qualifies as a drawcrown:
-			if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] < g_hCvarDrawCrownThresh.IntValue )
+			if ( witch_dmg_array[MAXPLAYERS+view_as<int>(WTCH_CROWNSHOT)] < g_iCvarDrawCrownThresh )
 			{ 
 				//LogError("Witch Crown Check: Adjusted Crown Shot below threshold. No draw crown.");
 				return; 
@@ -2733,7 +2838,7 @@ void CheckWitchCrown ( int witch, int attacker, bool bOneShot = false )
 	{
 		/*PrintDebug("Witch Crown Check: No crown detected. Crown Shot: %i, Threshold: %i, Harassed: %i",
 				   witch_dmg_array[MAXPLAYERS + WTCH_CROWNSHOT],
-				   g_hCvarDrawCrownThresh.IntValue,
+				   g_iCvarDrawCrownThresh,
 				   witch_dmg_array[MAXPLAYERS + WTCH_STARTLED]);*/
 	}
 
@@ -3137,20 +3242,27 @@ public Action: L4D_OnCThrowActivate ( ability )
 	----------------------
 */
 // boomer pop
-void HandlePop( int attacker, int victim, int shoveCount, float timeAlive, float timeNear )
+void HandlePop( int attacker, int victim, int shoveCount, float timeAlive, bool bNearClose, float timeNear )
 {
 	// report?
-	if ( g_bCvarReportEnable && g_bCvarRepPop && timeNear < 5.0 )
+	if ( g_bCvarReportEnable && g_bCvarRepPop )
 	{
 		if ( IS_VALID_INGAME(attacker) )
 		{
-			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			// Kill the real Boomer player without anyone getting vomited.
+			if( !IsFakeClient(victim) )
 			{
-				CPrintToChatAll( "%t", "HandlePop_1", attacker, victim, timeNear );
+				CPrintToChatAll( "%t", "HandlePop_1", attacker, victim );
 			}
-			else
+			// Kill the AI Boomer quickly while it is spraying, without anyone getting vomited. 
+			else if(g_hBoomerVomitTimer[victim] != null)
 			{
-				CPrintToChatAll( "%t", "HandlePop_2", attacker, timeNear );
+				CPrintToChatAll( "%t", "HandlePop_1", attacker, victim );
+			}
+			// Kill the AI Boomer quickly within 5 seconds once it gets close, without anyone getting vomited. 
+			else if(bNearClose && timeNear < 5.0)
+			{
+				CPrintToChatAll( "%t", "HandlePop_2", attacker, victim, timeNear );
 			}
 		}
 	}
@@ -3170,7 +3282,7 @@ void HandlePopStop(int attacker, int victim, int hits, float timeVomit)
 {
 	// report?
 	if ( g_bCvarReportEnable && g_bCvarRepPopStop &&
-		hits < 1 && timeVomit < g_hCvarInstaTime.FloatValue )
+		hits < 1 && timeVomit < g_fCvarInstaTime )
 	{
 		if ( IS_VALID_INGAME(attacker) )
 		{
@@ -4006,7 +4118,7 @@ void HandleHunterDP( int attacker,int victim, int actualDamage, float calculated
 	// report?
 	if (	g_bCvarReportEnable
 		&&	g_bCvarRepDeadStop
-		&&	height >= g_hCvarHunterDPThresh.FloatValue
+		&&	height >= g_fCvarHunterDPThresh
 	) {
 		if ( IS_VALID_INGAME(attacker) )
 		{
@@ -4029,7 +4141,7 @@ void HandleHunterDP( int attacker,int victim, int actualDamage, float calculated
 	Call_PushCell(actualDamage);
 	Call_PushFloat(calculatedDamage);
 	Call_PushFloat(height);
-	Call_PushCell( (height >= g_hCvarHunterDPThresh.FloatValue) ? 1 : 0 );
+	Call_PushCell( (height >= g_fCvarHunterDPThresh) ? 1 : 0 );
 	Call_Finish();
 }
 
@@ -4038,7 +4150,7 @@ void HandleJockeyDP( int attacker, int victim, float height )
 	// report?
 	if (	g_bCvarReportEnable
 		&&	g_bCvarRepJockeyDP
-		&&	height >= g_hCvarJockeyDPThresh.FloatValue
+		&&	height >= g_fCvarJockeyDPThresh
 	) {
 		if ( IS_VALID_INGAME(attacker) )
 		{
@@ -4059,7 +4171,7 @@ void HandleJockeyDP( int attacker, int victim, float height )
 	Call_PushCell(attacker);
 	Call_PushCell(victim);
 	Call_PushFloat(height);
-	Call_PushCell( (height >= g_hCvarJockeyDPThresh.FloatValue) ? 1 : 0 );
+	Call_PushCell( (height >= g_fCvarJockeyDPThresh) ? 1 : 0 );
 	Call_Finish();
 }
 
@@ -4069,7 +4181,7 @@ void HandleDeathCharge( int attacker, int victim, float height, float distance, 
 	// report?
 	if (	g_bCvarReportEnable &&
 			g_bCvarRepDeathCharge &&
-			height >= g_hCvarDeathChargeHeight.FloatValue &&
+			height >= g_fCvarDeathChargeHeight &&
 			!g_bDeathChargeIgnore[attacker][victim]
 	) {
 		if ( IS_VALID_INGAME(victim) )
@@ -4138,7 +4250,7 @@ void HandleClear( int attacker, int victim, int pinVictim, int zombieClass, floa
 	
 	if ( attacker != pinVictim && g_bCvarReportEnable && g_bCvarRepInstanClear )
 	{
-		float fMinTime = g_hCvarInstaTime.FloatValue;
+		float fMinTime = g_fCvarInstaTime;
 		float fClearTime = clearTimeA;
 		static char attackername[MAX_NAME_LENGTH], victimname[MAX_NAME_LENGTH], pinVictimname[MAX_NAME_LENGTH];
 		if ( zombieClass == ZC_CHARGER || zombieClass == ZC_SMOKER ) { fClearTime = clearTimeB; }
@@ -4216,7 +4328,7 @@ void HandleBHopStreak( int survivor, int streak, float maxVelocity )
 {
 	if (	g_bCvarReportEnable && g_bCvarRepBhopStreak &&
 			IS_VALID_INGAME(survivor) && !IsFakeClient(survivor) &&
-			streak >= g_hCvarBHopMinStreak.IntValue
+			streak >= g_iCvarBHopMinStreak
 	) {
 		static char survivorname[MAX_NAME_LENGTH];
 		GetClientName(survivor, survivorname, sizeof(survivorname));

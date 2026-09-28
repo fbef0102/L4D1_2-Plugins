@@ -24,17 +24,17 @@
 {
 	"HandlePop_1"
 	{
+		"#format"		"{1:N},{2:N}"
+		"en"		"{lightgreen}★★ {olive}{1}{default} popped {green}{2}{default}."
+		"zho"		"{lightgreen}★★ {olive}{1}{default} 安全地解决了 {green}{2}{default}."
+		"chi"		"{lightgreen}★★ {olive}{1}{default} 安全地解决了 {green}{2}{default}."
+	}
+	"HandlePop_2"
+	{
 		"#format"		"{1:N},{2:N},{3:.1f}"
 		"en"		"{lightgreen}★★ {olive}{1}{default} popped {green}{2}{default} ({3} seconds)."
 		"zho"		"{lightgreen}★★ {olive}{1}{default} 安全地解决了 {green}{2}{default} ({3} 秒)."
 		"chi"		"{lightgreen}★★ {olive}{1}{default} 安全地解决了 {green}{2}{default} ({3} 秒)."
-	}
-	"HandlePop_2"
-	{
-		"#format"		"{1:N},{2:.1f}"
-		"en"		"{lightgreen}★★ {olive}{1}{default} popped {green}a boomer{default} ({2} seconds)."
-		"zho"		"{lightgreen}★★ {olive}{1}{default} 安全地解决了 {green}Boomer{default} ({2} 秒)."
-		"chi"		"{lightgreen}★★ {olive}{1}{default} 安全地解决了 {green}Boomer{default} ({2} 秒)."
 	}
 	"HandlePopStop_1"
 	{

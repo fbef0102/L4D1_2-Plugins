@@ -14,13 +14,24 @@ HUD with cs kill info list.
     ```
 
 * Require | 必要安裝
-<br/>None
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+
+* Directory Structure | 檔案結構
+	```
+	/
+	├── plugins/
+	│	└── l4d2_cs_kill_hud.smx            # Compiled plugin | 已編譯的插件
+	├── data/
+	│	└── l4d2_cs_kill_hud.cfg            # Customize weapon kill icon | 自定義武器擊殺圖案
+	└── scripting/
+		└── l4d2_cs_kill_hud.sp             # Source code | 源碼
+	```
 
 * <details><summary>FAQ</summary>
 
-    * How to customize weapon icon?
-        * [l4d2_cs_kill_hud.sp](/l4d2_cs_kill_hud/scripting/l4d2_cs_kill_hud.sp#L92-L137) line 92 ~ 137
-        * Recompile, done.
+    * How to customize weapon kill icon?
+        * [data/l4d2_cs_kill_hud.cfg](data/l4d2_cs_kill_hud.cfg)
+        * Restart map, done.
 
     * How to switch HUD position?
         * Modify ```l4d2_cs_kill_hud_x``` cvar
@@ -93,6 +104,10 @@ HUD with cs kill info list.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.1h (2026-9-28)
+        * Add data
+        * Optimize code
+
     * v2.0h (2025-7-17)
         * Optimize code
         
@@ -148,8 +163,8 @@ L4D2擊殺提示改成CS遊戲的擊殺列表
 * <details><summary>問題區</summary>
 
     * 如何自製武器圖案?
-        * [l4d2_cs_kill_hud.sp](/l4d2_cs_kill_hud/scripting/l4d2_cs_kill_hud.sp#L92-L137) 92 ~ 137 行
-        * 重新編譯，完成
+        * [data/l4d2_cs_kill_hud.cfg](data/l4d2_cs_kill_hud.cfg)
+        * 重新地圖，完成
 
     * 如何改變 HUD 位置?
         * 修改 ```l4d2_cs_kill_hud_x``` 指令
