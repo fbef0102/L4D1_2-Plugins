@@ -63,7 +63,7 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
 </details>
 
 * Directory Structure | 檔案結構
-    ```
+    ```php
     /
     ├── gamedata/
     │   └── l4d2_item_hint.txt                # GameData | 遊戲數據

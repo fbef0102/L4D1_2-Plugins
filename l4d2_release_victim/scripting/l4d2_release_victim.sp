@@ -10,7 +10,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION			"1.4h-2025/1/13"
+#define PLUGIN_VERSION			"1.5h-2026/9/30"
 #define PLUGIN_NAME			    "l4d2_release_victim"
 #define DEBUG 0
 
@@ -323,10 +323,6 @@ void Release (int client, int victim, int iClass)
 			{
 				L4D2_Charger_EndPummel(victim, client);
 				L4D_StopMusic(client, "Event.ChargerSlam");
-
-				// left4dhooks error bug
-				SetEntPropEnt(client, Prop_Send, "m_pummelVictim", -1);
-				SetEntPropEnt(victim, Prop_Send, "m_pummelAttacker", -1);
 			}
 			case ZC_HUNTER:
 			{

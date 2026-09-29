@@ -73,12 +73,21 @@ Allow to release victim
         ```
 </details>
 
-* Translation Support | 支援翻譯
-	```
-	translations/l4d2_release_victim.phrases.txt
-	```
+* Directory Structure | 檔案結構
+    ```php
+    /
+    ├── plugins/
+    │   └── l4d2_release_victim.smx          # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │   └── l4d2_release_victim.sp           # Source code | 源碼
+    └── translations/
+        └── l4d2_release_victim.phrases.txt  # Multi-language translation | 翻譯多國語言
+    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.5h (2025-9-30)
+        * Remove redundant code for left4dhooks update
 
     * v1.4h (2025-1-13)
         * Support L4D1

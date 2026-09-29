@@ -17,12 +17,12 @@ HUD with cs kill info list.
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
 * Directory Structure | 檔案結構
-	```
+    ```php
 	/
-	├── plugins/
-	│	└── l4d2_cs_kill_hud.smx            # Compiled plugin | 已編譯的插件
 	├── data/
 	│	└── l4d2_cs_kill_hud.cfg            # Customize weapon kill icon | 自定義武器擊殺圖案
+	├── plugins/
+	│	└── l4d2_cs_kill_hud.smx            # Compiled plugin | 已編譯的插件   
 	└── scripting/
 		└── l4d2_cs_kill_hud.sp             # Source code | 源碼
 	```

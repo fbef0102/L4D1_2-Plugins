@@ -22,16 +22,16 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
 * Directory Structure | 檔案結構
-	```
+    ```php
 	/
 	├── plugins/
 	│	└── l4d2_skill_detect.smx			# Compiled plugin | 已編譯的插件
-	├── translations/
-	│	└── l4d2_skill_detect.phrases.txt	# Multi-language translation | 翻譯多國語言
-	└── scripting/
-		├── include/ 
-		│	└── l4d2_skill_detect.inc		# API | 給會寫插件的人
-		└── l4d2_skill_detect.sp			# Source code | 源碼
+	├── scripting/
+	│	├── include/ 
+	│	│	└── l4d2_skill_detect.inc		# API | 給會寫插件的人
+	│	└── l4d2_skill_detect.sp			# Source code | 源碼
+	└── translations/
+		└── l4d2_skill_detect.phrases.txt	# Multi-language translation | 翻譯多國語言
 	```
 
 * <details><summary>ConVar | 指令</summary>

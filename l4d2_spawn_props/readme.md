@@ -67,7 +67,7 @@ Let admins spawn any kind of objects and saved to cfg
 </details>
 
 * Directory Structure | 檔案結構
-    ```
+    ```php
 	/
 	├── data/l4d2_spawn_props/
 	│   ├── model_chinese.cfg                 # Chinese Model List | 模型列表 (中文名稱)
