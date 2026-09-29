@@ -320,6 +320,7 @@ bool 					g_bSmokerClearCheck		[MAXPLAYERS + 1];								// [smoker] smoker dies 
 int 					g_iSmokerVictim			[MAXPLAYERS + 1];								// [smoker] the one that's being pulled
 int 					g_iSmokerVictimDamage	[MAXPLAYERS + 1];								// [smoker] amount of damage done to a smoker by the one he pulled
 bool 					g_bSmokerShoved			[MAXPLAYERS + 1];								// [smoker] set if the victim of a pull manages to shove the smoker
+int 					g_iSmokerStopper		[MAXPLAYERS + 1];								// [smoker] l4d1 only: survivor who stopped the pull/choke (tongue_pull_stopped/choke_stopped have no "smoker" there)
 
 // rocks
 int 					g_iTankRock				[MAXPLAYERS + 1];								// rock entity per tank
@@ -627,6 +628,7 @@ public void OnPluginStart()
 	//HookEvent("tongue_release",				Event_TongueRelease,			EventHookMode_Post);
 	HookEvent("choke_start",				Event_ChokeStart,				EventHookMode_Post);
 	HookEvent("choke_stopped",				Event_ChokeStop,				EventHookMode_Post);
+	if(!g_bL4D2Version) HookEvent("tongue_release",		Event_TongueRelease_L4D1,		EventHookMode_Post);
 	if(g_bL4D2Version) 
 	{
 		HookEvent("jockey_ride",				Event_JockeyRide,				EventHookMode_Post);
@@ -1196,8 +1198,9 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 		else if(zClass == ZC_SMOKER)	
 		{
 			if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
-			
-			g_iSmokerVictimDamage[victim] += damage;
+
+			// only the pulled survivor's own damage counts towards a self-clear
+			if ( attacker == g_iSmokerVictim[victim] ) g_iSmokerVictimDamage[victim] += damage;
 		}
 	}
 	else if ( IS_VALID_INFECTED(attacker) )
@@ -2134,8 +2137,8 @@ void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast)
 	{
 		case ABL_HUNTERLUNGE:
 		{
-			// hunter started a pounce
-			ResetHunter(client);
+			// hunter started a pounce, also clear shot count/damage so skeet assists only count this pounce
+			ResetHunter(client, true);
 			GetClientAbsOrigin( client, g_fPouncePosition[client] );
 		}
 	
@@ -2343,6 +2346,9 @@ void ResetHunter(int client, bool death = false)
 	}
 	
 	g_iHunterOverkill[client] = 0;
+
+	// don't let a mid-pounce kill of a previous life count this life's non-shotgun kill as a skeet
+	if(death) g_bHunterKilledPouncing[client] = false;
 }
 
 // entity creation
@@ -2511,7 +2517,9 @@ void Event_PlayerBoomed (Event event, const char[] name, bool dontBroadcast)
 {
 	int attacker = GetClientOfUserId( event.GetInt("attacker") );
 	bool byBoom = event.GetBool("by_boomer");
-	
+	// l4d1 player_now_it has no "by_boomer" (userid, attacker, exploded, infected), only a boomer can bile there
+	if ( !g_bL4D2Version ) byBoom = IS_VALID_INFECTED(attacker) && GetEntProp(attacker, Prop_Send, "m_zombieClass") == ZC_BOOMER;
+
 	if ( byBoom && IS_VALID_INFECTED(attacker) )
 	{
 		g_bBoomerHitSomebody[attacker] = true;
@@ -2915,6 +2923,8 @@ void Event_TonguePullStopped (Event event, const char[] name, bool dontBroadcast
 	int smoker = GetClientOfUserId( event.GetInt("smoker") );
 	int reason = event.GetInt("release_type");
 	
+	if ( !g_bL4D2Version ) { SetSmokerStopper_L4D1(attacker, victim); return; }
+
 	if ( !IS_VALID_SURVIVOR(attacker) || !IS_VALID_INFECTED(smoker) ) { return; }
 
 	//LogError("Event_TonguePullStopped attacker %N, victim: %N, smoker: %N, reason: %d", attacker, victim, smoker, reason);
@@ -2982,6 +2992,7 @@ void Event_TongueGrab (Event event, const char[] name, bool dontBroadcast)
 		g_bSmokerShoved[attacker] = false;
 		g_iSmokerVictim[attacker] = victim;
 		g_iSmokerVictimDamage[attacker] = 0;
+		g_iSmokerStopper[attacker] = 0;
 		g_fPinTime[attacker][0] = GetEngineTime();
 		g_fPinTime[attacker][1] = 0.0;
 	}
@@ -3002,6 +3013,8 @@ void Event_ChokeStop (Event event, const char[] name, bool dontBroadcast)
 	int smoker = GetClientOfUserId( event.GetInt("smoker") );
 	int reason = event.GetInt("release_type");
 	
+	if ( !g_bL4D2Version ) { SetSmokerStopper_L4D1(attacker, victim); return; }
+
 	if ( !IS_VALID_SURVIVOR(attacker) || !IS_VALID_INFECTED(smoker) ) { return; }
 	//LogError("Event_ChokeStop attacker %N, victim: %N, smoker: %N, reason: %d", attacker, victim, smoker, reason);
 	
@@ -3015,6 +3028,63 @@ void Event_ChokeStop (Event event, const char[] name, bool dontBroadcast)
 			false
 		);
 
+	g_bSmokerClearCheck[smoker] = false;
+	g_iSmokerVictim[smoker] = 0;
+}
+
+// l4d1: tongue_pull_stopped/choke_stopped only have "userid" (who stopped it) and "victim", find the smoker from the tracked pull
+void SetSmokerStopper_L4D1(int attacker, int victim)
+{
+	if ( !IS_VALID_SURVIVOR(attacker) || !IS_VALID_SURVIVOR(victim) ) { return; }
+
+	for ( int i = 1; i <= MaxClients; i++ )
+	{
+		if ( g_iSmokerVictim[i] == victim && IS_VALID_INFECTED(i) )
+		{
+			g_iSmokerStopper[i] = attacker;
+			return;
+		}
+	}
+}
+
+// l4d1: fired in all cases where the tongue releases a victim
+// wait a frame so a kill is handled by player_death first (it still needs g_iSmokerVictim)
+void Event_TongueRelease_L4D1(Event event, const char[] name, bool dontBroadcast) 
+{
+	int smoker = GetClientOfUserId( event.GetInt("userid") );
+	if ( !IS_VALID_INFECTED(smoker) ) { return; }
+
+	RequestFrame(OnNextFrame_TongueRelease_L4D1, event.GetInt("userid"));
+}
+
+void OnNextFrame_TongueRelease_L4D1(int userid)
+{
+	int smoker = GetClientOfUserId(userid);
+	if ( !IS_VALID_INFECTED(smoker) || !IsPlayerAlive(smoker) ) { return; }
+
+	int victim = g_iSmokerVictim[smoker];
+	int attacker = g_iSmokerStopper[smoker];
+	g_iSmokerStopper[smoker] = 0;
+	if ( victim <= 0 ) { return; }
+
+	// smoker survived: a teammate shoved the victim/smoker free, or the victim shoved the smoker
+	if ( IS_VALID_SURVIVOR(attacker) && IS_VALID_SURVIVOR(victim) && ( attacker != victim || g_bSmokerShoved[smoker] ) )
+	{
+		HandleClear( attacker, smoker, victim,
+				ZC_SMOKER,
+				(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
+				( GetEngineTime() - g_fPinTime[smoker][0]),
+				true,
+				false
+			);
+
+		if ( attacker == victim )
+		{
+			HandleSmokerSelfClear( attacker, smoker, true, false );
+		}
+	}
+
+	// the pull is over, don't credit a later kill of this smoker as a clear
 	g_bSmokerClearCheck[smoker] = false;
 	g_iSmokerVictim[smoker] = 0;
 }
