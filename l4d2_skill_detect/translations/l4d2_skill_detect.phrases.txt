@@ -139,7 +139,7 @@
 	}
 	"HandleSkeetAssist_1"
 	{
-		"en"		"{lightgreen}Assist：{default}"
+		"en"		"{lightgreen}Assists: {default}"
 		"zho"		"{lightgreen}助攻：{default}"
 		"chi"		"{lightgreen}助攻：{default}"
 	}
@@ -175,7 +175,7 @@
 	"HandleSkeet_2_J"
 	{
 		"#format"		"{1:N}"
-		"en"		"{lightgreen}★ {green}Jockey{default} was team-skeeted by {olive}{1}{default}."
+		"en"		"{lightgreen}★ {green}A jockey{default} was team-skeeted by {olive}{1}{default}."
 		"zho"		"{lightgreen}★ {green}Jockey{default} 被 {olive}{1}{default} 和隊伍合力空爆了."
 		"chi"		"{lightgreen}★ {green}Jockey{default} 被 {olive}{1}{default} 和队伍合力空爆了."
 	}
@@ -327,7 +327,7 @@
 	"HandleSkeet_13_J"
 	{
 		"#format"		"{1:N},{2:d}"
-		"en"		"{lightgreen}★★ {olive}{1}{default} skeeted {green}Jockey{default} ({lightgreen}{2}{default} shots)."
+		"en"		"{lightgreen}★★ {olive}{1}{default} skeeted {green}a jockey{default} ({lightgreen}{2}{default} shots)."
 		"zho"		"{lightgreen}★★ {olive}{1}{default} 空爆了 {green}Jockey{default} ({lightgreen}{2}{default} 次射擊)."
 		"chi"		"{lightgreen}★★ {olive}{1}{default} 空爆了 {green}Jockey{default} ({lightgreen}{2}{default} 次射击)."
 	}	
@@ -606,7 +606,7 @@
 	"HandleTongueCut_2"
 	{
 		"#format"		"{1:N}"
-		"en"		"{lightgreen}★★ {olive}{1}{default} cut {green}smoker{default} tongue."
+		"en"		"{lightgreen}★★ {olive}{1}{default} cut {green}a smoker{default}'s tongue."
 		"zho"		"{lightgreen}★★ {olive}{1}{default} 近戰砍斷了 {green}Smoker{default} 的舌頭."
 		"chi"		"{lightgreen}★★ {olive}{1}{default} 近战砍断了 {green}Smoker{default} 的舌头."
 	}
@@ -627,14 +627,14 @@
 	"HandleSmokerSelfClear_2_S"
 	{
 		"#format"		"{1:s}"
-		"en"		"{lightgreen}★★ {olive}{1}{default} self-cleared from {green}a smoker{default} tongue by shoving."
+		"en"		"{lightgreen}★★ {olive}{1}{default} self-cleared from {green}a smoker{default}'s tongue by shoving."
 		"zho"		"{lightgreen}★★ {olive}{1}{default} 推開自解了 {green}Smoker{default} 的舌頭."
 		"chi"		"{lightgreen}★★ {olive}{1}{default} 推开自解了 {green}Smoker{default} 的舌头."
 	}
 	"HandleSmokerSelfClear_2_O"
 	{
 		"#format"		"{1:s}"
-		"en"		"{lightgreen}★★ {olive}{1}{default} self-cleared from {green}a smoker{default} tongue."
+		"en"		"{lightgreen}★★ {olive}{1}{default} self-cleared from {green}a smoker{default}'s tongue."
 		"zho"		"{lightgreen}★★ {olive}{1}{default} 自解了 {green}Smoker{default} 的舌頭."
 		"chi"		"{lightgreen}★★ {olive}{1}{default} 自解了 {green}Smoker{default} 的舌头."
 	}
@@ -673,21 +673,21 @@
 	"HandleRockSkeeted_3"
 	{
 		"#format"		"{1:N},{2:t}"
-		"en"		"{lightgreen}★★ {olive}{1}{default} melee-skeeted {green}a tank{default} {2}."
+		"en"		"{lightgreen}★★ {olive}{1}{default} melee-skeeted {green}a tank{default}'s {2}."
 		"zho"		"{lightgreen}★★ {olive}{1}{default} 近戰砍碎了 {green}Tank{default} 的{2}."
 		"chi"		"{lightgreen}★★ {olive}{1}{default} 近战砍碎了 {green}Tank{default} 的{2}."
 	}
 	"HandleRockSkeeted_4"
 	{
 		"#format"		"{1:N},{2:t}"
-		"en"		"{lightgreen}★ {olive}{1}{default} skeeted {green}a tank{default} {2}."
+		"en"		"{lightgreen}★ {olive}{1}{default} skeeted {green}a tank{default}'s {2}."
 		"zho"		"{lightgreen}★ {olive}{1}{default} 打碎了 {green}Tank{default} 的{2}."
 		"chi"		"{lightgreen}★ {olive}{1}{default} 打碎了 {green}Tank{default} 的{2}."
 	}
 	"HandleHunterDP_1"
 	{
 		"#format"		"{1:N},{2:N},{3:i},{4:i}"
-		"en"		"{lightgreen}★★ {green}{1}{1}{default} high-pounced {olive}{2}{default} ({lightgreen}{3}{default} dmg, height: {green}{4}{default})."
+		"en"		"{lightgreen}★★ {green}{1}{default} high-pounced {olive}{2}{default} ({lightgreen}{3}{default} dmg, height: {green}{4}{default})."
 		"zho"		"{lightgreen}★★ {green}{1}{default} 高撲砸到 {olive}{2}{default} ({lightgreen}{3}{default} 傷害, 高度 {green}{4}{default})."
 		"chi"		"{lightgreen}★★ {green}{1}{default} 高扑砸到 {olive}{2}{default} ({lightgreen}{3}{default} 伤害, 高度 {green}{4}{default})."
 	}
@@ -701,14 +701,14 @@
 	"HandleJockeyDP_1"
 	{
 		"#format"		"{1:N},{2:N},{3:i}"
-		"en"		"{lightgreen}★★ {green}{1}{default} jockey high-pounced {olive}{2}{default} (height: {green}{3}{default})."
+		"en"		"{lightgreen}★★ {green}{1}{default} high-pounced {olive}{2}{default} as a jockey (height: {green}{3}{default})."
 		"zho"		"{lightgreen}★★ {green}{1}{default} 高空騎到 {olive}{2}{default} 的臉上 (高度 {green}{3}{default})."
 		"chi"		"{lightgreen}★★ {green}{1}{default} 高空骑到 {olive}{2}{default} 的脸上 (高度 {green}{3}{default})."
 	}
 	"HandleJockeyDP_2"
 	{
 		"#format"		"{1:N},{2:i}"
-		"en"		"{lightgreen}★★ {green}A Jockey{default} high-pounced {olive}{1}{default} (height: {green}{2}{default})."
+		"en"		"{lightgreen}★★ {green}A jockey{default} high-pounced {olive}{1}{default} (height: {green}{2}{default})."
 		"zho"		"{lightgreen}★★ {green}Jockey{default} 高空騎到 {olive}{1}{default} 的臉上 (高度 {green}{2}{default})."
 		"chi"		"{lightgreen}★★ {green}Jockey{default} 高空骑到 {olive}{1}{default} 的脸上 (高度 {green}{2}{default})."
 	}
@@ -834,7 +834,7 @@
 	"HandleCarAlarmTriggered_9"
 	{
 		"#format"		"{1:N},{2:N}"
-		"en"		"{olive}{1}{default} triggered an alarm by killing a boomer {green}{2}{default}."
+		"en"		"{olive}{1}{default} triggered an alarm by killing boomer {green}{2}{default}."
 		"zho"		"{olive}{1}{default} 因為打死 {green}{2}{default} (Boomer) 而觸發警報車."
 		"chi"		"{olive}{1}{default} 因为打死 {green}{2}{default} (Boomer) 而触发警报车."
 	}
@@ -855,7 +855,7 @@
 	"HandleVomitLanded_1"
 	{
 		"#format"	"{1:N},{2:d}"
-		"en"		"{lightgreen}★★ {green}{1}{default} vomit all {olive}{2}{default} survivors"
+		"en"		"{lightgreen}★★ {green}{1}{default} vomited on {olive}{2}{default} survivors at once."
 		"zho"		"{lightgreen}★★ {green}{1}{default} 嘔吐到 {olive}{2}{default} 位倖存者."
 		"chi"		"{lightgreen}★★ {green}{1}{default} 呕吐到 {olive}{2}{default} 位生还者."
 	}
