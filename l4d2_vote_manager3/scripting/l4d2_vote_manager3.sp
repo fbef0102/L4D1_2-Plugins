@@ -246,7 +246,7 @@ Action VoteAction(int client, const char[] command, int argc)
 
 Action VoteStart(int client, const char[] command, int argc)
 {
-    if(GetServerClientCount(true) == 0 || client == 0 || IsFakeClient(client)) return Plugin_Continue; //prevent votes while server is empty or if server tries calling vote
+    if(GetServerClientCount(true) == 0 || client == 0 || IsFakeClient(client)) return Plugin_Continue;
     
     if(argc <= 0)
     {
@@ -799,7 +799,7 @@ void LogVoteManager(const char[] log, any ...)
         ReplaceString(buffer, sizeof(buffer), "{green}",		"", false);
         ReplaceString(buffer, sizeof(buffer), "{olive}",		"", false);
         
-        WriteFileLine(file, buffer);
+        WriteFileLine(file, "%s", buffer);
         FlushFile(file);
         delete file;
     }

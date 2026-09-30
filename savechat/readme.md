@@ -40,12 +40,12 @@ Records player chat messages to a file
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    * v2.0 (2023-10-29)
+    * v2.2 (2026-9-30)
+        * Do not use the log line as a format string
+        * Fix: WriteFileLine(fileHandle, "%s", message)
 
-        * Optimize code
+    * v2.0 (2023-10-29)
     * v1.9 (2023-6-28)
-        * Optimize code
-        
     * v1.8 (2023-5-9)
         * Optimize code
 

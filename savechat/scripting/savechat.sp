@@ -6,7 +6,7 @@
 #include <geoip>
 #include <basecomm>
 
-#define PLUGIN_VERSION "2.1-2024/4/25"
+#define PLUGIN_VERSION "2.2-2026/9/30"
 
 public Plugin myinfo = 
 {
@@ -258,7 +258,7 @@ void LogChat2(int client, const char[] sArgs, bool teamchat)
 	}
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
 	FormatEx(Args, sizeof(Args), "%s", sArgs);
-	ReplaceString(Args, sizeof(Args), "%", "%%");
+	//ReplaceString(Args, sizeof(Args), "%", "%%");
 
 	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : %s%s",
 		time,
@@ -313,7 +313,7 @@ void LogCommand(int client)
 		GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 	}
 	FormatTime(time, sizeof(time), "%H:%M:%S", -1);
-	ReplaceString(text, sizeof(text), "%", "%%");
+	//ReplaceString(text, sizeof(text), "%", "%%");
 
 	FormatEx(msg, sizeof(msg), "[%s] (%-20s | %-15s) [%s] %-25N : (CMD) %s %s",
 		time,
@@ -343,7 +343,9 @@ void SaveMessage(const char[] message)
 		}
 	}
 
-	WriteFileLine(fileHandle, message);
+	//  log line used as a format string. A name like %s%s made WriteFileLine throw. The line was lost and the file handle leaked.
+	// Fix: WriteFileLine(fileHandle, "%s", message), and remove the % to %% replaces (they would log "100%%").
+	WriteFileLine(fileHandle, "%s", message);
 	delete fileHandle;
 }
 

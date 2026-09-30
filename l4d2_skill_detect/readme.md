@@ -167,6 +167,12 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.6h (2026-9-30)
+        * Thanks to Volence
+        * Bugs fixed for L4D1, some fields in events do not exist in L4D1.
+        * Fix "OnSkeet", "Self-clear" codes
+        * Update translation
+
     * v2.5h (2026-9-29)
         * Fix cvars not working
         * Update translations
@@ -177,7 +183,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         * Update cvars
 
     * v2.3h (2026-8-28)
-        * Support
+        * Support L4D1
         * Convert code to latest syntax
         * Fix warnings when compiling above SourceMod 1.12 
 

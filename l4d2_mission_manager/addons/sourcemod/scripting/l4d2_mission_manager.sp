@@ -1580,7 +1580,7 @@ void SaveMessage(const char[] message, any ...)
 		return;
 	}
 
-	WriteFileLine(fileHandle, DebugBuff);
+	WriteFileLine(fileHandle, "%s", DebugBuff);
 	delete fileHandle;
 }
 

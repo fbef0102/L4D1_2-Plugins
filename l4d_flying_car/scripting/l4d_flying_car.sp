@@ -45,13 +45,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	CreateConVar("l4d_flying_car_version", PLUGIN_VERSION, "", 0|FCVAR_DONTRECORD);
-	l4d_flying_car_color = CreateConVar("l4d_flying_car_color", "", "Custom color (rgb), leave black to use default color", 0);
-	l4d_flying_car_enable = CreateConVar("l4d_flying_car_enable", "1", "Enable/Disable this plugin. 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
-	l4d_flying_car_explode = CreateConVar("l4d_flying_car_explode", "1", "Explode car? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
-	l4d_flying_car_ignite = CreateConVar("l4d_flying_car_ignite", "1", "Ignite car on leaving? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
-	l4d_flying_car_model = CreateConVar("l4d_flying_car_model", "1", "Car model (1:taxi, 2:police car)", 0, true, 1.0, true, 2.0);
-	l4d_flying_car_random_color = CreateConVar("l4d_flying_car_random_color", "1", "Choose color randomly instead using custom one? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
-	l4d_flying_car_random_model = CreateConVar("l4d_flying_car_random_model", "1", "Choose model randomly instead using custom one? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
+	l4d_flying_car_color 			= CreateConVar("l4d_flying_car_color", 			"", 	"Custom color (rgb), leave black to use default color", 0);
+	l4d_flying_car_enable 			= CreateConVar("l4d_flying_car_enable", 		"1", 	"Enable/Disable this plugin. 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
+	l4d_flying_car_explode 			= CreateConVar("l4d_flying_car_explode", 		"1", 	"Explode car? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
+	l4d_flying_car_ignite 			= CreateConVar("l4d_flying_car_ignite", 		"1", 	"Ignite car on leaving? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
+	l4d_flying_car_model 			= CreateConVar("l4d_flying_car_model", 			"1", 	"Car model (1:taxi, 2:police car)", 0, true, 1.0, true, 2.0);
+	l4d_flying_car_random_color 	= CreateConVar("l4d_flying_car_random_color", 	"1", 	"Choose color randomly instead using custom one? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
+	l4d_flying_car_random_model 	= CreateConVar("l4d_flying_car_random_model", 	"1", 	"Choose model randomly instead using custom one? 0:disable, 1:enable", 0, true, 0.0, true, 1.0);
 	
 	AutoExecConfig(true, "l4d_flying_car");
 
@@ -132,7 +132,7 @@ public void event_finale_escape_start(Handle event, const char[] name, bool dont
 	TrimString(rgb);
 	
 	//scan all entities...
-	int EntityCount = GetEntityCount();
+	int EntityCount = GetMaxEntities();
 	for (int entity = 1; entity <= EntityCount; entity++)
 	{
 		if (!IsValidEntity(entity))

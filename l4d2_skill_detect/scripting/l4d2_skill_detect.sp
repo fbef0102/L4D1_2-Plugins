@@ -68,7 +68,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "2.5h-2026/9/29"
+#define PLUGIN_VERSION "2.6h-2026/9/30"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -1476,48 +1476,30 @@ public void l4d2_kills_manager_PlayerDeath_Pre(int userid, int entityid, int att
 			//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
 			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_iCvarSelfClearThresh);
 
-			if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
+			if (g_iSmokerVictim[victim] > 0 &&
+				g_iSmokerVictim[victim] == attacker &&
+				g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 			{
-				if (	g_iSmokerVictim[victim] > 0 &&
-						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
-				{
-						HandleSmokerSelfClear( attacker, victim, false, headshot );
-				}
-				else if ( g_iSmokerVictim[victim] > 0 &&
-							g_iSmokerVictim[victim] != attacker )
-				{
-					int smoker = victim;
-					victim = g_iSmokerVictim[smoker];
-					HandleClear( attacker, smoker, victim,
-							ZC_SMOKER,
-							(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
-							( GetEngineTime() - g_fPinTime[smoker][0]),
-							false,
-							headshot
-						);
-				}
-				else
-				{
-					g_bSmokerClearCheck[victim] = false;
-					g_iSmokerVictim[victim] = 0;
-				}
+					HandleSmokerSelfClear( attacker, victim, false, headshot );
+			}
+			else if ( g_iSmokerVictim[victim] > 0 &&
+						g_iSmokerVictim[victim] != attacker )
+			{
+				int smoker = victim;
+				victim = g_iSmokerVictim[smoker];
+				HandleClear( attacker, smoker, victim,
+						ZC_SMOKER,
+						(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
+						( GetEngineTime() - g_fPinTime[smoker][0]),
+						false,
+						headshot
+					);
 			}
 			else
 			{
-				if (	g_bSmokerClearCheck[victim] &&
-						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
-				{
-						HandleSmokerSelfClear( attacker, victim, false, headshot );
-				}
-				else
-				{
-					g_bSmokerClearCheck[victim] = false;
-					g_iSmokerVictim[victim] = 0;
-				}
+				g_bSmokerClearCheck[victim] = false;
+				g_iSmokerVictim[victim] = 0;
 			}
-
 		}
 		/*else if(g_bL4D2Version && zClass == ZC_JOCKEY)
 		{
@@ -1652,48 +1634,30 @@ void Event_PlayerDeath_Pre( Event event, const char[] name, bool dontBroadcast )
 			//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
 			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_iCvarSelfClearThresh);
 
-			if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
+			if (g_iSmokerVictim[victim] > 0 &&
+				g_iSmokerVictim[victim] == attacker &&
+				g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 			{
-				if (	g_iSmokerVictim[victim] > 0 &&
-						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
-				{
-						HandleSmokerSelfClear( attacker, victim, false, headshot );
-				}
-				else if ( g_iSmokerVictim[victim] > 0 &&
-							g_iSmokerVictim[victim] != attacker )
-				{
-					int smoker = victim;
-					victim = g_iSmokerVictim[smoker];
-					HandleClear( attacker, smoker, victim,
-							ZC_SMOKER,
-							(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
-							( GetEngineTime() - g_fPinTime[smoker][0]),
-							false,
-							headshot
-						);
-				}
-				else
-				{
-					g_bSmokerClearCheck[victim] = false;
-					g_iSmokerVictim[victim] = 0;
-				}
+					HandleSmokerSelfClear( attacker, victim, false, headshot );
+			}
+			else if ( g_iSmokerVictim[victim] > 0 &&
+						g_iSmokerVictim[victim] != attacker )
+			{
+				int smoker = victim;
+				victim = g_iSmokerVictim[smoker];
+				HandleClear( attacker, smoker, victim,
+						ZC_SMOKER,
+						(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
+						( GetEngineTime() - g_fPinTime[smoker][0]),
+						false,
+						headshot
+					);
 			}
 			else
 			{
-				if (	g_bSmokerClearCheck[victim] &&
-						g_iSmokerVictim[victim] == attacker &&
-						g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
-				{
-						HandleSmokerSelfClear( attacker, victim, false, headshot );
-				}
-				else
-				{
-					g_bSmokerClearCheck[victim] = false;
-					g_iSmokerVictim[victim] = 0;
-				}
+				g_bSmokerClearCheck[victim] = false;
+				g_iSmokerVictim[victim] = 0;
 			}
-
 		}
 		/*
 		else if(g_bL4D2Version && zClass == ZC_JOCKEY)
@@ -2920,10 +2884,10 @@ void Event_TonguePullStopped (Event event, const char[] name, bool dontBroadcast
 {
 	int attacker = GetClientOfUserId( event.GetInt("userid") );
 	int victim = GetClientOfUserId( event.GetInt("victim") );
-	int smoker = GetClientOfUserId( event.GetInt("smoker") );
-	int reason = event.GetInt("release_type");
-	
 	if ( !g_bL4D2Version ) { SetSmokerStopper_L4D1(attacker, victim); return; }
+
+	int smoker = GetClientOfUserId( event.GetInt("smoker") ); //not exist in l4d1
+	int reason = event.GetInt("release_type"); //not exist in l4d1
 
 	if ( !IS_VALID_SURVIVOR(attacker) || !IS_VALID_INFECTED(smoker) ) { return; }
 
@@ -2962,10 +2926,7 @@ void Event_TonguePullStopped (Event event, const char[] name, bool dontBroadcast
 		}
 	}
 
-	if(L4D_IsSurvivalMode() || L4D_IsVersusMode() || L4D2_IsScavengeMode())
-	{
-		g_iSmokerVictim[smoker] = 0;
-	}
+	g_iSmokerVictim[smoker] = 0;
 }
 
 /*void Event_TongueRelease(Event event, const char[] name, bool dontBroadcast) 
@@ -2974,8 +2935,6 @@ void Event_TonguePullStopped (Event event, const char[] name, bool dontBroadcast
 	int victim = GetClientOfUserId( event.GetInt("victim") );
 	
 	if ( !IS_VALID_SURVIVOR(victim) || !IS_VALID_INFECTED(smoker) ) { return ;}
-
-	if (L4D_IsCoopMode() || (g_bL4D2Version && L4D2_IsRealismMode())) return;
 
 	//LogError("Event_TongueRelease smoker %N, victim: %N", smoker, victim);
 }*/
@@ -3010,10 +2969,11 @@ void Event_ChokeStop (Event event, const char[] name, bool dontBroadcast)
 {
 	int attacker = GetClientOfUserId( event.GetInt("userid") );
 	int victim = GetClientOfUserId( event.GetInt("victim") );
-	int smoker = GetClientOfUserId( event.GetInt("smoker") );
-	int reason = event.GetInt("release_type");
-	
 	if ( !g_bL4D2Version ) { SetSmokerStopper_L4D1(attacker, victim); return; }
+
+	int smoker = GetClientOfUserId( event.GetInt("smoker") ); // not exist in l4d1
+	int reason = event.GetInt("release_type"); // not exist in l4d1
+	
 
 	if ( !IS_VALID_SURVIVOR(attacker) || !IS_VALID_INFECTED(smoker) ) { return; }
 	//LogError("Event_ChokeStop attacker %N, victim: %N, smoker: %N, reason: %d", attacker, victim, smoker, reason);

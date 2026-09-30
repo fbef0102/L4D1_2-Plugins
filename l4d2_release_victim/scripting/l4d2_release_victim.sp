@@ -143,8 +143,11 @@ public void OnPluginStart()
 	g_iVelocity = FindSendPropInfo("CBasePlayer", "m_vecVelocity[0]");
 	
 	HookEvent("round_start", 			evtRoundStart);
-	HookEvent("jockey_ride", 			Infected_Capped);
-	HookEvent("charger_pummel_start", 	Infected_Capped);
+	if(g_bL4D2Version)
+	{
+		HookEvent("jockey_ride", 			Infected_Capped);
+		HookEvent("charger_pummel_start", 	Infected_Capped);
+	}
 	HookEvent("lunge_pounce", 			Infected_Capped);
 	HookEvent("tongue_grab", 			Infected_Capped);
 	HookEvent("player_spawn",           Event_PlayerSpawn);
