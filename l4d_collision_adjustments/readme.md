@@ -30,8 +30,7 @@ No collisions to fix a handful of silly collision bugs in l4d
         3. Rocks can go through Incapacitated Survivors (Won't go through new incaps caused by the Rock)
         4. Hunter can go through incapacitated survivor (Prevent hunter stuck inside incapacitated survivor, still can pounce them)
         5. Special infected and Tank can go through witch (Prevent stuck and stagger)
-        6. (L4D1) Commons can go through Witch (Prevent commons from pushing witch)
-        7. To fix the bug where survivor and special infected can push pipebomb projectiles
+        6. To fix the bug where survivor and special infected can push pipebomb projectiles
 </details>
 
 * <details><summary>ConVar | 指令</summary>
@@ -53,15 +52,15 @@ No collisions to fix a handful of silly collision bugs in l4d
         // If 1, Rocks can go through Incapacitated Survivors? (Won't go through new incaps caused by the Rock)
         l4d_collision_adjustments_tankrock_incap "1"
 
-        // (L4D1) If 1, Commons can go through Witch (Prevent commons from pushing witch in l4d1)
-        l4d_collision_adjustments_common_witch "1"
-
         // If 1, Fix the bug where survivor and special infected can push pipebomb projectiles
         l4d_collision_adjustments_client_pipebomb "1"
         ```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.2h (2026-10-3)
+        * Update cvars
 
     * v1.1h (2026-2-11)
         * Update cvars
@@ -86,8 +85,7 @@ No collisions to fix a handful of silly collision bugs in l4d
         3. 被Smoker拉走的倖存者不會被小殭屍擋路
         4. Tank的石頭可以穿透小殭屍 (依然殺死他們)
         5. Tank的石頭可以穿透倒地的倖存者
-        6. (限L4D1) 小殭屍可以穿越Witch (不會擋路)
-        7. 修復玩家走路就能推擠地上的土製炸彈
+        6. 修復玩家走路就能推擠地上的土製炸彈
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -107,9 +105,6 @@ No collisions to fix a handful of silly collision bugs in l4d
 
         // 為1時，Tank的石頭可以穿透倒地的倖存者
         l4d_collision_adjustments_tankrock_incap "1"
-
-        // (L4D1) 為1時，小殭屍可以穿越Witch (不會擋路)
-        l4d_collision_adjustments_common_witch "1"
 
         // 為1時，修復玩家走路就能推擠地上的土製炸彈
         l4d_collision_adjustments_client_pipebomb "1" 

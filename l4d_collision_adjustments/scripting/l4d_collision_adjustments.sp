@@ -8,7 +8,7 @@ public Plugin myinfo =
 	name = "[L4D1/L4D2] Collision Adjustments",
 	author = "Sir, Harry Potter",
 	description = "No collisions to fix a handful of silly collision bugs in l4d",
-	version = "1.1h-2026/2/11",
+	version = "1.2h-2026/10/3",
 	url = "http://steamcommunity.com/profiles/76561198026784913"
 }
 
@@ -43,9 +43,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #define ZC_HUNTER	3
 
-ConVar g_hCvarRockFix, g_hCvarPullThrough, g_hCvarRockThroughIncap ,g_hCvarCommonThroughWitch, g_hCvarHunterThroughInacp, g_hCvarSIThroughWitch,
+ConVar g_hCvarRockFix, g_hCvarPullThrough, g_hCvarRockThroughIncap, g_hCvarHunterThroughInacp, g_hCvarSIThroughWitch,
 	g_hCvarClientPushPipeBombFix;
-bool g_bCvarRockFix,g_bCvarPullThrough,g_bCvarRockThroughIncap,g_bCvarCommonThroughWitch, g_bCvarHunterThroughInacp, g_bCvarSIThroughWitch,
+bool g_bCvarRockFix,g_bCvarPullThrough,g_bCvarRockThroughIncap, g_bCvarHunterThroughInacp, g_bCvarSIThroughWitch,
 	g_bCvarClientPushPipeBombFix;
 bool g_bPulled[MAXPLAYERS + 1] = {false};
 float g_fPouncingStartTime[MAXPLAYERS+1];
@@ -77,10 +77,6 @@ public void OnPluginStart()
 	g_hCvarRockFix 					= CreateConVar("l4d_collision_adjustments_tankrock_common", "1", "If 1, Rocks can go through Common Infected (and also kill them) instead of possibly getting stuck on them", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarPullThrough 				= CreateConVar("l4d_collision_adjustments_smoker_common", 	"1", "If 1, Pulled Survivors can go through Common Infected", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarRockThroughIncap 		= CreateConVar("l4d_collision_adjustments_tankrock_incap", 	"1", "If 1, Rocks can go through Incapacitated Survivors? (Won't go through new incaps caused by the Rock)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	if(!g_bL4D2Version)
-	{
-		g_hCvarCommonThroughWitch 	= CreateConVar("l4d_collision_adjustments_common_witch", 	"1", "(L4D1) If 1, Commons can go through Witch (Prevent commons from pushing witch in l4d1)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	}
 	g_hCvarHunterThroughInacp 		= CreateConVar("l4d_collision_adjustments_hunter_incap", 	"1", "If 1, Hunter can go through incapacitated survivor (Prevent hunter stuck inside incapacitated survivor, still can pounce them)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarSIThroughWitch 			= CreateConVar("l4d_collision_adjustments_si_witch", 		"1", "If 1, Special infected and Tank can go through witch (Prevent stuck and stagger)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarClientPushPipeBombFix 	= CreateConVar("l4d_collision_adjustments_client_pipebomb", "1", "If 1, Fix the bug where survivor and special infected can push pipebomb projectiles", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -90,7 +86,6 @@ public void OnPluginStart()
 	g_hCvarRockFix.AddChangeHook(ConVarChanged);
 	g_hCvarPullThrough.AddChangeHook(ConVarChanged);
 	g_hCvarRockThroughIncap.AddChangeHook(ConVarChanged);
-	if(!g_bL4D2Version) g_hCvarCommonThroughWitch.AddChangeHook(ConVarChanged);
 	g_hCvarHunterThroughInacp.AddChangeHook(ConVarChanged);
 	g_hCvarSIThroughWitch.AddChangeHook(ConVarChanged);
 	g_hCvarClientPushPipeBombFix.AddChangeHook(ConVarChanged);
@@ -135,7 +130,6 @@ void GetCvars()
 	g_bCvarRockFix = g_hCvarRockFix.BoolValue;
 	g_bCvarPullThrough = g_hCvarPullThrough.BoolValue;
 	g_bCvarRockThroughIncap = g_hCvarRockThroughIncap.BoolValue;
-	if(!g_bL4D2Version) g_bCvarCommonThroughWitch = g_hCvarCommonThroughWitch.BoolValue;
 	g_bCvarHunterThroughInacp = g_hCvarHunterThroughInacp.BoolValue;
 	g_bCvarSIThroughWitch = g_hCvarSIThroughWitch.BoolValue;
 	g_bCvarClientPushPipeBombFix = g_hCvarClientPushPipeBombFix.BoolValue;
@@ -239,12 +233,6 @@ public Action CH_PassFilter(int ent1, int ent2, bool &result)
 				result = false;
 				return Plugin_Handled;
 			}
-
-			if (!g_bL4D2Version && g_bCvarCommonThroughWitch && g_iEntityType[ent2] == EEntity_Witch)
-			{
-				result = false;
-				return Plugin_Handled;			
-			}
 		}
 		else if (g_iEntityType[ent2] == EEntity_Infected)
 		{
@@ -252,12 +240,6 @@ public Action CH_PassFilter(int ent1, int ent2, bool &result)
 			{
 				result = false;
 				return Plugin_Handled;
-			}
-
-			if (!g_bL4D2Version && g_bCvarCommonThroughWitch && g_iEntityType[ent1] == EEntity_Witch)
-			{
-				result = false;
-				return Plugin_Handled;			
 			}
 		}
 	}

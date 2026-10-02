@@ -1271,6 +1271,10 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	g_fPinTime[client][0] = 0.0;
 	g_fPinTime[client][1] = 0.0;
 	
+	SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_HunterPost);
+	SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_JockeyPost);
+	SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_ChargerPost);
+
 	if(zClass == ZC_BOOMER)
 	{
 		g_bBoomerHitSomebody[client] = false;
@@ -1288,7 +1292,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	else if(zClass == ZC_HUNTER)
 	{
-		SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_HunterPost);
 		SDKHook(client, SDKHook_TraceAttackPost, TraceAttack_HunterPost);
 
 		g_fPouncePosition[client][0] = 0.0;
@@ -1298,7 +1301,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	else if(g_bL4D2Version && zClass == ZC_JOCKEY)
 	{
-		SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_JockeyPost);
 		SDKHook(client, SDKHook_TraceAttackPost, TraceAttack_JockeyPost);
 		
 		g_fPouncePosition[client][0] = 0.0;
@@ -1308,7 +1310,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	else if(g_bL4D2Version && zClass == ZC_CHARGER)
 	{
-		SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_ChargerPost);
 		SDKHook(client, SDKHook_TraceAttackPost, TraceAttack_ChargerPost);
 		
 		g_iChargerHealth[client] = g_iCvarChargerHealth;
