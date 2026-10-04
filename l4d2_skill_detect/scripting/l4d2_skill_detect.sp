@@ -867,7 +867,7 @@ void GetCvars()
 
 void ConVarChanged_OfficialCvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
-	GetCvars();
+	GetOfficialCvars();
 }
 
 void GetOfficialCvars()
@@ -2908,6 +2908,8 @@ void Event_TonguePullStopped (Event event, const char[] name, bool dontBroadcast
 		if ( reason == CUT_KILL )
 		{
 			g_bSmokerClearCheck[smoker] = true;
+			// keep g_iSmokerVictim, player_death still needs it for the self-clear
+			return;
 		}
 		else if ( g_bSmokerShoved[smoker] )
 		{
@@ -3408,7 +3410,7 @@ void HandleLevelHurt( int attacker, int victim, int damage, bool headshot )
 void HandleDeadstop( int attacker, int victim, bool hunter = true )
 {
 	// report?
-	if ( g_bCvarReportEnable && g_bCvarRepHunterDP )
+	if ( g_bCvarReportEnable && g_bCvarRepDeadStop )
 	{
 		if ( IS_VALID_INGAME(attacker) )
 		{
@@ -4117,7 +4119,7 @@ void HandleRockSkeeted( int attacker, int victim, bool melee=false, int type=ROC
 		
 		if ( IS_VALID_INGAME(attacker) )
 		{
-			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) )
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(victim) && g_bCvarRepRockName )
 			{
 				// CPrintToChatAll( "{green}%N{default} skeeted {olive}%N{default}'s rock.", attacker, victim );
 				if(melee)
@@ -4148,12 +4150,12 @@ void HandleHunterDP( int attacker,int victim, int actualDamage, float calculated
 {
 	// report?
 	if (	g_bCvarReportEnable
-		&&	g_bCvarRepDeadStop
+		&&	g_bCvarRepHunterDP
 		&&	height >= g_fCvarHunterDPThresh
 	) {
 		if ( IS_VALID_INGAME(attacker) )
 		{
-			if( IS_VALID_INGAME(victim) && !IsFakeClient(attacker) && g_bCvarRepRockName )
+			if( IS_VALID_INGAME(victim) && !IsFakeClient(attacker) )
 			{
 				CPrintToChatAll( "%t", "HandleHunterDP_1", attacker, victim, actualDamage, RoundFloat(height) );
 			}
