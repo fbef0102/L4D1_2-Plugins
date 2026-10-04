@@ -23,24 +23,11 @@ Makes AI Charger take damage like human SI while charging.
 * Require | 必要安裝
 	1. [sourcescramble](https://github.com/nosoop/SMExt-SourceScramble/releases)
 
-* <details><summary>API | 串接</summary>
-
-	```php
-	library name: charging_takedamage_patch
-	```
-</details>
-
 * <details><summary>Known Conflicts</summary>
 	
 	If you don't use any of these plugins at all, no need to worry about conflicts.
 	1. [l4d2_ai_damagefix](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_ai_damagefix.sp)
 		* Removed
-</details>
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix): Makes AI Hunter take damage like human SI while pouncing.
-		* 對AI Hunter(正在飛撲的途中) 造成的傷害數據跟真人玩家一樣
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>

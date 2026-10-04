@@ -373,6 +373,34 @@
 		"zho"		"{lightgreen}★★★ {olive}{1}{default} 霰彈空爆了 {green}{2}{default}."
 		"chi"		"{lightgreen}★★★ {olive}{1}{default} 散弹空爆了 {green}{2}{default}."
 	}
+	"HandleSkeet_C_H_R"
+	{
+		"#format"		"{1:N},{2:N}"
+		"en"		"{lightgreen}★★★ {olive}{1}{default} chainsaw-skeeted {green}{2}{default}."
+		"zho"		"{lightgreen}★★★ {olive}{1}{default} 電鋸秒殺了飛撲的 {green}{2}{default}."
+		"chi"		"{lightgreen}★★★ {olive}{1}{default} 电锯秒杀了飞扑的 {green}{2}{default}."
+	}
+	"HandleSkeet_C_J_R"
+	{
+		"#format"		"{1:N},{2:N}"
+		"en"		"{lightgreen}★★★ {olive}{1}{default} chainsaw-skeeted {green}{2}{default}."
+		"zho"		"{lightgreen}★★★ {olive}{1}{default} 電鋸秒殺了空中的 {green}{2}{default}."
+		"chi"		"{lightgreen}★★★ {olive}{1}{default} 电锯秒杀了空中的 {green}{2}{default}."
+	}
+	"HandleSkeet_C_H_AI"
+	{
+		"#format"		"{1:N}"
+		"en"		"{lightgreen}★★★ {olive}{1}{default} chainsaw-skeeted {green}a hunter{default}."
+		"zho"		"{lightgreen}★★★ {olive}{1}{default} 電鋸秒殺了飛撲的 {green}Hunter{default}."
+		"chi"		"{lightgreen}★★★ {olive}{1}{default} 电锯秒杀了飞扑的 {green}Hunter{default}."
+	}
+	"HandleSkeet_C_J_AI"
+	{
+		"#format"		"{1:N}"
+		"en"		"{lightgreen}★★★ {olive}{1}{default} chainsaw-skeeted {green}a jockey{default}."
+		"zho"		"{lightgreen}★★★ {olive}{1}{default} 電鋸秒殺了空中的 {green}Jockey{default}."
+		"chi"		"{lightgreen}★★★ {olive}{1}{default} 电锯秒杀了空中的 {green}Jockey{default}."
+	}
 	"HandleSkeet_M_S_H"
 	{
 		"#format"		"{1:N}"
@@ -400,7 +428,7 @@
 		"en"		"{lightgreen}★★★ {olive}{1}{default} shotgun-skeeted {green}a jockey{default}."
 		"zho"		"{lightgreen}★★★ {olive}{1}{default} 霰彈空爆了 {green}Jockey{default}."
 		"chi"		"{lightgreen}★★★ {olive}{1}{default} 散弹空爆了 {green}Jockey{default}."
-	}
+	}	
 	"HandleNonSkeet_1_H"
 	{
 		"#format"		"{1:N},{2:N},{3:d}"

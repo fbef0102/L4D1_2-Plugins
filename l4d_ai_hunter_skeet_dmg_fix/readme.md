@@ -23,6 +23,13 @@ Makes AI Hunter take damage like human SI while pouncing.
 * Require | 必要安裝
 <br/>None
 
+* <details><summary>Known Conflicts</summary>
+	
+	If you don't use any of these plugins at all, no need to worry about conflicts.
+	1. [l4d2_ai_damagefix](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_ai_damagefix.sp)
+		* Removed
+</details>
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d_ai_hunter_skeet_dmg_fix.cfg
@@ -32,34 +39,14 @@ Makes AI Hunter take damage like human SI while pouncing.
 		```
 </details>
 
-* <details><summary>API | 串接</summary>
-
-	```php
-	library name: l4d_ai_hunter_skeet_dmg_fix
-	```
-</details>
-
-* <details><summary>Known Conflicts</summary>
-	
-	If you don't use any of these plugins at all, no need to worry about conflicts.
-	1. [l4d2_ai_damagefix](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_ai_damagefix.sp)
-		* Removed
-</details>
-
 * <details><summary>Related Official ConVar</summary>
 
 	* write down the following cvars in cfg/server.cfg
 		```php
-		// Taking this much damage interrupts a pounce attempt (default: 150)
+		// Taking this much damage interrupts a pounce attempt (default: 50 in coop, 150 in versus)
 		// Taking this much damage while pouncing will get you skeeted and die (No matter how much health left you have)
 		sm_cvar z_pounce_damage_interrupt "150"
 		```
-</details>
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [charging_takedamage_patch](/charging_takedamage_patch): Makes AI Charger take damage like human SI while charging.
-		* 移除AI Charger的衝鋒減傷
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
@@ -82,6 +69,13 @@ Makes AI Hunter take damage like human SI while pouncing.
 	* (裝插件之後) 對AI Hunter造成的傷害數據跟真人玩家一樣
 		* 所以AI Hunter飛撲的途中容易被殺死
 
+* <details><summary>會衝突的插件</summary>
+	
+	如果沒安裝以下插件就不需要擔心衝突
+	1. [l4d2_ai_damagefix](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_ai_damagefix.sp)
+		* 移除
+</details>
+
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
 	* cfg/sourcemod/l4d_ai_hunter_skeet_dmg_fix.cfg
@@ -91,19 +85,12 @@ Makes AI Hunter take damage like human SI while pouncing.
 		```
 </details>
 
-* <details><summary>會衝突的插件</summary>
-	
-	如果沒安裝以下插件就不需要擔心衝突
-	1. [l4d2_ai_damagefix](https://github.com/SirPlease/L4D2-Competitive-Rework/blob/master/addons/sourcemod/scripting/l4d2_ai_damagefix.sp)
-		* 移除
-</details>
-
 * <details><summary>相關的官方指令中文介紹 (點我展開)</summary>
 
 	* 以下指令寫入文件 cfg/server.cfg，可自行調整
 		```php
 		// Hunter 在飛撲途中受傷超過此數值會立刻死亡 (無論你剩餘多少血量都一樣，別問我為捨，此遊戲設計的)
-		// 預設: 150
+		// 戰役預設: 50, 對抗預設: 150
 		sm_cvar z_pounce_damage_interrupt "150"
 		```
 </details>

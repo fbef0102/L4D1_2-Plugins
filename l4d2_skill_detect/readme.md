@@ -20,6 +20,16 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
+    3. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
+
+* <details><summary>Support | 支援插件</summary>
+
+    1. [l4d_ai_hunter_skeet_dmg_fix](/l4d_ai_hunter_skeet_dmg_fix): Makes AI Hunter take damage like human SI while pouncing.
+        * 對AI Hunter(正在飛撲的途中) 造成的傷害數據跟真人玩家一樣
+
+    2. [charging_takedamage_patch](/charging_takedamage_patch): Makes AI Charger take damage like human SI while charging.
+        * 移除AI Charger的衝鋒減傷
+</details>
 
 * Directory Structure | 檔案結構
     ```php
@@ -124,11 +134,14 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         // Whether to count/forward melee skeets.
         sm_skill_skeet_melee "1"
 
-        // Whether to count/forward sniper as skeets.
+        // Whether to count/forward sniper skeets.
         sm_skill_skeet_sniper "1"
 
         // Whether to count/forward direct grenade launcher hits as skeets.
         sm_skill_skeet_grenade_launcher "1"
+
+        // Whether to count/forward chainsaw skeets.
+        sm_skill_skeet_chainsaw "1"
 
         // How much damage a survivor must at least do in the final shot for it to count as a drawcrown.
         sm_skill_drawcrown_damage "500"
@@ -166,6 +179,14 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.7h (2026-10-4)
+        * Update API, cvars
+        * Fix some official cvars not working
+        * Fix smoker self-clear
+        * Use left4dhooks and actions to detect if boomer is popped without anyone getting vomited on
+        * Improve hunter skeets and change api
+        * Add chainsaw-skeet
 
     * v2.6h (2026-9-30)
         * Thanks to Volence
@@ -328,20 +349,23 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         // 為1時，打印: 打印多人合力空爆hunter/jockey的協力者 (非擊殺者)
         sm_skill_report_teamskeet "0"
 
-        // 為1時，打印 散彈槍空爆 並輸出API
+        // 為1時，打印 散彈槍空爆 hunter/jockey 並輸出API
         sm_skill_skeet_shotgun "1"
 
-        // 為1時，打印 手槍麥格農空爆 並輸出API
+        // 為1時，打印 手槍麥格農空爆 hunter/jockey 並輸出API
         sm_skill_skeet_magnum "1"
 
-        // 為1時，打印 近戰武器空爆 並輸出API
+        // 為1時，打印 近戰武器砍死飛撲中的 hunter/jockey 並輸出API
         sm_skill_skeet_melee "1"
 
-        // 為1時，打印 狙擊槍空爆 並輸出API
+        // 為1時，打印 狙擊槍空爆 hunter/jockey 並輸出API
         sm_skill_skeet_sniper "1"
 
-        //  為1時，打印 榴彈發射器空爆 並輸出API
+        // 為1時，打印 榴彈發射器空爆 hunter/jockey 並輸出API
         sm_skill_skeet_grenade_launcher "1"
+
+        // 為1時，打印 電鋸砍死飛撲中的 hunter/jockey 並輸出API
+        sm_skill_skeet_chainsaw "1"
 
         // 超過多少傷害才算 "一槍殺死Witch"
         sm_skill_drawcrown_damage "500"
