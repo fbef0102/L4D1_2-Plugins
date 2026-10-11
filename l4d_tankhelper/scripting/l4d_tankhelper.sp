@@ -14,7 +14,7 @@ public Plugin myinfo =
 	name = "Tanks throw special infected",
 	author = "Pan Xiaohai & HarryPotter",
 	description = "Tanks throw Tank/S.I./Witch/Hittable instead of rock",
-	version = "2.6h-2026/7/12",
+	version = "2.7h-2026/10/11",
 	url = "https://forums.alliedmods.net/showthread.php?t=140254"
 }
 
@@ -93,7 +93,6 @@ enum eChance
 	eChance_Max,
 }
 
-bool g_bIsTraceRock[MAXENTITIES +1];
 int throw_tank_health, throw_witch_health, iThrowSILimit[9];
 bool g_bSpawnWitchBride;
 float fl4d_tank_throw_si_ai, fl4d_tank_throw_si_real, fl4d_tank_throw_witch,
@@ -266,9 +265,8 @@ public void OnClientDisconnect(int client)
 
 public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3], const float vecAng[3], const float vecVel[3], const float vecRot[3])
 {
-	if(tank < 0 || g_bIsTraceRock[rock])
+	if(tank < 0 || tank > MaxClients || !IsValidEntity(rock))
 	{
-		g_bIsTraceRock[rock] = false;
 		return;
 	}
 
@@ -278,29 +276,40 @@ public void L4D_TankRock_OnRelease_Post(int tank, int rock, const float vecPos[3
 	{
 		if(IsRockStuck(rock, vecPos) == false)
 		{
-			float velocity[3];
-			velocity[0] = vecVel[0]; velocity[1] = vecVel[1]; velocity[2] = vecVel[2];
-			
-			NormalizeVector(velocity, velocity);
-			ScaleVector(velocity, z_tank_throw_force_speed * 1.4);
-			int new_helper = CreateSI(tank, vecPos, velocity);
-			if(new_helper > 0)
-			{
-				TeleportEntity(rock, g_99999Position);
-				RemoveEdict(rock);
-				if(L4D2Version) DisplayParticle(0, PARTICLE_ELECTRICAL, vecPos, NULL_VECTOR);    
-				if(new_helper <= MaxClients) L4D_WarpToValidPositionIfStuck(new_helper);
-			}
+			TeleportEntity(rock, g_99999Position);
+			RemoveEntity(rock);
+
+			DataPack hPack = new DataPack();
+			hPack.WriteFloatArray(vecVel, 3);
+			hPack.WriteFloatArray(vecPos, 3);
+			hPack.WriteCell(GetClientUserId(tank));
+			RequestFrame(NextFrame_TankThrowRock, hPack);
 		}
 	}
 }
 
-//-------------------------------Other API Forward-------------------------------
-
-// from l4d_tracerock.smx by Harry, Tank's rock will trace survivor until hit something.
-public void L4D_OnTraceRockCreated(int tank, int rock)
+void NextFrame_TankThrowRock(DataPack hPack)
 {
-	g_bIsTraceRock[rock] = true;
+	float vecVel[3], vecPos[3];
+	int tank;
+	hPack.Reset();
+	hPack.ReadFloatArray(vecVel, 3);
+	hPack.ReadFloatArray(vecPos, 3);
+	tank = GetClientOfUserId(hPack.ReadCell());
+	delete hPack;
+
+	if(!tank || !IsClientInGame(tank) || GetClientTeam(tank) != 3
+	|| !IsPlayerAlive(tank) || GetEntProp(tank, Prop_Send, "m_zombieClass") != ZC_TANK )
+		return;
+
+	NormalizeVector(vecVel, vecVel);
+	ScaleVector(vecVel, z_tank_throw_force_speed * 1.4);
+	int new_helper = CreateSI(tank, vecPos, vecVel);
+	if(new_helper > 0)
+	{
+		if(L4D2Version) DisplayParticle(0, PARTICLE_ELECTRICAL, vecPos, NULL_VECTOR);    
+		if(new_helper <= MaxClients) L4D_WarpToValidPositionIfStuck(new_helper);
+	}
 }
 
 //-------------------------------Sound Hook-------------------------------
@@ -362,7 +371,7 @@ bool IsRockStuck(int ent, const float pos[3])
 	return true;
 }
 
-stock int CreateSI(int thetank, const float pos[3], const float velocity[3])
+int CreateSI(int thetank, const float pos[3], const float velocity[3])
 {
 	int selected=0;
 	int chooseclass=0;
@@ -859,7 +868,7 @@ void GetGameData()
 	delete hGameConf;
 }
 
-stock int FindRandomTank(int exclude) 
+int FindRandomTank(int exclude) 
 {
 	int iClientCount, iClients[MAXPLAYERS+1];
 	for (int i = 1; i <= MaxClients; i++) 

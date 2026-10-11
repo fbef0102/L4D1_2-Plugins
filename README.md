@@ -75,8 +75,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 當有玩家AFK一段時間，強制將玩家旁觀並踢出伺服器
 * <b>[spawn_infected_nolimit](/spawn_infected_nolimit)</b>: Provide natives, spawn special infected without the director limits!
     * 輔助插件，不受數量與遊戲限制生成特感
-* <b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.
-    * 管理員可以強制暫停遊戲，也只有管理員能解除暫停
+* <s><b>[l4d2pause](/l4d2pause)</b>: Allows admins to force the game to pause, only adm can unpause the game.</s>
+    * <s>(棄案) 管理員可以強制暫停遊戲，也只有管理員能解除暫停</s>
 * <b>[l4d_current_survivor_progress](/l4d_current_survivor_progress)</b>: Print survivor progress in flow percents
     * 使用指令顯示人類目前的路程
 * <b>[fix_botkick](/fix_botkick)</b>: Fixed no Survivor bots issue after map loading.

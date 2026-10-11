@@ -20,7 +20,7 @@ Survivors won't take any damage when server is playing map cutscenes
 		* Survivors won't take any damage from common infected, special infected, witch and tank
 		* All special infecteds are unable to pin survivors
 		* No Firendly fire
-		* Inlucde Intro cutscene, Mid-Game cutscene
+		* Include Intro cutscene, Mid-Game cutscene
 	* You can disable this plugin in some custom maps, see [data/l4d_cutscene_nodamage.cfg](data/l4d_cutscene_nodamage.cfg)
 		* Manual in this file, click for more details...
 </details>

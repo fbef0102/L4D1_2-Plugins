@@ -752,6 +752,19 @@ public void OnPluginStart()
 				OnClientPutInServer(client);
 			}
 		}
+
+		int entity;
+		char classname[64];
+
+		entity = INVALID_ENT_REFERENCE;
+		while ((entity = FindEntityByClassname(entity, "*")) != INVALID_ENT_REFERENCE)
+		{
+			if (!IsValidEntity(entity))
+				continue;
+
+			GetEntityClassname(entity, classname, sizeof(classname));
+			OnEntityCreated(entity, classname);
+		}
 	}
 }
 

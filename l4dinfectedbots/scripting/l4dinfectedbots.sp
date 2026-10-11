@@ -928,7 +928,6 @@ int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
 bool 
 	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
-	g_bSpawnAlive[MAXPLAYERS+1],
 	g_bDeSpawn[MAXPLAYERS+1];
 
 char 
@@ -1623,7 +1622,6 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		g_bForcePlayerToInfectedTeam[i] = false;
-		g_bSpawnAlive[i] = false;
 		g_bDeSpawn[i] = false;
 		g_iZombieHpSet[i] = 0;
 	}
@@ -2519,7 +2517,6 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	g_iZombieHpSet[client] = 0;
-	g_bSpawnAlive[client] = false;
 	g_bDeSpawn[client] = false;
 
 	delete FightOrDieTimer[client];
@@ -2801,7 +2798,6 @@ void Event_PlayerTeam_1(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(0.4, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲檢查
 
 	DeleteLight(client);
-	g_bSpawnAlive[client] = false;
 	g_bDeSpawn[client] = false;
 
 	DataPack pack;
@@ -3561,7 +3557,6 @@ void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
 	RequestFrame(OnNextFrame_Reset, event.GetInt("userid"));
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	g_bSpawnAlive[client] = false;
 	g_bDeSpawn[client] = false;
 }
 
@@ -3575,6 +3570,7 @@ void OnNextFrame_Reset(int userid)
 	g_bAdjustSIHealth[client] = false;*/
 }
 
+bool isCulling = false;
 public Action L4D_OnEnterGhostStatePre(int client)
 {
 	if(g_bCvarAllow == false) return Plugin_Continue;
@@ -3586,14 +3582,25 @@ public Action L4D_OnEnterGhostStatePre(int client)
 		
 		return Plugin_Handled;
 	}
+
+	static int s_iOffs_m_bPZAbortedControl = -1;
+	if (s_iOffs_m_bPZAbortedControl == -1)
+	{
+		if(g_bL4D2Version) s_iOffs_m_bPZAbortedControl = FindSendPropInfo("CTerrorPlayer", "m_bSurvivorGlowEnabled") + 1;
+		else s_iOffs_m_bPZAbortedControl = FindSendPropInfo("CTerrorPlayer", "m_lookatPlayer") + 4;
+	}
+	
+	isCulling = GetEntData(client, s_iOffs_m_bPZAbortedControl, 1) != 0;
 	
 	return Plugin_Continue;
 }
 
 public void L4D_OnEnterGhostState(int client)
 {
+	if(IsFakeClient(client)) return;
+
 	g_iZombieHpSet[client] = 0;
-	if(g_bSpawnAlive[client]) //回魂
+	if(!isCulling) //非回魂重生
 	{
 		g_bDeSpawn[client] = true;
 	}
@@ -4604,7 +4611,6 @@ void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcas
 		if (GetClientTeam(client) == TEAM_INFECTED)
 		{
 			g_iZombieHpSet[client] = 0;
-			g_bSpawnAlive[client] = true;
 			respawnDelay[client] = 0;
 
 			queueHUDUpdate();
@@ -4759,7 +4765,6 @@ void Event_GhostSpawnTime(Event event, const char[] name, bool dontBroadcast)
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
 		g_iZombieHpSet[client] = 0;
-		g_bSpawnAlive[client] = false;
 		g_bDeSpawn[client] = false;
 
 		if (L4D_HasPlayerControlledZombies())

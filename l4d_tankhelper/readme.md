@@ -20,6 +20,17 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
     2. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
     3. [spawn_infected_nolimit](/spawn_infected_nolimit)
 
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── gamedata/
+    │   └── l4d_tankhelper.txt         # GameData | 遊戲數據
+    ├── plugins/
+    │   └── l4d_tankhelper.smx         # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │   └── l4d_tankhelper.sp          # Source code | 源碼
+    ```
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/l4d_tankhelper.cfg
@@ -105,6 +116,9 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.7h (2026-10-11)
+        * Optimize code
 
     * v2.6h (2026-7-12)
         * Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
