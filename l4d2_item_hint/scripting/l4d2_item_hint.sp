@@ -22,7 +22,7 @@ public Plugin myinfo =
 	name        = "L4D2 Item hint",
 	author      = "BHaType, fdxx, HarryPotter",
 	description = "Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and make item glow or create spot marker/infeced maker",
-	version     = "5.2-2026/9/27",
+	version     = "5.3-2026/10/12",
 	url         = "https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_item_hint"
 };
 
@@ -2488,6 +2488,9 @@ Action Hook_SetTransmit_MarkerTeam(int entity, int client)
 {
 	int iMarkTeam = g_iMarkTeam[entity];
 	if(iMarkTeam > 0 && GetClientTeam(client) != iMarkTeam)
+		return Plugin_Handled;
+
+	if(g_iModelIndex[client] == EntIndexToEntRef(entity))
 		return Plugin_Handled;
 
 	return Plugin_Continue;

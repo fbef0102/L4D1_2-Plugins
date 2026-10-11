@@ -370,6 +370,9 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v5.3 (2026-10-12)
+        * Fixed you can see the mark if teammates mark you
+
     * v5.2 (2026-9-27)
         * Update cvars
         * You can either use sprite icon or glow in l4d2
