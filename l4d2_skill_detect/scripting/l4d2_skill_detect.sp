@@ -70,7 +70,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "2.7h-2026/10/4"
+#define PLUGIN_VERSION "2.8h-2026/10/14"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -257,7 +257,7 @@ int 					g_iHunterShotDmg		[MAXPLAYERS + 1][MAXPLAYERS + 1];				// counting shot
 int 					g_iHunterShotDamage		[MAXPLAYERS + 1][MAXPLAYERS + 1];				// 有效伤害数 (霰弹枪/狙击枪/马格南)
 float 					g_fHunterShotStart		[MAXPLAYERS + 1][MAXPLAYERS + 1];				// when the last shotgun blast on hunter started (if at any time) by an attacker
 int 					g_iHunterShotCount		[MAXPLAYERS + 1][MAXPLAYERS + 1];				// 射击命中次数
-bool 					g_bPouncingOrLeaping	[MAXPLAYERS + 1];								// time when the hunter was still pouncing or jockey was still leaping
+float 					g_fSkeetHunterOrLeaping_Trace[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Time when the hunter was still pouncing or jockey is still leaping (in traceattack) -- used to detect if survivor tried to skeet a hunter/jockey
 float 					g_fHunterLastShot		[MAXPLAYERS + 1];								// when the last shotgun damage was done (by anyone) on a hunter
 int 					g_iHunterLastHealth		[MAXPLAYERS + 1];								// last time hunter took any damage, how much health did it have left?
 int 					g_iHunterOverkill		[MAXPLAYERS + 1];								// how much more damage a hunter would've taken if it wasn't already dead
@@ -980,7 +980,7 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 			}
 			
 			// count damage and shot whatever is pouncing or leaping
-			//if ( g_bPouncingOrLeaping[victim]) )
+			//if( ( GetEngineTime() - g_fSkeetHunterOrLeaping_Trace[attacker][victim] ) < 0.01 )
 			{
 				if ( damagetype & DMG_BUCKSHOT )
 				{
@@ -1150,10 +1150,8 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	g_fPinTime[client][1] = 0.0;
 	
 	SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttack_ChargerPost);
-	SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage_Hunter);
-	SDKUnhook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost_Hunter);
-	SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage_Jockey);
-	SDKUnhook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost_Jockey);
+	SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttackPost_Hunter);
+	SDKUnhook(client, SDKHook_TraceAttackPost, TraceAttackPost_Jockey);
 
 	if(zClass == ZC_BOOMER)
 	{
@@ -1175,8 +1173,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	else if(zClass == ZC_HUNTER)
 	{
-		SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage_Hunter);
-		SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost_Hunter);
+		SDKHook(client, SDKHook_TraceAttackPost, TraceAttackPost_Hunter);
 
 		g_fPouncePosition[client][0] = 0.0;
 		g_fPouncePosition[client][1] = 0.0;
@@ -1186,8 +1183,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	else if(g_bL4D2Version && zClass == ZC_JOCKEY)
 	{
-		SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage_Jockey);
-		SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost_Jockey);
+		SDKHook(client, SDKHook_TraceAttackPost, TraceAttackPost_Jockey);
 
 		g_fPouncePosition[client][0] = 0.0;
 		g_fPouncePosition[client][1] = 0.0;
@@ -1240,42 +1236,26 @@ void Event_IncapStart(Event event, const char[] name, bool dontBroadcast)
 }
 
 // trace attacks on hunters
-Action OnTakeDamage_Hunter(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+void TraceAttackPost_Hunter (int victim, int attacker, int inflictor, float damage, int damagetype, int ammotype, int hitbox, int hitgroup)
 {
 	// track pinning
 	g_iSpecialVictim[victim] = GetEntPropEnt(victim, Prop_Send, "m_pounceVictim");
 	
-	if ( attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2 || !IsValidEntity(inflictor) ) return Plugin_Continue;
+	if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 	if( GetClientTeam(victim) != 3 || GetEntProp(victim, Prop_Send, "m_zombieClass") != ZC_HUNTER) 
 	{
-		SDKUnhook(victim, SDKHook_OnTakeDamage, OnTakeDamage_Hunter);
-		return Plugin_Continue;
+		SDKUnhook(victim, SDKHook_TraceAttackPost, TraceAttackPost_Hunter);
+		return;
 	}
-
+	
+	// track flight
 	if ( GetEntProp(victim, Prop_Send, "m_isAttemptingToPounce") )
 	{
-		g_bPouncingOrLeaping[victim] = true;
+		g_fSkeetHunterOrLeaping_Trace[attacker][victim] = GetEngineTime();
 	}
 	else
 	{
-		g_bPouncingOrLeaping[victim] = false;
-	}
-
-	return Plugin_Continue;
-}
-
-void OnTakeDamagePost_Hunter(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, float damageForce[3], float damagePosition[3], int damagecustom)
-{
-	if ( attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2 || !IsValidEntity(inflictor) ) return;
-	if( GetClientTeam(victim) != 3 || GetEntProp(victim, Prop_Send, "m_zombieClass") != ZC_HUNTER) 
-	{
-		SDKUnhook(victim, SDKHook_OnTakeDamagePost, OnTakeDamagePost_Hunter);
-		return;
-	}
-
-	if ( !GetEntProp(victim, Prop_Send, "m_isAttemptingToPounce") )
-	{
-		g_bPouncingOrLeaping[victim] = false;
+		g_fSkeetHunterOrLeaping_Trace[attacker][victim] = 0.0;
 	}
 }
 
@@ -1291,42 +1271,25 @@ void TraceAttack_ChargerPost (int victim, int attacker, int inflictor, float dam
 	
 }
 
-Action OnTakeDamage_Jockey(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+void TraceAttackPost_Jockey (int victim, int attacker, int inflictor, float damage, int damagetype, int ammotype, int hitbox, int hitgroup)
 {
 	// track pinning
 	g_iSpecialVictim[victim] = GetEntPropEnt(victim, Prop_Send, "m_jockeyVictim");
 	
-	if ( attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2 || !IsValidEntity(inflictor) ) return Plugin_Continue;
+	if ( attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2 || !IsValidEntity(inflictor) ) return;
 	if( GetClientTeam(victim) != 3 || GetEntProp(victim, Prop_Send, "m_zombieClass") != ZC_JOCKEY) 
 	{
-		SDKUnhook(victim, SDKHook_OnTakeDamage, OnTakeDamage_Jockey);
-		return Plugin_Continue;
+		SDKUnhook(victim, SDKHook_TraceAttackPost, TraceAttackPost_Jockey);
+		return;
 	}
 
 	if ( IsJockeyLeaping(victim) )
 	{
-		g_bPouncingOrLeaping[victim] = true;
+		g_fSkeetHunterOrLeaping_Trace[attacker][victim] = GetEngineTime();
 	}
 	else
 	{
-		g_bPouncingOrLeaping[victim] = false;
-	}
-
-	return Plugin_Continue;
-}
-
-void OnTakeDamagePost_Jockey(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, float damageForce[3], float damagePosition[3], int damagecustom)
-{
-	if ( attacker <= 0 || attacker > MaxClients || !IsClientInGame(attacker) || GetClientTeam(attacker) != 2 || !IsValidEntity(inflictor) ) return;
-	if( GetClientTeam(victim) != 3 || GetEntProp(victim, Prop_Send, "m_zombieClass") != ZC_JOCKEY) 
-	{
-		SDKUnhook(victim, SDKHook_OnTakeDamagePost, OnTakeDamagePost_Jockey);
-		return;
-	}
-
-	if ( !IsJockeyLeaping(victim) )
-	{
-		g_bPouncingOrLeaping[victim] = false;
+		g_fSkeetHunterOrLeaping_Trace[attacker][victim] = 0.0;
 	}
 }
 
@@ -1361,7 +1324,7 @@ void HandleEvent_PlayerDeath(int userid, int attackerid, const char[] weapon_typ
 			int damage_interrupt = (zClass == ZC_HUNTER) ? g_iCvar_z_pounce_damage_interrupt : g_iCvar_z_leap_damage_interrupt;
 
 			// die while pouncing/leaping
-			if ( g_iHunterShotCount[victim][attacker] > 0 && g_bPouncingOrLeaping[victim] )
+			if ( g_iHunterShotCount[victim][attacker] > 0 && ( GetEngineTime() - g_fSkeetHunterOrLeaping_Trace[attacker][victim] ) < 0.01)
 			{
 				SkeetWeapon_Type weaponType = SkeetWeapon_NONE;
 				g_hTrieWeapons.GetValue(weapon_type, weaponType);
@@ -1642,8 +1605,11 @@ void Event_LungePounce(Event event, const char[] name, bool dontBroadcast)
 	
 	// clear hunter-hit stats (not skeeted)
 	//ResetHunter(client);
-	g_bPouncingOrLeaping[client] = false;
-	
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		g_fSkeetHunterOrLeaping_Trace[i][client] = 0.0;
+	}
+
 	// check if it was a DP	   
 	// ignore if no real pounce start pos
 	if (	g_fPouncePosition[client][0] == 0.0
@@ -1862,7 +1828,10 @@ void Event_JockeyRide(Event event, const char[] name, bool dontBroadcast)
 	if ( !IS_VALID_INFECTED(client) || !IS_VALID_SURVIVOR(victim) ) { return; }
 	
 	g_fPinTime[client][0] = GetEngineTime();
-	g_bPouncingOrLeaping[client] = false;
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		g_fSkeetHunterOrLeaping_Trace[i][client] = 0.0;
+	}
 	
 	// minimum distance travelled?
 	// ignore if no real pounce start pos
@@ -1900,13 +1869,11 @@ void Event_AbilityUse(Event event, const char[] name, bool dontBroadcast)
 			// hunter started a pounce, also clear shot count/damage so skeet assists only count this pounce
 			//ResetHunter(client, true);
 			GetClientAbsOrigin( client, g_fPouncePosition[client] );
-
-			g_bPouncingOrLeaping[client] = true;
 		}
 
 		case ABL_LEAP:
 		{
-			g_bPouncingOrLeaping[client] = true;
+
 		}
 	
 		case ABL_ROCKTHROW:
@@ -4333,4 +4300,11 @@ public void L4D_OnVomitedUpon_Post(int victim, int attacker, bool boomerExplosio
 
 		g_bBoomerPukedSurvivor[attacker][victim] = true;
 	}
+}
+
+// API from l4d_lagcomp_skeet.smx
+
+public void L4D_OnLagCompPounce(int hunter, int attacker, int pouncing)
+{
+	g_fSkeetHunterOrLeaping_Trace[attacker][hunter] = pouncing ? GetEngineTime() : 0.0;
 }

@@ -180,6 +180,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.8h (2026-10-14)
+        * Cleaned up and organized code for tracking hunter pouncing or jockey leaping
+
     * v2.7h (2026-10-4)
         * Update API, cvars
         * Fix some official cvars not working
