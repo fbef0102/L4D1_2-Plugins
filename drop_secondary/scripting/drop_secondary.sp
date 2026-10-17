@@ -270,10 +270,10 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 
 			//PrintToChatAll("L4D_OnDeathDroppedWeapons(1) %d - iDropWeapon: %d, iHdden: %d, iCurrentSlot1: %d", client, iDropWeapon, EntRefToEntIndex(g_iHidden[client]), iCurrentSlot1Weapon);
 
-			// 玩家拿近戰或電鋸->閒置->bot先倒地->取代->死亡->該近戰或電鋸的m_hOwnerEntity為-1, 而非玩家 (會有error)
-			// 玩家拿近戰或電鋸->先倒地->閒置->bot取代->死亡->該近戰的m_hOwnerEntity為玩家, 而非bot (會有error)
+			// 玩家拿近戰或電鋸->閒置->bot先倒地->取代->死亡->該近戰或電鋸的m_hOwner為-1, 而非玩家 (會有error)
+			// 玩家拿近戰或電鋸->先倒地->閒置->bot取代->死亡->該近戰的m_hOwner為玩家, 而非bot (會有error)
 			// 倒地期間->閒置->取代->掉落的近戰或電鋸會穿透至地下，永久墬落
-			//PrintToChatAll("L4D_OnDeathDroppedWeapons(1) owner: %d, client: %d", GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity"), client);
+			//PrintToChatAll("L4D_OnDeathDroppedWeapons(1) owner: %d, client: %d", GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner"), client);
 			if(bIsInap)
 			{
 				if(iCurrentSlot1Weapon > MaxClients && iCurrentSlot1Weapon != iDropWeapon)
@@ -282,11 +282,11 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 					RemoveEntity(iCurrentSlot1Weapon);
 				}
 
-				if(GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity") != client)
+				if(GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner") != client)
 				{
 					SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity", -1);
 					SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner", -1);
-					EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwnerEntity
+					EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwner
 					SetEntPropEnt(client, Prop_Data, "m_hActiveWeapon", iDropWeapon); //<--強制玩家用該武器，修復丟電鋸時崩潰
 				}
 				else
@@ -335,18 +335,18 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 				//PrintToChatAll("L4D_OnDeathDroppedWeapons(2) %d - weapons[1]: %d, iDropWeapon: %d, iCurrentSlot1: %d", client, weapons[1], iDropWeapon, iCurrentSlot1Weapon);
 				if(bIsInap)
 				{
-					//PrintToChatAll("L4D_OnDeathDroppedWeapons(2) owner: %d, client: %d", GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity"), client);
+					//PrintToChatAll("L4D_OnDeathDroppedWeapons(2) owner: %d, client: %d", GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner"), client);
 					if(iCurrentSlot1Weapon > MaxClients && iCurrentSlot1Weapon != iDropWeapon)
 					{
 						RemovePlayerItem(client, iCurrentSlot1Weapon);
 						RemoveEntity(iCurrentSlot1Weapon);
 					}
 					
-					if(GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity") != client)
+					if(GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner") != client)
 					{
 						SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity", -1);
 						SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner", -1);
-						EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwnerEntity
+						EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwner
 						SetEntPropEnt(client, Prop_Data, "m_hActiveWeapon", iDropWeapon); //<--強制玩家用該武器，修復丟電鋸時崩潰
 					}
 					else
@@ -362,7 +362,7 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 		}
 	}
 
-	if(iDropWeapon > MaxClients && GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity") == client)
+	if(iDropWeapon > MaxClients && GetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner") == client)
 	{
 		float origin[3];
 		float ang[3];

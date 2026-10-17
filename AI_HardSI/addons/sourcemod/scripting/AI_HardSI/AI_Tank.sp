@@ -160,7 +160,7 @@ stock Action Tank_OnPlayerRunCmd( int tank, int &buttons, float vel[3] ) {
 				}
 			}
 			//Block Jumping and Crouching when on ladder
-			if (GetEntityMoveType(tank) & MOVETYPE_LADDER) 
+			if (GetEntityMoveType(tank) == MOVETYPE_LADDER) 
 			{
 				buttons &= ~IN_JUMP;
 				buttons &= ~IN_DUCK;

@@ -26,7 +26,7 @@ Clone and move special infected/survivor ladders.
 			sm_cvar mp_gamemode versus
 			sm_cvar sb_all_bot_game 1;sm_cvar sb_all_bot_team 1
 			sm_cvar sb_stop 1
-			sm_cvar god 1;
+			sm_cvar god 1
 			director_stop
 			```
 		2. Go to infected team, type ```z_spawn Hunter``` in game console to get an alive hunter
@@ -225,7 +225,7 @@ Clone and move special infected/survivor ladders.
 			sm_cvar mp_gamemode versus
 			sm_cvar sb_all_bot_game 1;sm_cvar sb_all_bot_team 1
 			sm_cvar sb_stop 1
-			sm_cvar god 1;
+			sm_cvar god 1
 			director_stop
 			```
 		2. 回到遊戲中，切換到特感隊伍，遊戲控制台輸入```z_spawn Hunter```，將自己變成活著的特感

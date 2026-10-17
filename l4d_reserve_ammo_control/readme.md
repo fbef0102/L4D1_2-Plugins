@@ -18,7 +18,7 @@ Individually control each weapons's reserve ammo
 </details>
 
 * Require | 必要安裝
-	1. [l4d_transition_entity](/https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
+	1. [l4d_transition_entity](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_transition_entity)
 	2. [l4d_save_weapon_ammo](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_save_weapon_ammo)
 
 * <details><summary>ConVar | 指令</summary>
