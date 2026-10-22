@@ -370,6 +370,10 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v5.4 (2026-10-23)
+        * Mark won't be removed if different team marks the same the target
+        * Mark won't be removed if different player marks the same the target
+
     * v5.3 (2026-10-12)
         * Fixed you can see the mark if teammates mark you
 

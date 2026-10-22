@@ -126,7 +126,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// Teams are unbalanced when one team has this many more players than the other team in versus/scavenge.
 		l4d_multislots_versus_teams_unbalance_limit "1"
 
-		// If 1, The player's steam id must be fully authenticated before attempt to join survivor team
+		// If 1, The player's steam id must be fully authenticated before attempt to join 5+ survivor bots
 		l4d_multislots_steamid_validate "1"
 		```
 </details>
@@ -408,7 +408,7 @@ Allows additional survivor players in server when 5+ player joins the server
 		// 當一方的隊伍超過另一方的隊伍這個數值以上的玩家時，則視為隊伍不平衡. (僅限對抗/清道夫模式)
 		l4d_multislots_versus_teams_unbalance_limit "1"
 
-		// 為1時，玩家必須先驗證Steam ID才可以加入倖存者
+		// 為1時，玩家必須先驗證Steam ID才可以嘗試加入第五位以上的倖存者bot
 		l4d_multislots_steamid_validate "1"
 		```
 </details>

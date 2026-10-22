@@ -31,16 +31,22 @@ No collisions to fix a handful of silly collision bugs in l4d
         4. Hunter can go through incapacitated survivor (Prevent hunter stuck inside incapacitated survivor, still can pounce them)
         5. Special infected and Tank can go through witch (Prevent stuck and stagger)
         6. To fix the bug where survivor and special infected can push pipebomb projectiles
+        7. Common Infected can go through Weapons, items, and carryable
+            * Inlucding GasCan, Prop tank, Oxygen tank, Fireworks crate, Gnome, Cola
+        8. Remove survivor collision with infected ladders.
+            * Prevents Survivors from getting jitter/rubberbanding on infected ladder
 </details>
 
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/l4d_collision_adjustments.cfg
         ```php
-        // If 1, Hunter can go through incapacitated survivor (Prevent hunter stuck inside incapacitated survivor, still can pounce them)
+        // If 1, Hunter can go through incapacitated survivor 
+        // (Prevent hunter stuck inside incapacitated survivor, still can pounce them)
         l4d_collision_adjustments_hunter_incap "1"
 
-        // If 1, Special infected and Tank can go through witch (Prevent stuck and stagger)
+        // If 1, Special infected and Tank can go through witch 
+        // (Prevent stuck and stagger)
         l4d_collision_adjustments_si_witch "1"
 
         // If 1, Pulled Survivors can go through Common Infected
@@ -49,15 +55,30 @@ No collisions to fix a handful of silly collision bugs in l4d
         // If 1, Rocks can go through Common Infected (and also kill them) instead of possibly getting stuck on them
         l4d_collision_adjustments_tankrock_common "1"
 
-        // If 1, Rocks can go through Incapacitated Survivors? (Won't go through new incaps caused by the Rock)
+        // If 1, Rocks can go through Incapacitated Survivors? 
+        // (Won't go through new incaps caused by the Rock)
         l4d_collision_adjustments_tankrock_incap "1"
 
         // If 1, Fix the bug where survivor and special infected can push pipebomb projectiles
         l4d_collision_adjustments_client_pipebomb "1"
+
+        // If 1, Common Infected can go through Weapons, items, and carryables (GasCan, Prop tank, Oxygen tank, Fireworks crate, Gnome, Cola)
+        //  (Prevent stuck)
+        l4d_collision_adjustments_weapon_common "1"
+
+        // If 1, Remove survivor collision with infected ladders.
+        // (Prevents Survivors from getting jitter/rubberbanding on infected ladder)
+        l4d_collision_adjustments_survivor_ladder "1"
         ```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.3h (2026-10-23)
+        * Update cvars
+        * Remove survivor collision with infected ladders.
+        * Common Infected can go through Weapons, items, and carryables
+        * Rewrite collision logic for hunters and incapped survivors
 
     * v1.2h (2026-10-3)
         * Update cvars
@@ -86,6 +107,10 @@ No collisions to fix a handful of silly collision bugs in l4d
         4. Tank的石頭可以穿透小殭屍 (依然殺死他們)
         5. Tank的石頭可以穿透倒地的倖存者
         6. 修復玩家走路就能推擠地上的土製炸彈
+        7. 殭屍與地上的武器、物品不會產生碰撞
+            * 物品包含汽油桶桶、瓦斯桶、氧氣罐、煙火盒、精靈小矮人、可樂
+        8. 倖存者與特感專屬的梯子不會產生碰撞
+            * 也不會被特感梯子黏住、卡住
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
@@ -108,5 +133,14 @@ No collisions to fix a handful of silly collision bugs in l4d
 
         // 為1時，修復玩家走路就能推擠地上的土製炸彈
         l4d_collision_adjustments_client_pipebomb "1" 
+
+        // 為1時，殭屍與地上的武器、物品不會產生碰撞
+        // 物品包含汽油桶、瓦斯桶、氧氣罐、煙火盒、精靈小矮人、可樂
+        // (防止殭屍被卡住)
+        l4d_collision_adjustments_weapon_common "1"
+
+        // 為1時，倖存者與特感專屬的梯子不會產生碰撞
+        // (也不會被特感梯子黏住、卡住)
+        l4d_collision_adjustments_survivor_ladder "1"
         ```
 </details>
