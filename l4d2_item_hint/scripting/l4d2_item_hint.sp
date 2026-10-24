@@ -1285,6 +1285,10 @@ void CreateEntityModelGlow(int client, int iEntity, const char[] sEntModelName, 
 	if (g_bL4D2Version && g_iItemCvarColor == 0) return;
 	else if (!g_bL4D2Version && !g_bItemMarkGlowEnable) return;
 
+	// Previous mark already expired, clear stale marker flags
+	if(!IsValidEntRef(g_iModelIndex[iEntity][iMarkerTeam-2]))
+		g_iMarkedByMultiPlayer_Flag[iEntity][iMarkerTeam-2] = 0;
+
 	// Delete previous glow first if same team
 	RemoveEntityModelGlow(iEntity, iMarkerTeam);
 	delete g_iModelTimer[iEntity][iMarkerTeam-2];
@@ -1294,7 +1298,8 @@ void CreateEntityModelGlow(int client, int iEntity, const char[] sEntModelName, 
 	{
 		int iPre_Entity = EntRefToEntIndex(g_iClientMarkItem_EntRef[client]);
 		//PrintToChatAll("%d-%d", iPre_Entity, g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2]);
-		if(g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2] == (1<<(client-1)))
+		g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2] &= ~(1<<(client-1));
+		if(g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2] == 0)
 		{
 			RemoveGlowAndInstructor(iPre_Entity, iMarkerTeam);
 		}
@@ -1484,6 +1489,10 @@ bool CreateInfectedMarker(int client, int infected, int iMarkerTeam, bool bIsWit
 		}
 	}
 
+	// Previous mark already expired, clear stale marker flags
+	if(!IsValidEntRef(g_iModelIndex[infected][iMarkerTeam-2]))
+		g_iMarkedByMultiPlayer_Flag[infected][iMarkerTeam-2] = 0;
+
 	// Delete infected's previous mark first if same team
 	RemoveEntityModelGlow(infected, iMarkerTeam);
 	delete g_iModelTimer[infected][iMarkerTeam-2];
@@ -1492,7 +1501,8 @@ bool CreateInfectedMarker(int client, int infected, int iMarkerTeam, bool bIsWit
 	if(g_bInfectedMarkRemovePrevious && IsValidEntRef(g_iClientMarkInf_PlayerAndWitch[client]))
 	{
 		int iPre_SIWitch = EntRefToEntIndex(g_iClientMarkInf_PlayerAndWitch[client]);
-		if(g_iMarkedByMultiPlayer_Flag[iPre_SIWitch][iMarkerTeam-2] == (1<<(client-1)) )
+		g_iMarkedByMultiPlayer_Flag[iPre_SIWitch][iMarkerTeam-2] &= ~(1<<(client-1));
+		if(g_iMarkedByMultiPlayer_Flag[iPre_SIWitch][iMarkerTeam-2] == 0)
 		{
 			RemoveGlowAndInstructor(iPre_SIWitch, iMarkerTeam);
 		}
@@ -1733,6 +1743,10 @@ bool CreateSurvivorMarker(int client, int survivor, int iMarkerTeam)
 {
 	if( GetEngineTime() < g_fSurvivorMarkCoolDownTime[client]) return true; //colde down not yet
 
+	// Previous mark already expired, clear stale marker flags
+	if(!IsValidEntRef(g_iModelIndex[survivor][iMarkerTeam-2]))
+		g_iMarkedByMultiPlayer_Flag[survivor][iMarkerTeam-2] = 0;
+
 	// Delete survivor's previous mark first if same team
 	RemoveEntityModelGlow(survivor, iMarkerTeam);
 	delete g_iModelTimer[survivor][iMarkerTeam-2];
@@ -1741,9 +1755,13 @@ bool CreateSurvivorMarker(int client, int survivor, int iMarkerTeam)
 	if(g_bSurvivorMarkRemovePrevious)
 	{
 		int iPre_Survivor = GetClientOfUserId(g_iClientMarkSur_Player[client]);
-		if(iPre_Survivor && IsClientInGame(iPre_Survivor) && g_iMarkedByMultiPlayer_Flag[iPre_Survivor][iMarkerTeam-2] == (1<<(client-1)) )
-		{		
-			RemoveGlowAndInstructor(iPre_Survivor, iMarkerTeam);
+		if(iPre_Survivor && IsClientInGame(iPre_Survivor))
+		{
+			g_iMarkedByMultiPlayer_Flag[iPre_Survivor][iMarkerTeam-2] &= ~(1<<(client-1));
+			if(g_iMarkedByMultiPlayer_Flag[iPre_Survivor][iMarkerTeam-2] == 0)
+			{
+				RemoveGlowAndInstructor(iPre_Survivor, iMarkerTeam);
+			}
 		}
 		g_iClientMarkSur_Player[client] = 0;
 	}
