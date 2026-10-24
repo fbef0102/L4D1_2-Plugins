@@ -1294,7 +1294,7 @@ void CreateEntityModelGlow(int client, int iEntity, const char[] sEntModelName, 
 	{
 		int iPre_Entity = EntRefToEntIndex(g_iClientMarkItem_EntRef[client]);
 		//PrintToChatAll("%d-%d", iPre_Entity, g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2]);
-		if(g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2] == (1<<client))
+		if(g_iMarkedByMultiPlayer_Flag[iPre_Entity][iMarkerTeam-2] == (1<<(client-1)))
 		{
 			RemoveGlowAndInstructor(iPre_Entity, iMarkerTeam);
 		}
@@ -1402,7 +1402,7 @@ void CreateEntityModelGlow(int client, int iEntity, const char[] sEntModelName, 
 	}
 
 	g_iClientMarkItem_EntRef[client] = EntIndexToEntRef(iEntity);
-	g_iMarkedByMultiPlayer_Flag[iEntity][iMarkerTeam-2] |= (1<<client);
+	g_iMarkedByMultiPlayer_Flag[iEntity][iMarkerTeam-2] |= (1<<(client-1));
 	g_iEntCreator[entity] = client;
 
 	g_iModelIndex[iEntity][iMarkerTeam-2] = EntIndexToEntRef(entity);
@@ -1492,7 +1492,7 @@ bool CreateInfectedMarker(int client, int infected, int iMarkerTeam, bool bIsWit
 	if(g_bInfectedMarkRemovePrevious && IsValidEntRef(g_iClientMarkInf_PlayerAndWitch[client]))
 	{
 		int iPre_SIWitch = EntRefToEntIndex(g_iClientMarkInf_PlayerAndWitch[client]);
-		if(g_iMarkedByMultiPlayer_Flag[iPre_SIWitch][iMarkerTeam-2] == (1<<client) )
+		if(g_iMarkedByMultiPlayer_Flag[iPre_SIWitch][iMarkerTeam-2] == (1<<(client-1)) )
 		{
 			RemoveGlowAndInstructor(iPre_SIWitch, iMarkerTeam);
 		}
@@ -1593,7 +1593,7 @@ bool CreateInfectedMarker(int client, int infected, int iMarkerTeam, bool bIsWit
 				g_iModelIndex[infected][iMarkerTeam] = EntIndexToEntRef(sprite);
 
 				g_iClientMarkInf_PlayerAndWitch[client] = EntIndexToEntRef(infected);
-				g_iMarkedByMultiPlayer_Flag[infected][iMarkerTeam-2] |= (1<<client);
+				g_iMarkedByMultiPlayer_Flag[infected][iMarkerTeam-2] |= (1<<(client-1));
 				g_iEntCreator[sprite] = client;
 			}
 		}
@@ -1636,12 +1636,12 @@ bool CreateInfectedMarker(int client, int infected, int iMarkerTeam, bool bIsWit
 
 			g_iModelIndex[infected][iMarkerTeam-2] = EntIndexToEntRef(entity);
 			DataPack hPack;
-			g_iModelTimer[infected][iMarkerTeam-2] = CreateDataTimer(g_fItemGlowTimer, Timer_ItemGlow, hPack);
+			g_iModelTimer[infected][iMarkerTeam-2] = CreateDataTimer(g_fInfectedMarkGlowTimer, Timer_ItemGlow, hPack);
 			hPack.WriteCell(infected);
 			hPack.WriteCell(iMarkerTeam);
 			
 			g_iClientMarkInf_PlayerAndWitch[client] = EntIndexToEntRef(infected);
-			g_iMarkedByMultiPlayer_Flag[infected][iMarkerTeam-2] |= (1<<client);
+			g_iMarkedByMultiPlayer_Flag[infected][iMarkerTeam-2] |= (1<<(client-1));
 			g_iEntCreator[entity] = client;
 
 			//model 只能給誰看?
@@ -1741,7 +1741,7 @@ bool CreateSurvivorMarker(int client, int survivor, int iMarkerTeam)
 	if(g_bSurvivorMarkRemovePrevious)
 	{
 		int iPre_Survivor = GetClientOfUserId(g_iClientMarkSur_Player[client]);
-		if(iPre_Survivor && IsClientInGame(iPre_Survivor) && g_iMarkedByMultiPlayer_Flag[iPre_Survivor][iMarkerTeam-2] == (1<<client) )
+		if(iPre_Survivor && IsClientInGame(iPre_Survivor) && g_iMarkedByMultiPlayer_Flag[iPre_Survivor][iMarkerTeam-2] == (1<<(client-1)) )
 		{		
 			RemoveGlowAndInstructor(iPre_Survivor, iMarkerTeam);
 		}
@@ -1797,7 +1797,7 @@ bool CreateSurvivorMarker(int client, int survivor, int iMarkerTeam)
 				g_iModelIndex[survivor][iMarkerTeam-2] = EntIndexToEntRef(sprite);
 
 				g_iClientMarkSur_Player[client] = GetClientUserId(survivor);
-				g_iMarkedByMultiPlayer_Flag[survivor][iMarkerTeam-2] |= (1<<client);
+				g_iMarkedByMultiPlayer_Flag[survivor][iMarkerTeam-2] |= (1<<(client-1));
 				g_iEntCreator[sprite] = client;
 			}
 		}
@@ -1847,12 +1847,12 @@ bool CreateSurvivorMarker(int client, int survivor, int iMarkerTeam)
 
 			g_iModelIndex[survivor][iMarkerTeam-2] = EntIndexToEntRef(entity);
 			DataPack hPack;
-			g_iModelTimer[survivor][iMarkerTeam-2] = CreateDataTimer(g_fItemGlowTimer, Timer_ItemGlow, hPack);
+			g_iModelTimer[survivor][iMarkerTeam-2] = CreateDataTimer(g_fSurvivorMarkGlowTimer, Timer_ItemGlow, hPack);
 			hPack.WriteCell(survivor);
 			hPack.WriteCell(iMarkerTeam);
 			
 			g_iClientMarkSur_Player[client] = GetClientUserId(survivor);
-			g_iMarkedByMultiPlayer_Flag[survivor][iMarkerTeam-2] |= (1<<client);
+			g_iMarkedByMultiPlayer_Flag[survivor][iMarkerTeam-2] |= (1<<(client-1));
 			g_iEntCreator[entity] = client;
 
 			//model 只能給誰看?
@@ -2649,7 +2649,7 @@ bool Create_info_target(int client, int iEntity, const float vOrigin[3], const c
 	if (iEntity > 0)
 	{
 		//delete previous info_target first if same team
-		RemoveInstructor(iEntity, iMarkerTeam);
+		RemoveInfoTarget(iEntity, iMarkerTeam);
 		delete g_iInfoTargetTimer[iEntity][iMarkerTeam-2];
 
 		g_iInfoTargetIndex[iEntity][iMarkerTeam-2] = EntIndexToEntRef(info_target);
