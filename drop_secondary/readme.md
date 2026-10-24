@@ -44,6 +44,11 @@ Survivor players will drop their secondary weapon (including melee) when they di
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.0 (2026-10-25)
+		* Clean up and organize code
+		* Support l4d1 gamedata
+		* Fix that weapons are not dropped if killed by witch
+
 	* v2.9 (2026-7-25)
 		* Use gamedata to detect the exact moment a survivor is killed and get the hidden secondary weapon
 		* Optimize code

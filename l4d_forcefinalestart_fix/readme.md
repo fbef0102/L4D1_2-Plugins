@@ -58,7 +58,7 @@ Prevent finale softlocks when maps use ForceFinaleStart because not all survivor
 防止救援無法開始而地圖卡關，當地圖使用 ForceFinaleStart 時並非所有倖存者都在 FINALE 屬性區域內
 
 * 原理
-	* (裝此插件之前) 在一些地圖當中，當地圖強制開啟救援時會失敗，因為並非所有倖存者都在
+	* (裝此插件之前) 在一些地圖當中，當地圖強制開啟救援時會失敗，因為並非所有倖存者都在 `FINALE` 屬性的NAV區域
         * 通俗點講就是有人不在救援區域內，導致遊戲無法開始救援
         * 舉例: 在c1m4與c6m3地圖中，倖存者搭乘電梯下樓，此時地圖會強制開始救援
             * 但是當有倖存者不在電梯範圍內時(譬如在安全室)，將會導致救援無法開始
