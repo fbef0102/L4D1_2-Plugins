@@ -75,6 +75,12 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
         └── l4d2_item_hint.phrases.txt        # Multi-language translations | 翻譯多國語言
     ```
 
+* <details><summary>Related Plugin | 相關插件</summary>
+
+    1. [l4d2_infected_hp_hint](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d2_infected_hp_hint): Display corresponding health value hint of all Special Infected
+        * 在特感身上顯示剩餘血量
+</details>
+
 * <details><summary>ConVar | 指令</summary>
 
     * cfg/sourcemod/l4d2_item_hint.cfg
@@ -360,12 +366,6 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
         ```php
         sm_mark
         ```
-</details>
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-    1. [l4d2_infected_hp_hint](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d2_infected_hp_hint): Display corresponding health value hint of all Special Infected
-        * 在特感身上顯示剩餘血量
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>

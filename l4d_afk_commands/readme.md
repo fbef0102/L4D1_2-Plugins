@@ -51,7 +51,26 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	3. [Actions](https://forums.alliedmods.net/showthread.php?t=336374)
 
-* <details><summary>ConVar</summary>
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── gamedata/
+    │   └── l4d_afk_commands.txt            # GameData | 遊戲數據
+    ├── plugins/
+    │   └── l4d_afk_commands.smx            # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │   └── l4d_afk_commands.sp             # Source code | 源碼
+    └── translations/
+        └── l4d_afk_commands.phrases.txt    # Multi-language translation | 翻譯多國語言
+    ```
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble): Puts players on the right team after map/campaign change and provides API.
+		* 換圖或者換關卡之後，將玩家還原到上次所在的隊伍
+</details>
+
+* <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d_afk_commands.cfg
 		```php
@@ -137,7 +156,7 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		```
 </details>
 
-* <details><summary>Command</summary>
+* <details><summary>Command | 命令</summary>
 	
 	* **Change team to Spectate (Become idle state in coop mode)**
 		```php
@@ -193,21 +212,16 @@ Adds commands to let the player spectate and join team. (!afk, !survivors, !infe
 		```
 
 	* **Adm force player to change team (Adm Required: ADMFLAG_BAN)**
-		* teamnum is 1,2,3. 1=Spectator, 2=Survivor, 3=Infected
-			```php
-			sm_swapto <player1> [player2] ... [playerN] <teamnum> - swap all listed players to <teamnum> (1,2, or 3)
-			```
-</details>
+		```php
+		// teamnum. 1=Spectator, 2=Survivor, 3=Infected
+		sm_swapto <player> <teamnum>
+		```
 
-* Translation Support | 支援翻譯
-	```
-	translations/l4d_afk_commands.phrases.txt
-	```
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [l4d_team_unscramble](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Versus_%E5%B0%8D%E6%8A%97%E6%A8%A1%E5%BC%8F/l4d_team_unscramble): Puts players on the right team after map/campaign change and provides API.
-		* 換圖或者換關卡之後，將玩家還原到上次所在的隊伍
+		or 
+		```php
+		// swap all listed players to <teamnum>
+		sm_swapto <player1> [player2] ... [playerN] <teamnum>
+		```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>

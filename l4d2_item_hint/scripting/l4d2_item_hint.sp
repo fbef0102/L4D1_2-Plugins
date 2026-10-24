@@ -1014,16 +1014,20 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	{
 		RemoveGlowAndInstructor(client);
 
-		int glowent, team = GetClientTeam(client);
-		for (int i = 1; i <= MaxClients; i++)
+		int team = GetClientTeam(client);
+		if( L4D_TEAM_SURVIVOR <= team <= L4D_TEAM_INFECTED)
 		{
-			if (g_iModelIndex[i][team-2] == 0) continue;
-			glowent = EntRefToEntIndex(g_iModelIndex[i][team-2]);
-			if (glowent == INVALID_ENT_REFERENCE) continue;
-			if (g_iEntCreator[glowent] == client) // 玩家client標記玩家i, 當玩家client死亡或是換隊時, 清除玩家i身上的標記
+			int glowent;
+			for (int i = 1; i <= MaxClients; i++)
 			{
-				RemoveEntityModelGlow(i, team);
-				delete g_iModelTimer[i][team-2];
+				if (g_iModelIndex[i][team-2] == 0) continue;
+				glowent = EntRefToEntIndex(g_iModelIndex[i][team-2]);
+				if (glowent == INVALID_ENT_REFERENCE) continue;
+				if (g_iEntCreator[glowent] == client) // 玩家client標記玩家i, 當玩家client死亡或是換隊時, 清除玩家i身上的標記
+				{
+					RemoveEntityModelGlow(i, team);
+					delete g_iModelTimer[i][team-2];
+				}
 			}
 		}
 	}
@@ -1590,7 +1594,7 @@ bool CreateInfectedMarker(int client, int infected, int iMarkerTeam, bool bIsWit
 				AcceptEntityInput(sprite, "AddOutput");
 				AcceptEntityInput(sprite, "FireUser1");
 
-				g_iModelIndex[infected][iMarkerTeam] = EntIndexToEntRef(sprite);
+				g_iModelIndex[infected][iMarkerTeam-2] = EntIndexToEntRef(sprite);
 
 				g_iClientMarkInf_PlayerAndWitch[client] = EntIndexToEntRef(infected);
 				g_iMarkedByMultiPlayer_Flag[infected][iMarkerTeam-2] |= (1<<client);

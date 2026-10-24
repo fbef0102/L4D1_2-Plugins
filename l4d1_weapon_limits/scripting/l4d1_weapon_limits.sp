@@ -5,13 +5,14 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
+#include <left4dhooks>
 
 public Plugin myinfo = 
 {
 	name = "l4d_limit_weapon",
 	author = "Harry Potter",
 	description = "As the name says, you dumb fuck!",
-	version = "1.0",
+	version = "1.1-2026/10/24",
 	url = "https://steamcommunity.com/profiles/76561198026784913/"
 }
 
@@ -268,7 +269,7 @@ int  GetActiveWeapons(const char[] WEAPON_NAME)
 		weapon = GetPlayerWeaponSlot(client, 0); // Get primary weapon
 		if (weapon == -1 || !IsValidEntity(weapon)) continue;
 
-		GetEdictClassname(weapon, classname, sizeof(classname));
+		GetEntityClassname(weapon, classname, sizeof(classname));
 		if (!(StrEqual(classname, WEAPON_NAME))) continue;
 		count++;
 	}
@@ -284,4 +285,52 @@ void CheatCommand(int client, char[] command, char[] arguments = "")
 	FakeClientCommand(client, "%s %s", command, arguments);
 	SetCommandFlags(command, flags);
 	if(IsClientInGame(client)) SetUserFlagBits(client, userFlags);
+}
+
+public Action L4D2_OnFindScavengeItem(int client, int &item)
+{
+	if(!IsFakeClient(client) || item <= MaxClients || !IsValidEntity(item)) return Plugin_Continue;
+
+	static char classname[128];
+	GetEntityClassname(item, classname, sizeof(classname));
+	//PrintToChatAll("%N tries to pick up %s", client, classname);
+	
+	int Slot1Weapon = GetPlayerWeaponSlot(client, 0);
+	if(strncmp(classname, "weapon_hunting_rifle", 20, false) == 0)
+	{
+		if (g_iLimitHuntingRifle >=0 && GetActiveWeapons(WEAPON_HUNTING_RIFLE) >= g_iLimitHuntingRifle) // If ammount of active hunting rifles are at the limit
+		{
+			return Plugin_Handled;
+		}
+	}
+	else if(strncmp(classname, "weapon_autoshotgun", 18, false) == 0)
+	{
+		if (g_iLimitAutoShotgun >=0 && GetActiveWeapons(WEAPON_AUTOSHOTGUN) >= g_iLimitAutoShotgun)
+		{
+			if(Slot1Weapon != -1) return Plugin_Handled;
+		}
+	}
+	else if(strncmp(classname, "weapon_rifle", 12, false) == 0)
+	{
+		if (g_iLimitRifle >=0 && GetActiveWeapons(WEAPON_RIFLE) >= g_iLimitRifle)
+		{
+			if(Slot1Weapon != -1) return Plugin_Handled;
+		}
+	}
+	else if(strncmp(classname, "weapon_pumpshotgun", 18, false) == 0)
+	{
+		if (g_iLimitPumpShotgun >=0 && GetActiveWeapons(WEAPON_PUMPSHOTGUN) >= g_iLimitPumpShotgun) 
+		{
+			return Plugin_Handled;
+		}
+	}
+	else if(strncmp(classname, "weapon_smg", 10, false) == 0)
+	{
+		if (g_iLimitSmg >=0 && GetActiveWeapons(WEAPON_SMG) >= g_iLimitSmg) 
+		{
+			return Plugin_Handled;
+		}
+	}
+
+	return Plugin_Continue;
 }

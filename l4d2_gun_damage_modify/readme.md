@@ -273,7 +273,7 @@ Modify every weapon damage done to Tank, SI, Witch, Common in l4d2
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
-	1. [l4d2_melee_modify_damage](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Weapons_%E6%AD%A6%E5%99%A8/l4d2_melee_modify_damage): Modify Chainsaw and each melee weapon damages dealt to Commons/S.I./Tank/Witch
+	1. [l4d2_melee_modify_damage](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_%E6%8F%92%E4%BB%B6/Melee_%E8%BF%91%E6%88%B0%E6%AD%A6%E5%99%A8/l4d2_melee_modify_damage): Modify Chainsaw and each melee weapon damages dealt to Commons/S.I./Tank/Witch
         > 修改電鋸與每一種近戰武器對 普通殭屍/Tank/Witch/特感 的傷害值
 </details>
 
