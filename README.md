@@ -318,6 +318,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * 修正倖存者救人期間可以同時使用電鋸攻擊
 * <b>[l4d_both_ledge](/l4d_both_ledge)</b>: When revived from a ledge, you recover the health you had before hanging the ledge
     * 掛邊的玩家被救起來之後，血量恢復到掛邊之前的狀態
+* <b>[l4d_forcefinalestart_fix](/l4d_forcefinalestart_fix)</b>: Prevent finale softlocks when maps use ForceFinaleStart because not all survivors are in FINALE attribute area
+    * 防止救援無法開始而地圖卡關，當地圖使用 ForceFinaleStart 時並非所有倖存者都在 FINALE 屬性區域內
 
 # Scripting Compiler
 * [sourcemod v1.12 compiler](https://www.sourcemod.net/downloads.php?branch=1.12-dev): scripting folder
