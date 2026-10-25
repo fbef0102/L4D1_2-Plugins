@@ -32,18 +32,13 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "SCRIPTS_PATH=$GITHUB_WORKSPACE/The Last Stand" >> $GITHUB_ENV
-          echo "SPINCLUDE_PATH=$GITHUB_WORKSPACE/include" >> $GITHUB_ENV
+          echo "SCRIPTS_PATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "SPINCLUDE_PATH=$GITHUB_WORKSPACE/scripting_1.12/include" >> $GITHUB_ENV
 
       - name: Setup SourcePawn Compiler ${{ matrix.sm_version }}
         uses: rumblefrog/setup-sp@master
         with:
           version: ${{ matrix.sm_version }}
-
-      - name: Remove deprecated plugins
-        working-directory: ${{ env.SCRIPTS_PATH }}/
-        run: |
-          rm -r _deprecated
 
       - name: Compile plugins
         working-directory: ${{ env.SCRIPTS_PATH }}/
@@ -82,10 +77,10 @@ jobs:
         with:
           name: Harry-L4D1_2-Plugins-${{ matrix.sm_version }}
           path: |
-            The Last Stand/
-            include/
-            LICENSE
-            README.md
+            *
+            !.git/
+            !.github/
+            !.gitignore
 
   release:
     name: Release
@@ -101,7 +96,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: tmp/
+          path: tmp/ # 虛擬機會在這裡自動建立名為 tmp 的資料夾，並把編譯好的檔案放進去
 
       - name: Zip Artifacts
         working-directory: tmp/
@@ -113,7 +108,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ env.DATETIME }}"
+          automatic_release_tag: "${{ env.DATETIME }}_update"
           prerelease: false
-          title: "Harry-L4D1_2-Plugins-${{ env.DATETIME }}"
+          title: ${{ env.DATETIME }}_update"
           files: tmp/Harry-L4D1_2-Plugins-*.zip

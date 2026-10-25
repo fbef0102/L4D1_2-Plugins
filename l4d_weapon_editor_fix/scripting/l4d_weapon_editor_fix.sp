@@ -36,7 +36,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <left4dhooks>          // https://forums.alliedmods.net/showthread.php?t=321696
-#include <WeaponHandling>       // https://forums.alliedmods.net/showthread.php?t=319947
+#include <weaponhandling>       // https://forums.alliedmods.net/showthread.php?t=319947
 
 #define PLUGIN_VERSION			"1.4-2026/9/16"
 #define PLUGIN_NAME			    "l4d_weapon_editor_fix"

@@ -547,7 +547,7 @@ void Event_PlayerDeathInfo_Post(Event event, const char[] name, bool dontBroadca
 			FormatEx(attacker_name, sizeof(attacker_name), "%N", attacker);
 		}
 
-		FormatEx(killinfo,sizeof(killinfo),"%s  %s  %s",attacker_name,g_kill_type[eKillType_witch],victim_name);
+		FormatEx(killinfo,sizeof(killinfo),"%s  %s  %s",attacker_name,g_kill_type[eKillType_special_infected],victim_name);
 		DisplayKillList(killinfo);
 		return;
 	}

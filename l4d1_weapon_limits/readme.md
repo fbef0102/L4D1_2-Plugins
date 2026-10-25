@@ -12,6 +12,7 @@ Maximum of each L4D1 weapons the survivors can pick up
         * If "Auto Shotgun" limit reached, give pump shotgun. If pump shotgun limit reached, give ammo only
         * If "Rifle" limit reached, give smg. If pump smg limit reached, give ammo only
         * If "Hunting Rifle" limit reached, give ammo only
+    * Apply to bots and real players, bots won't try to pickup if limit reached
 </Chargedetails>
 
 * Require | 必要安裝
@@ -61,7 +62,7 @@ Maximum of each L4D1 weapons the survivors can pick up
 
 * 原理
     * 當要撿起武器時，計算隊友之中已經拿取的數量，超過便不能撿起武器
-    * 適用真人玩家與Bot
+    * 適用真人玩家與BOT，BOT不會嘗試去拿取已達到上限的武器
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

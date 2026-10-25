@@ -10,6 +10,7 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
 
     * (Before) In 5+ survivors, sometimes survivor can't pick up upgrade ammo from upgrade box
     * (After) In 5+ survivors, every survivor can pick up upgrade ammo from upgrade box
+        * Bots won't attempt to take upgrade ammo if if they've already done so once.
 </details>
 
 * Require | 必要安裝
@@ -55,6 +56,7 @@ Fixes upgrade packs pickup bug when there are 5+ survivors
 * 原理
     * (裝此插件之前) 在5+多人倖存者伺服器中，有時候玩家無法拾取燃燒子彈或高爆子彈
     * (裝此插件之後) 在5+多人倖存者伺服器中，每位玩家可以拾取燃燒子彈或高爆子彈
+        * Bots不會嘗試撿取已經升級過的子彈包
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
