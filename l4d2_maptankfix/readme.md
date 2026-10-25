@@ -27,8 +27,18 @@ Fix issues where customized map tank does not spawn, cause the map process break
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [spawn_infected_nolimit](/spawn_infected_nolimit)
-	3. [l4dtoolz English Tutorial](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz): To unlock server slots limit, up to 31 slots, default is 18
-		* [l4dtoolz 中文安裝教學](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz): 解鎖伺服器人數上限, 從預設18位變成31位
+	3. [l4dtoolz](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/English/Server/Install_Other_File#l4dtoolz): To unlock server slots limit, up to 31 slots, default is 18
+	4. (L4D1) [l4d_fix_tank_jointeam](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/l4d_fix_tank_jointeam.sp): Prevents Tank spawns from being blocked when the Special Infected team is full (z_max_player_zombies +1 slots)
+		* [Gamedata Download](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/left4dead/addons/sourcemod/gamedata/l4d_fix_tank_jointeam.txt)
+
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── plugins/
+    │   └── l4d2_maptankfix.smx            # Compiled plugin | 已編譯的插件
+    └── scripting/
+        └── l4d2_maptankfix.sp             # Source code | 源碼
+    ```
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -40,6 +50,10 @@ Fix issues where customized map tank does not spawn, cause the map process break
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.6 (2026-10-25)
+		* Clean up and organize code
+		* Remove gamedata, require left4dhooks gamedata
 
 	* v1.5 (2025-2-13)
 	* v1.4 (2025-2-9)
@@ -59,6 +73,13 @@ Fix issues where customized map tank does not spawn, cause the map process break
 - - - -
 # 中文說明
 防止地圖自帶的機關Tank因為人數不夠問題​​無法刷新而造成卡關
+
+* 必要安裝
+	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+	2. [spawn_infected_nolimit](/spawn_infected_nolimit)
+	3. [l4dtoolz 中文安裝教學](https://github.com/fbef0102/Game-Private_Plugin/blob/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝其他檔案教學#安裝l4dtoolz): 解鎖伺服器人數上限, 從預設18位變成31位
+	4. (L4D1) [l4d_fix_tank_jointeam](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/SourceCode/scripting-az/l4d_fix_tank_jointeam.sp): Tank生成不會受到特感隊伍限制 (z_max_player_zombies +1 位置已滿)
+		* [Gamedata下載](https://github.com/fbef0102/Rotoblin-AZMod/blob/master/left4dead/addons/sourcemod/gamedata/l4d_fix_tank_jointeam.txt)
 
 * 原理
 	* 當伺服器滿位且地圖自帶的機關嘗試生成Tank時

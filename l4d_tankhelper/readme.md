@@ -27,8 +27,8 @@ Tanks throw Tank/S.I./Witch/Hittable instead of rock
     │   └── l4d_tankhelper.txt         # GameData | 遊戲數據
     ├── plugins/
     │   └── l4d_tankhelper.smx         # Compiled plugin | 已編譯的插件
-    ├── scripting/
-    │   └── l4d_tankhelper.sp          # Source code | 源碼
+    └── scripting/
+        └── l4d_tankhelper.sp          # Source code | 源碼
     ```
 
 * <details><summary>ConVar | 指令</summary>

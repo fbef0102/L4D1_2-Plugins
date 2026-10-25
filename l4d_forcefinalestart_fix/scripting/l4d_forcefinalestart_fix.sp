@@ -81,7 +81,7 @@ public void OnPluginStart()
     delete hGameData;
 
     if (offset == -1)
-        SetFailState("Failed to get AcceptInput offset");
+        SetFailState("Failed to get AcceptInput offset, please install left4dhooks gamedata");
 
     g_hAcceptInput = new DynamicHook(offset, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity);
     g_hAcceptInput.AddParam(HookParamType_CharPtr);
