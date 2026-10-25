@@ -1,0 +1,119 @@
+name: Compile plugins and release
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+    branches:
+      - master
+  push:
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build with sm${{ matrix.sm_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sm_version:
+          - "1.12"
+          # - "1.13"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "SCRIPTS_PATH=$GITHUB_WORKSPACE/The Last Stand" >> $GITHUB_ENV
+          echo "SPINCLUDE_PATH=$GITHUB_WORKSPACE/include" >> $GITHUB_ENV
+
+      - name: Setup SourcePawn Compiler ${{ matrix.sm_version }}
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.sm_version }}
+
+      - name: Remove deprecated plugins
+        working-directory: ${{ env.SCRIPTS_PATH }}/
+        run: |
+          rm -r _deprecated
+
+      - name: Compile plugins
+        working-directory: ${{ env.SCRIPTS_PATH }}/
+        run: |
+          error_files=()
+          for dir in */
+          do
+            dir=${dir%/}
+            if [ -d "$dir" ]; then
+              for file in $dir/scripting/*.sp
+              do
+                if [ -f "$file" ]; then
+                  mkdir -p $dir/plugins
+                  filename=$(basename "$file")
+                  filename=${filename%.*}
+                  echo -e "\nCompiling $file..."
+                  spcomp -O2 -v2 -i "$dir/scripting/include" -i "$SPINCLUDE_PATH" -o "$dir/plugins/$filename.smx" $file || {
+                    error_files+=("$filename")
+                    continue
+                  }
+                fi
+              done
+            fi
+          done
+          if [ "${#error_files[*]}" -gt 0 ]; then
+            echo -e "\n${#error_files[*]} plugin(s) failed to compile:"
+            printf '  \n%s' "${error_files[*]}"
+            exit 1
+          else
+            echo -e "\nAll plugins compiled successfully."
+            exit 0
+          fi
+
+      - name: Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Harry-L4D1_2-Plugins-${{ matrix.sm_version }}
+          path: |
+            The Last Stand/
+            include/
+            LICENSE
+            README.md
+
+  release:
+    name: Release
+    needs: build
+    if: always() && github.ref_name == 'master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare env
+        run: |
+          echo "DATETIME=$(date +'%Y_%m_%d_%H%M')" >> $GITHUB_ENV
+          
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: tmp/
+
+      - name: Zip Artifacts
+        working-directory: tmp/
+        run: |
+          # https://unix.stackexchange.com/questions/68489/command-to-zip-multiple-directories-into-individual-zip-files
+          for i in */; do zip -0 -r "${i%/}.zip" "$i" & done; wait
+  
+      - name: Create Release
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ env.DATETIME }}"
+          prerelease: false
+          title: "Harry-L4D1_2-Plugins-${{ env.DATETIME }}"
+          files: tmp/Harry-L4D1_2-Plugins-*.zip
