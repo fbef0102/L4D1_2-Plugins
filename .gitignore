@@ -4,3 +4,4 @@
 #ignore vscode
 *.vs
 *.vscode
+*.smx

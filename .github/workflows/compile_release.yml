@@ -72,15 +72,20 @@ jobs:
             exit 0
           fi
 
+      - name: Remove all image folders
+        run: |
+          find . -type d -name "image" -exec rm -rf {} +  # 排除所有層級底下名為 image 的資料夾
+
+      - name: Remove includes
+        run: |
+          rm -rf scripting_1.12 # 排除includes
+
       - name: Package
         uses: actions/upload-artifact@v4
         with:
           name: Harry-L4D1_2-Plugins-${{ matrix.sm_version }}
           path: |
             *
-            !.git/
-            !.github/
-            !.gitignore
 
   release:
     name: Release
@@ -89,6 +94,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 必須抓取完整的 Git 歷史紀錄才能讀取 Commit 記錄
+
+      - name: Prepare env
+        run: |
+          echo "DATETIME=$(date +'%Y_%m_%d_%H%M')" >> $GITHUB_ENV
+          
+          # 取得自上一個 Tag 以來的 Commit 說明（Description / Body）
+          # %b 代表 Commit 的詳細說明內文（若只想抓內文，可改用 %b；若連同標題一起抓可改用 "%s%n%b"）
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            # 如果找不到前一個標籤，抓最近 1 筆
+            COMMIT_LOG=$(git log -n 1 --pretty=format:"%s%n%b" | sed '/^$/d')
+          else
+            # 如果有前一個標籤，抓兩者之間的 Commit
+            COMMIT_LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s%n%b" | sed '/^$/d')
+          fi
+          
+          # 將抓到的 Commit 訊息寫入 GitHub Environment 中（支援多行）
+          # 參考 GitHub Actions 官方的文件寫法
+          delimiter="EOF_$RANDOM"
+          echo "RELEASE_NOTES<<$delimiter" >> $GITHUB_ENV
+          echo "$COMMIT_LOG" >> $GITHUB_ENV
+          echo "$delimiter" >> $GITHUB_ENV
+
       - name: Prepare env
         run: |
           echo "DATETIME=$(date +'%Y_%m_%d_%H%M')" >> $GITHUB_ENV
@@ -104,11 +136,12 @@ jobs:
           # https://unix.stackexchange.com/questions/68489/command-to-zip-multiple-directories-into-individual-zip-files
           for i in */; do zip -0 -r "${i%/}.zip" "$i" & done; wait
   
-      - name: Create Release
-        uses: marvinpinto/action-automatic-releases@v1.2.1
+      - name: Create Release and Auto Notes
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ env.DATETIME }}_update"
-          prerelease: false
-          title: ${{ env.DATETIME }}_update"
-          files: tmp/Harry-L4D1_2-Plugins-*.zip
+          tag_name: "${{ env.DATETIME }}"
+          name: "${{ env.DATETIME }}_update"
+          # 直接帶入我們剛剛過濾好的純 Commit 訊息
+          body: ${{ env.RELEASE_NOTES }}
+          files: |
+            tmp/Harry-L4D1_2-Plugins-*.zip
