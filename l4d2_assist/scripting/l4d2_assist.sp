@@ -8,7 +8,7 @@
 #include <left4dhooks>
 #include <multicolors>
 
-#define PLUGIN_VERSION "2.7-2026/1/30"
+#define PLUGIN_VERSION "2.8-2026/10/29"
 
 public Plugin myinfo = 
 {
@@ -90,8 +90,10 @@ int
 	g_iSIHealth[MAXPLAYERS+1], //S.I last hp before damage hurt
 	g_iOtherDamage[MAXPLAYERS+1]; //S.I other damage
 
-bool g_bTankDied[MAXPLAYERS+1], //tank already dead
-	g_bSmokerTakeDamageAlive[MAXPLAYERS+1]; //smoker OnTakeDamageAlive
+bool 
+	g_bTankDied[MAXPLAYERS+1], //tank already dead
+	g_bSmokerTakeDamageAlive[MAXPLAYERS+1], //smoker OnTakeDamageAlive
+	g_bSpawnFromGhost[MAXPLAYERS+1];
 
 public void OnPluginStart()
 {
@@ -397,31 +399,30 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		
 	if(client && IsClientInGame(client) && GetClientTeam(client) == L4D_TEAM_INFECTED)
 	{
-		g_bTankDied[client] = false;
 		g_iSIHealth[client] = GetEntProp(client, Prop_Data, "m_iHealth");
-		for( int i = 1; i <= MaxClients; i++ ) g_iDamage[i][client] = 0;
-		g_iOtherDamage[client] = 0;
+
+		if(g_bSpawnFromGhost[client] == true) return;
+
+		ClearDmgSI(client);
 	}
 }
 
 void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
+	if(event.GetBool("abort"))
+	{
+		//A玩家的tank移交控制權給其他真人玩家會觸發"abort" (victim: A玩家)
+		//使用L4D_OnReplaceTank接替AI tank時會觸發 (victim: AI Tank)
+		//使用L4D_OnReplaceTank接替B真人玩家時會觸發 (victim: B玩家)
+		return;
+	}
+
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	//PrintToChatAll("Event_PlayerDeath: %d %d", attacker, victim);
 	
 	if(!victim || !IsClientInGame(victim) || GetClientTeam(victim) != L4D_TEAM_INFECTED) return;
-
-	static char weapon[64];
-	event.GetString("weapon", weapon, sizeof(weapon));
-	int damagetype = event.GetInt("type");
-	if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK
-		&& attacker == victim && strcmp(weapon, "world", false) == 0 && damagetype == DMG_NEVERGIB)
-	{
-		//PrintToChatAll("Event_PlayerDeath - %N 轉移tank控制權給其他真人玩家觸發這句話", victim);
-		return;
-	}
-
+	
 	if (attacker && IsClientInGame(attacker))
 	{
 		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == ZC_TANK)
@@ -571,6 +572,50 @@ void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
 	{
 		ReplaceData(bot, player);
 	}
+}
+
+bool isCulling = false;
+public Action L4D_OnEnterGhostStatePre(int client)
+{
+	static int s_iOffs_m_bPZAbortedControl = -1;
+	if (s_iOffs_m_bPZAbortedControl == -1)
+	{
+		if(g_bL4D2Version) s_iOffs_m_bPZAbortedControl = FindSendPropInfo("CTerrorPlayer", "m_bSurvivorGlowEnabled") + 1;
+		else s_iOffs_m_bPZAbortedControl = FindSendPropInfo("CTerrorPlayer", "m_lookatPlayer") + 4;
+	}
+	
+	isCulling = GetEntData(client, s_iOffs_m_bPZAbortedControl, 1) != 0;
+	
+	return Plugin_Continue;
+}
+
+public void L4D_OnEnterGhostState(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	if(!isCulling)
+	{
+		ClearDmgSI(client);
+	}
+}
+
+public Action L4D_OnMaterializeFromGhostPre(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	g_bSpawnFromGhost[client] = true;
+}
+
+public void L4D_OnMaterializeFromGhost(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	g_bSpawnFromGhost[client] = false;
+}
+
+public void L4D_OnMaterializeFromGhost_PostHandled(int client)
+{
+	g_bSpawnFromGhost[client] = false;
 }
 
 public void L4D_OnReplaceTank(int tank, int newtank)

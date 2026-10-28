@@ -14,6 +14,14 @@ Show damage done to S.I. by survivors
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
+
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [l4d_witch_dmg_report](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_dmg_report): Displays how much damage done to witch on witch death + display health remaining when witch kills or incaps the survivor.
+		> Witch死亡時，顯示對Witch造成傷害統計表 + Witch抓傷或抓死人時，顯示剩餘血量
+</details>
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/l4d2_assist.cfg
@@ -41,18 +49,10 @@ Show damage done to S.I. by survivors
 		```
 </details>
 
-* Translation Support | 支援翻譯
-	```
-	translations/l4d2_assist.phrases.txt
-	```
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [l4d_witch_dmg_report](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Witch_%E5%A5%B3%E5%B7%AB/l4d_witch_dmg_report): Displays how much damage done to witch on witch death + display health remaining when witch kills or incaps the survivor.
-		> Witch死亡時，顯示對Witch造成傷害統計表 + Witch抓傷或抓死人時，顯示剩餘血量
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v2.8 (2026-10-29)
+		* Support versus mode
 
 	* v2.7 (2026-1-30)
 		* Update translation
@@ -97,6 +97,7 @@ Show damage done to S.I. by survivors
 		* 隊友抓傷
 		* 墬樓摔傷
 		* 地圖火傷
+	* 支援對抗模式，即使tank換人是特感重新回靈魂狀態，血量依然會計算
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 

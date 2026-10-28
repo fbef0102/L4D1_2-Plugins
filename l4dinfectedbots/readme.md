@@ -436,6 +436,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.0.9 (2026-10-29)
+		* Clean up and organize code about special infected health set
+
 	* v3.0.8 (2026-7-12)
 		* Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
 		* Update gamedata

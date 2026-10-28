@@ -314,7 +314,9 @@ float 					g_fLastCarAlarm										= 0.0;				// time when last car alarm went o
 int 					g_iLastCarAlarmReason	[MAXPLAYERS + 1];								// what this survivor did to set the last alarm off
 int 					g_iLastCarAlarmBoomer;													// if a boomer triggered an alarm, remember it
 
-bool 					g_bDeathChargeIgnore[MAXPLAYERS+1][MAXPLAYERS+1];
+bool 					
+	g_bDeathChargeIgnore[MAXPLAYERS+1][MAXPLAYERS+1],
+	g_bSpawnFromGhost[MAXPLAYERS+1];
 
 /*
 	Reports:
@@ -1179,7 +1181,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		g_fPouncePosition[client][1] = 0.0;
 		g_fPouncePosition[client][2] = 0.0;
 
-		if(IsFakeClient(client)) ResetHunter(client);
+		if(g_bSpawnFromGhost[client] == false) ResetHunter(client);
 	}
 	else if(g_bL4D2Version && zClass == ZC_JOCKEY)
 	{
@@ -1189,7 +1191,7 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		g_fPouncePosition[client][1] = 0.0;
 		g_fPouncePosition[client][2] = 0.0;
 
-		if(IsFakeClient(client)) ResetHunter(client);
+		if(g_bSpawnFromGhost[client] == false) ResetHunter(client);
 	}
 	else if(g_bL4D2Version && zClass == ZC_CHARGER)
 	{
@@ -4247,6 +4249,8 @@ public void OnActionCreated(BehaviorAction action, int actor, const char[] name)
 	}
 }
 
+// left4dhooks
+
 bool isCulling = false;
 public Action L4D_OnEnterGhostStatePre(int client)
 {
@@ -4273,7 +4277,24 @@ public void L4D_OnEnterGhostState(int client)
 	}
 }
 
-// left4dhooks
+public Action L4D_OnMaterializeFromGhostPre(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	g_bSpawnFromGhost[client] = true;
+}
+
+public void L4D_OnMaterializeFromGhost(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	g_bSpawnFromGhost[client] = false;
+}
+
+public void L4D_OnMaterializeFromGhost_PostHandled(int client)
+{
+	g_bSpawnFromGhost[client] = false;
+}
 
 public void L4D_OnShovedBySurvivor_Post(int attacker, int victim, const float vecDir[3])
 {

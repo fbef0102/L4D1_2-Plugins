@@ -1,7 +1,8 @@
-//此插件0.0秒後設置血量(Tank與特感)
+//此插件在玩家生成的下一偵後設置Tank或特感血量
+//期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.8 (2009-2026)
+* Version	: 3.0.9 (2009-2026)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -9,6 +10,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.0.9 (2026-10-29)
+*		- Clean up and organize code about special infected health set
 *
 * Version 3.0.8 (2026-7-12)
 *		- Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
@@ -821,7 +825,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.8-2026/7/12"
+#define PLUGIN_VERSION 			"3.0.9-2026/10/29"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -905,7 +909,6 @@ Handle g_hCheckSpawnTimer 		= null;	// The main HUD refresh timer
 Panel pInfHUD = null;
 Handle FightOrDieTimer[MAXPLAYERS+1],
 	RestoreColorTimer[MAXPLAYERS+1], 
-	g_hPlayerSpawnTimer[MAXPLAYERS+1],
 	hSpawnWitchTimer,
 	g_hCountSurvivorTimer, InitialSpawnResetTimer;
 
@@ -928,7 +931,8 @@ int g_iModelIndex[MAXPLAYERS+1];			// Player Model entity reference
 
 bool 
 	g_bAngry[MAXPLAYERS+1], //tank is angry in coop/realism
-	g_bDeSpawn[MAXPLAYERS+1];
+	g_bDeSpawn[MAXPLAYERS+1],
+	g_bSpawnFromGhost[MAXPLAYERS+1];
 
 char 
 	g_sCvarMPGameMode[64],
@@ -1622,7 +1626,6 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		g_bForcePlayerToInfectedTeam[i] = false;
-		g_bDeSpawn[i] = false;
 		g_iZombieHpSet[i] = 0;
 	}
 }
@@ -2517,11 +2520,9 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 
 	g_iZombieHpSet[client] = 0;
-	g_bDeSpawn[client] = false;
 
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
-	delete g_hPlayerSpawnTimer[client];
 
 	if (GetClientTeam(client) != TEAM_INFECTED ) return;
 
@@ -2791,14 +2792,11 @@ void Event_PlayerTeam_1(Event event, const char[] name, bool dontBroadcast)
 	int oldteam = event.GetInt("oldteam");
 	if(!client || !IsClientInGame(client)) return; 
 
-	delete g_hPlayerSpawnTimer[client];
-
 	RemoveSurvivorModelGlow(client);
 	CreateTimer(0.1, tmrDelayCreateSurvivorGlow, userid, TIMER_FLAG_NO_MAPCHANGE);
 	CreateTimer(0.4, PlayerChangeTeamCheck, userid, TIMER_FLAG_NO_MAPCHANGE);//延遲檢查
 
 	DeleteLight(client);
-	g_bDeSpawn[client] = false;
 
 	DataPack pack;
 	CreateDataTimer(0.6, PlayerChangeTeamCheck2, pack, TIMER_FLAG_NO_MAPCHANGE);//延遲檢查
@@ -2991,7 +2989,6 @@ public void OnClientDisconnect(int client)
 	PlayerLifeState[client] = false;
 	g_bForcePlayerToInfectedTeam[client] = false;
 
-	delete g_hPlayerSpawnTimer[client];
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
 
@@ -3555,9 +3552,6 @@ void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
 {
 	lastHumanTankId = event.GetInt("userid");
 	RequestFrame(OnNextFrame_Reset, event.GetInt("userid"));
-
-	int client = GetClientOfUserId(event.GetInt("userid"));
-	g_bDeSpawn[client] = false;
 }
 
 void OnNextFrame_Reset(int userid)
@@ -3600,7 +3594,7 @@ public void L4D_OnEnterGhostState(int client)
 	if(IsFakeClient(client)) return;
 
 	g_iZombieHpSet[client] = 0;
-	if(!isCulling) //非回魂重生
+	if(isCulling) //回魂重生
 	{
 		g_bDeSpawn[client] = true;
 	}
@@ -3619,6 +3613,25 @@ public void L4D_OnEnterGhostState(int client)
 		else
 			CreateTimer(0.2, Timer_InfectedKillSelf, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
+}
+
+public Action L4D_OnMaterializeFromGhostPre(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	g_bSpawnFromGhost[client] = true;
+}
+
+public void L4D_OnMaterializeFromGhost(int client)
+{
+	if(IsFakeClient(client)) return;
+
+	g_bSpawnFromGhost[client] = false;
+}
+
+public void L4D_OnMaterializeFromGhost_PostHandled(int client)
+{
+	g_bSpawnFromGhost[client] = false;
 }
 
 // This event serves to make sure the bots spawn at the start of the finale event. The director disallows spawning until the survivors have started the event, so this was
@@ -4628,9 +4641,14 @@ void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcas
 				fPlayerSpawnEngineTime[client] = GetEngineTime();
 			}
 
-			// 0.0秒後設置Tank或特感血量
-			delete g_hPlayerSpawnTimer[client];
-			g_hPlayerSpawnTimer[client] = CreateTimer(0.0, Timer_SetHealth, client);
+			// 下一偵設置Tank或特感血量
+			// 期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
+
+			DataPack hPack = new DataPack();
+			hPack.WriteCell(client);
+			hPack.WriteCell(g_bSpawnFromGhost[client]);
+			hPack.WriteCell(g_bDeSpawn[client]);
+			RequestFrame(OnNextFrame_SetCustomHealth, hPack);
 
 			if(IsPlayerTank(client))
 			{
@@ -4645,12 +4663,18 @@ void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcas
 	}
 }
 
-Action Timer_SetHealth(Handle timer, any client)
+void OnNextFrame_SetCustomHealth(DataPack hPack)
 {
-	g_hPlayerSpawnTimer[client] = null;
-	if(g_iZombieHpSet[client] > 0) return Plugin_Continue;
+	hPack.Reset();
+	int client = hPack.ReadCell();
+	bool bSpawnFromGhost = hPack.ReadCell();
+	bool bDeSpawn = hPack.ReadCell();
+	delete hPack;
 
-	if(client && IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
+	// 期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
+	if(g_iZombieHpSet[client] > 0) return;
+
+	if(IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
 	{	
 		int new_health = 0;
 		if (IsPlayerTank(client))
@@ -4682,14 +4706,14 @@ Action Timer_SetHealth(Handle timer, any client)
 			new_health = g_ePluginSettings.m_iSIHealth[SI_CHARGER];
 		}
 
-		if(new_health <= 0) return Plugin_Continue;
+		if(new_health <= 0) return;
 		
-		if(!g_bDeSpawn[client]) SetEntProp(client, Prop_Data, "m_iHealth", new_health);
+		if(!bSpawnFromGhost || !bDeSpawn) SetEntProp(client, Prop_Data, "m_iHealth", new_health);
 		SetEntProp(client, Prop_Data, "m_iMaxHealth", new_health);
 		g_iZombieHpSet[client] = new_health;
 	}
 
-	return Plugin_Continue;
+	return;
 }
 
 Action Timer_CheckAngry(Handle timer, int UserId)
@@ -4765,7 +4789,6 @@ void Event_GhostSpawnTime(Event event, const char[] name, bool dontBroadcast)
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
 		g_iZombieHpSet[client] = 0;
-		g_bDeSpawn[client] = false;
 
 		if (L4D_HasPlayerControlledZombies())
 		{
@@ -5083,7 +5106,6 @@ void ResetTimer()
 	{
 		delete FightOrDieTimer[i];
 		delete RestoreColorTimer[i];
-		delete g_hPlayerSpawnTimer[i];
 	}
 
 	delete hSpawnWitchTimer;
