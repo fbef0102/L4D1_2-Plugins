@@ -182,10 +182,6 @@ void NextFrame_commentary_zombie_spawner(int entity)
 	entity = EntRefToEntIndex(entity);
 	if(entity == INVALID_ENT_REFERENCE) return;
 
-	#if DEBUG
-		LogError("commentary_zombie_spawner Detour: %d", entity);
-	#endif
-
 	DHookEntity(g_hdAcceptInput_Pre, false, entity);
 	DHookEntity(g_hdAcceptInput_Post, true, entity);
 
@@ -198,17 +194,13 @@ void NextFrame_info_zombie_spawn(int entity)
 	entity = EntRefToEntIndex(entity);
 	if(entity == INVALID_ENT_REFERENCE) return;
 
-	static char propName[50];
-	GetEntPropString(entity, Prop_Data, "m_szPopulation", propName, sizeof(propName));
-	if (StrEqual(propName, "tank", false) || StrEqual(propName, "river_docks_trap", false) /*|| StrEqual(propName, "church", false)*/)
-	{
-		#if DEBUG
-			LogError("info_zombie_spawn Detour: %d", entity);
-		#endif
-
-		DHookEntity(g_hdAcceptInput_Pre, false, entity);
-		DHookEntity(g_hdAcceptInput_Post, true, entity);
-	}
+	//static char propName[50];
+	//GetEntPropString(entity, Prop_Data, "m_szPopulation", propName, sizeof(propName));
+	//if (StrEqual(propName, "tank", false) || StrEqual(propName, "river_docks_trap", false) /*|| StrEqual(propName, "church", false)*/)
+	//{
+	DHookEntity(g_hdAcceptInput_Pre, false, entity);
+	DHookEntity(g_hdAcceptInput_Post, true, entity);
+	//}
 }
 
 void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)

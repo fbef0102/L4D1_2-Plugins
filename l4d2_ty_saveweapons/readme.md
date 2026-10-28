@@ -59,7 +59,8 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
         ```php
         // If 1, survivor bots will be used as placeholders for survivors who are still changing levels
         // If 0, prevent bots from moving, changing weapons, using kits while human survivors are still changing levels
-        // Default: 1
+        // (Don't set it to false; it has a bug where bots disappear when a player disconnects during map transition.)
+        // default: 1
         sm_cvar sb_transition 1
         ```
 </details>
@@ -152,10 +153,11 @@ Save weapons/health when map transition if more than 4 players in l4d1/2
 
 * <details><summary>相關的官方指令中文介紹 (點我展開)</summary>
 
-    * 以下指令寫入文件 cfg/server.cfg，可自行調整
+    * 以下指令寫入文件 cfg/server.cfg
         ```php
         // 為1時, 過關後玩家的Bot會走動並更換身上的武器與物品
-        // 為0時, 過關後玩家的Bot不會走動也不會更換身上的武器與物品 (推薦使用)
+        // 為0時, 過關後玩家的Bot不會走動也不會更換身上的武器與物品
+        // (不建議設置0, 過關時有玩家離開伺服器將導致Bots會消失)
         // 預設值: 1
         sm_cvar sb_transition 1
         ```

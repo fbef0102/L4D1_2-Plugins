@@ -121,6 +121,35 @@ jobs:
           echo "$COMMIT_LOG" >> $GITHUB_ENV
           echo "$delimiter" >> $GITHUB_ENV
 
+      - name: Delete Previous Release and Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 設定 GitHub API 的共用標頭
+          HEADER="Authorization: token $GITHUB_TOKEN"
+          API="https://api.github.com/repos/${{ github.repository }}"
+          
+          # 1. 取得專案中所有的 Releases 列表（依建立時間排序）
+          RELEASES=$(curl -s -H "$HEADER" "$API/releases")
+          
+          # 2. 找出上一個 Release 的 ID 與 Tag 名稱
+          # 這裡抓取陣列中的第一個（即目前最新的舊 Release）
+          PREV_RELEASE_ID=$(echo "$RELEASES" | jq -r '.[0].id // empty')
+          PREV_TAG_NAME=$(echo "$RELEASES" | jq -r '.[0].tag_name // empty')
+          
+          if [ -n "$PREV_RELEASE_ID" ] && [ "$PREV_RELEASE_ID" != "null" ]; then
+            echo "正在刪除舊的 Release (ID: $PREV_RELEASE_ID)..."
+            curl -s -X DELETE -H "$HEADER" "$API/releases/$PREV_RELEASE_ID"
+          fi
+          
+          if [ -n "$PREV_TAG_NAME" ] && [ "$PREV_TAG_NAME" != "null" ]; then
+            echo "正在刪除舊的 Tag ($PREV_TAG_NAME)..."
+            # 刪除遠端 (origin) 的 Tag
+            git push origin --delete "$PREV_TAG_NAME" || true
+            # 刪除本地的 Tag
+            git tag -d "$PREV_TAG_NAME" || true
+          fi
+
       - name: Prepare env
         run: |
           echo "DATETIME=$(date +'%Y_%m_%d_%H%M')" >> $GITHUB_ENV

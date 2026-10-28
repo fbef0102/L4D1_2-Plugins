@@ -461,7 +461,7 @@ void OnNextFrame_func_simpleladder(int entityRef)
 // We don't send infected ladder data to survivors, this bit handles the clientside prediction so that they don't get visual bugs (jitter/rubberbanding)
 Action Hook_SetTransmit(int entity, int client)
 {
-	if (GetClientTeam(client) == L4D_TEAM_SUR) {
+	if (g_bSurvivorLadder && GetClientTeam(client) == L4D_TEAM_SUR) {
 		return Plugin_Handled;
 	}
 
