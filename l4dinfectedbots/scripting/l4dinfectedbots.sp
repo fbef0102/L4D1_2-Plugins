@@ -2,7 +2,7 @@
 //期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.0.9 (2009-2026)
+* Version	: 3.1.0 (2009-2026)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -10,6 +10,10 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.1.0 (2026-11-3)
+*		- Set tank health based on gamemode and difficulty
+*		- Update data, remove "tank_health", add new keyvalue "tank_health_easy", "tank_health_normal", "tank_health_hard", "tank_health_impossible"
 *
 * Version 3.0.9 (2026-10-29)
 *		- Clean up and organize code about special infected health set
@@ -825,7 +829,7 @@
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.0.9-2026/10/29"
+#define PLUGIN_VERSION 			"3.1.0-2026/11/3"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -888,11 +892,12 @@ bool b_HasRoundStarted, // Used to state if the round started or not
 	g_bSomeCvarChanged;
 
 ConVar sb_all_bot_game, allow_all_bot_survivor_team, sb_all_bot_team, vs_max_team_switches, z_max_player_zombies,
-	director_no_specials, director_allow_infected_bots, z_ghost_delay_min, z_ghost_delay_max;
+	director_no_specials, director_allow_infected_bots, z_ghost_delay_min, z_ghost_delay_max, z_difficulty;
 int vs_max_team_switches_default;
 float g_fCvar_z_ghost_delay_min, g_fCvar_z_ghost_delay_max;
 bool sb_all_bot_game_default, allow_all_bot_survivor_team_default, sb_all_bot_team_default, director_no_specials_bool;
 bool g_bConfigsExecuted;
+char g_sCvar_z_difficulty[64];
 
 ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog, g_hCvarAnnounceChat, g_hCvarAnnounceServer,
 	h_InfHUD, h_Announce, h_VersusCoop, h_ZSDisableGamemode, h_IncludingDead, g_hDisposeCowards,
@@ -970,7 +975,10 @@ enum struct EPluginData
 	int m_iTankLimit;
 	bool m_bTankLimit_OverrideVSCript;
 	int m_iTankSpawnProbability;
-	int m_iTankHealth;
+	int m_iTankHealth_easy;
+	int m_iTankHealth_normal;
+	int m_iTankHealth_hard;
+	int m_iTankHealth_impossible;
 	bool m_bTankSpawnFinal;
 
 	int m_iWitchMaxLimit;
@@ -1107,11 +1115,13 @@ public void OnPluginStart()
 	g_hCvarModesOff.AddChangeHook(ConVarChanged_Allow);
 	g_hCvarModesTog.AddChangeHook(ConVarChanged_Allow);
 
+	z_difficulty = FindConVar("z_difficulty");
 	director_no_specials = FindConVar("director_no_specials");
 	z_ghost_delay_min = FindConVar("z_ghost_delay_min");
 	z_ghost_delay_max = FindConVar("z_ghost_delay_max");
 
 	GetOfficalCvars();
+	z_difficulty.AddChangeHook(ConVarChanged_Difficulty);
 	director_no_specials.AddChangeHook(ConVarChanged_OfficialCvars);
 	z_ghost_delay_min.AddChangeHook(ConVarChanged_OfficialCvars);
 	z_ghost_delay_max.AddChangeHook(ConVarChanged_OfficialCvars);
@@ -1259,6 +1269,7 @@ void GetOfficalCvars()
 	director_no_specials_bool 		= director_no_specials.BoolValue;
 	g_fCvar_z_ghost_delay_min 		= z_ghost_delay_min.FloatValue;
 	g_fCvar_z_ghost_delay_max 		= z_ghost_delay_max.FloatValue;
+	z_difficulty.GetString(g_sCvar_z_difficulty, sizeof(g_sCvar_z_difficulty));
 }
 
 void ConVarChanged_Cvars(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -1290,6 +1301,15 @@ void GetCvars()
 	g_bIncludingDead = h_IncludingDead.BoolValue;
 	g_bDisposeCowards = g_hDisposeCowards.BoolValue;
 	g_hCvarReloadSettings.GetString(g_sCvarReloadSettings, sizeof(g_sCvarReloadSettings));
+}
+
+void ConVarChanged_Difficulty(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	GetOfficalCvars();
+
+	g_iPlayersInSurvivorTeam = -1;
+	delete g_hCountSurvivorTimer;
+	g_hCountSurvivorTimer = CreateTimer(1.0, Timer_CountSurvivor);
 }
 
 void ConVarGameMode(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -2959,10 +2979,11 @@ Action Timer_CountSurvivor(Handle timer)
 
 		CheckIfBotsNeeded2();
 
-		if(g_ePluginSettings.m_iTankHealth > 0)
+		int tank_health = GetFinalTankHP(g_ePluginSettings);
+		if(tank_health > 0)
 		{
-			if (g_bCvarAnnounceChat) CPrintToChatAll("[{olive}TS{default}] %t","Current_status_1",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
-			if (g_bCvarAnnounceServer) PrintToServer("[TS] Survivors=%d, MaxSI=%d, TankHP=%d", iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,g_ePluginSettings.m_iTankHealth);
+			if (g_bCvarAnnounceChat) CPrintToChatAll("[{olive}TS{default}] %t","Current_status_1",iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,tank_health);
+			if (g_bCvarAnnounceServer) PrintToServer("[TS] Survivors=%d, MaxSI=%d, TankHP=%d", iAliveSurplayers,g_ePluginSettings.m_iMaxSpecials,tank_health);
 		}
 		else
 		{
@@ -4679,7 +4700,7 @@ void OnNextFrame_SetCustomHealth(DataPack hPack)
 		int new_health = 0;
 		if (IsPlayerTank(client))
 		{
-			new_health = g_ePluginSettings.m_iTankHealth;
+			new_health = GetFinalTankHP(g_ePluginSettings);
 		}
 		else if(IsPlayerSmoker(client))
 		{
@@ -5909,7 +5930,10 @@ void LoadData()
 			ePluginData[0].m_iTankLimit = hData.GetNum("tank_limit", 1);
 			ePluginData[0].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", 0));
 			ePluginData[0].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", 5);
-			ePluginData[0].m_iTankHealth = hData.GetNum("tank_health", 4000);
+			ePluginData[0].m_iTankHealth_easy = hData.GetNum("tank_health_easy", 3000);
+			ePluginData[0].m_iTankHealth_normal = hData.GetNum("tank_health_normal", 4000);
+			ePluginData[0].m_iTankHealth_hard = hData.GetNum("tank_health_hard", 6000);
+			ePluginData[0].m_iTankHealth_impossible = hData.GetNum("tank_health_impossible", 8000);
 			ePluginData[0].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", 0));
 
 			ePluginData[0].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", 1);
@@ -5984,7 +6008,10 @@ void LoadData()
 				ePluginData[i].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
 				ePluginData[i].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
 				ePluginData[i].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
-				ePluginData[i].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
+				ePluginData[i].m_iTankHealth_easy = hData.GetNum("tank_health_easy", ePluginData[0].m_iTankHealth_easy);
+				ePluginData[i].m_iTankHealth_normal = hData.GetNum("tank_health_normal", ePluginData[0].m_iTankHealth_normal);
+				ePluginData[i].m_iTankHealth_hard = hData.GetNum("tank_health_hard", ePluginData[0].m_iTankHealth_hard);
+				ePluginData[i].m_iTankHealth_impossible = hData.GetNum("tank_health_impossible", ePluginData[0].m_iTankHealth_impossible);
 				ePluginData[i].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
 
 				ePluginData[i].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
@@ -6067,7 +6094,10 @@ void LoadData()
 				ePluginData[0].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
 				ePluginData[0].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
 				ePluginData[0].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
-				ePluginData[0].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
+				ePluginData[0].m_iTankHealth_easy = hData.GetNum("tank_health_easy", ePluginData[0].m_iTankHealth_easy);
+				ePluginData[0].m_iTankHealth_normal = hData.GetNum("tank_health_normal", ePluginData[0].m_iTankHealth_normal);
+				ePluginData[0].m_iTankHealth_hard = hData.GetNum("tank_health_hard", ePluginData[0].m_iTankHealth_hard);
+				ePluginData[0].m_iTankHealth_impossible = hData.GetNum("tank_health_impossible", ePluginData[0].m_iTankHealth_impossible);
 				ePluginData[0].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
 
 				ePluginData[0].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
@@ -6137,7 +6167,10 @@ void LoadData()
 					ePluginData[i].m_iTankLimit = hData.GetNum("tank_limit", ePluginData[0].m_iTankLimit);
 					ePluginData[i].m_bTankLimit_OverrideVSCript = view_as<bool>(hData.GetNum("tank_limit_override", ePluginData[0].m_bTankLimit_OverrideVSCript));
 					ePluginData[i].m_iTankSpawnProbability = hData.GetNum("tank_spawn_probability", ePluginData[0].m_iTankSpawnProbability);
-					ePluginData[i].m_iTankHealth = hData.GetNum("tank_health", ePluginData[0].m_iTankHealth);
+					ePluginData[i].m_iTankHealth_easy = hData.GetNum("tank_health_easy", ePluginData[0].m_iTankHealth_easy);
+					ePluginData[i].m_iTankHealth_normal = hData.GetNum("tank_health_normal", ePluginData[0].m_iTankHealth_normal);
+					ePluginData[i].m_iTankHealth_hard = hData.GetNum("tank_health_hard", ePluginData[0].m_iTankHealth_hard);
+					ePluginData[i].m_iTankHealth_impossible = hData.GetNum("tank_health_impossible", ePluginData[0].m_iTankHealth_impossible);
 					ePluginData[i].m_bTankSpawnFinal = view_as<bool>(hData.GetNum("tank_spawn_final", ePluginData[0].m_bTankSpawnFinal));
 
 					ePluginData[i].m_iWitchMaxLimit = hData.GetNum("witch_max_limit", ePluginData[0].m_iWitchMaxLimit);
@@ -6191,6 +6224,37 @@ void LoadData()
 
 	g_bAdminOverridden_MaxSpecials = false;
 	g_bAdminOverridden_SpawnTimer = false;
+}
+
+int GetFinalTankHP(EPluginData ePluginSettings)
+{
+	if(L4D2_HasConfigurableDifficultySetting())
+	{
+		if (strcmp(g_sCvar_z_difficulty, "easy", false) == 0)
+		{
+			return ePluginSettings.m_iTankHealth_easy;
+		}
+		else if (strcmp(g_sCvar_z_difficulty, "normal", false) == 0)
+		{
+			return ePluginSettings.m_iTankHealth_normal;
+		}
+		else if (strcmp(g_sCvar_z_difficulty, "hard", false) == 0)
+		{
+			return ePluginSettings.m_iTankHealth_hard;
+		}
+		else if (strcmp(g_sCvar_z_difficulty, "impossible", false) == 0)
+		{
+			return ePluginSettings.m_iTankHealth_impossible;
+		}
+		else
+		{
+			return ePluginSettings.m_iTankHealth_normal;
+		}
+	}
+	else
+	{
+		return ePluginSettings.m_iTankHealth_normal;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -6353,7 +6417,10 @@ Action Command_ShowConfig(int client, int args)
 	PrintToConsole(client, "  tank_limit: %d", g_ePluginSettings.m_iTankLimit);
 	PrintToConsole(client, "  tank_limit_override: %d", g_ePluginSettings.m_bTankLimit_OverrideVSCript);
 	PrintToConsole(client, "  tank_spawn_probability: %d", g_ePluginSettings.m_iTankSpawnProbability);
-	PrintToConsole(client, "  tank_health: %d", g_ePluginSettings.m_iTankHealth);
+	PrintToConsole(client, "  tank_health_easy: %d", g_ePluginSettings.m_iTankHealth_easy);
+	PrintToConsole(client, "  tank_health_normal: %d", g_ePluginSettings.m_iTankHealth_normal);
+	PrintToConsole(client, "  tank_health_hard: %d", g_ePluginSettings.m_iTankHealth_hard);
+	PrintToConsole(client, "  tank_health_impossible: %d", g_ePluginSettings.m_iTankHealth_impossible);
 	PrintToConsole(client, "  tank_spawn_final: %d", g_ePluginSettings.m_bTankSpawnFinal);
 
 	PrintToConsole(client, "--- Witch Settings ---");
@@ -6419,7 +6486,10 @@ public int Native_GetConfigInt(Handle plugin, int numParams)
 	if(strcmp(key, "tank_limit") == 0) return g_ePluginSettings.m_iTankLimit;
 	if(strcmp(key, "tank_limit_override") == 0) return g_ePluginSettings.m_bTankLimit_OverrideVSCript;
 	if(strcmp(key, "tank_spawn_probability") == 0) return g_ePluginSettings.m_iTankSpawnProbability;
-	if(strcmp(key, "tank_health") == 0) return g_ePluginSettings.m_iTankHealth;
+	if(strcmp(key, "tank_health_easy") == 0) return g_ePluginSettings.m_iTankHealth_easy;
+	if(strcmp(key, "tank_health_normal") == 0) return g_ePluginSettings.m_iTankHealth_normal;
+	if(strcmp(key, "tank_health_hard") == 0) return g_ePluginSettings.m_iTankHealth_hard;
+	if(strcmp(key, "tank_health_impossible") == 0) return g_ePluginSettings.m_iTankHealth_impossible;
 	if(strcmp(key, "tank_spawn_final") == 0) return g_ePluginSettings.m_bTankSpawnFinal;
 
 	if(strcmp(key, "witch_max_limit") == 0) return g_ePluginSettings.m_iWitchMaxLimit;

@@ -226,8 +226,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * <s>(棄案) 用R鍵直接傳送藥丸與腎上腺素給隊友</s>
 * <b>[l4d2_cs_kill_hud](/l4d2_cs_kill_hud)</b>: HUD with cs kill info list.
     * L4D2擊殺提示改成CS遊戲的擊殺列表
-* <b>[hunter_growl_sound_fix](/hunter_growl_sound_fix)</b>: Fix silence Hunter produces growl sound when player MIC on
-    * 修復使用Mic的Hunter玩家會發出聲音
+* <s><b>[hunter_growl_sound_fix](/hunter_growl_sound_fix)</b>: (Archived) Fix silence Hunter produces growl sound when player MIC on</s>
+    * <s>(棄案) 修復使用Mic的Hunter玩家會發出聲音</s>
 * <b>[huntercrouchsound](/huntercrouchsound)</b>: Forces silent but crouched hunters to emitt sounds
     * 強制蹲下安靜的Hunter發出聲音
 * <b>[l4d2_melee_swing](/l4d2_melee_swing)</b>: Adjustable melee swing rate for each melee weapon.
@@ -240,8 +240,8 @@ Help server to record, make server more fun, and more useful plugins for adm.
     * <s>(棄案) 對AI Hunter與 AI Charger造成的傷害數據跟真人玩家一樣</s>
 * <b>[l4d_both_fixUpgradePack](/l4d_both_fixUpgradePack)</b>: Fixes upgrade packs pickup bug when there are 5+ survivors
     * 修正高爆彈與燃燒彈無法被重複角色模組的倖存者撿起來
-* <b>[l4d2_chainsaw_refuelling](/l4d2_chainsaw_refuelling)</b>: Allow refuelling of a chainsaw
-    * 可以使用汽油桶重新填充電鋸油量
+* <b>[l4d2_chainsaw_refuelling](/l4d2_chainsaw_refuelling)</b>: Fixed server crash due to chainsaw sound and ower issue in l4d2
+    * 修復電鋸武器的音效與持有人異常引發的L4D2伺服器崩潰問題
 * <b>[l4d2_bash_kills](/l4d2_bash_kills)</b>: Stop special infected getting bashed to death
     * 特感不會被人類右鍵推到死去
 * <b>[charging_takedamage_patch](/charging_takedamage_patch)</b>: Makes AI Charger take damage like human SI while charging.

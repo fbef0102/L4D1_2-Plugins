@@ -4,20 +4,48 @@
 	{
 		"Functions"
 		{
+			//int __cdecl CSoundPatch::ChangePitch(CSoundPatch *this, float a2, float a3)
 			"CSoundPatch::ChangePitch"
 			{
 				"signature"		"CSoundPatch::ChangePitch"
 				"callconv"		"thiscall"
 				"return"		"int"
 				"this"			"address"
+				"arguments"
+				{
+					"a2"
+					{
+						"type"    "float"
+					}
+					"a3"
+					{
+						"type"    "float"
+					}
+				}
 			}
 			
+			//int __cdecl CSoundControllerImp::SoundChangePitch(CSoundControllerImp *this, CSoundPatch *a2, float a3, float a4)
 			"CSoundControllerImp::SoundChangePitch"
 			{
 				"signature"		"CSoundControllerImp::SoundChangePitch"
 				"callconv"		"thiscall"
 				"return"		"int"
 				"this"			"address"
+				"arguments"
+				{
+					"a2"
+					{
+						"type"    "objectptr"
+					}
+					"a3"
+					{
+						"type"    "float"
+					}
+					"a4"
+					{
+						"type"    "float"
+					}
+				}
 			}
 		}
 		"Signatures"
@@ -27,6 +55,8 @@
 			{
 				"library"		"server"
 				"linux"			"@_ZN11CSoundPatch11ChangePitchEff"
+				"windows"		"\x55\x8B\xEC\xF3\x0F\x10\x4D\x08\x83\x49\x50\x02"
+				// sub_101D97E0: 55 8B EC F3 0F 10 4D 08 83 49 50 02
 			}
 			
 			/* CSoundControllerImp::SoundChangePitch(CSoundPatch*, float, float) */
@@ -34,6 +64,8 @@
 			{
 				"library"		"server"
 				"linux"			"@_ZN19CSoundControllerImp16SoundChangePitchEP11CSoundPatchff"
+				"windows"		"\x55\x8B\xEC\x8B\x4D\x08\xF3\x0F\x10\x4D\x0C"
+				// sub_101D99C0: 55 8B EC 8B 4D 08 F3 0F 10 4D 0C 
 			}
 		}
 	}

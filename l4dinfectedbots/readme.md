@@ -436,6 +436,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+	* v3.1.0 (2026-11-3)
+		* Set tank health based on gamemode and difficulty
+		* Update data, remove "tank_health", add new keyvalue "tank_health_easy", "tank_health_normal", "tank_health_hard", "tank_health_impossible" 
+
 	* v3.0.9 (2026-10-29)
 		* Clean up and organize code about special infected health set
 

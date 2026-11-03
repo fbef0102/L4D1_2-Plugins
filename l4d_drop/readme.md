@@ -15,6 +15,7 @@ Allows players to drop the weapon they are holding
 
 * Require | 必要安裝
 	1. [Weapon Prop Give Fix](https://forums.alliedmods.net/showthread.php?t=331053)
+	2. [l4d2_chainsaw_fix](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_chainsaw_fix)
 
 * <details><summary>ConVar | 指令</summary>
 

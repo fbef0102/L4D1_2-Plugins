@@ -78,6 +78,7 @@ EEntity_Type
 
 int 
 	g_iZombieClass,
+	g_iTeamNumOffset,
 	g_iModel_Gascan = -1,
 	g_iModel_PropaneCanister = -1,
 	g_iModel_OxygenTank = -1,
@@ -91,6 +92,7 @@ float
 public void OnPluginStart()
 {
 	g_iZombieClass = FindSendPropInfo("CTerrorPlayer", "m_zombieClass");
+	g_iTeamNumOffset = FindSendPropInfo("CTerrorPlayer", "m_iTeamNum");
 
 	g_hCvarRockFix 					= CreateConVar("l4d_collision_adjustments_tankrock_common", "1", "If 1, Rocks can go through Common Infected (and also kill them) instead of possibly getting stuck on them", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	g_hCvarPullThrough 				= CreateConVar("l4d_collision_adjustments_smoker_common", 	"1", "If 1, Pulled Survivors can go through Common Infected", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -448,8 +450,8 @@ void OnNextFrame_func_simpleladder(int entityRef)
 	if (entity == INVALID_ENT_REFERENCE)
 		return;
 
-	//PrintToChatAll("m_iTeamNum %d", GetEntProp(entity, Prop_Send, "m_iTeamNum"));
-	if (GetEntProp(entity, Prop_Send, "m_iTeamNum") == L4D_TEAM_INF) {
+	//PrintToChatAll("m_iTeamNum %d", GetEntData(entity, g_iTeamNumOffset));
+	if (GetEntData(entity, g_iTeamNumOffset) == L4D_TEAM_INF) {
 		g_iEntityType[entity] = EEntity_InfLadder;
 		SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit);
 	}

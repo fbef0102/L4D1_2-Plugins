@@ -1,0 +1,5 @@
+Detail: https://github.com/ValveSoftware/Source-1-Games/issues/2526
+
+(Linux) server_srv.so!CSoundPatch::ChangePitch(float, float) + 0x6
+
+Windows 也會有

@@ -26,6 +26,7 @@ Survivor players will drop their secondary weapon (including melee) when they di
 
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
+	2. [l4d2_chainsaw_fix](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_chainsaw_fix)
 
 * <details><summary>Related Plugin | 相關插件</summary>
 
@@ -43,6 +44,10 @@ Survivor players will drop their secondary weapon (including melee) when they di
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.1 (2026-11-3)
+		* Fixed Crash: CChainsaw::Drop due to invalid or null CChainsaw Owner pointer
+		* Fxxk you, valve, fix the chainsaw please
 
 	* v3.0 (2026-10-25)
 		* Clean up and organize code

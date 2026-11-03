@@ -559,7 +559,7 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
             l4d2_item_hint_sur_dead_mark "16"
             ```
 
-        * Infected Team Mark Ability
+        * 特感陣營的標記能力
             ```php
             // 為1時，特感玩家也可以使用標記
             l4d2_item_hint_inf_team_mark_enable "1"

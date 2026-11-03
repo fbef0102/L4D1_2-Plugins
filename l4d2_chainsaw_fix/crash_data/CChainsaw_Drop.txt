@@ -1,0 +1,50 @@
+崩潰日誌:
+(Windows) Thread 0 (crashed):
+
+   0: server.dll + 0x16c709
+      eip: 0x52f3c709  esp: 0x001bbde4  ebp: 0x001bbe08  ebx: 0x001bbf60
+      esi: 0xffffffff  edi: 0x00000000  eax: 0x0783ea8c  ecx: 0xffffffff
+      edx: 0x0783e98c  efl: 0x00210206  
+
+      52f3c700  55                 push ebp
+      52f3c701  8b ec              mov ebp, esp
+      52f3c703  83 ec 20           sub esp, 0x20
+      52f3c706  56                 push esi
+      52f3c707  8b f1              mov esi, ecx
+  >   52f3c709  8b 06              mov eax, [esi]
+      52f3c70b  8b 90 28 01 00 00  mov edx, [eax+0x128]
+      52f3c711  ff d2              call edx
+      52f3c713  84 c0              test al, al
+      52f3c715  0f 84 80 00 00 00  jz 0x52f3c79b
+      52f3c71b  8b 06              mov eax, [esi]
+	  
+Linux 也會有
+	  
+原因: 推测有switch插件 給玩家equip電鋸但不会直接切出来 或是 过关之后电锯equip但是没有切出来
+没有切出来就导致电锯里的owner指针没有update，然后再拿一下别的副武器，就炸了
+
+server.dll 逆向代碼
+int __cdecl CChainsaw::Drop(CSoundPatch **a1, int a2)
+{
+	if ( a1[1537] )
+	{
+	 CChainsaw::StopSound((CChainsaw *)a1, a1 + 1533, 0.0);
+	 CChainsaw::StopSound((CChainsaw *)a1, a1 + 1534, 0.0);
+	 CChainsaw::StopSound((CChainsaw *)a1, a1 + 1535, 0.0);
+	 CChainsaw::StopSound((CChainsaw *)a1, a1 + 1536, 0.0);
+	 CBasePlayer::RumbleEffect(a1[1537], 0x1Eu, 0, 1u); <-- 電鋸內部存的玩家指標a1[1537]指向了一個已經無效的記憶體區段，傳入CBasePlayer::RumbleEffect
+	 CBasePlayer::RumbleEffect(a1[1537], 0x1Fu, 0, 1u); 
+	}
+	return CTerrorWeapon::Drop((CBaseCombatWeapon *)a1, a2);
+}
+
+void __cdecl CBasePlayer::RumbleEffect(CBasePlayer *this, unsigned __int8 a2, unsigned __int8 a3, unsigned __int8 a4)
+{
+	_DWORD v4[14]; // [esp+10h] [ebp-38h] BYREF
+
+	if ( (*(unsigned __int8 (__cdecl **)(CBasePlayer *))(*(_DWORD *)this + 300))(this) <-- Crash: CBasePlayer *this 已為無效的記憶體區段
+	 && !(*(unsigned __int8 (__cdecl **)(CBasePlayer *))(*(_DWORD *)this + 1912))(this) )
+	{
+	 ...
+	}
+}

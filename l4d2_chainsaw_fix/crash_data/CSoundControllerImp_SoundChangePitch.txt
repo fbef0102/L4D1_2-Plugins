@@ -1,0 +1,46 @@
+Detail: https://github.com/ValveSoftware/Source-1-Games/issues/2526
+
+(Linux) Thread 0 (crashed):
+
+   0: server_srv.so!CSoundControllerImp::SoundChangePitch(CSoundPatch*, float, float) + 0x10
+      eip: 0xe7060170  esp: 0xffb55258  ebp: 0xffb55258  ebx: 0xffb55320
+      esi: 0x0d4934c0  edi: 0x0d4e5100  eax: 0x00000000  ecx: 0x0d58caa0
+      edx: 0x00000001  efl: 0x00210282  
+
+      e7060159  8d bc 27 00 00 00 00  lea edi, [edi+0x0]
+      e7060160  e9 c6 7e 5a fb        jmp 0xe260802b
+      e7060165  90                    nop
+      e7060166  f3 0f 10 4d 10        movss xmm1, [ebp+0x10]
+      e706016b  f3 0f 10 45 14        movss xmm0, [ebp+0x14]
+  >   e7060170  83 48 50 02           or dword [eax+0x50], 0x2
+      e7060174  f3 0f 11 45 10        movss [ebp+0x10], xmm0
+      e7060179  f3 0f 11 4d 0c        movss [ebp+0xc], xmm1
+      e706017e  89 45 08              mov [ebp+0x8], eax
+      e7060181  5d                    pop ebp
+      e7060182  e9 49 ff ff ff        jmp 0xe70600d0
+
+(Windows) Thread 0 (crashed):
+
+   0: server.dll + 0x1d99cb
+      eip: 0x531699cb  esp: 0x007fd7fc  ebp: 0x007fd7fc  ebx: 0x007fd9c8
+      esi: 0x32e10520  edi: 0x00000000  eax: 0x53721ce8  ecx: 0x00000000
+      edx: 0x531699c0  efl: 0x00210212  
+
+      531699bf  cc              int3
+      531699c0  55              push ebp
+      531699c1  8b ec           mov ebp, esp
+      531699c3  8b 4d 08        mov ecx, [ebp+0x8]
+      531699c6  f3 0f 10 4d 0c  movss xmm1, [ebp+0xc]
+  >   531699cb  83 49 50 02     or dword [ecx+0x50], 0x2
+      531699cf  f3 0f 10 11     movss xmm2, [ecx]
+      531699d3  0f 57 db        xorps xmm3, xmm3
+      531699d6  0f 28 c1        movaps xmm0, xmm1
+      531699d9  f3 0f 5c c2     subss xmm0, xmm2
+      531699dd  0f 2e c3        ucomiss xmm0, xmm3
+
+如何重現這崩潰:
+1. 低血量
+2. 使用電鋸
+3. 開始鋸地上的瓦斯桶
+4. 你應該要倒地但伺服器會崩潰
+	 

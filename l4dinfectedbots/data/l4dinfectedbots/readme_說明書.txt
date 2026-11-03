@@ -70,9 +70,21 @@
 // 每次生成一個特感的時候多少概率會變成tank [0-100%]
 "tank_spawn_probability"    "5"
 
-// Sets Health for Tank (0=Don't modify tank health)
-// 設置Tank血量 (0=不修改血量)
-"tank_health"         "4000"
+// (Difficulty is Easy) Sets Health for Tank (0=Don't modify tank health)
+// (難度為簡單) 設置Tank血量 (0=不修改血量)
+"tank_health_easy"         "3000"
+
+// (Difficulty is Normal or gamemode is Versus/Survival/Scavenage) Sets Health for Tank (0=Don't modify tank health)
+// (難度為一般 或 遊戲模式為對抗/生存/清道夫) 設置Tank血量 (0=不修改血量)
+"tank_health_normal"         "4000"
+
+// (Difficulty is Hard) Sets Health for Tank (0=Don't modify tank health)
+// (難度為進階) 設置Tank血量 (0=不修改血量)
+"tank_health_hard"         "6000"
+
+// (Difficulty is Impossible) Sets Health for Tank (0=Don't modify tank health)
+// (難度為專家) 設置Tank血量 (0=不修改血量)
+"tank_health_impossible"        "8000"
 
 // 1 = Still spawn tank in final stage rescue (does not affect director tanks)
 // 1 = 最後一關救援後插件持續生成Tank（不影響導演系統生成的Tank）

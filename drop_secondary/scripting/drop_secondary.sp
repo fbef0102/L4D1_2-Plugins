@@ -13,7 +13,7 @@
 #include <left4dhooks>
 #include <dhooks>
 
-#define PLUGIN_VERSION			"3.0-2026/10/25"
+#define PLUGIN_VERSION			"3.1-2026/11/3"
 #define PLUGIN_NAME			    "drop_secondary"
 #define DEBUG 0
 
@@ -240,11 +240,21 @@ MRESReturn DTR_CTerrorPlayer_Event_Killed_Pre(int client, DHookParam hParams)
 				SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity", -1);
 				SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner", -1);
 				EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwner
-				SetEntPropEnt(client, Prop_Data, "m_hActiveWeapon", iDropWeapon); //<--強制玩家用該武器，修復丟電鋸時崩潰
 			}
 			else
 			{
 				EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 修復掉落的近戰或電鋸會穿透至地下，永久墬落
+			}
+
+			static char sClassname[64];
+			GetEntityClassname(iDropWeapon, sClassname, sizeof(sClassname));
+			if(strcmp(sClassname, "weapon_chainsaw", false) == 0)
+			{
+				static int s_iOffs_m_pChainsawOwner = -1;
+				if (s_iOffs_m_pChainsawOwner == -1)
+					s_iOffs_m_pChainsawOwner = FindSendPropInfo("CChainsaw", "m_bHitting") + 32;
+
+				SetEntData(iDropWeapon, s_iOffs_m_pChainsawOwner, GetEntityAddress(client), 4); //強制電鋸的owner為該玩家，修復丟電鋸時崩潰 (這是電鋸專有的owner, 跟CTerrorWeapon::m_hOwner不同)
 			}
 		}
 	}
@@ -387,11 +397,21 @@ public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
 					SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwnerEntity", -1);
 					SetEntPropEnt(iDropWeapon, Prop_Data, "m_hOwner", -1);
 					EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 重置m_hOwner
-					SetEntPropEnt(client, Prop_Data, "m_hActiveWeapon", iDropWeapon); //<--強制玩家用該武器，修復丟電鋸時崩潰
 				}
 				else
 				{
 					EquipPlayerWeapon(client, iDropWeapon); //<--給玩家拿隱藏武器, 修復掉落的近戰或電鋸會穿透至地下，永久墬落
+				}
+
+				static char sClassname[64];
+				GetEntityClassname(iDropWeapon, sClassname, sizeof(sClassname));
+				if(strcmp(sClassname, "weapon_chainsaw", false) == 0)
+				{
+					static int s_iOffs_m_pChainsawOwner = -1;
+					if (s_iOffs_m_pChainsawOwner == -1)
+						s_iOffs_m_pChainsawOwner = FindSendPropInfo("CChainsaw", "m_bHitting") + 32;
+
+					SetEntData(iDropWeapon, s_iOffs_m_pChainsawOwner, GetEntityAddress(client), 4); //強制電鋸的owner為該玩家，修復丟電鋸時崩潰 (這是電鋸專有的owner, 跟CTerrorWeapon::m_hOwner不同)
 				}
 			}
 		}

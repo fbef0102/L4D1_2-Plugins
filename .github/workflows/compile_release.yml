@@ -103,22 +103,36 @@ jobs:
         run: |
           echo "DATETIME=$(date +'%Y_%m_%d_%H%M')" >> $GITHUB_ENV
           
-          # 取得自上一個 Tag 以來的 Commit 說明（Description / Body）
+          # 1. 取得自上一個 Tag 以來的 Commit 說明（Description / Body）. 先用一個安全的分隔符號（---COMMIT_SPLIT---）把每個 commit 的 body 隔開
           # %b 代表 Commit 的詳細說明內文（若只想抓內文，可改用 %b；若連同標題一起抓可改用 "%s%n%b"）
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$PREV_TAG" ]; then
-            # 如果找不到前一個標籤，抓最近 1 筆
-            COMMIT_LOG=$(git log -n 1 --pretty=format:"%s%n%b" | sed '/^$/d')
+            # 如果找不到前一個標籤，抓最近 3 筆
+            COMMIT_LOG=$(git log -n 3 --pretty=format:"%s%n%b---COMMIT_SPLIT---" | sed '/^$/d')
           else
-            # 如果有前一個標籤，抓兩者之間的 Commit
-            COMMIT_LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s%n%b" | sed '/^$/d')
+            # 如果有前一個標籤，抓兩者之間的 Commit，並限制最多不超過 3 筆
+            COMMIT_LOG=$(git log -n 3 ${PREV_TAG}..HEAD --pretty=format:"%s%n%b---COMMIT_SPLIT---" | sed '/^$/d')
           fi
+
+          # 2. 用 awk 處理：確保每個 commit 區塊上下乾淨，並在它們之間強制插入一個空行，刪除分隔符號
+          CLEANED_LOG=$(echo "$COMMIT_LOG" | awk '
+            BEGIN { RS="---COMMIT_SPLIT---"; ORS="" }
+            {
+              # 去除每個 commit 前後的空白與換行
+              gsub(/^[ \t\n]+|[ \t\n]+$/, "", $0);
+              if (length($0) > 0) {
+                if (count > 0) print "\n\n"; # 這裡強制空一行（兩個換行）
+                print $0;
+                count++;
+              }
+            }
+          ')
           
-          # 將抓到的 Commit 訊息寫入 GitHub Environment 中（支援多行）
+          # 3. 將抓到的 Commit 訊息寫入 GitHub Environment 中（支援多行）
           # 參考 GitHub Actions 官方的文件寫法
           delimiter="EOF_$RANDOM"
           echo "RELEASE_NOTES<<$delimiter" >> $GITHUB_ENV
-          echo "$COMMIT_LOG" >> $GITHUB_ENV
+          echo "$CLEANED_LOG" >> $GITHUB_ENV
           echo "$delimiter" >> $GITHUB_ENV
 
       - name: Delete Previous Release and Tag
