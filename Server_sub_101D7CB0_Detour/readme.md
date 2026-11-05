@@ -3,23 +3,16 @@ https://forums.alliedmods.net/showpost.php?p=2730868&postcount=7
 # Description | 內容
 Fix Crash ```server.dll + 0x1d7cbb``` null pointer
 
-* Apply to | 適用於
-	```
-	L4D2 windows
-	```
-	
+> __Note__ <br/>
+This Plugin has been discontinued, Crash has been fixed by plugin: [l4d2_chainsaw_fix](/l4d2_chainsaw_fix)
+
 * Require | 必要安裝
 	1. [[INC] MemoryEx](https://github.com/dragokas/Memory-Extended)
 
-* How does it fix?
-	* More details in [crash_data](crash_data/) folder
-	* Windows
-		```c
-		server.dll + 0x1d7cbb
-		```
-	* [Other useful fixes to prevent crashes](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Fix)
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* Archived (2026-11-3)
+		* This Plugin has been discontinued
 
 	* v1.0
 	* Original & Credit
@@ -30,10 +23,5 @@ Fix Crash ```server.dll + 0x1d7cbb``` null pointer
 # 中文說明
 修正崩潰: ```server.dll + 0x1d7cbb``` 涵式內的空指針
 
-* 原理
-	* 想看更多細節查看資料夾: [crash_data](crash_data/)
-	* Windows 崩潰推疊
-		```c
-		server.dll + 0x1d7cbb
-		```
-	* [安裝其他實用的修復崩潰列表](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_教學區/Chinese_繁體中文/Server/安裝實用的修復)
+> __Note__ <br/>
+此插件已停止更新，崩潰已被[l4d2_chainsaw_fix](/l4d2_chainsaw_fix)插件修復，請改用

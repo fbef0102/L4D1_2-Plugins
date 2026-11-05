@@ -5,15 +5,26 @@ Fixed server crash due to chainsaw sound and ower issue in l4d2
 	```
 	L4D2
 	```
-	
-* Require | 必要安裝
-<br/>None
 
 * How does it fix?
 	* [Crash 1: [L4D2] Chainsaw server crash](https://github.com/ValveSoftware/Source-1-Games/issues/2526)
 	* [Crash 2: [L4D2] Chainsaw server crash (again)](https://github.com/ValveSoftware/Source-1-Games/issues/3607)
 	* [Crash 3: Chainsaw Owner pointer invalid or null](crash_data/CChainsaw_Drop.txt)
 	* [Other useful fixes to prevent crashes](https://github.com/fbef0102/Game-Private_Plugin/tree/main/Tutorial_%E6%95%99%E5%AD%B8%E5%8D%80/English/Server/Install_Fix)
+
+* Require | 必要安裝
+<br/>None
+
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── gamedata/
+    │   └── l4d2_chainsaw_fix.txt            # GameData | 遊戲數據
+    ├── plugins/
+    │   └── l4d2_chainsaw_fix.smx            # Compiled plugin | 已編譯的插件
+    └── scripting/
+        └── l4d2_chainsaw_fix.sp             # Source code | 源碼
+    ```
 
 * <details><summary>Changelog | 版本日誌</summary>
 

@@ -34,6 +34,20 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	5. [l4d_unrestrict_panic_battlefield](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_unrestrict_panic_battlefield): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
 		* 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
 
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── data/l4dinfectedbots/                # All settings in each gamemode | 每個遊戲模式的設定
+    ├── gamedata/
+    │   └── l4dinfectedbots.txt              # GameData | 遊戲數據
+    ├── plugins/
+    │   └── l4dinfectedbots.smx              # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │   └── l4dinfectedbots.sp               # Source code | 源碼
+    └── translations/
+        └── l4dinfectedbots.phrases.txt      # Multi-language translation | 翻譯多國語言
+    ```
+
 * <details><summary>Support | 支援插件</summary>
 
 	1. [SIPool](https://forums.alliedmods.net/showthread.php?t=349615): (L4D2) SIPool - Aim to improve performance when spawn SI
@@ -41,6 +55,18 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 
 	2. [l4d_infected_limit_control](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Common_Infected_%E6%99%AE%E9%80%9A%E6%84%9F%E6%9F%93%E8%80%85/l4d_infected_limit_control): Adjust common infecteds/hordes/mobs depends on 5+ survivors and map
 		* 根據玩家人數多寡與地圖，設定普通殭屍與屍潮的數量限制
+</details>
+
+* <details><summary>Related Plugin | 相關插件</summary>
+
+	1. [MultiSlots](/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
+		> 創造5位以上倖存者遊玩伺服器
+	2. [AI_HardSI](/AI_HardSI): Improves the AI behaviour of special infected
+		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
+	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
+		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
+	4. [gamemode-based_configs](/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
+		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
 * How to set the correct settings in data config ?
@@ -415,23 +441,6 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 		```php
 		sm_zlimit <number>
 		```
-</details>
-
-* Translation Support | 支援翻譯
-	```
-	translations/l4dinfectedbots.phrases.txt
-	```
-
-* <details><summary>Related Plugin | 相關插件</summary>
-
-	1. [MultiSlots](/l4dmultislots): Allows additional survivor players in server when 5+ player joins the server
-		> 創造5位以上倖存者遊玩伺服器
-	2. [AI_HardSI](/AI_HardSI): Improves the AI behaviour of special infected
-		> 強化每個AI 特感的行為與提高智商，積極攻擊倖存者
-	3. [l4d_ssi_teleport_fix](https://github.com/fbef0102/Game-Private_Plugin/tree/main/L4D_插件/Special_Infected_%E7%89%B9%E6%84%9F/l4d_ssi_teleport_fix): Teleport AI Infected player (Not Tank) to the teammate who is much nearer to survivors.
-		> 傳送比較遠的AI特感到靠近倖存者的特感隊友附近
-	4. [gamemode-based_configs](/gamemode-based_configs): Allows for custom settings for each gamemode and mutatuion.
-		> 根據遊戲模式或突變模式執行不同的cfg文件
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>

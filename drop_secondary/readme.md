@@ -28,6 +28,17 @@ Survivor players will drop their secondary weapon (including melee) when they di
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [l4d2_chainsaw_fix](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d2_chainsaw_fix)
 
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── gamedata/
+    │   └── drop_secondary.txt            # GameData | 遊戲數據
+    ├── plugins/
+    │   └── drop_secondary.smx            # Compiled plugin | 已編譯的插件
+    └── scripting/
+        └── drop_secondary.sp             # Source code | 源碼
+    ```
+
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [l4d_drop](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_drop): Allows players to drop the weapon they are holding

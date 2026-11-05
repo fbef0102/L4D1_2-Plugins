@@ -70,7 +70,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "2.8h-2026/10/14"
+#define PLUGIN_VERSION "2.9h-2026/11/5"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -1264,12 +1264,11 @@ void TraceAttackPost_Hunter (int victim, int attacker, int inflictor, float dama
 void TraceAttack_ChargerPost (int victim, int attacker, int inflictor, float damage, int damagetype, int ammotype, int hitbox, int hitgroup)
 {
 	// track pinning
-	int victimA = GetEntPropEnt(victim, Prop_Send, "m_carryVictim");
-	if ( victimA != -1 ) {
-		g_iSpecialVictim[victim] = victimA;
-	} else {
-		g_iSpecialVictim[victim] = GetEntPropEnt(victim, Prop_Send, "m_pummelVictim");
-	}
+	int pinnedvictim = GetEntPropEnt(victim, Prop_Send, "m_carryVictim");
+	if ( pinnedvictim == -1 ) pinnedvictim = GetEntPropEnt(victim, Prop_Send, "m_pummelVictim");
+	if ( pinnedvictim == -1 ) pinnedvictim = L4D2_GetQueuedPummelVictim(victim);
+
+	g_iSpecialVictim[victim] = pinnedvictim;
 	
 }
 
@@ -1516,11 +1515,13 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 	else 
 	{
 		// check for clears
+		int pinneVictim;
 		if(zClass == ZC_HUNTER)
 		{
-			if ( GetEntPropEnt(victim, Prop_Send, "m_pounceVictim") > 0 )
+			pinneVictim = GetEntPropEnt(victim, Prop_Send, "m_pounceVictim");
+			if ( pinneVictim > 0 )
 			{
-				HandleClear( attacker, victim, GetEntPropEnt(victim, Prop_Send, "m_pounceVictim"),
+				HandleClear( attacker, victim, pinneVictim,
 						ZC_HUNTER,
 						( GetEngineTime() - g_fPinTime[victim][0]),
 						-1.0,
@@ -1531,9 +1532,10 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 		}
 		if(g_bL4D2Version && zClass == ZC_JOCKEY)
 		{
-			if ( GetEntPropEnt(victim, Prop_Send, "m_jockeyVictim") > 0 )
+			pinneVictim = GetEntPropEnt(victim, Prop_Send, "m_jockeyVictim");
+			if ( pinneVictim > 0 )
 			{
-				HandleClear( attacker, victim, GetEntPropEnt(victim, Prop_Send, "m_jockeyVictim"),
+				HandleClear( attacker, victim, pinneVictim,
 						ZC_JOCKEY,
 						( GetEngineTime() - g_fPinTime[victim][0]),
 						-1.0,
@@ -1558,15 +1560,6 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 		HandleShove( attacker, victim, zClass );
 		
 		g_fVictimLastShove[victim][attacker] = GetEngineTime();
-	}
-	
-	// check for shove on smoker by pull victim
-	if ( g_iSmokerVictim[victim] == attacker ||
-		GetEntPropEnt(attacker, Prop_Send, "m_tongueVictim") == victim ||
-		GetEntPropEnt(victim, Prop_Send, "m_tongueOwner") == attacker )
-	{
-		g_bSmokerShoved[victim] = true;
-		// CPrintToChat(attacker, "shoved %d player_shoved", victim);
 	}
 	
 	//LogError("shove by %i on %i", attacker, victim );
@@ -2769,20 +2762,15 @@ void Event_ChokeStop (Event event, const char[] name, bool dontBroadcast)
 }
 
 // l4d1: tongue_pull_stopped/choke_stopped only have "userid" (who stopped it) and "victim", find the smoker from the tracked pull
-void SetSmokerStopper_L4D1(int attacker, int victim)
+void SetSmokerStopper_L4D1(int saver, int victim)
 {
-	if ( !IS_VALID_SURVIVOR(attacker) || !IS_VALID_SURVIVOR(victim) ) { return; }
-
-	if ( g_bSmokerShoved[victim] )
-	{
-		HandleSmokerSelfClear( attacker, victim, true, false );
-	}
+	if ( !IS_VALID_SURVIVOR(saver) || !IS_VALID_SURVIVOR(victim) ) { return; }
 
 	for ( int i = 1; i <= MaxClients; i++ )
 	{
 		if ( g_iSmokerVictim[i] == victim && IS_VALID_INFECTED(i) )
 		{
-			g_iSmokerStopper[i] = attacker;
+			g_iSmokerStopper[i] = saver;
 			return;
 		}
 	}
@@ -3001,25 +2989,9 @@ Action Timer_CheckAlarm (Handle timer, int entity)
 			{
 				infected = g_iLastCarAlarmBoomer;
 			}
-			else if ( g_bL4D2Version && GetEntPropEnt(survivor, Prop_Send, "m_carryAttacker") > 0 )
+			else
 			{
-				infected = GetEntPropEnt(survivor, Prop_Send, "m_carryAttacker");
-			}
-			else if ( g_bL4D2Version && GetEntPropEnt(survivor, Prop_Send, "m_pummelAttacker") > 0 )
-			{
-				infected = GetEntPropEnt(survivor, Prop_Send, "m_pummelAttacker");
-			}
-			else if ( g_bL4D2Version && L4D2_GetQueuedPummelAttacker(survivor) > 0 )
-			{
-				infected = L4D2_GetQueuedPummelAttacker(survivor);
-			}
-			else if ( g_bL4D2Version && GetEntPropEnt(survivor, Prop_Send, "m_jockeyAttacker") > 0 )
-			{
-				infected = GetEntPropEnt(survivor, Prop_Send, "m_jockeyAttacker");
-			}
-			else if ( GetEntPropEnt(survivor, Prop_Send, "m_tongueOwner") > 0 )
-			{
-				infected = GetEntPropEnt(survivor, Prop_Send, "m_tongueOwner");
+				infected = my_GetInfectedAttacker(survivor);
 			}
 		}
 
@@ -4232,6 +4204,27 @@ bool IsWitch(int iEntity)
 	return (strncmp(sClassName, "witch", 5) == 0);
 }
 
+int my_GetInfectedAttacker(int client)
+{
+	int attacker = L4D_GetPinnedInfected(client);
+
+	if(attacker > 0)
+	{
+		return attacker;
+	}
+
+	if(g_bL4D2Version)
+	{
+		attacker = L4D2_GetQueuedPummelAttacker(client);
+		if(attacker > 0)
+		{
+			return attacker;
+		}
+	}
+
+	return -1;
+}
+
 
 // other api---
 
@@ -4300,8 +4293,8 @@ public void L4D_OnShovedBySurvivor_Post(int attacker, int victim, const float ve
 {
 	// check for shove on smoker by pull victim
 	if ( g_iSmokerVictim[victim] == attacker ||
-		GetEntPropEnt(attacker, Prop_Send, "m_tongueVictim") == victim ||
-		GetEntPropEnt(victim, Prop_Send, "m_tongueOwner") == attacker )
+		GetEntPropEnt(victim, Prop_Send, "m_tongueVictim") == victim ||
+		GetEntPropEnt(attacker, Prop_Send, "m_tongueOwner") == attacker )
 	{
 		g_bSmokerShoved[victim] = true;
 		//CPrintToChatAll(attacker, "L4D_OnShovedBySurvivor: shoved %d ", victim);

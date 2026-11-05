@@ -180,6 +180,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v2.9h (2026-11-5)
+        * Fixed wrong victim and attacker when report self-clear smoker 
+
     * v2.8h (2026-10-14)
         * Cleaned up and organized code for tracking hunter pouncing or jockey leaping
 
