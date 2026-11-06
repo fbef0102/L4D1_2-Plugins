@@ -3283,31 +3283,38 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 
 			if(bReport)
 			{
-				if(assistMsg[0] != EOS)
-					StrCat(assistMsg, sizeof(assistMsg), ", ");
+				if(count > 1)
+				{
+					Format(assistMsg, sizeof(assistMsg), "%s, ", assistMsg);
+				}
 				
 				Format(assistMsg, sizeof(assistMsg), "%s%T", 
 					assistMsg, "HandleSkeetAssist_2", LANG_SERVER, i, g_iHunterShotCount[victim][i], g_iHunterShotDamage[victim][i]);
 				
 				// 不知道够不够
-				if(count % 2 == 0)
+				if(count == 2)
+				{
+					CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);
+					assistMsg[0] = '\0';
+				}
+				else if(count % 2 == 0)
 				{
 					// break;
-					CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);
-					strcopy(assistMsg, sizeof(assistMsg), ", ");
+					CPrintToChatAll(assistMsg);
+					assistMsg[0] = '\0';
 				}
 			}
 		}
 		
 		if(bReport)
 		{
-			if(count > 2)
-			{
-				CPrintToChatAll(assistMsg);
-			}
-			else
+			if(count < 2)
 			{
 				CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);
+			}
+			else if(count % 2 != 0 && strlen(assistMsg) > 0)
+			{
+				CPrintToChatAll(assistMsg);
 			}
 		}
 	}

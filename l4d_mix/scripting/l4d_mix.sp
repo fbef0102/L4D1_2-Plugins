@@ -875,6 +875,12 @@ int GetRandomCaptain(bool bSurvivorTeam)
 		}
 	}
 
+	// Using "int random" to vary the output
+	// Using "GetGameTickCount" to vary the output
+	// Using "SetRandomSeed" to generate a truly random number
+	// Without this, the server will always output the same random numbers in the same order over reboots
+	int random = GetRandomInt(0, 2147483647);
+	SetRandomSeed(GetGameTickCount() + random);
 	return (iClientCount == 0) ? 0 : iClients[GetRandomInt(0, iClientCount - 1)];
 }
 
