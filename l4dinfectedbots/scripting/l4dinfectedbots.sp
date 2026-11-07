@@ -1,8 +1,7 @@
-//此插件在玩家生成的下一偵後設置Tank或特感血量
-//期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
+//此插件使用l4d_infected_health_forward在L4D_OnSetClass_Post設置血量與最大血量
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 3.1.0 (2009-2026)
+* Version	: 3.1.1 (2009-2026)
 * Game		: Left 4 Dead 1 & 2
 * Author	: djromero (SkyDavid, David), MI 5, Harry Potter
 * Website	: https://forums.alliedmods.net/showpost.php?p=2699220&postcount=1371
@@ -10,6 +9,9 @@
 * Purpose	: This plugin spawns infected bots in L4D1/2, and gives greater control of the infected bots in L4D1/L4D2.
 * WARNING	: Please use sourcemod's latest 1.10 branch snapshot.
 * REQUIRE	: left4dhooks (https://forums.alliedmods.net/showthread.php?p=2684862)
+*
+* Version 3.1.1 (2026-11-7)
+*		- Require l4d_pz_health_forward to set S.I. and tank health
 *
 * Version 3.1.0 (2026-11-3)
 *		- Set tank health based on gamemode and difficulty
@@ -825,11 +827,12 @@
 #include <multicolors>
 #include <left4dhooks>
 #include <spawn_infected_nolimit>
+#include <l4d_pz_health_forward>
 #undef REQUIRE_PLUGIN
 #tryinclude <si_pool_plus>
 
 #define PLUGIN_NAME			    "l4dinfectedbots"
-#define PLUGIN_VERSION 			"3.1.0-2026/11/3"
+#define PLUGIN_VERSION 			"3.1.1-2026/11/7"
 #define DEBUG 0
 
 #define GAMEDATA_FILE           PLUGIN_NAME
@@ -944,7 +947,6 @@ char
 	g_sMap[64];
 
 int 
-	g_iZombieHpSet[MAXPLAYERS+1],
 	g_iZombieClass;
 
 #define FUNCTION_TANKIDLE1 "Tank::GetIntentionInterface::Intention"
@@ -1646,7 +1648,6 @@ void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		g_bForcePlayerToInfectedTeam[i] = false;
-		g_iZombieHpSet[i] = 0;
 	}
 }
 
@@ -1913,7 +1914,6 @@ void IsAllowed()
 		HookEvent("revive_success", 							Event_revive_success);//救起倒地的or 懸掛的
 		HookEvent("player_ledge_release", 						Event_ledge_release);//懸掛的玩家放開了
 		HookEvent("player_bot_replace", 						Event_BotReplacePlayer);
-		HookEvent("bot_player_replace", 						Event_PlayerReplaceBot);
 		HookEvent("tank_frustrated", 							OnTankFrustrated, EventHookMode_Post);
 		HookEvent("player_disconnect", 							Event_PlayerDisconnect); //換圖不會觸發該事件
 
@@ -1956,7 +1956,6 @@ void IsAllowed()
 		UnhookEvent("revive_success", 							Event_revive_success);//救起倒地的or 懸掛的
 		UnhookEvent("player_ledge_release", 					Event_ledge_release);//懸掛的玩家放開了
 		UnhookEvent("player_bot_replace", 						Event_BotReplacePlayer);
-		UnhookEvent("bot_player_replace", 						Event_PlayerReplaceBot);
 		UnhookEvent("tank_frustrated", 							OnTankFrustrated, EventHookMode_Post);
 		UnhookEvent("player_disconnect", 						Event_PlayerDisconnect); //換圖不會觸發該事件
 
@@ -2073,8 +2072,6 @@ public void OnClientPutInServer(int client)
 	if(g_bCvarAllow == false) return;
 
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
-
-	g_iZombieHpSet[client] = 0;
 
 	if (IsFakeClient(client))
 		return;
@@ -2538,8 +2535,6 @@ void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		delete g_hCountSurvivorTimer;
 		g_hCountSurvivorTimer = CreateTimer(1.0,Timer_CountSurvivor);
 	}
-
-	g_iZombieHpSet[client] = 0;
 
 	delete FightOrDieTimer[client];
 	delete RestoreColorTimer[client];
@@ -3487,8 +3482,6 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) && 
 		player > 0 && player <= MaxClients && IsClientInGame(player)) 
 	{
-		ReplaceData(player, bot);
-
 		if(L4D_HasPlayerControlledZombies() == false) //not versus
 		{
 			if(IsPlayerTank(bot) && IsFakeClient(bot) && !IsFakeClient(player) && playerid == lastHumanTankId)
@@ -3502,42 +3495,15 @@ void Event_BotReplacePlayer(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
-void Event_PlayerReplaceBot(Event event, const char[] name, bool dontBroadcast)
-{
-	int bot = GetClientOfUserId(GetEventInt(event, "bot"));
-	int player = GetClientOfUserId(GetEventInt(event, "player"));
-	
-	if (bot > 0 && bot <= MaxClients && IsClientInGame(bot) 
-		&& player > 0 && player <= MaxClients && IsClientInGame(player)) 
-	{
-		ReplaceData(bot, player);
-	}
-}
-
-void ReplaceData(int replaced, int client)
-{
-	// double check
-	if (!IsPlayerAlive(client) || GetClientTeam(client) != 3)
-		return;
-
-	if(g_iZombieHpSet[replaced] <= 0 || g_iZombieHpSet[client] > 0) return;
-
-	g_iZombieHpSet[client] = g_iZombieHpSet[replaced];
-	g_iZombieHpSet[replaced] = 0;
-	SetEntProp(client, Prop_Data, "m_iMaxHealth", g_iZombieHpSet[client]);
-}
-
 // 需檢查 tank != newtank
 // @Note: 使用L4D_ReplaceTank或L4D_TakeOverZombieBot 會觸發此涵式但接管tank可能會失敗，所以需要等到下一偵確認有轉交tank控制權
-public void L4D_OnReplaceTank(int tank, int newtank)
+/*public void L4D_OnReplaceTank(int tank, int newtank)
 {
 	if(tank == newtank) return;
-	if(g_iZombieHpSet[tank] <= 0) return;
 
 	DataPack dp = new DataPack();
 	dp.WriteCell(GetClientUserId(newtank));
 	dp.WriteCell(GetClientUserId(tank));
-	dp.WriteCell(g_iZombieHpSet[tank]);
 	RequestFrame(NextFrame_ReplaceTank, dp);
 }
 
@@ -3547,7 +3513,6 @@ void NextFrame_ReplaceTank(DataPack dp)
 
 	int userid = dp.ReadCell();
 	int replaced_id = dp.ReadCell();
-	int new_hp = dp.ReadCell();
 
 	delete dp;
 
@@ -3562,12 +3527,9 @@ void NextFrame_ReplaceTank(DataPack dp)
 	if (!new_tank || !IsClientInGame(new_tank) || !IsPlayerAlive(new_tank) || GetClientTeam(new_tank) != 3 || GetEntData(new_tank, g_iZombieClass) != ZOMBIECLASS_TANK)
 		return;
 
-	if(g_iZombieHpSet[new_tank] > 0) return;
-
-	g_iZombieHpSet[new_tank] = new_hp;
-	g_iZombieHpSet[old_tank] = 0;
-	SetEntProp(new_tank, Prop_Data, "m_iMaxHealth", new_hp);
+	
 }
+*/
 
 void OnTankFrustrated(Event event, const char[] name, bool dontBroadcast)
 {
@@ -3614,7 +3576,6 @@ public void L4D_OnEnterGhostState(int client)
 {
 	if(IsFakeClient(client)) return;
 
-	g_iZombieHpSet[client] = 0;
 	if(isCulling) //回魂重生
 	{
 		g_bDeSpawn[client] = true;
@@ -4644,7 +4605,6 @@ void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcas
 	{
 		if (GetClientTeam(client) == TEAM_INFECTED)
 		{
-			g_iZombieHpSet[client] = 0;
 			respawnDelay[client] = 0;
 
 			queueHUDUpdate();
@@ -4662,15 +4622,6 @@ void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcas
 				fPlayerSpawnEngineTime[client] = GetEngineTime();
 			}
 
-			// 下一偵設置Tank或特感血量
-			// 期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
-
-			DataPack hPack = new DataPack();
-			hPack.WriteCell(client);
-			hPack.WriteCell(g_bSpawnFromGhost[client]);
-			hPack.WriteCell(g_bDeSpawn[client]);
-			RequestFrame(OnNextFrame_SetCustomHealth, hPack);
-
 			if(IsPlayerTank(client))
 			{
 				if(IsFakeClient(client))
@@ -4682,59 +4633,6 @@ void Event_PlayerSpawn_Inected(Event event, const char[] name, bool dontBroadcas
 			}
 		}
 	}
-}
-
-void OnNextFrame_SetCustomHealth(DataPack hPack)
-{
-	hPack.Reset();
-	int client = hPack.ReadCell();
-	bool bSpawnFromGhost = hPack.ReadCell();
-	bool bDeSpawn = hPack.ReadCell();
-	delete hPack;
-
-	// 期間如果發生Tank轉移控制權或是接待bot, 則不設置血量
-	if(g_iZombieHpSet[client] > 0) return;
-
-	if(IsClientInGame(client) && GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
-	{	
-		int new_health = 0;
-		if (IsPlayerTank(client))
-		{
-			new_health = GetFinalTankHP(g_ePluginSettings);
-		}
-		else if(IsPlayerSmoker(client))
-		{
-			new_health = g_ePluginSettings.m_iSIHealth[SI_SMOKER];
-		}
-		else if(IsPlayerBoomer(client))
-		{
-			new_health = g_ePluginSettings.m_iSIHealth[SI_BOOMER];
-		}
-		else if(IsPlayerHunter(client))
-		{
-			new_health = g_ePluginSettings.m_iSIHealth[SI_HUNTER];
-		}
-		else if(g_bL4D2Version && IsPlayerSpitter(client))
-		{
-			new_health = g_ePluginSettings.m_iSIHealth[SI_SPITTER];
-		}
-		else if(g_bL4D2Version && IsPlayerJockey(client))
-		{
-			new_health = g_ePluginSettings.m_iSIHealth[SI_JOCKEY];
-		}
-		else if(g_bL4D2Version && IsPlayerCharger(client))
-		{
-			new_health = g_ePluginSettings.m_iSIHealth[SI_CHARGER];
-		}
-
-		if(new_health <= 0) return;
-		
-		if(!bSpawnFromGhost || !bDeSpawn) SetEntProp(client, Prop_Data, "m_iHealth", new_health);
-		SetEntProp(client, Prop_Data, "m_iMaxHealth", new_health);
-		g_iZombieHpSet[client] = new_health;
-	}
-
-	return;
 }
 
 Action Timer_CheckAngry(Handle timer, int UserId)
@@ -4809,8 +4707,6 @@ void Event_GhostSpawnTime(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (client && IsClientInGame(client) && !IsFakeClient(client))
 	{
-		g_iZombieHpSet[client] = 0;
-
 		if (L4D_HasPlayerControlledZombies())
 		{
 			int spawntime = event.GetInt("spawntime");
@@ -6588,3 +6484,88 @@ public Action L4D_OnSpawnSpecial(int &zombieClass, const float vecPos[3], const 
 
 	return Plugin_Continue;
 }*/
+
+// l4d_pz_health_forward API
+
+// tank交替時會調用: 設置血量沒有用, 但設置最大血量有用
+public void L4D_OnPZSpawnHealth(int client, int zombieclass, bool zspawncmd, int &health, int &maxHealth, float &healthMult, float &maxHealthMult)
+{
+	if(GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
+	{	
+		int new_health = 0;
+		if (zombieclass == ZOMBIECLASS_TANK)
+		{
+			new_health = GetFinalTankHP(g_ePluginSettings);
+		}
+		else if(zombieclass == ZOMBIECLASS_SMOKER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_SMOKER];
+		}
+		else if(zombieclass == ZOMBIECLASS_BOOMER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_BOOMER];
+		}
+		else if(zombieclass == ZOMBIECLASS_HUNTER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_HUNTER];
+		}
+		else if(g_bL4D2Version && zombieclass == ZOMBIECLASS_SPITTER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_SPITTER];
+		}
+		else if(g_bL4D2Version && zombieclass == ZOMBIECLASS_JOCKEY)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_JOCKEY];
+		}
+		else if(g_bL4D2Version && zombieclass == ZOMBIECLASS_CHARGER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_CHARGER];
+		}
+
+		if(new_health <= 0) return;
+		
+		health = new_health;
+		maxHealth = new_health;
+	}
+}
+
+//回魂狀態時
+public void L4D_OnPZRespawnHealth(int client, int zombieclass, int &health, int &maxHealth, float &healthMult, float &maxHealthMult)
+{
+	if(GetClientTeam(client) == TEAM_INFECTED && IsPlayerAlive(client) && !IsClientInKickQueue(client))
+	{	
+		int new_health = 0;
+		if (zombieclass == ZOMBIECLASS_TANK)
+		{
+			new_health = GetFinalTankHP(g_ePluginSettings);
+		}
+		else if(zombieclass == ZOMBIECLASS_SMOKER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_SMOKER];
+		}
+		else if(zombieclass == ZOMBIECLASS_BOOMER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_BOOMER];
+		}
+		else if(zombieclass == ZOMBIECLASS_HUNTER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_HUNTER];
+		}
+		else if(g_bL4D2Version && zombieclass == ZOMBIECLASS_SPITTER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_SPITTER];
+		}
+		else if(g_bL4D2Version && zombieclass == ZOMBIECLASS_JOCKEY)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_JOCKEY];
+		}
+		else if(g_bL4D2Version && zombieclass == ZOMBIECLASS_CHARGER)
+		{
+			new_health = g_ePluginSettings.m_iSIHealth[SI_CHARGER];
+		}
+
+		if(new_health <= 0) return;
+		
+		maxHealth = new_health;
+	}
+}

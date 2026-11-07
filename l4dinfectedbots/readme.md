@@ -29,9 +29,10 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 	3. [spawn_infected_nolimit](/spawn_infected_nolimit)
-	4. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): Fixed Special Inected and Player Zombie spawning failures in some cases
+	4. [l4d_pz_health_forward](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_pz_health_forward)
+	5. [zombie_spawn_fix](https://forums.alliedmods.net/showthread.php?t=333351): Fixed Special Inected and Player Zombie spawning failures in some cases
 		* 修正某些狀況下遊戲導演刻意停止特感生成的問題 (非100%完整解決特感不生成的問題)
-	5. [l4d_unrestrict_panic_battlefield](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_unrestrict_panic_battlefield): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
+	6. [l4d_unrestrict_panic_battlefield](https://github.com/Target5150/MoYu_Server_Stupid_Plugins/tree/master/The%20Last%20Stand/l4d_unrestrict_panic_battlefield): Removed special infected and common inected only spawn in nav area with "BATTLEFIELD" flag during panic event
 		* 移除遊戲中開機關後殭屍與特感都只限制生在"BATTLEFIELD"的nav區域上
 
 * Directory Structure | 檔案結構
@@ -444,6 +445,9 @@ Spawns multi infected bots in any mode + allows playable special infected in coo
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.1.1 (2026-11-7)
+		* Require l4d_pz_health_forward to set S.I. and tank health
 
 	* v3.1.0 (2026-11-3)
 		* Set tank health based on gamemode and difficulty

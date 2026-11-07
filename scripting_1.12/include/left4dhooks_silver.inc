@@ -1310,7 +1310,12 @@ stock int GetAnyRandomClient()
 
 	if( aClients.Length > 0 )
 	{
-		SetRandomSeed(GetGameTickCount());
+		// Using "int random" to vary the output
+		// Using "GetGameTickCount" to vary the output
+		// Using "SetRandomSeed" to generate a truly random number
+		// Without this, the server will always output the same random numbers in the same order over reboots
+		int random = GetRandomInt(0, 2147483647);
+		SetRandomSeed(GetGameTickCount() + random);
 		client = aClients.Get(GetRandomInt(0, aClients.Length - 1));
 	}
 
@@ -1370,7 +1375,12 @@ stock int GetRandomClient(int team = -1, int alive = -1, int bots = -1)
 
 	if( aClients.Length > 0 )
 	{
-		SetRandomSeed(GetGameTickCount());
+		// Using "int random" to vary the output
+		// Using "GetGameTickCount" to vary the output
+		// Using "SetRandomSeed" to generate a truly random number
+		// Without this, the server will always output the same random numbers in the same order over reboots
+		int random = GetRandomInt(0, 2147483647);
+		SetRandomSeed(GetGameTickCount() + random);
 		client = aClients.Get(GetRandomInt(0, aClients.Length - 1));
 	}
 

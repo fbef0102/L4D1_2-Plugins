@@ -21,6 +21,19 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── data/
+    │   └── clear_weapon_drop.txt            # Modify weapon/item delete time | 決定掉落的武器移除時間
+    ├── plugins/
+    │   └── clear_weapon_drop.smx            # Compiled plugin | 已編譯的插件
+    └── scripting/
+        ├── include/ 
+        │   └── clear_weapon_drop.inc        # API | 給會寫插件的人
+        └── clear_weapon_drop.sp             # Source code | 源碼
+    ```
+
 * <details><summary>Related Plugin | 相關插件</summary>
 
 	1. [l4d_drop](/l4d_drop): Allows players to drop the weapon they are holding
@@ -40,15 +53,10 @@ Remove weapon dropped by survivor or uncommon infected + remove upgrade pack whe
 		```
 </details>
 
-* <details><summary>API | 串接</summary>
-
-	* [clear_weapon_drop.inc](scripting/include/clear_weapon_drop.inc)
-		```php
-		library name: clear_weapon_drop
-		```
-</details>
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v3.5 (2026-11-7)
+		* Fixed an issue where secondary weapons were removed upon player death instead of dropping if use drop_secondary.smx
 
 	* v3.4 (2026-4-20)
 		* Support l4d1

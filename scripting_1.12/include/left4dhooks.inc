@@ -1535,6 +1535,7 @@ forward void L4D_OnSpawnSpecial_PostHandled(int client, int zombieClass, const f
  * @remarks This sometimes triggers every frame or so, in L4D2 "c7m3_port" map on Windows, after leaving the saferoom in Versus
  * @remarks `*_Post` forward will not trigger if the relative pre-hook forward has been blocked with Plugin_Handled
  * @remarks `*_PostHandled` forward will ONLY trigger if the relative pre-hook forward has been blocked with Plugin_Handled
+ * @remarks `*_Pre` forward: Vector is null in l4d1 linux
  *
  * @param vecPos		Vector coordinate where tank is spawned
  * @param vecAng		QAngle where tank will be facing
@@ -1550,6 +1551,7 @@ forward void L4D_OnSpawnTank_PostHandled(int client, const float vecPos[3], cons
  * @brief Called when a Witch spawns
  * @remarks `*_Post` forward will not trigger if the relative pre-hook forward has been blocked with Plugin_Handled
  * @remarks `*_PostHandled` forward will ONLY trigger if the relative pre-hook forward has been blocked with Plugin_Handled
+ * @remarks `*_Pre` forward: Vector is null in l4d1 linux
  *
  * @param vecPos		Vector coordinate where witch is spawned
  * @param vecAng		QAngle where witch will be facing
@@ -2574,7 +2576,7 @@ forward void L4D_OnPlayerCough_PostHandled(int client, int attacker);
  * @param attacker		The attacker entity index
  * @param damage		Amount of damage being caused
  * @param damagetype	Type of damage being caused
- * @param weapon		Weapon or entity (could be -1, seems to only show ranged weapons)
+ * @param weapon		Weapon or entity (could be -1). Note: L4D1 does not have a "weapon" field, will attempt to retrieve the weapon entity index but cannot set one
  *
  * @return				return Plugin_Handled to block, Plugin_Changed to modify values, Plugin_Continue otherwise
  **/
@@ -4655,7 +4657,6 @@ native void L4D_ResetMobTimer();
  *
  * @return			Time (seconds) until the SI will spawn
  */
-// L4D2 only
 native float L4D_GetPlayerSpawnTime(int player);
 
 /**
@@ -4668,7 +4669,6 @@ native float L4D_GetPlayerSpawnTime(int player);
  *
  * @noreturn
  */
-// L4D2 only
 native void L4D_SetPlayerSpawnTime(int player, float time, bool bReportToPlayer = true);
 
 /**
@@ -5938,7 +5938,6 @@ native float L4D2Direct_GetMapMaxFlowDistance();
  * @return				Time (seconds) until the SI will spawn, or -1.0 in case of error
  * @error				Invalid client
  */
-// L4D2 only
 native float L4D2Direct_GetSpawnTimer(int client);
 
 /**

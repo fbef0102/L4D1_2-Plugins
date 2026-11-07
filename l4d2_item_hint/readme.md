@@ -299,64 +299,121 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
             l4d2_infected_marker_remove_previous "1"
             ```
 
-        * Both teams mark "Survivor"
+        * Survivor team mark "Survivor"
             ```php
-            // Survivor marker type, 0=(L4D2) Body Glow, 1=Sprite icon above head
-            l4d2_survivor_marker_type "0"
+            // (By Survivors) Survivor marker type, 0=(L4D2) Body Glow, 1=Sprite icon above head
+            l4d2_survivor_marker_type_by_sur "0"
 
-            // (L4D2) Survivor marker glow color (RGB, space-separated). Empty = Remove Glow
-            l4d2_survivor_marker_glow_color "0 200 0"
+            // (L4D2) (By Survivors) Survivor marker glow color (RGB, space-separated). Empty = Off.
+            l4d2_survivor_marker_glow_color_by_sur "0 200 0"
 
-            // (L4D2) Survivor marker glow duration when marked (seconds)
-            l4d2_survivor_marker_glow_timer "10.0"
+            // (L4D2) (By Survivors) Survivor marker glow duration when marked (seconds)
+            l4d2_survivor_marker_glow_timer_by_sur "10.0"
 
-            // (L4D2) Survivor marker glow visible range when marked
-            l4d2_survivor_marker_glow_range "2000"
+            // (L4D2) (By Survivors) Survivor marker glow visible range when marked
+            l4d2_survivor_marker_glow_range_by_sur "2000"
 
-            // Survivor marker icon color (RGB, space-separated). Empty = Off.
-            l4d2_survivor_marker_sprite_color "0 200 0"
+            // (By Survivors) Survivor marker icon color (RGB, space-separated). Empty = Off.
+            l4d2_survivor_marker_sprite_color_by_sur "0 200 0"
 
-            // Survivor marker icon model
-            l4d2_survivor_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
+            // (By Survivors) Survivor marker icon model
+            l4d2_survivor_marker_sprite_model_by_sur "materials/vgui/icon_arrow_down.vmt"
 
-            // Survivor marker icon duration
-            l4d2_survivor_marker_sprite_timer "10.0"
+            // (By Survivors) Survivor marker icon duration
+            l4d2_survivor_marker_sprite_timer_by_sur "10.0"
 
-            // Survivor marker icon size
-            l4d2_survivor_marker_sprite_scale "0.35"
+            // (By Survivors) Survivor marker icon size
+            l4d2_survivor_marker_sprite_scale_by_sur "0.35"
 
-            // If 1, Survivor marker icon will follow target
-            l4d2_survivor_marker_sprite_follow_target "1"
+            // (By Survivors) If 1, Survivor marker icon will follow target
+            l4d2_survivor_marker_sprite_follow_target_by_sur "1"
 
-            // Cooldown between marking survivors (seconds)
-            l4d2_survivor_marker_cooldown_time "0.25"
+            // (By Survivors) Cooldown between marking survivors (seconds)
+            l4d2_survivor_marker_cooldown_time_by_sur "0.25"
 
-            // Max distance to mark a survivor
-            l4d2_survivor_marker_use_range "1000"
+            // (By Survivors) Max distance to mark a survivor
+            l4d2_survivor_marker_use_range_by_sur "1000"
 
-            // Sound when marking a survivor. (relative to sound/, Empty = Off)
-            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
+            // (By Survivors) Sound when marking a survivor. (relative to sound/, Empty = Off)
+            l4d2_survivor_marker_use_sound_by_sur "player/suit_denydevice.wav"
 
-            // Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
-            l4d2_survivor_marker_announce_type "1"
+            // (By Survivors) Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_survivor_marker_announce_type_by_sur "1"
 
-            // (L4D2) If 1, show instructor hint on marked survivor
-            l4d2_survivor_marker_instructorhint_enable "1"
+            // (L4D2) (By Survivors) If 1, show instructor hint on marked survivor
+            l4d2_survivor_marker_instructorhint_enable_by_sur "1"
 
-            // (L4D2) Instructor hint color on survivor marker. (Empty = hide name)
-            l4d2_survivor_marker_instructorhint_color "0 200 0"
+            // (L4D2) (By Survivors) Instructor hint color on survivor marker. (Empty = hide name)
+            l4d2_survivor_marker_instructorhint_color_by_sur "0 200 0"
 
-            // (L4D2) Instructor hint icon on survivor marker
-            l4d2_survivor_marker_instructorhint_icon "icon_alert"
+            // (L4D2) (By Survivors) Instructor hint icon on survivor marker
+            l4d2_survivor_marker_instructorhint_icon_by_sur "icon_alert"
 
-            // FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
-            l4d2_survivor_marker_fov "15.0"
+            // (By Survivors) FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
+            l4d2_survivor_marker_fov_by_sur "15.0"
 
-            // If 1, Remove previous survivor marker if same player marks again
-            l4d2_survivor_marker_remove_previous "1"
+            // (By Survivors) If 1, Remove previous survivor marker if same player marks again
+            l4d2_survivor_marker_remove_previous_by_sur "1"
+            ```
 
-            // If 1, Notify that you are marked by an infected
-            l4d2_survivor_marker_infected_notify "0"
+        * Infected team mark "Survivor"
+            ```php
+            // (By Infected) Survivor marker type, 0=(L4D2) Body Glow, 1=Sprite icon above head
+            l4d2_survivor_marker_type_by_inf "0"
+
+            // (L4D2) (By Infected) Survivor marker glow color (RGB, space-separated). Empty = Off.
+            l4d2_survivor_marker_glow_color_by_inf "200 0 0"
+
+            // (L4D2) (By Infected) Survivor marker glow duration when marked (seconds)
+            l4d2_survivor_marker_glow_timer_by_inf "10.0"
+
+            // (L4D2) (By Infected) Survivor marker glow visible range when marked
+            l4d2_survivor_marker_glow_range_by_inf "2000"
+
+            // (By Infected) Survivor marker icon color (RGB, space-separated). Empty = Off.
+            l4d2_survivor_marker_sprite_color_by_inf "0 200 0"
+
+            // (By Infected) Survivor marker icon model
+            l4d2_survivor_marker_sprite_model_by_inf "materials/vgui/icon_arrow_down.vmt"
+
+            // (By Infected) Survivor marker icon duration
+            l4d2_survivor_marker_sprite_timer_by_inf "10.0"
+
+            // (By Infected) Survivor marker icon size
+            l4d2_survivor_marker_sprite_scale_by_inf "0.35"
+
+            // (By Infected) If 1, Survivor marker icon will follow target
+            l4d2_survivor_marker_sprite_follow_target_by_inf "1"
+
+            // (By Infected) Cooldown between marking survivors (seconds)
+            l4d2_survivor_marker_cooldown_time_by_inf "0.25"
+
+            // (By Infected) Max distance to mark a survivor
+            l4d2_survivor_marker_use_range_by_inf "1000"
+
+            // (By Infected) Sound when marking a survivor. (relative to sound/, Empty = Off)
+            l4d2_survivor_marker_use_sound_by_inf "player/suit_denydevice.wav"
+
+            // (By Infected) Announce type when marking a survivor: 0=Off, 1=Chat, 2=Hint text, 3=Center text
+            l4d2_survivor_marker_announce_type_by_inf "1"
+
+            // (L4D2) (By Infected) If 1, show instructor hint on marked survivor
+            l4d2_survivor_marker_instructorhint_enable_by_inf "1"
+
+            // (L4D2) (By Infected) Instructor hint color on survivor marker. (Empty = hide name)
+            l4d2_survivor_marker_instructorhint_color_by_inf "0 200 0"
+
+            // (L4D2) (By Infected) Instructor hint icon on survivor marker
+            l4d2_survivor_marker_instructorhint_icon_by_inf "icon_alert"
+
+            // (By Infected) FOV angle to detect if player is looking at a survivor. (0=Crosshair only)
+            l4d2_survivor_marker_fov_by_inf "15.0"
+
+            // (By Infected) If 1, Remove previous survivor marker if same player marks again
+            l4d2_survivor_marker_remove_previous_by_inf "1"
+
+            // (By Infected) If 1, Notify that you are marked by an infected
+            l4d2_survivor_marker_notify_by_inf "0"
             ```
 </details>
 
@@ -369,6 +426,9 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v5.6 (2026-11-7)
+        * Update cvars for infected marking survivors
 
     * v5.5 (2026-10-25)
         * Fix multi issue in v5.4, thanks to rainy-me
@@ -746,67 +806,121 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
             l4d2_infected_marker_remove_previous "1"
             ```
 
-        * 雙方隊伍標記"倖存者"
+        * 倖存者隊伍標記"倖存者"
             ```php
-            // 倖存者被標記的形式, 0=(L4D2) 身體有光圈, 1=頭上出現圖案
-            l4d2_survivor_marker_type "0"
+            // (被倖存者標記) 倖存者被標記的形式, 0=(L4D2) 身體有光圈, 1=頭上出現圖案
+            l4d2_survivor_marker_type_by_sur "0"
 
-            // (L4D2) 標記倖存者的光圈顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=移除光圈
-            l4d2_survivor_marker_glow_color "0 200 0"
+            // (L4D2) (被倖存者標記) 倖存者標記光圈顏色 (RGB, 空格分隔). 空 = 關閉.
+            l4d2_survivor_marker_glow_color_by_sur "0 200 0"
 
-            // (L4D2) 標記的光圈顯示時間
-            l4d2_survivor_marker_glow_timer "10.0"
+            // (L4D2) (被倖存者標記) 倖存者標記光圈持續時間 (秒數)
+            l4d2_survivor_marker_glow_timer_by_sur "10.0"
 
-            // (L4D2) 標記的光圈可見範圍
-            l4d2_survivor_marker_glow_range "2000"
+            // (L4D2) (被倖存者標記) 倖存者標記光圈可見範圍
+            l4d2_survivor_marker_glow_range_by_sur "2000"
 
-            // 倖存者被標記時，頭上出現的圖案顏色，填入RGB三色 (三個數值介於0~255，需要空格)
-            // 空=移除標籤
-            l4d2_survivor_marker_sprite_color "0 200 0"
+            // (被倖存者標記) 倖存者標記圖案顏色 (RGB, 空格分隔). 空 = 關閉.
+            l4d2_survivor_marker_sprite_color_by_sur "0 200 0"
 
-            // 頭上出現的圖案模型
-            l4d2_survivor_marker_sprite_model "materials/vgui/icon_arrow_down.vmt"
+            // (被倖存者標記) 倖存者標記圖案模型
+            l4d2_survivor_marker_sprite_model_by_sur "materials/vgui/icon_arrow_down.vmt"
 
-            // 頭上出現的圖案顯示時間 (秒數)
-            l4d2_survivor_marker_sprite_timer "10.0"
+            // (被倖存者標記) 倖存者標記圖案顯示時間 (秒數)
+            l4d2_survivor_marker_sprite_timer_by_sur "10.0"
 
-            // 頭上出現的圖案大小
-            l4d2_survivor_marker_sprite_scale "0.35"
+            // (被倖存者標記) 倖存者標記圖案大小
+            l4d2_survivor_marker_sprite_scale_by_sur "0.35"
 
-            // 為1時，頭上出現的圖案會跟隨著 特感/Witch 移動
-            l4d2_survivor_marker_sprite_follow_target "1"
+            // (被倖存者標記) 為1時，倖存者標記圖案會跟隨目標
+            l4d2_survivor_marker_sprite_follow_target_by_sur "1"
 
-            // 可以再次標記倖存者的時間間隔
-            l4d2_survivor_marker_cooldown_time "0.25"
+            // (被倖存者標記) 標記倖存者的冷卻時間 (秒數)
+            l4d2_survivor_marker_cooldown_time_by_sur "0.25"
 
-            // 能標記倖存者的距離
-            l4d2_survivor_marker_use_range "1000"
+            // (被倖存者標記) 標記倖存者的最遠距離
+            l4d2_survivor_marker_use_range_by_sur "1000"
 
-            // 標記音效. (路徑相對於sound資料夾, 空 = 無音效)
-            l4d2_survivor_marker_use_sound "player/suit_denydevice.wav"
+            // (被倖存者標記) 標記倖存者的音效. (相對於sound資料夾, 空 = 無音效)
+            l4d2_survivor_marker_use_sound_by_sur "player/suit_denydevice.wav"
 
-            // 標記提示該如何顯示. (0: 不提示, 1: 聊天框, 2: 黑底白字框, 3: 螢幕正中間)
-            l4d2_survivor_marker_announce_type "1"
+            // (被倖存者標記) 標記倖存者的提示方式: 0=不提示, 1=聊天框, 2=黑底白字框, 3=螢幕正中間
+            l4d2_survivor_marker_announce_type_by_sur "1"
 
-            // (L4D2) 為1時，啟用導演提示
-            l4d2_survivor_marker_instructorhint_enable "1"
+            // (L4D2) (被倖存者標記) 為1時，對被標記的倖存者顯示導演提示
+            l4d2_survivor_marker_instructorhint_enable_by_sur "1"
 
-            // (L4D2) 導演提示的倖存者名稱顏色 (空=無倖存者名稱)
-            l4d2_survivor_marker_instructorhint_color "0 200 0"
+            // (L4D2) (被倖存者標記) 導演提示顏色 (RGB, 空格分隔). 空 = 隱藏名稱
+            l4d2_survivor_marker_instructorhint_color_by_sur "0 200 0"
 
-            // (L4D2) 導演提示的圖案 
-            l4d2_survivor_marker_instructorhint_icon "icon_alert"
+            // (L4D2) (被倖存者標記) 導演提示圖示
+            l4d2_survivor_marker_instructorhint_icon_by_sur "icon_alert"
 
-            // 檢測玩家的視野是否正在看隊友, 此數值代表隊友與玩家準心的距離夾角
-            // 遊戲預設: 45.0, 0=只算準心有指到
-            l4d2_survivor_marker_fov "15.0"
+            // (被倖存者標記) 判定玩家是否看向倖存者的視野角度. (0=僅準心)
+            l4d2_survivor_marker_fov_by_sur "15.0"
 
-            // 為1時，玩家進行標記時，移除這位玩家之前的標記
-            l4d2_survivor_marker_remove_previous "1"
+            // (被倖存者標記) 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_survivor_marker_remove_previous_by_sur "1"
+            ```
 
-            // 為1時，通知倖存者你被感染者標記
-            l4d2_survivor_marker_infected_notify "1"
+        * 感染者隊伍標記"倖存者"
+            ```php
+            // (被感染者標記) 倖存者標記類型, 0=(L4D2) 光圈, 1=頭頂圖示
+            l4d2_survivor_marker_type_by_inf "0"
+
+            // (L4D2) (被感染者標記) 倖存者標記光圈顏色 (RGB, 空格分隔). 空 = 關閉.
+            l4d2_survivor_marker_glow_color_by_inf "200 0 0"
+
+            // (L4D2) (被感染者標記) 倖存者標記光圈持續時間 (秒數)
+            l4d2_survivor_marker_glow_timer_by_inf "10.0"
+
+            // (L4D2) (被感染者標記) 倖存者標記光圈可見範圍
+            l4d2_survivor_marker_glow_range_by_inf "2000"
+
+            // (被感染者標記) 倖存者標記圖案顏色 (RGB, 空格分隔). 空 = 關閉.
+            l4d2_survivor_marker_sprite_color_by_inf "0 200 0"
+
+            // (被感染者標記) 倖存者標記圖案模型
+            l4d2_survivor_marker_sprite_model_by_inf "materials/vgui/icon_arrow_down.vmt"
+
+            // (被感染者標記) 倖存者標記圖案顯示時間 (秒數)
+            l4d2_survivor_marker_sprite_timer_by_inf "10.0"
+
+            // (被感染者標記) 倖存者標記圖案大小
+            l4d2_survivor_marker_sprite_scale_by_inf "0.35"
+
+            // (被感染者標記) 為1時，倖存者標記圖案會跟隨目標
+            l4d2_survivor_marker_sprite_follow_target_by_inf "1"
+
+            // (被感染者標記) 標記倖存者的冷卻時間 (秒數)
+            l4d2_survivor_marker_cooldown_time_by_inf "0.25"
+
+            // (被感染者標記) 標記倖存者的最遠距離
+            l4d2_survivor_marker_use_range_by_inf "1000"
+
+            // (被感染者標記) 標記倖存者的音效. (相對於sound資料夾, 空 = 無音效)
+            l4d2_survivor_marker_use_sound_by_inf "player/suit_denydevice.wav"
+
+            // (被感染者標記) 標記倖存者時的公告類型: 0=關閉, 1=聊天, 2=提示文字, 3=中央文字
+            l4d2_survivor_marker_announce_type_by_inf "1"
+
+            // (L4D2) (被感染者標記) 為1時，在被標記的倖存者上顯示導演提示
+            l4d2_survivor_marker_instructorhint_enable_by_inf "1"
+
+            // (L4D2) (被感染者標記) 倖存者標記上的導演提示顏色. (空 = 隱藏名稱)
+            l4d2_survivor_marker_instructorhint_color_by_inf "0 200 0"
+
+            // (L4D2) (被感染者標記) 倖存者標記上的導演提示圖示
+            l4d2_survivor_marker_instructorhint_icon_by_inf "icon_alert"
+
+            // (被感染者標記) 判定玩家是否看向倖存者的視野角度. (0=僅準心)
+            l4d2_survivor_marker_fov_by_inf "15.0"
+
+            // (被感染者標記) 為1時，玩家進行標記時，移除這位玩家之前的標記
+            l4d2_survivor_marker_remove_previous_by_inf "1"
+
+            // (被感染者標記) 為1時，通知倖存者玩家已被感染者標記
+            l4d2_survivor_marker_notify_by_inf "0"
             ```
 </details>
 

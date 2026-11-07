@@ -103,6 +103,8 @@ public void OnPluginStart()
 	}
 
 	GameDataWrapper gd = new GameDataWrapper(GAMEDATA_FILE);
+	//delete gd.CreateDetourOrFail("SurvivorBot::Event_Killed", DTR_SurvivorBot_Event_Killed_Pre, DTR_SurvivorBot_Event_Killed_Post);
+	//delete gd.CreateDetourOrFail("NextBotPlayer<CTerrorPlayer>::Event_Killed", DTR_NextBotPlayer_Event_Killed_Pre, DTR_NextBotPlayer_Event_Killed_Post);
 	delete gd.CreateDetourOrFail("CTerrorPlayer::Event_Killed", DTR_CTerrorPlayer_Event_Killed_Pre/*, DTR_CTerrorPlayer_Event_Killed_Post*/);
 	delete gd;
 
@@ -184,11 +186,42 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 
 // Dhooks---
 
-// 玩家確定死亡的事件 ("CTerrorPlayer::Event_Killed")
-// "CTerrorPlayer::Event_Killed" pre -> L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_death" pre -> "player_death" post -> "CTerrorPlayer::Event_Killed" post
+// 倖存者Bot玩家確定死亡的事件
+// SurvivorBot::Event_Killed pre -> "CTerrorPlayer::Event_Killed" pre -> L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_death" pre -> "player_death" post -> "CTerrorPlayer::Event_Killed" post -> SurvivorBot::Event_Killed post
+/*MRESReturn DTR_SurvivorBot_Event_Killed_Pre(int client, DHookParam hParams)
+{
+	LogError("DTR_SurvivorBot_Event_Killed_Pre called for client: %d", client);
+
+	return MRES_Ignored;
+}
+
+MRESReturn DTR_SurvivorBot_Event_Killed_Post(int client, DHookParam hParams)
+{
+	LogError("DTR_SurvivorBot_Event_Killed_Post called for client: %d", client);
+
+	return MRES_Ignored;
+}
+
+// 真人倖存者玩家或特感Bot玩家(tank除外)確定死亡的事件
+// NextBotPlayer<CTerrorPlayer>::Event_Killed pre -> "CTerrorPlayer::Event_Killed" pre -> L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_death" pre -> "player_death" post -> "CTerrorPlayer::Event_Killed" post -> NextBotPlayer<CTerrorPlayer>::Event_Killed post
+MRESReturn DTR_NextBotPlayer_Event_Killed_Pre(int client, DHookParam hParams)
+{
+	LogError("DTR_NextBotPlayer_Event_Killed_Pre called for client: %d", client);
+
+	return MRES_Ignored;
+}
+
+MRESReturn DTR_NextBotPlayer_Event_Killed_Post(int client, DHookParam hParams)
+{
+	LogError("DTR_NextBotPlayer_Event_Killed_Post called for client: %d", client);
+	
+	return MRES_Ignored;
+}*/
+
 MRESReturn DTR_CTerrorPlayer_Event_Killed_Pre(int client, DHookParam hParams)
 {
 	if(client <= 0 || !IsClientInGame(client) || GetClientTeam(client) != 2) return MRES_Ignored;
+	//LogError("DTR_CTerrorPlayer_Event_Killed_Pre called for client: %d", client);
 
 	//提前抓slot1武器與隱藏的副武器
 	int iCurrentSlot1 = GetPlayerWeaponSlot(client, 1);
@@ -298,6 +331,8 @@ MRESReturn DTR_CTerrorPlayer_Event_Killed_Pre(int client, DHookParam hParams)
 
 /*MRESReturn DTR_CTerrorPlayer_Event_Killed_Post(int client, DHookParam hParams)
 {
+	LogError("DTR_CTerrorPlayer_Event_Killed_Post called for client: %d", client);
+
 	return MRES_Ignored;
 }*/
 

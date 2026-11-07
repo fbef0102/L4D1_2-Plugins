@@ -4,9 +4,45 @@
 	{
 		"Functions"
 		{
+			//(L4D2) unsigned int __usercall CTerrorPlayer::Event_Killed@<eax>(long double a1@<st0>, CTerrorPlayer *this, const CTakeDamageInfo *a3)
+			//(L4D1) unsigned int __cdecl CTerrorPlayer::Event_Killed(CTerrorPlayer *this, const CTakeDamageInfo *a2)
 			"CTerrorPlayer::Event_Killed"
 			{
 				"signature"		"CTerrorPlayer::Event_Killed"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+				"arguments"
+				{
+					"const CTakeDamageInfo&"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
+			
+			//(L4D2) int __cdecl SurvivorBot::Event_Killed(SurvivorBot *this, const CTakeDamageInfo *a2)
+			//(L4D1) int __cdecl SurvivorBot::Event_Killed(SurvivorBot *this, const CTakeDamageInfo *a2)
+			"SurvivorBot::Event_Killed"
+			{
+				"signature"		"SurvivorBot::Event_Killed"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+				"arguments"
+				{
+					"const CTakeDamageInfo&"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
+			
+			//(L4D2) unsigned int __cdecl NextBotPlayer<CTerrorPlayer>::Event_Killed(CTerrorPlayer *a1, const CTakeDamageInfo *a2)
+			//(L4D1) unsigned int __cdecl NextBotPlayer<CTerrorPlayer>::Event_Killed(CTerrorPlayer *a1, CTakeDamageInfo *a2)
+			"NextBotPlayer<CTerrorPlayer>::Event_Killed"
+			{
+				"signature"		"NextBotPlayer<CTerrorPlayer>::Event_Killed"
 				"callconv"		"thiscall"
 				"return"		"int"
 				"this"			"entity"
@@ -54,6 +90,7 @@
 			 * 4b. Compare your dump's offsets with asherkin's dump's offsets to find the target function.
 			 * 5b. Look for the target function in the Windows binary.
 			 **/
+			 // CTerrorPlayer::Event_Killed(CTakeDamageInfo const&)
 			"CTerrorPlayer::Event_Killed"
 			{
 				"library"	"server"
@@ -61,6 +98,24 @@
 				"mac"		"@_ZN13CTerrorPlayer12Event_KilledERK15CTakeDamageInfo"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x83\x2A\x2A\x83\x2A\x2A\x55\x8B\x2A\x2A\x89\x2A\x2A\x2A\x8B\x2A\x81\xEC\x2A\x2A\x2A\x2A\xA1\x2A\x2A\x2A\x2A\x33\x2A\x89\x2A\x2A\x8B\x2A\x2A\x56\x8B\x2A\x8B\x2A\x89\x85\x2A\x2A\x2A\x2A\x8B\x82\x2A\x2A\x2A\x2A\x57\xFF\x2A\x8B\x2A\x8B"
 						/* ? ? ? ? ? ? 83 ? ? 83 ? ? 55 8B ? ? 89 ? ? ? 8B ? 81 EC ? ? ? ? A1 ? ? ? ? 33 ? 89 ? ? 8B ? ? 56 8B ? 8B ? 89 85 ? ? ? ? 8B 82 ? ? ? ? 57 FF ? 8B ? 8B */
+			}
+			
+			//SurvivorBot::Event_Killed(CTakeDamageInfo const&)
+			"SurvivorBot::Event_Killed"
+			{
+				"library"	"server"
+				"linux"		"@_ZN11SurvivorBot12Event_KilledERK15CTakeDamageInfo"
+				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\x8B\x86\x40\x40\x00\x00\x8B\x50\x44\x57\x8B\x7D\x08\x8D\x8E\x40\x40\x00\x00\x57\xFF\xD2\x57\x8B\xCE\xE8\x2A\x2A\x2A\x2A\x8B\x86\x24\x43\x00\x00"
+						/* sub_103989B0: 55 8B EC 56 8B F1 8B 86 40 40 00 00 8B 50 44 57 8B 7D 08 8D 8E 40 40 00 00 57 FF D2 57 8B CE E8 ? ? ? ? 8B 86 24 43 00 00  */
+			}			
+			
+			//NextBotPlayer<CTerrorPlayer>::Event_Killed(CTakeDamageInfo const&)
+			"NextBotPlayer<CTerrorPlayer>::Event_Killed"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13NextBotPlayerI13CTerrorPlayerE12Event_KilledERK15CTakeDamageInfo"
+				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\x8B\x86\x40\x40\x00\x00\x8B\x50\x44\x57\x8B\x7D\x08\x8D\x8E\x40\x40\x00\x00\x57\xFF\xD2\x57\x8B\xCE\xE8\x2A\x2A\x2A\x2A\x5F"
+						/* sub_1038BF40: 55 8B EC 56 8B F1 8B 86 40 40 00 00 8B 50 44 57 8B 7D 08 8D 8E 40 40 00 00 57 FF D2 57 8B CE E8 ? ? ? ? 5F   */
 			}
 		}
 	}
@@ -90,13 +145,32 @@
 			 * 4b. Compare your dump's offsets with asherkin's dump's offsets to find the target function.
 			 * 5b. Look for the target function in the Windows binary.
 			 **/
+			 // CTerrorPlayer::Event_Killed(CTakeDamageInfo const&)
 			"CTerrorPlayer::Event_Killed"
 			{
 				"library"	"server"
 				"linux"		"@_ZN13CTerrorPlayer12Event_KilledERK15CTakeDamageInfo"
 				"mac"		"@_ZN13CTerrorPlayer12Event_KilledERK15CTakeDamageInfo"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x55\x56\x8B\x2A\x8B\x2A\x8B\x90\x2A\x2A\x2A\x2A\x57\xFF\x2A\x88"
-						/* ? ? ? ? ? ? 53 55 56 8B ? 8B ? 8B 90 ? ? ? ? 57 FF ? 88 */
+						/* sub_1029AA40: ? ? ? ? ? ? 53 55 56 8B ? 8B ? 8B 90 ? ? ? ? 57 FF ? 88 */
+			}
+			
+			//SurvivorBot::Event_Killed(CTakeDamageInfo const&)
+			"SurvivorBot::Event_Killed"
+			{
+				"library"	"server"
+				"linux"		"@_ZN11SurvivorBot12Event_KilledERK15CTakeDamageInfo"
+				"windows"	"\x56\x8B\xF1\x8B\x86\xB0\x2B\x00\x00\x8B\x50\x40\x57\x8B\x7C\x24\x0C\x8D\x8E\xB0\x2B\x00\x00\x57\xFF\xD2\x57\x8B\xCE\xE8\x2A\x2A\x2A\x2A\x8B\x86\x80\x2E\x00\x00"
+						/* sub_102EC2A0: 56 8B F1 8B 86 B0 2B 00 00 8B 50 40 57 8B 7C 24 0C 8D 8E B0 2B 00 00 57 FF D2 57 8B CE E8 ? ? ? ? 8B 86 80 2E 00 00  */
+			}			
+			
+			//NextBotPlayer<CTerrorPlayer>::Event_Killed(CTakeDamageInfo const&)
+			"NextBotPlayer<CTerrorPlayer>::Event_Killed"
+			{
+				"library"	"server"
+				"linux"		"@_ZN13NextBotPlayerI13CTerrorPlayerE12Event_KilledERK15CTakeDamageInfo"
+				"windows"	"\x56\x8B\xF1\x8B\x86\xB0\x2B\x00\x00\x8B\x50\x40\x57\x8B\x7C\x24\x0C\x8D\x8E\xB0\x2B\x00\x00\x57\xFF\xD2\x57\x8B\xCE\xE8\x2A\x2A\x2A\x2A\x5F"
+						/* sub_102E50E0: 56 8B F1 8B 86 B0 2B 00 00 8B 50 40 57 8B 7C 24 0C 8D 8E B0 2B 00 00 57 FF D2 57 8B CE E8 ? ? ? ? 5F */
 			}
 		}
 	}

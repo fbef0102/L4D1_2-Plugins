@@ -4,7 +4,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <left4dhooks>
-#define PLUGIN_VERSION			"3.4-2026-4-20"
+#define PLUGIN_VERSION			"3.5-2026/11/7"
 #define PLUGIN_NAME			    "clear_weapon_drop"
 #define DEBUG 0
 
@@ -134,9 +134,6 @@ StringMap
 	g_smWeaponDeleteTime,
 	g_smUnCommonDeleteTime;
 
-bool 
-	g_bDeathFrame[MAXPLAYERS+1];
-
 //int 
 //	g_iDeathWeapons[MAXPLAYERS+1][6];
 
@@ -144,7 +141,6 @@ public void OnPluginStart()
 {
 	g_hCvarEnable 			= CreateConVar( PLUGIN_NAME ... "_enable",        	"1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarSurDeathNot 		= CreateConVar( PLUGIN_NAME ... "_death_not", 		"1",   "1=Do not remove weapons if dropped when player death\n0=Remove", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarEnable 			= CreateConVar( PLUGIN_NAME ... "_enable",        	"1",   "0=Plugin off, 1=Plugin on.", CVAR_FLAGS, true, 0.0, true, 1.0);
 	CreateConVar(                       	PLUGIN_NAME ... "_version",       	PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true,                	PLUGIN_NAME);
 
@@ -278,11 +274,13 @@ void OnWeaponDropped(int client, int weapon)
 	if(weapon <= MaxClients)
 		return;
 
-	//PrintToChatAll("%N drops %d", client, weapon);
-
-	if (IsValidClient(client) && GetClientTeam(client) == 2 && g_bDeathFrame[client]) //人類死亡時掉的武器
+	if (IsValidClient(client) && GetClientTeam(client) == 2) 
 	{
-		if(g_bCvarSurDeathNot) return;
+		//PrintToChatAll("%N drops %d", client, weapon);
+		if(GetClientHealth(client) <= 0 || !IsPlayerAlive(client)) //人類死亡時掉的武器
+		{
+			if(g_bCvarSurDeathNot) return;
+		}
 	}
 
 	SetTimer_DeleteWeapon(weapon);
@@ -296,11 +294,14 @@ void Event_WeaponDrop(Event event, const char[] name, bool dontBroadcast)
 	if(entity <= MaxClients) return;
 
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	if (IsValidClient(client) && GetClientTeam(client) == 2 && g_bDeathFrame[client]) //人類死亡時掉的武器
+	if (IsValidClient(client) && GetClientTeam(client) == 2) 
 	{
 		//PrintToChatAll("Event_WeaponDrop %N-%d", client, entity);
 
-		if(g_bCvarSurDeathNot) return;
+		if(GetClientHealth(client) <= 0 || !IsPlayerAlive(client)) //人類死亡時掉的武器
+		{
+			if(g_bCvarSurDeathNot) return;
+		}
 	}
 	
 	SetTimer_DeleteWeapon(entity);
@@ -695,30 +696,4 @@ void LoadData()
 
 
 	delete hFile;
-}
-
-// (二代) bot取代玩家時 -> 玩家觸發
-// (二代) 玩家取代bot時 -> bot觸發
-// 死前觸發 (L4D_OnDeathDroppedWeapons -> "weapon_drop" -> "player_death" pre -> "player_death" post )
-// bot被踢出遊戲前觸發 (OnClientDisconnect() -> L4D_OnDeathDroppedWeapons -> "weapon_drop")
-public void L4D_OnDeathDroppedWeapons(int client, int weapons[6])
-{
-	if( !IsClientInGame(client) 
-		|| GetClientTeam(client) != 2
-		|| IsClientInKickQueue(client) )
-		return;
-
-	g_bDeathFrame[client] = true;
-	//g_iDeathWeapons[client][0] = weapons[0];
-	//g_iDeathWeapons[client][1] = weapons[1];
-	//g_iDeathWeapons[client][2] = weapons[2];
-	//g_iDeathWeapons[client][3] = weapons[3];
-	//g_iDeathWeapons[client][4] = weapons[4];
-	//g_iDeathWeapons[client][5] = weapons[5];
-	RequestFrame(NextFrame_L4D_OnDeathDroppedWeapons, client);
-}
-
-void NextFrame_L4D_OnDeathDroppedWeapons(int client)
-{
-	g_bDeathFrame[client] = false;
 }
