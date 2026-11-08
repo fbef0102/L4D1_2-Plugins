@@ -70,7 +70,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "2.9h-2026/11/5"
+#define PLUGIN_VERSION "3.0h-2026/11/9"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -291,7 +291,6 @@ float 					g_fBoomerVomitStart		[MAXPLAYERS + 1];
 float 					g_fWitchShotStart		[MAXPLAYERS + 1];								// when the last shotgun blast from a survivor started (on any witch)
 
 // smoker clears
-bool 					g_bSmokerClearCheck		[MAXPLAYERS + 1];								// [smoker] smoker dies and this is set, it's a self-clear if g_iSmokerVictim is the killer
 int 					g_iSmokerVictim			[MAXPLAYERS + 1];								// [smoker] the one that's being pulled
 int 					g_iSmokerVictimDamage	[MAXPLAYERS + 1];								// [smoker] amount of damage done to a smoker by the one he pulled
 bool 					g_bSmokerShoved			[MAXPLAYERS + 1];								// [smoker] set if the victim of a pull manages to shove the smoker
@@ -648,7 +647,7 @@ public void OnPluginStart()
 	g_hCvarAllowGLSkeet = CreateConVar(			"sm_skill_skeet_grenade_launcher",	"1", 	"Whether to count/forward direct grenade launcher hits as skeets.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	g_hCvarAllowChainsawSkeet = CreateConVar(	"sm_skill_skeet_chainsaw",			"1", 	"Whether to count/forward chainsaw skeets.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
 	g_hCvarDrawCrownThresh = CreateConVar(		"sm_skill_drawcrown_damage",  		"500", 	"How much damage a survivor must at least do in the final shot for it to count as a drawcrown.", FCVAR_NOTIFY, true, 0.0, false );
-	g_hCvarSelfClearThresh = CreateConVar(		"sm_skill_selfclear_damage",  		"200", 	"How much damage a survivor must at least do to a smoker for him to count as self-clearing.", FCVAR_NOTIFY, true, 0.0, false );
+	g_hCvarSelfClearThresh = CreateConVar(		"sm_skill_selfclear_damage",  		"0", 	"How much damage a survivor must at least do to a smoker for him to count as self-clearing.", FCVAR_NOTIFY, true, 0.0, false );
 	g_hCvarHunterDPThresh = CreateConVar(		"sm_skill_hunterdp_height",	  		"400", 	"Minimum height of hunter pounce for it to count as a DP.", FCVAR_NOTIFY, true, 0.0, false );
 	g_hCvarJockeyDPThresh = CreateConVar(		"sm_skill_jockeydp_height",	  		"300", 	"How much height distance a jockey must make for his 'DP' to count as a reportable highpounce.", FCVAR_NOTIFY, true, 0.0, false );
 	g_hCvarHideFakeDamage = CreateConVar(		"sm_skill_hidefakedamage",			"1", 	"If set, any damage done that exceeds the health of a victim is hidden in reports.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
@@ -1169,7 +1168,6 @@ void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	}
 	else if(zClass == ZC_SMOKER)
 	{
-		g_bSmokerClearCheck[client] = false;
 		g_iSmokerVictim[client] = 0;
 		g_iSmokerVictimDamage[client] = 0;
 	}
@@ -1393,14 +1391,14 @@ void HandleEvent_PlayerDeath(int userid, int attackerid, const char[] weapon_typ
 		{
 			if ( !IS_VALID_SURVIVOR(attacker) ) { return; }
 			
-			//LogError("g_bSmokerClearCheck %d - g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
-			//	g_bSmokerClearCheck[victim], g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_iCvarSelfClearThresh);
+			//LogError("g_iSmokerVictim: %d, g_iSmokerVictimDamage: %d, attacker: %d, CvarSelfClearThresh: %d", 
+			//	g_iSmokerVictim[victim],  g_iSmokerVictimDamage[victim], attacker, g_iCvarSelfClearThresh);
 
 			if (g_iSmokerVictim[victim] > 0 &&
 				g_iSmokerVictim[victim] == attacker &&
 				g_iSmokerVictimDamage[victim] >= g_iCvarSelfClearThresh ) 
 			{
-					HandleSmokerSelfClear( attacker, victim, false, headshot );
+				HandleSmokerSelfClear( attacker, victim, false, headshot );
 			}
 			else if ( g_iSmokerVictim[victim] > 0 &&
 						g_iSmokerVictim[victim] != attacker )
@@ -1415,11 +1413,8 @@ void HandleEvent_PlayerDeath(int userid, int attackerid, const char[] weapon_typ
 						headshot
 					);
 			}
-			else
-			{
-				g_bSmokerClearCheck[victim] = false;
-				g_iSmokerVictim[victim] = 0;
-			}
+			
+			g_iSmokerVictim[victim] = 0;
 		}
 		else if(zClass == ZC_BOOMER)
 		{
@@ -1560,6 +1555,16 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 		HandleShove( attacker, victim, zClass );
 		
 		g_fVictimLastShove[victim][attacker] = GetEngineTime();
+	}
+
+	if ( zClass == ZC_SMOKER )
+	{
+		// check for shove on smoker by pull victim
+		if ( g_iSmokerVictim[victim] == attacker )
+		{
+			g_bSmokerShoved[victim] = true;
+			// CPrintToChat(attacker, "shoved %d player_shoved", victim);
+		}
 	}
 	
 	//LogError("shove by %i on %i", attacker, victim );
@@ -2673,7 +2678,6 @@ void Event_TonguePullStopped (Event event, const char[] name, bool dontBroadcast
 		{
 			// Does not trigger this event if reason is CUT_KILL in versus mode
 
-			g_bSmokerClearCheck[smoker] = true;
 			// keep g_iSmokerVictim[], player_death still needs it for the self-clear
 			return;
 		}
@@ -2716,7 +2720,6 @@ void Event_TongueGrab (Event event, const char[] name, bool dontBroadcast)
 	if ( IS_VALID_INFECTED(attacker) && IS_VALID_SURVIVOR(victim) )
 	{
 		// int pull, clean damage
-		g_bSmokerClearCheck[attacker] = false;
 		g_bSmokerShoved[attacker] = false;
 		g_iSmokerVictim[attacker] = victim;
 		g_iSmokerVictimDamage[attacker] = 0;
@@ -2757,7 +2760,6 @@ void Event_ChokeStop (Event event, const char[] name, bool dontBroadcast)
 			false
 		);
 
-	g_bSmokerClearCheck[smoker] = false;
 	g_iSmokerVictim[smoker] = 0;
 }
 
@@ -2814,7 +2816,6 @@ void OnNextFrame_TongueRelease_L4D1(int userid)
 	}
 
 	// the pull is over, don't credit a later kill of this smoker as a clear
-	g_bSmokerClearCheck[smoker] = false;
 	g_iSmokerVictim[smoker] = 0;
 }
 
@@ -4296,17 +4297,17 @@ public void L4D_OnMaterializeFromGhost_PostHandled(int client)
 	g_bSpawnFromGhost[client] = false;
 }
 
-public void L4D_OnShovedBySurvivor_Post(int attacker, int victim, const float vecDir[3])
+/*public void L4D_OnShovedBySurvivor_Post(int attacker, int victim, const float vecDir[3])
 {
 	// check for shove on smoker by pull victim
 	if ( g_iSmokerVictim[victim] == attacker ||
-		GetEntPropEnt(victim, Prop_Send, "m_tongueVictim") == victim ||
-		GetEntPropEnt(attacker, Prop_Send, "m_tongueOwner") == attacker )
+		GetEntPropEnt(victim, Prop_Send, "m_tongueVictim") == attacker ||
+		GetEntPropEnt(attacker, Prop_Send, "m_tongueOwner") == victim )
 	{
 		g_bSmokerShoved[victim] = true;
 		//CPrintToChatAll(attacker, "L4D_OnShovedBySurvivor: shoved %d ", victim);
 	}
-}
+}*/
 
 //the attacker who caused the vomit (can be 0)
 public void L4D_OnVomitedUpon_Post(int victim, int attacker, bool boomerExplosion)

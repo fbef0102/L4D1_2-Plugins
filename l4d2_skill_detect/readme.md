@@ -147,7 +147,7 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         sm_skill_drawcrown_damage "500"
 
         // How much damage a survivor must at least do to a smoker for him to count as self-clearing.
-        sm_skill_selfclear_damage "200"
+        sm_skill_selfclear_damage "0"
 
         // Minimum height of hunter pounce for it to count as a DP.
         sm_skill_hunterdp_height "400"
@@ -179,6 +179,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v3.0h (2026-11-9)
+        * Fixed no report self-clear smoker if previous dead smoker was still in game
 
     * v2.9h (2026-11-5)
         * Fixed wrong victim and attacker when report self-clear smoker 
@@ -376,8 +379,8 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         // 超過多少傷害才算 "一槍殺死Witch"
         sm_skill_drawcrown_damage "500"
 
-        // 超過多少傷害才算 "倖存者自解特感"
-        sm_skill_selfclear_damage "200"
+        // 超過多少傷害才算 "倖存者自解Smoker"
+        sm_skill_selfclear_damage "0"
 
         // 超過多少高度才算 "Hunter高撲"
         sm_skill_hunterdp_height "400"
