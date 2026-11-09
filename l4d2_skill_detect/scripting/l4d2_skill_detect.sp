@@ -1057,7 +1057,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 						
 						// charger was killed, was it a full level?
 						//LogError("health: %d, damage: %d, chip-level: %d", health, damage, iChargeHealth * 0.8);
-						if ( damage >= (iChargeHealth * 0.5) ) {
+						// melee = 65% max health x hitgroup (head 4x, right arm 1.25x); above 81.25% only a headshot kills
+						if ( damage > (iChargeHealth * 0.8125) ) {
 							HandleLevel( attacker, victim, hitgroup == HITGROUP_HEAD );
 						}
 						else {
