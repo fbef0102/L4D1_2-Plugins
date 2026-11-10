@@ -427,6 +427,7 @@ Use !mark or 'Look' in vocalize menu, print corresponding item to chat area and 
 
 * <details><summary>Changelog | 版本日誌</summary>
 
+    * v5.7 (2026-11-10)
     * v5.6 (2026-11-7)
         * Update cvars for infected marking survivors
 

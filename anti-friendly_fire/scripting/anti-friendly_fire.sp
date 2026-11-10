@@ -69,12 +69,12 @@ methodmap GameDataWrapper < GameData {
 
 enum struct CTakeDamageInfo_L4D1
 {
-	float			m_vecDamageForce[3];
-	float			m_vecDamagePosition[3];
-	float			m_vecReportedPosition[3];	// Position players are told damage is coming from
+	float			m_vecDamageForce[3]; //0,1,2
+	float			m_vecDamagePosition[3]; //3,4,5
+	float			m_vecReportedPosition[3]; //6,7,8	// Position players are told damage is coming from
 	
-	int				m_hInflictor;
-	int				m_hAttacker;
+	int				m_hInflictor; //9
+	int				m_hAttacker; //10
 	
 	float			m_flDamage;
 	float			m_flMaxDamage;
@@ -422,7 +422,7 @@ MRESReturn DTR__AllowDamage(int client, DHookReturn hReturn, DHookParam hParams)
 		GetClientTeam(attacker) == L4D_TEAM_INFECTED ||
 		GetClientTeam(client) != L4D_TEAM_SURVIVOR) return MRES_Ignored;
 
-	PrintToChatAll("DTR__AllowDamage %N attack %N, temp Health: %d, main Health: %d, damage: %f", attacker, client, L4D_GetPlayerTempHealth(client), GetClientHealth(client), damage);
+	//PrintToChatAll("DTR__AllowDamage %N attack %N, temp Health: %d, main Health: %d, damage: %f", attacker, client, L4D_GetPlayerTempHealth(client), GetClientHealth(client), damage);
 	
 	int iDamage = RoundToFloor(damage);
 	if(iDamage <= g_iDamageShield)
