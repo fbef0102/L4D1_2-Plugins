@@ -21,11 +21,22 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
     3. [spawn_infected_nolimit](/spawn_infected_nolimit)
 
+* Directory Structure | 檔案結構
+	```php
+    /
+    ├── plugins/
+    │   └── all4dead2.smx            # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │   └── all4dead2.sp             # Source code | 源碼
+    └── translations/
+        └── all4dead2.phrases.txt    # Multi-language translation | 翻譯多國語言
+    ```
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/all4dead2.cfg
 		```php
-        // Whether or not we announce changes in game.
+        // If 1, Announce changes to all players in game
         a4d_notify_players "1"
 		```
 </details>
@@ -64,15 +75,13 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
         ``` 
 </details>
 
-* Translation Support | 支援翻譯
-	```
-	translations/all4dead2.phrases.txt
-	```
-
 * <details><summary>Changelog | 版本日誌</summary>
 
-	* v4.0 (2026-7-12)
-		* Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
+    * v4.1 (2026-11-12)
+        * Update translation
+
+    * v4.0 (2026-7-12)
+        * Use other way to spawn witch and bride witch since recent l4d2 update has restricted the maximum number of witch spawns
         
     * v3.9 (2024-3-30)
         * Update cvars
@@ -127,7 +136,7 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 	* cfg/sourcemod/all4dead2.cfg
 		```php
-        // 1=通知玩家訊息, 0=不通知
+        // 1=任何改變或生成會通知全體玩家, 0=不通知
         a4d_notify_players "1"
 		```
 </details>

@@ -10,7 +10,7 @@
 
 #define PLUGIN_NAME					"All4Dead"
 #define PLUGIN_TAG					"[A4D]"
-#define PLUGIN_VERSION				"4.0-2026/7/12"
+#define PLUGIN_VERSION				"4.1-2026/11/12"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
@@ -117,7 +117,7 @@ public void OnPluginStart() {
 
 	director_panic_forever = FindConVar("director_panic_forever");
 	
-	notify_players = CreateConVar("a4d_notify_players", "1", "Whether or not we announce changes in game.", FCVAR_NOTIFY);	
+	notify_players = CreateConVar("a4d_notify_players", "1", "If 1, Announce changes to all players in game", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "all4dead2");	
 
 	RegAdminCmd("a4d_spawn_infected", Command_SpawnInfected, ADMFLAG_ROOT);
@@ -555,7 +555,8 @@ void Do_SpawnInfected(int client, const char[] type)
 
 	if (bot > 0)
 	{
-		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", type);
+		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, type);
+		//else CPrintToChat(client, "%T", "has been spawned", client, client, type);
 		LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
 
 		if (automatic_placement == false)
@@ -624,13 +625,15 @@ void Do_SpawnInfected_Old(int client, const char[] type, bool spawning_uncommon 
 		DispatchSpawn(zombie);
 		ActivateEntity(zombie);
 		TeleportEntity(zombie, vPos, NULL_VECTOR, NULL_VECTOR);
-		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", type);
+		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, type);
+		//else CPrintToChat(client, "%T", "has been spawned", client, client, type);
 		LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
 		return;
 	} else {
 		StripAndExecuteClientCommand(client, "z_spawn_old", arguments);
 	}
-	if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", type);
+	if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, type);
+	//else CPrintToChat(client, "%T", "has been spawned", client, client, type);
 	LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
 	//PrintToChatAll("Spawned a %s with automatic placement %b and uncommon %b", type, automatic_placement, spawning_uncommon);
 }
@@ -667,7 +670,8 @@ void Do_SpawnWitch(const int client, const bool bAutoSpawn)
 		return;
 	}
 
-	if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", "witch");
+	if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, "witch");
+	//else CPrintToChat(client, "%T", "has been spawned", client, client, "witch");
 	LogAction(client, -1, "[NOTICE]: (%L) has spawned a witch", client);
 }
 
@@ -703,15 +707,15 @@ void Do_SpawnUncommonInfected(int client, int type) {
  * 	spawned through z_spawn.
  * </remarks>
 */
-void Do_EnableAutoPlacement(int client, bool value) {
+void Do_EnableAutoPlacement(int client, bool value) 
+{
 	automatic_placement = value;
-	if (notify_players.BoolValue)
-	{
-		if (value == true)
-			CPrintToChat(client, "%T", "Automatic placement of spawned infected has been enabled", client);
-		else
-			CPrintToChat(client, "%T", "Automatic placement of spawned infected has been disabled", client);
-	}
+
+	if (value == true)
+		CPrintToChat(client, "%T", "Automatic placement of spawned infected has been enabled", client);
+	else
+		CPrintToChat(client, "%T", "Automatic placement of spawned infected has been disabled", client);
+
 	//LogAction(client, -1, "(%L) set %s to %i", client, "a4d_automatic_placement", value);	
 }
 
@@ -838,7 +842,8 @@ void Do_SpawnItem(int client, const char[] type) {
 		ReplyToCommand(client, "Can not use this command from the console."); 
 	} else {
 		StripAndExecuteClientCommand(client, "give", type);
-		if(notify_players.BoolValue) CPrintToChat(client, "%T", "has been spawned", client, type);
+		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, type);
+		//else CPrintToChat(client, "%T", "has been spawned", client, client, type);
 		LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
 	}
 }
@@ -1054,7 +1059,8 @@ Action Command_ForcePanic(int client, int args) {
 void Do_ForcePanic(int client) {
 	L4D_ForcePanicEvent();
 	
-	if (notify_players.BoolValue) CPrintToChatAll("%t", "The zombies are coming!");	
+	if (notify_players.BoolValue) CPrintToChatAll("%t", "The zombies are coming!", client);	
+	//else CPrintToChat(client, "%T", "The zombies are coming!", client);
 	LogAction(client, -1, "[NOTICE]: (%L) executed %s", client, "a4d_force_panic");
 }
 
@@ -1079,10 +1085,17 @@ void Do_PanicForever(int client, bool value) {
 	if (notify_players.BoolValue)
 	{
 		if (value == true)
-			CPrintToChatAll("%t", "Endless panic events have started");
+			CPrintToChatAll("%t", "Endless panic events have started", client);
 		else
-			CPrintToChatAll("%t", "Endless panic events have ended");
+			CPrintToChatAll("%t", "Endless panic events have ended", client);
 	}
+	//else
+	//{
+	//	if (value == true)
+	//		CPrintToChat(client, "%T", "Endless panic events have started", client);
+	//	else
+	//		CPrintToChat(client, "%T", "Endless panic events have ended", client);
+	//}
 }
 
 // Configuration commands
@@ -1094,7 +1107,7 @@ void Menu_CreateConfigMenu(int client) {
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	if (notify_players.BoolValue) { menu.AddItem("pn", Translate(client, "%t", "Disable player notifications")); } 
-	else { menu.AddItem("pn", Translate(client, "%t", "Enable player notifications")); }
+	//else { menu.AddItem("pn", Translate(client, "%t", "Enable player notifications")); }
 	menu.Display( client, MENU_TIME_FOREVER);
 }
 /// Handles callbacks from a client using the configuration menu.
@@ -1136,9 +1149,14 @@ Action Command_EnableNotifications(int client, int args) {
 }
 
 
-void Do_EnableNotifications(int client, bool value) {
+void Do_EnableNotifications(int client, bool value) 
+{
 	SetConVarBool(notify_players, value);
-	if (notify_players.BoolValue) CPrintToChat(client, "%T", "Player notifications have now been enabled", client);
+	if (notify_players.BoolValue)
+		CPrintToChat(client, "%T", "Player notifications have now been enabled", client);
+	else
+		CPrintToChat(client, "%T", "Player notifications have now been disabled", client);
+
 	LogAction(client, -1, "(%L) set %s to %i", client, "a4d_notify_players", value);	
 }
 

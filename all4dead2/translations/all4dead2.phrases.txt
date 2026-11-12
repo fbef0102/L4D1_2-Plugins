@@ -2,9 +2,9 @@
 {
 	"All4Dead Commands"
 	{
-		"en"			"All4Dead Commands"
-		"chi"			"All4DeadD指令"
-		"zho"			"All4DeadD指令"
+		"en"			"All4Dead2 Commands"
+		"chi"			"All4Dead2指令"
+		"zho"			"All4Dead2指令"
 	    "es"            "Comandos de All4Dead"
 	}
 	"Director Commands"
@@ -24,7 +24,7 @@
 	"Spawn Uncommon Infected"
 	{
 		"en"			"Spawn Uncommon Infected"
-		"chi"			"生成特殊丧尸"
+		"chi"			"生成特殊一般感染者"
 		"zho"			"生成特殊一般感染者"
 		"es"            "Invocar Infectados poco Comunes"
 	}
@@ -65,16 +65,16 @@
 	}
 	"Disable automatic placement"
 	{
-		"en"			"Disable automatic placement"
-		"chi"			"关闭自动放置"
-		"zho"			"關閉自動放置"
+		"en"			"automatic placement (Current: Enabled)"
+		"chi"			"自动放置 (目前状态: 已开启)"
+		"zho"			"自動放置 (目前狀態: 已開啟)"
 		"es"            "Desactivar Colocación Automática"
 	}
 	"Enable automatic placement"
 	{
-		"en"			"Enable automatic placement"
-		"chi"			"开启自动放置"
-		"zho"			"開啟自動放置"
+		"en"			"automatic placement (Current: Disabled)"
+		"chi"			"自动放置 (目前状态: 已关闭)"
+		"zho"			"自動放置 (目前狀態: 已關閉)"
 		"es"            "Habilitar Colocación Automática"
 	}
 	"Spawn a tank"
@@ -185,8 +185,8 @@
 	"Spawn a fallen survivor zombie"
 	{
 		"en"			"Spawn a fallen survivor zombie"
-		"chi"			"堕落幸存者 (掉落物资)"
-		"zho"			"墮落倖存者 (掉落物資)"
+		"chi"			"堕落幸存者 (會掉落物资)"
+		"zho"			"墮落倖存者 (會掉落物資)"
 		"es"            "Invocar un Zombie de un Superviviente Caído"
 	}
 	"Spawn a defibrillator"
@@ -240,23 +240,23 @@
 	}
 	"Spawn a gas tank"
 	{
-		"en"			"Spawn a gas tank"
+		"en"			"Spawn a gascan"
 		"chi"			"油桶"
-		"zho"			"汽油桶"
+		"zho"			"油桶"
 		"es"            "Invocar un Tanque de Gas"
 	}
 	"Spawn a firework"
 	{
-		"en"			"Spawn a firework"
-		"chi"			"烟花"
+		"en"			"Spawn a firework crate"
+		"chi"			"烟火盒"
 		"zho"			"煙火盒"
 		"es"            "Invocar un Fuego Artificial"
 	}
 	"Spawn a propane tank"
 	{
 		"en"			"Spawn a propane tank"
-		"chi"			"煤气罐"
-		"zho"			"瓦斯桶"
+		"chi"			"瓦斯罐"
+		"zho"			"瓦斯罐"
 		"es"            "Invocar un Tanque de Propano"
 	}
 	"Spawn an oxygen tank"
@@ -326,19 +326,19 @@
 	{
 		"en"			"pawn a pumpshotgun"
 		"chi"			"pump霰弹枪"
-		"zho"			"Pump 單發霰彈槍"
+		"zho"			"Pump單發霰彈槍"
 		"es"            "Invocar una Escopeta"
 	}
 	"Spawn a shotgun chrome"
 	{
 		"en"			"Spawn a shotgun chrome"
 		"chi"			"chrome霰弹枪"
-		"zho"			"Chrome 單發霰彈槍"
+		"zho"			"Chrome單發霰彈槍"
 		"es"            "Invocar un Escopeta Cromada"
 	}
 	"Spawn a sub machine gun"
 	{
-		"en"			"Spawn a sub machine gun"
+		"en"			"Spawn a smg"
 		"chi"			"冲锋枪"
 		"zho"			"機槍"
 		"es"            "Invocar un Pistola Ametralladora"
@@ -346,7 +346,7 @@
 	"Spawn a silenced smg"
 	{
 		"en"			"Spawn a silenced smg"
-		"chi"			"静音冲锋枪"
+		"chi"			"消音冲锋枪"
 		"zho"			"消音機槍"
 		"es"            "Invocar un SMG con silenciador"
 	}
@@ -374,7 +374,7 @@
 	"Spawn an AK74"
 	{
 		"en"			"Spawn an AK74"
-		"chi"			"AK74步枪"
+		"chi"			"AK74"
 		"zho"			"AK74"
 		"es"            "Invocar un AK74"
 	}
@@ -423,7 +423,7 @@
 	"Spawn an awp"
 	{
 		"en"			"Spawn an awp"
-		"chi"			"AWP狙击枪"
+		"chi"			"AWP"
 		"zho"			"AWP"
 		"es"            "Invocar un AWP"
 	}
@@ -451,7 +451,7 @@
 	"Spawn a chainsaw"
 	{
 		"en"			"Spawn a chainsaw"
-		"chi"			"燃油链锯"
+		"chi"			"电锯"
 		"zho"			"電鋸"
 		"es"            "Invocar una Motosierra"
 	}
@@ -479,8 +479,8 @@
 	"Spawn a fire axe"
 	{
 		"en"			"Spawn a fire axe"
-		"chi"			"消防斧头"
-		"zho"			"消防斧頭"
+		"chi"			"消防斧"
+		"zho"			"消防斧"
 		"es"            "Invocar una Hacha Contra Incendios"
 	}
 	"Spawn a frying pan"
@@ -547,101 +547,111 @@
 	}
 	"End non-stop panic events"
 	{
-		"en"			"End non-stop panic events"
-		"chi"			"停止无尽尸潮"
-		"zho"			"停止無限屍潮"
+		"en"			"non-stop panic events (Current: Enabled)"
+		"chi"			"无尽尸潮 (目前状态: 已开启)"
+		"zho"			"無限屍潮 (目前狀態: 已開啟)"
 		"es"            "Finalizar el evento de pánico continuo"
 	}
 	"Force non-stop panic events"
 	{
-		"en"			"Force non-stop panic events"
-		"chi"			"开始无尽尸潮"
-		"zho"			"開始無限屍潮"
+		"en"			"non-stop panic events (Current: Disabled)"
+		"chi"			"无尽尸潮 (目前状态: 已关闭)"
+		"zho"			"無限屍潮 (目前狀態: 已關閉)"
 		"es"            "Forzar un evento de pánico continuo"
 	}
 	"Disable player notifications"
 	{
-		"en"			"Disable player notifications"
-		"chi"			"停止通知玩家"
-		"zho"			"停止通知玩家"
-		"es"            "Desactivar notificación de jugador"
+		"en"			"All player notifications (Current: Enabled)"
+		"chi"			"全体玩家信息提示（当前状态: 已开启）"
+		"zho"			"全體玩家信息提示 (目前狀態: 已開啟)"
+		"es"            "Desactivar todas las notificaciones del jugador"
 	}
 	"Enable player notifications"
 	{
-		"en"			"Enable player notifications"
-		"chi"			"开启通知玩家"
-		"zho"			"開啟通知玩家"
-		"es"            "Habilitar notificación de jugador"
+		"en"			"All player notifications (Current: Disabled)"
+		"chi"			"全体玩家信息提示（目前状态：已关闭）"
+		"zho"			"全體玩家信息提示 (目前狀態: 已關閉)"
+		"es"            "Habilitar notificaciones para todos los jugadores"
 	}
 	"Force a panic event to start"
 	{
 		"en"			"Force a panic event to start"
 		"chi"			"强制生成一波尸潮"
-		"zho"			"強製生成一波屍潮"
+		"zho"			"強制生成一波屍潮"
 		"es"            "Forzar un evento de pánico comience"
 	}
 	"has been spawned"
 	{
-		"en"			"{green}%s{lightgreen} has been spawned"
-		"chi"			"{green}%s{lightgreen} 已经生成"
-		"zho"			"{green}%s{lightgreen} 已經生成"
-		"es"            "{green}%s{lightgreen} has sido invocado"
+		"#format"		"{1:N},{2:s}"	
+		"en"			"[SM] {lightgreen}{1}{default} has spawned the {green}{2}"
+		"chi"			"[SM] {lightgreen}{1}{default} 已经生成 {green}{2}"
+		"zho"			"[SM] {lightgreen}{1}{default} 已經生成 {green}{2}"
+		"es"            "[SM] {lightgreen}{1}{default} has invocado {green}{2}"
 	}
 	"Automatic placement of spawned infected has been enabled"
 	{
-		"en"			"{lightgreen} Automatic placement of spawned infected has been enabled"
-		"chi"			"{lightgreen} 开启自动放置生成感染者功能"
-		"zho"			"{lightgreen} 開啟自動放置生成感染者功能"
-		"es"            "{lightgreen} Se ha habilitado el posicionamiento automático de infectados"
+		"en"			"{lightgreen}Automatic placement of spawned infected enabled"
+		"chi"			"{lightgreen}开启自动放置生成感染者功能"
+		"zho"			"{lightgreen}開啟自動放置生成感染者功能"
+		"es"            "{lightgreen}Se ha habilitado el posicionamiento automático de infectados"
 	}
 	"Automatic placement of spawned infected has been disabled"
 	{
-		"en"			"{lightgreen} Automatic placement of spawned infected has been disabled"
-		"chi"			"{lightgreen} 关闭自动放置生成感染者功能"
-		"zho"			"{lightgreen} 關閉自動放置生成感染者功能"
-		"es"            "{lightgreen} Se ha desactivado el posicionamiento automático de infectados"
+		"en"			"{lightgreen}Automatic placement of spawned infected disabled"
+		"chi"			"{lightgreen}关闭自动放置生成感染者功能"
+		"zho"			"{lightgreen}關閉自動放置生成感染者功能"
+		"es"            "{lightgreen}Se ha desactivado el posicionamiento automático de infectados"
 	}
 	"Bosses will now spawn continuously"
 	{
-		"en"			"{lightgreen} Bosses will now spawn continuously"
-		"chi"			"{lightgreen} 开始持续生成Tank和Witch"
-		"zho"			"{lightgreen} 開始持續生成Tank和Witch"
-		"es"            "{lightgreen} Jefes serán invocados continuamente"
+		"en"			"{lightgreen}Bosses will now spawn continuously"
+		"chi"			"{lightgreen}开始持续生成Tank和Witch"
+		"zho"			"{lightgreen}開始持續生成Tank和Witch"
+		"es"            "{lightgreen}Jefes serán invocados continuamente"
 	}
 	"Bosses will no longer spawn continuously"
 	{
-		"en"			"{lightgreen} Bosses will no longer spawn continuously"
-		"chi"			"{lightgreen} 停止持续生成Tank和Witch"
-		"zho"			"{lightgreen} 停止持續生成Tank和Witch"
-		"es"            "{lightgreen} Jefes ya no serán invocados continuamente"
+		"en"			"{lightgreen}Bosses will no longer spawn continuously"
+		"chi"			"{lightgreen}停止持续生成Tank和Witch"
+		"zho"			"{lightgreen}停止持續生成Tank和Witch"
+		"es"            "{lightgreen}Jefes ya no serán invocados continuamente"
 	}
 	"Endless panic events have started"
 	{
-		"en"			"{lightgreen} Endless panic events have started"
-		"chi"			"{lightgreen} 开始无尽尸潮"
-		"zho"			"{lightgreen} 開始無限屍潮"
-		"es"            "{lightgreen} Ha comenzado el evento de pánico continuo"
+		"#format"		"{1:N}"
+		"en"			"[SM] {lightgreen}{1}{default}: Endless panic events have started"
+		"chi"			"[SM] {lightgreen}{1}{default}: 无尽尸潮已开始"
+		"zho"			"[SM] {lightgreen}{1}{default}: 無限屍潮已開始"
+		"es"            "[SM] {lightgreen}{1}{default}: Ha comenzado el evento de pánico continuo"
 	}
 	"Endless panic events have ended"
 	{
-		"en"			"{lightgreen} Endless panic events have ended"
-		"chi"			"{lightgreen} 停止无尽尸潮"
-		"zho"			"{lightgreen} 停止無限屍潮"
-		"es"            "{lightgreen} Ha finalizado el evento de pánico continuo"
+		"#format"		"{1:N}"
+		"en"			"[SM] {lightgreen}{1}{default}: Endless panic events have ended"
+		"chi"			"[SM] {lightgreen}{1}{default}: 无尽尸潮已停止"
+		"zho"			"[SM] {lightgreen}{1}{default}: 無限屍潮已停止"
+		"es"            "[SM] {lightgreen}{1}{default}: Ha finalizado el evento de pánico continuo"
 	}
 	"Player notifications have now been enabled"
 	{
-		"en"			"{lightgreen} Player notifications have now been enabled"
-		"chi"			"{lightgreen} 玩家提醒功能已开启"
-		"zho"			"{lightgreen} 玩家提醒功能已開啟"
-		"es"            "{lightgreen} Se ha activado la notificaciones de jugador"
+		"en"			"[SM] all4dead2 All Player notifications enabled"
+		"chi"			"[SM] all4dead2 全体玩家信息提示已开启"
+		"zho"			"[SM] all4dead2 全體玩家信息提示已開啟"
+		"es"            "[SM] Se han activado las notificaciones para todos los jugadores"
+	}
+	"Player notifications have now been disabled"
+	{
+		"en"			"[SM] all4dead2 All Player notifications disabled"
+		"chi"			"[SM] all4dead2 全体玩家信息提示已关闭"
+		"zho"			"[SM] all4dead2 全體玩家信息提示已關閉"
+		"es"            "[SM] Se han desactivado las notificaciones para todos los jugadores"
 	}
 	"Restored the default settings"
 	{
-		"en"			"{lightgreen} Restored the default settings"
-		"chi"			"{lightgreen} 恢复默认设置"
-		"zho"			"{lightgreen} 恢復默認設置"
-		"es"            "{lightgreen} Se han restaurando las configuraciones por defecto"
+		"en"			"{lightgreen}Restored the default settings"
+		"chi"			"{lightgreen}恢复默认设置"
+		"zho"			"{lightgreen}恢復默認設置"
+		"es"            "{lightgreen}Se han restaurando las configuraciones por defecto"
 	}
 	"Allowing an all bot survivor team"
 	{
@@ -652,49 +662,50 @@
 	}
 	"We now require at least one human survivor before the game can start"
 	{
-		"en"			"We now require at least one human survivor before the game can start"
-		"chi"			"禁止全BOT幸存者队伍(至少需要一个玩家开始游戏)"
-		"zho"			"禁止全BOT幸存者隊伍(至少需要一個玩家開始遊戲)"
+		"en"			"We now require at least one human on survivor team before the game can start"
+		"chi"			"禁止全BOT幸存者队伍 (至少需要一个真人玩家才能开始游戏)"
+		"zho"			"禁止全BOT幸存者隊伍 (至少需要一個真人玩家才能開始遊戲)"
 		"es"            "Requerimos al menos un superviviente antes de que el juego comience"
 	}
 	"The zombies are coming!"
 	{
-		"en"			"{lightgreen} The zombies are coming!"
-		"chi"			"{lightgreen} 尸潮来了!"
-		"zho"			"{lightgreen} 屍潮來了!"
-		"es"            "{lightgreen} Los zombies están al acecho!"
+		"#format"		"{1:N}"	
+		"en"			"[SM] {lightgreen}{1}{default}: The zombies are coming!"
+		"chi"			"[SM] {lightgreen}{1}{default}: 尸潮来了!"
+		"zho"			"[SM] {lightgreen}{1}{default}: 屍潮來了!"
+		"es"            "[SM] {lightgreen}{1}{default}: Los zombies están al acecho!"
 	}
-    "Could not find a valid spawn position for S.I. in 5 tries"
+   	 "Could not find a valid spawn position for S.I. in 5 tries"
 	{
-		"en"	        "Couldn't find a valid spawn position for S.I. in 5 tries."
-		"chi"			"尝试5次后无法为此特殊感染者找到有效的生成位置"
-		"zho"			"嘗試5次後無法爲此特殊感染者找到有效的生成位置"
+		"en"	        "[SM] Couldn't find a valid spawn position for S.I. in 5 tries."
+		"chi"			"[SM] 生成失败! 嘗試5次後無法爲此特殊感染者找到有效的生成位置."
+		"zho"			"[SM] 生成失敗! 嘗試5次後無法為此特殊感染者找到有效的生成位置."
 		"es"            "No se pudo encontra una posición valida para Infec. Esp. en 5 intentos."
 	}
 	"Can not spawn, please try again"
 	{
-		"en"			"Can not spawn, please try again."
-		"chi"			"无法生成, 请再次尝试"
-		"zho"			"無法生成, 請再次嘗試"
+		"en"			"[SM] Can not spawn, please try again."
+		"chi"			"[SM] 无法生成, 请再次尝试."
+		"zho"			"[SM] 無法生成, 請再次嘗試."
 		"es"            "No puedes invocar, intentalo nuevamente."
 	}
 	"Can not spawn witch in tries at this moment"
 	{
-		"en"			"Can't spawn witch in %d tries at this moment."
-		"chi"			"尝试%d次后无法为此witch找到有效的生成位置"
-		"zho"			"嘗試%d次後無法爲此witch找到有效的生成位置"
+		"en"			"[SM] Can't spawn witch in %d tries at this moment."
+		"chi"			"[SM] 生成失败! 尝试%d次后无法为此witch找到有效的生成位置."
+		"zho"			"[SM] 生成失敗! 嘗試%d次後無法為此witch找到有效的生成位置."
 		"es"            "No puedes invocar una Witch en %d intentos por el momento."
 	}	
 	"Too many enities on server"
 	{
-		"en"			"Too many enities on server"
-		"chi"			"此服务器太多物件了，生成失败!"
-		"zho"			"此伺服器太多物件了，生成失敗!"
+		"en"			"[SM] Too many enities on server."
+		"chi"			"[SM] 生成失败! 服务器已存在太多物件."
+		"zho"			"[SM] 生成失敗! 伺服器已存在太多物件."
 	}
 	"Not enough player slots"
 	{
-		"en"			"Not enough player slots for AI spawn"
-		"chi"			"伺服器位置已满，没有空位给AI特感生成!"
-		"zho"			"伺服器位置已滿，沒有空位給AI特感生成!"
+		"en"			"[SM] Not enough player slots for AI spawn."
+		"chi"			"[SM] 生成失败! 服务器位置已满，没有空位给AI特感生成."
+		"zho"			"[SM] 生成失敗! 伺服器位置已滿，沒有空位給AI特感生成."
 	}
 }

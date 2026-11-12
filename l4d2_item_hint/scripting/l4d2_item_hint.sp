@@ -259,7 +259,7 @@ public void OnPluginStart()
 	g_hSpotMarkUseRange     			= CreateConVar("l4d2_spot_marker_use_range", 					"1800", 				"Max distance to place a spot marker", FCVAR_NOTIFY, true, 1.0);
 	g_hSpotMarkUseSound     			= CreateConVar("l4d2_spot_marker_use_sound", 					"buttons/blip1.wav", 	"Sound when placing a spot marker. (relative to sound/, Empty = Off)", FCVAR_NOTIFY);
 	g_hSpotMarkAnnounceType				= CreateConVar("l4d2_spot_marker_announce_type", 				"1", 					"Spot marker announce type: 0=Off, 1=Chat, 2=Hint text, 3=Center text", FCVAR_NOTIFY, true, 0.0, true, 3.0);
-	g_hSpotMarkTimer					= CreateConVar("l4d2_spot_marker_duration", 					"50.0", 				"Spot marker duration (seconds)", FCVAR_NOTIFY, true, 0.0);
+	g_hSpotMarkTimer					= CreateConVar("l4d2_spot_marker_duration", 					"10.0", 				"Spot marker duration (seconds)", FCVAR_NOTIFY, true, 0.0);
 	g_hSpotMarkSpriteColor      		= CreateConVar("l4d2_spot_marker_sprite_color", 				"200 200 200", 			"Spot marker icon color (RGB, space-separated). (Empty = Remove icon)");
 	g_hSpotMarkSpriteModel      		= CreateConVar("l4d2_spot_marker_sprite_model", 				"materials/vgui/icon_arrow_down.vmt", "Spot marker icon model.");
 	g_hSpotMarkSpriteHeight      		= CreateConVar("l4d2_spot_marker_sprite_height", 				"10.0", 				"Spot marker icon height from ground", FCVAR_NOTIFY, true, 0.0);
