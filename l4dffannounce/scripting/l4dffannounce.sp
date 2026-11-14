@@ -81,6 +81,15 @@ public void OnMapEnd()
 	ResetTimer();
 }
 
+public void OnClientDisconnect(int client)
+{
+	for (int i = 0; i <= MaxClients; i++)
+	{
+		g_iTotalDamage[client][i] = 0;
+		g_iTotalDamage[i][client] = 0;
+	}
+}
+
 void Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
 	// clear total damage
@@ -100,6 +109,8 @@ void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) 
 {
+	if ( !g_bCvarEnable ) return;
+
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	if ( !victim || !IsClientInGame(victim) || attacker == victim ) return;
@@ -122,6 +133,7 @@ void Event_HurtConcise(Event event, const char[] name, bool dontBroadcast)
 	!IsClientInGame(attacker) || 
 	IsFakeClient(attacker) || 
 	GetClientTeam(attacker) != 2 || 
+	victim < 1 || 
 	!IsClientInGame(victim) || 
 	GetClientTeam(victim) != 2)
 		return;  
@@ -162,6 +174,7 @@ void Event_IncapacitatedStart(Event event, const char[] name, bool dontBroadcast
 	!IsClientInGame(attacker) || 
 	IsFakeClient(attacker) || 
 	GetClientTeam(attacker) != 2 || 
+	victim < 1 || 
 	!IsClientInGame(victim) || 
 	GetClientTeam(victim) != 2)
 		return;  
