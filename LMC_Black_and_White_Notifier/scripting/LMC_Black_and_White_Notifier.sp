@@ -58,6 +58,7 @@ char g_sHintColourHeal[17], g_sHintColourBW[17];
 
 //char sCharName[17];
 bool g_bGlow[MAXPLAYERS+1] = {false, ...};
+bool g_bBW[MAXPLAYERS+1]; // black & white notified, independent of the glow cvar
 
 bool bLMC_Available = false;
 
@@ -190,11 +191,12 @@ void NextFrame_ReviveSuccess(int client)
 	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 		return;
 
-	if(Heartbeat_GetRevives(client) < L4D_GetMaxReviveCount())
+	if(L4D_GetMaxReviveCount() <= 0 || Heartbeat_GetRevives(client) < L4D_GetMaxReviveCount())
 		return;
 	
 	int iEntity = -1;
 	
+	g_bBW[client] = true;
 	if(bGlowEnabled)
 	{
 		g_bGlow[client] = true;
@@ -232,7 +234,7 @@ void NextFrame_ReviveSuccess(int client)
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(client) != 2 || IsFakeClient(i))
+				if(!IsClientInGame(i) || GetClientTeam(i) != 2 || IsFakeClient(i))
 					continue;
 				
 				if(g_iNoticeTypeBW == 1)
@@ -251,7 +253,7 @@ void NextFrame_ReviveSuccess(int client)
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(client) != 3 || IsFakeClient(i))
+				if(!IsClientInGame(i) || GetClientTeam(i) != 3 || IsFakeClient(i))
 					continue;
 				
 				if(g_iNoticeTypeBW == 1)
@@ -276,7 +278,8 @@ void NextFrame_ReviveSuccess(int client)
 
 				if(GetClientTeam(i) != 2)
 				{
-					PrintHintText(i, "%T", "BAW_1", i, client);
+					if(g_iNoticeTypeBW == 3)
+						PrintHintText(i, "%T", "BAW_1", i, client);
 					continue;
 				}
 
@@ -303,9 +306,10 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 	return;
 	
-	if(!g_bGlow[client])
+	if(!g_bBW[client])
 	return;
 	
+	g_bBW[client] = false;
 	int iEntity = -1;
 	if(bGlowEnabled)
 	{
@@ -338,7 +342,7 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(client) != 2 || IsFakeClient(i) /*|| i == client || i == iHealer*/)
+				if(!IsClientInGame(i) || GetClientTeam(i) != 2 || IsFakeClient(i) /*|| i == client || i == iHealer*/)
 					continue;
 				
 				if(g_iNoticeTypeHeal == 1)
@@ -367,7 +371,7 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 		{
 			for(int i = 1; i <= MaxClients;i++)
 			{
-				if(!IsClientInGame(i) || GetClientTeam(client) != 3 || IsFakeClient(i) /*|| i == client || i == iHealer*/)
+				if(!IsClientInGame(i) || GetClientTeam(i) != 3 || IsFakeClient(i) /*|| i == client || i == iHealer*/)
 					continue;
 				
 				if(g_iNoticeTypeHeal == 1)
@@ -420,13 +424,12 @@ void eHealSuccess(Event event, const char[] name, bool dontBroadcast)
 				
 				if(GetClientTeam(i) !=2)
 				{
-					if(client != iHealer)
+					if(g_iNoticeTypeHeal == 3)
 					{
-						PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
-					}
-					else
-					{
-						PrintHintText(i, "%T", "BAW_3", i, client);
+						if(client != iHealer)
+							PrintHintText(i, "%T", "BAW_2", i, client, iHealer);
+						else
+							PrintHintText(i, "%T", "BAW_3", i, client);
 					}
 
 					continue;
@@ -456,6 +459,7 @@ void ePlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	if(!IsClientInGame(client) || GetClientTeam(client) != 2)
 	return;
 	
+	g_bBW[client] = false;
 	if(!g_bGlow[client])
 	return;
 	
@@ -482,7 +486,8 @@ void ePlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 void ePlayerSpawn(Event event, const char[] name, bool dontBroadcast) 
 {
-	if(!bEnabled || !bGlowEnabled)
+	g_bBW[GetClientOfUserId(event.GetInt("userid"))] = false;
+	if(!bEnabled)
 		return;
 	
 	CreateTimer(0.1, Timer_ePlayerSpawn, event.GetInt("userid"), TIMER_FLAG_NO_MAPCHANGE);
@@ -499,8 +504,12 @@ Action Timer_ePlayerSpawn(Handle timer, int userid)
 		return Plugin_Continue;
 
 	//PrintToChatAll("%d %d", Heartbeat_GetRevives(client), L4D_GetMaxReviveCount());
+	// still black & white (e.g. after map transition), keep the heal notice working even if glow is disabled
+	g_bBW[client] = L4D_GetMaxReviveCount() > 0 && Heartbeat_GetRevives(client) >= L4D_GetMaxReviveCount();
+	if(!bGlowEnabled)
+		return Plugin_Continue;
 		
-	if(Heartbeat_GetRevives(client) < L4D_GetMaxReviveCount())
+	if(!g_bBW[client])
 	{
 		if(bLMC_Available)
 		{
@@ -578,14 +587,14 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 			SetEntProp(iEntity, Prop_Send, "m_iGlowType", 0);
 			SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", 0);
 			SetEntProp(iEntity, Prop_Send, "m_nGlowRange", 0);
-			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
+			SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0);
 		}
 		else
 		{
 			SetEntProp(client, Prop_Send, "m_iGlowType", 0);
 			SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
 			SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
-			if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
+			SetEntProp(client, Prop_Send, "m_bFlashing", 0);
 		}
 	}
 	else
@@ -593,7 +602,7 @@ void eTeamChange(Event event, const char[] name, bool dontBroadcast)
 		SetEntProp(client, Prop_Send, "m_iGlowType", 0);
 		SetEntProp(client, Prop_Send, "m_glowColorOverride", 0);
 		SetEntProp(client, Prop_Send, "m_nGlowRange", 0);
-		if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
+		SetEntProp(client, Prop_Send, "m_bFlashing", 0);
 	}
 	
 }
@@ -609,7 +618,7 @@ public void LMC_OnClientModelApplied(int client, int iEntity, const char sModel[
 	
 	SetEntProp(iEntity, Prop_Send, "m_iGlowType", GetEntProp(client, Prop_Send, "m_iGlowType"));
 	SetEntProp(iEntity, Prop_Send, "m_glowColorOverride", GetEntProp(client, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(iEntity, Prop_Send, "m_nGlowRange", GetEntProp(client, Prop_Send, "m_glowColorOverride"));
+	SetEntProp(iEntity, Prop_Send, "m_nGlowRange", GetEntProp(client, Prop_Send, "m_nGlowRange"));
 	if(g_bGlowFlash) SetEntProp(iEntity, Prop_Send, "m_bFlashing", 1);
 	else SetEntProp(iEntity, Prop_Send, "m_bFlashing", 0);
 	
@@ -633,7 +642,7 @@ public void LMC_OnClientModelDestroyed(int client, int iEntity)
 	
 	SetEntProp(client, Prop_Send, "m_iGlowType", GetEntProp(iEntity, Prop_Send, "m_iGlowType"));
 	SetEntProp(client, Prop_Send, "m_glowColorOverride", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
-	SetEntProp(client, Prop_Send, "m_nGlowRange", GetEntProp(iEntity, Prop_Send, "m_glowColorOverride"));
+	SetEntProp(client, Prop_Send, "m_nGlowRange", GetEntProp(iEntity, Prop_Send, "m_nGlowRange"));
 	if(g_bGlowFlash) SetEntProp(client, Prop_Send, "m_bFlashing", 1);
 	else SetEntProp(client, Prop_Send, "m_bFlashing", 0);
 }
