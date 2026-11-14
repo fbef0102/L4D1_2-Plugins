@@ -884,7 +884,7 @@ void GetOfficialCvars()
 
 public void OnClientPutInServer(int client)
 {
-	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamageByWitchPost);
+	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamageByWitchPost);
 }
 
 public void OnClientDisconnect(int client)
@@ -967,8 +967,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 			// if the damage done is greater than the health we know the hunter to have remaining, reduce the damage done
 			if ( g_iHunterLastHealth[victim] > 0 && damage > g_iHunterLastHealth[victim] )
 			{
+				g_iHunterOverkill[victim] = damage - g_iHunterLastHealth[victim];
 				damage = g_iHunterLastHealth[victim];
-				g_iHunterOverkill[victim] = g_iHunterLastHealth[victim] - damage;
 				g_iHunterLastHealth[victim] = 0;
 			}
 			
@@ -1404,12 +1404,10 @@ void HandleEvent_PlayerDeath(int userid, int attackerid, const char[] weapon_typ
 			else if ( g_iSmokerVictim[victim] > 0 &&
 						g_iSmokerVictim[victim] != attacker )
 			{
-				int smoker = victim;
-				victim = g_iSmokerVictim[smoker];
-				HandleClear( attacker, smoker, victim,
+				HandleClear( attacker, victim, g_iSmokerVictim[victim],
 						ZC_SMOKER,
-						(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
-						( GetEngineTime() - g_fPinTime[smoker][0]),
+						(g_fPinTime[victim][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[victim][1]) : -1.0,
+						( GetEngineTime() - g_fPinTime[victim][0]),
 						false,
 						headshot
 					);
@@ -1498,8 +1496,8 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 		{
 			HandlePopStop(attacker, victim, g_iBoomerVomitHits[victim], (GetEngineTime() - g_fBoomerVomitStart[victim]));
 			
+			delete g_hBoomerVomitTimer[victim];
 			Timer_BoomVomitCheck(null, victim);
-			delete g_hBoomerVomitTimer[victim] ;
 		}
 
 		if(g_bBoomerNearSomebody[victim] == false)
@@ -3277,8 +3275,8 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 			Call_PushCell(victim);
 			Call_PushCell(i);
 			Call_PushCell(isHunter);
-			Call_PushCell(g_iHunterShotCount[victim][i]);
 			Call_PushCell(g_iHunterShotDamage[victim][i]);
+			Call_PushCell(g_iHunterShotCount[victim][i]);
 			Call_Finish();
 
 			count++;
@@ -3302,7 +3300,7 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 				else if(count % 2 == 0)
 				{
 					// break;
-					CPrintToChatAll(assistMsg);
+					CPrintToChatAll("%s", assistMsg);
 					assistMsg[0] = '\0';
 				}
 			}
@@ -3316,7 +3314,7 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 			}
 			else if(count % 2 != 0 && strlen(assistMsg) > 0)
 			{
-				CPrintToChatAll(assistMsg);
+				CPrintToChatAll("%s", assistMsg);
 			}
 		}
 	}
