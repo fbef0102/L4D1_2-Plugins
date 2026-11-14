@@ -685,6 +685,7 @@ void GetCvars()
 	}
 	g_hInfectedMarkSpriteColor.GetString(g_sInfectedMarkSpriteColor, sizeof(g_sInfectedMarkSpriteColor));
 	g_hInfectedMarkSpriteModel.GetString(g_sInfectedMarkSpriteModel, sizeof(g_sInfectedMarkSpriteModel));
+	if ( strlen(g_sInfectedMarkSpriteModel) > 0 && g_bMapStarted) PrecacheModel(g_sInfectedMarkSpriteModel, true);
 	g_fInfectedMarkSpriteTimer = g_hInfectedMarkSpriteTimer.FloatValue;
 	g_fInfectedMarkSpriteScale = g_hInfectedMarkSpriteScale.FloatValue;
 	g_bInfectedMarkSpriteFollow = g_hInfectedMarkSpriteFollow.BoolValue;
@@ -714,6 +715,7 @@ void GetCvars()
 	}
 	g_hSurvivorMarkSpriteColor[0].GetString(g_sSurvivorMarkSpriteColor[0], sizeof(g_sSurvivorMarkSpriteColor[0]));
 	g_hSurvivorMarkSpriteModel[0].GetString(g_sSurvivorMarkSpriteModel[0], sizeof(g_sSurvivorMarkSpriteModel[0]));
+	if ( strlen(g_sSurvivorMarkSpriteModel[0]) > 0 && g_bMapStarted) PrecacheModel(g_sSurvivorMarkSpriteModel[0], true);
 	g_fSurvivorMarkSpriteTimer[0] = g_hSurvivorMarkSpriteTimer[0].FloatValue;
 	g_fSurvivorMarkSpriteScale[0] = g_hSurvivorMarkSpriteScale[0].FloatValue;
 	g_bSurvivorMarkSpriteFollow[0] = g_hSurvivorMarkSpriteFollow[0].BoolValue;	
@@ -741,6 +743,7 @@ void GetCvars()
 	}
 	g_hSurvivorMarkSpriteColor[1].GetString(g_sSurvivorMarkSpriteColor[1], sizeof(g_sSurvivorMarkSpriteColor[1]));
 	g_hSurvivorMarkSpriteModel[1].GetString(g_sSurvivorMarkSpriteModel[1], sizeof(g_sSurvivorMarkSpriteModel[1]));
+	if ( strlen(g_sSurvivorMarkSpriteModel[1]) > 0 && g_bMapStarted) PrecacheModel(g_sSurvivorMarkSpriteModel[1], true);
 	g_fSurvivorMarkSpriteTimer[1] = g_hSurvivorMarkSpriteTimer[1].FloatValue;
 	g_fSurvivorMarkSpriteScale[1] = g_hSurvivorMarkSpriteScale[1].FloatValue;
 	g_bSurvivorMarkSpriteFollow[1] = g_hSurvivorMarkSpriteFollow[1].BoolValue;	
@@ -1370,7 +1373,7 @@ void RemoveAllSpotMark()
     while ((entity = FindEntityByClassname(entity, CLASSNAME_INFO_TARGET)) != INVALID_ENT_REFERENCE)
     {
         GetEntPropString(entity, Prop_Data, "m_iName", targetname, sizeof(targetname));
-        if (StrEqual(targetname, "l4d_mark_hint"))
+        if (strncmp(targetname, "l4d_mark_hint", 13) == 0)
             AcceptEntityInput(entity, "Kill");
     }
 
@@ -1378,7 +1381,7 @@ void RemoveAllSpotMark()
     while ((entity = FindEntityByClassname(entity, CLASSNAME_ENV_SPRITE)) != INVALID_ENT_REFERENCE)
     {
         GetEntPropString(entity, Prop_Data, "m_iName", targetname, sizeof(targetname));
-        if (StrEqual(targetname, "l4d_mark_hint"))
+        if (strncmp(targetname, "l4d_mark_hint", 13) == 0)
             AcceptEntityInput(entity, "Kill");
     }
 }
@@ -2060,16 +2063,6 @@ void CreateSpotMarker(int client, int clientAim, int iMarkerTeam)
 {
 	if (GetEngineTime() < g_fSpotMarkCoolDownTime[client]) return; // cool down not yet
 
-	// Delete client's previous mark first
-	if(g_bSpotMarkRemovePrevious)
-	{
-		// sprite
-		RemoveClientCreation(client, g_iClientMarkSpot_SpriteInfoTargetEntRef[client]);
-		// instructor hint
-		RemoveClientCreation(client, g_iClient_InfoTargetEntRef[client]);
-		RemoveClientCreation(client, g_iClient_InstructorHintEntRef[client]);
-	}
-
 	bool hit = false;
 	float vEndPos[3], vStartPos[3];
 	GetClientAbsOrigin(client, vStartPos);
@@ -2078,7 +2071,7 @@ void CreateSpotMarker(int client, int clientAim, int iMarkerTeam)
 		hit = true;
 		GetClientAbsOrigin(clientAim, vEndPos);
 	}
-	else if ( g_iEntityType[clientAim] == EEntity_Witch )
+	else if ( clientAim > 0 && g_iEntityType[clientAim] == EEntity_Witch )
 	{
 		hit = true;
 		GetEntPropVector(clientAim, Prop_Data, "m_vecAbsOrigin", vEndPos);
@@ -2109,6 +2102,16 @@ void CreateSpotMarker(int client, int clientAim, int iMarkerTeam)
 
 	if (GetVectorDistance(vStartPos, vEndPos, true) > g_fSpotMarkUseRange * g_fSpotMarkUseRange) // over distance
 		return;
+
+	// Delete client's previous spot mark first
+	if(g_bSpotMarkRemovePrevious)
+	{
+		// sprite
+		RemoveClientCreation(client, g_iClientMarkSpot_SpriteInfoTargetEntRef[client]);
+		// instructor hint
+		RemoveClientCreation(client, g_iClient_InfoTargetEntRef[client]);
+		RemoveClientCreation(client, g_iClient_InstructorHintEntRef[client]);
+	}
 
 	if ( g_bL4D2Version && g_bSpotMarkInstructorHint )
 		CreateInstructorHint(client, vEndPos, "", 0, eSpotMarker, iMarkerTeam);
@@ -2772,7 +2775,6 @@ bool Create_info_target(int client, int iEntity, const float vOrigin[3], const c
 	SetVariantString("!activator");
 	AcceptEntityInput(info_target, "SetParent", iEntity); // We need parent the info_target to an entity, otherwise it won't follow moveable item such as gascan, pill and throwable
 
-	g_iClient_InfoTargetEntRef[client] = EntIndexToEntRef(info_target);
 	g_iEntCreator[info_target] = client;
 	g_iMarkerTeam[info_target] = iMarkerTeam;
 	SDKHook(info_target, SDKHook_SetTransmit, Hook_SetTransmit_info_target);
@@ -2791,6 +2793,9 @@ bool Create_info_target(int client, int iEntity, const float vOrigin[3], const c
 	}
 	else
 	{
+		// spot marker only (no parent entity): remembered so the next spot mark removes it
+		g_iClient_InfoTargetEntRef[client] = EntIndexToEntRef(info_target);
+
 		static char szBuffer[36];
 		FormatEx(szBuffer, sizeof(szBuffer), "OnUser1 !self:Kill::%f:-1", duration);
 
@@ -2810,7 +2815,7 @@ void Create_env_instructor_hint(int client, int iEntity, EHintType eType, const 
 	if (!CheckIfEntitySafe(env_instructor_hint)) return;
 	TeleportEntity(env_instructor_hint, vOrigin, NULL_VECTOR, NULL_VECTOR);
 
-	char sDuration[4];
+	char sDuration[8];
 	IntToString(RoundFloat(duration), sDuration, sizeof(sDuration));
 	char sRange[8];
 	IntToString(RoundFloat(range), sRange, sizeof(sRange));
@@ -2841,7 +2846,7 @@ void Create_env_instructor_hint(int client, int iEntity, EHintType eType, const 
 	//偶而出現兩次提示，但hint_instance_type限制同一時間相同的"hint_name"只會有一個提示
 	AcceptEntityInput(env_instructor_hint, "ShowHint"); 
 	
-	g_iClient_InstructorHintEntRef[client] = EntIndexToEntRef(env_instructor_hint);
+	if (eType == eSpotMarker) g_iClient_InstructorHintEntRef[client] = EntIndexToEntRef(env_instructor_hint);
 	g_iEntCreator[env_instructor_hint] = client;
 
 	if (eType != eSpotMarker)
@@ -3031,12 +3036,12 @@ void PlayerMarkHint_Survivor(int client)
 				return;
 		}
 	}
-	else if ( iMarkflags & eMarkFlag_Witch && g_iEntityType[clientAim] == EEntity_Witch )
+	else if ( iMarkflags & eMarkFlag_Witch && clientAim > 0 && g_iEntityType[clientAim] == EEntity_Witch )
 	{
 		bIsAimWitch = true;
 
 		GetEntPropVector(clientAim, Prop_Data, "m_vecAbsOrigin", vTargetPos);
-		if( IsWithInRange(vClientPos, vTargetPos, g_fSurvivorMarkUseRange[L4D_TEAM_SURVIVOR-2]) && CreateInfectedMarker(client, clientAim, L4D_TEAM_SURVIVOR, true) == true )
+		if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) && CreateInfectedMarker(client, clientAim, L4D_TEAM_SURVIVOR, true) == true )
 			return;
 	}
 
@@ -3121,20 +3126,21 @@ void PlayerMarkHint_Survivor(int client)
 				}
 			}
 
-			if(Target_FovNearBy > 0)
+		}
+
+		if(Target_FovNearBy > 0)
+		{
+			if(Target_FovNearBy > MaxClients)
 			{
-				if(Target_FovNearBy > MaxClients)
-				{
-					bIsAimWitch = true;
-					if( CreateInfectedMarker(client, Target_FovNearBy, L4D_TEAM_SURVIVOR, true) == true )
-						return;
-				}
-				else
-				{
-					bIsAimPlayer = true;
-					if( CreateInfectedMarker(client, Target_FovNearBy, L4D_TEAM_SURVIVOR) == true )
-						return;
-				}
+				bIsAimWitch = true;
+				if( CreateInfectedMarker(client, Target_FovNearBy, L4D_TEAM_SURVIVOR, true) == true )
+					return;
+			}
+			else
+			{
+				bIsAimPlayer = true;
+				if( CreateInfectedMarker(client, Target_FovNearBy, L4D_TEAM_SURVIVOR) == true )
+					return;
 			}
 		}
 
@@ -3149,7 +3155,7 @@ void PlayerMarkHint_Survivor(int client)
 				if(GetClientTeam(i) == L4D_TEAM_SURVIVOR)
 				{
 					GetClientEyePosition(i, vTargetPos);
-					if( IsWithInRange(vClientPos, vTargetPos, g_fInfectedMarkUseRange) == false ) continue;
+					if( IsWithInRange(vClientPos, vTargetPos, g_fSurvivorMarkUseRange[L4D_TEAM_SURVIVOR-2]) == false ) continue;
 					//if(!IsVisibleToPlayer(vClientEyePos, i)) continue;
 					if (g_bL4D2Version && !L4D2_IsVisibleToPlayer(client, L4D_TEAM_SURVIVOR, L4D_TEAM_SURVIVOR, 0, vTargetPos)) continue;
 					if (!g_bL4D2Version && !IsVisibleToPlayer(vClientEyePos, i)) continue;
