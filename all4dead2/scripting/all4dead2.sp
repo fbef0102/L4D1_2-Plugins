@@ -773,17 +773,9 @@ int Menu_SpawnItemsHandler(Menu menu, MenuAction action, int cindex, int itempos
 			} case 10: {
 				Do_SpawnItem(cindex, "oxygentank");
 			} case 11: {
-				float location[3];
-				if (!Misc_TraceClientViewToLocation(cindex, location)) {
-					GetClientAbsOrigin(cindex, location);
-				}
-				Do_CreateEntity(cindex, "weapon_ammo_spawn", MODEL_AMMO_L4D2, location, false);
+				Do_SpawnItem(cindex, "weapon_ammo_spawn");
 			} case 12: {
-				float location[3];
-				if (!Misc_TraceClientViewToLocation(cindex, location)) {
-					GetClientAbsOrigin(cindex, location);
-				}
-				Do_CreateEntity(cindex, "upgrade_laser_sight", "PROVIDED", location, false);
+				Do_SpawnItem(cindex, "upgrade_laser_sight");
 			} case 13: {
 				Do_SpawnItem(cindex, "weapon_upgradepack_incendiary");
 			} case 14: {
@@ -838,10 +830,33 @@ Action Command_SpawnItem(int client, int args) {
 */
 void Do_SpawnItem(int client, const char[] type) {
 
-	if (client == 0) {
+	if (client == 0) 
+	{
 		ReplyToCommand(client, "Can not use this command from the console."); 
-	} else {
-		StripAndExecuteClientCommand(client, "give", type);
+	} 
+	else 
+	{
+		if (strcmp(type, "weapon_ammo_spawn", false) == 0)
+		{
+			float location[3];
+			if (!Misc_TraceClientViewToLocation(client, location)) {
+				GetClientAbsOrigin(client, location);
+			}
+			Do_CreateEntity(client, "weapon_ammo_spawn", MODEL_AMMO_L4D2, location, false);
+		}
+		else if (strcmp(type, "upgrade_laser_sight", false) == 0)
+		{
+			float location[3];
+			if (!Misc_TraceClientViewToLocation(client, location)) {
+				GetClientAbsOrigin(client, location);
+			}
+			Do_CreateEntity(client, "upgrade_laser_sight", "None", location, false);
+		}
+		else
+		{
+			StripAndExecuteClientCommand(client, "give", type);
+		}
+		
 		if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, type);
 		//else CPrintToChat(client, "%T", "has been spawned", client, client, type);
 		LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
@@ -856,7 +871,7 @@ void Do_CreateEntity(int client, const char[] name, const char[] model, float lo
 		return;
 	}
 
-	if (strcmp(model, "PROVIDED") != 0)
+	if (strcmp(model, "None") != 0)
 		SetEntityModel(entity, model);
 	DispatchSpawn(entity);
 	if (zombie) {
@@ -868,7 +883,7 @@ void Do_CreateEntity(int client, const char[] name, const char[] model, float lo
 	ActivateEntity(entity);
 	// Teleport the entity to the client's crosshair
 	TeleportEntity(entity, location, NULL_VECTOR, NULL_VECTOR);
-	LogAction(client, -1, "[NOTICE]: (%L) has created a %s (%s)", client, name, model);
+	//LogAction(client, -1, "[NOTICE]: (%L) has created a %s (%s)", client, name, model);
 }
 
 // Weapon Spawning functions
@@ -1107,7 +1122,7 @@ void Menu_CreateConfigMenu(int client) {
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
 	if (notify_players.BoolValue) { menu.AddItem("pn", Translate(client, "%t", "Disable player notifications")); } 
-	//else { menu.AddItem("pn", Translate(client, "%t", "Enable player notifications")); }
+	else { menu.AddItem("pn", Translate(client, "%t", "Enable player notifications")); }
 	menu.Display( client, MENU_TIME_FOREVER);
 }
 /// Handles callbacks from a client using the configuration menu.

@@ -65,496 +65,496 @@
 	}
 	"Disable automatic placement"
 	{
-		"en"			"automatic placement (Current: Enabled)"
+		"en"			"Automatic placement (Current: Enabled)"
 		"chi"			"自动放置 (目前状态: 已开启)"
 		"zho"			"自動放置 (目前狀態: 已開啟)"
 		"es"            "Desactivar Colocación Automática"
 	}
 	"Enable automatic placement"
 	{
-		"en"			"automatic placement (Current: Disabled)"
+		"en"			"Automatic placement (Current: Disabled)"
 		"chi"			"自动放置 (目前状态: 已关闭)"
 		"zho"			"自動放置 (目前狀態: 已關閉)"
 		"es"            "Habilitar Colocación Automática"
 	}
 	"Spawn a tank"
 	{
-		"en"			"Spawn a tank"
+		"en"			"Tank"
 		"chi"			"Tank"
 		"zho"			"Tank"
 		"es"            "Invocar un Tank"
 	}
 	"Spawn a witch"
 	{
-		"en"			"Spawn a witch"
+		"en"			"Witch"
 		"chi"			"Witch"
 		"zho"			"Witch"
 		"es"            "Invocar un Witch"
 	}
 	"Spawn a boomer"
 	{
-		"en"			"Spawn a boomer"
+		"en"			"Boomer"
 		"chi"			"Boomer"
 		"zho"			"Boomer"
 		"es"            "Invocar un Boomer"
 	}
 	"Spawn a hunter"
 	{
-		"en"			"Spawn a hunter"
+		"en"			"Hunter"
 		"chi"			"Hunter"
 		"zho"			"Hunter"
 		"es"            "Invocar un Hunter"
 	}
 	"Spawn a smoker"
 	{
-		"en"			"Spawn a smoker"
+		"en"			"Smoker"
 		"chi"			"Smoker"
 		"zho"			"Smoker"
 		"es"            "Invocar un Smoker"
 	}
 	"Spawn a spitter"
 	{
-		"en"			"Spawn a spitter"
+		"en"			"Spitter"
 		"chi"			"Spitter"
 		"zho"			"Spitter"
 		"es"            "Invocar un Spitter"
 	}
 	"Spawn a jockey"
 	{
-		"en"			"Spawn a jockey"
+		"en"			"Jockey"
 		"chi"			"Jockey"
 		"zho"			"Jockey"
 		"es"            "Invocar un Jockey"
 	}
 	"Spawn a charger"
 	{
-		"en"			"Spawn a charger"
+		"en"			"Charger"
 		"chi"			"Charger"
 		"zho"			"Charger"
 		"es"            "Invocar un Charger"
 	}
 	"Spawn a mob"
 	{
-		"en"			"Spawn a mob"
+		"en"			"Mob"
 		"chi"			"尸潮"
 		"zho"			"屍潮"
 		"es"            "Invocar una Multitud"
 	}
 	"Spawn a riot zombie"
 	{
-		"en"			"Spawn a riot zombie"
+		"en"			"Riot zombie"
 		"chi"			"防暴警察"
 		"zho"			"鎮暴警察"
 		"es"            "Invocar un Zombie Anti-Disturbios"
 	}
 	"Spawn a ceda zombie"
 	{
-		"en"			"Spawn a ceda zombie"
-		"chi"			"防疫人员"
+		"en"			"CEDA zombie"
+		"chi"			"CEDA防疫人员"
 		"zho"			"CEDA防疫人员"
 		"es"            "Invocar un Zombie de Ceda"
 	}
 	"Spawn a clown zombie"
 	{
-		"en"			"Spawn a clown zombie"
+		"en"			"Clown zombie"
 		"chi"			"小丑"
 		"zho"			"小丑"
 		"es"            "Invocar un Zombie Payaso"
 	}
 	"Spawn a mudmen zombie"
 	{
-		"en"			"Spawn a mudmen zombie"
+		"en"			"Mudmen zombie"
 		"chi"			"泥人"
 		"zho"			"泥人"
 		"es"            "Invocar un Zombie de Barro"
 	}
 	"Spawn a roadworker zombie"
 	{
-		"en"			"Spawn a roadworker zombie"
+		"en"			"Roadworker zombie"
 		"chi"			"道路工人"
 		"zho"			"道路工人"
 		"es"            "Invocar un Zombie Trabajador de Carretera"
 	}
 	"Spawn a jimmie gibbs zombie"
 	{
-		"en"			"Spawn a jimmie gibbs zombie"
+		"en"			"Jimmie gibbs zombie"
 		"chi"			"吉米吉布斯 (血很厚)"
 		"zho"			"吉米賽車手 (血很厚)"
 		"es"            "Invocar un Zombie Jimmie Gibbs"
 	}
 	"Spawn a fallen survivor zombie"
 	{
-		"en"			"Spawn a fallen survivor zombie"
+		"en"			"Fallen survivor zombie"
 		"chi"			"堕落幸存者 (會掉落物资)"
 		"zho"			"墮落倖存者 (會掉落物資)"
 		"es"            "Invocar un Zombie de un Superviviente Caído"
 	}
 	"Spawn a defibrillator"
 	{
-		"en"			"Spawn a defibrillator"
+		"en"			"Defibrillator"
 		"chi"			"电击器"
 		"zho"			"電擊器"
 		"es"            "Invocar un Desfibrilador"
 	}
 	"Spawn a medkit"
 	{
-		"en"			"Spawn a medkit"
+		"en"			"Medkit"
 		"chi"			"急救包"
 		"zho"			"治療包"
 		"es"            "Invocar un Kit Médico"
 	}
 	"Spawn some pills"
 	{
-		"en"			"Spawn some pills"
+		"en"			"Pills"
 		"chi"			"药丸"
 		"zho"			"藥丸"
 		"es"            "Invocar algunas Pildoras"
 	}
 	"Spawn some adrenaline"
 	{
-		"en"			"Spawn some adrenaline"
+		"en"			"Adrenaline shot"
 		"chi"			"肾上腺素"
 		"zho"			"腎上腺素"
 		"es"            "Invocar algo de Adrenalina"
 	}
 	"Spawn a molotov"
 	{
-		"en"			"Spawn a molotov"
+		"en"			"Molotov"
 		"chi"			"燃烧瓶"
 		"zho"			"火瓶"
 		"es"            "Invocar un Molotov"
 	}
 	"Spawn a pipe bomb"
 	{
-		"en"			"Spawn a pipe bomb"
+		"en"			"Pipe bomb"
 		"chi"			"土制炸弹"
 		"zho"			"土製炸彈"
 		"es"            "Invocar una Bomba de Tubo"
 	}
 	"Spawn a bile jar"
 	{
-		"en"			"Spawn a bile jar"
+		"en"			"Bile jar"
 		"chi"			"胆汁瓶"
 		"zho"			"膽汁瓶"
 		"es"            "Invocar un Tarro de Bilis"
 	}
 	"Spawn a gas tank"
 	{
-		"en"			"Spawn a gascan"
-		"chi"			"油桶"
-		"zho"			"油桶"
+		"en"			"Gascan"
+		"chi"			"汽油桶"
+		"zho"			"汽油桶"
 		"es"            "Invocar un Tanque de Gas"
 	}
 	"Spawn a firework"
 	{
-		"en"			"Spawn a firework crate"
+		"en"			"Firework crate"
 		"chi"			"烟火盒"
 		"zho"			"煙火盒"
 		"es"            "Invocar un Fuego Artificial"
 	}
 	"Spawn a propane tank"
 	{
-		"en"			"Spawn a propane tank"
+		"en"			"Propane tank"
 		"chi"			"瓦斯罐"
 		"zho"			"瓦斯罐"
 		"es"            "Invocar un Tanque de Propano"
 	}
 	"Spawn an oxygen tank"
 	{
-		"en"			"Spawn an oxygen tank"
-		"chi"			"氧气瓶"
+		"en"			"Oxygen tank"
+		"chi"			"氧气罐"
 		"zho"			"氧氣罐"
 		"es"            "Invocar un Tanque de Oxígeno"
 	}
 	"Spawn an ammo pile"
 	{
-		"en"			"Spawn an ammo pile"
+		"en"			"Ammo pile"
 		"chi"			"子弹堆"
 		"zho"			"子彈堆"
 		"es"            "Invocar una Pila de Municion"
 	}
 	"Spawn laser sight pack"
 	{
-		"en"			"Spawn laser sight pack"
-		"chi"			"激光瞄准器"
+		"en"			"Laser sight pack"
+		"chi"			"激光裝置"
 		"zho"			"雷射裝置"
 		"es"            "Invocar un Paquete Mira Láser"
 	}
 	"Spawn incendiary ammo"
 	{
-		"en"			"Spawn incendiary ammo"
-		"chi"			"燃烧子弹"
-		"zho"			"燃燒子彈"
+		"en"			"Incendiary ammo pack"
+		"chi"			"燃烧子弹盒"
+		"zho"			"燃燒子彈盒"
 		"es"            "Invocar Munición Incendiaria"
 	}
 	"Spawn explosive ammo"
 	{
-		"en"			"Spawn explosive ammo"
-		"chi"			"高爆子弹"
-		"zho"			"高爆子彈"
+		"en"			"Explosive ammo pack"
+		"chi"			"高爆子弹盒"
+		"zho"			"高爆子彈盒"
 		"es"            "Invocar Munición Explosiva"
 	}
 	"Spawn a gnome"
 	{
-		"en"			"Spawn a gnome"
-		"chi"			"矮人玩具"
+		"en"			"Gnome"
+		"chi"			"地精"
 		"zho"			"精靈小矮人"
 		"es"            "Invocar un Nomo"
 	}
 	"Spawn cola bottles"
 	{
-		"en"			"Spawn cola bottles"
+		"en"			"Cola bottles"
 		"chi"			"可乐瓶"
 		"zho"			"可樂瓶"
 		"es"            "Invocar una Botella de Gaseosa"
 	}
 	"Spawn a pistol"
 	{
-		"en"			"Spawn a pistol"
+		"en"			"Pistol"
 		"chi"			"手枪"
 		"zho"			"手槍"
 		"es"            "Invocar una Pistola"
 	}
 	"Spawn a magnum"
 	{
-		"en"			"Spawn a magnum"
+		"en"			"Magnum"
 		"chi"			"马格南手枪"
 		"zho"			"馬格南手槍"
 		"es"            "Invocar una Magnum"
 	}
 	"Spawn a pumpshotgun"
 	{
-		"en"			"pawn a pumpshotgun"
-		"chi"			"pump霰弹枪"
+		"en"			"Pumpshotgun"
+		"chi"			"pump单发霰弹枪"
 		"zho"			"Pump單發霰彈槍"
 		"es"            "Invocar una Escopeta"
 	}
 	"Spawn a shotgun chrome"
 	{
-		"en"			"Spawn a shotgun chrome"
-		"chi"			"chrome霰弹枪"
+		"en"			"Shotgun chrome"
+		"chi"			"chrome单发霰弹枪"
 		"zho"			"Chrome單發霰彈槍"
 		"es"            "Invocar un Escopeta Cromada"
 	}
 	"Spawn a sub machine gun"
 	{
-		"en"			"Spawn a smg"
+		"en"			"SMG"
 		"chi"			"冲锋枪"
 		"zho"			"機槍"
 		"es"            "Invocar un Pistola Ametralladora"
 	}
 	"Spawn a silenced smg"
 	{
-		"en"			"Spawn a silenced smg"
+		"en"			"Silenced SMG"
 		"chi"			"消音冲锋枪"
 		"zho"			"消音機槍"
 		"es"            "Invocar un SMG con silenciador"
 	}
 	"Spawn a mp5"
 	{
-		"en"			"Spawn a mp5"
+		"en"			"MP5"
 		"chi"			"MP5冲锋枪"
 		"zho"			"MP5衝鋒槍"
 		"es"            "Invocar un MP5"
 	}
 	"Spawn an assault rifle"
 	{
-		"en"			"Spawn an assault rifle"
+		"en"			"Assault rifle"
 		"chi"			"M16步枪"
 		"zho"			"M16步槍"
 		"es"            "Invocar un Rifle de Asalto"
 	}
 	"Spawn a sg552 rifle"
 	{
-		"en"			"Spawn a sg552 rifle"
+		"en"			"SG552 rifle"
 		"chi"			"SG552步枪"
 		"zho"			"SG552步槍"
 		"es"            "Invocar un Rifle SG552"
 	}
 	"Spawn an AK74"
 	{
-		"en"			"Spawn an AK74"
+		"en"			"AK74"
 		"chi"			"AK74"
 		"zho"			"AK74"
 		"es"            "Invocar un AK74"
 	}
 	"Spawn a desert rifle"
 	{
-		"en"			"Spawn a desert rifle"
+		"en"			"Desert rifle"
 		"chi"			"三连发沙漠步枪"
 		"zho"			"三連發沙漠步槍"
 		"es"            "Invocar un Rifle de Desierto"
 	}
 	"Spawn a shotgun spas"
 	{
-		"en"			"Spawn a shotgun spas"
+		"en"			"Shotgun SPAS"
 		"chi"			"SPAS连发霰弹枪"
 		"zho"			"SPAS連發霰彈槍"
 		"es"            "invocar un Balneario de Escopeta"
 	}
 	"Spawn an auto shotgun"
 	{
-		"en"			"Spawn an auto shotgun"
+		"en"			"Auto shotgun"
 		"chi"			"战术连发霰弹枪"
 		"zho"			"戰術連發霰彈槍"
 		"es"            "Invocar una Escopeta Automática"
 	}
 	"Spawn a hunting rifle"
 	{
-		"en"			"Spawn a hunting rifle"
+		"en"			"Hunting rifle"
 		"chi"			"狩猎狙击枪"
 		"zho"			"獵槍"
 		"es"            "Invocar un Rifle de Caza"
 	}
 	"Spawn a military sniper"
 	{
-		"en"			"Spawn a military sniper"
+		"en"			"Military sniper"
 		"chi"			"军用狙击枪"
 		"zho"			"軍用狙擊槍"
 		"es"            "Invocar un Francotirador Militar"
 	}
 	"Spawn a scout"
 	{
-		"en"			"Spawn a scout"
+		"en"			"Scout"
 		"chi"			"Scout狙击枪"
 		"zho"			"Scout狙擊槍"
 		"es"            "Invocar un Francotirador Ligero"
 	}
 	"Spawn an awp"
 	{
-		"en"			"Spawn an awp"
+		"en"			"AWP"
 		"chi"			"AWP"
 		"zho"			"AWP"
 		"es"            "Invocar un AWP"
 	}
 	"Spawn a grenade launcher"
 	{
-		"en"			"Spawn a grenade launcher"
+		"en"			"Grenade launcher"
 		"chi"			"榴弹发射器"
 		"zho"			"榴彈發射器"
 		"es"            "Invocar un Lanza Granada"
 	}
 	"Spawn a m60"
 	{
-		"en"			"Spawn a m60"
+		"en"			"M60"
 		"chi"			"M60机关枪"
 		"zho"			"M60機關槍"
 		"es"            "Invocar un M60"
 	}
 	"Spawn a baseball bat"
 	{
-		"en"			"Spawn a baseball bat"
+		"en"			"Baseball bat"
 		"chi"			"棒球棍"
 		"zho"			"球棒"
 		"es"            "Invocar un Bat de Beisbol"
 	}
 	"Spawn a chainsaw"
 	{
-		"en"			"Spawn a chainsaw"
+		"en"			"Chainsaw"
 		"chi"			"电锯"
 		"zho"			"電鋸"
 		"es"            "Invocar una Motosierra"
 	}
 	"Spawn a cricket bat"
 	{
-		"en"			"Spawn a cricket bat"
+		"en"			"Cricket bat"
 		"chi"			"板球球棍"
 		"zho"			"板球拍"
 		"es"            "Invocar un Bate de Cricket"
 	}
 	"Spawn a crowbar"
 	{
-		"en"			"Spawn a crowbar"
+		"en"			"Crowbar"
 		"chi"			"撬棍"
 		"zho"			"鐵撬"
 		"es"            "Invocar una Palanca"
 	}
 	"Spawn an electric guitar"
 	{
-		"en"			"Spawn an electric guitar"
+		"en"			"Electric guitar"
 		"chi"			"电吉他"
 		"zho"			"電吉他"
 		"es"            "Invocar una Guitarra Eléctrica"
 	}
 	"Spawn a fire axe"
 	{
-		"en"			"Spawn a fire axe"
+		"en"			"Fire axe"
 		"chi"			"消防斧"
 		"zho"			"消防斧"
 		"es"            "Invocar una Hacha Contra Incendios"
 	}
 	"Spawn a frying pan"
 	{
-		"en"			"Spawn a frying pan"
+		"en"			"Frying pan"
 		"chi"			"平底锅"
 		"zho"			"平底鍋"
 		"es"            "Invocar una Sartén"
 	}
 	"Spawn a katana"
 	{
-		"en"			"Spawn a katana"
+		"en"			"Katana"
 		"chi"			"武士刀"
 		"zho"			"武士刀"
 		"es"            "Invocar una Katana"
 	}
 	"Spawn a machete"
 	{
-		"en"			"Spawn a machete"
+		"en"			"Machete"
 		"chi"			"砍刀"
 		"zho"			"開山刀"
 		"es"            "Invocar un Machete"
 	}
 	"Spawn a police baton"
 	{
-		"en"			"Spawn a police baton"
+		"en"			"Police baton"
 		"chi"			"警棍"
 		"zho"			"警棍"
 		"es"            "Invocar una Porra de Policía"
 	}
 	"Spawn a knife"
 	{
-		"en"			"Spawn a knife"
+		"en"			"Knife"
 		"chi"			"CS小刀"
 		"zho"			"CS小刀"
 		"es"            "Invocar un Cuchillo"
 	}
 	"Spawn a golf club"
 	{
-		"en"			"Spawn a golf club"
+		"en"			"Golf club"
 		"chi"			"高尔夫球棍"
 		"zho"			"高爾夫球桿"
 		"es"            "Invocar un Palo de Golf"
 	}
 	"Spawn a pitchfork"
 	{
-		"en"			"Spawn a pitchfork"
-		"chi"			"草叉"
-		"zho"			"草叉"
+		"en"			"Pitchfork"
+		"chi"			"干草叉"
+		"zho"			"乾草叉"
 		"es"            "Invocar un Trinche"
 	}
 	"Spawn a shovel"
 	{
-		"en"			"Spawn a shovel"
+		"en"			"Shovel"
 		"chi"			"铲子"
 		"zho"			"鏟子"
 		"es"            "Invocar una Pala"
 	}
 	"Spawn a shield"
 	{
-		"en"			"Spawn a shield"
+		"en"			"Shield"
 		"chi"			"盾牌"
 		"zho"			"盾牌"
 	}
 	"End non-stop panic events"
 	{
-		"en"			"non-stop panic events (Current: Enabled)"
+		"en"			"Endless panic events (Current: Enabled)"
 		"chi"			"无尽尸潮 (目前状态: 已开启)"
 		"zho"			"無限屍潮 (目前狀態: 已開啟)"
 		"es"            "Finalizar el evento de pánico continuo"
 	}
 	"Force non-stop panic events"
 	{
-		"en"			"non-stop panic events (Current: Disabled)"
+		"en"			"Endless panic events (Current: Disabled)"
 		"chi"			"无尽尸潮 (目前状态: 已关闭)"
 		"zho"			"無限屍潮 (目前狀態: 已關閉)"
 		"es"            "Forzar un evento de pánico continuo"
@@ -562,14 +562,14 @@
 	"Disable player notifications"
 	{
 		"en"			"All player notifications (Current: Enabled)"
-		"chi"			"全体玩家信息提示（当前状态: 已开启）"
+		"chi"			"全体玩家信息提示 (目前状态: 已开启)"
 		"zho"			"全體玩家信息提示 (目前狀態: 已開啟)"
 		"es"            "Desactivar todas las notificaciones del jugador"
 	}
 	"Enable player notifications"
 	{
 		"en"			"All player notifications (Current: Disabled)"
-		"chi"			"全体玩家信息提示（目前状态：已关闭）"
+		"chi"			"全体玩家信息提示（目前状态: 已关闭)"
 		"zho"			"全體玩家信息提示 (目前狀態: 已關閉)"
 		"es"            "Habilitar notificaciones para todos los jugadores"
 	}
@@ -584,8 +584,8 @@
 	{
 		"#format"		"{1:N},{2:s}"	
 		"en"			"[SM] {lightgreen}{1}{default} has spawned the {green}{2}"
-		"chi"			"[SM] {lightgreen}{1}{default} 已经生成 {green}{2}"
-		"zho"			"[SM] {lightgreen}{1}{default} 已經生成 {green}{2}"
+		"chi"			"[SM] {lightgreen}{1}{default} 使用指令生成了 {green}{2}"
+		"zho"			"[SM] {lightgreen}{1}{default} 使用指令生成了 {green}{2}"
 		"es"            "[SM] {lightgreen}{1}{default} has invocado {green}{2}"
 	}
 	"Automatic placement of spawned infected has been enabled"
@@ -602,48 +602,35 @@
 		"zho"			"{lightgreen}關閉自動放置生成感染者功能"
 		"es"            "{lightgreen}Se ha desactivado el posicionamiento automático de infectados"
 	}
-	"Bosses will now spawn continuously"
-	{
-		"en"			"{lightgreen}Bosses will now spawn continuously"
-		"chi"			"{lightgreen}开始持续生成Tank和Witch"
-		"zho"			"{lightgreen}開始持續生成Tank和Witch"
-		"es"            "{lightgreen}Jefes serán invocados continuamente"
-	}
-	"Bosses will no longer spawn continuously"
-	{
-		"en"			"{lightgreen}Bosses will no longer spawn continuously"
-		"chi"			"{lightgreen}停止持续生成Tank和Witch"
-		"zho"			"{lightgreen}停止持續生成Tank和Witch"
-		"es"            "{lightgreen}Jefes ya no serán invocados continuamente"
-	}
+
 	"Endless panic events have started"
 	{
 		"#format"		"{1:N}"
-		"en"			"[SM] {lightgreen}{1}{default}: Endless panic events have started"
-		"chi"			"[SM] {lightgreen}{1}{default}: 无尽尸潮已开始"
-		"zho"			"[SM] {lightgreen}{1}{default}: 無限屍潮已開始"
+		"en"			"[SM] {lightgreen}{1}{default} started the endless panic events."
+		"chi"			"[SM] {lightgreen}{1}{default} 开启了无尽尸潮."
+		"zho"			"[SM] {lightgreen}{1}{default} 開啟了無限屍潮."
 		"es"            "[SM] {lightgreen}{1}{default}: Ha comenzado el evento de pánico continuo"
 	}
 	"Endless panic events have ended"
 	{
 		"#format"		"{1:N}"
-		"en"			"[SM] {lightgreen}{1}{default}: Endless panic events have ended"
-		"chi"			"[SM] {lightgreen}{1}{default}: 无尽尸潮已停止"
-		"zho"			"[SM] {lightgreen}{1}{default}: 無限屍潮已停止"
+		"en"			"[SM] {lightgreen}{1}{default} ended the endless panic events."
+		"chi"			"[SM] {lightgreen}{1}{default} 停止了无尽尸潮."
+		"zho"			"[SM] {lightgreen}{1}{default} 停止了無限屍潮."
 		"es"            "[SM] {lightgreen}{1}{default}: Ha finalizado el evento de pánico continuo"
 	}
 	"Player notifications have now been enabled"
 	{
-		"en"			"[SM] all4dead2 All Player notifications enabled"
-		"chi"			"[SM] all4dead2 全体玩家信息提示已开启"
-		"zho"			"[SM] all4dead2 全體玩家信息提示已開啟"
+		"en"			"[SM] All4dead2 All Player notifications enabled"
+		"chi"			"[SM] All4dead2 全体玩家信息提示已开启"
+		"zho"			"[SM] All4dead2 全體玩家信息提示已開啟"
 		"es"            "[SM] Se han activado las notificaciones para todos los jugadores"
 	}
 	"Player notifications have now been disabled"
 	{
-		"en"			"[SM] all4dead2 All Player notifications disabled"
-		"chi"			"[SM] all4dead2 全体玩家信息提示已关闭"
-		"zho"			"[SM] all4dead2 全體玩家信息提示已關閉"
+		"en"			"[SM] All4dead2 All Player notifications disabled"
+		"chi"			"[SM] All4dead2 全体玩家信息提示已关闭"
+		"zho"			"[SM] All4dead2 全體玩家信息提示已關閉"
 		"es"            "[SM] Se han desactivado las notificaciones para todos los jugadores"
 	}
 	"Restored the default settings"
@@ -670,41 +657,41 @@
 	"The zombies are coming!"
 	{
 		"#format"		"{1:N}"	
-		"en"			"[SM] {lightgreen}{1}{default}: The zombies are coming!"
-		"chi"			"[SM] {lightgreen}{1}{default}: 尸潮来了!"
-		"zho"			"[SM] {lightgreen}{1}{default}: 屍潮來了!"
+		"en"			"[SM] {lightgreen}{1}{default} has spawned a horde of zombies."
+		"chi"			"[SM] {lightgreen}{1}{default} 生成了一波尸潮."
+		"zho"			"[SM] {lightgreen}{1}{default} 生成了一波屍潮."
 		"es"            "[SM] {lightgreen}{1}{default}: Los zombies están al acecho!"
 	}
    	 "Could not find a valid spawn position for S.I. in 5 tries"
 	{
-		"en"	        "[SM] Couldn't find a valid spawn position for S.I. in 5 tries."
+		"en"	        	"[SM] Failed! Cannot find a valid spawn position for SI in 5 tries."
 		"chi"			"[SM] 生成失败! 嘗試5次後無法爲此特殊感染者找到有效的生成位置."
 		"zho"			"[SM] 生成失敗! 嘗試5次後無法為此特殊感染者找到有效的生成位置."
 		"es"            "No se pudo encontra una posición valida para Infec. Esp. en 5 intentos."
 	}
 	"Can not spawn, please try again"
 	{
-		"en"			"[SM] Can not spawn, please try again."
+		"en"			"[SM] Failed to spawn, please try again."
 		"chi"			"[SM] 无法生成, 请再次尝试."
 		"zho"			"[SM] 無法生成, 請再次嘗試."
 		"es"            "No puedes invocar, intentalo nuevamente."
 	}
 	"Can not spawn witch in tries at this moment"
 	{
-		"en"			"[SM] Can't spawn witch in %d tries at this moment."
+		"en"			"[SM] Failed! Cannot find a valid spawn position for witch in %d tries."
 		"chi"			"[SM] 生成失败! 尝试%d次后无法为此witch找到有效的生成位置."
 		"zho"			"[SM] 生成失敗! 嘗試%d次後無法為此witch找到有效的生成位置."
 		"es"            "No puedes invocar una Witch en %d intentos por el momento."
 	}	
 	"Too many enities on server"
 	{
-		"en"			"[SM] Too many enities on server."
+		"en"			"[SM] Failed! Too many enities on the server."
 		"chi"			"[SM] 生成失败! 服务器已存在太多物件."
 		"zho"			"[SM] 生成失敗! 伺服器已存在太多物件."
 	}
 	"Not enough player slots"
 	{
-		"en"			"[SM] Not enough player slots for AI spawn."
+		"en"			"[SM] Failed! Not enough player slots for S.I. to spawn."
 		"chi"			"[SM] 生成失败! 服务器位置已满，没有空位给AI特感生成."
 		"zho"			"[SM] 生成失敗! 伺服器位置已滿，沒有空位給AI特感生成."
 	}

@@ -2841,7 +2841,7 @@ void Create_env_instructor_hint(int client, int iEntity, EHintType eType, const 
 	//偶而出現兩次提示，但hint_instance_type限制同一時間相同的"hint_name"只會有一個提示
 	AcceptEntityInput(env_instructor_hint, "ShowHint"); 
 	
-	g_iClient_InstructorHintEntRef[client] = EntIndexToEntRef(iEntity);
+	g_iClient_InstructorHintEntRef[client] = EntIndexToEntRef(env_instructor_hint);
 	g_iEntCreator[env_instructor_hint] = client;
 
 	if (eType != eSpotMarker)
