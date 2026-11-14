@@ -223,7 +223,6 @@ Action SurvivorOnTakeDamage(int victim, int &attacker, int &inflictor, float &da
 {
     if (!g_bCvarEnable || !g_bMapEnable)
     {
-        SDKUnhook(victim, SDKHook_OnTakeDamage, SurvivorOnTakeDamage);
         return Plugin_Continue;
     }
 
@@ -236,7 +235,7 @@ Action SurvivorOnTakeDamage(int victim, int &attacker, int &inflictor, float &da
         damage = 0.0;
         return Plugin_Handled;
     }
-    else if(attacker > MaxClients && g_bValidAttacker[attacker])
+    else if(attacker > MaxClients && attacker <= MAXENTITIES && g_bValidAttacker[attacker])
     {
         damage = 0.0;
         return Plugin_Handled;

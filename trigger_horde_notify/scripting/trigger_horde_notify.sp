@@ -117,7 +117,7 @@ MRESReturn DTR_OnMapInvokedPanicEvent_Post(int pThis, Handle hReturn, Handle hPa
     int type_Horde = DHookGetParam(hParams, 2); //屍潮類型 0: 一代守殭屍方式/機關屍潮, 1: 警報車
     //PrintToChatAll("觸發者: %d - 屍潮類型: %d", client, type_Horde);
 
-    if(g_fTriggerHordeTime < GetEngineTime() && client > 0 && client < MaxClients + 1 && IsClientInGame(client))
+    if(g_fTriggerHordeTime < GetEngineTime() && (type_Horde != 1 || g_bAlarmCarNotify) && client > 0 && client < MaxClients + 1 && IsClientInGame(client))
     {
         if(type_Horde == 1)
         {

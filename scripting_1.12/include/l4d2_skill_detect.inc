@@ -130,6 +130,18 @@ forward void OnJockeyDeadstop( int survivor, int jockey )
 forward void OnBoomerPop( int survivor, int boomer, int shoveCount, float timeAlive )
 
 /**
+ * @brief Called when survivor shoved a vomiting boomer and stopped the vomit
+ * 
+ * @param survivor 			Client index of survivor
+ * @param boomer 			Client index of boomer
+ * @param hits 				Count of survivors the vomit hit before it was stopped
+ * @param timeVomit 		Time the boomer had been vomiting
+ * 
+ * @noreturn
+ */
+forward void OnBoomerPopStop( int survivor, int boomer, int hits, float timeVomit )
+
+/**
  * @brief Called when survivor leveled charger
  * 
  * @param survivor 			Client index of survivor
