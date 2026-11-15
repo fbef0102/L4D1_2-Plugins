@@ -19,30 +19,41 @@ Who called the horde ?
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 	2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
+* Directory Structure | 檔案結構
+    ```php
+    /
+    ├── gamedata/
+    │   └── trigger_horde_notify.txt            # GameData | 遊戲數據
+    ├── plugins/
+    │	└── trigger_horde_notify.smx            # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │	└── trigger_horde_notify.sp             # Source code | 源碼
+    └── translations/
+        └── trigger_horde_notify.phrases.txt    # Multi-language translation | 翻譯多國語言
+    ```
+
 * <details><summary>ConVar | 指令</summary>
 
 	* cfg/sourcemod/trigger_horde_notify.cfg
-        ```php
+		```php
 		// (L4D2) If 1, Notify who tirggers the alarm car.
 		trigger_horde_notify_alarm_car "1"
 
 		// Cold down time to notify again.
 		trigger_horde_notify_cool_down_time "30.0"
-        ```
+		```
 </details>
-
-* Translation Support | 支援翻譯
-	```
-	translations/trigger_horde_notify.phrases.txt
-	```
 
 * <details><summary>Changelog | 版本日誌</summary>
 
-    * v1.1 (2023-6-20)
-        * Require lef4dhooks v1.33 or above
+	* v1.2 (2026-11-15)
+		* Do not start cooldown when alarm car notify is disabled, thanks to Rainy
+
+	* v1.1 (2023-6-20)
+		* Require lef4dhooks v1.33 or above
 
 	* v1.0
-        * Intital Release
+		* Intital Release
 		* Thanks to [Forgetest](https://github.com/jensewe) for gamedata
 </details>
 
@@ -55,9 +66,17 @@ Who called the horde ?
 	* 顯示誰觸發了警報車
 	* 顯示誰啟動了最後救援
 
-* 功能
-	* 可控制誰觸發了警報車提示開關
-	* 可控制屍潮提示間隔 (避免無限屍潮的事件一直提示)
-
 * 注意事項
-    * 在二代裡非所有地圖機關會提示誰觸發，認真你就輸了
+	* 在二代裡非所有地圖機關會提示誰觸發，認真你就輸了
+
+* <details><summary>指令中文介紹 (點我展開)</summary>
+
+	* cfg/sourcemod/trigger_horde_notify.cfg
+		```php
+		// (L4D2) 為1時，顯示誰觸發了警報車提示
+		trigger_horde_notify_alarm_car "1"
+
+		// 再次提示的冷卻時間。
+		trigger_horde_notify_cool_down_time "30.0"
+		```
+</details>

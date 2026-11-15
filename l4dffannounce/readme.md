@@ -14,22 +14,16 @@ Adds Friendly Fire Announcements (who kills teammates)
 * Require | 必要安裝
 	1. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
 
-* <details><summary>ConVar | 指令</summary>
-
-	* cfg/sourcemod/l4dffannounce.cfg
-        ```php
-		// 0=Plugin off, 1=Plugin on.
-		l4dffannounce_enable "1"
-
-		// Changes how ff announce displays FF damage (0: Disable, 1:In chat; 2: In Hint Box; 3: In center text)
-		l4dffannounce_type "1"
-        ```
-</details>
-
-* Translation Support | 支援翻譯
-	```
-	translations/l4dffannounce.phrases.txt
-	```
+* Directory Structure | 檔案結構
+    ```php
+    /
+    ├── plugins/
+    │	└── l4dffannounce.smx           # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │	└── l4dffannounce.sp            # Source code | 源碼
+    └── translations/
+        └── l4dffannounce.phrases.txt   # Multi-language translation | 翻譯多國語言
+    ```
 
 * <details><summary>Similar Plugin | 相似插件</summary>
 
@@ -46,7 +40,22 @@ Adds Friendly Fire Announcements (who kills teammates)
 		> 隊友開槍射你會反彈傷害，RPG版本
 </details>
 
+* <details><summary>ConVar | 指令</summary>
+
+	* cfg/sourcemod/l4dffannounce.cfg
+		```php
+		// 0=Plugin off, 1=Plugin on.
+		l4dffannounce_enable "1"
+
+		// Changes how ff announce displays FF damage (0: Disable, 1:In chat; 2: In Hint Box; 3: In center text)
+		l4dffannounce_type "1"
+		```
+</details>
+
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v2.0 (2026-11-15)
+		* Fix invalid client index error, reset damage on disconnect, thanks to Rainy
 
 	* v1.9 (2026-3-7)
 		* Add total ff damage
@@ -58,8 +67,8 @@ Adds Friendly Fire Announcements (who kills teammates)
 	* v1.7
 		* Remake Code
 
-    * 1.4 
-        * [Original Plugin by Frus](https://forums.alliedmods.net/showthread.php?p=902507)
+	* 1.4 
+		* [Original Plugin by Frus](https://forums.alliedmods.net/showthread.php?p=902507)
 </details>
 
 - - - -

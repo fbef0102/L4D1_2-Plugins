@@ -6,7 +6,7 @@
 #include <sdkhooks>
 #include <left4dhooks>
 
-#define PLUGIN_VERSION			"1.0-2026/5/17"
+#define PLUGIN_VERSION			"1.1-2026/11/15"
 #define PLUGIN_NAME			    "l4d_cutscene_nodamage"
 #define DEBUG 0
 
@@ -59,7 +59,7 @@ public void OnPluginStart()
     AutoExecConfig(true,                PLUGIN_NAME);
 
     GetCvars();
-    g_hCvarEnable.AddChangeHook(ConVarChanged_Cvars);
+    g_hCvarEnable.AddChangeHook(ConVarChanged_EnableCvars);
 
     HookEvent("round_start",            Event_RoundStart, EventHookMode_PostNoCopy);
     HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy); //trigger twice in versus/survival/scavenge mode, one when all survivors wipe out or make it to saferom, one when first round ends (second round_start begins).
@@ -87,9 +87,31 @@ void LateLoad()
 
 // Cvars-------------------------------
 
-void ConVarChanged_Cvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
+void ConVarChanged_EnableCvars(ConVar hCvar, const char[] sOldVal, const char[] sNewVal)
 {
-	GetCvars();
+    GetCvars();
+
+    if(g_bCvarEnable)
+    {
+        for (int client = 1; client <= MaxClients; client++)
+        {
+            if (!IsClientInGame(client))
+                continue;
+
+            SDKUnhook(client, SDKHook_OnTakeDamage, SurvivorOnTakeDamage);
+            SDKHook(client, SDKHook_OnTakeDamage, SurvivorOnTakeDamage);
+        }
+    }
+    else
+    {
+        for (int client = 1; client <= MaxClients; client++)
+        {
+            if (!IsClientInGame(client))
+                continue;
+
+            SDKUnhook(client, SDKHook_OnTakeDamage, SurvivorOnTakeDamage);
+        }
+    }
 }
 
 void GetCvars()
@@ -223,6 +245,7 @@ Action SurvivorOnTakeDamage(int victim, int &attacker, int &inflictor, float &da
 {
     if (!g_bCvarEnable || !g_bMapEnable)
     {
+        SDKUnhook(victim, SDKHook_OnTakeDamage, SurvivorOnTakeDamage);
         return Plugin_Continue;
     }
 

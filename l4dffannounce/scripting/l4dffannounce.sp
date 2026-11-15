@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <multicolors>
-#define PLUGIN_VERSION			"1.9-2026/3/7"
+#define PLUGIN_VERSION			"2.0-2026/11/15"
 
 public Plugin myinfo = 
 {

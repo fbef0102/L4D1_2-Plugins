@@ -24,6 +24,17 @@ Notifies selected team(s) when someone is on final strike and add glow (Support 
     2. [[INC] Multi Colors](https://github.com/fbef0102/L4D1_2-Plugins/releases/tag/Multi-Colors)
     3. [l4d_heartbeat](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/l4d_heartbeat)
 
+* Directory Structure | 檔案結構
+    ```php
+	/
+	├── plugins/
+	│	└── LMC_Black_and_White_Notifier.smx             # Compiled plugin | 已編譯的插件
+	├── scripting/
+	│	└── LMC_Black_and_White_Notifier.sp              # Source code | 源碼
+	└── translations/
+		└── LMC_Black_and_White_Notifier.phrases.txt     # Multi-language translation | 翻譯多國語言
+	```
+
 * <details><summary>Support | 支援插件</summary>
 
     1. [Lux's Model Changer](https://github.com/fbef0102/L4D1_2-Plugins/tree/master/Luxs-Model-Changer): LMC Allows you to use most models with most characters
@@ -81,12 +92,10 @@ Notifies selected team(s) when someone is on final strike and add glow (Support 
         ```
 </details>
 
-* Translation Support | 支援翻譯
-	```
-	translations/LMC_Black_and_White_Notifier.phrases.txt
-	```
-
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v1.4h (2026-11-15)
+        * Fix notice targets, heal notice without glow, glow range, thanks to Rainy
 
     * v1.3h (2026-4-4)
         * Update cvars, translations

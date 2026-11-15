@@ -70,7 +70,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "3.0h-2026/11/9"
+#define PLUGIN_VERSION "3.1h-2026/11/15"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -628,7 +628,7 @@ public void OnPluginStart()
 	g_cvarRepRockSkeet		= CreateConVar( 	"sm_skill_report_rockskeet", 		"1", 	"Enable rock-skeet reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepRockName		= CreateConVar( 	"sm_skill_report_rockname", 		"0", 	"Enable Tank name reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepDeadStop		= CreateConVar( 	"sm_skill_report_deadstop", 		"1", 	"Enable deadstop reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
-	g_cvarRepPop			= CreateConVar( 	"sm_skill_report_pop", 				"1", 	"Enable pop reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
+	g_cvarRepPop			= CreateConVar( 	"sm_skill_report_pop", 				"1", 	"Enable pop reporting.\n(Kill the Boomer without anyone getting vomited)", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepShove			= CreateConVar( 	"sm_skill_report_shove", 			"0", 	"Enable shove reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepHunterDP		= CreateConVar( 	"sm_skill_report_hunterdp", 		"1", 	"Enable hunter DP reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepJockeyDP		= CreateConVar( 	"sm_skill_report_jockeydp", 		"0", 	"Enable jockey DP reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
@@ -636,8 +636,8 @@ public void OnPluginStart()
 	g_cvarRepInstanClear	= CreateConVar( 	"sm_skill_report_instanclear", 		"1", 	"Enable instan-clear reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepBhopStreak		= CreateConVar( 	"sm_skill_report_bhop", 			"1", 	"Enable bhop streak reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepCarAlarm		= CreateConVar( 	"sm_skill_report_caralarm", 		"1", 	"Enable car alarm reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
-	g_cvarRepPopStop		= CreateConVar( 	"sm_skill_report_pop_stop", 		"1", 	"Enable pop stop reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
-	g_cvarRepVomitPerfect	= CreateConVar( 	"sm_skill_report_vomit_perfect", 	"1", 	"Enable Boomer Perfect Vomit reporting (Vomit 4+ survivors).", FCVAR_NONE, true, 0.0, true, 1.0);
+	g_cvarRepPopStop		= CreateConVar( 	"sm_skill_report_pop_stop", 		"1", 	"Enable pop stop reporting.\n(Shove Boomer while it is spraying, without anyone getting vomited)", FCVAR_NONE, true, 0.0, true, 1.0);
+	g_cvarRepVomitPerfect	= CreateConVar( 	"sm_skill_report_vomit_perfect", 	"1", 	"Enable Boomer Perfect Vomit reporting\n(Vomit 4+ survivors).", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepTeamSkeet		= CreateConVar( 	"sm_skill_report_teamskeet", 		"0", 	"Hunter/Jockey team skeet assist report.", FCVAR_NONE, true, 0.0, true, 1.0);
 
 	g_hCvarAllowShotgun = CreateConVar(			"sm_skill_skeet_shotgun",			"1", 	"Whether to count/forward shotgun skeets.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
@@ -3291,7 +3291,6 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 				Format(assistMsg, sizeof(assistMsg), "%s%T", 
 					assistMsg, "HandleSkeetAssist_2", LANG_SERVER, i, g_iHunterShotCount[victim][i], g_iHunterShotDamage[victim][i]);
 				
-				// 不知道够不够
 				if(count == 2)
 				{
 					CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);

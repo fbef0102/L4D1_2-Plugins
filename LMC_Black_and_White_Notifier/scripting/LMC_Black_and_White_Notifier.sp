@@ -17,7 +17,7 @@
 	native int LMC_GetClientOverlayModel(int client);
 #endif
 
-#define PLUGIN_VERSION "1.3h-2026/4/4"
+#define PLUGIN_VERSION "1.4h-2026/11/15"
 
 public Plugin myinfo =
 {

@@ -7,7 +7,7 @@
 #include <dhooks>
 #include <multicolors>
 #include <left4dhooks>
-#define PLUGIN_VERSION			"1.1-2023/6/20"
+#define PLUGIN_VERSION			"1.2-2026/11/15"
 #define PLUGIN_NAME			    "trigger_horde_notify"
 #define DEBUG 0
 
@@ -117,11 +117,12 @@ MRESReturn DTR_OnMapInvokedPanicEvent_Post(int pThis, Handle hReturn, Handle hPa
     int type_Horde = DHookGetParam(hParams, 2); //屍潮類型 0: 一代守殭屍方式/機關屍潮, 1: 警報車
     //PrintToChatAll("觸發者: %d - 屍潮類型: %d", client, type_Horde);
 
-    if(g_fTriggerHordeTime < GetEngineTime() && (type_Horde != 1 || g_bAlarmCarNotify) && client > 0 && client < MaxClients + 1 && IsClientInGame(client))
+    if(g_fTriggerHordeTime < GetEngineTime() && client > 0 && client <= MaxClients && IsClientInGame(client))
     {
         if(type_Horde == 1)
         {
             if(g_bAlarmCarNotify) CPrintToChatAll("[{olive}TS{default}] %t", "Alarmed_Car", client);
+            else return MRES_Ignored;
         }
         else
         {
@@ -202,7 +203,7 @@ public void Event_Finale_Start(Event event, const char[] name, bool dontBroadcas
 
 void OnFinalTriggered(const char[] output, int caller, int activator, float delay)
 {
-    if(activator > 0 && activator < MaxClients+1 && IsClientInGame(activator))
+    if(activator > 0 && activator <= MaxClients && IsClientInGame(activator))
     {
         CPrintToChatAll("[{olive}TS{default}] %t", "Final Rescue", activator);
     }
