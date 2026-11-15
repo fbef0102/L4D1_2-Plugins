@@ -33,16 +33,16 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 
 * Directory Structure | 檔案結構
     ```php
-	/
-	├── plugins/
-	│	└── l4d2_skill_detect.smx			# Compiled plugin | 已編譯的插件
-	├── scripting/
-	│	├── include/ 
-	│	│	└── l4d2_skill_detect.inc		# API | 給會寫插件的人
-	│	└── l4d2_skill_detect.sp			# Source code | 源碼
-	└── translations/
-		└── l4d2_skill_detect.phrases.txt	# Multi-language translation | 翻譯多國語言
-	```
+    /
+    ├── plugins/
+    │	└── l4d2_skill_detect.smx           # Compiled plugin | 已編譯的插件
+    ├── scripting/
+    │	├── include/ 
+    │	│	└── l4d2_skill_detect.inc       # API | 給會寫插件的人
+    │	└── l4d2_skill_detect.sp            # Source code | 源碼
+    └── translations/
+        └── l4d2_skill_detect.phrases.txt   # Multi-language translation | 翻譯多國語言
+    ```
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -88,9 +88,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         sm_skill_report_deadstop "1"
 
         // Enable pop reporting.
-        // 1. Kill the real Boomer player without anyone getting vomited.
-        // 2. Kill the AI Boomer quickly while it is spraying, without anyone getting vomited. 
-        // 3. Kill the AI Boomer quickly within 5 seconds once it gets close, without anyone getting vomited. 
+        // Case 1: Kill the real Boomer player without anyone getting vomited.
+        // Case 2: Kill the AI Boomer quickly while it is spraying, without anyone getting vomited. 
+        // Case 3: Kill the AI Boomer quickly within 5 seconds once it gets close, without anyone getting vomited.
         sm_skill_report_pop "1"
 
         // Enable shove reporting.
@@ -179,6 +179,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v3.1h (2026-11-15)
+        * Fix several detection bugs, thanks to Rainy
 
     * v3.0h (2026-11-9)
         * Fixed no report self-clear smoker if previous dead smoker was still in game
@@ -322,9 +325,9 @@ Detects and reports skeets, crowns, levels, highpounces, etc.
         sm_skill_report_deadstop "1"
 
         // 為1時，打印: 安全地殺死Boomer，沒有人被嘔吐
-        // 1. 解決真人Boomer，沒有人被嘔吐
-        // 2. 解決正在嘔吐的AI Boomer，沒有人被嘔吐
-        // 3. 五秒內解決靠近倖存者的AI Boomer，沒有人被嘔吐
+        // 情況1: 解決真人Boomer，沒有人被嘔吐
+        // 情況2: 解決正在嘔吐的AI Boomer，沒有人被嘔吐
+        // 情況3: 五秒內解決靠近倖存者的AI Boomer，沒有人被嘔吐
         sm_skill_report_pop "1"
 
         // 為1時，打印: 推開特感

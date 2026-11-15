@@ -28,6 +28,15 @@ Survivors won't take any damage when server is playing map cutscenes
 * Require | 必要安裝
 	1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696)
 
+* Directory Structure | 檔案結構
+    ```php
+    /
+    ├── plugins/
+    │   └── l4d_cutscene_nodamage.smx           # Compiled plugin | 已編譯的插件
+    └── scripting/
+        └── l4d_cutscene_nodamage.sp            # Source code | 源碼
+    ```
+
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
 	* cfg/sourcemod/l4d_cutscene_nodamage.cfg
@@ -38,6 +47,10 @@ Survivors won't take any damage when server is playing map cutscenes
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+	* v1.1 (2026-11-15)
+		* The hook is removed when the cvar is off and restore after turning it back on
+		* Non-networked attacker index could exceed the array size, thanks to Rainy
 
 	* v1.0 (2026-5-17)
 		* Initial Release

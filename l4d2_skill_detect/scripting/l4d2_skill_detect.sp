@@ -70,7 +70,7 @@
 #undef REQUIRE_PLUGIN
 #tryinclude <l4d2_kills_manager_remake>
 
-#define PLUGIN_VERSION "3.0h-2026/11/9"
+#define PLUGIN_VERSION "3.1h-2026/11/15"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -628,7 +628,7 @@ public void OnPluginStart()
 	g_cvarRepRockSkeet		= CreateConVar( 	"sm_skill_report_rockskeet", 		"1", 	"Enable rock-skeet reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepRockName		= CreateConVar( 	"sm_skill_report_rockname", 		"0", 	"Enable Tank name reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepDeadStop		= CreateConVar( 	"sm_skill_report_deadstop", 		"1", 	"Enable deadstop reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
-	g_cvarRepPop			= CreateConVar( 	"sm_skill_report_pop", 				"1", 	"Enable pop reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
+	g_cvarRepPop			= CreateConVar( 	"sm_skill_report_pop", 				"1", 	"Enable pop reporting.\n(Kill the Boomer without anyone getting vomited)", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepShove			= CreateConVar( 	"sm_skill_report_shove", 			"0", 	"Enable shove reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepHunterDP		= CreateConVar( 	"sm_skill_report_hunterdp", 		"1", 	"Enable hunter DP reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepJockeyDP		= CreateConVar( 	"sm_skill_report_jockeydp", 		"0", 	"Enable jockey DP reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
@@ -636,8 +636,8 @@ public void OnPluginStart()
 	g_cvarRepInstanClear	= CreateConVar( 	"sm_skill_report_instanclear", 		"1", 	"Enable instan-clear reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepBhopStreak		= CreateConVar( 	"sm_skill_report_bhop", 			"1", 	"Enable bhop streak reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepCarAlarm		= CreateConVar( 	"sm_skill_report_caralarm", 		"1", 	"Enable car alarm reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
-	g_cvarRepPopStop		= CreateConVar( 	"sm_skill_report_pop_stop", 		"1", 	"Enable pop stop reporting.", FCVAR_NONE, true, 0.0, true, 1.0);
-	g_cvarRepVomitPerfect	= CreateConVar( 	"sm_skill_report_vomit_perfect", 	"1", 	"Enable Boomer Perfect Vomit reporting (Vomit 4+ survivors).", FCVAR_NONE, true, 0.0, true, 1.0);
+	g_cvarRepPopStop		= CreateConVar( 	"sm_skill_report_pop_stop", 		"1", 	"Enable pop stop reporting.\n(Shove Boomer while it is spraying, without anyone getting vomited)", FCVAR_NONE, true, 0.0, true, 1.0);
+	g_cvarRepVomitPerfect	= CreateConVar( 	"sm_skill_report_vomit_perfect", 	"1", 	"Enable Boomer Perfect Vomit reporting\n(Vomit 4+ survivors).", FCVAR_NONE, true, 0.0, true, 1.0);
 	g_cvarRepTeamSkeet		= CreateConVar( 	"sm_skill_report_teamskeet", 		"0", 	"Hunter/Jockey team skeet assist report.", FCVAR_NONE, true, 0.0, true, 1.0);
 
 	g_hCvarAllowShotgun = CreateConVar(			"sm_skill_skeet_shotgun",			"1", 	"Whether to count/forward shotgun skeets.", FCVAR_NOTIFY, true, 0.0, true, 1.0 );
@@ -884,7 +884,7 @@ void GetOfficialCvars()
 
 public void OnClientPutInServer(int client)
 {
-	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamageByWitchPost);
+	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamageByWitchPost);
 }
 
 public void OnClientDisconnect(int client)
@@ -967,8 +967,8 @@ void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 			// if the damage done is greater than the health we know the hunter to have remaining, reduce the damage done
 			if ( g_iHunterLastHealth[victim] > 0 && damage > g_iHunterLastHealth[victim] )
 			{
+				g_iHunterOverkill[victim] = damage - g_iHunterLastHealth[victim];
 				damage = g_iHunterLastHealth[victim];
-				g_iHunterOverkill[victim] = g_iHunterLastHealth[victim] - damage;
 				g_iHunterLastHealth[victim] = 0;
 			}
 			
@@ -1404,12 +1404,10 @@ void HandleEvent_PlayerDeath(int userid, int attackerid, const char[] weapon_typ
 			else if ( g_iSmokerVictim[victim] > 0 &&
 						g_iSmokerVictim[victim] != attacker )
 			{
-				int smoker = victim;
-				victim = g_iSmokerVictim[smoker];
-				HandleClear( attacker, smoker, victim,
+				HandleClear( attacker, victim, g_iSmokerVictim[victim],
 						ZC_SMOKER,
-						(g_fPinTime[smoker][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[smoker][1]) : -1.0,
-						( GetEngineTime() - g_fPinTime[smoker][0]),
+						(g_fPinTime[victim][1] > 0.0) ? ( GetEngineTime() - g_fPinTime[victim][1]) : -1.0,
+						( GetEngineTime() - g_fPinTime[victim][0]),
 						false,
 						headshot
 					);
@@ -1498,8 +1496,8 @@ void Event_PlayerShoved(Event event, const char[] name, bool dontBroadcast)
 		{
 			HandlePopStop(attacker, victim, g_iBoomerVomitHits[victim], (GetEngineTime() - g_fBoomerVomitStart[victim]));
 			
+			delete g_hBoomerVomitTimer[victim];
 			Timer_BoomVomitCheck(null, victim);
-			delete g_hBoomerVomitTimer[victim] ;
 		}
 
 		if(g_bBoomerNearSomebody[victim] == false)
@@ -3277,8 +3275,8 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 			Call_PushCell(victim);
 			Call_PushCell(i);
 			Call_PushCell(isHunter);
-			Call_PushCell(g_iHunterShotCount[victim][i]);
 			Call_PushCell(g_iHunterShotDamage[victim][i]);
+			Call_PushCell(g_iHunterShotCount[victim][i]);
 			Call_Finish();
 
 			count++;
@@ -3293,7 +3291,6 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 				Format(assistMsg, sizeof(assistMsg), "%s%T", 
 					assistMsg, "HandleSkeetAssist_2", LANG_SERVER, i, g_iHunterShotCount[victim][i], g_iHunterShotDamage[victim][i]);
 				
-				// 不知道够不够
 				if(count == 2)
 				{
 					CPrintToChatAll("%t%s", "HandleSkeetAssist_1", assistMsg);
@@ -3302,7 +3299,7 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 				else if(count % 2 == 0)
 				{
 					// break;
-					CPrintToChatAll(assistMsg);
+					CPrintToChatAll("%s", assistMsg);
 					assistMsg[0] = '\0';
 				}
 			}
@@ -3316,7 +3313,7 @@ void HandleSkeetAssist(int attacker = -1, int victim, bool isHunter)
 			}
 			else if(count % 2 != 0 && strlen(assistMsg) > 0)
 			{
-				CPrintToChatAll(assistMsg);
+				CPrintToChatAll("%s", assistMsg);
 			}
 		}
 	}
