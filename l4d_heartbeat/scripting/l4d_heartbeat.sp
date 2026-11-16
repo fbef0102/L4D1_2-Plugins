@@ -252,6 +252,8 @@ void Event_Revive(Event event, const char[] name, bool dontBroadcast)
 
 void SurvivorOnTakeDamage_Post(int client, int attacker, int inflictor, float damage, int damagetype, int weapon, float damageForce[3], float damagePosition[3])
 {
+	if(!g_bCvarEnable) return;
+
 	if(damagetype & DMG_DROWN && GetClientTeam(client) == 2 && IsPlayerAlive(client))
 	{
 		delete g_hDrownTimer[client];
@@ -319,7 +321,7 @@ Action OnTakeDamage(int client, int &attacker, int &inflictor, float &damage, in
 
 Action Timer_CheckPlayerDrown(Handle timer, int client)
 {
-	if(!IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
+	if(!g_bCvarEnable || !IsClientInGame(client) || GetClientTeam(client) != 2 || !IsPlayerAlive(client))
 	{
 		g_hDrownTimer[client] = null;
 		return Plugin_Stop;
@@ -471,12 +473,19 @@ float GetTempHealth(int client)
 
 int Native_GetRevives(Handle plugin, int numParams)
 {
-	return g_iReviveCount[GetNativeCell(1)];
+	int client = GetNativeCell(1);
+	if( client < 1 || client > MaxClients )
+		return ThrowNativeError(SP_ERROR_INDEX, "Invalid client index %d", client);
+
+	return g_iReviveCount[client];
 }
 
 int Native_SetRevives(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
+	if( client < 1 || client > MaxClients || !IsClientInGame(client) )
+		return ThrowNativeError(SP_ERROR_INDEX, "Invalid client index %d or not in game", client);
+
 	g_iReviveCount[client] = GetNativeCell(2);
 
 	if( numParams != 3 || GetNativeCell(3) )
