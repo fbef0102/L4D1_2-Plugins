@@ -6124,23 +6124,30 @@ void LoadData()
 
 int GetFinalTankHP(EPluginData ePluginSettings)
 {
-	if(L4D2_HasConfigurableDifficultySetting())
+	if(g_bL4D2Version)
 	{
-		if (strcmp(g_sCvar_z_difficulty, "easy", false) == 0)
+		if(L4D2_HasConfigurableDifficultySetting())
 		{
-			return ePluginSettings.m_iTankHealth_easy;
-		}
-		else if (strcmp(g_sCvar_z_difficulty, "normal", false) == 0)
-		{
-			return ePluginSettings.m_iTankHealth_normal;
-		}
-		else if (strcmp(g_sCvar_z_difficulty, "hard", false) == 0)
-		{
-			return ePluginSettings.m_iTankHealth_hard;
-		}
-		else if (strcmp(g_sCvar_z_difficulty, "impossible", false) == 0)
-		{
-			return ePluginSettings.m_iTankHealth_impossible;
+			if (strcmp(g_sCvar_z_difficulty, "easy", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_easy;
+			}
+			else if (strcmp(g_sCvar_z_difficulty, "normal", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_normal;
+			}
+			else if (strcmp(g_sCvar_z_difficulty, "hard", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_hard;
+			}
+			else if (strcmp(g_sCvar_z_difficulty, "impossible", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_impossible;
+			}
+			else
+			{
+				return ePluginSettings.m_iTankHealth_normal;
+			}
 		}
 		else
 		{
@@ -6149,8 +6156,35 @@ int GetFinalTankHP(EPluginData ePluginSettings)
 	}
 	else
 	{
-		return ePluginSettings.m_iTankHealth_normal;
+		if(!L4D_HasPlayerControlledZombies())
+		{
+			if (strcmp(g_sCvar_z_difficulty, "easy", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_easy;
+			}
+			else if (strcmp(g_sCvar_z_difficulty, "normal", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_normal;
+			}
+			else if (strcmp(g_sCvar_z_difficulty, "hard", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_hard;
+			}
+			else if (strcmp(g_sCvar_z_difficulty, "impossible", false) == 0)
+			{
+				return ePluginSettings.m_iTankHealth_impossible;
+			}
+			else
+			{
+				return ePluginSettings.m_iTankHealth_normal;
+			}
+		}
+		else
+		{
+			return ePluginSettings.m_iTankHealth_normal;
+		}
 	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////
