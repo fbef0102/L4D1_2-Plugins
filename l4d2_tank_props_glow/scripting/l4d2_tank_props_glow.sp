@@ -101,7 +101,7 @@ public void OnPluginStart()
 	g_hCvarTankOnly 		= CreateConVar( PLUGIN_NAME ... "_tank_only", 				"0", 			"0=All players in infected team can see the glow, 1=Only Tank in infected team can see the glow", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarTankSpec 		= CreateConVar( PLUGIN_NAME ... "_spectators", 				"1", 			"If 1, Spectators can see the glow too", CVAR_FLAGS, true, 0.0, true, 1.0);
 	g_hCvarTankSur 			= CreateConVar( PLUGIN_NAME ... "_surs", 					"0", 			"If 1, Survivors can see the glow too", CVAR_FLAGS, true, 0.0, true, 1.0);
-	g_hCvarTankPropsBeGone 	= CreateConVar( PLUGIN_NAME ... "_dissapear_time_death", 	"10.0", 		"Time it takes for hittables that were punched by Tank to dissapear after the Tank dies.", CVAR_FLAGS, true, 1.0);
+	g_hCvarTankPropsBeGone 	= CreateConVar( PLUGIN_NAME ... "_dissapear_time_death", 	"10.0", 		"Time it takes for hittables that were punched by Tank to dissapear after the Tank dies. (0=Off)", CVAR_FLAGS, true, 0.0);
 	g_hCvarTankPropsAlive 	= CreateConVar( PLUGIN_NAME ... "_dissapear_time_alive", 	"0.0", 			"Time it takes for hittables that were punched by Tank to dissapear while tank is alive. (0=Off)", CVAR_FLAGS, true, 0.0);
 	CreateConVar(                       	PLUGIN_NAME ... "_version",       			PLUGIN_VERSION, PLUGIN_NAME ... " Plugin Version", CVAR_FLAGS_PLUGIN_VERSION);
 	AutoExecConfig(true,                	PLUGIN_NAME);
@@ -492,7 +492,7 @@ Action TankDeadCheck(Handle hTimer)
 	{
 		KillAllHittableGlow();
 
-		CreateTimer(g_fCvarTankPropsBeGone, TankPropsBeGone);
+		if(g_fCvarTankPropsBeGone > 0.0) CreateTimer(g_fCvarTankPropsBeGone, TankPropsBeGone);
 
 		g_bTankSpawned = false;
 	}

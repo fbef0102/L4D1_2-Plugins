@@ -44,7 +44,7 @@ Give Hittable Prop Glow when tank is alive + Stop tank props from fading whilst 
         // If 1, Survivors can see the glow too
         l4d2_tank_props_glow_surs "0"
 
-        // Time it takes for hittables that were punched by Tank to dissapear after the Tank dies.
+        // Time it takes for hittables that were punched by Tank to dissapear after the Tank dies. (0=Off)
         l4d2_tank_props_glow_dissapear_time_death "10.0"
 
         // Time it takes for hittables that were punched by Tank to dissapear while tank is alive. (0=Off)
@@ -140,7 +140,7 @@ Tank打到的物件都會產生光圈，只有特感能看見 + Tank死亡之後
         // 為1時，倖存者隊伍可以看見
         l4d2_tank_props_glow_surs "0"
 
-        // Tank死掉之後要過多久時間車子才消失
+        // Tank死掉之後要過多久時間車子才消失 (0=不消失)
         l4d2_tank_props_glow_dissapear_time_death "10.0"
 
         // Tank打到車子後要過多久時間車子才消失 (0=Tank存活期間不消失)
