@@ -10,7 +10,7 @@
 
 #define PLUGIN_NAME					"All4Dead"
 #define PLUGIN_TAG					"[A4D]"
-#define PLUGIN_VERSION				"4.1-2026/11/12"
+#define PLUGIN_VERSION				"4.2-2026/11/25"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
@@ -20,18 +20,40 @@ public Plugin myinfo = {
 	url = "https://github.com/fbef0102/L4D2-Plugins/tree/master/all4dead2"
 };
 
+bool g_bL4D2Version;
+int ZC_TANK;
+char sZSpawnCmd[64];
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) 
 {
 	EngineVersion test = GetEngineVersion();
 	
-	if( test != Engine_Left4Dead2 )
-	{
-		strcopy(error, err_max, "Plugin only supports Left 4 Dead 2.");
-		return APLRes_SilentFailure;
-	}
+    if( test == Engine_Left4Dead )
+    {
+        g_bL4D2Version = false;
+        ZC_TANK = 5;
+		FormatEx(sZSpawnCmd, sizeof(sZSpawnCmd), "z_spawn");
+    }
+    else if( test == Engine_Left4Dead2 )
+    {
+        g_bL4D2Version = true;
+        ZC_TANK = 8;
+		FormatEx(sZSpawnCmd, sizeof(sZSpawnCmd), "z_spawn_old");
+    }
+    else
+    {
+        strcopy(error, err_max, "Plugin only supports Left 4 Dead 1 & 2.");
+        return APLRes_SilentFailure;
+    }
 	
 	return APLRes_Success; 
 }
+
+#define ZC_SMOKER               1
+#define ZC_BOOMER               2
+#define ZC_HUNTER               3
+#define ZC_SPITTER              4
+#define ZC_JOCKEY               5
+#define ZC_CHARGER              6
 
 #define ENTITY_SAFE_LIMIT 2000 //don't spawn boxes when it's index is above this
 
@@ -65,8 +87,23 @@ int g_iMeleeMenuPosition[MAXPLAYERS+1];
 
 #define ZOMBIESPAWN_Attempts 6
 
-#define	MAX_WEAPONS2		29
-static char g_sWeaponModels2[MAX_WEAPONS2][] =
+#define	MAX_WEAPONS_L4D1		10
+#define	MAX_WEAPONS_L4D2		29
+static char g_sWeaponModels_L4D1[MAX_WEAPONS_L4D1][] =
+{
+	"models/w_models/weapons/w_rifle_m16a2.mdl",
+	"models/w_models/weapons/w_autoshot_m4super.mdl",
+	"models/w_models/weapons/w_sniper_mini14.mdl",
+	"models/w_models/Weapons/w_smg_uzi.mdl",
+	"models/w_models/Weapons/w_shotgun.mdl",
+	"models/w_models/weapons/w_pistol_1911.mdl",
+	"models/w_models/weapons/w_eq_molotov.mdl",
+	"models/w_models/weapons/w_eq_pipebomb.mdl",
+	"models/w_models/weapons/w_eq_Medkit.mdl",
+	"models/w_models/weapons/w_eq_painpills.mdl"
+};
+
+static char g_sWeaponModels_L4D2[MAX_WEAPONS_L4D2][] =
 {
 	"models/w_models/weapons/w_pistol_B.mdl",
 	"models/w_models/weapons/w_desert_eagle.mdl",
@@ -103,6 +140,7 @@ static char g_sWeaponModels2[MAX_WEAPONS2][] =
 #define MODEL_GNOME			"models/props_junk/gnome.mdl"
 
 #define MODEL_AMMO_L4D2			"models/props/terror/ammo_stack.mdl"
+#define MODEL_AMMO_L4D1			"models/props_unique/spawn_apartment/coffeeammo.mdl "
 
 ArrayList
 	g_aMeleeScripts;
@@ -121,67 +159,84 @@ public void OnPluginStart() {
 	AutoExecConfig(true, "all4dead2");	
 
 	RegAdminCmd("a4d_spawn_infected", Command_SpawnInfected, ADMFLAG_ROOT);
-	RegAdminCmd("a4d_spawn_uinfected", Command_SpawnUInfected, ADMFLAG_ROOT);
 	RegAdminCmd("a4d_spawn_item", Command_SpawnItem, ADMFLAG_ROOT);
 	RegAdminCmd("a4d_spawn_weapon", Command_SpawnItem, ADMFLAG_ROOT);
-
 	RegAdminCmd("a4d_force_panic", Command_ForcePanic, ADMFLAG_ROOT);
 	RegAdminCmd("a4d_panic_forever", Command_PanicForever, ADMFLAG_ROOT);	
 
 	RegAdminCmd("a4d_enable_notifications", Command_EnableNotifications, ADMFLAG_ROOT);
 
+	if(g_bL4D2Version) RegAdminCmd("a4d_spawn_uinfected", Command_SpawnUInfected, ADMFLAG_ROOT);
+
 	if (LibraryExists("adminmenu") && ((top_menu = GetAdminTopMenu()) != null))
 		OnAdminMenuReady(top_menu);
 
-	g_smMeleeTrans = new StringMap();
-	g_aMeleeScripts = new ArrayList(ByteCountToCells(64));
+	if(g_bL4D2Version)
+	{ 
+		g_smMeleeTrans = new StringMap();
+		g_aMeleeScripts = new ArrayList(ByteCountToCells(64));
 
-	g_smMeleeTrans.SetString("fireaxe", "Spawn a fire axe");
-	g_smMeleeTrans.SetString("frying_pan", "Spawn a frying pan");
-	g_smMeleeTrans.SetString("machete", "Spawn a machete");
-	g_smMeleeTrans.SetString("baseball_bat", "Spawn a baseball bat");
-	g_smMeleeTrans.SetString("crowbar", "Spawn a crowbar");
-	g_smMeleeTrans.SetString("cricket_bat", "Spawn a cricket bat");
-	g_smMeleeTrans.SetString("tonfa", "Spawn a police baton");
-	g_smMeleeTrans.SetString("katana", "Spawn a katana");
-	g_smMeleeTrans.SetString("electric_guitar", "Spawn an electric guitar");
-	g_smMeleeTrans.SetString("knife", "Spawn a knife");
-	g_smMeleeTrans.SetString("golfclub", "Spawn a golf club");
-	g_smMeleeTrans.SetString("shovel", "Spawn a shovel");
-	g_smMeleeTrans.SetString("pitchfork", "Spawn a pitchfork");
-	g_smMeleeTrans.SetString("riotshield", "Spawn a shield");
-	g_smMeleeTrans.SetString("riot_shield", "Spawn a shield");
+		g_smMeleeTrans.SetString("fireaxe", "Spawn a fire axe");
+		g_smMeleeTrans.SetString("frying_pan", "Spawn a frying pan");
+		g_smMeleeTrans.SetString("machete", "Spawn a machete");
+		g_smMeleeTrans.SetString("baseball_bat", "Spawn a baseball bat");
+		g_smMeleeTrans.SetString("crowbar", "Spawn a crowbar");
+		g_smMeleeTrans.SetString("cricket_bat", "Spawn a cricket bat");
+		g_smMeleeTrans.SetString("tonfa", "Spawn a police baton");
+		g_smMeleeTrans.SetString("katana", "Spawn a katana");
+		g_smMeleeTrans.SetString("electric_guitar", "Spawn an electric guitar");
+		g_smMeleeTrans.SetString("knife", "Spawn a knife");
+		g_smMeleeTrans.SetString("golfclub", "Spawn a golf club");
+		g_smMeleeTrans.SetString("shovel", "Spawn a shovel");
+		g_smMeleeTrans.SetString("pitchfork", "Spawn a pitchfork");
+		g_smMeleeTrans.SetString("riotshield", "Spawn a shield");
+		g_smMeleeTrans.SetString("riot_shield", "Spawn a shield");
+	}
 }
 
-public void OnMapStart() {
-	// Precache uncommon infected models
-	PrecacheModel("models/infected/common_male_riot.mdl", true);
-	PrecacheModel("models/infected/common_male_ceda.mdl", true);
-	PrecacheModel("models/infected/common_male_clown.mdl", true);
-	PrecacheModel("models/infected/common_male_mud.mdl", true);
-	PrecacheModel("models/infected/common_male_roadcrew.mdl", true);
-	PrecacheModel("models/infected/common_male_jimmy.mdl", true);
-	PrecacheModel("models/infected/common_male_fallen_survivor.mdl", true);
-
-	PrecacheModel(MODEL_AMMO_L4D2, true);
-
-	int max = MAX_WEAPONS2;
-	for( int i = 0; i < max; i++ )
+public void OnMapStart() 
+{
+	if(g_bL4D2Version)
 	{
-		PrecacheModel(g_sWeaponModels2[i], true);
+		// Precache uncommon infected models
+		PrecacheModel("models/infected/common_male_riot.mdl", true);
+		PrecacheModel("models/infected/common_male_ceda.mdl", true);
+		PrecacheModel("models/infected/common_male_clown.mdl", true);
+		PrecacheModel("models/infected/common_male_mud.mdl", true);
+		PrecacheModel("models/infected/common_male_roadcrew.mdl", true);
+		PrecacheModel("models/infected/common_male_jimmy.mdl", true);
+		PrecacheModel("models/infected/common_male_fallen_survivor.mdl", true);
+
+		PrecacheModel(MODEL_AMMO_L4D2, true);
+
+		int max = MAX_WEAPONS_L4D2;
+		for( int i = 0; i < max; i++ )
+		{
+			PrecacheModel(g_sWeaponModels_L4D2[i], true);
+		}
+
+		PrecacheModel(MODEL_GNOME, true);
+		PrecacheModel(MODEL_COLA, true);
+		
+		char mapbuf[32];
+		GetCurrentMap(mapbuf, sizeof(mapbuf));	
+		if(strcmp(mapbuf, "c6m1_riverbank") == 0)
+			g_bSpawnWitchBride = true;
+		else
+			g_bSpawnWitchBride = false;
+
+		CreateTimer(1.0, Timer_GetMeleeTable, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
-
-	PrecacheModel(MODEL_GNOME, true);
-	PrecacheModel(MODEL_COLA, true);
-	
-	char mapbuf[32];
-	GetCurrentMap(mapbuf, sizeof(mapbuf));	
-	if(strcmp(mapbuf, "c6m1_riverbank") == 0)
-		g_bSpawnWitchBride = true;
 	else
-		g_bSpawnWitchBride = false;
+	{
+		PrecacheModel(MODEL_AMMO_L4D1, true);
 
-	CreateTimer(1.0, Timer_GetMeleeTable, _, TIMER_FLAG_NO_MAPCHANGE);
+		int max = MAX_WEAPONS_L4D1;
+		for( int i = 0; i < max; i++ )
+		{
+			PrecacheModel(g_sWeaponModels_L4D1[i], true);
+		}
+	}
 }
 
 Action Timer_GetMeleeTable(Handle timer)
@@ -221,11 +276,15 @@ public void OnAdminMenuReady(Handle menu) {
 	// Assign the menus to global values so we can easily check what a menu is when it is chosen.
 	director_menu = AddToTopMenu(admin_menu, "a4d_director_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_director_menu", ADMFLAG_ROOT);
 	config_menu = AddToTopMenu(admin_menu, "a4d_config_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_config_menu", ADMFLAG_ROOT);
+	if(g_bL4D2Version)
+	{
+		spawn_melee_weapons_menu = AddToTopMenu(admin_menu, "a4d_spawn_melee_weapons_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_melee_weapons_menu", ADMFLAG_ROOT);
+		spawn_uncommon_infected_menu = AddToTopMenu(admin_menu, "a4d_spawn_uncommon_infected_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_uncommon_infected_menu", ADMFLAG_ROOT);
+	}
+
 	spawn_special_infected_menu = AddToTopMenu(admin_menu, "a4d_spawn_special_infected_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_special_infected_menu", ADMFLAG_ROOT);
-	spawn_melee_weapons_menu = AddToTopMenu(admin_menu, "a4d_spawn_melee_weapons_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_melee_weapons_menu", ADMFLAG_ROOT);
 	spawn_weapons_menu = AddToTopMenu(admin_menu, "a4d_spawn_weapons_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_weapons_menu", ADMFLAG_ROOT);
 	spawn_items_menu = AddToTopMenu(admin_menu, "a4d_spawn_items_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_items_menu", ADMFLAG_ROOT);
-	spawn_uncommon_infected_menu = AddToTopMenu(admin_menu, "a4d_spawn_uncommon_infected_menu", TopMenuObject_Item, Menu_TopItemHandler, a4d_menu, "a4d_spawn_uncommon_infected_menu", ADMFLAG_ROOT);
 }
 
 /// Handles the top level "All4Dead" category and how it is displayed on the core admin menu
@@ -274,7 +333,6 @@ int Menu_TopItemHandler(TopMenu topmenu, TopMenuAction action, TopMenuObject obj
 
 	return 0;
 }
-
 // Infected spawning functions
 
 /// Creates the infected spawning menu when it is selected from the top menu and displays it to the client.
@@ -294,40 +352,70 @@ void Menu_CreateSpecialInfectedMenu(int client) {
 	menu.AddItem("sb", Translate(client, "%t", "Spawn a boomer"));
 	menu.AddItem("sh", Translate(client, "%t", "Spawn a hunter"));
 	menu.AddItem("ss", Translate(client, "%t", "Spawn a smoker"));
-	menu.AddItem("sp", Translate(client, "%t", "Spawn a spitter"));
-	menu.AddItem("sj", Translate(client, "%t", "Spawn a jockey"));
-	menu.AddItem("sc", Translate(client, "%t", "Spawn a charger"));
+	if(g_bL4D2Version)
+	{
+		menu.AddItem("sp", Translate(client, "%t", "Spawn a spitter"));
+		menu.AddItem("sj", Translate(client, "%t", "Spawn a jockey"));
+		menu.AddItem("sc", Translate(client, "%t", "Spawn a charger"));
+	}
 	menu.AddItem("sb", Translate(client, "%t", "Spawn a mob"));
 	menu.DisplayAt(client, g_iSpecialInfectedMenuPosition[client], MENU_TIME_FOREVER);
 }
+
 /// Handles callbacks from a client using the spawning menu.
 int Menu_SpawnSInfectedHandler(Menu menu, MenuAction action, int cindex, int itempos) {
 	// When a player selects an item do this.		
 	if (action == MenuAction_Select) {
-		switch (itempos) {
-			case 0:
-				if (automatic_placement) 
-					Do_EnableAutoPlacement(cindex, false); 
-				else
-					Do_EnableAutoPlacement(cindex, true);
-			case 1:
-				Do_SpawnInfected(cindex, "tank");
-			case 2:
-				Do_SpawnWitch(cindex, automatic_placement);
-			case 3:
-				Do_SpawnInfected(cindex, "boomer");
-			case 4:
-				Do_SpawnInfected(cindex, "hunter");
-			case 5:
-				Do_SpawnInfected(cindex, "smoker");
-			case 6:
-				Do_SpawnInfected(cindex, "spitter");
-			case 7:
-				Do_SpawnInfected(cindex, "jockey");
-			case 8:
-				Do_SpawnInfected(cindex, "charger");
-			case 9:
-				Do_SpawnInfected_Old(cindex, "mob", false);
+
+		if (g_bL4D2Version) 
+		{
+			switch (itempos) {
+				case 0:
+					if (automatic_placement) 
+						Do_EnableAutoPlacement(cindex, false); 
+					else
+						Do_EnableAutoPlacement(cindex, true);
+				case 1:
+					Do_SpawnInfected(cindex, "tank");
+				case 2:
+					Do_SpawnWitch(cindex, automatic_placement);
+				case 3:
+					Do_SpawnInfected(cindex, "boomer");
+				case 4:
+					Do_SpawnInfected(cindex, "hunter");
+				case 5:
+					Do_SpawnInfected(cindex, "smoker");
+				case 6:
+					Do_SpawnInfected(cindex, "spitter");
+				case 7:
+					Do_SpawnInfected(cindex, "jockey");
+				case 8:
+					Do_SpawnInfected(cindex, "charger");
+				case 9:
+					Do_SpawnInfected_Old(cindex, "mob", false);
+			}
+		}
+		else
+		{
+			switch (itempos) {
+				case 0:
+					if (automatic_placement) 
+						Do_EnableAutoPlacement(cindex, false); 
+					else
+						Do_EnableAutoPlacement(cindex, true);
+				case 1:
+					Do_SpawnInfected(cindex, "tank");
+				case 2:
+					Do_SpawnWitch(cindex, automatic_placement);
+				case 3:
+					Do_SpawnInfected(cindex, "boomer");
+				case 4:
+					Do_SpawnInfected(cindex, "hunter");
+				case 5:
+					Do_SpawnInfected(cindex, "smoker");
+				case 6:
+					Do_SpawnInfected_Old(cindex, "mob", false);
+			}
 		}
 		g_iSpecialInfectedMenuPosition[cindex] = menu.Selection;
 		// If none of the above matches show the menu again
@@ -475,7 +563,8 @@ void Do_SpawnInfected(int client, const char[] type)
 	
 	if(RealFreePlayersOnInfected())
 	{
-		Do_SpawnInfected_Old(client, type, false);
+		if (strcmp(type, "tank") == 0 && !L4D_HasPlayerControlledZombies())
+			Do_SpawnInfected_Old(client, type, false);
 		return;
 	}
 
@@ -487,19 +576,19 @@ void Do_SpawnInfected(int client, const char[] type)
 
 	int zombieclass;
 	if (strcmp(type, "tank") == 0)
-		zombieclass = 8;
+		zombieclass = ZC_TANK;
 	else if (strcmp(type, "smoker") == 0)
-		zombieclass = 1;
+		zombieclass = ZC_SMOKER;
 	else if (strcmp(type, "boomer") == 0)
-		zombieclass = 2;
+		zombieclass = ZC_BOOMER;
 	else if (strcmp(type, "hunter") == 0)
-		zombieclass = 3;
+		zombieclass = ZC_HUNTER;
 	else if (strcmp(type, "spitter") == 0)
-		zombieclass = 4;
+		zombieclass = ZC_SPITTER;
 	else if (strcmp(type, "jockey") == 0)
-		zombieclass = 5;
+		zombieclass = ZC_JOCKEY;
 	else if (strcmp(type, "charger") == 0)
-		zombieclass = 6;
+		zombieclass = ZC_CHARGER;
 
 	float vPos[3], vAng[3] = {0.0, 0.0, 0.0};
 	if (automatic_placement == true)
@@ -521,36 +610,33 @@ void Do_SpawnInfected(int client, const char[] type)
 	}
 
 	int bot = 0;
-	switch(zombieclass)
+	if(zombieclass == ZC_SMOKER)
 	{
-		case 1:
-		{
-			bot = NoLimit_CreateInfected("smoker", vPos, NULL_VECTOR);
-		}
-		case 2:
-		{
-			bot = NoLimit_CreateInfected("boomer", vPos, NULL_VECTOR);
-		}
-		case 3:
-		{
-			bot = NoLimit_CreateInfected("hunter", vPos, NULL_VECTOR);
-		}
-		case 4:
-		{
-			bot = NoLimit_CreateInfected("spitter", vPos, NULL_VECTOR);
-		}
-		case 5:
-		{
-			bot = NoLimit_CreateInfected("jockey", vPos, NULL_VECTOR);
-		}
-		case 6:
-		{
-			bot = NoLimit_CreateInfected("charger", vPos, NULL_VECTOR);
-		}
-		case 8:
-		{
-			bot = NoLimit_CreateInfected("tank", vPos, NULL_VECTOR);
-		}		
+		bot = NoLimit_CreateInfected("smoker", vPos, NULL_VECTOR);
+	} 
+	else if(zombieclass == ZC_BOOMER)
+	{
+		bot = NoLimit_CreateInfected("boomer", vPos, NULL_VECTOR);
+	}
+	else if(zombieclass == ZC_HUNTER)
+	{
+		bot = NoLimit_CreateInfected("hunter", vPos, NULL_VECTOR);
+	}
+	else if(g_bL4D2Version && zombieclass == ZC_SPITTER)
+	{
+		bot = NoLimit_CreateInfected("spitter", vPos, NULL_VECTOR);
+	}
+	else if(g_bL4D2Version && zombieclass == ZC_JOCKEY)
+	{
+		bot = NoLimit_CreateInfected("jockey", vPos, NULL_VECTOR);
+	}
+	else if(g_bL4D2Version && zombieclass == ZC_CHARGER)
+	{
+		bot = NoLimit_CreateInfected("charger", vPos, NULL_VECTOR);
+	}
+	else if(zombieclass == ZC_TANK)
+	{
+		bot = NoLimit_CreateInfected("tank", vPos, NULL_VECTOR);
 	}
 
 	if (bot > 0)
@@ -562,6 +648,12 @@ void Do_SpawnInfected(int client, const char[] type)
 		if (automatic_placement == false)
 		{
 			CreateTimer(0.15, Timer_CheckIfStuck, GetClientUserId(bot));
+		}
+
+		if (zombieclass == ZC_TANK && L4D_HasPlayerControlledZombies())
+		{
+			L4D2Direct_SetTankPassedCount(0);
+			L4D2Direct_TryOfferingTankBot(bot, true);
 		}
 	}
 	else
@@ -630,7 +722,7 @@ void Do_SpawnInfected_Old(int client, const char[] type, bool spawning_uncommon 
 		LogAction(client, -1, "[NOTICE]: (%L) has spawned a %s", client, type);
 		return;
 	} else {
-		StripAndExecuteClientCommand(client, "z_spawn_old", arguments);
+		StripAndExecuteClientCommand(client, sZSpawnCmd, arguments);
 	}
 	if(notify_players.BoolValue) CPrintToChatAll("%t", "has been spawned", client, type);
 	//else CPrintToChat(client, "%T", "has been spawned", client, client, type);
@@ -727,63 +819,103 @@ void Menu_CreateItemMenu(int client) {
 	menu.SetTitle(Translate(client, "%t", "Spawn Items"));
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
-	menu.AddItem("sd", Translate(client, "%t", "Spawn a defibrillator"));
-	menu.AddItem("sm", Translate(client, "%t", "Spawn a medkit"));
-	menu.AddItem("sp", Translate(client, "%t", "Spawn some pills"));
-	menu.AddItem("sa", Translate(client, "%t", "Spawn some adrenaline"));
-	menu.AddItem("sv", Translate(client, "%t", "Spawn a molotov"));
-	menu.AddItem("sb", Translate(client, "%t", "Spawn a pipe bomb"));
-	menu.AddItem("sb", Translate(client, "%t", "Spawn a bile jar"));
-	menu.AddItem("sg", Translate(client, "%t", "Spawn a gas tank"));
-	menu.AddItem("st", Translate(client, "%t", "Spawn a firework"));
-	menu.AddItem("so", Translate(client, "%t", "Spawn a propane tank"));
-	menu.AddItem("sa", Translate(client, "%t", "Spawn an oxygen tank"));
-	menu.AddItem("si", Translate(client, "%t", "Spawn an ammo pile"));
-	menu.AddItem("sn", Translate(client, "%t", "Spawn laser sight pack"));
-	menu.AddItem("se", Translate(client, "%t", "Spawn incendiary ammo"));
-	menu.AddItem("sf", Translate(client, "%t", "Spawn explosive ammo"));
-	menu.AddItem("sg", Translate(client, "%t", "Spawn a gnome"));
-	menu.AddItem("sh", Translate(client, "%t", "Spawn cola bottles"));
+	if (g_bL4D2Version)
+	{
+		menu.AddItem("sd", Translate(client, "%t", "Spawn a defibrillator"));
+		menu.AddItem("sm", Translate(client, "%t", "Spawn a medkit"));
+		menu.AddItem("sp", Translate(client, "%t", "Spawn some pills"));
+		menu.AddItem("sa", Translate(client, "%t", "Spawn some adrenaline"));
+		menu.AddItem("sv", Translate(client, "%t", "Spawn a molotov"));
+		menu.AddItem("sb", Translate(client, "%t", "Spawn a pipe bomb"));
+		menu.AddItem("sb", Translate(client, "%t", "Spawn a bile jar"));
+		menu.AddItem("sg", Translate(client, "%t", "Spawn a gas tank"));
+		menu.AddItem("st", Translate(client, "%t", "Spawn a firework"));
+		menu.AddItem("so", Translate(client, "%t", "Spawn a propane tank"));
+		menu.AddItem("sa", Translate(client, "%t", "Spawn an oxygen tank"));
+		menu.AddItem("si", Translate(client, "%t", "Spawn an ammo pile"));
+		menu.AddItem("sn", Translate(client, "%t", "Spawn laser sight pack"));
+		menu.AddItem("se", Translate(client, "%t", "Spawn incendiary ammo"));
+		menu.AddItem("sf", Translate(client, "%t", "Spawn explosive ammo"));
+		menu.AddItem("sg", Translate(client, "%t", "Spawn a gnome"));
+		menu.AddItem("sh", Translate(client, "%t", "Spawn cola bottles"));
+	}
+	else
+	{
+		menu.AddItem("s0", Translate(client, "%t", "Spawn a medkit"));
+		menu.AddItem("s1", Translate(client, "%t", "Spawn some pills"));
+		menu.AddItem("s2", Translate(client, "%t", "Spawn a molotov"));
+		menu.AddItem("s3", Translate(client, "%t", "Spawn a pipe bomb"));
+		menu.AddItem("s4", Translate(client, "%t", "Spawn a gas tank"));
+		menu.AddItem("s5", Translate(client, "%t", "Spawn a propane tank"));
+		menu.AddItem("s6", Translate(client, "%t", "Spawn an oxygen tank"));
+		menu.AddItem("s7", Translate(client, "%t", "Spawn an ammo pile"));
+	}
 	menu.DisplayAt( client, g_iItemMenuPosition[client], MENU_TIME_FOREVER);
 }
 /// Handles callbacks from a client using the spawn item menu.
 int Menu_SpawnItemsHandler(Menu menu, MenuAction action, int cindex, int itempos) {
 	if (action == MenuAction_Select) {
-		switch (itempos) {
-			case 0: {
-				Do_SpawnItem(cindex, "defibrillator");
-			} case 1: {
-				Do_SpawnItem(cindex, "first_aid_kit");
-			} case 2: {
-				Do_SpawnItem(cindex, "pain_pills");
-			} case 3: {
-				Do_SpawnItem(cindex, "adrenaline");
-			} case 4: {
-				Do_SpawnItem(cindex, "molotov");
-			} case 5: {
-				Do_SpawnItem(cindex, "pipe_bomb");
-			} case 6: {
-				Do_SpawnItem(cindex, "vomitjar");
-			} case 7: {
-				Do_SpawnItem(cindex, "gascan");
-			} case 8: {
-				Do_SpawnItem(cindex, "fireworkcrate");
-			} case 9: {
-				Do_SpawnItem(cindex, "propanetank");
-			} case 10: {
-				Do_SpawnItem(cindex, "oxygentank");
-			} case 11: {
-				Do_SpawnItem(cindex, "weapon_ammo_spawn");
-			} case 12: {
-				Do_SpawnItem(cindex, "upgrade_laser_sight");
-			} case 13: {
-				Do_SpawnItem(cindex, "weapon_upgradepack_incendiary");
-			} case 14: {
-				Do_SpawnItem(cindex, "weapon_upgradepack_explosive");	
-			} case 15: {
-				Do_SpawnItem(cindex, "gnome");	
-			} case 16: {
-				Do_SpawnItem(cindex, "cola_bottles");	
+
+		if (g_bL4D2Version)
+		{
+			switch (itempos) {
+				case 0: {
+					Do_SpawnItem(cindex, "defibrillator");
+				} case 1: {
+					Do_SpawnItem(cindex, "first_aid_kit");
+				} case 2: {
+					Do_SpawnItem(cindex, "pain_pills");
+				} case 3: {
+					Do_SpawnItem(cindex, "adrenaline");
+				} case 4: {
+					Do_SpawnItem(cindex, "molotov");
+				} case 5: {
+					Do_SpawnItem(cindex, "pipe_bomb");
+				} case 6: {
+					Do_SpawnItem(cindex, "vomitjar");
+				} case 7: {
+					Do_SpawnItem(cindex, "gascan");
+				} case 8: {
+					Do_SpawnItem(cindex, "fireworkcrate");
+				} case 9: {
+					Do_SpawnItem(cindex, "propanetank");
+				} case 10: {
+					Do_SpawnItem(cindex, "oxygentank");
+				} case 11: {
+					Do_SpawnItem(cindex, "weapon_ammo_spawn");
+				} case 12: {
+					Do_SpawnItem(cindex, "upgrade_laser_sight");
+				} case 13: {
+					Do_SpawnItem(cindex, "weapon_upgradepack_incendiary");
+				} case 14: {
+					Do_SpawnItem(cindex, "weapon_upgradepack_explosive");	
+				} case 15: {
+					Do_SpawnItem(cindex, "gnome");	
+				} case 16: {
+					Do_SpawnItem(cindex, "cola_bottles");	
+				}
+			}
+		}
+		else
+		{
+			switch (itempos) {
+				case 0: {
+					Do_SpawnItem(cindex, "first_aid_kit");
+				} case 1: {
+					Do_SpawnItem(cindex, "pain_pills");
+				} case 2: {
+					Do_SpawnItem(cindex, "molotov");
+				} case 3: {
+					Do_SpawnItem(cindex, "pipe_bomb");
+				} case 4: {
+					Do_SpawnItem(cindex, "gascan");
+				} case 5: {
+					Do_SpawnItem(cindex, "propanetank");
+				} case 6: {
+					Do_SpawnItem(cindex, "oxygentank");
+				} case 7: {
+					Do_SpawnItem(cindex, "weapon_ammo_spawn");
+				}
 			}
 		}
 		g_iItemMenuPosition[cindex] = menu.Selection;
@@ -844,7 +976,7 @@ void Do_SpawnItem(int client, const char[] type) {
 			}
 			Do_CreateEntity(client, "weapon_ammo_spawn", MODEL_AMMO_L4D2, location, false);
 		}
-		else if (strcmp(type, "upgrade_laser_sight", false) == 0)
+		else if (g_bL4D2Version && strcmp(type, "upgrade_laser_sight", false) == 0)
 		{
 			float location[3];
 			if (!Misc_TraceClientViewToLocation(client, location)) {
@@ -894,70 +1026,103 @@ void Menu_CreateWeaponMenu(int client) {
 	menu.SetTitle(Translate(client, "%t", "Spawn Weapons"));
 	menu.ExitBackButton = true;
 	menu.ExitButton = true;
-	
-	menu.AddItem("s1", Translate(client, "%t", "Spawn a pistol"));
-	menu.AddItem("s2", Translate(client, "%t", "Spawn a magnum"));
-	menu.AddItem("s3", Translate(client, "%t", "Spawn a pumpshotgun"));
-	menu.AddItem("s4", Translate(client, "%t", "Spawn a shotgun chrome"));
-	menu.AddItem("s5", Translate(client, "%t", "Spawn a sub machine gun"));
-	menu.AddItem("s6", Translate(client, "%t", "Spawn a silenced smg"));
-	menu.AddItem("s7", Translate(client, "%t", "Spawn a mp5"));
-	menu.AddItem("s8", Translate(client, "%t", "Spawn an assault rifle"));
-	menu.AddItem("s9", Translate(client, "%t", "Spawn a sg552 rifle"));
-	menu.AddItem("s0", Translate(client, "%t", "Spawn an AK74"));
-	menu.AddItem("sa", Translate(client, "%t", "Spawn a desert rifle"));
-	menu.AddItem("sb", Translate(client, "%t", "Spawn a shotgun spas"));
-	menu.AddItem("sc", Translate(client, "%t", "Spawn an auto shotgun"));
-	menu.AddItem("sd", Translate(client, "%t", "Spawn a hunting rifle"));
-	menu.AddItem("se", Translate(client, "%t", "Spawn a military sniper"));
-	menu.AddItem("sf", Translate(client, "%t", "Spawn a scout"));
-	menu.AddItem("sg", Translate(client, "%t", "Spawn an awp"));
-	menu.AddItem("sh", Translate(client, "%t", "Spawn a grenade launcher"));
-	menu.AddItem("si", Translate(client, "%t", "Spawn a m60"));
+
+	if(g_bL4D2Version)
+	{
+		menu.AddItem("s1", Translate(client, "%t", "Spawn a pistol"));
+		menu.AddItem("s2", Translate(client, "%t", "Spawn a magnum"));
+		menu.AddItem("s3", Translate(client, "%t", "Spawn a pumpshotgun"));
+		menu.AddItem("s4", Translate(client, "%t", "Spawn a shotgun chrome"));
+		menu.AddItem("s5", Translate(client, "%t", "Spawn a sub machine gun"));
+		menu.AddItem("s6", Translate(client, "%t", "Spawn a silenced smg"));
+		menu.AddItem("s7", Translate(client, "%t", "Spawn a mp5"));
+		menu.AddItem("s8", Translate(client, "%t", "Spawn an assault rifle"));
+		menu.AddItem("s9", Translate(client, "%t", "Spawn a sg552 rifle"));
+		menu.AddItem("s0", Translate(client, "%t", "Spawn an AK74"));
+		menu.AddItem("sa", Translate(client, "%t", "Spawn a desert rifle"));
+		menu.AddItem("sb", Translate(client, "%t", "Spawn a shotgun spas"));
+		menu.AddItem("sc", Translate(client, "%t", "Spawn an auto shotgun"));
+		menu.AddItem("sd", Translate(client, "%t", "Spawn a hunting rifle"));
+		menu.AddItem("se", Translate(client, "%t", "Spawn a military sniper"));
+		menu.AddItem("sf", Translate(client, "%t", "Spawn a scout"));
+		menu.AddItem("sg", Translate(client, "%t", "Spawn an awp"));
+		menu.AddItem("sh", Translate(client, "%t", "Spawn a grenade launcher"));
+		menu.AddItem("si", Translate(client, "%t", "Spawn a m60"));
+	}
+	else
+	{
+		menu.AddItem("s0", Translate(client, "%t", "Spawn a pistol"));
+		menu.AddItem("s1", Translate(client, "%t", "Spawn a pumpshotgun"));
+		menu.AddItem("s2", Translate(client, "%t", "Spawn a sub machine gun"));
+		menu.AddItem("s3", Translate(client, "%t", "Spawn an assault rifle"));
+		menu.AddItem("s4", Translate(client, "%t", "Spawn an auto shotgun"));
+		menu.AddItem("s5", Translate(client, "%t", "Spawn a hunting rifle"));
+	}
 	menu.DisplayAt( client,  g_iWeaponMenuPosition[client], MENU_TIME_FOREVER);
 }
 /// Handles callbacks from a client using the spawn weapon menu.
 int Menu_SpawnWeaponHandler(Menu menu, MenuAction action, int cindex, int itempos) {
 	if (action == MenuAction_Select) {
-		switch (itempos) {
-			case 0: {
-				Do_SpawnItem(cindex, "pistol");
-			} case 1: {
-				Do_SpawnItem(cindex, "pistol_magnum");
-			} case 2: {
-				Do_SpawnItem(cindex, "pumpshotgun");
-			} case 3: {
-				Do_SpawnItem(cindex, "shotgun_chrome");
-			} case 4: {
-				Do_SpawnItem(cindex, "smg");
-			} case 5: {
-				Do_SpawnItem(cindex, "smg_silenced");
-			} case 6: {
-				Do_SpawnItem(cindex, "smg_mp5"); 
-			} case 7: {
-				Do_SpawnItem(cindex, "rifle");
-			} case 8: {
-				Do_SpawnItem(cindex, "rifle_sg552");
-			} case 9: {
-				Do_SpawnItem(cindex, "rifle_ak47");
-			} case 10: {
-				Do_SpawnItem(cindex, "rifle_desert");
-			} case 11: {
-				Do_SpawnItem(cindex, "shotgun_spas");
-			} case 12: {
-				Do_SpawnItem(cindex, "autoshotgun");
-			} case 13: {
-				Do_SpawnItem(cindex, "hunting_rifle");
-			} case 14: {
-				Do_SpawnItem(cindex, "sniper_military");
-			} case 15: {
-				Do_SpawnItem(cindex, "sniper_scout");
-			} case 16: {
-				Do_SpawnItem(cindex, "sniper_awp");
-			} case 17: {
-				Do_SpawnItem(cindex, "grenade_launcher");
-			} case 18: {
-				Do_SpawnItem(cindex, "rifle_m60");
+		if(g_bL4D2Version)
+		{
+			switch (itempos) {
+				case 0: {
+					Do_SpawnItem(cindex, "pistol");
+				} case 1: {
+					Do_SpawnItem(cindex, "pistol_magnum");
+				} case 2: {
+					Do_SpawnItem(cindex, "pumpshotgun");
+				} case 3: {
+					Do_SpawnItem(cindex, "shotgun_chrome");
+				} case 4: {
+					Do_SpawnItem(cindex, "smg");
+				} case 5: {
+					Do_SpawnItem(cindex, "smg_silenced");
+				} case 6: {
+					Do_SpawnItem(cindex, "smg_mp5"); 
+				} case 7: {
+					Do_SpawnItem(cindex, "rifle");
+				} case 8: {
+					Do_SpawnItem(cindex, "rifle_sg552");
+				} case 9: {
+					Do_SpawnItem(cindex, "rifle_ak47");
+				} case 10: {
+					Do_SpawnItem(cindex, "rifle_desert");
+				} case 11: {
+					Do_SpawnItem(cindex, "shotgun_spas");
+				} case 12: {
+					Do_SpawnItem(cindex, "autoshotgun");
+				} case 13: {
+					Do_SpawnItem(cindex, "hunting_rifle");
+				} case 14: {
+					Do_SpawnItem(cindex, "sniper_military");
+				} case 15: {
+					Do_SpawnItem(cindex, "sniper_scout");
+				} case 16: {
+					Do_SpawnItem(cindex, "sniper_awp");
+				} case 17: {
+					Do_SpawnItem(cindex, "grenade_launcher");
+				} case 18: {
+					Do_SpawnItem(cindex, "rifle_m60");
+				}
+			}
+		}
+		else
+		{
+			switch (itempos) {
+				case 0: {
+					Do_SpawnItem(cindex, "pistol");
+				} case 1: {
+					Do_SpawnItem(cindex, "pumpshotgun");
+				} case 2: {
+					Do_SpawnItem(cindex, "smg");
+				} case 3: {
+					Do_SpawnItem(cindex, "rifle");
+				} case 4: {
+					Do_SpawnItem(cindex, "autoshotgun");
+				} case 5: {
+					Do_SpawnItem(cindex, "hunting_rifle");
+				}
 			}
 		}
 		g_iWeaponMenuPosition[cindex] = menu.Selection;

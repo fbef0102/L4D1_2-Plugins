@@ -3,6 +3,7 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * Apply to | 適用於
     ```
+    L4D1
     L4D2
     ```
 
@@ -22,7 +23,7 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
     3. [spawn_infected_nolimit](/spawn_infected_nolimit)
 
 * Directory Structure | 檔案結構
-	```php
+    ```php
     /
     ├── plugins/
     │   └── all4dead2.smx            # Compiled plugin | 已編譯的插件
@@ -34,48 +35,52 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * <details><summary>ConVar | 指令</summary>
 
-	* cfg/sourcemod/all4dead2.cfg
-		```php
+    * cfg/sourcemod/all4dead2.cfg
+        ```php
         // If 1, Announce changes to all players in game
         a4d_notify_players "1"
-		```
+        ```
 </details>
 
 * <details><summary>Command | 命令</summary>
 
-	* **Usage: a4d_spawn_infected <infected_type> (does not work for uncommon infected, use a4d_spawn_uinfected instead) (Adm required: ADMFLAG_ROOT)**
+    * **Spawn Special Infected (Adm required: ADMFLAG_ROOT)**
         ```php
         a4d_spawn_infected <zombie|mob|witch|tank|boomer|hunter|smoker|spitter|jockey|charger>
         ```
 
-	* **Usage: a4d_spawn_uinfected <uncommon_infected_type> (Adm required: ADMFLAG_ROOT)**
-        ```php
-        a4d_spawn_uinfected <riot|ceda|clown|mud|roadcrew|jimmy>
-        ``` 
-
-	* **Usage: a4d_spawn_item <item_type>, read more item [here](https://commands.gg/l4d2/give) (Adm required: ADMFLAG_ROOT)**
+    * **Spawn items and weapons, read more item and weapons [here](https://commands.gg/l4d2/give) (Adm required: ADMFLAG_ROOT)**
         ```php
         a4d_spawn_item <rifle|first_aid_kit|ammo....>
         a4d_spawn_weapon <rifle|first_aid_kit|ammo....>
         ``` 
 
-	* **This command forces the AI director to start a panic event (Adm required: ADMFLAG_ROOT)**
+    * **This command forces the AI director to start a panic event (Adm required: ADMFLAG_ROOT)**
         ```php
         a4d_force_panic
         ``` 
 
-	* **This command forces the AI director to start a panic event endlessly (Adm required: ADMFLAG_ROOT)**
+    * **This command forces the AI director to start a panic event endlessly (Adm required: ADMFLAG_ROOT)**
         ```php
         a4d_panic_forever
         ``` 
 
-	* **Usage: a4d_enable_notifications <0|1> (Adm required: ADMFLAG_ROOT)**
+    * **Enable or disable notifications (Adm required: ADMFLAG_ROOT)**
         ```php
         a4d_enable_notifications <0|1>
         ``` 
+
+    * (L4D2) **Spawn uncommon infected (Adm required: ADMFLAG_ROOT)**
+        ```php
+        a4d_spawn_uinfected <riot|ceda|clown|mud|roadcrew|jimmy>
+        ```
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v4.2 (2026-11-25)
+        * Support L4D1
+        * In versus/scavenge, Tanks spawned by this plugin will be passed to real infected players.
 
     * v4.1 (2026-11-12)
         * Update translation
@@ -134,11 +139,45 @@ Enables admins to have control over the AI Director and spawn all weapons, melee
 
 * <details><summary>指令中文介紹 (點我展開)</summary>
 
-	* cfg/sourcemod/all4dead2.cfg
-		```php
+    * cfg/sourcemod/all4dead2.cfg
+        ```php
         // 1=任何改變或生成會通知全體玩家, 0=不通知
         a4d_notify_players "1"
-		```
+        ```
+</details>
+
+* <details><summary>命令中文介紹 (點我展開)</summary>
+
+    * **生成特感 (權限: ADMFLAG_ROOT)**
+        ```php
+        a4d_spawn_infected <zombie|mob|witch|tank|boomer|hunter|smoker|spitter|jockey|charger>
+        ```
+
+    * **生成武器與物品，更多武器與物品代碼請看[這裡](https://commands.gg/l4d2/give) (權限: ADMFLAG_ROOT)**
+        ```php
+        a4d_spawn_item <rifle|first_aid_kit|ammo....>
+        a4d_spawn_weapon <rifle|first_aid_kit|ammo....>
+        ``` 
+
+    * **強制AI導演開始屍潮事件 (權限: ADMFLAG_ROOT)**
+        ```php
+        a4d_force_panic
+        ``` 
+
+    * **強制AI導演開始無限屍潮事件 (權限: ADMFLAG_ROOT)**
+        ```php
+        a4d_panic_forever
+        ``` 
+
+    * **啟用或停用通知 (權限: ADMFLAG_ROOT)**
+        ```php
+        a4d_enable_notifications <0|1>
+        ``` 
+
+    * (L4D2) **生成特殊一般感染者 (權限: ADMFLAG_ROOT)**
+        ```php
+        a4d_spawn_uinfected <riot|ceda|clown|mud|roadcrew|jimmy>
+        ```
 </details>
 
 
