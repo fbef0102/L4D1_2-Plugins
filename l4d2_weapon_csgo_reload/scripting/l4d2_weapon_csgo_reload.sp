@@ -5,9 +5,9 @@
 #include <sdktools>
 #include <dhooks>
 #include <left4dhooks>
-#include <sendproxy>  //https://github.com/jensewe/Left4SendProxy/releases
+#include <safeproxy>  //https://github.com/Mikusch/safeproxy/releases
 
-#define PLUGIN_VERSION	"2.7-2026/6/26"
+#define PLUGIN_VERSION	"2.8-2026/11/28"
 #define DEBUG 0
 
 public Plugin myinfo = 
@@ -363,25 +363,25 @@ public void OnConfigsExecuted()
 	SetWeaponMaxClip();
 }
 
-public void OnClientPutInServer(int iClient)
+public void OnClientPutInServer(int client)
 {
-	if (IsFakeClient(iClient))
+	if (IsFakeClient(client))
 		return;
 
 	if(g_bL4D2Version)
 	{
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_AssaultRifle);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_Smg);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_M60);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_HuntingRifle);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_SniperRifle);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D2_AmmoType_GrenadeLauncher);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D2_AmmoType_AssaultRifle);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D2_AmmoType_Smg);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D2_AmmoType_M60);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D2_AmmoType_HuntingRifle);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D2_AmmoType_SniperRifle);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client,  L4D2_AmmoType_GrenadeLauncher);
 	}
 	else
 	{
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D1_AmmoType_HuntingRifle);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D1_AmmoType_AssaultRifle);
-		SendProxy_HookEntity(iClient, "m_iAmmo", Prop_Int, OnSendAmmoDisplay, L4D1_AmmoType_Smg);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D1_AmmoType_HuntingRifle);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D1_AmmoType_AssaultRifle);
+		SafeProxy_SetPropCallback(client, "m_iAmmo", OnSendAmmoDisplay, client, L4D1_AmmoType_Smg);
 	}
 }
 
@@ -760,17 +760,18 @@ void OnNextFrameWeapon(int entityRef)
 
 //玩家死亡還是會繼續傳送
 //玩家在旁觀者或特感還是會繼續傳送
-Action OnSendAmmoDisplay(int client, const char[] sProp, int &iValue, int iElement, int iSendClient)
+//player: 實體, client: 接收者
+Action OnSendAmmoDisplay(int player, const char[] prop, int &value, int client, int element)
 {
 	if(!g_bCvarEnable || g_iCvarMagazineReloadType == 0) return Plugin_Continue;
 
-	if (client != iSendClient
-		|| iValue <= 0
+	if (player != client
+		|| value <= 0
 		|| GetClientTeam(client) != 2
 		|| !IsPlayerAlive(client))
 		return Plugin_Continue;
 
-	int ammoType = iElement;
+	int ammoType = element;
 	int iWeapon = GetPlayerWeaponSlot(client, 0);
 	if (iWeapon == -1 || GetEntData(iWeapon, g_iOffsetPrimaryAmmoType) != ammoType)
 		return Plugin_Continue;
@@ -794,7 +795,7 @@ Action OnSendAmmoDisplay(int client, const char[] sProp, int &iValue, int iEleme
 	}
 
 	g_iGlobalWeapon_FakeMagazineLeft[iWeapon] = new_ammo_display;
-	iValue = new_ammo_display;
+	value = new_ammo_display;
 	return Plugin_Changed;
 }
 

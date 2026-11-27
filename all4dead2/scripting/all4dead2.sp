@@ -140,7 +140,7 @@ static char g_sWeaponModels_L4D2[MAX_WEAPONS_L4D2][] =
 #define MODEL_GNOME			"models/props_junk/gnome.mdl"
 
 #define MODEL_AMMO_L4D2			"models/props/terror/ammo_stack.mdl"
-#define MODEL_AMMO_L4D1			"models/props_unique/spawn_apartment/coffeeammo.mdl "
+#define MODEL_AMMO_L4D1			"models/props_unique/spawn_apartment/coffeeammo.mdl"
 
 ArrayList
 	g_aMeleeScripts;
@@ -563,9 +563,19 @@ void Do_SpawnInfected(int client, const char[] type)
 	
 	if(RealFreePlayersOnInfected())
 	{
-		if (strcmp(type, "tank") == 0 && !L4D_HasPlayerControlledZombies())
+		if (strcmp(type, "tank") == 0)
+		{
+			if(!L4D_HasPlayerControlledZombies())
+			{
+				Do_SpawnInfected_Old(client, type, false);
+				return;
+			}
+		}
+		else
+		{
 			Do_SpawnInfected_Old(client, type, false);
-		return;
+			return;
+		}
 	}
 
 	if (GetClientCount(false) >= MaxClients)
@@ -974,7 +984,8 @@ void Do_SpawnItem(int client, const char[] type) {
 			if (!Misc_TraceClientViewToLocation(client, location)) {
 				GetClientAbsOrigin(client, location);
 			}
-			Do_CreateEntity(client, "weapon_ammo_spawn", MODEL_AMMO_L4D2, location, false);
+			if(g_bL4D2Version) Do_CreateEntity(client, "weapon_ammo_spawn", MODEL_AMMO_L4D2, location, false);
+			else Do_CreateEntity(client, "weapon_ammo_spawn", MODEL_AMMO_L4D1, location, false);
 		}
 		else if (g_bL4D2Version && strcmp(type, "upgrade_laser_sight", false) == 0)
 		{

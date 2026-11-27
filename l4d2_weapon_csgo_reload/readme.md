@@ -39,7 +39,7 @@
 
 * Require | 必要安裝
     1. [left4dhooks](https://forums.alliedmods.net/showthread.php?t=321696) 
-    2. [sendproxy](https://github.com/jensewe/Left4SendProxy/releases)
+    2. [safeproxy](https://github.com/Mikusch/safeproxy/releases)
 
 * <details><summary>ConVar | 指令</summary>
 
@@ -119,6 +119,9 @@
 </details>
 
 * <details><summary>Changelog | 版本日誌</summary>
+
+    * v2.8 (2026-11-27)
+        * Remove sendproxy, use safeproxy instead
 
     * v2.7 (2026-6-26)
         * Add gamedata for l4d1
